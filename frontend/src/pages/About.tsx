@@ -14,6 +14,7 @@ import {
   Calculator,
   MapPin,
   Info,
+  Github,
 } from 'lucide-react'
 import { getMetadata } from '../lib/api'
 import type { Metadata } from '../lib/types'
@@ -507,6 +508,38 @@ export default function About() {
               <BarChart3 className="w-5 h-5" />
               View Rankings
             </Link>
+          </section>
+
+          {/* Open Source */}
+          <section>
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/50 rounded-xl flex items-center justify-center">
+                <Github className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                Open Source
+              </h2>
+            </div>
+            <div className="space-y-4 text-gray-600 dark:text-gray-400">
+              <p className="leading-relaxed">
+                CollegeSafetyData is fully open source. Our data pipeline, methodology,
+                and this website are publicly available for review, audit, and contribution.
+              </p>
+              <p className="leading-relaxed">
+                We welcome collaboration from researchers, journalists, and developers
+                who want to improve campus safety transparency.
+              </p>
+              <a
+                href="https://github.com/kbdevopz/collegesafetydata-public"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300"
+              >
+                <Github className="w-4 h-4" />
+                <span>View on GitHub</span>
+                <ExternalLink className="w-4 h-4" />
+              </a>
+            </div>
           </section>
 
           {/* Resources */}

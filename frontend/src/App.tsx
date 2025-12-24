@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Outlet, Link, useLocation } from 'react-router-dom'
-import { BarChart3, GitCompare, Info, Shield, Sun, Moon, Monitor, Menu, X, Coffee, BookOpen } from 'lucide-react'
+import { BarChart3, GitCompare, Info, Shield, Sun, Moon, Monitor, Menu, X, Coffee, BookOpen, Github } from 'lucide-react'
 import { cn } from './lib/utils'
 import { useTheme } from './hooks/useTheme'
 
@@ -225,16 +225,29 @@ export default function App() {
               </Link>
             </p>
 
-            {/* Buy Me a Coffee */}
-            <a
-              href="https://buymeacoffee.com/karlisbaisden"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-white font-medium text-sm shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105"
-            >
-              <Coffee className="w-4 h-4 group-hover:animate-bounce" />
-              <span>Buy me a coffee</span>
-            </a>
+            <div className="flex items-center gap-4">
+              {/* GitHub */}
+              <a
+                href="https://github.com/kbdevopz/collegesafetydata-public"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+              >
+                <Github className="w-5 h-5" />
+                <span className="text-sm">Open Source</span>
+              </a>
+
+              {/* Buy Me a Coffee */}
+              <a
+                href="https://buymeacoffee.com/karlisbaisden"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-white font-medium text-sm shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105"
+              >
+                <Coffee className="w-4 h-4 group-hover:animate-bounce" />
+                <span>Buy me a coffee</span>
+              </a>
+            </div>
           </div>
         </div>
       </footer>
