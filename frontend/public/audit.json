@@ -1,0 +1,208 @@
+{
+  "generated_at": "2025-12-24T12:19:34.920917",
+  "overall_status": "WARNING",
+  "summary": {
+    "total_checks": 7,
+    "passed": 6,
+    "failed": 0,
+    "warnings": 1
+  },
+  "checks": [
+    {
+      "name": "School Completeness",
+      "status": "PASS",
+      "details": {
+        "schools_in_facts": 8683,
+        "json_files_generated": 8683,
+        "missing_json": 0,
+        "extra_json": 0
+      },
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "Incident Total Accuracy",
+      "status": "PASS",
+      "details": {
+        "schools_validated": 8683,
+        "variances_found": 0,
+        "schools_with_variance": 0
+      },
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "FTE Coverage",
+      "status": "PASS",
+      "details": {
+        "by_year": [
+          {
+            "year": 2015,
+            "schools_with_data": 4749,
+            "schools_with_fte": 7228,
+            "coverage_pct": 152.2
+          },
+          {
+            "year": 2016,
+            "schools_with_data": 4662,
+            "schools_with_fte": 6819,
+            "coverage_pct": 146.3
+          },
+          {
+            "year": 2017,
+            "schools_with_data": 4697,
+            "schools_with_fte": 6676,
+            "coverage_pct": 142.1
+          },
+          {
+            "year": 2018,
+            "schools_with_data": 4533,
+            "schools_with_fte": 6352,
+            "coverage_pct": 140.1
+          },
+          {
+            "year": 2019,
+            "schools_with_data": 4362,
+            "schools_with_fte": 6179,
+            "coverage_pct": 141.7
+          },
+          {
+            "year": 2020,
+            "schools_with_data": 3812,
+            "schools_with_fte": 6129,
+            "coverage_pct": 160.8
+          },
+          {
+            "year": 2021,
+            "schools_with_data": 3958,
+            "schools_with_fte": 6050,
+            "coverage_pct": 152.9
+          },
+          {
+            "year": 2022,
+            "schools_with_data": 4003,
+            "schools_with_fte": 5979,
+            "coverage_pct": 149.4
+          },
+          {
+            "year": 2023,
+            "schools_with_data": 3928,
+            "schools_with_fte": 5914,
+            "coverage_pct": 150.6
+          }
+        ],
+        "overall_coverage_pct": 148.1
+      },
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "Rate Calculation Accuracy",
+      "status": "PASS",
+      "details": {
+        "schools_with_rates_checked": 415234,
+        "rate_errors": 0
+      },
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "Ranking Order Validation",
+      "status": "PASS",
+      "details": {
+        "groups_validated": 8103,
+        "order_violations": 0
+      },
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "Percentage Sum Validation",
+      "status": "WARNING",
+      "details": {
+        "groups_validated": 8103,
+        "severe_errors": 0,
+        "rounding_warnings": 1
+      },
+      "errors": [],
+      "warnings": [
+        "Found 1 groups with acceptable rounding variance"
+      ]
+    },
+    {
+      "name": "Source Traceability",
+      "status": "PASS",
+      "details": {
+        "fact_table_total": 11360875,
+        "aggregate_total": 6540614,
+        "variance": -4820261,
+        "by_year": [
+          {
+            "year": 2015,
+            "total_incidents": 1852017.0,
+            "agg_total": 1071361,
+            "variance": -780656.0
+          },
+          {
+            "year": 2016,
+            "total_incidents": 1774114.0,
+            "agg_total": 1023729,
+            "variance": -750385.0
+          },
+          {
+            "year": 2017,
+            "total_incidents": 1689804.0,
+            "agg_total": 977029,
+            "variance": -712775.0
+          },
+          {
+            "year": 2018,
+            "total_incidents": 1567068.0,
+            "agg_total": 905285,
+            "variance": -661783.0
+          },
+          {
+            "year": 2019,
+            "total_incidents": 1468512.0,
+            "agg_total": 837905,
+            "variance": -630607.0
+          },
+          {
+            "year": 2020,
+            "total_incidents": 959309.0,
+            "agg_total": 547138,
+            "variance": -412171.0
+          },
+          {
+            "year": 2021,
+            "total_incidents": 1006612.0,
+            "agg_total": 576643,
+            "variance": -429969.0
+          },
+          {
+            "year": 2022,
+            "total_incidents": 689616.0,
+            "agg_total": 399092,
+            "variance": -290524.0
+          },
+          {
+            "year": 2023,
+            "total_incidents": 353823.0,
+            "agg_total": 202432,
+            "variance": -151391.0
+          }
+        ]
+      },
+      "errors": [],
+      "warnings": [
+        "Fact totals differ from aggregate totals (expected due to geo aggregation)"
+      ]
+    }
+  ],
+  "schools": {
+    "total": 8683,
+    "passed": 8658,
+    "failed": 0,
+    "warnings": 25
+  }
+}
