@@ -26,6 +26,7 @@ import {
   transformTrendsForChart,
   getTopOffenses,
   calculateYoYChange,
+  isSmallSample,
 } from '../lib/utils'
 import { useTheme } from '../hooks/useTheme'
 
@@ -37,6 +38,7 @@ export default function SchoolProfile() {
   const [error, setError] = useState<string | null>(null)
   const [selectedYear, setSelectedYear] = useState<number | null>(null)
   const [selectedOffense, setSelectedOffense] = useState<string>('all')
+  const [showRate, setShowRate] = useState(false)
 
   useEffect(() => {
     if (!unitid) return
@@ -112,6 +114,21 @@ export default function SchoolProfile() {
       return offenseData?.count || 0
     }
   }, [profile, selectedYear, selectedOffense])
+
+  // Get FTE for selected year (from fteByYear or fallback to latest fte)
+  const selectedYearFte = useMemo(() => {
+    if (!profile || !selectedYear) return null
+    if (profile.fteByYear && profile.fteByYear[selectedYear.toString()]) {
+      return profile.fteByYear[selectedYear.toString()]
+    }
+    return profile.fte
+  }, [profile, selectedYear])
+
+  // Calculate rate per 10k students for selected year
+  const selectedYearRate = useMemo(() => {
+    if (!selectedYearFte || selectedYearFte <= 0) return null
+    return (selectedYearTotal / selectedYearFte) * 10000
+  }, [selectedYearTotal, selectedYearFte])
 
   // Get top offense for selected year
   const selectedYearTopOffense = useMemo(() => {
@@ -317,6 +334,40 @@ export default function SchoolProfile() {
                 Clear filter
               </button>
             )}
+
+            {/* Rate Toggle */}
+            <div className="flex items-center gap-1 ml-auto">
+              <span className="text-sm text-gray-500 dark:text-gray-400 hidden sm:inline mr-1">View:</span>
+              <div className="flex gap-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
+                <button
+                  type="button"
+                  onClick={() => setShowRate(false)}
+                  className={cn(
+                    'px-3 py-1 text-sm font-medium rounded-md transition-colors',
+                    !showRate
+                      ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm'
+                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
+                  )}
+                >
+                  Total
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowRate(true)}
+                  disabled={!selectedYearFte}
+                  title={!selectedYearFte ? 'FTE data not available for this school' : 'Show rate per 10,000 students'}
+                  className={cn(
+                    'px-3 py-1 text-sm font-medium rounded-md transition-colors',
+                    showRate
+                      ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm'
+                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100',
+                    !selectedYearFte && 'opacity-50 cursor-not-allowed'
+                  )}
+                >
+                  Rate
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -328,11 +379,28 @@ export default function SchoolProfile() {
           <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 p-6 transition-all duration-300">
             <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">
               {selectedOffense === 'all' ? 'Total Incidents' : selectedOffense} ({selectedYear})
+              {showRate && ' - Rate'}
             </div>
             <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-              {formatNumber(selectedYearTotal)}
+              {showRate ? (
+                selectedYearRate !== null ? (
+                  <>
+                    {selectedYearRate.toFixed(1)}
+                    <span className="text-lg font-normal text-gray-500 dark:text-gray-400 ml-1">
+                      per 10k
+                    </span>
+                    {isSmallSample(selectedYearFte, selectedYearTotal) && (
+                      <span className="text-amber-500 ml-1" title="Small sample size">*</span>
+                    )}
+                  </>
+                ) : (
+                  <span className="text-gray-400">N/A</span>
+                )
+              ) : (
+                formatNumber(selectedYearTotal)
+              )}
             </div>
-            {selectedYearYoYChange && (
+            {!showRate && selectedYearYoYChange && (
               <div
                 className={cn(
                   'flex items-center gap-1 text-sm mt-1',
@@ -346,6 +414,11 @@ export default function SchoolProfile() {
                 )}
                 {selectedYearYoYChange.absolute > 0 ? '+' : ''}
                 {formatNumber(selectedYearYoYChange.absolute)} from {selectedYear && selectedYear - 1}
+              </div>
+            )}
+            {showRate && selectedYearFte && (
+              <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                Based on {formatNumber(selectedYearFte)} FTE
               </div>
             )}
           </div>
@@ -380,6 +453,21 @@ export default function SchoolProfile() {
             <div className="text-sm text-gray-600 dark:text-gray-400">Categories with incidents</div>
           </div>
         </div>
+
+        {/* Rate Info Banner */}
+        {showRate && (
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
+            <div className="flex items-center gap-2 text-sm text-blue-700 dark:text-blue-300">
+              <Users className="w-4 h-4 flex-shrink-0" />
+              <span>
+                <strong>Rate view:</strong> Incidents per 10,000 full-time equivalent (FTE) students.
+                {isSmallSample(selectedYearFte, selectedYearTotal) && (
+                  <span className="ml-1">* indicates small sample size (FTE &lt; 1,000 or incidents &lt; 10).</span>
+                )}
+              </span>
+            </div>
+          </div>
+        )}
 
         {/* No Data Message */}
         {!hasDataForSelection && selectedOffense !== 'all' && (
