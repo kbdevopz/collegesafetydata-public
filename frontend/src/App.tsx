@@ -3,6 +3,7 @@ import { Outlet, Link, useLocation } from 'react-router-dom'
 import { BarChart3, GitCompare, Info, Shield, Sun, Moon, Monitor, Menu, X, Coffee, BookOpen, Github } from 'lucide-react'
 import { cn } from './lib/utils'
 import { useTheme } from './hooks/useTheme'
+import ErrorBoundary from './components/ErrorBoundary'
 
 export default function App() {
   const location = useLocation()
@@ -158,7 +159,9 @@ export default function App() {
 
       {/* Main Content */}
       <main className="flex-1">
-        <Outlet />
+        <ErrorBoundary>
+          <Outlet />
+        </ErrorBoundary>
       </main>
 
       {/* Footer */}

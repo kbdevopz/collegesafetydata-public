@@ -50,7 +50,7 @@ export default function SchoolProfile() {
         // Default to latest year
         setSelectedYear(data.summary.latestYear)
       })
-      .catch((err) => setError(err.message))
+      .catch(() => setError('Failed to load school data. Please try again.'))
       .finally(() => setLoading(false))
   }, [unitid])
 

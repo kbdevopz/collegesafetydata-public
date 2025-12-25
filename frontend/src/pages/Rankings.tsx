@@ -69,7 +69,7 @@ export default function Rankings() {
   useEffect(() => {
     getMetadata()
       .then(setMetadata)
-      .catch((err) => setError(err.message))
+      .catch(() => setError('Failed to load data. Please try again.'))
   }, [])
 
   // Load rankings when filters change
@@ -87,8 +87,8 @@ export default function Rankings() {
         setTotals(data.totals)
         setLoading(false)
       })
-      .catch((err) => {
-        setError(err.message)
+      .catch(() => {
+        setError('Failed to load data. Please try again.')
         setLoading(false)
       })
   }, [selectedPreset, selectedYear, selectedOffense, metadata])

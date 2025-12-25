@@ -67,7 +67,7 @@ export default function Compare() {
               setSchools(ivyPreset.schools)
             }
           })
-          .catch((err) => setError(err.message))
+          .catch(() => setError('Failed to load schools. Please try again.'))
       })
   }, [])
 
@@ -95,8 +95,8 @@ export default function Compare() {
         setProfiles(results)
         setLoading(false)
       })
-      .catch((err) => {
-        setError(err.message)
+      .catch(() => {
+        setError('Failed to load comparison data. Please try again.')
         setLoading(false)
       })
   }, [selectedIds])
