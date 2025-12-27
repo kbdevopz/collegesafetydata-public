@@ -7,6 +7,7 @@ import SchoolProfile from './pages/SchoolProfile'
 import Compare from './pages/Compare'
 import About from './pages/About'
 import Methodology from './pages/Methodology'
+import Contact from './pages/Contact'
 import './index.css'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
@@ -19,6 +20,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
           <Route path="compare" element={<Compare />} />
           <Route path="about" element={<About />} />
           <Route path="methodology" element={<Methodology />} />
+          <Route path="contact" element={<Contact />} />
         </Route>
       </Routes>
     </BrowserRouter>

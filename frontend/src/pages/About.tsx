@@ -15,6 +15,7 @@ import {
   MapPin,
   Info,
   Github,
+  Mail,
 } from 'lucide-react'
 import { getMetadata } from '../lib/api'
 import type { Metadata } from '../lib/types'
@@ -590,6 +591,41 @@ export default function About() {
                   </div>
                 </a>
               ))}
+            </div>
+          </section>
+
+          {/* Contact & Feedback */}
+          <section>
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/50 rounded-xl flex items-center justify-center">
+                <Mail className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                Contact & Feedback
+              </h2>
+            </div>
+            <div className="space-y-4 text-gray-600 dark:text-gray-400">
+              <p className="leading-relaxed">
+                We welcome feedback, bug reports, and collaboration inquiries from researchers, journalists, and the public.
+              </p>
+              <div className="flex flex-col gap-3">
+                <a
+                  href="mailto:contact@collegesafetydata.org"
+                  className="inline-flex items-center gap-2 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 transition-colors"
+                >
+                  <Mail className="w-5 h-5" />
+                  <span className="font-medium">contact@collegesafetydata.org</span>
+                </a>
+                <a
+                  href="https://github.com/kbdevopz/collegesafetydata-public/issues"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 transition-colors"
+                >
+                  <ExternalLink className="w-5 h-5" />
+                  <span className="font-medium">Report an issue on GitHub</span>
+                </a>
+              </div>
             </div>
           </section>
         </div>

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Outlet, Link, useLocation } from 'react-router-dom'
-import { BarChart3, GitCompare, Info, Shield, Sun, Moon, Monitor, Menu, X, Coffee, BookOpen, Github } from 'lucide-react'
+import { BarChart3, GitCompare, Info, Shield, Sun, Moon, Monitor, Menu, X, Coffee, BookOpen, Github, Mail } from 'lucide-react'
 import { cn } from './lib/utils'
 import { useTheme } from './hooks/useTheme'
 import ErrorBoundary from './components/ErrorBoundary'
@@ -32,6 +32,7 @@ export default function App() {
     { path: '/compare', label: 'Compare', icon: GitCompare },
     { path: '/about', label: 'About', icon: Info },
     { path: '/methodology', label: 'Methodology', icon: BookOpen },
+    { path: '/contact', label: 'Contact', icon: Mail },
   ]
 
   return (
@@ -207,13 +208,32 @@ export default function App() {
               </ul>
             </div>
 
-            {/* Disclaimer */}
+            {/* Contact & Feedback */}
             <div>
-              <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">Data Disclaimer</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Reported incidents only — lower numbers may reflect reporting
-                differences, not greater safety. Not an official government website.
-              </p>
+              <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">
+                Contact & Feedback
+              </h3>
+              <ul className="space-y-2 text-sm">
+                <li>
+                  <a
+                    href="mailto:contact@collegesafetydata.org"
+                    className="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 hover:underline inline-flex items-center gap-1.5"
+                  >
+                    <Mail className="w-4 h-4" />
+                    contact@collegesafetydata.org
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://github.com/kbdevopz/collegesafetydata-public/issues"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 hover:underline"
+                  >
+                    Report a Bug
+                  </a>
+                </li>
+              </ul>
             </div>
           </div>
 
