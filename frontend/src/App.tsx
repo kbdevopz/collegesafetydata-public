@@ -246,6 +246,14 @@ export default function App() {
               <Link to="/about" className="text-primary-600 dark:text-primary-400 hover:underline">
                 Learn More
               </Link>
+              <span className="mx-2">&middot;</span>
+              <Link to="/privacy" className="text-primary-600 dark:text-primary-400 hover:underline">
+                Privacy
+              </Link>
+              <span className="mx-2">&middot;</span>
+              <Link to="/terms" className="text-primary-600 dark:text-primary-400 hover:underline">
+                Terms
+              </Link>
             </p>
 
             <div className="flex items-center gap-4">
