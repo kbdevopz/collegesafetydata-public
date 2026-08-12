@@ -1,9 +1,9 @@
 {
   "unitid": 246017002,
-  "name": "School 246017002",
+  "name": "Central Technology Center",
   "shortName": null,
-  "city": null,
-  "state": null,
+  "city": "Sapulpa",
+  "state": "OK",
   "ivyLeague": false,
   "isMainCampus": false,
   "campusType": "Branch Campus",
@@ -13,21 +13,44 @@
   },
   "summary": {
     "latestYear": 2023,
-    "totalIncidents": 0,
-    "topOffense": null,
-    "topOffenseCount": 0
+    "totalIncidents": 3,
+    "topOffense": "Burglary",
+    "topOffenseCount": 2
   },
-  "yearlyTotals": [],
-  "trends": [],
-  "breakdownByOffense": [],
+  "yearlyTotals": [
+    {
+      "year": 2023,
+      "total": 3
+    }
+  ],
+  "trends": [
+    {
+      "year": 2023,
+      "offense": "Burglary",
+      "offenseFamily": "Criminal",
+      "count": 2
+    },
+    {
+      "year": 2023,
+      "offense": "Drug Discipline",
+      "offenseFamily": "Disciplinary",
+      "count": 1
+    }
+  ],
+  "breakdownByOffense": [
+    {
+      "offense": "Burglary",
+      "count": 2
+    },
+    {
+      "offense": "Drug Discipline",
+      "count": 1
+    }
+  ],
   "breakdownByGeo": [
     {
       "geo": "On-campus",
       "count": 3
-    },
-    {
-      "geo": "Residence halls",
-      "count": 1
     }
   ]
 }

@@ -4,11 +4,11 @@
 
 **Live Site:** [collegesafetydata.org](https://collegesafetydata.org)
 
-This project provides free, public access to campus safety data for over 8,600 U.S. colleges and universities, covering 9 years of crime statistics (2015-2023). Data is sourced from the U.S. Department of Education and processed using an open, reproducible methodology.
+This project provides free, public access to campus safety data for over 8,100 U.S. colleges and universities, covering 9 years of crime statistics (2015-2023). Data is sourced from the U.S. Department of Education and processed using an open, reproducible methodology.
 
 ## Overview
 
-- **6,000+ Schools** — All U.S. institutions reporting Clery Act data
+- **8,100+ Schools** — All U.S. institutions reporting Clery Act data
 - **9 Years of Data** — 2015-2023 for consistent comparisons
 - **Transparent Methodology** — Full ETL pipeline is open source
 - **Rate-Based Rankings** — Per 10,000 FTE students for fair comparisons

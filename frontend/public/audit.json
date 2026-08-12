@@ -1,5 +1,5 @@
 {
-  "generated_at": "2025-12-24T12:19:34.920917",
+  "generated_at": "2026-08-12T09:26:11.019970",
   "overall_status": "WARNING",
   "summary": {
     "total_checks": 7,
@@ -12,8 +12,8 @@
       "name": "School Completeness",
       "status": "PASS",
       "details": {
-        "schools_in_facts": 8683,
-        "json_files_generated": 8683,
+        "schools_in_facts": 8135,
+        "json_files_generated": 8135,
         "missing_json": 0,
         "extra_json": 0
       },
@@ -24,7 +24,7 @@
       "name": "Incident Total Accuracy",
       "status": "PASS",
       "details": {
-        "schools_validated": 8683,
+        "schools_validated": 8135,
         "variances_found": 0,
         "schools_with_variance": 0
       },
@@ -38,60 +38,60 @@
         "by_year": [
           {
             "year": 2015,
-            "schools_with_data": 4749,
+            "schools_with_data": 4488,
             "schools_with_fte": 7228,
-            "coverage_pct": 152.2
+            "coverage_pct": 161.1
           },
           {
             "year": 2016,
-            "schools_with_data": 4662,
+            "schools_with_data": 4400,
             "schools_with_fte": 6819,
-            "coverage_pct": 146.3
+            "coverage_pct": 155.0
           },
           {
             "year": 2017,
-            "schools_with_data": 4697,
+            "schools_with_data": 4461,
             "schools_with_fte": 6676,
-            "coverage_pct": 142.1
+            "coverage_pct": 149.7
           },
           {
             "year": 2018,
-            "schools_with_data": 4533,
+            "schools_with_data": 4341,
             "schools_with_fte": 6352,
-            "coverage_pct": 140.1
+            "coverage_pct": 146.3
           },
           {
             "year": 2019,
-            "schools_with_data": 4362,
+            "schools_with_data": 4197,
             "schools_with_fte": 6179,
-            "coverage_pct": 141.7
+            "coverage_pct": 147.2
           },
           {
             "year": 2020,
-            "schools_with_data": 3812,
+            "schools_with_data": 3659,
             "schools_with_fte": 6129,
-            "coverage_pct": 160.8
+            "coverage_pct": 167.5
           },
           {
             "year": 2021,
-            "schools_with_data": 3958,
+            "schools_with_data": 3787,
             "schools_with_fte": 6050,
-            "coverage_pct": 152.9
+            "coverage_pct": 159.8
           },
           {
             "year": 2022,
-            "schools_with_data": 4003,
+            "schools_with_data": 3841,
             "schools_with_fte": 5979,
-            "coverage_pct": 149.4
+            "coverage_pct": 155.7
           },
           {
             "year": 2023,
-            "schools_with_data": 3928,
+            "schools_with_data": 3879,
             "schools_with_fte": 5914,
-            "coverage_pct": 150.6
+            "coverage_pct": 152.5
           }
         ],
-        "overall_coverage_pct": 148.1
+        "overall_coverage_pct": 154.7
       },
       "errors": [],
       "warnings": []
@@ -100,7 +100,7 @@
       "name": "Rate Calculation Accuracy",
       "status": "PASS",
       "details": {
-        "schools_with_rates_checked": 415234,
+        "schools_with_rates_checked": 419640,
         "rate_errors": 0
       },
       "errors": [],
@@ -110,7 +110,7 @@
       "name": "Ranking Order Validation",
       "status": "PASS",
       "details": {
-        "groups_validated": 8103,
+        "groups_validated": 8109,
         "order_violations": 0
       },
       "errors": [],
@@ -120,76 +120,76 @@
       "name": "Percentage Sum Validation",
       "status": "WARNING",
       "details": {
-        "groups_validated": 8103,
+        "groups_validated": 8109,
         "severe_errors": 0,
-        "rounding_warnings": 1
+        "rounding_warnings": 3
       },
       "errors": [],
       "warnings": [
-        "Found 1 groups with acceptable rounding variance"
+        "Found 3 groups with acceptable rounding variance"
       ]
     },
     {
       "name": "Source Traceability",
       "status": "PASS",
       "details": {
-        "fact_table_total": 11360875,
-        "aggregate_total": 6540614,
-        "variance": -4820261,
+        "fact_table_total": 4102378,
+        "aggregate_total": 2394066,
+        "variance": -1708312,
         "by_year": [
           {
             "year": 2015,
-            "total_incidents": 1852017.0,
-            "agg_total": 1071361,
-            "variance": -780656.0
+            "total_incidents": 614003.0,
+            "agg_total": 355078,
+            "variance": -258925.0
           },
           {
             "year": 2016,
-            "total_incidents": 1774114.0,
-            "agg_total": 1023729,
-            "variance": -750385.0
+            "total_incidents": 588210.0,
+            "agg_total": 340004,
+            "variance": -248206.0
           },
           {
             "year": 2017,
-            "total_incidents": 1689804.0,
-            "agg_total": 977029,
-            "variance": -712775.0
+            "total_incidents": 563508.0,
+            "agg_total": 327341,
+            "variance": -236167.0
           },
           {
             "year": 2018,
-            "total_incidents": 1567068.0,
-            "agg_total": 905285,
-            "variance": -661783.0
+            "total_incidents": 519059.0,
+            "agg_total": 301272,
+            "variance": -217787.0
           },
           {
             "year": 2019,
-            "total_incidents": 1468512.0,
-            "agg_total": 837905,
-            "variance": -630607.0
+            "total_incidents": 487784.0,
+            "agg_total": 281886,
+            "variance": -205898.0
           },
           {
             "year": 2020,
-            "total_incidents": 959309.0,
-            "agg_total": 547138,
-            "variance": -412171.0
+            "total_incidents": 316632.0,
+            "agg_total": 184745,
+            "variance": -131887.0
           },
           {
             "year": 2021,
-            "total_incidents": 1006612.0,
-            "agg_total": 576643,
-            "variance": -429969.0
+            "total_incidents": 334425.0,
+            "agg_total": 195499,
+            "variance": -138926.0
           },
           {
             "year": 2022,
-            "total_incidents": 689616.0,
-            "agg_total": 399092,
-            "variance": -290524.0
+            "total_incidents": 340010.0,
+            "agg_total": 202910,
+            "variance": -137100.0
           },
           {
             "year": 2023,
-            "total_incidents": 353823.0,
-            "agg_total": 202432,
-            "variance": -151391.0
+            "total_incidents": 338747.0,
+            "agg_total": 205331,
+            "variance": -133416.0
           }
         ]
       },
@@ -200,9 +200,9 @@
     }
   ],
   "schools": {
-    "total": 8683,
-    "passed": 8658,
+    "total": 8135,
+    "passed": 8127,
     "failed": 0,
-    "warnings": 25
+    "warnings": 8
   }
 }

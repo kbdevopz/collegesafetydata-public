@@ -410,7 +410,7 @@ export default function Methodology() {
             </div>
 
             <p className="text-gray-600 dark:text-gray-400 mb-6">
-              We maintain a comprehensive data quality audit that validates all 8,600+ schools in our dataset.
+              We maintain a comprehensive data quality audit that validates all 8,100+ schools in our dataset.
               The audit checks for data completeness, accuracy, and consistency.
             </p>
 
@@ -426,7 +426,7 @@ export default function Methodology() {
                   </p>
                   <div className="flex flex-wrap gap-4 text-sm text-primary-700 dark:text-primary-300">
                     <span>Format: <strong>JSON</strong></span>
-                    <span>Schools: <strong>8,683</strong></span>
+                    <span>Schools: <strong>8,135</strong></span>
                     <span>Last Updated: <strong>{metadata ? formatDate(metadata.lastUpdated) : 'Loading...'}</strong></span>
                   </div>
                 </div>

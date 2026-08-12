@@ -595,6 +595,7 @@ def generate_school_profiles() -> None:
     agg = pd.read_parquet(agg_path)
     schools_dir = JSON_DIR / "schools"
     schools_dir.mkdir(exist_ok=True)
+    generated_files = set()
 
     # Load institution dimension for school info
     dim_inst_path = CURATED_DIR / "dims" / "dim_institution.parquet"
@@ -759,6 +760,7 @@ def generate_school_profiles() -> None:
         filename = f"{unitid}.json"
         with open(schools_dir / filename, 'w') as f:
             json.dump(output, f, indent=2)
+        generated_files.add(filename)
 
         schools_generated += 1
         if is_ivy:
@@ -769,6 +771,13 @@ def generate_school_profiles() -> None:
         # Progress update for large batches
         if schools_generated % 500 == 0:
             print(f"  Generated {schools_generated} profiles...")
+
+    # Remove stale profiles for schools no longer in the fact table
+    stale = [p for p in schools_dir.glob("*.json") if p.name not in generated_files]
+    for p in stale:
+        p.unlink()
+    if stale:
+        print(f"  Removed {len(stale)} stale school profiles")
 
     print(f"\n  Generated {schools_generated} school profiles")
     print(f"    Ivy League: {ivy_count}")

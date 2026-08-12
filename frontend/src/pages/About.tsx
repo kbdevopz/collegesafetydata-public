@@ -346,7 +346,7 @@ export default function About() {
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
               <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-5">
-                <div className="text-3xl font-bold text-primary-600 dark:text-primary-400 mb-2">6,000+</div>
+                <div className="text-3xl font-bold text-primary-600 dark:text-primary-400 mb-2">8,100+</div>
                 <div className="text-sm font-medium text-gray-900 dark:text-gray-100">Schools Covered</div>
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">All U.S. colleges reporting Clery data</p>
               </div>

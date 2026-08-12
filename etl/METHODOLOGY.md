@@ -12,6 +12,16 @@ This document describes the data sources, calculation methods, and methodologica
 
 The Clery Act requires all postsecondary institutions participating in federal student aid programs to disclose campus crime statistics and security information annually.
 
+#### Release File Handling
+
+DOE publishes one data release per collection year, and each release contains
+the three most recent calendar years (for example, the 2025 release covers
+calendar years 2022-2024). Consecutive releases therefore overlap. Each
+calendar year in our dataset is sourced exclusively from the newest release
+that covers it, because later collections incorporate corrections that
+institutions made to previously submitted figures. Overlapping releases are
+never combined.
+
 ### Enrollment Data
 - **Source:** IPEDS (Integrated Postsecondary Education Data System)
 - **URL:** https://nces.ed.gov/ipeds/

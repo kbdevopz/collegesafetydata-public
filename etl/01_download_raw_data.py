@@ -1,29 +1,39 @@
 """
-Download Clery Act data files from DOE for 2015-2024.
+Download Clery Act data release zips from DOE.
 
-URL Pattern: https://ope.ed.gov/campussafety/datafiles/[YEAR]/Crime[YEAR].sas7bdat
-Alternative: CSV files available at same path with .csv extension
+The DOE download page (https://ope.ed.gov/campussafety/#/datafile/list) is an
+Angular SPA; files are served from its API:
+
+    https://ope.ed.gov/campussafety/api/dataFiles/file?fileName=Crime{RELEASE}{FMT}.zip
+
+IMPORTANT: Release zips are named by RELEASE year, not data year. Each release
+contains THREE calendar years of data (e.g. Crime2025SAS.zip covers calendar
+years 2022-2024, in files suffixed 222324). The transform step
+(02_transform_to_parquet.py) sources each calendar year from the newest
+release that covers it, so this script downloads the releases needed to cover
+DATA_YEARS at their newest.
 
 Usage:
-    python 01_download_raw_data.py
-    python 01_download_raw_data.py --year 2023
-    python 01_download_raw_data.py --csv  # Download CSV instead of SAS
+    python 01_download_raw_data.py                 # releases needed for DATA_YEARS
+    python 01_download_raw_data.py --release 2025  # a single release
+    python 01_download_raw_data.py --check         # list what's on disk
+    python 01_download_raw_data.py --force         # re-download existing zips
 
 Manual Fallback:
     If script fails, download manually from:
     https://ope.ed.gov/campussafety/#/datafile/list
 """
 
-import os
 import sys
 import argparse
+import zipfile
 import requests
 from pathlib import Path
 from tqdm import tqdm
 
 # Add parent to path for config import
 sys.path.insert(0, str(Path(__file__).parent))
-from config import RAW_DIR, DATA_YEARS, DOE_BASE_URL, DOE_DOWNLOAD_PAGE
+from config import RAW_DIR, DATA_YEARS, DOE_DOWNLOAD_PAGE, get_data_url
 
 
 def download_file(url: str, dest_path: Path, desc: str = "") -> bool:
@@ -32,11 +42,6 @@ def download_file(url: str, dest_path: Path, desc: str = "") -> bool:
     Returns True if successful, False otherwise.
     """
     try:
-        # First check if file exists and skip
-        if dest_path.exists():
-            print(f"  Already exists: {dest_path.name}")
-            return True
-
         # Stream download with progress
         response = requests.get(url, stream=True, timeout=60)
         response.raise_for_status()
@@ -66,76 +71,82 @@ def download_file(url: str, dest_path: Path, desc: str = "") -> bool:
         return False
 
 
-def download_year(year: int, file_type: str = "csv") -> bool:
+def needed_release_years() -> list[int]:
     """
-    Download crime data file for a given year.
-    Tries SAS format first, falls back to CSV.
-    Returns True if successful.
+    Release years whose zips are needed to cover DATA_YEARS at their newest.
+
+    Release r contains calendar years r-3..r-1, so the newest release covering
+    data year y is release y+3. Trailing releases that DOE has not published
+    yet will 404 and can be ignored - the years they would cover are still
+    present (unrevised) in the newest published release.
     """
-    year_dir = RAW_DIR / str(year)
-    year_dir.mkdir(parents=True, exist_ok=True)
+    return sorted({y + 3 for y in DATA_YEARS})
 
-    # Try primary format
-    if file_type == "sas":
-        sas_url = f"{DOE_BASE_URL}/{year}/Crime{year}.sas7bdat"
-        sas_path = year_dir / f"Crime{year}.sas7bdat"
 
-        print(f"\n{year}: Downloading SAS format...")
-        if download_file(sas_url, sas_path, f"Crime{year}.sas7bdat"):
-            print(f"  Downloaded: {sas_path.name}")
-            return True
+def extract_release(zip_path: Path) -> int:
+    """Extract a release zip flat into RAW_DIR. Returns number of files."""
+    with zipfile.ZipFile(zip_path) as zf:
+        zf.extractall(RAW_DIR)
+        return len(zf.namelist())
 
-    # Try CSV format (more reliable)
-    csv_url = f"{DOE_BASE_URL}/{year}/Crime{year}.csv"
-    csv_path = year_dir / f"Crime{year}.csv"
 
-    print(f"\n{year}: Downloading CSV format...")
-    if download_file(csv_url, csv_path, f"Crime{year}.csv"):
-        print(f"  Downloaded: {csv_path.name}")
+def download_release(release_year: int, file_type: str = "sas", force: bool = False) -> bool:
+    """
+    Download and extract the release zip for a given RELEASE year.
+    Returns True if the zip is present and extracted.
+    """
+    fmt = "SAS" if file_type.lower() == "sas" else file_type.upper()
+    zip_path = RAW_DIR / f"Crime{release_year}{fmt}.zip"
+
+    if zip_path.exists() and not force:
+        print(f"\n{release_year}: Already downloaded ({zip_path.name})")
+    else:
+        url = get_data_url(release_year, file_type)
+        print(f"\n{release_year}: Downloading {zip_path.name}...")
+        if not download_file(url, zip_path, zip_path.name):
+            print(f"  Could not download release {release_year}")
+            print(f"  (Releases not yet published by DOE will 404 - that is expected)")
+            return False
+        print(f"  Downloaded: {zip_path.name}")
+
+    try:
+        n = extract_release(zip_path)
+        print(f"  Extracted {n} files into {RAW_DIR}")
         return True
-
-    # Try alternative CSV naming
-    csv_url_alt = f"{DOE_BASE_URL}/{year}/crime{year}.csv"
-    if download_file(csv_url_alt, csv_path, f"crime{year}.csv"):
-        print(f"  Downloaded: {csv_path.name}")
-        return True
-
-    print(f"  Could not download {year} data")
-    print(f"  Try manual download from: {DOE_DOWNLOAD_PAGE}")
-    return False
+    except zipfile.BadZipFile:
+        print(f"  ERROR: {zip_path.name} is not a valid zip - deleting")
+        zip_path.unlink()
+        return False
 
 
-def check_existing_files() -> dict:
-    """Check which files already exist and their sizes."""
-    existing = {}
-    for year in DATA_YEARS:
-        year_dir = RAW_DIR / str(year)
-        if year_dir.exists():
-            files = list(year_dir.glob("*"))
-            if files:
-                existing[year] = [(f.name, f.stat().st_size) for f in files]
-    return existing
+def check_existing_files() -> None:
+    """List release zips and extracted SAS files on disk."""
+    zips = sorted(RAW_DIR.glob("Crime*.zip"))
+    sas = list(RAW_DIR.glob("*.sas7bdat"))
+    if zips:
+        print("\nRelease zips on disk:")
+        for z in zips:
+            size_mb = z.stat().st_size / (1024 * 1024)
+            print(f"  {z.name} ({size_mb:.1f} MB)")
+    else:
+        print("\nNo release zips found.")
+    print(f"\nExtracted SAS files: {len(sas)}")
 
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Download Clery Act crime data from DOE"
+        description="Download Clery Act crime data release zips from DOE"
     )
     parser.add_argument(
-        "--year",
+        "--release",
         type=int,
-        help="Download only a specific year"
+        help="Download only a specific RELEASE year (e.g. 2025 = calendar years 2022-24)"
     )
     parser.add_argument(
-        "--csv",
-        action="store_true",
-        default=True,
-        help="Download CSV format (default)"
-    )
-    parser.add_argument(
-        "--sas",
-        action="store_true",
-        help="Download SAS format instead of CSV"
+        "--format",
+        choices=["sas", "excel", "spss"],
+        default="sas",
+        help="File format to download (default: sas)"
     )
     parser.add_argument(
         "--check",
@@ -145,66 +156,47 @@ def main():
     parser.add_argument(
         "--force",
         action="store_true",
-        help="Re-download even if files exist"
+        help="Re-download even if zips exist"
     )
 
     args = parser.parse_args()
-    file_type = "sas" if args.sas else "csv"
 
     print("=" * 60)
     print("Clery Act Data Downloader")
     print("=" * 60)
-    print(f"Source: {DOE_BASE_URL}")
     print(f"Target: {RAW_DIR.absolute()}")
-    print(f"Format: {file_type.upper()}")
+    print(f"Format: {args.format.upper()}")
 
-    # Check existing files
     if args.check:
-        existing = check_existing_files()
-        if existing:
-            print("\nExisting files:")
-            for year, files in sorted(existing.items()):
-                for name, size in files:
-                    size_mb = size / (1024 * 1024)
-                    print(f"  {year}: {name} ({size_mb:.1f} MB)")
-        else:
-            print("\nNo existing files found.")
+        check_existing_files()
         return
-
-    # Handle force re-download
-    if args.force:
-        print("\nForce mode: Will re-download all files")
-        import shutil
-        for year in DATA_YEARS:
-            year_dir = RAW_DIR / str(year)
-            if year_dir.exists():
-                shutil.rmtree(year_dir)
 
     # Create raw directory
     RAW_DIR.mkdir(parents=True, exist_ok=True)
 
-    # Download
-    years_to_download = [args.year] if args.year else DATA_YEARS
+    # Ascending order so the newest release's ReadMe.txt wins on extract
+    releases = [args.release] if args.release else needed_release_years()
+
     successful = []
     failed = []
-
-    for year in years_to_download:
-        if download_year(year, file_type):
-            successful.append(year)
+    for release_year in releases:
+        if download_release(release_year, args.format, force=args.force):
+            successful.append(release_year)
         else:
-            failed.append(year)
+            failed.append(release_year)
 
     # Summary
     print("\n" + "=" * 60)
     print("Download Summary")
     print("=" * 60)
-    print(f"Successful: {len(successful)} years")
+    print(f"Successful: {len(successful)} releases")
     if successful:
-        print(f"  Years: {', '.join(map(str, successful))}")
+        print(f"  Releases: {', '.join(map(str, successful))}")
     if failed:
-        print(f"\nFailed: {len(failed)} years")
-        print(f"  Years: {', '.join(map(str, failed))}")
-        print(f"\nManual download: {DOE_DOWNLOAD_PAGE}")
+        print(f"\nUnavailable: {len(failed)} releases")
+        print(f"  Releases: {', '.join(map(str, failed))}")
+        print(f"  (Trailing releases DOE has not published yet are expected here)")
+        print(f"  Manual download: {DOE_DOWNLOAD_PAGE}")
 
     print("\n" + "-" * 60)
     print("Next steps:")

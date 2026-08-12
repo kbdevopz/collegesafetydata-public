@@ -30,7 +30,7 @@ from tqdm import tqdm
 
 # Add parent to path for config import
 sys.path.insert(0, str(Path(__file__).parent))
-from config import RAW_DIR, CURATED_DIR, IVY_UNITIDS, PROCESS_ALL_SCHOOLS
+from config import RAW_DIR, CURATED_DIR, IVY_UNITIDS, PROCESS_ALL_SCHOOLS, DATA_YEARS
 
 # =============================================================================
 # DOE FILE STRUCTURE MAPPING
@@ -89,6 +89,7 @@ FILE_YEAR_PATTERNS = {
     "192021": [2019, 2020, 2021],
     "202122": [2020, 2021, 2022],
     "212223": [2021, 2022, 2023],
+    "222324": [2022, 2023, 2024],
 }
 
 
@@ -112,11 +113,11 @@ def read_sas_file(filepath: Path) -> pd.DataFrame:
 
 def parse_filename(filename: str) -> Optional[Tuple[str, str, List[int]]]:
     """
-    Parse a DOE filename to extract geography, category, and years.
+    Parse a DOE filename to extract geography, category, release suffix, and years.
 
-    Returns: (geography, category, years_list) or None if not recognized
+    Returns: (geography, category, release_suffix, years_list) or None if not recognized
 
-    Example: "oncampuscrime212223.sas7bdat" -> ("oncampus", "crime", [2021, 2022, 2023])
+    Example: "oncampuscrime212223.sas7bdat" -> ("oncampus", "crime", "212223", [2021, 2022, 2023])
     """
     name = filename.lower().replace(".sas7bdat", "")
 
@@ -128,7 +129,7 @@ def parse_filename(filename: str) -> Optional[Tuple[str, str, List[int]]]:
                 if rest.startswith(cat):
                     year_suffix = rest[len(cat):]
                     if year_suffix in FILE_YEAR_PATTERNS:
-                        return (geo, cat, FILE_YEAR_PATTERNS[year_suffix])
+                        return (geo, cat, year_suffix, FILE_YEAR_PATTERNS[year_suffix])
 
     return None
 
@@ -220,7 +221,7 @@ def process_all_files(
     Returns: (facts_df, institutions_df)
     """
     if target_years is None:
-        target_years = list(range(2015, 2025))  # 2015-2024
+        target_years = list(DATA_YEARS)
 
     all_records = []
     all_institutions = []
@@ -229,17 +230,35 @@ def process_all_files(
     sas_files = list(RAW_DIR.glob("*.sas7bdat"))
     print(f"Found {len(sas_files)} SAS files in {RAW_DIR}")
 
-    # Collect all files to process (not just one per geo+cat)
-    files_to_process = []
+    # Each DOE release covers 3 calendar years, so consecutive releases overlap.
+    # Source each year ONLY from the newest release that covers it (later
+    # collections include institutions' corrections). Extracting the same year
+    # from multiple overlapping releases would double/triple-count incidents.
+    parsed_files = []
+    newest_release = {}  # year -> newest release suffix that covers it
     for f in sas_files:
         parsed = parse_filename(f.name)
         if parsed:
-            geo, cat, years = parsed
-            # Filter to target years
-            relevant_years = [y for y in years if y in target_years]
-            if relevant_years:
-                files_to_process.append((f, geo, cat, relevant_years))
+            geo, cat, suffix, years = parsed
+            parsed_files.append((f, geo, cat, suffix, years))
+            for year in years:
+                if year in target_years:
+                    newest_release[year] = max(newest_release.get(year, ""), suffix)
 
+    # Process newest releases first so institution info reflects current names
+    parsed_files.sort(key=lambda item: item[3], reverse=True)
+
+    files_to_process = []
+    for f, geo, cat, suffix, years in parsed_files:
+        relevant_years = [
+            y for y in years
+            if y in target_years and newest_release[y] == suffix
+        ]
+        if relevant_years:
+            files_to_process.append((f, geo, cat, relevant_years))
+
+    year_sources = {y: s for y, s in sorted(newest_release.items())}
+    print(f"Year -> release mapping: {year_sources}")
     print(f"Processing {len(files_to_process)} files...")
 
     for filepath, geo, category, years in tqdm(files_to_process, desc="Processing files"):
@@ -261,8 +280,10 @@ def process_all_files(
         if df.empty:
             continue
 
-        # Extract institution info (from first file that has it)
-        if not all_institutions and unitid_col in df.columns:
+        # Extract institution info from every file (files are processed newest
+        # release first, so the first occurrence of a school has current info;
+        # schools only present in older releases are still captured)
+        if unitid_col in df.columns:
             inst_cols = [c for c in ["UNITID_P", "INSTNM", "City", "State", "ZIP"] if c in df.columns]
             if inst_cols:
                 all_institutions.append(df[inst_cols].drop_duplicates())
@@ -282,7 +303,9 @@ def process_all_files(
     # Create DataFrames
     facts = pd.DataFrame(all_records)
 
-    # Dedupe - same offense at same school/year/geo should be summed
+    # Collapse to one row per school/year/offense/geo. Each year is sourced
+    # from exactly one release (see newest_release above), so this only merges
+    # rows within a single release - it cannot double-count across releases.
     facts = facts.groupby(
         ["year", "unitid", "offense", "offense_family", "geo"],
         as_index=False
@@ -291,10 +314,14 @@ def process_all_files(
     # Filter to target years
     facts = facts[facts["year"].isin(target_years)]
 
-    # Create institutions DataFrame
+    # Create institutions DataFrame - keep first occurrence per school
+    # (newest release first, so current names/addresses win)
     if all_institutions:
         institutions = pd.concat(all_institutions, ignore_index=True)
-        institutions = institutions.drop_duplicates()
+        if "UNITID_P" in institutions.columns:
+            institutions = institutions.drop_duplicates(subset=["UNITID_P"], keep="first")
+        else:
+            institutions = institutions.drop_duplicates()
     else:
         institutions = pd.DataFrame()
 
@@ -382,14 +409,14 @@ def main():
     print("=" * 60)
     print("DOE Campus Safety Data Transformation")
     print("=" * 60)
-    print(f"Target years: 2015-2024")
+    print(f"Target years: {min(DATA_YEARS)}-{max(DATA_YEARS)}")
     print(f"Processing mode: {'Ivy League only' if ivy_only else 'ALL SCHOOLS (nationwide)'}")
     print(f"Source: {RAW_DIR}")
 
     # Process all files
     facts, institutions = process_all_files(
         ivy_only=ivy_only,
-        target_years=list(range(2015, 2025))
+        target_years=list(DATA_YEARS)
     )
 
     # Save to parquet
