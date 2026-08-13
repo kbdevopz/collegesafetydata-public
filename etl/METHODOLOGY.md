@@ -7,7 +7,7 @@ This document describes the data sources, calculation methods, and methodologica
 ### Campus Crime Data
 - **Source:** U.S. Department of Education Campus Safety and Security Data
 - **URL:** https://ope.ed.gov/campussafety/
-- **Coverage:** 2015-2023
+- **Coverage:** 2015-2024
 - **Legal Basis:** Clery Act (20 U.S.C. § 1092(f))
 
 The Clery Act requires all postsecondary institutions participating in federal student aid programs to disclose campus crime statistics and security information annually.
@@ -26,14 +26,14 @@ never combined.
 - **Source:** IPEDS (Integrated Postsecondary Education Data System)
 - **URL:** https://nces.ed.gov/ipeds/
 - **Files Used:**
-  - DRVEF (Derived Fall Enrollment) for 2021-2023: Pre-calculated FTE
+  - DRVEF (Derived Fall Enrollment) for 2021-2024: Pre-calculated FTE (fall 2024 is provisional release data)
   - EF (Fall Enrollment) for 2015-2020: Calculated FTE from component data
 
 ## FTE (Full-Time Equivalent) Enrollment Calculation
 
 FTE is used as the denominator for calculating per-student crime rates, enabling fair comparisons between institutions of different sizes.
 
-### 2021-2023: Official IPEDS FTE
+### 2021-2024: Official IPEDS FTE
 For these years, we use the pre-calculated FTE values directly from IPEDS DRVEF files. These are the official values computed by NCES.
 
 ### 2015-2020: Calculated FTE Using Official IPEDS Factors

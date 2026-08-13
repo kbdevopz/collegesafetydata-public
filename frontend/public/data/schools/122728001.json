@@ -7,7 +7,7 @@
   "ivyLeague": false,
   "isMainCampus": true,
   "campusType": "Main Campus",
-  "fte": 1203,
+  "fte": 1670,
   "fteByYear": {
     "2015": 1020,
     "2016": 1173,
@@ -17,13 +17,14 @@
     "2020": 1656,
     "2021": 1449,
     "2022": 1387,
-    "2023": 1203
+    "2023": 1203,
+    "2024": 1670
   },
   "summary": {
-    "latestYear": 2023,
+    "latestYear": 2024,
     "totalIncidents": 4,
-    "topOffense": "Drug Arrest",
-    "topOffenseCount": 2
+    "topOffense": "Arson",
+    "topOffenseCount": 3
   },
   "yearlyTotals": [
     {
@@ -60,6 +61,10 @@
     },
     {
       "year": 2023,
+      "total": 4
+    },
+    {
+      "year": 2024,
       "total": 4
     }
   ],
@@ -273,21 +278,37 @@
       "offense": "Rape",
       "offenseFamily": "Criminal",
       "count": 2
+    },
+    {
+      "year": 2024,
+      "offense": "Arson",
+      "offenseFamily": "Criminal",
+      "count": 3
+    },
+    {
+      "year": 2024,
+      "offense": "Rape",
+      "offenseFamily": "Criminal",
+      "count": 1
     }
   ],
   "breakdownByOffense": [
     {
-      "offense": "Drug Arrest",
-      "count": 2
+      "offense": "Arson",
+      "count": 3
     },
     {
       "offense": "Rape",
-      "count": 2
+      "count": 1
     }
   ],
   "breakdownByGeo": [
     {
-      "geo": "Public property",
+      "geo": "On-campus",
+      "count": 2
+    },
+    {
+      "geo": "Residence halls",
       "count": 2
     },
     {
@@ -295,11 +316,7 @@
       "count": 1
     },
     {
-      "geo": "On-campus",
-      "count": 1
-    },
-    {
-      "geo": "Residence halls",
+      "geo": "Public property",
       "count": 1
     }
   ]

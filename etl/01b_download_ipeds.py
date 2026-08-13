@@ -1,17 +1,19 @@
 """
 Download IPEDS Fall Enrollment data files from NCES.
 
-URL Pattern: https://nces.ed.gov/ipeds/datacenter/data/{FILE}.zip
+URL Patterns (tried in order):
+- https://nces.ed.gov/ipeds/datacenter/data/{FILE}.zip          (final release)
+- https://nces.ed.gov/ipeds/complete-data-files/{FILE}.zip      (provisional release)
 Each ZIP contains CSV with enrollment data by UNITID.
 
 File Types:
-- DRVEF (Derived Fall Enrollment): Pre-calculated FTE, only 2021-2023
+- DRVEF (Derived Fall Enrollment): Pre-calculated FTE, 2021 onward
 - EF (Fall Enrollment): Raw enrollment by FT/PT status, all years
 - EFFY (12-month enrollment): Headcount only
 - HD (Directory): Institution names and metadata
 
 For FTE calculations:
-- 2021-2023: Use DRVEF (has pre-calculated FTE)
+- 2021 onward: Use DRVEF (has pre-calculated FTE)
 - 2015-2020: Use EF and calculate FTE = FT + (0.5 * PT)
 
 Usage:
@@ -30,18 +32,24 @@ from tqdm import tqdm
 
 # Add parent to path for config import
 sys.path.insert(0, str(Path(__file__).parent))
-from config import PROJECT_ROOT
+from config import PROJECT_ROOT, DATA_YEARS
 
 # IPEDS configuration
 IPEDS_RAW_DIR = PROJECT_ROOT / "data" / "raw" / "ipeds"
-IPEDS_BASE_URL = "https://nces.ed.gov/ipeds/datacenter/data"
+# Final-release files live at the datacenter path; PROVISIONAL complete data
+# files (e.g. DRVEF2024) are only served from /ipeds/complete-data-files/.
+# Try each base in order.
+IPEDS_BASE_URLS = [
+    "https://nces.ed.gov/ipeds/datacenter/data",
+    "https://nces.ed.gov/ipeds/complete-data-files",
+]
 
 # Years to download (match our crime data range)
-IPEDS_YEARS = list(range(2015, 2024))  # 2015-2023
+IPEDS_YEARS = list(DATA_YEARS)
 
 # Year ranges for different file types
-DRVEF_YEARS = [2021, 2022, 2023]  # DRVEF only available for these years
-EF_YEARS = [2015, 2016, 2017, 2018, 2019, 2020]  # Need EF for FTE calculation
+DRVEF_YEARS = [y for y in IPEDS_YEARS if y >= 2021]  # DRVEF (pre-calculated FTE) exists 2021+
+EF_YEARS = [y for y in IPEDS_YEARS if y <= 2020]     # Need EF for FTE calculation
 
 
 def get_files_for_year(year: int) -> list[str]:
@@ -138,12 +146,18 @@ def download_year(year: int, ef_only: bool = False) -> dict:
         files_to_download = [f for f in files_to_download if f.startswith("EF") and not f.startswith("EFFY")]
 
     for filename in files_to_download:
-        zip_url = f"{IPEDS_BASE_URL}/{filename}.zip"
         zip_path = year_dir / f"{filename}.zip"
 
         print(f"  Downloading {filename}.zip...")
 
-        if download_file(zip_url, zip_path, filename):
+        downloaded = False
+        for base_url in IPEDS_BASE_URLS:
+            zip_url = f"{base_url}/{filename}.zip"
+            if download_file(zip_url, zip_path, filename):
+                downloaded = True
+                break
+
+        if downloaded:
             # Extract the ZIP
             print(f"    Extracting...")
             if extract_zip(zip_path, year_dir):
@@ -199,7 +213,7 @@ def main():
     print("=" * 60)
     print("IPEDS Enrollment Data Downloader")
     print("=" * 60)
-    print(f"Source: {IPEDS_BASE_URL}")
+    print(f"Sources: {', '.join(IPEDS_BASE_URLS)}")
     print(f"Target: {IPEDS_RAW_DIR.absolute()}")
 
     if args.ef_only:

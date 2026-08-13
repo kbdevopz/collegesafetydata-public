@@ -2,7 +2,7 @@
 Transform IPEDS enrollment data into parquet format.
 
 Data Sources:
-- DRVEF (Derived Fall Enrollment) for 2021-2023: Pre-calculated FTE
+- DRVEF (Derived Fall Enrollment) for 2021 onward: Pre-calculated FTE
 - EF (Fall Enrollment) for 2015-2020: Calculate FTE from FT/PT breakdown
 
 Output columns:
@@ -26,14 +26,14 @@ from pathlib import Path
 
 # Add parent to path for config import
 sys.path.insert(0, str(Path(__file__).parent))
-from config import PROJECT_ROOT
+from config import PROJECT_ROOT, DATA_YEARS
 
 # Directories
 IPEDS_RAW_DIR = PROJECT_ROOT / "data" / "raw" / "ipeds"
 CURATED_DIR = PROJECT_ROOT / "data" / "curated" / "dims"
 
-# Years with DRVEF files available
-DRVEF_YEARS = [2021, 2022, 2023]
+# Years with DRVEF files available (IPEDS pre-calculated FTE, 2021 onward)
+DRVEF_YEARS = [y for y in DATA_YEARS if y >= 2021]
 
 
 def load_drvef_file(year: int) -> pd.DataFrame:
@@ -83,13 +83,13 @@ def main():
     print("IPEDS Enrollment Transform (Combined)")
     print("=" * 60)
     print("Sources:")
-    print("  - DRVEF files (2021-2023): Pre-calculated FTE")
+    print(f"  - DRVEF files ({min(DRVEF_YEARS)}-{max(DRVEF_YEARS)}): Pre-calculated FTE")
     print("  - EF files (2015-2020): Calculated FTE")
 
     all_data = []
 
-    # Load DRVEF files (2021-2023)
-    print("\n--- DRVEF Data (2021-2023) ---")
+    # Load DRVEF files (pre-calculated FTE years)
+    print(f"\n--- DRVEF Data ({min(DRVEF_YEARS)}-{max(DRVEF_YEARS)}) ---")
     for year in DRVEF_YEARS:
         print(f"\n{year}:")
         df = load_drvef_file(year)

@@ -304,7 +304,7 @@ OFFENSE_DESCRIPTIONS = {
 # DATA YEARS
 # =============================================================================
 
-DATA_YEARS = list(range(2015, 2024))  # 2015-2023 (FTE data only available through 2023)
+DATA_YEARS = list(range(2015, 2025))  # 2015-2024 (crime from DOE 2025 release; FTE from IPEDS provisional DRVEF2024)
 
 # =============================================================================
 # DOE DATA SOURCE URLS

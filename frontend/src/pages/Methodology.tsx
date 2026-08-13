@@ -76,7 +76,7 @@ export default function Methodology() {
                     <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-600 dark:text-gray-400 mb-3">
                       <span>Source: <strong className="text-gray-900 dark:text-gray-200">DOE OPE</strong></span>
                       <span>Legal Basis: <strong className="text-gray-900 dark:text-gray-200">Clery Act</strong></span>
-                      <span>Coverage: <strong className="text-gray-900 dark:text-gray-200">2015-2023</strong></span>
+                      <span>Coverage: <strong className="text-gray-900 dark:text-gray-200">2015-2024</strong></span>
                     </div>
                     <a
                       href="https://ope.ed.gov/campussafety/"
@@ -108,7 +108,7 @@ export default function Methodology() {
                       <div className="flex items-start gap-2">
                         <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
                         <span className="text-gray-600 dark:text-gray-400">
-                          <strong className="text-gray-900 dark:text-gray-200">2021-2023:</strong> IPEDS provides pre-calculated FTE values directly — we use the official published numbers.
+                          <strong className="text-gray-900 dark:text-gray-200">2021-2024:</strong> IPEDS provides pre-calculated FTE values directly — we use the official published numbers (fall 2024 is provisional release data).
                         </span>
                       </div>
                       <div className="flex items-start gap-2">
@@ -380,7 +380,7 @@ export default function Methodology() {
               <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
                 <h4 className="font-medium text-gray-900 dark:text-gray-100 text-sm mb-2">Reporting Lag</h4>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  DOE releases data ~1 year late. Current data contains 2015-2023 statistics.
+                  DOE releases data ~1 year late. Current data contains 2015-2024 statistics.
                 </p>
               </div>
               <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
@@ -426,7 +426,7 @@ export default function Methodology() {
                   </p>
                   <div className="flex flex-wrap gap-4 text-sm text-primary-700 dark:text-primary-300">
                     <span>Format: <strong>JSON</strong></span>
-                    <span>Schools: <strong>8,135</strong></span>
+                    <span>Schools: <strong>8,307</strong></span>
                     <span>Last Updated: <strong>{metadata ? formatDate(metadata.lastUpdated) : 'Loading...'}</strong></span>
                   </div>
                 </div>
@@ -481,7 +481,7 @@ export default function Methodology() {
               <div className="space-y-1 text-gray-700 dark:text-gray-300">
                 <div>etl/01_download_raw_data.py — Download DOE data</div>
                 <div>etl/01b_download_ipeds.py — Download IPEDS enrollment</div>
-                <div>etl/02a_transform_enrollment.py — Process DRVEF FTE (2021-2023)</div>
+                <div>etl/02a_transform_enrollment.py — Process DRVEF FTE (2021-2024)</div>
                 <div>etl/02b_transform_ef_enrollment.py — Calculate FTE from EF (2015-2020)</div>
                 <div>etl/03_transform_to_parquet.py — Transform crime data</div>
                 <div>etl/04_create_aggregates.py — Create aggregated tables</div>

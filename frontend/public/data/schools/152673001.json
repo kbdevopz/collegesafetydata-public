@@ -7,7 +7,7 @@
   "ivyLeague": false,
   "isMainCampus": true,
   "campusType": "Main Campus",
-  "fte": 842,
+  "fte": 866,
   "fteByYear": {
     "2015": 867,
     "2016": 842,
@@ -17,13 +17,14 @@
     "2020": 868,
     "2021": 838,
     "2022": 834,
-    "2023": 842
+    "2023": 842,
+    "2024": 866
   },
   "summary": {
-    "latestYear": 2023,
+    "latestYear": 2024,
     "totalIncidents": 3,
-    "topOffense": "Liquor Discipline",
-    "topOffenseCount": 2
+    "topOffense": "Liquor Arrest",
+    "topOffenseCount": 3
   },
   "yearlyTotals": [
     {
@@ -60,6 +61,10 @@
     },
     {
       "year": 2023,
+      "total": 3
+    },
+    {
+      "year": 2024,
       "total": 3
     }
   ],
@@ -291,26 +296,32 @@
       "offense": "Liquor Discipline",
       "offenseFamily": "Disciplinary",
       "count": 2
+    },
+    {
+      "year": 2024,
+      "offense": "Liquor Arrest",
+      "offenseFamily": "Arrest",
+      "count": 3
     }
   ],
   "breakdownByOffense": [
     {
-      "offense": "Liquor Discipline",
-      "count": 2
-    },
-    {
       "offense": "Liquor Arrest",
-      "count": 1
+      "count": 3
     }
   ],
   "breakdownByGeo": [
     {
-      "geo": "On-campus",
-      "count": 3
+      "geo": "Non-campus",
+      "count": 1
     },
     {
-      "geo": "Residence halls",
-      "count": 3
+      "geo": "On-campus",
+      "count": 1
+    },
+    {
+      "geo": "Public property",
+      "count": 1
     }
   ]
 }

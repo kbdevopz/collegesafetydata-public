@@ -103,7 +103,7 @@ export default function Rankings() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  // FTE data now available for all years (2015-2023)
+  // FTE data now available for all years (2015-2024)
   const canShowRate = true
 
   // Minimum FTE threshold for rate rankings (prevents small schools from dominating)
@@ -126,7 +126,7 @@ export default function Rankings() {
     return sortedRankings.slice(0, displayCount)
   }, [sortedRankings, displayCount])
 
-  // Check if rate data is available (only for 2021-2023)
+  // Check if rate data is available for the selected year
   const hasRateData = useMemo(() => {
     return rankings.some(r => r.rate !== null)
   }, [rankings])

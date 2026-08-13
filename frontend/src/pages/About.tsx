@@ -351,9 +351,9 @@ export default function About() {
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">All U.S. colleges reporting Clery data</p>
               </div>
               <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-5">
-                <div className="text-3xl font-bold text-primary-600 dark:text-primary-400 mb-2">9</div>
+                <div className="text-3xl font-bold text-primary-600 dark:text-primary-400 mb-2">10</div>
                 <div className="text-sm font-medium text-gray-900 dark:text-gray-100">Years of Data</div>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">2015-2023 for consistency</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">2015-2024 for consistency</p>
               </div>
               <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-5">
                 <div className="text-3xl font-bold text-primary-600 dark:text-primary-400 mb-2">1,000+</div>
@@ -434,7 +434,7 @@ export default function About() {
               <LimitationCard
                 icon={Clock}
                 title="Reporting Lag"
-                description="DOE releases data ~1 year late. '2024 data' contains 2021-2023 statistics."
+                description="DOE releases data ~1 year late. The 2025 release contains 2022-2024 statistics."
               />
               <LimitationCard
                 icon={Users}
@@ -474,7 +474,7 @@ export default function About() {
               <LimitationCard
                 icon={Calculator}
                 title="FTE Data Limited"
-                description="Rate calculations use IPEDS FTE data, only available for 2021-2023."
+                description="Rate calculations use IPEDS FTE enrollment data, available for 2015-2024."
               />
               <LimitationCard
                 icon={Info}

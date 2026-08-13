@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-12T09:26:11.019970",
+  "generated_at": "2026-08-13T01:53:24.916541",
   "overall_status": "WARNING",
   "summary": {
     "total_checks": 7,
@@ -12,8 +12,8 @@
       "name": "School Completeness",
       "status": "PASS",
       "details": {
-        "schools_in_facts": 8135,
-        "json_files_generated": 8135,
+        "schools_in_facts": 8307,
+        "json_files_generated": 8307,
         "missing_json": 0,
         "extra_json": 0
       },
@@ -24,7 +24,7 @@
       "name": "Incident Total Accuracy",
       "status": "PASS",
       "details": {
-        "schools_validated": 8135,
+        "schools_validated": 8307,
         "variances_found": 0,
         "schools_with_variance": 0
       },
@@ -89,9 +89,15 @@
             "schools_with_data": 3879,
             "schools_with_fte": 5914,
             "coverage_pct": 152.5
+          },
+          {
+            "year": 2024,
+            "schools_with_data": 3811,
+            "schools_with_fte": 5843,
+            "coverage_pct": 153.3
           }
         ],
-        "overall_coverage_pct": 154.7
+        "overall_coverage_pct": 154.6
       },
       "errors": [],
       "warnings": []
@@ -100,7 +106,7 @@
       "name": "Rate Calculation Accuracy",
       "status": "PASS",
       "details": {
-        "schools_with_rates_checked": 419640,
+        "schools_with_rates_checked": 463109,
         "rate_errors": 0
       },
       "errors": [],
@@ -110,7 +116,7 @@
       "name": "Ranking Order Validation",
       "status": "PASS",
       "details": {
-        "groups_validated": 8109,
+        "groups_validated": 8992,
         "order_violations": 0
       },
       "errors": [],
@@ -120,7 +126,7 @@
       "name": "Percentage Sum Validation",
       "status": "WARNING",
       "details": {
-        "groups_validated": 8109,
+        "groups_validated": 8992,
         "severe_errors": 0,
         "rounding_warnings": 3
       },
@@ -133,9 +139,9 @@
       "name": "Source Traceability",
       "status": "PASS",
       "details": {
-        "fact_table_total": 4102378,
-        "aggregate_total": 2394066,
-        "variance": -1708312,
+        "fact_table_total": 4425535,
+        "aggregate_total": 2591903,
+        "variance": -1833632,
         "by_year": [
           {
             "year": 2015,
@@ -190,6 +196,12 @@
             "total_incidents": 338747.0,
             "agg_total": 205331,
             "variance": -133416.0
+          },
+          {
+            "year": 2024,
+            "total_incidents": 323157.0,
+            "agg_total": 197837,
+            "variance": -125320.0
           }
         ]
       },
@@ -200,8 +212,8 @@
     }
   ],
   "schools": {
-    "total": 8135,
-    "passed": 8127,
+    "total": 8307,
+    "passed": 8299,
     "failed": 0,
     "warnings": 8
   }

@@ -4,12 +4,12 @@
 
 **Live Site:** [collegesafetydata.org](https://collegesafetydata.org)
 
-This project provides free, public access to campus safety data for over 8,100 U.S. colleges and universities, covering 9 years of crime statistics (2015-2023). Data is sourced from the U.S. Department of Education and processed using an open, reproducible methodology.
+This project provides free, public access to campus safety data for over 8,100 U.S. colleges and universities, covering 10 years of crime statistics (2015-2024). Data is sourced from the U.S. Department of Education and processed using an open, reproducible methodology.
 
 ## Overview
 
 - **8,100+ Schools** — All U.S. institutions reporting Clery Act data
-- **9 Years of Data** — 2015-2023 for consistent comparisons
+- **10 Years of Data** — 2015-2024 for consistent comparisons
 - **Transparent Methodology** — Full ETL pipeline is open source
 - **Rate-Based Rankings** — Per 10,000 FTE students for fair comparisons
 
@@ -24,8 +24,8 @@ This project provides free, public access to campus safety data for over 8,100 U
 
 | Source | Coverage | URL |
 |--------|----------|-----|
-| Campus Crime Data | 2015-2023 | [ope.ed.gov/campussafety](https://ope.ed.gov/campussafety) |
-| Enrollment (FTE) | 2015-2023 | [nces.ed.gov/ipeds](https://nces.ed.gov/ipedes) |
+| Campus Crime Data | 2015-2024 | [ope.ed.gov/campussafety](https://ope.ed.gov/campussafety) |
+| Enrollment (FTE) | 2015-2024 | [nces.ed.gov/ipeds](https://nces.ed.gov/ipeds) |
 
 ### Methodology
 
@@ -75,7 +75,7 @@ Generated JSON files are written to `frontend/public/data/`.
 ├── etl/                          # Data processing pipeline
 │   ├── 01_download_raw_data.py   # Download DOE data
 │   ├── 02_transform_to_parquet.py # Transform to Parquet
-│   ├── 02a_transform_enrollment.py # Process DRVEF (2021-2023)
+│   ├── 02a_transform_enrollment.py # Process DRVEF (2021-2024)
 │   ├── 02b_transform_ef_enrollment.py # Calculate FTE from EF (2015-2020)
 │   ├── 03_build_dimensions.py    # Build dimension tables
 │   ├── 04_create_aggregates.py   # Create aggregate rankings
@@ -112,7 +112,7 @@ Generated JSON files are written to `frontend/public/data/`.
 
 Full-Time Equivalent (FTE) enrollment is used as the denominator for crime rate calculations:
 
-- **2021-2023**: Official IPEDS pre-calculated FTE values
+- **2021-2024**: Official IPEDS pre-calculated FTE values (2024 provisional)
 - **2015-2020**: Calculated from raw enrollment components using official IPEDS factors:
   ```
   FTE = FT_Undergrad + FT_Graduate
