@@ -56,9 +56,10 @@ export default function Rankings() {
     }
   }
 
-  // Get filter values from URL or defaults
+  // Get filter values from URL or defaults (default year = newest available)
+  const latestYear = metadata?.years?.length ? metadata.years[metadata.years.length - 1] : 2024
   const selectedPreset = searchParams.get('preset') || 'national'
-  const selectedYear = parseInt(searchParams.get('year') || '2023')
+  const selectedYear = parseInt(searchParams.get('year') || '') || latestYear
   const selectedOffense = searchParams.get('offense') || 'all'
 
   // Load More state - show 25 initially, +25 per click
