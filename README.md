@@ -59,12 +59,17 @@ python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 
-# Run the full pipeline
-python 01_download_raw_data.py
+# Run the full pipeline, in order
+python 01_download_raw_data.py        # DOE crime release zips
+python 01b_download_ipeds.py          # IPEDS enrollment files
 python 02_transform_to_parquet.py
+python 02a_transform_enrollment.py    # official FTE (DRVEF)
+python 02b_transform_ef_enrollment.py # FTE from enrollment components
 python 03_build_dimensions.py
 python 04_create_aggregates.py
 python 05_generate_json.py
+python 06_validate.py
+python 07_comprehensive_audit.py
 ```
 
 Generated JSON files are written to `frontend/public/data/`.
@@ -106,7 +111,7 @@ Generated JSON files are written to `frontend/public/data/`.
 | Frontend | React 18, TypeScript, Vite, Tailwind CSS |
 | Charts | Recharts 2.x |
 | Tables | TanStack Table v8 |
-| Hosting | Cloudflare Pages (static) |
+| Hosting | Cloudflare Pages (collegesafetydata.org) and Vercel (collegesafetydata.com), both static |
 
 ## FTE Calculation
 
@@ -155,6 +160,19 @@ npm run build
 # Preview production build
 npm run preview
 ```
+
+### Releasing changes
+
+`main` is production. A push to `main` deploys to collegesafetydata.org and collegesafetydata.com at the same time, so nothing is pushed to `main` directly.
+
+1. Do the work on a short-lived branch cut from `staging`. Pushing it gives a private preview build on both hosts.
+2. Open a pull request into `staging`. Once merged, the staging build is at a stable address:
+   - https://staging.collegesafetydata-public.pages.dev
+   - the `staging` branch preview in the Vercel project
+3. Check the staging build: spot-check numbers against the DOE source and run the audit.
+4. Release by opening a pull request from `staging` into `main` and merging it.
+
+Preview and staging builds are marked `noindex` by both hosts, so search engines do not pick them up.
 
 ## License
 
