@@ -13,6 +13,7 @@ Usage:
     python 06_validate.py --verbose
 """
 
+import os
 import sys
 import json
 import argparse
@@ -25,20 +26,57 @@ from datetime import datetime
 sys.path.insert(0, str(Path(__file__).parent))
 from config import CURATED_DIR, QA_DIR, JSON_DIR, IVY_LEAGUE, DATA_YEARS
 
+# The one fact table that 02_transform_to_parquet.py writes
+FACTS_PATH = CURATED_DIR / "facts" / "incidents.parquet"
+
 
 class ValidationError(Exception):
     """Raised when a validation check fails."""
     pass
 
 
-def get_facts_pattern() -> str:
-    """Get the glob pattern for reading fact files."""
-    facts_path = CURATED_DIR / "facts"
+def find_stray_facts() -> list:
+    """Parquet data under data/curated/facts other than FACTS_PATH."""
+    def fail(err):
+        raise err
 
-    if (facts_path / "incidents").exists():
-        return str(facts_path / "incidents" / "**" / "*.parquet")
-    else:
-        return str(facts_path / "*.parquet")
+    stray = []
+    for root, dirs, files in os.walk(FACTS_PATH.parent, onerror=fail):
+        root = Path(root)
+        for name in list(dirs):
+            if name.lower() == "incidents" or name.lower().endswith(".parquet"):
+                stray.append(root / name)
+                dirs.remove(name)
+        for name in files:
+            if name.lower().endswith(".parquet") and root / name != FACTS_PATH:
+                stray.append(root / name)
+    return sorted(stray)
+
+
+def get_facts_path() -> str:
+    """FACTS_PATH, after checking that nothing else there could be read as facts."""
+    stray = find_stray_facts()
+    if stray:
+        listing = "\n".join(f"  {p}{' (folder)' if p.is_dir() else ''}" for p in stray)
+        raise ValidationError(
+            f"{FACTS_PATH.parent} holds parquet data that 02_transform_to_parquet.py "
+            f"did not write:\n{listing}\n"
+            f"Only the file {FACTS_PATH.name} belongs there. Delete the items listed above "
+            f"(move them outside data/curated to keep them), then run 03 to 06 again."
+        )
+    if not FACTS_PATH.is_file():
+        raise ValidationError(f"{FACTS_PATH} not found. Run 02_transform_to_parquet.py first.")
+    return str(FACTS_PATH)
+
+
+def _reject_constant(token: str):
+    raise ValueError(f"{token} is not valid JSON")
+
+
+def load_json_strict(path: Path):
+    """Parse a JSON file the way a browser does: UTF-8, and NaN or Infinity is an error."""
+    text = path.read_bytes().decode("utf-8-sig")
+    return json.loads(text, parse_constant=_reject_constant)
 
 
 def validate_facts(verbose: bool = False) -> dict:
@@ -53,14 +91,15 @@ def validate_facts(verbose: bool = False) -> dict:
     }
 
     con = duckdb.connect()
-    facts_pattern = get_facts_pattern()
 
     try:
+        facts_file = get_facts_path()
+
         # Check 1: Row counts per year
         print("  Checking row counts by year...")
         year_counts = con.execute(f"""
             SELECT year, COUNT(*) as records, SUM(count) as total_incidents
-            FROM read_parquet('{facts_pattern}')
+            FROM read_parquet('{facts_file}')
             GROUP BY year
             ORDER BY year
         """).df()
@@ -76,7 +115,7 @@ def validate_facts(verbose: bool = False) -> dict:
         print("  Checking for negative counts...")
         negative_counts = con.execute(f"""
             SELECT COUNT(*) as negative_records
-            FROM read_parquet('{facts_pattern}')
+            FROM read_parquet('{facts_file}')
             WHERE count < 0
         """).fetchone()[0]
 
@@ -91,7 +130,7 @@ def validate_facts(verbose: bool = False) -> dict:
         print("  Checking Ivy League coverage...")
         ivy_check = con.execute(f"""
             SELECT DISTINCT unitid
-            FROM read_parquet('{facts_pattern}')
+            FROM read_parquet('{facts_file}')
             WHERE unitid IN ({', '.join(str(u) for u in IVY_LEAGUE.keys())})
         """).df()
 
@@ -116,7 +155,7 @@ def validate_facts(verbose: bool = False) -> dict:
                 offense_family,
                 COUNT(DISTINCT year) as years_present,
                 SUM(count) as total_count
-            FROM read_parquet('{facts_pattern}')
+            FROM read_parquet('{facts_file}')
             GROUP BY offense, offense_family
             ORDER BY total_count DESC
         """).df()
@@ -136,7 +175,7 @@ def validate_facts(verbose: bool = False) -> dict:
                 geo,
                 COUNT(*) as records,
                 SUM(count) as total_count
-            FROM read_parquet('{facts_pattern}')
+            FROM read_parquet('{facts_file}')
             GROUP BY geo
             ORDER BY total_count DESC
         """).df()
@@ -207,7 +246,12 @@ def validate_aggregates(verbose: bool = False) -> dict:
         checks["aggregates"]["checks"]["ivy_rankings"] = {"exists": False}
         print(f"  ivy_rankings: MISSING")
 
-    checks["aggregates"]["status"] = "PASS"
+    missing = [k for k, v in checks["aggregates"]["checks"].items() if not v["exists"]]
+    if missing:
+        checks["aggregates"]["status"] = "FAIL"
+        checks["aggregates"]["error"] = f"Missing: {', '.join(missing)}. Run 04_create_aggregates.py."
+    else:
+        checks["aggregates"]["status"] = "PASS"
     return checks
 
 
@@ -224,39 +268,50 @@ def validate_json_files(verbose: bool = False) -> dict:
 
     errors = []
 
+    # Parse every JSON file the site serves, as strictly as a browser does
+    json_files = sorted(JSON_DIR.rglob("*.json")) if JSON_DIR.is_dir() else []
+    invalid = set()
+    parsed = {}
+    for f in json_files:
+        try:
+            data = load_json_strict(f)
+        except (OSError, ValueError) as e:
+            invalid.add(f)
+            errors.append(f"{f.relative_to(JSON_DIR).as_posix()}: invalid JSON ({e})")
+            continue
+        if f.parent == JSON_DIR and f.name in ("metadata.json", "presets.json"):
+            parsed[f.name] = data
+    checks["json_files"]["checks"]["all_files"] = {
+        "count": len(json_files),
+        "valid": len(json_files) - len(invalid)
+    }
+    print(f"  all files: {len(json_files) - len(invalid)}/{len(json_files)} valid JSON")
+
     # Check metadata.json
     metadata_path = JSON_DIR / "metadata.json"
-    if metadata_path.exists():
-        try:
-            with open(metadata_path) as f:
-                metadata = json.load(f)
-            checks["json_files"]["checks"]["metadata"] = {
-                "exists": True,
-                "years": len(metadata.get("years", [])),
-                "offenses": len(metadata.get("offenses", []))
-            }
-            print(f"  metadata.json: {len(metadata.get('years', []))} years, {len(metadata.get('offenses', []))} offenses")
-        except json.JSONDecodeError as e:
-            errors.append(f"metadata.json: Invalid JSON - {e}")
-    else:
+    if "metadata.json" in parsed:
+        metadata = parsed["metadata.json"]
+        checks["json_files"]["checks"]["metadata"] = {
+            "exists": True,
+            "years": len(metadata.get("years", [])),
+            "offenses": len(metadata.get("offenses", []))
+        }
+        print(f"  metadata.json: {len(metadata.get('years', []))} years, {len(metadata.get('offenses', []))} offenses")
+    elif not metadata_path.exists():
         checks["json_files"]["checks"]["metadata"] = {"exists": False}
         errors.append("metadata.json: MISSING")
 
     # Check presets.json
     presets_path = JSON_DIR / "presets.json"
-    if presets_path.exists():
-        try:
-            with open(presets_path) as f:
-                presets = json.load(f)
-            ivy_schools = len(presets.get("ivy", {}).get("schools", []))
-            checks["json_files"]["checks"]["presets"] = {
-                "exists": True,
-                "ivy_schools": ivy_schools
-            }
-            print(f"  presets.json: {ivy_schools} Ivy schools")
-        except json.JSONDecodeError as e:
-            errors.append(f"presets.json: Invalid JSON - {e}")
-    else:
+    if "presets.json" in parsed:
+        presets = parsed["presets.json"]
+        ivy_schools = len(presets.get("ivy", {}).get("schools", []))
+        checks["json_files"]["checks"]["presets"] = {
+            "exists": True,
+            "ivy_schools": ivy_schools
+        }
+        print(f"  presets.json: {ivy_schools} Ivy schools")
+    elif not presets_path.exists():
         checks["json_files"]["checks"]["presets"] = {"exists": False}
         errors.append("presets.json: MISSING")
 
@@ -264,14 +319,7 @@ def validate_json_files(verbose: bool = False) -> dict:
     rankings_dir = JSON_DIR / "rankings"
     if rankings_dir.exists():
         ranking_files = list(rankings_dir.glob("*.json"))
-        valid_rankings = 0
-        for f in ranking_files:
-            try:
-                with open(f) as fp:
-                    json.load(fp)
-                valid_rankings += 1
-            except json.JSONDecodeError:
-                errors.append(f"rankings/{f.name}: Invalid JSON")
+        valid_rankings = sum(1 for f in ranking_files if f not in invalid)
 
         checks["json_files"]["checks"]["rankings"] = {
             "count": len(ranking_files),
@@ -286,14 +334,7 @@ def validate_json_files(verbose: bool = False) -> dict:
     schools_dir = JSON_DIR / "schools"
     if schools_dir.exists():
         school_files = list(schools_dir.glob("*.json"))
-        valid_schools = 0
-        for f in school_files:
-            try:
-                with open(f) as fp:
-                    json.load(fp)
-                valid_schools += 1
-            except json.JSONDecodeError:
-                errors.append(f"schools/{f.name}: Invalid JSON")
+        valid_schools = sum(1 for f in school_files if f not in invalid)
 
         checks["json_files"]["checks"]["schools"] = {
             "count": len(school_files),
@@ -308,6 +349,10 @@ def validate_json_files(verbose: bool = False) -> dict:
         checks["json_files"]["status"] = "FAIL"
         checks["json_files"]["errors"] = errors
         print(f"  JSON validation: FAIL ({len(errors)} errors)")
+        for err in errors[:20]:
+            print(f"    {err}")
+        if len(errors) > 20:
+            print(f"    ... and {len(errors) - 20:,} more, all listed in {QA_DIR / 'validation_summary.json'}")
     else:
         checks["json_files"]["status"] = "PASS"
         print(f"  JSON validation: PASS")
@@ -391,7 +436,9 @@ def main():
     else:
         print("\nSome validations failed. Review the report for details.")
         print(f"Report: {QA_DIR / 'validation_summary.json'}")
+        return 1
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

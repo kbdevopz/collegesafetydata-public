@@ -310,20 +310,10 @@ DATA_YEARS = list(range(2015, 2025))  # 2015-2024 (crime from DOE 2025 release; 
 # DOE DATA SOURCE URLS
 # =============================================================================
 
-# The download page is an Angular SPA; files are served by its API endpoint.
-# Release zips are named by RELEASE year and each contains THREE calendar
-# years of data (e.g. Crime2025SAS.zip covers calendar years 2022-2024).
-DOE_BASE_URL = "https://ope.ed.gov/campussafety/api/dataFiles/file"
-DOE_DOWNLOAD_PAGE = "https://ope.ed.gov/campussafety/#/datafile/list"
-
-def get_data_url(release_year: int, file_type: str = "sas") -> str:
-    """Get the download URL for a release-year zip (sas, excel, or spss)."""
-    fmt = file_type.upper()
-    if fmt == "CSV":
-        fmt = "EXCEL"  # DOE ships spreadsheet data in the EXCEL zip
-    if fmt not in ("SAS", "EXCEL", "SPSS"):
-        raise ValueError(f"Unknown file type: {file_type}")
-    return f"{DOE_BASE_URL}?fileName=Crime{release_year}{fmt}.zip"
+# DOE_BASE_URL, DOE_DOWNLOAD_PAGE and get_data_url() are in
+# 01_download_raw_data.py: this file is part of every build stage's code
+# fingerprint (provenance.STAGE_CODE), so a URL kept here would make the whole
+# build out of date whenever it changed.
 
 # =============================================================================
 # FIELD NAME RESOLUTION

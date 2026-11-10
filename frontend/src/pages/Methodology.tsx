@@ -16,7 +16,9 @@ import {
 } from 'lucide-react'
 import { getMetadata } from '../lib/api'
 import type { Metadata } from '../lib/types'
-import { formatDate } from '../lib/utils'
+import { formatDate, formatNumber } from '../lib/utils'
+import { summarizeEnrollmentStatus, describeEnrollmentStatus } from '../lib/enrollment'
+import { summarizeDataYears } from '../lib/coverage'
 
 export default function Methodology() {
   const [metadata, setMetadata] = React.useState<Metadata | null>(null)
@@ -24,6 +26,13 @@ export default function Methodology() {
   React.useEffect(() => {
     getMetadata().then(setMetadata).catch(console.error)
   }, [])
+
+  // Which falls have final, provisional or no enrollment yet, from
+  // metadata.json "enrollmentStatus" (neutral wording when it is absent)
+  const enrollmentStatusText = describeEnrollmentStatus(summarizeEnrollmentStatus(metadata))
+  const schoolCount = metadata?.presets.find((p) => p.id === 'national')?.schoolCount
+  // Year span from metadata.json "coverage" (or "years" when it is absent)
+  const coverageText = metadata ? metadata.coverage || summarizeDataYears(metadata).span : null
 
   return (
     <div className="min-h-screen">
@@ -76,7 +85,7 @@ export default function Methodology() {
                     <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-600 dark:text-gray-400 mb-3">
                       <span>Source: <strong className="text-gray-900 dark:text-gray-200">DOE OPE</strong></span>
                       <span>Legal Basis: <strong className="text-gray-900 dark:text-gray-200">Clery Act</strong></span>
-                      <span>Coverage: <strong className="text-gray-900 dark:text-gray-200">2015-2024</strong></span>
+                      <span>Coverage: <strong className="text-gray-900 dark:text-gray-200">{metadata ? coverageText || '—' : 'Loading...'}</strong></span>
                     </div>
                     <a
                       href="https://ope.ed.gov/campussafety/"
@@ -108,13 +117,19 @@ export default function Methodology() {
                       <div className="flex items-start gap-2">
                         <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
                         <span className="text-gray-600 dark:text-gray-400">
-                          <strong className="text-gray-900 dark:text-gray-200">2021-2024:</strong> IPEDS provides pre-calculated FTE values directly — we use the official published numbers (fall 2024 is provisional release data).
+                          <strong className="text-gray-900 dark:text-gray-200">2021 onward:</strong> IPEDS provides pre-calculated FTE values directly — we use the official published numbers.
                         </span>
                       </div>
                       <div className="flex items-start gap-2">
                         <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
                         <span className="text-gray-600 dark:text-gray-400">
                           <strong className="text-gray-900 dark:text-gray-200">2015-2020:</strong> Pre-calculated FTE isn't available, so we calculate it ourselves from raw enrollment data (full-time and part-time students) using the official IPEDS formula — the same method the government uses.
+                        </span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <Info className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
+                        <span className="text-gray-600 dark:text-gray-400">
+                          <strong className="text-gray-900 dark:text-gray-200">Status by year:</strong> {enrollmentStatusText.join(' ')}
                         </span>
                       </div>
                     </div>
@@ -380,7 +395,7 @@ export default function Methodology() {
               <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
                 <h4 className="font-medium text-gray-900 dark:text-gray-100 text-sm mb-2">Reporting Lag</h4>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  DOE releases data ~1 year late. Current data contains 2015-2024 statistics.
+                  DOE releases data ~1 year late. Current data contains {coverageText ? `${coverageText} statistics` : 'statistics for the years listed above'}.
                 </p>
               </div>
               <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
@@ -410,8 +425,16 @@ export default function Methodology() {
             </div>
 
             <p className="text-gray-600 dark:text-gray-400 mb-6">
-              We maintain a comprehensive data quality audit that validates all 8,100+ schools in our dataset.
+              We maintain a comprehensive data quality audit that validates all {schoolCount !== undefined ? `${formatNumber(schoolCount)} ` : ''}schools in our dataset.
               The audit checks for data completeness, accuracy, and consistency.
+            </p>
+
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
+              The audit compares the published files with the pipeline's own tables; it does not re-read the
+              Department of Education's source files. The{' '}
+              <a href="/data/build_inputs.json" className="underline hover:text-gray-700 dark:hover:text-gray-300">build record</a>{' '}
+              lists every source file the build read, with a checksum (and its size, for the Department of Education
+              files), and a SHA-256 checksum of every other published data file (everything under /data/).
             </p>
 
             <div className="bg-gradient-to-r from-primary-50 to-primary-100 dark:from-primary-950/50 dark:to-primary-900/30 rounded-xl p-6 border border-primary-200 dark:border-primary-800">
@@ -426,7 +449,7 @@ export default function Methodology() {
                   </p>
                   <div className="flex flex-wrap gap-4 text-sm text-primary-700 dark:text-primary-300">
                     <span>Format: <strong>JSON</strong></span>
-                    <span>Schools: <strong>8,307</strong></span>
+                    <span>Schools: <strong>{schoolCount !== undefined ? formatNumber(schoolCount) : metadata ? '—' : 'Loading...'}</strong></span>
                     <span>Last Updated: <strong>{metadata ? formatDate(metadata.lastUpdated) : 'Loading...'}</strong></span>
                   </div>
                 </div>
@@ -445,13 +468,13 @@ export default function Methodology() {
               <h5 className="font-medium text-gray-900 dark:text-gray-100 text-sm mb-3">Audit Checks Performed:</h5>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
                 {[
-                  "School completeness (all schools have JSON files)",
-                  "Incident total accuracy (JSON matches aggregates)",
+                  "School completeness (every school has a published file)",
+                  "Incident total accuracy (each school file's yearly totals match the aggregate table)",
                   "FTE coverage by year",
                   "Rate calculation verification",
                   "Ranking order validation",
                   "Percentage sum validation",
-                  "Source traceability",
+                  "Aggregate consistency (the school-year aggregate table matches the fact table it is built from)",
                 ].map((check, i) => (
                   <div key={i} className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
                     <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
@@ -479,13 +502,16 @@ export default function Methodology() {
 
             <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4 font-mono text-sm">
               <div className="space-y-1 text-gray-700 dark:text-gray-300">
-                <div>etl/01_download_raw_data.py — Download DOE data</div>
+                <div>etl/00_check_for_updates.py — Check DOE and NCES for newer data</div>
+                <div>etl/01_download_raw_data.py — Download DOE crime data</div>
                 <div>etl/01b_download_ipeds.py — Download IPEDS enrollment</div>
-                <div>etl/02a_transform_enrollment.py — Process DRVEF FTE (2021-2024)</div>
+                <div>etl/02_transform_to_parquet.py — Transform crime data</div>
                 <div>etl/02b_transform_ef_enrollment.py — Calculate FTE from EF (2015-2020)</div>
-                <div>etl/03_transform_to_parquet.py — Transform crime data</div>
+                <div>etl/02a_transform_enrollment.py — Process DRVEF FTE (2021 onward)</div>
+                <div>etl/03_build_dimensions.py — Build school and offense tables</div>
                 <div>etl/04_create_aggregates.py — Create aggregated tables</div>
                 <div>etl/05_generate_json.py — Generate JSON outputs</div>
+                <div>etl/06_validate.py — Validate the generated data</div>
                 <div>etl/07_comprehensive_audit.py — Run data quality audit</div>
               </div>
             </div>

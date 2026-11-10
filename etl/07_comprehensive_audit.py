@@ -1,14 +1,18 @@
 """
 Comprehensive Data Audit - Validates ALL schools in the dataset.
 
-This script performs thorough validation of all 8,683+ schools:
+This script performs thorough validation of all schools:
 1. School Completeness - All schools in facts have JSON files
 2. Incident Totals - JSON yearlyTotals match aggregate data
 3. FTE Coverage - Report enrollment data coverage by year
 4. Rate Calculations - Verify rate = (count / FTE) * 10,000
-5. Ranking Order - Verify ranks match sorted counts
-6. Percentage Sums - Verify offense %s sum to 100%
-7. Source Traceability - Compare fact totals to source data
+5. Ranking Order - Verify ranks match sorted counts, and rankByRate sorted rates
+6. Percentage Sums - Verify each offense % is count / group total, to 2 decimals
+7. Aggregate Consistency - Aggregates equal the fact table, per year and geography
+
+Each check's details say in "what_it_checks" exactly what it verifies. All of
+them compare the pipeline's own files with each other; none re-reads the DOE
+or IPEDS downloads.
 
 Usage:
     python 07_comprehensive_audit.py
@@ -18,21 +22,35 @@ Usage:
 Output:
     - Console: Summary with pass/fail per check
     - CSV: data/qa/comprehensive_audit.csv (per-school results)
-    - JSON: data/qa/comprehensive_audit.json (machine-readable)
+    - JSON: data/qa/comprehensive_audit.json (machine-readable). Its
+      generated_at is UTC, and "audited_build" holds the SHA-256 of the site's
+      build record (frontend/public/data/build_inputs.json) and of each curated
+      file the checks read, so 00_check_for_updates.py can tell whether
+      frontend/public/audit.json is the audit of the site data it ships with.
 """
 
+import os
 import sys
 import json
 import argparse
 import pandas as pd
 import duckdb
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 # Add parent to path for config import
 sys.path.insert(0, str(Path(__file__).parent))
-from config import CURATED_DIR, QA_DIR, JSON_DIR, DATA_YEARS
+from config import CURATED_DIR, QA_DIR, JSON_DIR, DATA_YEARS, PROJECT_ROOT, GEO_CODES, GEO_FOR_ALL
+import provenance
+
+# Curated files the checks read (relative to data/curated)
+CURATED_READ = ("facts/incidents.parquet", "aggs/agg_school_year_offense.parquet", "dims/dim_enrollment.parquet")
+# FTE coverage: share of the schools with crime data in a year that have an FTE for that year
+FTE_COVERAGE_FAIL = 95.0  # below this in any year with enrollment, the check fails
+FTE_COVERAGE_WARN = 99.0  # below this, a warning (2015-2024 are 99.4-100% today)
+# A pct is count / group total x 100 rounded to 2 decimals, so it is off by at most half a hundredth
+PCT_TOLERANCE = 0.005 + 1e-6
 
 
 class AuditResult:
@@ -45,14 +63,16 @@ class AuditResult:
         self.warnings = []
 
     def passed(self):
-        self.status = "PASS"
+        # A check that has already failed or warned keeps that status
+        if self.status == "PENDING":
+            self.status = "PASS"
 
     def failed(self, error: str):
         self.status = "FAIL"
         self.errors.append(error)
 
     def warning(self, msg: str):
-        if self.status == "PENDING":
+        if self.status in ("PENDING", "PASS"):
             self.status = "WARNING"
         self.warnings.append(msg)
 
@@ -66,13 +86,42 @@ class AuditResult:
         }
 
 
-def get_facts_pattern() -> str:
-    """Get the glob pattern for reading fact files."""
-    facts_path = CURATED_DIR / "facts"
-    if (facts_path / "incidents").exists():
-        return str(facts_path / "incidents" / "**" / "*.parquet")
-    else:
-        return str(facts_path / "*.parquet")
+# The one fact table that 02_transform_to_parquet.py writes
+FACTS_PATH = CURATED_DIR / "facts" / "incidents.parquet"
+
+
+def find_stray_facts() -> list:
+    """Parquet data under data/curated/facts other than FACTS_PATH."""
+    def fail(err):
+        raise err
+
+    stray = []
+    for root, dirs, files in os.walk(FACTS_PATH.parent, onerror=fail):
+        root = Path(root)
+        for name in list(dirs):
+            if name.lower() == "incidents" or name.lower().endswith(".parquet"):
+                stray.append(root / name)
+                dirs.remove(name)
+        for name in files:
+            if name.lower().endswith(".parquet") and root / name != FACTS_PATH:
+                stray.append(root / name)
+    return sorted(stray)
+
+
+def get_facts_path() -> str:
+    """FACTS_PATH, after checking that nothing else there could be read as facts."""
+    stray = find_stray_facts()
+    if stray:
+        listing = "\n".join(f"  {p}{' (folder)' if p.is_dir() else ''}" for p in stray)
+        raise RuntimeError(
+            f"{FACTS_PATH.parent} holds parquet data that 02_transform_to_parquet.py "
+            f"did not write:\n{listing}\n"
+            f"Only the file {FACTS_PATH.name} belongs there. Delete the items listed above "
+            f"(move them outside data/curated to keep them), then run 03 to 07 again."
+        )
+    if not FACTS_PATH.is_file():
+        raise RuntimeError(f"{FACTS_PATH} not found. Run 02_transform_to_parquet.py first.")
+    return str(FACTS_PATH)
 
 
 def audit_school_completeness(verbose: bool = False) -> AuditResult:
@@ -85,11 +134,11 @@ def audit_school_completeness(verbose: bool = False) -> AuditResult:
     try:
         # Get unique schools from facts
         con = duckdb.connect()
-        facts_pattern = get_facts_pattern()
+        facts_file = get_facts_path()
 
         facts_schools = con.execute(f"""
             SELECT DISTINCT unitid
-            FROM read_parquet('{facts_pattern}')
+            FROM read_parquet('{facts_file}')
         """).df()
 
         facts_unitids = set(facts_schools["unitid"].tolist())
@@ -113,11 +162,17 @@ def audit_school_completeness(verbose: bool = False) -> AuditResult:
         missing_json = facts_unitids - json_unitids
         extra_json = json_unitids - facts_unitids
 
+        result.details["what_it_checks"] = (
+            "Every school (UNITID) in data/curated/facts/incidents.parquet has a site file "
+            "schools/<UNITID>.json, and every school file has fact data. It compares file names "
+            "only; check 2 and the per-school report compare the files' numbers.")
         result.details["schools_in_facts"] = len(facts_unitids)
         result.details["json_files_generated"] = len(json_unitids)
         result.details["missing_json"] = len(missing_json)
         result.details["extra_json"] = len(extra_json)
 
+        if not facts_unitids:
+            result.failed("The fact table has no schools. Run 02_transform_to_parquet.py and 03 to 07 again.")
         if missing_json:
             result.failed(f"Missing JSON files for {len(missing_json)} schools")
             if verbose and len(missing_json) <= 10:
@@ -127,7 +182,9 @@ def audit_school_completeness(verbose: bool = False) -> AuditResult:
             print(f"  Missing JSONs: 0")
 
         if extra_json:
-            result.warning(f"Found {len(extra_json)} JSON files without fact data")
+            result.warning(f"Found {len(extra_json)} JSON files without fact data "
+                           f"(first: schools/{sorted(extra_json)[0]}.json). Run 05_generate_json.py "
+                           f"again: it removes school files it did not write.")
 
         print(f"  {result.status}")
 
@@ -155,8 +212,10 @@ def audit_incident_totals(verbose: bool = False) -> AuditResult:
         agg = pd.read_parquet(agg_path)
 
         # Sum by school and year (across all offenses, geo="All")
-        agg_totals = agg[agg["geo"] == "All"].groupby(["unitid", "year"])["count"].sum().reset_index()
-        agg_totals = agg_totals.rename(columns={"count": "agg_total"})
+        agg_totals = agg[agg["geo"] == "All"].groupby(["unitid", "year"])["count"].sum()
+        agg_by_school = {}  # unitid -> {year: total}
+        for (uid, year), total in agg_totals.items():
+            agg_by_school.setdefault(int(uid), {})[int(year)] = int(total)
 
         # Load each school JSON and compare
         schools_dir = JSON_DIR / "schools"
@@ -175,14 +234,13 @@ def audit_incident_totals(verbose: bool = False) -> AuditResult:
             with open(json_file) as f:
                 school_data = json.load(f)
 
-            yearly_totals = {yt["year"]: yt["total"] for yt in school_data.get("yearlyTotals", [])}
+            yearly_totals = {int(yt["year"]): yt["total"] for yt in school_data.get("yearlyTotals", [])}
 
-            # Compare each year
-            school_agg = agg_totals[agg_totals["unitid"] == unitid]
+            # Compare every year in either: a year the file shows that the aggregates lack is a variance too
+            school_agg = agg_by_school.get(unitid, {})
 
-            for _, row in school_agg.iterrows():
-                year = int(row["year"])
-                agg_total = int(row["agg_total"])
+            for year in sorted(set(school_agg) | set(yearly_totals)):
+                agg_total = school_agg.get(year, 0)
                 json_total = yearly_totals.get(year, 0)
 
                 if agg_total != json_total:
@@ -201,6 +259,11 @@ def audit_incident_totals(verbose: bool = False) -> AuditResult:
 
         schools_with_variance = len(set(v["unitid"] for v in variances))
 
+        result.details["what_it_checks"] = (
+            "For every site school file schools/<UNITID>.json, the yearlyTotals total of each year "
+            "(every year in the file or the aggregates) equals the sum over offenses of that school's "
+            "geo \"All\" rows in agg_school_year_offense.parquet. The files' trends and breakdowns are "
+            "not compared, and check 7 compares the aggregates with the fact table.")
         result.details["schools_validated"] = schools_validated
         result.details["variances_found"] = len(variances)
         result.details["schools_with_variance"] = schools_with_variance
@@ -209,10 +272,15 @@ def audit_incident_totals(verbose: bool = False) -> AuditResult:
         print(f"  Variances found: {len(variances)}")
 
         if variances:
-            result.failed(f"Found {len(variances)} incident count variances across {schools_with_variance} schools")
+            v = variances[0]
+            result.failed(f"Found {len(variances)} incident count variances across {schools_with_variance} schools "
+                          f"(first: {v['unitid']} {v['year']}: JSON {v['json_total']}, aggregates {v['agg_total']}). "
+                          f"Run 04_create_aggregates.py and 05_generate_json.py, then 07 again.")
             if verbose:
                 for v in variances[:5]:
                     print(f"    {v['unitid']} ({v['year']}): JSON={v['json_total']}, Agg={v['agg_total']}")
+        elif schools_validated == 0:
+            result.failed(f"No school files in {schools_dir} to check. Run 05_generate_json.py.")
         else:
             result.passed()
 
@@ -225,58 +293,76 @@ def audit_incident_totals(verbose: bool = False) -> AuditResult:
     return result
 
 
+def published_enrollment_status() -> dict:
+    """metadata.json's enrollmentStatus (year -> final, provisional or missing); empty if it has none."""
+    try:
+        metadata = json.loads((JSON_DIR / "metadata.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+    status = metadata.get("enrollmentStatus") if isinstance(metadata, dict) else None
+    return status if isinstance(status, dict) else {}
+
+
 def audit_fte_coverage(verbose: bool = False) -> AuditResult:
     """
-    CHECK 3: Report FTE data coverage by year.
+    CHECK 3: FTE coverage by year: of the schools with crime data in a year,
+    the share that have an FTE (so a rate) for that year. A year whose
+    enrollment NCES has not published (enrollmentStatus "missing") is expected
+    to have none.
     """
     result = AuditResult("FTE Coverage")
     print("\nCHECK 3: FTE Coverage by Year")
 
     try:
-        # Load enrollment data
-        enrollment_path = CURATED_DIR / "dims" / "dim_enrollment.parquet"
-        if not enrollment_path.exists():
-            result.failed("Enrollment file not found")
-            return result
-
-        enrollment = pd.read_parquet(enrollment_path)
-
-        # Load aggregate to get schools with data per year
+        # Schools with crime data per year, and those of them with an FTE for that year
         agg_path = CURATED_DIR / "aggs" / "agg_school_year_offense.parquet"
-        agg = pd.read_parquet(agg_path)
+        agg = pd.read_parquet(agg_path, columns=["year", "unitid", "fte"])
+        has_fte = agg["fte"].astype("float64").fillna(0) > 0
+        schools = agg.groupby("year")["unitid"].nunique()
+        with_fte = agg[has_fte].groupby("year")["unitid"].nunique()
+        status = published_enrollment_status()
 
-        # Get unique schools per year from aggregates
-        schools_per_year = agg.groupby("year")["unitid"].nunique().reset_index()
-        schools_per_year.columns = ["year", "schools_with_data"]
+        rows = []
+        total_schools = total_with_fte = 0
+        for year in sorted(int(y) for y in schools.index):
+            count = int(schools[year])
+            fte_count = int(with_fte.get(year, 0))
+            pct = round(fte_count / count * 100, 1) if count else 0.0
+            enrollment = status.get(str(year), "unknown")
+            rows.append({"year": year, "schools_with_data": count, "schools_with_fte": fte_count,
+                         "coverage_pct": pct, "enrollment": enrollment})
+            note = " (no enrollment published yet)" if enrollment == "missing" else ""
+            print(f"  {year}: {fte_count:,} / {count:,} schools with crime data have an FTE ({pct}%){note}")
+            if fte_count > count:
+                result.failed(f"{year}: {fte_count} schools with an FTE but only {count} with crime data")
+            elif enrollment == "missing":
+                if fte_count:
+                    result.failed(f"{year}: metadata.json says there is no enrollment, yet {fte_count} "
+                                  "schools have an FTE")
+            else:
+                total_schools += count
+                total_with_fte += fte_count
+                if pct < FTE_COVERAGE_FAIL:
+                    result.failed(f"{year}: only {pct}% of schools with crime data have an FTE "
+                                  f"(below {FTE_COVERAGE_FAIL}%)")
+                elif pct < FTE_COVERAGE_WARN:
+                    result.warning(f"{year}: {pct}% of schools with crime data have an FTE "
+                                   f"(below {FTE_COVERAGE_WARN}%)")
 
-        # Get schools with FTE per year
-        fte_per_year = enrollment.groupby("year")["unitid"].nunique().reset_index()
-        fte_per_year.columns = ["year", "schools_with_fte"]
-
-        # Merge
-        coverage = schools_per_year.merge(fte_per_year, on="year", how="left")
-        coverage["schools_with_fte"] = coverage["schools_with_fte"].fillna(0).astype(int)
-        coverage["coverage_pct"] = (coverage["schools_with_fte"] / coverage["schools_with_data"] * 100).round(1)
-
-        result.details["by_year"] = coverage.to_dict("records")
-
-        total_schools = coverage["schools_with_data"].sum()
-        total_with_fte = coverage["schools_with_fte"].sum()
         overall_coverage = (total_with_fte / total_schools * 100) if total_schools > 0 else 0
-
+        result.details["what_it_checks"] = (
+            "Of the schools with crime data in each year in agg_school_year_offense.parquet, the share "
+            "that have an FTE above 0 for that year in the same file (metadata.json's enrollmentStatus "
+            "names the years NCES has not published). It does not compare FTE values with the IPEDS files.")
+        result.details["by_year"] = rows
         result.details["overall_coverage_pct"] = round(overall_coverage, 1)
+        result.details["years_without_enrollment"] = [r["year"] for r in rows if r["enrollment"] == "missing"]
+        result.details["thresholds_pct"] = {"fail_below": FTE_COVERAGE_FAIL, "warn_below": FTE_COVERAGE_WARN}
+        print(f"  Overall (years with enrollment): {total_with_fte:,} / {total_schools:,} ({overall_coverage:.1f}%)")
 
-        for _, row in coverage.iterrows():
-            year = int(row["year"])
-            schools = int(row["schools_with_data"])
-            fte_count = int(row["schools_with_fte"])
-            pct = row["coverage_pct"]
-            print(f"  {year}: {fte_count:,} / {schools:,} schools ({pct}%)")
-
-        # FTE coverage warning if < 90%
-        if overall_coverage < 90:
-            result.warning(f"Overall FTE coverage is {overall_coverage:.1f}% (some schools missing enrollment data)")
-        else:
+        if not rows:
+            result.failed("No schools with crime data in the aggregates")
+        if result.status == "PENDING":
             result.passed()
 
         print(f"  {result.status}")
@@ -302,7 +388,7 @@ def audit_rate_calculations(verbose: bool = False) -> AuditResult:
         ranking_files = list(rankings_dir.glob("*.json"))
 
         rate_errors = []
-        schools_with_rates = 0
+        entries_checked = 0
         tolerance = 0.01  # Allow 0.01 variance for rounding
 
         for ranking_file in ranking_files:
@@ -314,8 +400,22 @@ def audit_rate_calculations(verbose: bool = False) -> AuditResult:
                     count = entry.get("count", 0)
                     fte = entry.get("fte")
                     rate = entry.get("rate")
+                    has_fte = bool(fte) and fte > 0
 
-                    if fte and fte > 0 and rate is not None:
+                    # A rate needs an FTE, and an FTE above 0 gives a rate
+                    if has_fte != (rate is not None):
+                        rate_errors.append({
+                            "file": ranking_file.name,
+                            "offense": offense,
+                            "unitid": entry.get("unitid"),
+                            "count": count,
+                            "fte": fte,
+                            "stored_rate": rate,
+                            "expected_rate": None,
+                            "variance": None,
+                            "problem": "a rate without an FTE above 0" if rate is not None else "an FTE but no rate",
+                        })
+                    elif has_fte:
                         expected_rate = (count / fte) * 10000
                         if abs(rate - expected_rate) > tolerance:
                             rate_errors.append({
@@ -328,19 +428,31 @@ def audit_rate_calculations(verbose: bool = False) -> AuditResult:
                                 "expected_rate": round(expected_rate, 2),
                                 "variance": round(rate - expected_rate, 4)
                             })
-                        schools_with_rates += 1
+                        entries_checked += 1
 
-        result.details["schools_with_rates_checked"] = schools_with_rates
+        result.details["what_it_checks"] = (
+            "For every entry of rankings/*.json, rate equals count / fte x 10,000 to within 0.01, using "
+            "the entry's own count and fte; an entry with a rate but no FTE above 0, or with an FTE "
+            "but no rate, is an error. It does not compare the count or FTE with the aggregates or IPEDS.")
+        result.details["ranking_entries_checked"] = entries_checked
         result.details["rate_errors"] = len(rate_errors)
 
-        print(f"  Schools with rates checked: {schools_with_rates:,}")
-        print(f"  Rate variances > {tolerance}: {len(rate_errors)}")
+        print(f"  Ranking entries with a rate checked: {entries_checked:,}")
+        print(f"  Rate variances > {tolerance}, or a rate without an FTE (or the reverse): {len(rate_errors)}")
 
         if rate_errors:
-            result.failed(f"Found {len(rate_errors)} rate calculation errors")
+            err = rate_errors[0]
+            what = err.get("problem") or f"expected {err['expected_rate']}"
+            result.failed(f"Found {len(rate_errors)} rate calculation errors (first: {err['file']} {err['offense']} "
+                          f"{err['unitid']}: count {err['count']}, fte {err['fte']}, rate {err['stored_rate']}, "
+                          f"{what}). Run 04_create_aggregates.py and 05_generate_json.py, then 07 again.")
             if verbose:
                 for err in rate_errors[:5]:
-                    print(f"    {err['unitid']}: stored={err['stored_rate']}, expected={err['expected_rate']}")
+                    print(f"    {err['unitid']}: stored={err['stored_rate']}, "
+                          f"{err.get('problem') or 'expected=' + str(err['expected_rate'])}")
+        elif entries_checked == 0:
+            result.failed(f"No ranking entry with a rate in {rankings_dir} to check. Run 04_create_aggregates.py "
+                          f"and 05_generate_json.py.")
         else:
             result.passed()
 
@@ -356,7 +468,8 @@ def audit_rate_calculations(verbose: bool = False) -> AuditResult:
 def audit_ranking_order(verbose: bool = False) -> AuditResult:
     """
     CHECK 5: Verify ranks match sorted incident counts.
-    Rank N should have count >= Rank N+1
+    Rank N should have count >= Rank N+1, and the ranks run 1..N. Likewise
+    rankByRate runs 1..M over the entries with a rate, with rates non-increasing.
     """
     result = AuditResult("Ranking Order Validation")
     print("\nCHECK 5: Ranking Order Validation")
@@ -396,17 +509,54 @@ def audit_ranking_order(verbose: bool = False) -> AuditResult:
                             "next_count": next_entry.get("count")
                         })
 
+                # Ranks are 1..N (a missing or repeated rank cannot be in order)
+                ranks = sorted(e.get("rank") for e in entries if isinstance(e.get("rank"), int))
+                if ranks != list(range(1, len(entries) + 1)):
+                    order_violations.append({"file": ranking_file.name, "offense": offense,
+                                             "problem": "rank does not run 1..N"})
+
+                # rankByRate: 1..M over exactly the entries with a rate, rates non-increasing
+                rated = [e for e in entries if e.get("rate") is not None]
+                by_rate = sorted((e for e in rated if isinstance(e.get("rankByRate"), int)),
+                                 key=lambda x: x["rankByRate"])
+                if (any(e.get("rankByRate") is not None for e in entries if e.get("rate") is None)
+                        or [e["rankByRate"] for e in by_rate] != list(range(1, len(rated) + 1))):
+                    order_violations.append({"file": ranking_file.name, "offense": offense,
+                                             "problem": "rankByRate does not run 1..M over the entries with a rate"})
+                for current, next_entry in zip(by_rate, by_rate[1:]):
+                    if current["rate"] < next_entry["rate"]:
+                        order_violations.append({
+                            "file": ranking_file.name,
+                            "offense": offense,
+                            "problem": (f"rankByRate {current['rankByRate']} (rate {current['rate']}) < "
+                                        f"rankByRate {next_entry['rankByRate']} (rate {next_entry['rate']})"),
+                        })
+
+        result.details["what_it_checks"] = (
+            "In every ranking group (one offense of one rankings/*.json file) of 2 or more entries, rank "
+            "runs 1..N with counts non-increasing, and rankByRate runs 1..M over exactly the entries with "
+            "a rate, with rates non-increasing. It checks the order of each file's own counts and rates; "
+            "check 4 checks the rates' arithmetic.")
         result.details["groups_validated"] = groups_validated
         result.details["order_violations"] = len(order_violations)
 
-        print(f"  Year/offense/geo combinations validated: {groups_validated:,}")
+        print(f"  Ranking groups (file x offense) validated: {groups_validated:,}")
         print(f"  Rank order violations: {len(order_violations)}")
 
+        def describe(v):
+            return v.get("problem") or (f"rank {v['rank']} ({v['current_count']}) < "
+                                        f"rank {v['next_rank']} ({v['next_count']})")
+
         if order_violations:
-            result.failed(f"Found {len(order_violations)} rank order violations")
+            v = order_violations[0]
+            result.failed(f"Found {len(order_violations)} rank order violations (first: {v['file']}/{v['offense']}: "
+                          f"{describe(v)}). Run 04_create_aggregates.py and 05_generate_json.py, then 07 again.")
             if verbose:
                 for v in order_violations[:5]:
-                    print(f"    {v['file']}/{v['offense']}: rank {v['rank']} ({v['current_count']}) < rank {v['next_rank']} ({v['next_count']})")
+                    print(f"    {v['file']}/{v['offense']}: {describe(v)}")
+        elif groups_validated == 0:
+            result.failed(f"No ranking groups in {rankings_dir} to check. Run 04_create_aggregates.py "
+                          f"and 05_generate_json.py.")
         else:
             result.passed()
 
@@ -421,13 +571,15 @@ def audit_ranking_order(verbose: bool = False) -> AuditResult:
 
 def audit_percentage_sums(verbose: bool = False) -> AuditResult:
     """
-    CHECK 6: Verify offense percentages sum to 100% per group.
+    CHECK 6: Verify each offense percentage is the entry's share of its group.
 
-    Note: Floating-point rounding causes small cumulative errors when summing
-    thousands of 2-decimal percentages. We use tiered tolerance:
-    - Small groups (<100 schools): 0.5% tolerance
-    - Medium groups (100-1000): 2% tolerance
-    - Large groups (1000+): 5% tolerance (rounding errors accumulate)
+    04/05 write pct = count / group total x 100 rounded to 2 decimals, so each
+    pct must be within half a hundredth (PCT_TOLERANCE) of that share. A
+    group's pcts then sum to 100% give or take only that rounding, which can
+    add up to several percent in a group of thousands of schools; the largest
+    such deviation is reported for information only, since the per-entry test
+    is what tells rounding apart from an error. The file's "totals" entry for
+    the offense, when there is one, must equal the group's count sum.
     """
     result = AuditResult("Percentage Sum Validation")
     print("\nCHECK 6: Percentage Sum Validation")
@@ -437,62 +589,66 @@ def audit_percentage_sums(verbose: bool = False) -> AuditResult:
         ranking_files = list(rankings_dir.glob("*.json"))
 
         pct_errors = []
-        pct_warnings = []
         groups_validated = 0
+        entries_checked = 0
+        max_sum_deviation = 0.0
 
         for ranking_file in ranking_files:
             with open(ranking_file) as f:
                 data = json.load(f)
+            totals = data.get("totals") if isinstance(data.get("totals"), dict) else {}
 
             for offense, entries in data.get("rankings", {}).items():
-                if len(entries) < 2:
+                if not entries:
                     continue
 
                 groups_validated += 1
-                pct_sum = sum(e.get("pct", 0) for e in entries)
-                num_schools = len(entries)
-
-                # Tiered tolerance based on group size
-                if num_schools < 100:
-                    tolerance = 0.5
-                elif num_schools < 1000:
-                    tolerance = 2.0
-                else:
-                    tolerance = 5.0  # Large datasets have cumulative rounding error
-
-                variance = abs(pct_sum - 100.0)
-                if variance > tolerance:
-                    # Still an issue even with tiered tolerance
-                    if variance > 10:  # Severe error
+                group_total = sum(e.get("count", 0) for e in entries)
+                if offense in totals and totals[offense] != group_total:
+                    pct_errors.append({
+                        "file": ranking_file.name,
+                        "offense": offense,
+                        "problem": f"totals says {totals[offense]}, the counts sum to {group_total}",
+                    })
+                for e in entries:
+                    entries_checked += 1
+                    pct = e.get("pct")
+                    share = e.get("count", 0) / group_total * 100 if group_total else 0.0
+                    if not isinstance(pct, (int, float)) or abs(pct - share) > PCT_TOLERANCE:
                         pct_errors.append({
                             "file": ranking_file.name,
                             "offense": offense,
-                            "pct_sum": round(pct_sum, 2),
-                            "schools": num_schools
+                            "problem": (f"{e.get('unitid')}: pct {pct}, but count {e.get('count')} of "
+                                        f"{group_total} is {share:.4f}%"),
                         })
-                    else:  # Acceptable rounding error
-                        pct_warnings.append({
-                            "file": ranking_file.name,
-                            "offense": offense,
-                            "pct_sum": round(pct_sum, 2),
-                            "schools": num_schools
-                        })
+                if group_total:
+                    pct_sum = sum(e.get("pct", 0) for e in entries if isinstance(e.get("pct"), (int, float)))
+                    max_sum_deviation = max(max_sum_deviation, abs(pct_sum - 100.0))
 
+        result.details["what_it_checks"] = (
+            "In every ranking group (one offense of one rankings/*.json file), each entry's pct equals its "
+            "count / the group's count sum x 100 to 2 decimals (within 0.005), and the file's totals entry "
+            "equals that sum. Group pct sums differ from 100% only by that rounding; the largest difference "
+            "is shown. It checks the files' own counts, not the counts against the aggregates.")
         result.details["groups_validated"] = groups_validated
-        result.details["severe_errors"] = len(pct_errors)
-        result.details["rounding_warnings"] = len(pct_warnings)
+        result.details["entries_checked"] = entries_checked
+        result.details["pct_errors"] = len(pct_errors)
+        result.details["max_sum_deviation_pct"] = round(max_sum_deviation, 2)
 
-        print(f"  Groups validated: {groups_validated:,}")
-        print(f"  Severe errors (>10% off): {len(pct_errors)}")
-        print(f"  Rounding warnings (expected): {len(pct_warnings)}")
+        print(f"  Groups validated: {groups_validated:,} ({entries_checked:,} entries)")
+        print(f"  Entries whose pct is not count / group total (to 2 decimals), or wrong totals: {len(pct_errors)}")
+        print(f"  Largest difference of a group's pct sum from 100% (rounding only): {max_sum_deviation:.2f}")
 
         if pct_errors:
-            result.failed(f"Found {len(pct_errors)} severe percentage sum errors")
+            err = pct_errors[0]
+            result.failed(f"Found {len(pct_errors)} percentage errors (first: {err['file']}/{err['offense']}: "
+                          f"{err['problem']}). Run 04_create_aggregates.py and 05_generate_json.py, then 07 again.")
             if verbose:
                 for err in pct_errors[:5]:
-                    print(f"    {err['file']}/{err['offense']}: sum = {err['pct_sum']}% ({err['schools']} schools)")
-        elif pct_warnings:
-            result.warning(f"Found {len(pct_warnings)} groups with acceptable rounding variance")
+                    print(f"    {err['file']}/{err['offense']}: {err['problem']}")
+        elif groups_validated == 0:
+            result.failed(f"No ranking groups in {rankings_dir} to check. Run 04_create_aggregates.py "
+                          f"and 05_generate_json.py.")
         else:
             result.passed()
 
@@ -505,64 +661,161 @@ def audit_percentage_sums(verbose: bool = False) -> AuditResult:
     return result
 
 
-def audit_source_traceability(verbose: bool = False) -> AuditResult:
+def sql_strings(names) -> str:
+    """A SQL list of string literals."""
+    return ", ".join("'" + str(n).replace("'", "''") + "'" for n in names)
+
+
+def audit_aggregate_consistency(verbose: bool = False) -> AuditResult:
     """
-    CHECK 7: Compare fact table totals to aggregate totals.
-    Ensures no data loss during aggregation.
+    CHECK 7: The aggregates hold exactly the fact table's counts.
+    Ensures no data loss during aggregation, by the rules of
+    04_create_aggregates.py: for every year, school, offense and geography in
+    the facts, an aggregate row with the same total (Residence halls
+    included), and an "All" row with the sum of the GEO_FOR_ALL geographies
+    (On-campus, Non-campus, Public property). Residence halls are a subset of
+    On-campus, so "All" leaves them out. Any difference, in any year or
+    geography, fails the check, as do fact rows 04 cannot place: no count, no
+    year/school/offense/geography, or a geography not in GEO_CODES (04 would
+    leave it out of "All").
     """
-    result = AuditResult("Source Traceability")
-    print("\nCHECK 7: Source Traceability")
+    result = AuditResult("Aggregate Consistency")
+    print("\nCHECK 7: Aggregate Consistency")
 
     try:
         con = duckdb.connect()
-        facts_pattern = get_facts_pattern()
-
-        # Get fact table totals by year
-        fact_totals = con.execute(f"""
-            SELECT year, SUM(count) as total_incidents
-            FROM read_parquet('{facts_pattern}')
-            GROUP BY year
-            ORDER BY year
-        """).df()
-
-        # Get aggregate totals by year (geo="All" to avoid double counting)
+        facts_file = get_facts_path()
         agg_path = CURATED_DIR / "aggs" / "agg_school_year_offense.parquet"
-        agg = pd.read_parquet(agg_path)
+        if not agg_path.is_file():
+            result.failed(f"{agg_path} not found. Run 04_create_aggregates.py.")
+            print(f"  {result.status}")
+            return result
 
-        # Sum across schools and offenses for geo="All"
-        agg_totals = agg[agg["geo"] == "All"].groupby("year")["count"].sum().reset_index()
-        agg_totals.columns = ["year", "agg_total"]
+        result.details["what_it_checks"] = (
+            "From data/curated/facts/incidents.parquet, with the rules of 04_create_aggregates.py, the count "
+            "of every row of agg_school_year_offense.parquet: each year, school, offense and geography "
+            "(Residence halls included), and \"All\" = On-campus + Non-campus + Public property (Residence "
+            "halls are a subset of On-campus, so \"All\" leaves them out). Every row must match exactly; the "
+            "totals per year and geography are shown. This proves that no count was lost, added or changed "
+            "between the facts and the aggregates. It does not re-read the DOE files, so it cannot detect a "
+            "value that 02_transform_to_parquet.py read wrongly from them.")
 
-        # Compare
-        comparison = fact_totals.merge(agg_totals, on="year", how="outer")
-        comparison["variance"] = comparison["agg_total"] - comparison["total_incidents"]
+        # Fact rows 04 cannot place
+        fact_rows, no_count, no_key, first_year, last_year = con.execute(f"""
+            SELECT COUNT(*),
+                   COUNT(*) FILTER (WHERE count IS NULL),
+                   COUNT(*) FILTER (WHERE year IS NULL OR unitid IS NULL OR offense IS NULL OR geo IS NULL),
+                   MIN(year), MAX(year)
+            FROM read_parquet('{facts_file}')
+        """).fetchone()
+        other_geos = con.execute(f"""
+            SELECT geo, COUNT(*), CAST(COALESCE(SUM(count), 0) AS BIGINT)
+            FROM read_parquet('{facts_file}')
+            WHERE geo NOT IN ({sql_strings(GEO_CODES.values())})
+            GROUP BY geo ORDER BY geo
+        """).fetchall()
 
-        variances = comparison[comparison["variance"] != 0]
+        # Every aggregate row as 04 makes it from the facts, next to the row 04 wrote
+        same_key = " AND ".join(f"e.{k} IS NOT DISTINCT FROM a.{k}" for k in ("year", "unitid", "offense", "geo"))
+        joined = f"""
+            WITH f AS (
+                SELECT year, unitid, offense, geo, count FROM read_parquet('{facts_file}')
+            ),
+            expected AS (
+                SELECT year, unitid, offense, geo, SUM(n) AS n FROM (
+                    SELECT year, unitid, offense, geo, count AS n FROM f
+                    UNION ALL
+                    SELECT year, unitid, offense, 'All' AS geo, count AS n FROM f
+                    WHERE geo IN ({sql_strings(GEO_FOR_ALL)})
+                ) AS fact_rows
+                GROUP BY year, unitid, offense, geo
+            ),
+            actual AS (
+                SELECT year, unitid, offense, geo, SUM(count) AS n
+                FROM read_parquet('{agg_path}')
+                GROUP BY year, unitid, offense, geo
+            ),
+            joined AS (
+                SELECT COALESCE(e.year, a.year) AS year, COALESCE(e.unitid, a.unitid) AS unitid,
+                       COALESCE(e.offense, a.offense) AS offense, COALESCE(e.geo, a.geo) AS geo,
+                       e.n AS facts, a.n AS aggregates
+                FROM expected e FULL OUTER JOIN actual a ON {same_key}
+            )
+        """
+        by_year_geo = []
+        rows_compared = rows_differing = 0
+        for year, geo, facts, aggregates, compared, differing in con.execute(joined + """
+            SELECT year, geo,
+                   CAST(COALESCE(SUM(facts), 0) AS BIGINT), CAST(COALESCE(SUM(aggregates), 0) AS BIGINT),
+                   COUNT(*), COUNT(*) FILTER (WHERE facts IS DISTINCT FROM aggregates)
+            FROM joined
+            GROUP BY year, geo
+            ORDER BY year NULLS LAST, geo NULLS LAST
+        """).fetchall():
+            by_year_geo.append({"year": year, "geo": geo, "facts": facts, "aggregates": aggregates,
+                                "variance": aggregates - facts, "rows_differing": differing})
+            rows_compared += compared
+            rows_differing += differing
+        first_differences = con.execute(joined + """
+            SELECT year, unitid, offense, geo, CAST(facts AS BIGINT), CAST(aggregates AS BIGINT)
+            FROM joined
+            WHERE facts IS DISTINCT FROM aggregates
+            ORDER BY year NULLS LAST, geo NULLS LAST, unitid NULLS LAST, offense NULLS LAST
+            LIMIT 5
+        """).fetchall() if rows_differing else []
 
-        # Calculate overall totals
-        fact_total = int(fact_totals["total_incidents"].sum())
-        agg_total = int(agg_totals["agg_total"].sum())
+        def totals(geo):
+            facts = sum(r["facts"] for r in by_year_geo if r["geo"] == geo)
+            aggregates = sum(r["aggregates"] for r in by_year_geo if r["geo"] == geo)
+            return {"facts": facts, "aggregates": aggregates, "variance": aggregates - facts}
 
-        result.details["fact_table_total"] = fact_total
-        result.details["aggregate_total"] = agg_total
-        result.details["variance"] = agg_total - fact_total
-        result.details["by_year"] = comparison.to_dict("records")
+        span = f"{first_year}-{last_year}" if fact_rows else "none"
+        result.details["years"] = span
+        result.details["fact_rows"] = fact_rows
+        result.details["all"] = totals("All")
+        result.details["residence_halls"] = totals("Residence halls")
+        result.details["aggregate_rows_compared"] = rows_compared
+        result.details["aggregate_rows_differing"] = rows_differing
+        result.details["by_year_geo"] = by_year_geo
 
-        print(f"  Fact table total (2015-2023): {fact_total:,} incidents")
-        print(f"  Aggregate total (geo=All): {agg_total:,} incidents")
-        print(f"  Variance: {agg_total - fact_total:,}")
+        print(f"  Fact table ({span}): {fact_rows:,} rows")
+        print(f"  \"All\" = {' + '.join(GEO_FOR_ALL)}; Residence halls (a subset of On-campus) are compared on their own")
+        print(f"    {'Year':<6}{'Geography':<18}{'Facts':>12}{'Aggregates':>12}{'Variance':>10}  (aggregates - facts)")
+        for r in by_year_geo:
+            print(f"    {str(r['year']):<6}{str(r['geo']):<18}{r['facts']:>12,}{r['aggregates']:>12,}{r['variance']:>10,}")
+        for label, t in (("All", result.details["all"]), ("Residence halls", result.details["residence_halls"])):
+            print(f"  {label} ({span}): facts {t['facts']:,}, aggregates {t['aggregates']:,}, variance {t['variance']:,}")
+        print(f"  Aggregate rows compared: {rows_compared:,}; differing from the facts: {rows_differing:,}")
 
-        if len(variances) > 0:
-            result.warning("Fact totals differ from aggregate totals (expected due to geo aggregation)")
+        if not fact_rows:
+            result.failed("The fact table has no rows. Run 02_transform_to_parquet.py and 03 to 07 again.")
+        if no_count:
+            result.failed(f"{no_count:,} fact rows have no count, so the aggregates add nothing for them. "
+                          f"Run 02_transform_to_parquet.py and 03 to 07 again.")
+        if no_key:
+            result.failed(f"{no_key:,} fact rows have no year, UNITID, offense or geography. "
+                          f"Run 02_transform_to_parquet.py and 03 to 07 again.")
+        for geo, n, count in other_geos:
+            result.failed(f"{n:,} fact rows ({count:,} incidents) have geography {geo!r}, which is not one of "
+                          f"{', '.join(GEO_CODES.values())}, so 04 leaves them out of \"All\". Check GEO_CODES "
+                          f"in config.py and 02_transform_to_parquet.py.")
+        for r in by_year_geo:
+            if r["variance"] or r["rows_differing"]:
+                result.failed(f"{r['year']} {r['geo']}: facts {r['facts']:,}, aggregates {r['aggregates']:,} "
+                              f"(variance {r['variance']:+,}; {r['rows_differing']:,} school-offense rows differ)")
+        if rows_differing:
+            def shown(n):
+                return "none" if n is None else f"{n:,}"
+            first = "; ".join(f"{y} {u} {o} {g}: facts {shown(f)}, aggregates {shown(a)}"
+                              for y, u, o, g, f, a in first_differences[:3])
+            result.failed(f"{rows_differing:,} aggregate rows differ from the facts (first: {first}). "
+                          f"Run 04_create_aggregates.py, then 05_generate_json.py and 07 again.")
             if verbose:
-                for _, row in variances.iterrows():
-                    print(f"    {int(row['year'])}: fact={int(row['total_incidents']):,}, agg={int(row['agg_total']):,}")
-        else:
-            result.passed()
+                for y, u, o, g, f, a in first_differences:
+                    print(f"    {y} {u} {o} {g}: facts={shown(f)}, agg={shown(a)}")
 
-        # Note: Variance is expected because facts include all geos while agg sums geo="All"
-        # The key check is that aggregates are derived correctly from facts
-        result.passed()
+        if result.status == "PENDING":
+            result.passed()
 
         print(f"  {result.status}")
 
@@ -576,20 +829,40 @@ def audit_source_traceability(verbose: bool = False) -> AuditResult:
 def generate_per_school_report(verbose: bool = False) -> pd.DataFrame:
     """
     Generate detailed per-school audit report.
-    Returns DataFrame with validation results for each school.
+    Returns DataFrame with validation results for each school file:
+      incident_match: yearlyTotals equal the aggregates' geo "All" totals in
+        every year of either (as check 2).
+      fte_match: fteByYear, the FTE the school page's rates use, and fte (its
+        newest year) equal dim_enrollment's FTE for the school's base UNITID
+        in each year it has aggregate data (the FTE 04 joins).
+      years_with_data / years_with_fte: the years in yearlyTotals, and how
+        many of them have an FTE above 0 in dim_enrollment.
+      status: FAIL if a match fails; WARNING if fewer than 80% of its years
+        have an FTE; otherwise PASS.
     """
     print("\nGenerating per-school audit report...")
 
     schools_dir = JSON_DIR / "schools"
     json_files = list(schools_dir.glob("*.json"))
 
-    # Load aggregates for comparison
+    # Load aggregates for comparison: geo "All" totals, and the years each school has data
     agg_path = CURATED_DIR / "aggs" / "agg_school_year_offense.parquet"
-    agg = pd.read_parquet(agg_path)
+    agg = pd.read_parquet(agg_path, columns=["year", "unitid", "geo", "count"])
+    agg_totals = {}  # unitid -> {year: total}
+    for (uid, year), total in agg[agg["geo"] == "All"].groupby(["unitid", "year"])["count"].sum().items():
+        agg_totals.setdefault(int(uid), {})[int(year)] = int(total)
+    agg_years = {}  # unitid -> years with any aggregate row, as 05 reads them (DATA_YEARS only)
+    in_years = agg[agg["year"].isin(DATA_YEARS)]
+    for uid, year in zip(in_years["unitid"].tolist(), in_years["year"].tolist()):
+        agg_years.setdefault(int(uid), set()).add(int(year))
 
-    # Load enrollment for FTE check
+    # Load enrollment for FTE check: (base unitid, year) -> FTE
     enrollment_path = CURATED_DIR / "dims" / "dim_enrollment.parquet"
-    enrollment = pd.read_parquet(enrollment_path) if enrollment_path.exists() else pd.DataFrame()
+    enrollment = {}
+    if enrollment_path.exists():
+        dim = pd.read_parquet(enrollment_path, columns=["unitid", "year", "fte"]).dropna(subset=["fte"])
+        for uid, year, fte in zip(dim["unitid"].tolist(), dim["year"].tolist(), dim["fte"].tolist()):
+            enrollment[(int(uid), int(year))] = float(fte)
 
     results = []
 
@@ -607,38 +880,31 @@ def generate_per_school_report(verbose: bool = False) -> pd.DataFrame:
 
         # Get school info
         name = school_data.get("name", "Unknown")
-        years_in_data = len(school_data.get("yearlyTotals", []))
+        yearly_totals = {int(yt["year"]): yt["total"] for yt in school_data.get("yearlyTotals", [])}
+        years_in_data = len(yearly_totals)
 
-        # Check FTE coverage (use base unitid for enrollment match)
-        base_unitid = unitid // 1000
-        school_fte = enrollment[enrollment["unitid"] == base_unitid] if len(enrollment) > 0 else pd.DataFrame()
-        years_with_fte = len(school_fte)
-
-        # Check incident totals
-        yearly_totals = {yt["year"]: yt["total"] for yt in school_data.get("yearlyTotals", [])}
-        school_agg = agg[(agg["unitid"] == unitid) & (agg["geo"] == "All")]
-        agg_totals = school_agg.groupby("year")["count"].sum().to_dict()
-
+        # Check incident totals, every year in either
+        school_agg = agg_totals.get(unitid, {})
         incident_match = all(
-            yearly_totals.get(int(year), 0) == count
-            for year, count in agg_totals.items()
+            yearly_totals.get(year, 0) == school_agg.get(year, 0)
+            for year in set(school_agg) | set(yearly_totals)
         )
 
-        # Check rate calculation (spot check latest year)
-        fte = school_data.get("fte")
-        rate_match = True
-        if fte and fte > 0:
-            latest_year = max(yearly_totals.keys()) if yearly_totals else None
-            if latest_year:
-                count = yearly_totals[latest_year]
-                expected_rate = (count / fte) * 10000
-                # Check if rate is stored in fteByYear
-                stored_rate = school_data.get("rate")  # May not exist in current schema
+        # Check the FTE the page's rates use (base unitid for the enrollment match)
+        base_unitid = unitid // 1000
+        expected_fte = {year: enrollment[(base_unitid, year)] for year in agg_years.get(unitid, ())
+                        if (base_unitid, year) in enrollment}
+        stored_fte = {int(year): float(fte) for year, fte in (school_data.get("fteByYear") or {}).items()
+                      if fte is not None}
+        stored_latest = None if school_data.get("fte") is None else float(school_data["fte"])
+        expected_latest = expected_fte[max(expected_fte)] if expected_fte else None
+        fte_match = stored_fte == expected_fte and stored_latest == expected_latest
+        years_with_fte = sum(1 for year in yearly_totals if enrollment.get((base_unitid, year), 0) > 0)
 
         # Determine overall status
-        if incident_match and years_with_fte >= years_in_data * 0.8:
+        if incident_match and fte_match and years_with_fte >= years_in_data * 0.8:
             status = "PASS"
-        elif incident_match:
+        elif incident_match and fte_match:
             status = "WARNING"
         else:
             status = "FAIL"
@@ -650,36 +916,58 @@ def generate_per_school_report(verbose: bool = False) -> pd.DataFrame:
             "years_with_data": years_in_data,
             "years_with_fte": years_with_fte,
             "incident_match": incident_match,
-            "rate_match": rate_match,
+            "fte_match": fte_match,
             "status": status
         })
 
-    df = pd.DataFrame(results)
+    df = pd.DataFrame(results, columns=["unitid", "name", "json_exists", "years_with_data", "years_with_fte",
+                                        "incident_match", "fte_match", "status"])
     print(f"  Generated report for {len(df):,} schools")
+    failed = df[df["status"] == "FAIL"]
+    if len(failed):
+        print(f"  {len(failed):,} schools FAIL (first: {int(failed['unitid'].iloc[0])}; see the CSV report). "
+              f"Run 04_create_aggregates.py and 05_generate_json.py, then 07 again.")
 
     return df
+
+
+def audited_build() -> dict:
+    """
+    What this audit is of: the SHA-256 of the site's build record (it lists
+    the SHA-256 of every site file; line endings read as LF, as provenance
+    hashes site files) and of each curated file the checks read.
+    """
+    record = provenance.PUBLISHED_MANIFEST
+    return {
+        "site_record": record.relative_to(PROJECT_ROOT).as_posix(),
+        "site_record_sha256": provenance.site_file_sha256(record) if record.is_file() else None,
+        "curated_sha256": {name: provenance.file_sha256(CURATED_DIR / name)
+                           for name in CURATED_READ if (CURATED_DIR / name).is_file()},
+    }
 
 
 def save_audit_results(
     results: list[AuditResult],
     per_school_df: pd.DataFrame,
-    verbose: bool = False
+    verbose: bool = False,
+    build: Optional[dict] = None,
 ):
     """Save audit results to files."""
     QA_DIR.mkdir(parents=True, exist_ok=True)
 
-    # Determine overall status
+    # Determine overall status (a school whose file does not match the curated data fails it too)
     statuses = [r.status for r in results]
-    if all(s == "PASS" for s in statuses):
-        overall_status = "PASS"
-    elif any(s == "FAIL" for s in statuses):
+    if any(s == "FAIL" for s in statuses) or (per_school_df["status"] == "FAIL").any():
         overall_status = "FAIL"
+    elif all(s == "PASS" for s in statuses):
+        overall_status = "PASS"
     else:
         overall_status = "WARNING"
 
     # Save JSON report
     report = {
-        "generated_at": datetime.now().isoformat(),
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "audited_build": build or {},
         "overall_status": overall_status,
         "summary": {
             "total_checks": len(results),
@@ -689,21 +977,27 @@ def save_audit_results(
         },
         "checks": [r.to_dict() for r in results],
         "schools": {
+            "what_it_checks": (
+                "Per site school file: yearlyTotals equal the aggregates' geo \"All\" totals (as check 2), and "
+                "fteByYear and fte equal dim_enrollment's FTE for the school's years (FAIL otherwise); "
+                "WARNING when fewer than 80% of its years have an FTE. A school that fails makes the overall "
+                "status FAIL."),
             "total": len(per_school_df),
             "passed": len(per_school_df[per_school_df["status"] == "PASS"]),
             "failed": len(per_school_df[per_school_df["status"] == "FAIL"]),
             "warnings": len(per_school_df[per_school_df["status"] == "WARNING"]),
+            "failed_unitids_first_20": [int(u) for u in per_school_df[per_school_df["status"] == "FAIL"]["unitid"][:20]],
         }
     }
 
     json_path = QA_DIR / "comprehensive_audit.json"
-    with open(json_path, 'w') as f:
+    with open(json_path, "w", encoding="utf-8", newline="\n") as f:
         json.dump(report, f, indent=2, default=str)
     print(f"\nJSON report saved: {json_path}")
 
     # Save CSV report
     csv_path = QA_DIR / "comprehensive_audit.csv"
-    per_school_df.to_csv(csv_path, index=False)
+    per_school_df.to_csv(csv_path, index=False, encoding="utf-8", lineterminator="\n")
     print(f"CSV report saved: {csv_path}")
 
     return overall_status
@@ -731,6 +1025,7 @@ def main():
     print("=" * 60)
 
     results = []
+    build = audited_build()  # what is audited, taken before any check reads it
 
     # Run all checks
     checks = [
@@ -740,11 +1035,13 @@ def main():
         audit_rate_calculations,
         audit_ranking_order,
         audit_percentage_sums,
-        audit_source_traceability,
+        audit_aggregate_consistency,
     ]
 
     for check_fn in checks:
         result = check_fn(verbose=args.verbose)
+        if result.status == "PENDING":
+            result.failed("The check ended without a result")
         results.append(result)
 
         if args.stop_on_fail and result.status == "FAIL":
@@ -754,8 +1051,18 @@ def main():
     # Generate per-school report
     per_school_df = generate_per_school_report(verbose=args.verbose)
 
+    # The files must not have changed while they were audited, or the report would describe no one build
+    changed = audited_build() != build
+    if changed:
+        build = {**build, "site_record_sha256": None,
+                 "note": "the site data or curated files changed while 07 ran; run 07 again"}
+
     # Save results
-    overall_status = save_audit_results(results, per_school_df, verbose=args.verbose)
+    overall_status = save_audit_results(results, per_school_df, verbose=args.verbose, build=build)
+    if changed:
+        print("\nERROR: the site data or curated files changed while 07 ran, so this report is not the "
+              "audit of one build. Run 07 again when no pipeline step is running.")
+        return 1
 
     # Print summary
     print("\n" + "=" * 60)
@@ -770,7 +1077,9 @@ def main():
 
     schools_passed = len(per_school_df[per_school_df["status"] == "PASS"])
     schools_total = len(per_school_df)
-    print(f"Schools: {schools_passed:,} / {schools_total:,} passed ({schools_passed/schools_total*100:.1f}%)")
+    schools_failed = len(per_school_df[per_school_df["status"] == "FAIL"])
+    print(f"Schools: {schools_passed:,} / {schools_total:,} passed "
+          f"({schools_passed / schools_total * 100 if schools_total else 0:.1f}%), {schools_failed:,} FAIL")
 
     print(f"\nReports saved to: {QA_DIR}")
 

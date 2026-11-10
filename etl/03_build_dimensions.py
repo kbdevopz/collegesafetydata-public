@@ -9,6 +9,7 @@ Usage:
     python 03_build_dimensions.py
 """
 
+import os
 import sys
 import pandas as pd
 import duckdb
@@ -17,10 +18,56 @@ from pathlib import Path
 # Add parent to path for config import
 sys.path.insert(0, str(Path(__file__).parent))
 from config import (
-    CURATED_DIR, IVY_LEAGUE, IVY_BASE_UNITIDS, OFFENSE_ORDER, OFFENSE_ORDER_MAP,
+    CURATED_DIR, IVY_LEAGUE, IVY_BASE_UNITIDS, OFFENSE_ORDER_MAP,
     OFFENSE_DESCRIPTIONS, OFFENSE_FAMILIES, US_STATES, VALID_STATE_CODES,
     PROCESS_ALL_SCHOOLS
 )
+import provenance
+
+# The one fact table that 02_transform_to_parquet.py writes
+FACTS_PATH = CURATED_DIR / "facts" / "incidents.parquet"
+
+
+def find_stray_facts() -> list:
+    """Parquet data under data/curated/facts other than FACTS_PATH."""
+    def fail(err):
+        raise err
+
+    stray = []
+    for root, dirs, files in os.walk(FACTS_PATH.parent, onerror=fail):
+        root = Path(root)
+        for name in list(dirs):
+            if name.lower() == "incidents" or name.lower().endswith(".parquet"):
+                stray.append(root / name)
+                dirs.remove(name)
+        for name in files:
+            if name.lower().endswith(".parquet") and root / name != FACTS_PATH:
+                stray.append(root / name)
+    return sorted(stray)
+
+
+def get_facts_path() -> str:
+    """FACTS_PATH, after checking that nothing else there could be read as facts."""
+    stray = find_stray_facts()
+    if stray:
+        listing = "\n".join(f"  {p}{' (folder)' if p.is_dir() else ''}" for p in stray)
+        raise RuntimeError(
+            f"{FACTS_PATH.parent} holds parquet data that 02_transform_to_parquet.py "
+            f"did not write:\n{listing}\n"
+            f"Only the file {FACTS_PATH.name} belongs there. Delete the items listed above "
+            f"(move them outside data/curated to keep them), then run this step again."
+        )
+    if not FACTS_PATH.is_file():
+        raise RuntimeError(f"{FACTS_PATH} not found. Run 02_transform_to_parquet.py first.")
+    return str(FACTS_PATH)
+
+
+def facts_read_error(err: Exception) -> RuntimeError:
+    return RuntimeError(
+        f"Could not read {FACTS_PATH}: {err}\n"
+        f"If another program (sync, backup or antivirus) has the file open, close it and "
+        f"run this step again. Otherwise run 02_transform_to_parquet.py again."
+    )
 
 
 def build_dim_institution() -> pd.DataFrame:
@@ -43,35 +90,36 @@ def build_dim_institution() -> pd.DataFrame:
 
     con = duckdb.connect()
 
-    # Get unique UNITIDs from facts
-    facts_path = CURATED_DIR / "facts"
-
-    # Check for partitioned or single file
-    if (facts_path / "incidents").exists():
-        facts_pattern = str(facts_path / "incidents" / "**" / "*.parquet")
-    else:
-        facts_pattern = str(facts_path / "*.parquet")
-
+    # Get unique UNITIDs from facts (a read error stops the build)
+    facts_file = get_facts_path()
     try:
         unitids_df = con.execute(f"""
             SELECT DISTINCT unitid
-            FROM read_parquet('{facts_pattern}')
+            FROM read_parquet('{facts_file}')
             ORDER BY unitid
         """).df()
-    except Exception as e:
-        print(f"Error reading facts: {e}")
-        # Create from Ivy League config only
-        unitids_df = pd.DataFrame({"unitid": list(IVY_LEAGUE.keys())})
+    except duckdb.Error as e:
+        raise facts_read_error(e) from e
 
     print(f"  Found {len(unitids_df)} unique institutions in facts")
 
-    # Try to get additional info from raw institutions if available
+    # Names, cities and states come from the institution list that 02 writes
     raw_inst_path = dims_dir / "raw_institutions.parquet"
-    raw_inst = None
-    if raw_inst_path.exists():
-        raw_inst = pd.read_parquet(raw_inst_path)
-        raw_inst.columns = raw_inst.columns.str.upper()
-        print(f"  Loaded raw institution data: {len(raw_inst)} rows")
+    if not raw_inst_path.is_file():
+        raise RuntimeError(f"{raw_inst_path} not found. Run 02_transform_to_parquet.py first.")
+    raw_inst = pd.read_parquet(raw_inst_path)
+    raw_inst.columns = raw_inst.columns.str.upper()
+    print(f"  Loaded raw institution data: {len(raw_inst)} rows")
+    missing_cols = [c for c in ("INSTNM", "CITY") if c not in raw_inst.columns]
+    if not {"UNITID", "UNITID_P"} & set(raw_inst.columns):
+        missing_cols.append("UNITID_P")
+    if not {"STATE", "STABBR"} & set(raw_inst.columns):
+        missing_cols.append("STATE")
+    if missing_cols:
+        raise RuntimeError(
+            f"{raw_inst_path} has no {', '.join(missing_cols)} column. "
+            f"Run 02_transform_to_parquet.py again and check the DOE file layout."
+        )
 
     # Build dimension
     records = []
@@ -109,15 +157,15 @@ def build_dim_institution() -> pd.DataFrame:
                 record["city"] = ivy_info["city"]
                 record["state"] = ivy_info["state"]
 
-        # Try to get info from raw institutions
+        # Get info from raw institutions
         # Check various possible column names for UNITID
         unitid_col = None
         for col in ["UNITID", "UNITID_P"]:
-            if raw_inst is not None and col in raw_inst.columns:
+            if col in raw_inst.columns:
                 unitid_col = col
                 break
 
-        if raw_inst is not None and unitid_col:
+        if unitid_col:
             # Match unitid directly (UNITID_P is same format, just float)
             row = raw_inst[raw_inst[unitid_col].astype(int) == unitid]
 
@@ -140,6 +188,14 @@ def build_dim_institution() -> pd.DataFrame:
 
     dim_institution = pd.DataFrame(records)
 
+    # A school without a name would drop out of the "All" totals in step 04
+    missing = dim_institution.loc[dim_institution["institution_name"].isna(), "unitid"].tolist()
+    if missing:
+        raise RuntimeError(
+            f"{len(missing)} schools in the facts have no name in {raw_inst_path.name} "
+            f"(UNITIDs {missing[:10]}). Run 02_transform_to_parquet.py again, then this step."
+        )
+
     # Add state_name column from config
     dim_institution["state_name"] = dim_institution["state"].map(
         lambda x: US_STATES.get(x, x) if pd.notna(x) else None
@@ -160,15 +216,12 @@ def build_dim_institution() -> pd.DataFrame:
     main_count = dim_institution["is_main_campus"].sum()
     branch_count = len(dim_institution) - main_count
     states_with_data = dim_institution["state"].dropna().nunique()
-    missing_names = dim_institution["institution_name"].isna().sum()
 
     print(f"  Total institutions: {len(dim_institution)}")
     print(f"  Main campuses: {main_count}")
     print(f"  Branch campuses: {branch_count}")
     print(f"  Ivy League: {ivy_count}")
     print(f"  States with data: {states_with_data}")
-    if missing_names > 0:
-        print(f"  WARNING: {missing_names} institutions missing names")
 
     # Show top states by school count
     if PROCESS_ALL_SCHOOLS and len(dim_institution) > 100:
@@ -203,30 +256,19 @@ def build_dim_offense() -> pd.DataFrame:
 
     con = duckdb.connect()
 
-    # Get unique offenses from facts
-    facts_path = CURATED_DIR / "facts"
-
-    if (facts_path / "incidents").exists():
-        facts_pattern = str(facts_path / "incidents" / "**" / "*.parquet")
-    else:
-        facts_pattern = str(facts_path / "*.parquet")
-
+    # Get unique offenses from facts (a read error stops the build)
+    facts_file = get_facts_path()
     try:
         offenses_df = con.execute(f"""
             SELECT DISTINCT
                 offense,
                 offense_family
-            FROM read_parquet('{facts_pattern}')
+            FROM read_parquet('{facts_file}')
             ORDER BY offense
         """).df()
-        offenses_df["definition_version"] = "post_2015"
-    except Exception as e:
-        print(f"Error reading facts: {e}")
-        # Create from config
-        offenses_df = pd.DataFrame([
-            {"offense": o, "offense_family": "Criminal", "definition_version": "post_2015"}
-            for o in OFFENSE_ORDER
-        ])
+    except duckdb.Error as e:
+        raise facts_read_error(e) from e
+    offenses_df["definition_version"] = "post_2015"
 
     print(f"  Found {len(offenses_df)} unique offenses")
 
@@ -280,8 +322,14 @@ def main():
     print("Building Dimension Tables")
     print("=" * 60)
 
+    # The files this step reads, checked against 02's record before reading
+    dims = CURATED_DIR / "dims"
+    inputs_before = provenance.Snapshot("03", [FACTS_PATH, dims / "raw_institutions.parquet"])
+    provenance.invalidate(provenance.INSTITUTION_MANIFEST)
     dim_institution = build_dim_institution()
     dim_offense = build_dim_offense()
+    provenance.write_institution_manifest(
+        inputs_before, outputs=[dims / "dim_institution.parquet", dims / "dim_offense.parquet"])
 
     print("\n" + "=" * 60)
     print("Summary")
@@ -295,4 +343,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(provenance.run_locked("03", main))
