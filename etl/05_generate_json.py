@@ -14,16 +14,116 @@ Usage:
 import sys
 import json
 import pandas as pd
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from datetime import datetime
 
 # Add parent to path for config import
 sys.path.insert(0, str(Path(__file__).parent))
 from config import (
     CURATED_DIR, JSON_DIR, IVY_LEAGUE,
-    OFFENSE_ORDER, OFFENSE_DESCRIPTIONS, OFFENSE_FAMILIES, DATA_YEARS,
+    OFFENSE_DESCRIPTIONS, OFFENSE_FAMILIES, DATA_YEARS,
     US_STATES, PROCESS_ALL_SCHOOLS
 )
+import provenance
+
+
+class SiteDataError(Exception):
+    """A problem that must stop the build before bad site data is published."""
+
+
+# Files under JSON_DIR that 05 makes. rankings/ and schools/ belong to 05
+# entirely; in the top folder only these names do (build_inputs.json is
+# written by provenance after the rest).
+ROOT_FILES = {"metadata.json", "presets.json", "school-index.json"}
+OWNED_DIRS = ("rankings", "schools")
+
+# Paths (relative to JSON_DIR, "/" separated) written by this run
+_written: set[str] = set()
+
+
+def owns(rel: str) -> bool:
+    """Whether 05 makes the site file at `rel` (relative to JSON_DIR, "/" separated).
+
+    remove_stale_files deletes such a file when a run does not write it;
+    00_check_for_updates.py uses the same rule.
+    """
+    top = rel.split("/")[0]
+    return rel in ROOT_FILES or (
+        top in OWNED_DIRS and rel.count("/") == 1 and PurePosixPath(rel).suffix == ".json")
+
+
+def required_inputs() -> list[Path]:
+    """Curated files 05 reads. All must exist before anything is written."""
+    paths = [
+        CURATED_DIR / "aggs" / "agg_school_year_offense.parquet",
+        CURATED_DIR / "aggs" / "agg_ivy_rankings.parquet",
+        CURATED_DIR / "dims" / "dim_institution.parquet",
+        CURATED_DIR / "dims" / "dim_offense.parquet",
+    ]
+    if PROCESS_ALL_SCHOOLS:
+        paths += [
+            CURATED_DIR / "aggs" / "agg_state_rankings.parquet",
+            CURATED_DIR / "aggs" / "agg_national_rankings.parquet",
+        ]
+    return paths
+
+
+def opt(value):
+    """None for a missing value (None, NaN, NA), otherwise the value."""
+    return None if value is None or pd.isna(value) else value
+
+
+def write_json(path: Path, obj) -> None:
+    """Write one site file as strict JSON with LF line endings.
+
+    NaN and Infinity are not valid JSON and break the site, so they stop the
+    build instead of being written.
+    """
+    try:
+        text = json.dumps(obj, indent=2, allow_nan=False)
+    except ValueError as e:
+        raise SiteDataError(
+            f"{path.relative_to(JSON_DIR).as_posix()}: a value is NaN or Infinity ({e}). "
+            "Fix the curated data (steps 02-04) and re-run 05.") from e
+    with open(path, "w", encoding="utf-8", newline="\n") as f:
+        f.write(text)
+    _written.add(path.relative_to(JSON_DIR).as_posix())
+
+
+def remove_stale_files() -> None:
+    """Delete site files 05 owns that this run did not write.
+
+    Files that 05 does not make are reported and left in place.
+    """
+    written_lower = {p.lower(): p for p in _written}
+    stale, foreign = [], []
+    for p in sorted(JSON_DIR.rglob("*")):
+        if p.is_dir():
+            continue
+        rel = p.relative_to(JSON_DIR).as_posix()
+        if rel in _written or rel == provenance.PUBLISHED_MANIFEST.name:
+            continue
+        if not owns(rel):
+            foreign.append(rel)
+        elif rel.lower() in written_lower:
+            raise SiteDataError(
+                f"{rel} differs only in letter case from {written_lower[rel.lower()]}, "
+                "which this run wrote. Delete it and re-run 05.")
+        else:
+            stale.append(p)
+    for p in stale:
+        p.unlink()
+    if stale:
+        by_dir: dict[str, int] = {}
+        for p in stale:
+            d = p.parent.name if p.parent != JSON_DIR else "top folder"
+            by_dir[d] = by_dir.get(d, 0) + 1
+        print(f"\nRemoved {len(stale)} files left from earlier runs: {by_dir}")
+    if foreign:
+        print(f"\nNOTE: {len(foreign)} file(s) in {JSON_DIR} are not made by 05, so 05 left them "
+              f"in place: {foreign[:10]}. Delete them or move them out of {JSON_DIR}. Until then "
+              "00_check_for_updates.py reports them, except files git ignores (such as .DS_Store), "
+              "which are never committed or published.")
 
 
 def ensure_json_dir():
@@ -33,12 +133,31 @@ def ensure_json_dir():
     (JSON_DIR / "schools").mkdir(exist_ok=True)
 
 
-def generate_metadata() -> dict:
+def enrollment_status(years, aggs_record: dict) -> dict[str, str]:
+    """
+    For each year, where its FTE comes from: "final" (NCES's final *_rv.csv),
+    "provisional" (NCES's provisional file) or "missing" (no enrollment, for
+    example because NCES has not published it yet; the site shows counts
+    without rates). Taken from the enrollment record (step 02a) inside 04's
+    record, which 05's snapshot checked against the files it reads.
+    """
+    inputs = (aggs_record or {}).get("inputs") or {}
+    used = (inputs.get("enrollment") or {}).get("inputs") or {}
+    status = {}
+    for year in years:
+        rec = used.get(str(year))
+        name = str(rec.get("file") or "").lower() if isinstance(rec, dict) else ""
+        status[str(year)] = "missing" if not name else ("final" if name.endswith("_rv.csv") else "provisional")
+    return status
+
+
+def generate_metadata(aggs_record: dict) -> dict:
     """
     Generate metadata.json with available options.
 
     Schema:
         years: number[]
+        enrollmentStatus: {year: "final" | "provisional" | "missing"}
         offenses: Offense[]
         geographies: string[]
         presets: Preset[]
@@ -50,20 +169,7 @@ def generate_metadata() -> dict:
     print("Generating metadata.json...")
 
     # Load offense dimension
-    dim_offense_path = CURATED_DIR / "dims" / "dim_offense.parquet"
-    if dim_offense_path.exists():
-        dim_offense = pd.read_parquet(dim_offense_path)
-    else:
-        # Create from config
-        dim_offense = pd.DataFrame([
-            {
-                "offense": o,
-                "offense_family": "Criminal",
-                "display_order": i,
-                "description": OFFENSE_DESCRIPTIONS.get(o, "")
-            }
-            for i, o in enumerate(OFFENSE_ORDER)
-        ])
+    dim_offense = pd.read_parquet(CURATED_DIR / "dims" / "dim_offense.parquet")
 
     # Build offense list - start with "all" pseudo-offense
     offenses = [
@@ -93,29 +199,27 @@ def generate_metadata() -> dict:
     offenses.sort(key=lambda x: x["displayOrder"])
 
     # Get available years from data (filtered to DATA_YEARS config)
-    agg_path = CURATED_DIR / "aggs" / "agg_school_year_offense.parquet"
-    if agg_path.exists():
-        agg = pd.read_parquet(agg_path)
-        # Only include years defined in DATA_YEARS config
-        years = sorted([y for y in agg["year"].unique().tolist() if y in DATA_YEARS])
-    else:
-        years = DATA_YEARS
+    agg = pd.read_parquet(CURATED_DIR / "aggs" / "agg_school_year_offense.parquet")
+    # Only include years defined in DATA_YEARS config
+    years = sorted([y for y in agg["year"].unique().tolist() if y in DATA_YEARS])
+    if not years:
+        raise SiteDataError(
+            f"agg_school_year_offense.parquet has no rows for DATA_YEARS {DATA_YEARS[0]}-{DATA_YEARS[-1]}. "
+            "Re-run 02-04, then 05.")
 
     # Build preset list
     presets = []
 
     # Add national preset first if processing all schools
     if PROCESS_ALL_SCHOOLS:
-        dim_inst_path = CURATED_DIR / "dims" / "dim_institution.parquet"
-        if dim_inst_path.exists():
-            dim_inst = pd.read_parquet(dim_inst_path)
-            total_schools = len(dim_inst)
-            presets.append({
-                "id": "national",
-                "name": "All Schools",
-                "description": f"All {total_schools:,} schools nationwide",
-                "schoolCount": total_schools
-            })
+        dim_inst = pd.read_parquet(CURATED_DIR / "dims" / "dim_institution.parquet")
+        total_schools = len(dim_inst)
+        presets.append({
+            "id": "national",
+            "name": "All Schools",
+            "description": f"All {total_schools:,} schools nationwide",
+            "schoolCount": total_schools
+        })
 
     # Add Ivy League preset
     presets.append({
@@ -145,21 +249,22 @@ def generate_metadata() -> dict:
 
     metadata = {
         "years": years,
+        "enrollmentStatus": enrollment_status(years, aggs_record),
         "offenses": offenses,
         "geographies": ["All", "On-campus", "Non-campus", "Public property", "Residence halls"],
         "presets": presets,
         "lastUpdated": datetime.now().isoformat(),
         "dataSource": "U.S. Department of Education Campus Safety & Security",
         "dataSourceUrl": "https://ope.ed.gov/campussafety/",
-        "coverage": f"{min(years)}-{max(years)}" if years else "2015-2024",
+        "coverage": f"{min(years)}-{max(years)}",
         "note": "Data reflects reported Clery Act incidents. Reporting practices may vary by institution. Residence hall incidents are a subset of on-campus incidents."
     }
 
     # Save
-    with open(JSON_DIR / "metadata.json", 'w') as f:
-        json.dump(metadata, f, indent=2)
+    write_json(JSON_DIR / "metadata.json", metadata)
 
     print(f"  Years: {metadata['coverage']}")
+    print(f"  Enrollment (FTE): {metadata['enrollmentStatus']}")
     print(f"  Offenses: {len(offenses)}")
     print(f"  Saved to: {JSON_DIR / 'metadata.json'}")
 
@@ -208,8 +313,8 @@ def generate_presets() -> dict:
                 if len(state_schools) == 0:
                     continue
 
-                # Sort by institution name
-                state_schools = state_schools.sort_values("institution_name")
+                # Sort by institution name; unitid fixes the order of same-name campuses
+                state_schools = state_schools.sort_values(["institution_name", "unitid"])
 
                 presets[state_code] = {
                     "id": state_code,
@@ -217,9 +322,9 @@ def generate_presets() -> dict:
                     "schools": [
                         {
                             "unitid": int(row["unitid"]),
-                            "name": row["institution_name"] or f"School {row['unitid']}",
-                            "short": row.get("short_name") or None,
-                            "city": row.get("city"),
+                            "name": opt(row["institution_name"]) or f"School {row['unitid']}",
+                            "short": opt(row.get("short_name")) or None,
+                            "city": opt(row.get("city")),
                             "state": state_code
                         }
                         for _, row in state_schools.iterrows()
@@ -229,8 +334,7 @@ def generate_presets() -> dict:
             print(f"  State presets generated: {len(presets) - 1}")
 
     # Save
-    with open(JSON_DIR / "presets.json", 'w') as f:
-        json.dump(presets, f, indent=2)
+    write_json(JSON_DIR / "presets.json", presets)
 
     print(f"  Total presets: {len(presets)}")
     print(f"  Schools in 'ivy': {len(presets['ivy']['schools'])}")
@@ -266,8 +370,9 @@ def compute_all_offense_ranking(rankings_df: pd.DataFrame, pct_column: str) -> p
     if "fte" in all_geo.columns:
         agg_dict["fte"] = "first"
 
-    # Group by school and sum counts across all offenses
-    school_totals = all_geo.groupby(["unitid", "institution_name"]).agg(agg_dict).reset_index()
+    # Group by school and sum counts across all offenses (keep rows with a
+    # missing name so they are not dropped from the totals)
+    school_totals = all_geo.groupby(["unitid", "institution_name"], dropna=False).agg(agg_dict).reset_index()
 
     # Ensure state column exists (set to None if not present)
     if "state" not in school_totals.columns:
@@ -281,8 +386,11 @@ def compute_all_offense_ranking(rankings_df: pd.DataFrame, pct_column: str) -> p
         school_totals["fte"] = None
         school_totals["rate_per_10k"] = None
 
-    # Sort by count descending
-    school_totals = school_totals.sort_values("count", ascending=False).reset_index(drop=True)
+    # Sort by count descending; ties by name, then unitid, so the order never
+    # depends on the sort algorithm of the installed pandas/numpy
+    school_totals = school_totals.sort_values(
+        ["count", "institution_name", "unitid"], ascending=[False, True, True]
+    ).reset_index(drop=True)
 
     # Calculate total for percentage
     total_count = school_totals["count"].sum()
@@ -296,7 +404,9 @@ def compute_all_offense_ranking(rankings_df: pd.DataFrame, pct_column: str) -> p
     # Add rank by rate for schools that have rate data
     schools_with_rate = school_totals[school_totals["rate_per_10k"].notna()].copy()
     if len(schools_with_rate) > 0:
-        schools_with_rate = schools_with_rate.sort_values("rate_per_10k", ascending=False)
+        schools_with_rate = schools_with_rate.sort_values(
+            ["rate_per_10k", "institution_name", "unitid"], ascending=[False, True, True]
+        )
         rate_ranks = {row["unitid"]: i + 1 for i, (_, row) in enumerate(schools_with_rate.iterrows())}
         school_totals["rank_by_rate"] = school_totals["unitid"].map(rate_ranks)
     else:
@@ -353,7 +463,7 @@ def generate_rankings_json() -> None:
                     "rankByRate": int(row["rank_by_rate"]) if pd.notna(row.get("rank_by_rate")) else None,
                     "unitid": int(row["unitid"]),
                     "name": row["institution_name"],
-                    "short": row["short_name"],
+                    "short": opt(row["short_name"]),
                     "count": int(row["count"]),
                     "pct": float(row["pct"]),
                     "fte": int(row["fte"]) if pd.notna(row.get("fte")) else None,
@@ -365,8 +475,8 @@ def generate_rankings_json() -> None:
             output["totals"]["all"] = int(all_offense_ranking["count"].sum())
 
             # Add individual offense rankings
-            for offense in all_geo["offense"].unique():
-                offense_data = all_geo[all_geo["offense"] == offense].sort_values("rank")
+            for offense in sorted(all_geo["offense"].unique()):
+                offense_data = all_geo[all_geo["offense"] == offense].sort_values(["rank", "unitid"])
                 offense_code = offense.lower().replace(" ", "_")
 
                 output["rankings"][offense_code] = [
@@ -375,7 +485,7 @@ def generate_rankings_json() -> None:
                         "rankByRate": int(row["rank_by_rate"]) if pd.notna(row.get("rank_by_rate")) else None,
                         "unitid": int(row["unitid"]),
                         "name": row["institution_name"],
-                        "short": row["short_name"],
+                        "short": opt(row["short_name"]),
                         "count": int(row["count"]),
                         "pct": float(row["pct_of_ivy_total"]),
                         "fte": int(row["fte"]) if pd.notna(row.get("fte")) else None,
@@ -388,14 +498,13 @@ def generate_rankings_json() -> None:
                 output["totals"][offense_code] = int(offense_data["count"].sum())
 
             filename = f"ivy-{year}-all.json"
-            with open(rankings_dir / filename, 'w') as f:
-                json.dump(output, f, indent=2)
+            write_json(rankings_dir / filename, output)
 
             ivy_files += 1
 
         print(f"  Ivy League: {ivy_files} files")
     else:
-        print("  WARNING: Ivy rankings not found")
+        raise SiteDataError(f"{ivy_rankings_path} not found. Run 04_create_aggregates.py first.")
 
     # Generate state rankings if processing all schools
     state_files = 0
@@ -449,8 +558,8 @@ def generate_rankings_json() -> None:
                     output["totals"]["all"] = int(all_offense_ranking["count"].sum())
 
                     # Add individual offense rankings
-                    for offense in all_geo["offense"].unique():
-                        offense_data = all_geo[all_geo["offense"] == offense].sort_values("rank")
+                    for offense in sorted(all_geo["offense"].unique()):
+                        offense_data = all_geo[all_geo["offense"] == offense].sort_values(["rank", "unitid"])
                         offense_code = offense.lower().replace(" ", "_")
 
                         output["rankings"][offense_code] = [
@@ -472,14 +581,13 @@ def generate_rankings_json() -> None:
                         output["totals"][offense_code] = int(offense_data["count"].sum())
 
                     filename = f"{state}-{year}-all.json"
-                    with open(rankings_dir / filename, 'w') as f:
-                        json.dump(output, f, indent=2)
+                    write_json(rankings_dir / filename, output)
 
                     state_files += 1
 
             print(f"  State rankings: {state_files} files")
         else:
-            print("  WARNING: State rankings not found")
+            raise SiteDataError(f"{state_rankings_path} not found. Run 04_create_aggregates.py first.")
 
     # Generate national rankings if processing all schools
     national_files = 0
@@ -530,8 +638,8 @@ def generate_rankings_json() -> None:
                 output["totals"]["all"] = int(all_offense_ranking["count"].sum())
 
                 # Add individual offense rankings
-                for offense in all_geo["offense"].unique():
-                    offense_data = all_geo[all_geo["offense"] == offense].sort_values("rank")
+                for offense in sorted(all_geo["offense"].unique()):
+                    offense_data = all_geo[all_geo["offense"] == offense].sort_values(["rank", "unitid"])
                     offense_code = offense.lower().replace(" ", "_")
 
                     output["rankings"][offense_code] = [
@@ -554,14 +662,13 @@ def generate_rankings_json() -> None:
                     output["totals"][offense_code] = int(offense_data["count"].sum())
 
                 filename = f"national-{year}-all.json"
-                with open(rankings_dir / filename, 'w') as f:
-                    json.dump(output, f, indent=2)
+                write_json(rankings_dir / filename, output)
 
                 national_files += 1
 
             print(f"  National rankings: {national_files} files")
         else:
-            print("  WARNING: National rankings not found. Run 04_create_aggregates.py first.")
+            raise SiteDataError(f"{national_rankings_path} not found. Run 04_create_aggregates.py first.")
 
     print(f"  Total: {ivy_files + state_files + national_files} ranking files")
     print(f"  Saved to: {rankings_dir}/")
@@ -587,33 +694,12 @@ def generate_school_profiles() -> None:
     print("\nGenerating school profile JSON files...")
 
     # Load data
-    agg_path = CURATED_DIR / "aggs" / "agg_school_year_offense.parquet"
-    if not agg_path.exists():
-        print("  ERROR: School aggregate not found. Run 04_create_aggregates.py first.")
-        return
-
-    agg = pd.read_parquet(agg_path)
+    agg = pd.read_parquet(CURATED_DIR / "aggs" / "agg_school_year_offense.parquet")
     schools_dir = JSON_DIR / "schools"
     schools_dir.mkdir(exist_ok=True)
-    generated_files = set()
 
     # Load institution dimension for school info
-    dim_inst_path = CURATED_DIR / "dims" / "dim_institution.parquet"
-    if dim_inst_path.exists():
-        dim_inst = pd.read_parquet(dim_inst_path)
-    else:
-        # Fallback to Ivy League only
-        dim_inst = pd.DataFrame([
-            {
-                "unitid": uid,
-                "institution_name": info["name"],
-                "short_name": info["short"],
-                "city": info["city"],
-                "state": info["state"],
-                "ivy_league": True
-            }
-            for uid, info in IVY_LEAGUE.items()
-        ])
+    dim_inst = pd.read_parquet(CURATED_DIR / "dims" / "dim_institution.parquet")
 
     # Determine which schools to process
     if PROCESS_ALL_SCHOOLS:
@@ -652,10 +738,10 @@ def generate_school_profiles() -> None:
             city = ivy_info["city"]
             state = ivy_info["state"]
         else:
-            name = inst_row.get("institution_name") or f"School {unitid}"
-            short_name = inst_row.get("short_name") or None
-            city = inst_row.get("city")
-            state = inst_row.get("state")
+            name = opt(inst_row.get("institution_name")) or f"School {unitid}"
+            short_name = opt(inst_row.get("short_name")) or None
+            city = opt(inst_row.get("city"))
+            state = opt(inst_row.get("state"))
 
         # Latest year summary
         latest_year = int(school_data["year"].max())
@@ -664,13 +750,16 @@ def generate_school_profiles() -> None:
             (school_data["geo"] == "All")
         ]
 
+        # Offenses by count, largest first; ties in offense order
+        latest_all = latest_all.sort_values(["count", "offense"], ascending=[False, True])
+
         if latest_all.empty:
             total_incidents = 0
             top_offense = None
             top_offense_count = 0
         else:
             total_incidents = int(latest_all["count"].sum())
-            top_row = latest_all.nlargest(1, "count")
+            top_row = latest_all.head(1)
             if not top_row.empty:
                 top_offense = top_row.iloc[0]["offense"]
                 top_offense_count = int(top_row.iloc[0]["count"])
@@ -711,7 +800,7 @@ def generate_school_profiles() -> None:
         # Breakdown by offense (latest year, geo="All")
         offense_breakdown = [
             {"offense": row["offense"], "count": int(row["count"])}
-            for _, row in latest_all.nlargest(15, "count").iterrows()
+            for _, row in latest_all.head(15).iterrows()
         ] if not latest_all.empty else []
 
         # Breakdown by geography (latest year, all offenses)
@@ -722,7 +811,7 @@ def generate_school_profiles() -> None:
         geo_totals = latest_by_geo.groupby("geo")["count"].sum().reset_index()
         geo_breakdown = [
             {"geo": row["geo"], "count": int(row["count"])}
-            for _, row in geo_totals.sort_values("count", ascending=False).iterrows()
+            for _, row in geo_totals.sort_values(["count", "geo"], ascending=[False, True]).iterrows()
         ]
 
         # Year-over-year totals
@@ -758,9 +847,7 @@ def generate_school_profiles() -> None:
 
         # Save
         filename = f"{unitid}.json"
-        with open(schools_dir / filename, 'w') as f:
-            json.dump(output, f, indent=2)
-        generated_files.add(filename)
+        write_json(schools_dir / filename, output)
 
         schools_generated += 1
         if is_ivy:
@@ -771,13 +858,6 @@ def generate_school_profiles() -> None:
         # Progress update for large batches
         if schools_generated % 500 == 0:
             print(f"  Generated {schools_generated} profiles...")
-
-    # Remove stale profiles for schools no longer in the fact table
-    stale = [p for p in schools_dir.glob("*.json") if p.name not in generated_files]
-    for p in stale:
-        p.unlink()
-    if stale:
-        print(f"  Removed {len(stale)} stale school profiles")
 
     print(f"\n  Generated {schools_generated} school profiles")
     print(f"    Ivy League: {ivy_count}")
@@ -796,22 +876,15 @@ def generate_school_index() -> None:
     """
     print("\nGenerating school search index...")
 
-    dim_inst_path = CURATED_DIR / "dims" / "dim_institution.parquet"
-    if not dim_inst_path.exists():
-        print("  ERROR: Institution dimension not found.")
-        return
-
-    dim_inst = pd.read_parquet(dim_inst_path)
+    dim_inst = pd.read_parquet(CURATED_DIR / "dims" / "dim_institution.parquet")
 
     # Build index - only include schools we have data for
-    agg_path = CURATED_DIR / "aggs" / "agg_school_year_offense.parquet"
-    if agg_path.exists():
-        agg = pd.read_parquet(agg_path)
-        unitids_with_data = set(agg["unitid"].unique())
-        dim_inst = dim_inst[dim_inst["unitid"].isin(unitids_with_data)]
+    agg = pd.read_parquet(CURATED_DIR / "aggs" / "agg_school_year_offense.parquet")
+    unitids_with_data = set(agg["unitid"].unique())
+    dim_inst = dim_inst[dim_inst["unitid"].isin(unitids_with_data)]
 
-    # Sort by state, then name for better UX
-    dim_inst = dim_inst.sort_values(["state", "institution_name"])
+    # Sort by state, then name for better UX; unitid fixes the order of same-name campuses
+    dim_inst = dim_inst.sort_values(["state", "institution_name", "unitid"])
 
     schools = []
     for _, row in dim_inst.iterrows():
@@ -836,7 +909,7 @@ def generate_school_index() -> None:
         else:
             schools.append({
                 "unitid": unitid,
-                "name": row.get("institution_name") or f"School {unitid}",
+                "name": opt(row.get("institution_name")) or f"School {unitid}",
                 "short": row.get("short_name") if pd.notna(row.get("short_name")) else None,
                 "city": row.get("city") if pd.notna(row.get("city")) else None,
                 "state": row.get("state") if pd.notna(row.get("state")) else None,
@@ -846,29 +919,52 @@ def generate_school_index() -> None:
 
     output = {"schools": schools}
 
-    with open(JSON_DIR / "school-index.json", 'w') as f:
-        json.dump(output, f, indent=2)
+    write_json(JSON_DIR / "school-index.json", output)
 
     print(f"  Indexed {len(schools)} schools")
     print(f"  Saved to: {JSON_DIR / 'school-index.json'}")
 
 
-def main():
+def main() -> int:
     print("=" * 60)
     print("Generating Frontend JSON Files")
     print("=" * 60)
     print(f"Processing mode: {'ALL SCHOOLS (nationwide)' if PROCESS_ALL_SCHOOLS else 'Ivy League only'}")
 
+    # Check inputs before touching the site data
+    missing = [p for p in required_inputs() if not p.exists()]
+    if missing:
+        print("\nERROR: input files are missing:")
+        for p in missing:
+            print(f"  {p}")
+        print("Run 02, 02b, 02a, 03 and 04 in order, then 05. Nothing was written.")
+        return 1
+    # The same files, checked against 04's record before anything is read
+    inputs_before = provenance.Snapshot("05", required_inputs())
+
     ensure_json_dir()
+    provenance.invalidate(provenance.PUBLISHED_MANIFEST)
 
-    metadata = generate_metadata()
-    presets = generate_presets()
-    generate_rankings_json()
-    generate_school_profiles()
+    try:
+        metadata = generate_metadata(inputs_before.records["04"])
+        presets = generate_presets()
+        generate_rankings_json()
+        generate_school_profiles()
 
-    # Generate search index for nationwide mode
-    if PROCESS_ALL_SCHOOLS:
-        generate_school_index()
+        # Generate search index for nationwide mode
+        if PROCESS_ALL_SCHOOLS:
+            generate_school_index()
+
+        remove_stale_files()
+    except SiteDataError as e:
+        print(f"\nERROR: {e}")
+        print(f"{JSON_DIR} is now partly rewritten and has no build record. "
+              "Do not commit it; fix the problem and re-run 05.")
+        return 1
+
+    # Publish the record of which DOE and NCES files these numbers come from
+    provenance.write_published_manifest(all_schools=PROCESS_ALL_SCHOOLS, snapshot=inputs_before,
+                                        written=_written)
 
     print("\n" + "=" * 60)
     print("Summary")
@@ -895,7 +991,8 @@ def main():
     print("Next steps:")
     print("1. Run: python 06_validate.py")
     print("2. Start frontend: cd ../frontend && npm run dev")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(provenance.run_locked("05", main))

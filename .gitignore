@@ -5,8 +5,10 @@ __pycache__/
 *.so
 .Python
 venv/
+.venv/
 env/
 ENV/
+*.egg-info/
 
 # Node
 node_modules/
@@ -17,8 +19,26 @@ dist/
 # Data files (too large for repo)
 data/raw/
 data/curated/
+data/qa/
+*.sas7bdat
+*.parquet
+
+# Test output
+test-results/
+playwright-report/
+coverage/
+.pytest_cache/
 
 # Environment
 .env
 .env.local
 *.env
+
+# Local tool and editor settings
+.claude/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+Desktop.ini
+nul

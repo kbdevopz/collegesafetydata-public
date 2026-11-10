@@ -19,7 +19,9 @@ import {
 } from 'lucide-react'
 import { getMetadata } from '../lib/api'
 import type { Metadata } from '../lib/types'
-import { formatDate, cn } from '../lib/utils'
+import { formatDate, formatNumber, cn } from '../lib/utils'
+import { summarizeEnrollmentStatus, describeFteAvailability } from '../lib/enrollment'
+import { summarizeDataYears, describeReportingLag } from '../lib/coverage'
 
 // Collapsible section component
 function CollapsibleSection({
@@ -106,6 +108,13 @@ export default function About() {
   useEffect(() => {
     getMetadata().then(setMetadata).catch(console.error)
   }, [])
+
+  // Year count, span and newest year from metadata.json "years"/"coverage",
+  // FTE availability from "enrollmentStatus" and the school count from the
+  // national preset (wording that names no year or count when absent)
+  const dataYears = summarizeDataYears(metadata)
+  const fteAvailabilityText = describeFteAvailability(summarizeEnrollmentStatus(metadata))
+  const schoolCount = metadata?.presets?.find((p) => p.id === 'national')?.schoolCount
 
   return (
     <div className="min-h-screen">
@@ -203,7 +212,7 @@ export default function About() {
               </div>
               {metadata && (
                 <div className="mt-4 pt-4 border-t border-blue-200/50 dark:border-blue-800/50 flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-600 dark:text-gray-400">
-                  <span>Coverage: <strong className="text-gray-900 dark:text-gray-200">{metadata.coverage}</strong></span>
+                  <span>Coverage: <strong className="text-gray-900 dark:text-gray-200">{metadata.coverage || dataYears.span || '—'}</strong></span>
                   <span>Updated: <strong className="text-gray-900 dark:text-gray-200">{formatDate(metadata.lastUpdated)}</strong></span>
                 </div>
               )}
@@ -346,14 +355,18 @@ export default function About() {
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
               <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-5">
-                <div className="text-3xl font-bold text-primary-600 dark:text-primary-400 mb-2">8,100+</div>
+                <div className="text-3xl font-bold text-primary-600 dark:text-primary-400 mb-2">
+                  {typeof schoolCount === 'number' && schoolCount > 0 ? formatNumber(schoolCount) : '—'}
+                </div>
                 <div className="text-sm font-medium text-gray-900 dark:text-gray-100">Schools Covered</div>
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">All U.S. colleges reporting Clery data</p>
               </div>
               <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-5">
-                <div className="text-3xl font-bold text-primary-600 dark:text-primary-400 mb-2">10</div>
-                <div className="text-sm font-medium text-gray-900 dark:text-gray-100">Years of Data</div>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">2015-2024 for consistency</p>
+                <div className="text-3xl font-bold text-primary-600 dark:text-primary-400 mb-2">{dataYears.count ?? '—'}</div>
+                <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{dataYears.count === 1 ? 'Year' : 'Years'} of Data</div>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  {dataYears.span ? `${dataYears.span} for consistency` : 'Every year in the published data'}
+                </p>
               </div>
               <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-5">
                 <div className="text-3xl font-bold text-primary-600 dark:text-primary-400 mb-2">1,000+</div>
@@ -434,7 +447,7 @@ export default function About() {
               <LimitationCard
                 icon={Clock}
                 title="Reporting Lag"
-                description="DOE releases data ~1 year late. The 2025 release contains 2022-2024 statistics."
+                description={describeReportingLag(dataYears.latest)}
               />
               <LimitationCard
                 icon={Users}
@@ -474,7 +487,7 @@ export default function About() {
               <LimitationCard
                 icon={Calculator}
                 title="FTE Data Limited"
-                description="Rate calculations use IPEDS FTE enrollment data, available for 2015-2024."
+                description={fteAvailabilityText}
               />
               <LimitationCard
                 icon={Info}

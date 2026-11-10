@@ -16,9 +16,13 @@ EFALEVEL codes used:
     42 = Part-time undergraduate
     52 = Part-time graduate (including professional)
 
-For 2021-2023, we use DRVEF files which contain pre-calculated FTE values
+For 2021 onward, we use DRVEF files which contain pre-calculated FTE values
 directly from IPEDS. This script processes EF files for years where DRVEF
 is not available (2015-2020).
+
+Each year reads the final revised file (ef{year}a_rv.csv) when NCES has
+published it, otherwise the provisional ef{year}a.csv. The files used are
+recorded in data/curated/dims/enrollment_ef_inputs.json.
 
 Sources:
     - IPEDS Survey Components: https://nces.ed.gov/ipeds/survey-components/8
@@ -35,6 +39,11 @@ from pathlib import Path
 # Add parent to path for config import
 sys.path.insert(0, str(Path(__file__).parent))
 from config import PROJECT_ROOT
+import ipeds_files
+import provenance
+
+# Input file used for each year, recorded in the build manifest
+INPUTS: dict[int, dict] = {}
 
 # Directories
 IPEDS_RAW_DIR = PROJECT_ROOT / "data" / "raw" / "ipeds"
@@ -85,11 +94,15 @@ def load_ef_file(year: int) -> pd.DataFrame:
         DataFrame with columns: unitid, year, fte, enrollment_total,
         enrollment_ft, enrollment_pt
     """
-    file_path = IPEDS_RAW_DIR / str(year) / f"ef{year}a.csv"
+    # Final revised file (ef{year}a_rv.csv) when NCES has published it
+    file_path = ipeds_files.pipeline_csv(year, f"ef{year}a")
 
-    if not file_path.exists():
-        print(f"  Warning: {file_path.name} not found")
+    if file_path is None:
+        print(f"  Warning: ef{year}a.csv not found")
         return pd.DataFrame()
+
+    INPUTS[year] = ipeds_files.input_record(file_path)
+    print(f"  Reading {file_path.name} ({'final' if INPUTS[year]['final'] else 'provisional'})")
 
     # Read the EF file
     df = pd.read_csv(file_path)
@@ -148,6 +161,7 @@ def load_ef_file(year: int) -> pd.DataFrame:
 
 
 def main():
+    ipeds_files.EF_BUILD_MANIFEST_PATH.unlink(missing_ok=True)  # old record; rewritten only if this run completes
     print("=" * 60)
     print("IPEDS EF Enrollment Transform (Historical FTE)")
     print("=" * 60)
@@ -208,9 +222,11 @@ def main():
     CURATED_DIR.mkdir(parents=True, exist_ok=True)
     output_path = CURATED_DIR / "dim_enrollment_ef.parquet"
     combined.to_parquet(output_path, index=False)
+    provenance.write_ef_manifest(INPUTS, outputs=[output_path])
 
     print(f"\nSaved to: {output_path}")
     print(f"File size: {output_path.stat().st_size / 1024:.1f} KB")
+    print(f"Input record: {ipeds_files.EF_BUILD_MANIFEST_PATH}")
 
     print("\n" + "-" * 60)
     print("Next steps:")
@@ -222,4 +238,4 @@ def main():
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(provenance.run_locked("02b", main))

@@ -16,7 +16,15 @@ export interface Metadata {
   dataSourceUrl: string
   coverage: string
   note: string
+  // NCES fall enrollment (FTE) status per year in `years`, e.g.
+  // {"2023": "final", "2024": "provisional"}. Absent in data built before
+  // 05 wrote it.
+  enrollmentStatus?: Record<string, EnrollmentStatus>
 }
+
+// "final": NCES final revised file; "provisional": NCES provisional release;
+// "missing": NCES has not published that fall's enrollment yet (no rates).
+export type EnrollmentStatus = 'final' | 'provisional' | 'missing'
 
 export interface Offense {
   code: string

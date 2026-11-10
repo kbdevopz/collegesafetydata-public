@@ -28,6 +28,7 @@ import {
   calculateYoYChange,
   isSmallSample,
 } from '../lib/utils'
+import { fteFor, rateFor, latestFte } from '../lib/rates'
 import { useTheme } from '../hooks/useTheme'
 
 export default function SchoolProfile() {
@@ -115,20 +116,17 @@ export default function SchoolProfile() {
     }
   }, [profile, selectedYear, selectedOffense])
 
-  // Get FTE for selected year (from fteByYear or fallback to latest fte)
-  const selectedYearFte = useMemo(() => {
-    if (!profile || !selectedYear) return null
-    if (profile.fteByYear && profile.fteByYear[selectedYear.toString()]) {
-      return profile.fteByYear[selectedYear.toString()]
-    }
-    return profile.fte
-  }, [profile, selectedYear])
+  // FTE for the selected year only (null when that year has no FTE)
+  const selectedYearFte = useMemo(() => fteFor(profile, selectedYear), [profile, selectedYear])
 
-  // Calculate rate per 10k students for selected year
-  const selectedYearRate = useMemo(() => {
-    if (!selectedYearFte || selectedYearFte <= 0) return null
-    return (selectedYearTotal / selectedYearFte) * 10000
-  }, [selectedYearTotal, selectedYearFte])
+  // Newest FTE and the year it belongs to (for the header)
+  const headerFte = useMemo(() => latestFte(profile), [profile])
+
+  // Calculate rate per 10k students for selected year (that year's FTE only)
+  const selectedYearRate = useMemo(
+    () => rateFor(profile, selectedYear, selectedYearTotal),
+    [profile, selectedYear, selectedYearTotal]
+  )
 
   // Get top offense for selected year
   const selectedYearTopOffense = useMemo(() => {
@@ -186,6 +184,20 @@ export default function SchoolProfile() {
   }, [profile, selectedOffense])
 
   const chartColors = getChartColors()
+
+  // By Location (latest year): each share is of the latest year's published
+  // total (on-campus + non-campus + public property). Residence halls are a
+  // subset of on-campus, so they are not part of that total and not a
+  // separate pie slice; they keep their legend row and share.
+  const geoTotal = profile ? profile.summary.totalIncidents : 0
+  const geoRows = profile
+    ? profile.breakdownByGeo.map((item, index) => ({
+        ...item,
+        color: chartColors[index % chartColors.length],
+        pct: geoTotal > 0 ? (item.count / geoTotal) * 100 : null,
+      }))
+    : []
+  const geoPieRows = geoRows.filter((item) => item.geo !== 'Residence halls')
 
   // Theme-aware chart styling
   const chartGridColor = resolvedTheme === 'dark' ? '#374151' : '#e5e7eb'
@@ -255,11 +267,11 @@ export default function SchoolProfile() {
               <MapPin className="w-4 h-4" />
               {profile.city}, {profile.state}
             </span>
-            {profile.fte && (
+            {headerFte && (
               <span className="flex items-center gap-1.5" title="Enrollment for latest available year">
                 <Users className="w-4 h-4" />
-                {formatNumber(profile.fte)} students
-                <span className="text-xs text-gray-400 dark:text-gray-500">({profile.summary.latestYear})</span>
+                {formatNumber(headerFte.fte)} students
+                <span className="text-xs text-gray-400 dark:text-gray-500">({headerFte.year})</span>
               </span>
             )}
             {profile.ivyLeague && (
@@ -355,7 +367,7 @@ export default function SchoolProfile() {
                   type="button"
                   onClick={() => setShowRate(true)}
                   disabled={!selectedYearFte}
-                  title={!selectedYearFte ? 'FTE data not available for this school' : 'Show rate per 10,000 students'}
+                  title={!selectedYearFte ? `FTE data not available for ${selectedYear ?? 'this year'}` : 'Show rate per 10,000 students'}
                   className={cn(
                     'px-3 py-1 text-sm font-medium rounded-md transition-colors',
                     showRate
@@ -699,7 +711,7 @@ export default function SchoolProfile() {
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
-                      data={profile.breakdownByGeo}
+                      data={geoPieRows}
                       dataKey="count"
                       nameKey="geo"
                       cx="50%"
@@ -708,10 +720,10 @@ export default function SchoolProfile() {
                       innerRadius={40}
                       paddingAngle={2}
                     >
-                      {profile.breakdownByGeo.map((_, index) => (
+                      {geoPieRows.map((item) => (
                         <Cell
-                          key={`cell-${index}`}
-                          fill={chartColors[index % chartColors.length]}
+                          key={`cell-${item.geo}`}
+                          fill={item.color}
                         />
                       ))}
                     </Pie>
@@ -731,19 +743,15 @@ export default function SchoolProfile() {
 
               {/* Legend */}
               <div className="flex-1 space-y-3">
-                {profile.breakdownByGeo.map((item, index) => {
-                  const total = profile.breakdownByGeo.reduce(
-                    (sum, i) => sum + i.count,
-                    0
-                  )
-                  const pct = total > 0 ? (item.count / total) * 100 : 0
+                {geoRows.map((item) => {
+                  const pct = item.pct
 
                   return (
                     <div key={item.geo} className="flex items-center gap-3">
                       <div
                         className="w-3 h-3 rounded-full flex-shrink-0"
                         style={{
-                          backgroundColor: chartColors[index % chartColors.length],
+                          backgroundColor: item.color,
                         }}
                       />
                       <div className="flex-1 text-sm text-gray-700 dark:text-gray-300">{item.geo}</div>
@@ -752,7 +760,7 @@ export default function SchoolProfile() {
                           {formatNumber(item.count)}
                         </div>
                         <div className="text-xs text-gray-500 dark:text-gray-400 tabular-nums">
-                          {formatPercent(pct)}
+                          {pct !== null ? formatPercent(pct) : '—'}
                         </div>
                       </div>
                     </div>

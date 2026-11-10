@@ -29,6 +29,7 @@ import {
 import { fetchSchoolProfile, fetchSchoolIndex, fetchPresets } from '../lib/api'
 import type { SchoolProfile, School, PresetDetail, SchoolIndex } from '../lib/types'
 import { cn, formatNumber, calculateYoYChange, isSmallSample } from '../lib/utils'
+import { fteFor, rateFor, latestFte } from '../lib/rates'
 import { useTheme } from '../hooks/useTheme'
 
 // School colors for comparison
@@ -302,12 +303,11 @@ export default function Compare() {
         }
       }
 
-      // Calculate rate per 10k FTE - valid for any single year with FTE data
-      const fte = profile.fte
+      // Rate per 10k FTE - only for a single year, with that year's FTE
+      // (no rate when that year has no FTE)
       const year = selectedYear !== 'all' ? parseInt(selectedYear) : null
-      const rate = year !== null && fte && fte > 0 && totalIncidents !== null
-        ? (totalIncidents / fte) * 10000
-        : null
+      const fte = year !== null ? fteFor(profile, year) : null
+      const rate = year !== null ? rateFor(profile, year, totalIncidents) : null
 
       return {
         unitid: profile.unitid,
@@ -319,6 +319,19 @@ export default function Compare() {
       }
     })
   }, [profiles, selectedYear, selectedOffense])
+
+  // FTE label for each school, with the year it belongs to: the selected
+  // year's FTE, or with "All Years" the newest FTE
+  const fteLabels = useMemo(() => {
+    const year = selectedYear !== 'all' ? parseInt(selectedYear) : null
+    const labels = new Map<number, string>()
+    profiles.forEach((profile) => {
+      const yearFte = year !== null ? fteFor(profile, year) : null
+      const label = year === null ? latestFte(profile) : (yearFte !== null ? { year, fte: yearFte } : null)
+      if (label) labels.set(profile.unitid, `${formatNumber(label.fte)} students (${label.year})`)
+    })
+    return labels
+  }, [profiles, selectedYear])
 
   // Calculate top offense for each profile based on current filters
   const profileTopOffenses = useMemo(() => {
@@ -662,9 +675,9 @@ export default function Compare() {
                             <span className="ml-1 text-gray-400 dark:text-gray-500 font-normal normal-case">(Branch)</span>
                           )}
                         </div>
-                        {profile.fte && (
+                        {fteLabels.has(profile.unitid) && (
                           <div className="text-xs font-normal text-gray-400 dark:text-gray-500 mt-0.5 normal-case">
-                            {formatNumber(profile.fte)} students
+                            {fteLabels.get(profile.unitid)}
                           </div>
                         )}
                       </th>
@@ -685,7 +698,7 @@ export default function Compare() {
                             metrics?.rate !== null && metrics?.rate !== undefined ? (
                               <div>
                                 <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                                  {metrics.rate.toFixed(1)}{isSmallSample(profile.fte, metrics.totalIncidents ?? 0) ? '*' : ''}
+                                  {metrics.rate.toFixed(1)}{isSmallSample(metrics.fte, metrics.totalIncidents ?? 0) ? '*' : ''}
                                 </span>
                                 <span className="text-sm font-normal text-gray-500 dark:text-gray-400 ml-1">
                                   per 10k
@@ -786,15 +799,15 @@ export default function Compare() {
                             <span className="ml-1 text-gray-400 dark:text-gray-500 font-normal">(Branch)</span>
                           )}
                         </div>
-                        {profile.fte && (
+                        {fteLabels.has(profile.unitid) && (
                           <div className="text-xs text-gray-400 dark:text-gray-500 mb-1">
-                            {formatNumber(profile.fte)} students
+                            {fteLabels.get(profile.unitid)}
                           </div>
                         )}
                         {showRate ? (
                           metrics?.rate !== null && metrics?.rate !== undefined ? (
                             <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                              {metrics.rate.toFixed(1)}{isSmallSample(profile.fte, metrics.totalIncidents ?? 0) ? '*' : ''}
+                              {metrics.rate.toFixed(1)}{isSmallSample(metrics.fte, metrics.totalIncidents ?? 0) ? '*' : ''}
                               <span className="text-xs font-normal text-gray-500 dark:text-gray-400 ml-1">
                                 per 10k
                               </span>
@@ -837,9 +850,9 @@ export default function Compare() {
                             <span className="ml-1 text-gray-400 dark:text-gray-500 font-normal">(Branch)</span>
                           )}
                         </div>
-                        {profile.fte && (
+                        {fteLabels.has(profile.unitid) && (
                           <div className="text-xs text-gray-400 dark:text-gray-500 mb-1">
-                            {formatNumber(profile.fte)} students
+                            {fteLabels.get(profile.unitid)}
                           </div>
                         )}
                         {yoy ? (
@@ -880,9 +893,9 @@ export default function Compare() {
                           >
                             {profile.shortName || profile.name}
                           </div>
-                          {profile.fte && (
+                          {fteLabels.has(profile.unitid) && (
                             <div className="text-xs text-gray-400 dark:text-gray-500 mb-1">
-                              {formatNumber(profile.fte)} students
+                              {fteLabels.get(profile.unitid)}
                             </div>
                           )}
                           <div className="font-medium text-gray-900 dark:text-gray-100 text-sm">

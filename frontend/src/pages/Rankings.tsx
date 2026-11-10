@@ -104,7 +104,7 @@ export default function Rankings() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  // FTE data now available for all years (2015-2024)
+  // The rate view is always offered; an entry without an FTE (e.g. a year NCES has not published) has no rate
   const canShowRate = true
 
   // Minimum FTE threshold for rate rankings (prevents small schools from dominating)
@@ -119,8 +119,13 @@ export default function Rankings() {
       (r) => r.fte !== null && r.fte >= MIN_FTE_FOR_RATE && r.rate !== null
     )
 
-    // Sort by rate descending
-    return qualified.sort((a, b) => (b.rate ?? 0) - (a.rate ?? 0))
+    // Order by the published rate rank (rankByRate: rate high to low, ties in
+    // the pipeline's order), so the order matches the pipeline's ranking
+    return qualified.sort(
+      (a, b) =>
+        (a.rankByRate ?? Number.MAX_SAFE_INTEGER) - (b.rankByRate ?? Number.MAX_SAFE_INTEGER) ||
+        (b.rate ?? 0) - (a.rate ?? 0)
+    )
   }, [rankings, sortByRate])
 
   const displayedRankings = useMemo(() => {
@@ -357,7 +362,7 @@ export default function Rankings() {
           <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mb-4 sm:mb-5 max-w-2xl mx-auto">
             Explore safety data for{' '}
             <span className="font-semibold text-gray-900 dark:text-gray-100">
-              {totalSchoolCount.toLocaleString()}+
+              {totalSchoolCount.toLocaleString()}
             </span>{' '}
             college campuses
           </p>

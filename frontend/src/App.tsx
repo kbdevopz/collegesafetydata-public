@@ -280,6 +280,11 @@ export default function App() {
               </a>
             </div>
           </div>
+
+          <p className="mt-4 text-xs text-gray-500 dark:text-gray-400 text-center sm:text-left">
+            Reported incidents only. Lower numbers may reflect reporting differences, not greater safety.
+            Data from the U.S. Department of Education. Not an official government website.
+          </p>
         </div>
       </footer>
     </div>

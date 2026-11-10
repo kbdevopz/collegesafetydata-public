@@ -27,6 +27,8 @@ from pathlib import Path
 # Add parent to path for config import
 sys.path.insert(0, str(Path(__file__).parent))
 from config import PROJECT_ROOT, DATA_YEARS
+import ipeds_files
+import provenance
 
 # Directories
 IPEDS_RAW_DIR = PROJECT_ROOT / "data" / "raw" / "ipeds"
@@ -35,14 +37,24 @@ CURATED_DIR = PROJECT_ROOT / "data" / "curated" / "dims"
 # Years with DRVEF files available (IPEDS pre-calculated FTE, 2021 onward)
 DRVEF_YEARS = [y for y in DATA_YEARS if y >= 2021]
 
+# Input file used for each year, recorded in the build manifest
+INPUTS: dict[int, dict] = {}
+
 
 def load_drvef_file(year: int) -> pd.DataFrame:
-    """Load and parse a DRVEF file for a given year."""
-    file_path = IPEDS_RAW_DIR / str(year) / f"drvef{year}.csv"
+    """Load and parse a DRVEF file for a given year.
 
-    if not file_path.exists():
-        print(f"  Warning: {file_path.name} not found")
+    Reads the final revised file (drvef{year}_rv.csv) when NCES has published
+    it, otherwise the provisional drvef{year}.csv.
+    """
+    file_path = ipeds_files.pipeline_csv(year, f"drvef{year}")
+
+    if file_path is None:
+        print(f"  Warning: drvef{year}.csv not found")
         return pd.DataFrame()
+
+    INPUTS[year] = ipeds_files.input_record(file_path)
+    print(f"  Reading {file_path.name} ({'final' if INPUTS[year]['final'] else 'provisional'})")
 
     # Read only the columns we need
     cols = ['UNITID', 'ENRTOT', 'FTE', 'ENRFT', 'ENRPT']
@@ -79,6 +91,10 @@ def load_ef_data() -> pd.DataFrame:
 
 
 def main():
+    # 02b's table and record as they are before anything is read
+    ef_path = CURATED_DIR / "dim_enrollment_ef.parquet"
+    inputs_before = provenance.Snapshot("02a", [ef_path], optional=(ef_path,))
+    ipeds_files.BUILD_MANIFEST_PATH.unlink(missing_ok=True)  # old record; rewritten only if this run completes
     print("=" * 60)
     print("IPEDS Enrollment Transform (Combined)")
     print("=" * 60)
@@ -154,6 +170,12 @@ def main():
     output_path = CURATED_DIR / "dim_enrollment.parquet"
     combined.to_parquet(output_path, index=False)
 
+    # Record exactly which input file each year came from, so
+    # 00_check_for_updates.py can tell when this build is stale.
+    built_years = set(combined['year'].unique().tolist())
+    provenance.write_enrollment_manifest(INPUTS, built_years, inputs_before, outputs=[output_path])
+    print(f"Input record: {ipeds_files.BUILD_MANIFEST_PATH}")
+
     print(f"\nSaved to: {output_path}")
     print(f"File size: {output_path.stat().st_size / 1024:.1f} KB")
 
@@ -166,4 +188,4 @@ def main():
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(provenance.run_locked("02a", main))

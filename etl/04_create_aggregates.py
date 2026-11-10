@@ -10,6 +10,7 @@ Usage:
     python 04_create_aggregates.py --ivy-only
 """
 
+import os
 import sys
 import argparse
 import pandas as pd
@@ -19,16 +20,60 @@ from pathlib import Path
 # Add parent to path for config import
 sys.path.insert(0, str(Path(__file__).parent))
 from config import CURATED_DIR, IVY_LEAGUE, GEO_FOR_ALL, US_STATES, PROCESS_ALL_SCHOOLS
+import provenance
+
+# The one fact table that 02_transform_to_parquet.py writes
+FACTS_PATH = CURATED_DIR / "facts" / "incidents.parquet"
 
 
-def get_facts_pattern() -> str:
-    """Get the glob pattern for reading fact files."""
-    facts_path = CURATED_DIR / "facts"
+def find_stray_facts() -> list:
+    """Parquet data under data/curated/facts other than FACTS_PATH."""
+    def fail(err):
+        raise err
 
-    if (facts_path / "incidents").exists():
-        return str(facts_path / "incidents" / "**" / "*.parquet")
-    else:
-        return str(facts_path / "*.parquet")
+    stray = []
+    for root, dirs, files in os.walk(FACTS_PATH.parent, onerror=fail):
+        root = Path(root)
+        for name in list(dirs):
+            if name.lower() == "incidents" or name.lower().endswith(".parquet"):
+                stray.append(root / name)
+                dirs.remove(name)
+        for name in files:
+            if name.lower().endswith(".parquet") and root / name != FACTS_PATH:
+                stray.append(root / name)
+    return sorted(stray)
+
+
+def get_facts_path() -> str:
+    """FACTS_PATH, after checking that nothing else there could be read as facts."""
+    stray = find_stray_facts()
+    if stray:
+        listing = "\n".join(f"  {p}{' (folder)' if p.is_dir() else ''}" for p in stray)
+        raise RuntimeError(
+            f"{FACTS_PATH.parent} holds parquet data that 02_transform_to_parquet.py "
+            f"did not write:\n{listing}\n"
+            f"Only the file {FACTS_PATH.name} belongs there. Delete the items listed above "
+            f"(move them outside data/curated to keep them), then run this step again."
+        )
+    if not FACTS_PATH.is_file():
+        raise RuntimeError(f"{FACTS_PATH} not found. Run 02_transform_to_parquet.py first.")
+    return str(FACTS_PATH)
+
+
+def facts_read_error(err: Exception) -> RuntimeError:
+    return RuntimeError(
+        f"Could not read {FACTS_PATH}: {err}\n"
+        f"If another program (sync, backup or antivirus) has the file open, close it and "
+        f"run this step again. Otherwise run 02_transform_to_parquet.py again."
+    )
+
+
+def load_school_agg() -> pd.DataFrame:
+    """The school-year-offense aggregate this step writes first."""
+    agg_path = CURATED_DIR / "aggs" / "agg_school_year_offense.parquet"
+    if not agg_path.is_file():
+        raise RuntimeError(f"{agg_path} not found. Run 04_create_aggregates.py again.")
+    return pd.read_parquet(agg_path)
 
 
 def load_enrollment_data() -> pd.DataFrame:
@@ -37,11 +82,21 @@ def load_enrollment_data() -> pd.DataFrame:
     Returns DataFrame with unitid, year, fte columns.
     """
     enrollment_path = CURATED_DIR / "dims" / "dim_enrollment.parquet"
-    if not enrollment_path.exists():
-        print("  WARNING: Enrollment data not found. Rates will not be calculated.")
-        return None
+    if not enrollment_path.is_file():
+        raise RuntimeError(
+            f"{enrollment_path} not found, so no rates can be calculated. "
+            f"Run 01b_download_ipeds.py, 02b_transform_ef_enrollment.py and "
+            f"02a_transform_enrollment.py first."
+        )
 
     df = pd.read_parquet(enrollment_path)
+    # A repeated school-year would duplicate aggregate rows in the join
+    dups = int(df.duplicated(["unitid", "year"]).sum())
+    if dups:
+        raise RuntimeError(
+            f"{enrollment_path} has {dups} repeated school-year rows, which would double counts. "
+            f"Run 02a_transform_enrollment.py again."
+        )
     # Only need unitid, year, fte for joining
     return df[["unitid", "year", "fte"]]
 
@@ -67,7 +122,7 @@ def create_school_year_offense_agg(ivy_only: bool = False) -> pd.DataFrame:
     print("Creating school-year-offense aggregate...")
 
     con = duckdb.connect()
-    facts_pattern = get_facts_pattern()
+    facts_file = get_facts_path()
 
     # Base aggregation query
     query = f"""
@@ -78,7 +133,7 @@ def create_school_year_offense_agg(ivy_only: bool = False) -> pd.DataFrame:
         f.offense_family,
         f.geo,
         SUM(f.count) as count
-    FROM read_parquet('{facts_pattern}') f
+    FROM read_parquet('{facts_file}') f
     """
 
     if ivy_only:
@@ -90,19 +145,19 @@ def create_school_year_offense_agg(ivy_only: bool = False) -> pd.DataFrame:
     ORDER BY f.year, f.unitid, f.offense, f.geo
     """
 
-    agg = con.execute(query).df()
+    try:
+        agg = con.execute(query).df()
+    except duckdb.Error as e:
+        raise facts_read_error(e) from e
     print(f"  Base aggregation: {len(agg):,} records")
 
     # Add institution names from dimension
     dims_path = CURATED_DIR / "dims" / "dim_institution.parquet"
-    if dims_path.exists():
-        dim_inst = pd.read_parquet(dims_path)
-        name_map = dim_inst.set_index("unitid")["institution_name"].to_dict()
-        agg["institution_name"] = agg["unitid"].map(name_map)
-    else:
-        # Use Ivy League names from config
-        name_map = {uid: info["name"] for uid, info in IVY_LEAGUE.items()}
-        agg["institution_name"] = agg["unitid"].map(name_map)
+    if not dims_path.is_file():
+        raise RuntimeError(f"{dims_path} not found. Run 03_build_dimensions.py first.")
+    dim_inst = pd.read_parquet(dims_path)
+    name_map = dim_inst.set_index("unitid")["institution_name"].to_dict()
+    agg["institution_name"] = agg["unitid"].map(name_map)
 
     # Create "All" geography aggregation
     # Sum On-campus + Non-campus + Public property (not Residence halls)
@@ -110,10 +165,18 @@ def create_school_year_offense_agg(ivy_only: bool = False) -> pd.DataFrame:
     all_geo = agg[geo_filter].copy()
     all_geo["geo"] = "All"
 
-    all_geo_agg = all_geo.groupby(
-        ["year", "unitid", "institution_name", "offense", "offense_family", "geo"],
-        as_index=False
-    )["count"].sum()
+    # groupby drops rows with an empty key, which would lose their counts
+    group_keys = ["year", "unitid", "institution_name", "offense", "offense_family", "geo"]
+    no_key = all_geo[all_geo[group_keys].isna().any(axis=1)]
+    if len(no_key) > 0:
+        cols = [c for c in group_keys if all_geo[c].isna().any()]
+        raise RuntimeError(
+            f"{len(no_key):,} aggregate rows have no {', '.join(cols)} "
+            f"(UNITIDs {sorted(no_key['unitid'].unique().tolist())[:10]}). "
+            f"Run 02_transform_to_parquet.py and 03_build_dimensions.py again, then this step."
+        )
+
+    all_geo_agg = all_geo.groupby(group_keys, as_index=False)["count"].sum()
 
     # Combine with original
     agg = pd.concat([agg, all_geo_agg], ignore_index=True)
@@ -122,24 +185,20 @@ def create_school_year_offense_agg(ivy_only: bool = False) -> pd.DataFrame:
     # Note: Crime data uses extended UNITID format (UNITID * 1000 + branch)
     # IPEDS uses base UNITID, so we need to extract base UNITID for joining
     enrollment = load_enrollment_data()
-    if enrollment is not None:
-        print(f"  Joining enrollment data ({len(enrollment):,} records)...")
-        # Extract base UNITID from extended format
-        agg["base_unitid"] = (agg["unitid"] // 1000).astype("int32")
-        # Join on base_unitid and year
-        agg = agg.merge(enrollment, left_on=["base_unitid", "year"], right_on=["unitid", "year"], how="left", suffixes=("", "_enroll"))
-        # Drop the duplicate unitid column from enrollment
-        agg = agg.drop(columns=["unitid_enroll"], errors="ignore")
-        agg = agg.drop(columns=["base_unitid"])
-        # Calculate rate per 10,000 FTE students
-        agg["rate_per_10k"] = (agg["count"] / agg["fte"] * 10000).round(2)
-        # Handle division by zero or missing FTE
-        agg.loc[agg["fte"].isna() | (agg["fte"] == 0), "rate_per_10k"] = None
-        matched = agg["fte"].notna().sum()
-        print(f"  Matched enrollment: {matched:,} / {len(agg):,} records ({matched/len(agg)*100:.1f}%)")
-    else:
-        agg["fte"] = None
-        agg["rate_per_10k"] = None
+    print(f"  Joining enrollment data ({len(enrollment):,} records)...")
+    # Extract base UNITID from extended format
+    agg["base_unitid"] = (agg["unitid"] // 1000).astype("int32")
+    # Join on base_unitid and year
+    agg = agg.merge(enrollment, left_on=["base_unitid", "year"], right_on=["unitid", "year"], how="left", suffixes=("", "_enroll"))
+    # Drop the duplicate unitid column from enrollment
+    agg = agg.drop(columns=["unitid_enroll"], errors="ignore")
+    agg = agg.drop(columns=["base_unitid"])
+    # Calculate rate per 10,000 FTE students
+    agg["rate_per_10k"] = (agg["count"] / agg["fte"] * 10000).round(2)
+    # Handle division by zero or missing FTE
+    agg.loc[agg["fte"].isna() | (agg["fte"] == 0), "rate_per_10k"] = None
+    matched = agg["fte"].notna().sum()
+    print(f"  Matched enrollment: {matched:,} / {len(agg):,} records ({matched/len(agg)*100:.1f}%)")
 
     # Ensure proper types
     agg["year"] = agg["year"].astype("int16")
@@ -187,20 +246,14 @@ def create_ivy_rankings(school_agg: pd.DataFrame = None) -> pd.DataFrame:
 
     # Load school aggregate if not provided
     if school_agg is None:
-        agg_path = CURATED_DIR / "aggs" / "agg_school_year_offense.parquet"
-        if agg_path.exists():
-            school_agg = pd.read_parquet(agg_path)
-        else:
-            print("  ERROR: School aggregate not found. Run school_year_offense first.")
-            return None
+        school_agg = load_school_agg()
 
     # Filter to Ivy League only
     ivy_unitids = set(IVY_LEAGUE.keys())
     ivy_data = school_agg[school_agg["unitid"].isin(ivy_unitids)].copy()
 
     if len(ivy_data) == 0:
-        print("  WARNING: No Ivy League data found in aggregate")
-        return None
+        raise RuntimeError("No Ivy League schools in the aggregate. Check the facts from 02_transform_to_parquet.py.")
 
     print(f"  Ivy League records: {len(ivy_data):,}")
 
@@ -323,18 +376,12 @@ def create_state_rankings(school_agg: pd.DataFrame = None) -> pd.DataFrame:
 
     # Load school aggregate if not provided
     if school_agg is None:
-        agg_path = CURATED_DIR / "aggs" / "agg_school_year_offense.parquet"
-        if agg_path.exists():
-            school_agg = pd.read_parquet(agg_path)
-        else:
-            print("  ERROR: School aggregate not found. Run school_year_offense first.")
-            return None
+        school_agg = load_school_agg()
 
     # Load institution dimension to get state info
     dims_path = CURATED_DIR / "dims" / "dim_institution.parquet"
-    if not dims_path.exists():
-        print("  ERROR: Institution dimension not found. Run 03_build_dimensions.py first.")
-        return None
+    if not dims_path.is_file():
+        raise RuntimeError(f"{dims_path} not found. Run 03_build_dimensions.py first.")
 
     dim_inst = pd.read_parquet(dims_path)
 
@@ -343,12 +390,11 @@ def create_state_rankings(school_agg: pd.DataFrame = None) -> pd.DataFrame:
     school_agg = school_agg.copy()
     school_agg["state"] = school_agg["unitid"].map(state_map)
 
-    # Filter to valid states only
+    # Filter to valid states only (schools with a blank state or a code not in US_STATES are not ranked)
     valid_data = school_agg[school_agg["state"].isin(US_STATES.keys())].copy()
 
     if len(valid_data) == 0:
-        print("  WARNING: No data with valid state codes found")
-        return None
+        raise RuntimeError(f"No school in the aggregate has a U.S. state code. Check {dims_path.name}.")
 
     states_in_data = valid_data["state"].nunique()
     print(f"  Records with valid states: {len(valid_data):,}")
@@ -412,8 +458,7 @@ def create_state_rankings(school_agg: pd.DataFrame = None) -> pd.DataFrame:
     rankings_df = pd.DataFrame(rankings)
 
     if len(rankings_df) == 0:
-        print("  WARNING: No rankings generated")
-        return None
+        raise RuntimeError("No rankings were generated from the aggregate.")
 
     # Ensure proper types
     rankings_df["year"] = rankings_df["year"].astype("int16")
@@ -484,18 +529,12 @@ def create_national_rankings(school_agg: pd.DataFrame = None) -> pd.DataFrame:
 
     # Load school aggregate if not provided
     if school_agg is None:
-        agg_path = CURATED_DIR / "aggs" / "agg_school_year_offense.parquet"
-        if agg_path.exists():
-            school_agg = pd.read_parquet(agg_path)
-        else:
-            print("  ERROR: School aggregate not found. Run school_year_offense first.")
-            return None
+        school_agg = load_school_agg()
 
     # Load institution dimension to get state info
     dims_path = CURATED_DIR / "dims" / "dim_institution.parquet"
-    if not dims_path.exists():
-        print("  ERROR: Institution dimension not found. Run 03_build_dimensions.py first.")
-        return None
+    if not dims_path.is_file():
+        raise RuntimeError(f"{dims_path} not found. Run 03_build_dimensions.py first.")
 
     dim_inst = pd.read_parquet(dims_path)
 
@@ -504,12 +543,11 @@ def create_national_rankings(school_agg: pd.DataFrame = None) -> pd.DataFrame:
     school_agg = school_agg.copy()
     school_agg["state"] = school_agg["unitid"].map(state_map)
 
-    # Filter to valid states only
+    # Filter to valid states only (schools with a blank state or a code not in US_STATES are not ranked)
     valid_data = school_agg[school_agg["state"].isin(US_STATES.keys())].copy()
 
     if len(valid_data) == 0:
-        print("  WARNING: No data with valid state codes found")
-        return None
+        raise RuntimeError(f"No school in the aggregate has a U.S. state code. Check {dims_path.name}.")
 
     print(f"  Records with valid states: {len(valid_data):,}")
     print(f"  Total unique schools: {valid_data['unitid'].nunique()}")
@@ -572,8 +610,7 @@ def create_national_rankings(school_agg: pd.DataFrame = None) -> pd.DataFrame:
     rankings_df = pd.DataFrame(rankings)
 
     if len(rankings_df) == 0:
-        print("  WARNING: No rankings generated")
-        return None
+        raise RuntimeError("No rankings were generated from the aggregate.")
 
     # Ensure proper types
     rankings_df["year"] = rankings_df["year"].astype("int16")
@@ -653,6 +690,14 @@ def main():
     print("=" * 60)
     print(f"Processing mode: {'Ivy League only' if ivy_only else 'ALL SCHOOLS (nationwide)'}")
 
+    # The files this step reads, checked against their steps' records before reading
+    dims = CURATED_DIR / "dims"
+    inputs_before = provenance.Snapshot(
+        "04", [FACTS_PATH, dims / "dim_institution.parquet", dims / "dim_enrollment.parquet"])
+
+    # The old build record no longer describes the files about to be written
+    provenance.invalidate(provenance.AGGS_MANIFEST)
+
     # Create aggregates
     school_agg = create_school_year_offense_agg(ivy_only=ivy_only)
     ivy_rankings = create_ivy_rankings(school_agg)
@@ -663,6 +708,12 @@ def main():
     if not ivy_only:
         state_rankings = create_state_rankings(school_agg)
         national_rankings = create_national_rankings(school_agg)
+
+    aggs = CURATED_DIR / "aggs"
+    written = [aggs / "agg_school_year_offense.parquet", aggs / "agg_ivy_rankings.parquet"]
+    if not ivy_only:
+        written += [aggs / "agg_state_rankings.parquet", aggs / "agg_national_rankings.parquet"]
+    provenance.write_aggs_manifest(all_schools=not ivy_only, snapshot=inputs_before, outputs=written)
 
     print("\n" + "=" * 60)
     print("Summary")
@@ -681,4 +732,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(provenance.run_locked("04", main))
