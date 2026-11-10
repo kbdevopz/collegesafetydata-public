@@ -146,6 +146,8 @@ class LogCap(logging.Filter):
 SAS_MIN_SIZE = 1024
 # The sas7bdat library logs a line per bad page or row of a damaged file
 SAS_LOG_LIMIT = 5
+# Smallest IPEDS UNITID (six digits); UNITID_P adds three branch digits
+MIN_UNITID = 100000
 
 
 def read_sas_file(filepath: Path) -> pd.DataFrame:
@@ -159,61 +161,57 @@ def read_sas_file(filepath: Path) -> pd.DataFrame:
     if size < SAS_MIN_SIZE:
         raise RuntimeError(f"{filepath.name} is {size:,} bytes, too small to be a SAS data file, "
                            f"so it is damaged. {hint}")
+    # The page layout comes from the header, read with the sas7bdat library
+    # (it reads no data pages for this). The data itself is read with
+    # pyreadstat: sas7bdat misreads the first rows of the files DOE wrote
+    # with SAS 9.0000M0 (the 2015 and 2016 releases), turning their UNITIDs
+    # into numbers near zero, which dropped those campuses.
     log = logging.getLogger(str(filepath))  # the logger the sas7bdat library uses for this file
     cap = LogCap(SAS_LOG_LIMIT)
     log.addFilter(cap)
-    cut_short = None
     try:
         from sas7bdat import SAS7BDAT
         with SAS7BDAT(str(filepath)) as f:
             props = f.properties
-            declared = (props.header_length, props.page_count, props.page_length)
-            # A file cut short is rejected without reading its pages, which
-            # would only fill the log with the library's errors
-            if (all(isinstance(v, int) for v in declared)
-                    and size != declared[0] + declared[1] * declared[2]):
-                cut_short = (f"{filepath.name} is {size:,} bytes but its header declares "
-                             f"{declared[0] + declared[1] * declared[2]:,}. {hint}")
-            else:
-                df = f.to_data_frame()
-                props = f.properties
-                layout = (props.row_count, props.header_length,
-                          props.page_count, props.page_length)
+            layout = (props.row_count, props.header_length, props.page_count, props.page_length)
     except Exception as e:
         # Never skip a file: that would silently drop its years from the site
         raise RuntimeError(f"Could not read {filepath.name} ({e}), so it is damaged or is not "
                            f"a SAS data file. {hint}") from e
     finally:
         log.removeFilter(cap)
-    if cut_short:
-        raise RuntimeError(cut_short)
-
-    # A file cut short (for example by an interrupted extraction) can still
-    # parse, with rows missing. Check it against its own header.
     if any(not isinstance(v, int) for v in layout):
         raise RuntimeError(f"Could not read {filepath.name}: its header has no "
-                           f"row count or page layout. {reextract_hint(filepath.name)}")
+                           f"row count or page layout. {hint}")
     row_count, header_length, page_count, page_length = layout
-    if len(df) != row_count:
-        raise RuntimeError(f"{filepath.name} is incomplete: read {len(df):,} of the "
-                           f"{row_count:,} rows its header declares. {reextract_hint(filepath.name)}")
+    # A file cut short (for example by an interrupted extraction) is rejected
+    # before its pages are read
     expected_size = header_length + page_count * page_length
     if size != expected_size:
         raise RuntimeError(f"{filepath.name} is {size:,} bytes but its header declares "
-                           f"{expected_size:,}. {reextract_hint(filepath.name)}")
-    # Where a file's pages are zeros, the pinned sas7bdat reader repeats the
-    # last good row instead of failing, so both checks above can pass.
+                           f"{expected_size:,}. {hint}")
+    try:
+        import pyreadstat
+        # DOE writes text in Windows-1252 (en dashes are byte 0x96)
+        df, meta = pyreadstat.read_sas7bdat(str(filepath), encoding="WINDOWS-1252")
+    except Exception as e:
+        raise RuntimeError(f"Could not read {filepath.name} ({e}), so it is damaged or is not "
+                           f"a SAS data file. {hint}") from e
+    for read, source in ((len(df), "rows read"), (meta.number_rows, "rows pyreadstat's header reports")):
+        if read != row_count:
+            raise RuntimeError(f"{filepath.name} is incomplete: {read:,} {source}, but its header "
+                               f"declares {row_count:,}. {hint}")
+    # A damaged page can read as a repeat of another row, which both checks
+    # above would let through
     repeated = int(df.duplicated().sum())
     if repeated:
         raise RuntimeError(f"{filepath.name} has {repeated:,} rows that exactly repeat another "
                            f"row, so it is damaged (or repeats a record that would be counted "
-                           f"twice). {reextract_hint(filepath.name)}")
-
-    # Decode bytes columns
+                           f"twice). {hint}")
+    # Some DOE text fields start or end with spaces (" Granada")
     for col in df.columns:
         if df[col].dtype == object:
-            df[col] = df[col].apply(lambda x: x.decode('latin1') if isinstance(x, bytes) else x)
-
+            df[col] = df[col].map(lambda x: x.strip() if isinstance(x, str) else x)
     return df
 
 
@@ -317,6 +315,19 @@ def extract_offense_data(
     records = []
     family = CATEGORY_MAP[category]
     unitid_col = "UNITID_P" if "UNITID_P" in df.columns else "UNITID"
+
+    # Every row must carry a whole-number institution id of at least six
+    # digits. A misread row (its id read as a number near zero) would
+    # otherwise be dropped or filed under the wrong campus without notice.
+    ids = pd.to_numeric(df[unitid_col], errors="coerce")
+    bad = ids.isna() | (ids < MIN_UNITID) | (ids != ids.round())
+    if bad.any():
+        examples = ", ".join(repr(v) for v in df.loc[bad, unitid_col].head(5))
+        raise RuntimeError(
+            f"{filename}: {int(bad.sum()):,} rows have a {unitid_col} that is not an institution "
+            f"id (for example {examples}), so the file was misread or is damaged. "
+            f"{reextract_hint(filename)}"
+        )
 
     # Process each offense type
     for offense_code in CATEGORY_OFFENSES[category]:

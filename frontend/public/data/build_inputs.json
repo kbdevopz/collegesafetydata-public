@@ -1,7 +1,7 @@
 {
   "aggregates": {
     "all_schools": true,
-    "built_at": "2026-11-09T23:19:42+00:00",
+    "built_at": "2026-11-10T10:38:49+00:00",
     "code": {
       "04_create_aggregates.py": "1325ab31347d9c1f248a8709a4bee5cb7afdaa728cac8510cf700d991c229aaf",
       "config.py": "a03ec52bd899cbb11ac1e5ca9282143ccfbc91e5280ab88c8ad824337e7d0185",
@@ -10,9 +10,9 @@
     "inputs": {
       "crime": {
         "all_schools": true,
-        "built_at": "2026-11-09T23:16:04+00:00",
+        "built_at": "2026-11-10T10:36:25+00:00",
         "code": {
-          "02_transform_to_parquet.py": "94318a4d51a54f3aeaee5e21cafa0d4d563016ceae75105c7fa705b398b6ba32",
+          "02_transform_to_parquet.py": "b585891caae54268cdcb7de115022ee5000e911dd49a08267c3aa113dc54ec5c",
           "config.py": "a03ec52bd899cbb11ac1e5ca9282143ccfbc91e5280ab88c8ad824337e7d0185",
           "provenance.py": "c03daf1aede9fc90bf744150f097ecef1c148853d2b993eed9c18cf68effb990"
         },
@@ -531,8 +531,8 @@
           }
         },
         "outputs": {
-          "dims/raw_institutions.parquet": "0ff894dcc8e984eca16a17ab439a61ae7d5ee68851f4e3ff57de98aeaf20d860",
-          "facts/incidents.parquet": "110e072fbec595557b0fa7a26b3a8b60875a0c20af60042167b7ad4f32989a78"
+          "dims/raw_institutions.parquet": "ed959ce7a345065cb17706512df7659859e0b3c80ebebabd76811daea317661f",
+          "facts/incidents.parquet": "ce3bb015f8d85f782189e840cad144b3342a8b18d4f0501e8243131bf13cc7cb"
         },
         "year_sources": {
           "2015": "151617",
@@ -548,7 +548,7 @@
         }
       },
       "enrollment": {
-        "built_at": "2026-11-09T23:16:09+00:00",
+        "built_at": "2026-11-10T10:36:29+00:00",
         "code": {
           "02a_transform_enrollment.py": "dca5cd4a29d7448425eed093c384df57ba4b1f2e0482ba8be702a5e8b2d4b80b",
           "config.py": "a03ec52bd899cbb11ac1e5ca9282143ccfbc91e5280ab88c8ad824337e7d0185",
@@ -556,7 +556,7 @@
           "provenance.py": "c03daf1aede9fc90bf744150f097ecef1c148853d2b993eed9c18cf68effb990"
         },
         "ef": {
-          "built_at": "2026-11-09T23:16:07+00:00",
+          "built_at": "2026-11-10T10:36:28+00:00",
           "code": {
             "02b_transform_ef_enrollment.py": "4675198ccad673785e78ba2cfb9b26ed7f1c3376021ba2a36f66284c7f38f191",
             "config.py": "a03ec52bd899cbb11ac1e5ca9282143ccfbc91e5280ab88c8ad824337e7d0185",
@@ -659,7 +659,7 @@
         }
       },
       "institutions": {
-        "built_at": "2026-11-09T23:16:11+00:00",
+        "built_at": "2026-11-10T10:36:31+00:00",
         "code": {
           "03_build_dimensions.py": "2cf5f6446976f0659021b5c8ba656aa2416e72d96177598c3ff2a28ff492ca19",
           "config.py": "a03ec52bd899cbb11ac1e5ca9282143ccfbc91e5280ab88c8ad824337e7d0185",
@@ -667,9 +667,9 @@
         },
         "crime": {
           "all_schools": true,
-          "built_at": "2026-11-09T23:16:04+00:00",
+          "built_at": "2026-11-10T10:36:25+00:00",
           "code": {
-            "02_transform_to_parquet.py": "94318a4d51a54f3aeaee5e21cafa0d4d563016ceae75105c7fa705b398b6ba32",
+            "02_transform_to_parquet.py": "b585891caae54268cdcb7de115022ee5000e911dd49a08267c3aa113dc54ec5c",
             "config.py": "a03ec52bd899cbb11ac1e5ca9282143ccfbc91e5280ab88c8ad824337e7d0185",
             "provenance.py": "c03daf1aede9fc90bf744150f097ecef1c148853d2b993eed9c18cf68effb990"
           },
@@ -1188,8 +1188,8 @@
             }
           },
           "outputs": {
-            "dims/raw_institutions.parquet": "0ff894dcc8e984eca16a17ab439a61ae7d5ee68851f4e3ff57de98aeaf20d860",
-            "facts/incidents.parquet": "110e072fbec595557b0fa7a26b3a8b60875a0c20af60042167b7ad4f32989a78"
+            "dims/raw_institutions.parquet": "ed959ce7a345065cb17706512df7659859e0b3c80ebebabd76811daea317661f",
+            "facts/incidents.parquet": "ce3bb015f8d85f782189e840cad144b3342a8b18d4f0501e8243131bf13cc7cb"
           },
           "year_sources": {
             "2015": "151617",
@@ -1209,21 +1209,21 @@
           "dims/dim_offense.parquet": "2adf76f3b3862161c3b609166cc397e5c1dea5621fe3d272b8e68aa073b9807a"
         },
         "read": {
-          "dims/raw_institutions.parquet": "0ff894dcc8e984eca16a17ab439a61ae7d5ee68851f4e3ff57de98aeaf20d860",
-          "facts/incidents.parquet": "110e072fbec595557b0fa7a26b3a8b60875a0c20af60042167b7ad4f32989a78"
+          "dims/raw_institutions.parquet": "ed959ce7a345065cb17706512df7659859e0b3c80ebebabd76811daea317661f",
+          "facts/incidents.parquet": "ce3bb015f8d85f782189e840cad144b3342a8b18d4f0501e8243131bf13cc7cb"
         }
       }
     },
     "outputs": {
       "aggs/agg_ivy_rankings.parquet": "1c1d39c68c17615263d42fdbea1e23fa282c353678c50a1a152aa2e98cf0a5ee",
-      "aggs/agg_national_rankings.parquet": "268fe8749ed297e0554170fb31998c5dc993ca46a14e7863ca38f6093a42836a",
-      "aggs/agg_school_year_offense.parquet": "c64fadaa085f2c6af5c00d8c707e5291e6a7d6f48e23f1feaf76a465dd47abc1",
-      "aggs/agg_state_rankings.parquet": "0a8a6c83b9a102192c9d082cca157fccedb1013bd94934a5764de9d739e59f42"
+      "aggs/agg_national_rankings.parquet": "abf7e99f0b7f31b57a982a4beaf9d1a31552a350fdb4b2f6dbaa0d0f4b4a463c",
+      "aggs/agg_school_year_offense.parquet": "4b7ee824d834763b3a07b0025b976deb5e5bf049eb1ccd8134f39ddfe3fd56f6",
+      "aggs/agg_state_rankings.parquet": "9c6dcf3ad5066e08884d40b60cde2eed7385fba2e9b503a338144bb17c7cc0a1"
     },
     "read": {
       "dims/dim_enrollment.parquet": "37b328d2b319acbafca777aff55dbc096f0841f784f07ed973fa4b1a5f24aaba",
       "dims/dim_institution.parquet": "d776f1c58bc47868854560dcc35232b6630f760d92af452bbcf96e29d2b5d1fb",
-      "facts/incidents.parquet": "110e072fbec595557b0fa7a26b3a8b60875a0c20af60042167b7ad4f32989a78"
+      "facts/incidents.parquet": "ce3bb015f8d85f782189e840cad144b3342a8b18d4f0501e8243131bf13cc7cb"
     }
   },
   "all_schools": true,
@@ -1232,9 +1232,9 @@
     "config.py": "a03ec52bd899cbb11ac1e5ca9282143ccfbc91e5280ab88c8ad824337e7d0185",
     "provenance.py": "c03daf1aede9fc90bf744150f097ecef1c148853d2b993eed9c18cf68effb990"
   },
-  "generated_at": "2026-11-09T23:23:43+00:00",
+  "generated_at": "2026-11-10T10:41:23+00:00",
   "outputs": {
-    "metadata.json": "6e2598900503f2d9ac14f2dc333d811d173fa663e5ce2560618141fde084169f",
+    "metadata.json": "ad831cf5ed7c847480a85c7aa41dc540437b216195d78e6b1219814d18ae50f4",
     "presets.json": "718187e18cce0ccdd4200009b9267294bd20d3c7429ae0631a58499eae2d3ced",
     "rankings/AK-2015-all.json": "50e8f8dea8d8dbed27840f57a7379f4fc23c10dd4cbb3b5cdf0f1822697e0288",
     "rankings/AK-2016-all.json": "7d4daaf99b53fb9b79c0b7e3603a2e6862c38eba7cdbe434ffdf152b8c4664f7",
@@ -1246,8 +1246,8 @@
     "rankings/AK-2022-all.json": "980af6873136b2763228371f762fea644f1ad03a7e5166da80b8520f119160ff",
     "rankings/AK-2023-all.json": "1727925a44b4cf76363c1781f7353ced612d3b2728efacf7efada37c9a8d6719",
     "rankings/AK-2024-all.json": "f50ce96eec1d468c3e9a030c4c9a08cfe1a1455662a8714470bca14dda749ea8",
-    "rankings/AL-2015-all.json": "55e77456ec18ff348112fde088c548c2f6e69f85fbb583bf8ac9670c98cf97fe",
-    "rankings/AL-2016-all.json": "2db4dc8683983106d61912de8bca8d92570fbb620cc2132bd5653e9179d1873b",
+    "rankings/AL-2015-all.json": "4158fe85491ebc6b73b02dc604b18e1f81a8f35627c40bb9e7f0c6de513438de",
+    "rankings/AL-2016-all.json": "b3a1520b98f166bc8a41bc2e9b5e4bac0f2b71648fa43d254d0982eac19888d8",
     "rankings/AL-2017-all.json": "a14bcf8f70c2da142055c47c4eb6e9def41df426be3b45091b3711f4d4b37124",
     "rankings/AL-2018-all.json": "c48390a4e324d205e95e24c8303af3517000fe674ebe26bab6056726b89145d0",
     "rankings/AL-2019-all.json": "692ab510ff39a8f77ff55bfe972ae94d5c893fd0c83236a624356b7d326cf63e",
@@ -1776,8 +1776,8 @@
     "rankings/ivy-2022-all.json": "0e3dd358fadec1cebdc9d20773d2e0d6f14cee48fb080ca0aac1ce692a083053",
     "rankings/ivy-2023-all.json": "1fbedea24b784cfdb196b3eabfbaf581af025a10b7ed11a034fdbd4ffeff5ea2",
     "rankings/ivy-2024-all.json": "83745e5a956f7335b282b53d49183ca6aada83d25e35ff1b23b2d4e84427df19",
-    "rankings/national-2015-all.json": "31410edc61eadbd565056d70164649a1db0ed5dc48f45fa4f98714660bb07eba",
-    "rankings/national-2016-all.json": "88893cc73b4936800ca6188f41b7a9402e9bfe4fc1b13d72e1049272c5dbe683",
+    "rankings/national-2015-all.json": "a0aacef53225a8163e94d95d1aecb39e2c068005358a8f979ded53a19d414d80",
+    "rankings/national-2016-all.json": "ff59772f7b5904114a868731fc4d5bdf487e986c6f599688e310804c62c2fc92",
     "rankings/national-2017-all.json": "a5766d6ff99686e7771eeb03c608e62e921ff513d8ae514b0b9a3e4cf55449d5",
     "rankings/national-2018-all.json": "6253d5bedf4b7e6f69b5b81fe01b8b3f7251d0e8a57685ee696719dbd157ec21",
     "rankings/national-2019-all.json": "97619d3800d0b81e105b1bcde3329cd611752f67fd70021e4b4860341e517b74",
@@ -1787,27 +1787,27 @@
     "rankings/national-2023-all.json": "b39348aed1066ba90125d11a1c1a85548143377068969ed2e0e85f47a4fee872",
     "rankings/national-2024-all.json": "0668c925554e24ccfb7c2bb362d10cfb33d32328cafc7b12f95c4a4aa2f59e26",
     "school-index.json": "6dded337ba5819a5ceca3058f1af5c9e49040ac4ca82a6770f34b5f0c3e744df",
-    "schools/100654001.json": "66822a448ac6608b2e42d104fbe3ed3558783e639c7fa01d5021fa8914ac2319",
-    "schools/100663001.json": "3b9ac16efcf296ad7413a887320804d5ed27c02bbfc709e2628c8c175e409dcb",
+    "schools/100654001.json": "b76d746696d5b9d85d77da39a7552a27086e409c7123d56a9578da917a98985a",
+    "schools/100663001.json": "8196579da9f853c736551860a12f31717d5cb6dc96f4106e59c5f9e339da123e",
     "schools/100663002.json": "52e806956ec966c21c0687b176a8234d8f6bd4552c9bd8abb1859de4b8d7dc1c",
-    "schools/100706001.json": "415e2cd03cffe8e08c69b84b47090d2a334d6a4aa7843a78c5194c62e5e5c6fc",
-    "schools/100724001.json": "84d7128c80938fc60e984f02d7cac7fd0d6b8fc22bfb184738008018469501a7",
-    "schools/100751001.json": "1bd77f48ddec05bd1a4ff5995b2d00b3f2266c19ae2d82dd48f8c954959e59b6",
-    "schools/100760001.json": "2415f516d7f2624bca8c344a55f1429806409ea98823e88ad9de9614fecdf63f",
-    "schools/100760002.json": "e237dc6ab924e195e902138b3be72a30a318488c318c253d9c0d95b8538ff0e0",
+    "schools/100706001.json": "1a506956abe29e940301b5b9d9af709a0a01e1fd380fd49b9ebcb5450485e852",
+    "schools/100724001.json": "8b16a8ff421757f4e45e79c4e24263f8d98f079a3b1d63044b11aa2b1cc1d001",
+    "schools/100751001.json": "d7b1838ead41c0540e839c012496b445a3c5e82d9720b68b8a0bc8cb4f2f38e0",
+    "schools/100760001.json": "c2cd5d0abd1ac047cf2a94a17cb556194828701b56fe9328a1e27ba9274a0075",
+    "schools/100760002.json": "bf5f0ef087539dd35615841a5d8e5b5ee11cafa4983ed09c3b9d4979dc9b289a",
     "schools/100760004.json": "0ae57729655d8ef2cb44a4aa8a4499ae352bdbc20c643dd30a4bebd5e2444814",
-    "schools/100812001.json": "81b5bd782ebc58bad852f9902e518497105473baf033df67956799acd7851ac0",
-    "schools/100830001.json": "eefc57b8f34f21b1be2726a15efdfa5959c2282d52017e994e5b261512c5c347",
-    "schools/100858001.json": "586ce37c09418f96d3401c8c92ce9498a00fdf747f87c2f3e6738c9eb7d13d68",
+    "schools/100812001.json": "aef18158b3b2acb365270112ccb88d2664df28f015f6667333b8d751ffc9bab0",
+    "schools/100830001.json": "d8540735eab2c313115d7e85cce43cc3ee5b57919a79675d6be6eb5e47cd7111",
+    "schools/100858001.json": "06acc3d9d0129fb4fb0f5d9bc2ec38b64dc8ae6baa394c479cdc431a7e102907",
     "schools/100858003.json": "1f2299e5c0327e06485730e189ad8a14cc13aa4cc7da4113a001ffa75d083753",
     "schools/100858004.json": "9638ef1e912c05faa4b202f1f418371afea0bd5dc43e2ab07052d80b61472d0e",
     "schools/100858005.json": "02676812bfff4e4f627b78ccdf38fc4944af08e3dc82db1d110a8c1ee945ae63",
     "schools/100858006.json": "1f5562a7ed337fd9600e21c20f35ebebfc11768e1aa72c72644040a86498ffd1",
     "schools/100858007.json": "974039c2dac78f3f5267d50598961262672a269136ae52ba72aa00787f0af8ac",
     "schools/100858010.json": "79974c1166b6c61c76ead6762d3058bcae4e6f7215a27df7243b1787ecc4d8e4",
-    "schools/100858011.json": "8de44b95e1e4ccd9ba71958f31747186d8e5c741cbcac8491368c85e2697b7b0",
-    "schools/100937001.json": "17172a7d45c1bd03f9a3681a294eb096fd8f59de301bdf343179b84bca648e59",
-    "schools/101028001.json": "44cd606ea6211b3caaa9eb1aa60ae8fd635e30284ee76d2dc01d7c3db3110fc9",
+    "schools/100858011.json": "a09f428bb9fd8160b069a2c7972cb9f59c3e9856596152037dd45de50f5c85e0",
+    "schools/100937001.json": "e97d4edb8d22ce724b897fa191c8f4119c2afaa017326a2e9d2e034e5eca264e",
+    "schools/101028001.json": "ee267a233cb36c643361737a0457901167983164e9414a379701cbb7a1964352",
     "schools/101116001.json": "ccfd93ca03aa6a4132aedafcf332f401968134f11f8d848fcff430532ac9fd58",
     "schools/101143001.json": "9ee6fca576781f11f40ab1e05d973708e9cec7a9f5fe06106e4a02ed6ddbab89",
     "schools/101143002.json": "e0613298bef284cad5f4663f36486e7490be5c7dc41165969c2648d13a0f972a",
@@ -10097,9 +10097,9 @@
   },
   "read": {
     "aggs/agg_ivy_rankings.parquet": "1c1d39c68c17615263d42fdbea1e23fa282c353678c50a1a152aa2e98cf0a5ee",
-    "aggs/agg_national_rankings.parquet": "268fe8749ed297e0554170fb31998c5dc993ca46a14e7863ca38f6093a42836a",
-    "aggs/agg_school_year_offense.parquet": "c64fadaa085f2c6af5c00d8c707e5291e6a7d6f48e23f1feaf76a465dd47abc1",
-    "aggs/agg_state_rankings.parquet": "0a8a6c83b9a102192c9d082cca157fccedb1013bd94934a5764de9d739e59f42",
+    "aggs/agg_national_rankings.parquet": "abf7e99f0b7f31b57a982a4beaf9d1a31552a350fdb4b2f6dbaa0d0f4b4a463c",
+    "aggs/agg_school_year_offense.parquet": "4b7ee824d834763b3a07b0025b976deb5e5bf049eb1ccd8134f39ddfe3fd56f6",
+    "aggs/agg_state_rankings.parquet": "9c6dcf3ad5066e08884d40b60cde2eed7385fba2e9b503a338144bb17c7cc0a1",
     "dims/dim_institution.parquet": "d776f1c58bc47868854560dcc35232b6630f760d92af452bbcf96e29d2b5d1fb",
     "dims/dim_offense.parquet": "2adf76f3b3862161c3b609166cc397e5c1dea5621fe3d272b8e68aa073b9807a"
   }
