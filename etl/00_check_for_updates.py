@@ -1849,7 +1849,7 @@ def check_release() -> None:
         REMOVED_UNSURE = True
     report("INFO", f"Each live site that serves this build's record is asked for all {len(files):,} site files "
                    "it lists" + (f" and the {len(removed):,} file(s) earlier builds held that are not part of it"
-                                 if removed else "") + ", which takes a few minutes")
+                                 if removed else "") + ", which takes about 15 minutes per site")
     gone = f"the {len(removed):,} file(s) earlier builds held that are not part of this one" if removed else ""
     audit_sha = provenance.text_sha256(AUDIT_COPY) if AUDIT_COPY.is_file() else None
     serving = sum(check_host(host, published, audit_sha, files, what, removed, gone) for host in LIVE_SITES)
