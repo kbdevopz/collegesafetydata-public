@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-11-10T08:22:16Z",
+  "generated_at": "2026-11-10T10:41:31Z",
   "audited_build": {
     "site_record": "frontend/public/data/build_inputs.json",
-    "site_record_sha256": "5b0eaa566999d700792929047885f32b3e36494d7b36b1a00b9237238c06e7d9",
+    "site_record_sha256": "dce2f9ded16bb8bcea0f3a45546d175e4409c82bf3cb50b508f4df523f687611",
     "curated_sha256": {
-      "facts/incidents.parquet": "110e072fbec595557b0fa7a26b3a8b60875a0c20af60042167b7ad4f32989a78",
-      "aggs/agg_school_year_offense.parquet": "c64fadaa085f2c6af5c00d8c707e5291e6a7d6f48e23f1feaf76a465dd47abc1",
+      "facts/incidents.parquet": "ce3bb015f8d85f782189e840cad144b3342a8b18d4f0501e8243131bf13cc7cb",
+      "aggs/agg_school_year_offense.parquet": "4b7ee824d834763b3a07b0025b976deb5e5bf049eb1ccd8134f39ddfe3fd56f6",
       "dims/dim_enrollment.parquet": "37b328d2b319acbafca777aff55dbc096f0841f784f07ed973fa4b1a5f24aaba"
     }
   },
@@ -50,15 +50,15 @@
         "by_year": [
           {
             "year": 2015,
-            "schools_with_data": 4488,
-            "schools_with_fte": 4479,
+            "schools_with_data": 4497,
+            "schools_with_fte": 4488,
             "coverage_pct": 99.8,
             "enrollment": "final"
           },
           {
             "year": 2016,
-            "schools_with_data": 4400,
-            "schools_with_fte": 4392,
+            "schools_with_data": 4412,
+            "schools_with_fte": 4404,
             "coverage_pct": 99.8,
             "enrollment": "final"
           },
@@ -134,7 +134,7 @@
       "status": "PASS",
       "details": {
         "what_it_checks": "For every entry of rankings/*.json, rate equals count / fte x 10,000 to within 0.01, using the entry's own count and fte; an entry with a rate but no FTE above 0, or with an FTE but no rate, is an error. It does not compare the count or FTE with the aggregates or IPEDS.",
-        "ranking_entries_checked": 463109,
+        "ranking_entries_checked": 463515,
         "rate_errors": 0
       },
       "errors": [],
@@ -145,7 +145,7 @@
       "status": "PASS",
       "details": {
         "what_it_checks": "In every ranking group (one offense of one rankings/*.json file) of 2 or more entries, rank runs 1..N with counts non-increasing, and rankByRate runs 1..M over exactly the entries with a rate, with rates non-increasing. It checks the order of each file's own counts and rates; check 4 checks the rates' arithmetic.",
-        "groups_validated": 8992,
+        "groups_validated": 8993,
         "order_violations": 0
       },
       "errors": [],
@@ -156,10 +156,10 @@
       "status": "PASS",
       "details": {
         "what_it_checks": "In every ranking group (one offense of one rankings/*.json file), each entry's pct equals its count / the group's count sum x 100 to 2 decimals (within 0.005), and the file's totals entry equals that sum. Group pct sums differ from 100% only by that rounding; the largest difference is shown. It checks the files' own counts, not the counts against the aggregates.",
-        "groups_validated": 9615,
-        "entries_checked": 463889,
+        "groups_validated": 9617,
+        "entries_checked": 464295,
         "pct_errors": 0,
-        "max_sum_deviation_pct": 4.38
+        "max_sum_deviation_pct": 4.25
       },
       "errors": [],
       "warnings": []
@@ -170,97 +170,97 @@
       "details": {
         "what_it_checks": "From data/curated/facts/incidents.parquet, with the rules of 04_create_aggregates.py, the count of every row of agg_school_year_offense.parquet: each year, school, offense and geography (Residence halls included), and \"All\" = On-campus + Non-campus + Public property (Residence halls are a subset of On-campus, so \"All\" leaves them out). Every row must match exactly; the totals per year and geography are shown. This proves that no count was lost, added or changed between the facts and the aggregates. It does not re-read the DOE files, so it cannot detect a value that 02_transform_to_parquet.py read wrongly from them.",
         "years": "2015-2024",
-        "fact_rows": 327044,
+        "fact_rows": 327416,
         "all": {
-          "facts": 2591903,
-          "aggregates": 2591903,
+          "facts": 2598136,
+          "aggregates": 2598136,
           "variance": 0
         },
         "residence_halls": {
-          "facts": 1833632,
-          "aggregates": 1833632,
+          "facts": 1837967,
+          "aggregates": 1837967,
           "variance": 0
         },
-        "aggregate_rows_compared": 518812,
+        "aggregate_rows_compared": 519366,
         "aggregate_rows_differing": 0,
         "by_year_geo": [
           {
             "year": 2015,
             "geo": "All",
-            "facts": 355078,
-            "aggregates": 355078,
+            "facts": 358184,
+            "aggregates": 358184,
             "variance": 0,
             "rows_differing": 0
           },
           {
             "year": 2015,
             "geo": "Non-campus",
-            "facts": 11090,
-            "aggregates": 11090,
+            "facts": 11146,
+            "aggregates": 11146,
             "variance": 0,
             "rows_differing": 0
           },
           {
             "year": 2015,
             "geo": "On-campus",
-            "facts": 323872,
-            "aggregates": 323872,
+            "facts": 326759,
+            "aggregates": 326759,
             "variance": 0,
             "rows_differing": 0
           },
           {
             "year": 2015,
             "geo": "Public property",
-            "facts": 20116,
-            "aggregates": 20116,
+            "facts": 20279,
+            "aggregates": 20279,
             "variance": 0,
             "rows_differing": 0
           },
           {
             "year": 2015,
             "geo": "Residence halls",
-            "facts": 258925,
-            "aggregates": 258925,
+            "facts": 261061,
+            "aggregates": 261061,
             "variance": 0,
             "rows_differing": 0
           },
           {
             "year": 2016,
             "geo": "All",
-            "facts": 340004,
-            "aggregates": 340004,
+            "facts": 343131,
+            "aggregates": 343131,
             "variance": 0,
             "rows_differing": 0
           },
           {
             "year": 2016,
             "geo": "Non-campus",
-            "facts": 8485,
-            "aggregates": 8485,
+            "facts": 8536,
+            "aggregates": 8536,
             "variance": 0,
             "rows_differing": 0
           },
           {
             "year": 2016,
             "geo": "On-campus",
-            "facts": 311554,
-            "aggregates": 311554,
+            "facts": 314510,
+            "aggregates": 314510,
             "variance": 0,
             "rows_differing": 0
           },
           {
             "year": 2016,
             "geo": "Public property",
-            "facts": 19965,
-            "aggregates": 19965,
+            "facts": 20085,
+            "aggregates": 20085,
             "variance": 0,
             "rows_differing": 0
           },
           {
             "year": 2016,
             "geo": "Residence halls",
-            "facts": 248206,
-            "aggregates": 248206,
+            "facts": 250405,
+            "aggregates": 250405,
             "variance": 0,
             "rows_differing": 0
           },
