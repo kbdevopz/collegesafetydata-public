@@ -15,7 +15,7 @@ export default function Privacy() {
               We are committed to protecting your privacy. This policy explains what data we collect and how we use it.
             </p>
             <p className="text-sm text-gray-500 dark:text-gray-500 mt-4">
-              Last updated: December 27, 2025
+              Last updated: November 10, 2026
             </p>
           </div>
         </div>
@@ -41,7 +41,7 @@ export default function Privacy() {
               </p>
               <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
                 <p className="text-sm text-green-700 dark:text-green-300 font-medium">
-                  <strong>Privacy-First Design:</strong> This site collects no user data, uses no cookies, has no analytics tracking, and requires no account registration.
+                  <strong>Privacy-First Design:</strong> This site collects no personal data, uses no cookies, and requires no account registration. The only analytics is Cloudflare Web Analytics, which counts page views in aggregate without cookies or tracking you across sites (see below).
                 </p>
               </div>
             </div>
@@ -87,6 +87,22 @@ export default function Privacy() {
                     </a> for details.
                   </p>
                 </div>
+
+                <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                    Cloudflare Web Analytics (collegesafetydata.org)
+                  </h3>
+                  <p className="text-sm">
+                    Pages on collegesafetydata.org include Cloudflare Web Analytics, which records aggregate visit statistics such as page views, referring sites, countries and page load times. It sets no cookies, does not use your IP address to identify you, and does not follow you across other websites. We see only totals. See <a
+                      href="https://www.cloudflare.com/web-analytics/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 hover:underline"
+                    >
+                      Cloudflare Web Analytics
+                    </a> for details.
+                  </p>
+                </div>
               </div>
 
               <p className="leading-relaxed font-medium text-gray-900 dark:text-gray-100 mt-6">
@@ -99,7 +115,7 @@ export default function Privacy() {
                 </li>
                 <li className="flex gap-2">
                   <span className="text-green-600 dark:text-green-400">✓</span>
-                  <span>No analytics or tracking scripts (no Google Analytics, no third-party trackers)</span>
+                  <span>No tracking or advertising scripts (no Google Analytics, no ad networks, no cross-site trackers)</span>
                 </li>
                 <li className="flex gap-2">
                   <span className="text-green-600 dark:text-green-400">✓</span>
