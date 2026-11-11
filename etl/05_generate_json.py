@@ -56,6 +56,7 @@ def required_inputs() -> list[Path]:
     """Curated files 05 reads. All must exist before anything is written."""
     paths = [
         CURATED_DIR / "aggs" / "agg_school_year_offense.parquet",
+        CURATED_DIR / "aggs" / "shared_blocks.parquet",
         CURATED_DIR / "aggs" / "agg_ivy_rankings.parquet",
         CURATED_DIR / "dims" / "dim_institution.parquet",
         CURATED_DIR / "dims" / "dim_offense.parquet",
@@ -690,6 +691,7 @@ def generate_school_profiles() -> None:
         trends: TrendPoint[]
         breakdownByOffense: BreakdownEntry[]
         breakdownByGeo: BreakdownEntry[]
+        sharedFigures: SharedFigure[]  # only for a school with shadow blocks (see shared_figures)
     """
     print("\nGenerating school profile JSON files...")
 
@@ -700,6 +702,8 @@ def generate_school_profiles() -> None:
 
     # Load institution dimension for school info
     dim_inst = pd.read_parquet(CURATED_DIR / "dims" / "dim_institution.parquet")
+    shared = shared_figures(dim_inst)
+    shared_written = 0
 
     # Determine which schools to process
     if PROCESS_ALL_SCHOOLS:
@@ -844,6 +848,11 @@ def generate_school_profiles() -> None:
             "breakdownByOffense": offense_breakdown,
             "breakdownByGeo": geo_breakdown
         }
+        # The school's figures stay as DOE reports them; these blocks are
+        # counted under another campus in totals and rankings
+        if unitid in shared:
+            output["sharedFigures"] = shared[unitid]
+            shared_written += 1
 
         # Save
         filename = f"{unitid}.json"
@@ -859,11 +868,50 @@ def generate_school_profiles() -> None:
         if schools_generated % 500 == 0:
             print(f"  Generated {schools_generated} profiles...")
 
+    # Every campus named in a note (the campus itself and its host, which the
+    # note links to) must have a school file.
+    named = set(shared) | {f["hostUnitid"] for figures in shared.values() for f in figures}
+    missing = sorted(named - {int(u) for u in schools_to_process["unitid"]})
+    if missing:
+        raise SiteDataError(f"shared_blocks.parquet names campuses with no school file ({missing[:5]}). "
+                            "Re-run 03 and 04, then 05.")
+
     print(f"\n  Generated {schools_generated} school profiles")
     print(f"    Ivy League: {ivy_count}")
     if PROCESS_ALL_SCHOOLS:
         print(f"    Other schools: {state_count}")
+    print(f"    With figures counted under another campus (sharedFigures): {shared_written}")
     print(f"  Saved to: {schools_dir}/")
+
+
+def shared_figures(dim_inst: pd.DataFrame) -> dict[int, list[dict]]:
+    """
+    For each campus with shadow blocks (04_create_aggregates.py,
+    find_shared_blocks), the blocks that are counted under another campus:
+    [{year, geo, hostUnitid, hostName}], by year and geography. The school's
+    own figures include them as DOE reports them; state and national totals
+    and rankings count them once, under the host.
+    """
+    shared = pd.read_parquet(CURATED_DIR / "aggs" / "shared_blocks.parquet")
+    shadows = shared[shared["role"] == "shadow"]
+    rows = dim_inst.set_index("unitid")
+    geo_order = {g: i for i, g in enumerate(["On-campus", "Non-campus", "Public property"])}
+    out: dict[int, list[dict]] = {}
+    for rec in sorted(shadows.to_dict("records"), key=lambda r: (int(r["unitid"]), int(r["year"]),
+                                                                  geo_order.get(r["geo"], 99))):
+        host = int(rec["host_unitid"])
+        if host not in rows.index:
+            raise SiteDataError(f"shared_blocks.parquet names host {host}, which is not in "
+                                "dim_institution.parquet. Re-run 03 and 04, then 05.")
+        name = IVY_LEAGUE[host]["name"] if host in IVY_LEAGUE else (
+            opt(rows.loc[host, "institution_name"]) or f"School {host}")
+        out.setdefault(int(rec["unitid"]), []).append({
+            "year": int(rec["year"]),
+            "geo": rec["geo"],
+            "hostUnitid": host,
+            "hostName": name,
+        })
+    return out
 
 
 def generate_school_index() -> None:

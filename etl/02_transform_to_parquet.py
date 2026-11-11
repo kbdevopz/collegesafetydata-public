@@ -7,6 +7,17 @@ The DOE data is organized as:
 - Each file covers 3 years with suffixes like 212223 (2021-2022-2023)
 - Columns have year suffixes: RAPE21, MURD22, etc.
 
+Which release each number comes from (see choose_sources):
+- Consecutive releases overlap, so most campus-years appear in up to three
+  releases. Each campus-year (UNITID_P and calendar year) is taken from the
+  NEWEST release whose row for that campus and year is not entirely blank in
+  its 16 count files (4 geographies x 4 categories, count columns only). All
+  16 files' values for that campus-year then come from that one release; a
+  blank file or cell is never filled from another release, except for the
+  known DOE file defects listed in KNOWN_DEFECTS.
+- A campus that is missing from (or blank in) the newest release keeps the
+  numbers an older release has for it, as DOE's own data tool shows them.
+
 Output Schema:
     year: int16                  # 2015-2024
     unitid: int32                # Institution ID
@@ -14,6 +25,10 @@ Output Schema:
     offense_family: string       # "Criminal", "VAWA", "Arrest", "Disciplinary"
     geo: string                  # "On-campus", "Non-campus", "Public property", "Residence halls"
     count: int16                 # Number of incidents
+
+Also written: data/curated/dims/campus_year_sources.parquet, the release each
+campus-year was taken from (unitid, year, release, restored), including
+campus-years whose counts are all zero (the facts hold no rows for those).
 
 Usage:
     python 02_transform_to_parquet.py
@@ -25,6 +40,7 @@ import argparse
 import logging
 import pandas as pd
 import re
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional, List, Tuple
 from tqdm import tqdm
@@ -106,6 +122,74 @@ FILE_YEAR_PATTERNS = {
     "212223": [2021, 2022, 2023],
     "222324": [2022, 2023, 2024],
 }
+
+
+@dataclass(frozen=True)
+class KnownDefect:
+    """
+    Cells of one DOE file and year that are known to be wrong. The rule
+    applies only to campus-years taken from that release (`suffix`). Those
+    cells are not read, do not count when deciding whether the release has a
+    campus-year (choose_sources), and are taken from the `replacement`
+    release instead, or left blank when it is None.
+
+    `copy_of` names the geography whose file of the same release and
+    category the defective cells duplicate; `missing` the columns the file
+    lacks and `misnamed` columns it has instead. Each is checked every time
+    the file is read (check_defect_still_present, check_columns), so a
+    corrected re-issue of the file stops the build rather than being
+    patched by a rule that no longer applies.
+    """
+    suffix: str                     # release file suffix, e.g. "212223"
+    geo: str                        # GEOGRAPHY_MAP key
+    category: str                   # CATEGORY_MAP key
+    year: int                       # calendar year of the defective cells
+    offenses: Tuple[str, ...]       # offense codes (CATEGORY_OFFENSES) whose cells are defective
+    problem: str                    # what is wrong, for messages and the build record
+    replacement: Optional[str]      # release suffix to take the cells from, or None (left blank)
+    copy_of: Optional[str] = None   # geography of the same release whose values the cells copy
+    missing: Tuple[str, ...] = ()   # columns the file lacks for this year
+    misnamed: Tuple[str, ...] = ()  # columns the file has instead, which are not read
+
+    @property
+    def filename(self) -> str:
+        return f"{self.geo}{self.category}{self.suffix}.sas7bdat"
+
+
+# Known defects in DOE's files. Each is named by release, file and year, and
+# applies only to campus-years whose source is that release.
+KNOWN_DEFECTS: Tuple[KnownDefect, ...] = (
+    # Crime2024SAS.zip: the residence-hall discipline columns for 2022 and
+    # 2023 are an exact copy of on-campus discipline at every campus (blank
+    # cells included). In every other release and year about 60% of the
+    # nonzero residence-hall discipline cells equal the on-campus cell.
+    # DOE's data tool shows the 2022 residence-hall figures of the
+    # Crime2023SAS.zip release (202122), so those are used; no other release
+    # covers 2023 residence-hall discipline for these campuses, so it is left
+    # blank.
+    KnownDefect("212223", "residencehall", "discipline", 2022, ("WEAPON", "DRUG", "LIQUOR"),
+                "is a copy of oncampusdiscipline212223", "202122", copy_of="oncampus"),
+    KnownDefect("212223", "residencehall", "discipline", 2023, ("WEAPON", "DRUG", "LIQUOR"),
+                "is a copy of oncampusdiscipline212223", None, copy_of="oncampus"),
+    # Crime2024SAS.zip: residence-hall arrests have no LIQUOR22 column; the
+    # file has a column LIQUOR2 in its place, which is not read. Residence-hall
+    # liquor arrests for 2022 are taken from the Crime2023SAS.zip release
+    # (202122), the same way as the discipline columns above.
+    KnownDefect("212223", "residencehall", "arrest", 2022, ("LIQUOR",),
+                "has no LIQUOR22 column (it has a column named LIQUOR2 instead)", "202122",
+                missing=("LIQUOR22",), misnamed=("LIQUOR2",)),
+)
+
+
+def defects_for(suffix: str, geo: str, category: str, year: int) -> List[KnownDefect]:
+    """The known defects of one file and year."""
+    return [d for d in KNOWN_DEFECTS
+            if (d.suffix, d.geo, d.category, d.year) == (suffix, geo, category, year)]
+
+
+def defective_offenses(suffix: str, geo: str, category: str, year: int) -> set:
+    """Offense codes whose cells of one file and year are known to be wrong."""
+    return {code for d in defects_for(suffix, geo, category, year) for code in d.offenses}
 
 
 def release_year(suffix: str) -> int:
@@ -233,8 +317,10 @@ def suffix_years(suffix: str) -> Optional[List[int]]:
 
 # Set by process_all_files() for the build record written in main()
 USED_FILES: List[Path] = []
-YEAR_SOURCES: dict = {}
+YEAR_SOURCES: dict = {}  # year -> the releases on disk that cover it, newest first
 READ_BEFORE: dict = {}  # CRC-32 and size of each used file, taken before reading
+CAMPUS_YEAR_SOURCES: List[pd.DataFrame] = []  # one table: unitid, year, release, restored
+DEFECTS_APPLIED: List[dict] = []  # how many campus-years each KNOWN_DEFECTS rule applied to
 
 
 def parse_filename(filename: str) -> Optional[Tuple[str, str, List[int]]]:
@@ -265,22 +351,37 @@ def check_columns(columns: List[str], filename: str, category: str, years: List[
     """
     Raise unless a file has every column the transform reads for the given
     years: a UNITID and one column per offense and year. Also raise on any
-    other column ending in one of those years' two digits, so a renamed or
-    new DOE column is not silently ignored. Only the years taken from the
-    file are checked; columns for its other years are never read.
+    other column ending in one of those years' two digits, and on any column
+    named like an offense or FILTER column without a two-digit year (such
+    as LIQUOR2), so a renamed or new DOE column is not silently ignored. Only
+    the years taken from the file are checked; columns for its other years
+    are never read.
+
+    The only exceptions are the columns KNOWN_DEFECTS names for this file and
+    year: a column it says is missing may be absent (and must be), and a
+    column it says is misnamed is not read (and must be there). Anything else
+    about such a file is checked as for every other file.
     """
     present = set(columns)
     suffixes = [str(year)[-2:] for year in years]
     expected = [f"{code}{yy}" for code in CATEGORY_OFFENSES[category] for yy in suffixes]
     known = set(expected) | {f"{prefix}{yy}" for prefix in IGNORED_YEAR_COLUMNS for yy in suffixes}
 
+    parsed = parse_filename(filename)
+    file_defects = [d for d in KNOWN_DEFECTS
+                    if parsed and (d.suffix, d.geo, d.category) == (parsed[2], parsed[0], category)]
+    known_missing = {c for d in file_defects if d.year in years for c in d.missing}
+    misnamed = {c for d in file_defects for c in d.misnamed}  # whichever years are checked
+
     problems = []
     if "UNITID_P" not in present and "UNITID" not in present:
         problems.append("no UNITID_P or UNITID column")
-    missing = [c for c in expected if c not in present]
+    missing = [c for c in expected if c not in present and c not in known_missing]
     if missing:
         problems.append(f"missing columns {', '.join(missing)}")
-    unknown = [c for c in columns if c.endswith(tuple(suffixes)) and c not in known]
+    prefixes = "|".join(re.escape(p) for p in CATEGORY_OFFENSES[category] + IGNORED_YEAR_COLUMNS)
+    unknown = [c for c in columns if c not in known and c not in misnamed and (
+        c.endswith(tuple(suffixes)) or (re.match(prefixes, c) and not re.fullmatch(rf"(?:{prefixes})\d\d", c)))]
     if unknown:
         problems.append(f"unrecognized columns {', '.join(unknown)}")
     if problems:
@@ -289,6 +390,14 @@ def check_columns(columns: List[str], filename: str, category: str, years: List[
             "DOE may have renamed or added columns. Update CATEGORY_OFFENSES or "
             "IGNORED_YEAR_COLUMNS in 02_transform_to_parquet.py so every column is "
             "read or deliberately ignored, then rebuild."
+        )
+    # A known defect that is no longer there means DOE corrected the file
+    corrected = [f"it has {c}, which KNOWN_DEFECTS says it lacks" for c in sorted(known_missing & present)]
+    corrected += [f"it no longer has {c}, which KNOWN_DEFECTS says it has" for c in sorted(misnamed - present)]
+    if corrected:
+        raise RuntimeError(
+            f"{filename}: {'; '.join(corrected)}, so DOE may have corrected this file. Check the file, "
+            "then update or remove its entry in KNOWN_DEFECTS in 02_transform_to_parquet.py and rebuild."
         )
 
 
@@ -299,26 +408,18 @@ def is_blank(value) -> bool:
     return value is None or bool(pd.isna(value))
 
 
-def extract_offense_data(
-    df: pd.DataFrame,
-    category: str,
-    years: List[int],
-    filename: str = "file",
-) -> List[dict]:
+def unitid_column(df: pd.DataFrame) -> str:
+    return "UNITID_P" if "UNITID_P" in df.columns else "UNITID"
+
+
+def campus_ids(df: pd.DataFrame, filename: str) -> pd.Series:
     """
-    Extract offense counts from DataFrame columns.
-
-    Columns are named like: RAPE21, MURD22, etc.
+    Each row's institution id as an integer. Every row must carry a
+    whole-number id of at least six digits: a misread row (its id read as a
+    number near zero) would otherwise be dropped or filed under the wrong
+    campus without notice.
     """
-    check_columns(list(df.columns), filename, category, years)
-
-    records = []
-    family = CATEGORY_MAP[category]
-    unitid_col = "UNITID_P" if "UNITID_P" in df.columns else "UNITID"
-
-    # Every row must carry a whole-number institution id of at least six
-    # digits. A misread row (its id read as a number near zero) would
-    # otherwise be dropped or filed under the wrong campus without notice.
+    unitid_col = unitid_column(df)
     ids = pd.to_numeric(df[unitid_col], errors="coerce")
     bad = ids.isna() | (ids < MIN_UNITID) | (ids != ids.round())
     if bad.any():
@@ -328,9 +429,31 @@ def extract_offense_data(
             f"id (for example {examples}), so the file was misread or is damaged. "
             f"{reextract_hint(filename)}"
         )
+    return ids.astype("int64")
+
+
+def extract_offense_data(
+    df: pd.DataFrame,
+    category: str,
+    years: List[int],
+    filename: str = "file",
+    offenses: Optional[List[str]] = None,
+) -> List[dict]:
+    """
+    Extract offense counts from DataFrame columns.
+
+    Columns are named like: RAPE21, MURD22, etc. `offenses` limits the
+    offense codes read (default: all of the category's).
+    """
+    check_columns(list(df.columns), filename, category, years)
+
+    records = []
+    family = CATEGORY_MAP[category]
+    unitid_col = unitid_column(df)
+    campus_ids(df, filename)
 
     # Process each offense type
-    for offense_code in CATEGORY_OFFENSES[category]:
+    for offense_code in (CATEGORY_OFFENSES[category] if offenses is None else offenses):
         offense_name = OFFENSE_MAP[offense_code]
         # For arrest/discipline, append category to offense name
         if category in ["arrest", "discipline"]:
@@ -383,85 +506,148 @@ def select_files(target_years: List[int]) -> Tuple[List[tuple], dict]:
     Choose which extracted SAS files to read, without reading them.
 
     Each DOE release covers 3 calendar years, so consecutive releases overlap.
-    Each year is sourced ONLY from the newest release that covers it (later
-    collections include institutions' corrections). Extracting the same year
-    from multiple overlapping releases would double/triple-count incidents.
+    Every release that covers a target year is read, and each campus-year is
+    taken from the newest of them that has it (choose_sources), so a campus
+    missing from or blank in the newest release keeps an older release's
+    numbers. One campus-year's numbers never come from more than one release
+    (apart from KNOWN_DEFECTS, which supply other cells), so overlapping
+    releases are never added up.
 
     Returns ([(path, geography, category, years_to_take), ...] newest release
-    first, {year: release suffix}). Also used by 00_check_for_updates.py.
+    first, {year: [suffixes of the releases on disk that cover it, newest
+    first]}). Also used by 00_check_for_updates.py.
     """
     sas_files = sorted(RAW_DIR.glob("*.sas7bdat"))
     print(f"Found {len(sas_files)} SAS files in {RAW_DIR}")
 
     parsed_files = []
-    newest_release = {}  # year -> newest release suffix that covers it
+    covering = {}  # year -> suffixes of the releases on disk that cover it
     for f in sas_files:
         parsed = parse_filename(f.name)
         if parsed:
             geo, cat, suffix, years = parsed
-            parsed_files.append((f, geo, cat, suffix, years))
-            for year in years:
-                if year in target_years:
-                    newest_release[year] = max(newest_release.get(year, ""), suffix)
+            taken = [y for y in years if y in target_years]
+            if taken:
+                parsed_files.append((f, geo, cat, suffix, taken))
+                for year in taken:
+                    covering.setdefault(year, set()).add(suffix)
 
-    # Newest releases first so institution info reflects current names
+    # Newest releases first, so a campus-year is assigned to the newest
+    # release that has it and institution info reflects current names
     # (stable sort: within a release, files stay in name order)
     parsed_files.sort(key=lambda item: item[3], reverse=True)
 
-    files_to_process = []
-    for f, geo, cat, suffix, years in parsed_files:
-        relevant_years = [
-            y for y in years
-            if y in target_years and newest_release[y] == suffix
-        ]
-        if relevant_years:
-            files_to_process.append((f, geo, cat, relevant_years))
+    files_to_process = [(f, geo, cat, taken) for f, geo, cat, _suffix, taken in parsed_files]
+    return files_to_process, {y: sorted(s, reverse=True) for y, s in sorted(covering.items())}
 
-    return files_to_process, {y: s for y, s in sorted(newest_release.items())}
+
+def suffix_of_release(release: int) -> str:
+    """File suffix of a release, e.g. 2025 -> "222324" (calendar 2022-2024)."""
+    return "".join(f"{(release - k) % 100:02d}" for k in (3, 2, 1))
 
 
 def check_coverage(files_to_process: List[tuple], year_sources: dict, target_years: List[int]) -> None:
     """
-    Raise unless every target year is read from exactly one file for each
-    geography and category, so a missing file or release never silently
-    drops part of a year. Also raise unless each year is read from the newest
-    DOE release that covers it: Crime{year + 3}SAS.zip, or the newest release
-    on disk when that is older, so a missing release in between never leaves
-    a year built from a superseded release.
+    Raise unless every DOE release the transform needs is extracted in full:
+    each release that covers a target year (Crime{y+1..y+3}SAS.zip for year
+    y), up to the newest release on disk, with all 16 of its count files
+    (every geography and category). A campus-year is taken from the newest
+    release that has it, so a missing release or file would silently move
+    campus-years to an older release, or drop them, instead of failing.
+    Also raise when no release on disk covers a target year, or a file would
+    be read twice.
     """
-    read = {}
-    for f, geo, cat, years in files_to_process:
-        for year in years:
-            read.setdefault((year, geo, cat), []).append(f.name)
+    read = {}  # (release suffix, geo, cat) -> file names
+    for f, geo, cat, _years in files_to_process:
+        read.setdefault((parse_filename(f.name)[2], geo, cat), []).append(f.name)
 
     problems = []
-    missing = {}  # (release suffix, geo, cat) -> years left without a source
-    newest_on_disk = max((release_year(s) for s in year_sources.values()), default=None)
+    newest_on_disk = max((release_year(s) for s, _geo, _cat in read), default=None)
+    needed = {}  # release year -> the target years it covers
     for year in sorted(target_years):
-        suffix = year_sources.get(year)
-        if suffix is None:
+        if not year_sources.get(year):
             problems.append(f"no DOE release on disk covers {year}; download and extract the releases "
                             "the pipeline needs: python 01_download_raw_data.py")
             continue
-        newest = min(year + 3, newest_on_disk)
-        if release_year(suffix) < newest:
-            problems.append(f"{year} would be read from {release_zip(suffix)}, but Crime{newest}SAS.zip, a "
-                            f"newer DOE release that covers {year}, is not extracted in {RAW_DIR}; download "
-                            "and extract the releases the pipeline needs: python 01_download_raw_data.py")
+        for release in (year + 1, year + 2, year + 3):
+            if release <= newest_on_disk:
+                needed.setdefault(release, []).append(year)
+    for release, years in sorted(needed.items()):
+        suffix = suffix_of_release(release)
+        names = {(geo, cat): read.get((suffix, geo, cat), []) for geo in GEOGRAPHY_MAP for cat in CATEGORY_MAP}
+        covered = f"it covers {', '.join(map(str, years))}"
+        if not any(names.values()):
+            problems.append(f"Crime{release}SAS.zip is not extracted in {RAW_DIR} ({covered}); "
+                            f"download and extract it: python 01_download_raw_data.py --release {release}")
             continue
-        for geo in GEOGRAPHY_MAP:
-            for cat in CATEGORY_MAP:
-                names = read.get((year, geo, cat), [])
-                if not names:
-                    missing.setdefault((suffix, geo, cat), []).append(year)
-                elif len(names) > 1:
-                    problems.append(f"{year} {geo} {cat} would be read from {len(names)} files: {', '.join(names)}")
-    for (suffix, geo, cat), years in missing.items():
-        name = f"{geo}{cat}{suffix}.sas7bdat"
-        problems.append(f"{release_zip(suffix)} is the source of {', '.join(map(str, years))} but "
-                        f"{name} is not in {RAW_DIR}. {reextract_hint(name)}")
+        for (geo, cat), found in names.items():
+            name = f"{geo}{cat}{suffix}.sas7bdat"
+            if not found:
+                problems.append(f"{name} is not in {RAW_DIR} ({release_zip(suffix)}; {covered}). "
+                                f"{reextract_hint(name)}")
+            elif len(found) > 1:
+                problems.append(f"{geo}{cat} of {release_zip(suffix)} would be read from {len(found)} files: "
+                                f"{', '.join(found)}")
     if problems:
         raise RuntimeError("Crime data is incomplete:\n  " + "\n  ".join(problems))
+
+
+def filled(values: pd.Series) -> pd.Series:
+    """True for each cell that holds a value (a 0 included), False for a blank one (is_blank)."""
+    if pd.api.types.is_numeric_dtype(values):
+        return values.notna()
+    return ~values.map(is_blank).astype(bool)
+
+
+def campuses_with_data(frames: dict, suffix: str, year: int) -> set:
+    """
+    The campuses (UNITID_P) whose row for `year` is not entirely blank in
+    this release: some count cell of its count files holds a value, a 0
+    included. FILTERyy columns are not counts and do not count, nor do the
+    cells KNOWN_DEFECTS names for this release and year.
+    """
+    found = set()
+    for (geo, cat), (_path, df, ids, years) in frames.items():
+        if year not in years:
+            continue
+        skip = defective_offenses(suffix, geo, cat, year)
+        cols = [f"{code}{str(year)[-2:]}" for code in CATEGORY_OFFENSES[cat] if code not in skip]
+        if not cols:
+            continue
+        has_value = pd.concat([filled(df[c]) for c in cols], axis=1).any(axis=1).to_numpy()
+        found.update(ids[has_value].tolist())
+    return found
+
+
+def check_defect_still_present(suffix: str, frames: dict, target_years: List[int]) -> None:
+    """
+    Raise unless each copy defect in KNOWN_DEFECTS for this release is still
+    in its file: every campus's defective cells equal the cells of the file
+    they copy (blank where that is blank). If DOE corrects the file, the
+    build stops here rather than discarding good numbers.
+    """
+    for d in KNOWN_DEFECTS:
+        if d.suffix != suffix or d.copy_of is None or d.year not in target_years:
+            continue
+        _path, df, ids, _years = frames[(d.geo, d.category)]
+        _src_path, src, src_ids, _src_years = frames[(d.copy_of, d.category)]
+        cols = [f"{code}{str(d.year)[-2:]}" for code in d.offenses]
+        ours = df[cols].set_axis(ids.to_numpy(), axis=0)
+        theirs = src[cols].set_axis(src_ids.to_numpy(), axis=0)
+        source_name = f"{d.copy_of}{d.category}{d.suffix}.sas7bdat"
+        if set(ours.index) != set(theirs.index):
+            differ = len(set(ours.index) ^ set(theirs.index))
+        else:
+            theirs = theirs.reindex(ours.index)
+            same = (ours == theirs) | (ours.isna() & theirs.isna())
+            differ = int((~same.all(axis=1)).sum())
+        if differ:
+            raise RuntimeError(
+                f"{d.filename}: its {d.year} columns {', '.join(cols)} are no longer a copy of "
+                f"{source_name} ({differ:,} campuses differ), so DOE may have corrected this file. "
+                "Check the file, then update or remove its entry in KNOWN_DEFECTS in "
+                "02_transform_to_parquet.py and rebuild."
+            )
 
 
 def process_all_files(
@@ -480,7 +666,7 @@ def process_all_files(
     all_institutions = []
 
     files_to_process, year_sources = select_files(target_years)
-    print(f"Year -> release mapping: {year_sources}")
+    print(f"Releases that cover each year, newest first: {year_sources}")
     print(f"Processing {len(files_to_process)} files...")
     USED_FILES[:] = [f for f, _geo, _cat, _years in files_to_process]
     YEAR_SOURCES.clear()
@@ -490,54 +676,117 @@ def process_all_files(
 
     check_coverage(files_to_process, year_sources, target_years)
 
-    for filepath, geo, category, years in tqdm(files_to_process, desc="Processing files"):
-        geo_display = GEOGRAPHY_MAP[geo]
+    # The files of each release, newest release first (select_files' order)
+    releases: List[Tuple[str, List[tuple]]] = []
+    for item in files_to_process:
+        suffix = parse_filename(item[0].name)[2]
+        if not releases or releases[-1][0] != suffix:
+            releases.append((suffix, []))
+        releases[-1][1].append(item)
 
-        # Read the file
-        df = read_sas_file(filepath)
-        if df.empty:
-            raise RuntimeError(f"{filepath.name} contains no rows")
-        check_columns(list(df.columns), filepath.name, category, years)
+    sources = {}  # (unitid, year) -> suffix of the release the campus-year is taken from
+    done = set()  # releases processed so far (all newer than the current one)
 
-        # Filter to Ivy League if requested. IVY_UNITIDS are full UNITID_P
-        # values (e.g. 166027001), the same ids the facts carry.
-        unitid_col = "UNITID_P" if "UNITID_P" in df.columns else "UNITID"
-        if ivy_only:
-            df = df[df[unitid_col].astype(float).isin(IVY_UNITIDS)].copy()
+    def add(records: List[dict], geo: str, suffix: str) -> None:
+        for rec in records:
+            rec["geo"] = GEOGRAPHY_MAP[geo]
+            rec["release"] = suffix
+        all_records.extend(records)
 
-        if df.empty:
-            continue
+    for suffix, files in tqdm(releases, desc="Processing releases"):
+        # Read the release's files
+        frames = {}  # (geo, cat) -> (path, df, ids, years)
+        for filepath, geo, category, years in files:
+            df = read_sas_file(filepath)
+            if df.empty:
+                raise RuntimeError(f"{filepath.name} contains no rows")
+            check_columns(list(df.columns), filepath.name, category, years)
+            frames[(geo, category)] = (filepath, df, campus_ids(df, filepath.name), years)
+        check_defect_still_present(suffix, frames, target_years)
 
-        # Extract institution info from every file (files are processed newest
-        # release first, so the first occurrence of a school has current info;
-        # schools only present in older releases are still captured)
-        if unitid_col in df.columns:
+        # The campus-years this release supplies: those it has, and that no
+        # newer release has (choose_sources)
+        taken = {}  # year -> campuses taken from this release
+        for year in sorted({y for *_rest, years in files for y in years}):
+            mine = {u for u in campuses_with_data(frames, suffix, year) if (u, year) not in sources}
+            for unitid in mine:
+                sources[(unitid, year)] = suffix
+            taken[year] = mine
+
+        for filepath, geo, category, years in files:
+            _path, df, ids, _years = frames[(geo, category)]
+
+            # Filter to Ivy League if requested. IVY_UNITIDS are full UNITID_P
+            # values (e.g. 166027001), the same ids the facts carry.
+            if ivy_only:
+                keep = ids.isin(IVY_UNITIDS).to_numpy()
+                df, ids = df[keep], ids[keep]
+            if df.empty:
+                continue
+
+            # Extract institution info from every file (files are processed newest
+            # release first, so the first occurrence of a school has current info;
+            # schools only present in older releases are still captured)
             inst_cols = [c for c in ["UNITID_P", "INSTNM", "City", "State", "ZIP"] if c in df.columns]
             if inst_cols:
                 all_institutions.append(df[inst_cols].drop_duplicates())
 
-        # Extract offense data
-        records = extract_offense_data(df, category, years, filepath.name)
+            # Offense counts of the campus-years taken from this release,
+            # except the cells KNOWN_DEFECTS names for this file and year
+            for year in years:
+                skip = defective_offenses(suffix, geo, category, year)
+                codes = [c for c in CATEGORY_OFFENSES[category] if c not in skip]
+                rows = df[ids.isin(taken[year]).to_numpy()]
+                if codes and not rows.empty:
+                    add(extract_offense_data(rows, category, [year], filepath.name, codes), geo, suffix)
 
-        # Add geography to records
-        for rec in records:
-            rec["geo"] = geo_display
-
-        all_records.extend(records)
+            # The cells this release supplies in place of a newer release's defect
+            for d in KNOWN_DEFECTS:
+                if d.replacement != suffix or (d.geo, d.category) != (geo, category) or d.year not in years:
+                    continue
+                if d.suffix not in done and any(s == d.suffix for s, _files in releases):
+                    raise RuntimeError(f"KNOWN_DEFECTS: {d.filename} takes its {d.year} cells from "
+                                       f"{release_zip(suffix)}, which is not older. Fix the entry in "
+                                       "02_transform_to_parquet.py.")
+                affected = {u for (u, y), s in sources.items() if y == d.year and s == d.suffix}
+                rows = df[ids.isin(affected).to_numpy()]
+                if not rows.empty:
+                    add(extract_offense_data(rows, category, [d.year], filepath.name, list(d.offenses)),
+                        geo, suffix)
+        done.add(suffix)
 
     if not all_records:
         raise ValueError("No data extracted from any files!")
 
+    # The release of every campus-year that has one (all-zero rows included)
+    table = pd.DataFrame([(u, y, s) for (u, y), s in sources.items()], columns=["unitid", "year", "release"])
+    table["restored"] = table["release"] != table["year"].map(lambda y: year_sources[y][0])
+    if ivy_only:
+        table = table[table["unitid"].isin(IVY_UNITIDS)]
+    table = table.sort_values(["year", "unitid"]).reset_index(drop=True)
+    CAMPUS_YEAR_SOURCES[:] = [table]
+    DEFECTS_APPLIED[:] = [{
+        "file": d.filename,
+        "year": d.year,
+        "columns": [f"{code}{str(d.year)[-2:]}" for code in d.offenses],
+        "problem": d.problem,
+        "taken_from": f"{d.geo}{d.category}{d.replacement}.sas7bdat" if d.replacement else None,
+        "campus_years": int(((table["year"] == d.year) & (table["release"] == d.suffix)).sum()),
+    } for d in KNOWN_DEFECTS if d.year in target_years]
+
     # Create DataFrames
     facts = pd.DataFrame(all_records)
 
-    # Collapse to one row per school/year/offense/geo. Each year is sourced
-    # from exactly one release (see newest_release above), so this only merges
-    # rows within a single release - it cannot double-count across releases.
-    facts = facts.groupby(
-        ["year", "unitid", "offense", "offense_family", "geo"],
-        as_index=False
-    )["count"].sum()
+    # Collapse to one row per school/year/offense/geo. Each count comes from
+    # the one release its campus-year is taken from (or, for a known defect,
+    # from the release that replaces those cells), never from two.
+    keys = ["year", "unitid", "offense", "offense_family", "geo"]
+    mixed = facts.groupby(keys)["release"].nunique()
+    if (mixed > 1).any():
+        first = mixed[mixed > 1].index[0]
+        raise RuntimeError(f"{int((mixed > 1).sum()):,} counts would add up two DOE releases (first: {first}). "
+                           "This is a bug in 02_transform_to_parquet.py; nothing was written.")
+    facts = facts.groupby(keys, as_index=False)["count"].sum()
 
     # Filter to target years
     facts = facts[facts["year"].isin(target_years)]
@@ -556,7 +805,12 @@ def process_all_files(
     return facts, institutions
 
 
-def save_parquet(facts: pd.DataFrame, institutions: pd.DataFrame) -> None:
+# The release each campus-year is taken from (see the module docstring).
+# Not in data/curated/facts, where steps 03-07 accept only incidents.parquet.
+SOURCES_PATH = CURATED_DIR / "dims" / "campus_year_sources.parquet"
+
+
+def save_parquet(facts: pd.DataFrame, institutions: pd.DataFrame, sources: pd.DataFrame) -> None:
     """Save DataFrames to Parquet files."""
     facts_dir = CURATED_DIR / "facts"
     facts_dir.mkdir(parents=True, exist_ok=True)
@@ -566,13 +820,41 @@ def save_parquet(facts: pd.DataFrame, institutions: pd.DataFrame) -> None:
     facts.to_parquet(facts_path, index=False)
     print(f"Facts saved to: {facts_path}")
 
+    dims_dir = CURATED_DIR / "dims"
+    dims_dir.mkdir(parents=True, exist_ok=True)
+
     # Save institutions dimension
     if not institutions.empty:
-        dims_dir = CURATED_DIR / "dims"
-        dims_dir.mkdir(parents=True, exist_ok=True)
         inst_path = dims_dir / "raw_institutions.parquet"
         institutions.to_parquet(inst_path, index=False)
         print(f"Institutions saved to: {inst_path}")
+
+    sources.to_parquet(SOURCES_PATH, index=False)
+    print(f"Campus-year sources saved to: {SOURCES_PATH}")
+
+
+def sources_by_year(sources: pd.DataFrame) -> dict:
+    """For the build record: {year: {release suffix: campus-years taken from it}}."""
+    out = {}
+    for (year, release), n in sources.groupby(["year", "release"]).size().items():
+        out.setdefault(str(int(year)), {})[str(release)] = int(n)
+    return out
+
+
+def print_sources(sources: pd.DataFrame, facts: pd.DataFrame) -> None:
+    """Campus-years per year and release, and those taken from an older release."""
+    print("\nCampus-years by release (newest release first; zeros included):")
+    with_counts = set(zip(facts["unitid"].tolist(), facts["year"].tolist()))
+    for year, part in sources.groupby("year"):
+        counts = part.groupby("release").size().sort_index(ascending=False)
+        older = part[part["restored"]]
+        positive = sum((u, year) in with_counts for u in older["unitid"].tolist())
+        print(f"  {year}: " + ", ".join(f"{s}: {n:,}" for s, n in counts.items())
+              + f"  (from an older release: {len(older):,}, {positive:,} with counts)")
+    for rec in DEFECTS_APPLIED:
+        taken = f"taken from {rec['taken_from']}" if rec["taken_from"] else "left blank"
+        print(f"  Known DOE defect: {rec['file']} {rec['year']} ({', '.join(rec['columns'])}) {rec['problem']}; "
+              f"{taken} for the {rec['campus_years']:,} campus-years from that release")
 
 
 def print_summary(facts: pd.DataFrame) -> None:
@@ -651,19 +933,24 @@ def main():
     )
 
     # Save to parquet
-    save_parquet(facts, institutions)
+    sources = CAMPUS_YEAR_SOURCES[0]
+    save_parquet(facts, institutions, sources)
 
-    # Record which release and which SAS files each year came from, and the
+    # Record which releases and which SAS files each year came from, how many
+    # campus-years each release supplied, the known defects applied, and the
     # files written (raw_institutions.parquet only when this run wrote it)
     written = [CURATED_DIR / "facts" / "incidents.parquet"]
     if not institutions.empty:
         written.append(CURATED_DIR / "dims" / "raw_institutions.parquet")
+    written.append(SOURCES_PATH)
     provenance.write_crime_manifest(YEAR_SOURCES, USED_FILES, all_schools=not ivy_only,
-                                    read_before=READ_BEFORE, outputs=written)
+                                    read_before=READ_BEFORE, outputs=written,
+                                    campus_years=sources_by_year(sources), defects=DEFECTS_APPLIED)
     print(f"Input record: {provenance.CRIME_MANIFEST}")
 
     # Print summary
     print_summary(facts)
+    print_sources(sources, facts)
 
     print("\n" + "-" * 60)
     print("Next steps:")

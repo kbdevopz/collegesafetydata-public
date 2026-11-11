@@ -7,20 +7,25 @@
   "ivyLeague": false,
   "isMainCampus": true,
   "campusType": "Main Campus",
-  "fte": 26,
+  "fte": 41,
   "fteByYear": {
-    "2016": 26
+    "2016": 26,
+    "2022": 41
   },
   "summary": {
-    "latestYear": 2016,
-    "totalIncidents": 1,
-    "topOffense": "Robbery",
-    "topOffenseCount": 1
+    "latestYear": 2022,
+    "totalIncidents": 4,
+    "topOffense": "Domestic Violence",
+    "topOffenseCount": 3
   },
   "yearlyTotals": [
     {
       "year": 2016,
       "total": 1
+    },
+    {
+      "year": 2022,
+      "total": 4
     }
   ],
   "trends": [
@@ -29,9 +34,25 @@
       "offense": "Robbery",
       "offenseFamily": "Criminal",
       "count": 1
+    },
+    {
+      "year": 2022,
+      "offense": "Domestic Violence",
+      "offenseFamily": "VAWA",
+      "count": 3
+    },
+    {
+      "year": 2022,
+      "offense": "Robbery",
+      "offenseFamily": "Criminal",
+      "count": 1
     }
   ],
   "breakdownByOffense": [
+    {
+      "offense": "Domestic Violence",
+      "count": 3
+    },
     {
       "offense": "Robbery",
       "count": 1
@@ -39,8 +60,8 @@
   ],
   "breakdownByGeo": [
     {
-      "geo": "On-campus",
-      "count": 1
+      "geo": "Public property",
+      "count": 4
     }
   ]
 }

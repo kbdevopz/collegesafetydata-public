@@ -953,9 +953,10 @@ def same_build(a, b) -> bool:
 
 
 def current_crime() -> dict:
+    """The releases that cover each year (newest first) and the crime files the transform reads now."""
     files, year_sources = transform.select_files(list(DATA_YEARS))
     return {
-        "year_sources": {str(y): s for y, s in year_sources.items()},
+        "year_sources": {str(y): list(s) for y, s in year_sources.items()},
         "files": provenance.file_records([f for f, *_ in files]),
     }
 
@@ -1005,7 +1006,12 @@ def input_problems(inputs, crime_now: dict, enrollment_now: dict) -> list[tuple[
             problems.append(("02", "crime data was built for a subset of schools"))
         if crime.get("year_sources") != crime_now["year_sources"]:
             was, now = crime.get("year_sources") or {}, crime_now["year_sources"]
-            diff = [f"{y}: {was.get(y)} -> {now.get(y)}" for y in sorted(set(was) | set(now)) if was.get(y) != now.get(y)]
+
+            def releases(value) -> str:
+                return "+".join(map(str, value)) if isinstance(value, list) else str(value)
+
+            diff = [f"{y}: {releases(was.get(y))} -> {releases(now.get(y))}"
+                    for y in sorted(set(was) | set(now)) if was.get(y) != now.get(y)]
             problems.append(("02", f"crime years come from different releases now ({short(diff)})"))
         files_was, files_now = crime.get("files") or {}, crime_now["files"]
         changed = sorted(f for f in set(files_was) | set(files_now) if files_was.get(f) != files_now.get(f))

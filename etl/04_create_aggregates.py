@@ -2,8 +2,12 @@
 Create pre-aggregated tables for fast UI queries.
 
 This script creates aggregate tables that power the dashboard:
-- agg_school_year_offense: Summary by school, year, offense, geography
-- agg_ivy_rankings: Pre-computed Ivy League rankings by year/offense
+- agg_school_year_offense: Summary by school, year, offense, geography (every
+  school's full DOE figures, as its profile shows them)
+- shared_blocks: statistics that DOE reports identically for two or more
+  campuses (see find_shared_blocks), and the one campus they are counted under
+- agg_ivy_rankings, agg_state_rankings, agg_national_rankings: rankings by
+  year/offense/geography, in which shared statistics are counted once
 
 Usage:
     python 04_create_aggregates.py
@@ -19,11 +23,31 @@ from pathlib import Path
 
 # Add parent to path for config import
 sys.path.insert(0, str(Path(__file__).parent))
-from config import CURATED_DIR, IVY_LEAGUE, GEO_FOR_ALL, US_STATES, PROCESS_ALL_SCHOOLS
+from config import (CURATED_DIR, IVY_LEAGUE, GEO_FOR_ALL, US_STATES, PROCESS_ALL_SCHOOLS, OFFENSE_ORDER,
+                    SHARED_MIN_NONZERO)
 import provenance
 
 # The one fact table that 02_transform_to_parquet.py writes
 FACTS_PATH = CURATED_DIR / "facts" / "incidents.parquet"
+# The DOE release each campus-year was taken from (02_transform_to_parquet.py)
+SOURCES_PATH = CURATED_DIR / "dims" / "campus_year_sources.parquet"
+# Statistics reported identically by two or more campuses (find_shared_blocks)
+SHARED_PATH = CURATED_DIR / "aggs" / "shared_blocks.parquet"
+
+# Shared (copied) statistics. Some DOE rows repeat another campus's numbers:
+# a medical school's sites report their university's main campus figures, a
+# divinity or law school its university's, several institutions on one
+# shared campus the same figures, and a renumbered campus appears under its
+# old and new UNITID. Added up, those numbers would be counted twice in state
+# and national totals and ranked as separate schools.
+#
+# A block is one campus's figures for one year and one geography of
+# GEO_FOR_ALL (residence halls are a subset of on-campus and are not
+# compared): its 20 cells, one per offense in OFFENSE_ORDER (11 criminal, 3
+# VAWA, 3 arrest, 3 disciplinary), a blank cell counting as 0. Blocks of the
+# same year and geography are copies when all 20 cells are equal, at least
+# SHARED_MIN_NONZERO (config.py) of them are not 0, and the campuses are in
+# the same state. Fewer nonzero cells match by chance too often to call a copy.
 
 
 def find_stray_facts() -> list:
@@ -101,26 +125,39 @@ def load_enrollment_data() -> pd.DataFrame:
     return df[["unitid", "year", "fte"]]
 
 
-def create_school_year_offense_agg(ivy_only: bool = False) -> pd.DataFrame:
+def load_dim_institution() -> pd.DataFrame:
+    dims_path = CURATED_DIR / "dims" / "dim_institution.parquet"
+    if not dims_path.is_file():
+        raise RuntimeError(f"{dims_path} not found. Run 03_build_dimensions.py first.")
+    return pd.read_parquet(dims_path)
+
+
+def create_school_year_offense_agg(ivy_only: bool = False) -> tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Aggregate: (year, unitid, offense, geo) -> count
+    Aggregate: (year, unitid, offense, geo) -> count, every school's full
+    DOE figures (the school profiles show these). Saved as
+    agg_school_year_offense.parquet.
 
-    Also creates an "All" geography that sums On-campus + Non-campus + Public property
-    (excluding Residence halls to avoid double-counting).
-
-    Schema:
-        year: int16
-        unitid: int32
-        institution_name: string     # Denormalized for convenience
-        offense: string
-        offense_family: string
-        geo: string
-        count: int32
-        fte: int32                   # FTE enrollment (may be null)
-        rate_per_10k: float          # Rate per 10,000 FTE students (may be null)
+    Returns (the aggregate, the fact rows it was built from).
     """
     print("Creating school-year-offense aggregate...")
+    base = load_fact_rows(ivy_only)
+    agg = build_school_agg(base, load_dim_institution(), load_enrollment_data())
 
+    # Save
+    agg_dir = CURATED_DIR / "aggs"
+    agg_dir.mkdir(parents=True, exist_ok=True)
+
+    output_path = agg_dir / "agg_school_year_offense.parquet"
+    agg.to_parquet(output_path, index=False)
+
+    print(f"  Saved to: {output_path}")
+
+    return agg, base
+
+
+def load_fact_rows(ivy_only: bool = False) -> pd.DataFrame:
+    """(year, unitid, offense, offense_family, geo) -> count, from the fact table."""
     con = duckdb.connect()
     facts_file = get_facts_path()
 
@@ -150,12 +187,30 @@ def create_school_year_offense_agg(ivy_only: bool = False) -> pd.DataFrame:
     except duckdb.Error as e:
         raise facts_read_error(e) from e
     print(f"  Base aggregation: {len(agg):,} records")
+    return agg
+
+
+def build_school_agg(base: pd.DataFrame, dim_inst: pd.DataFrame, enrollment: pd.DataFrame) -> pd.DataFrame:
+    """
+    The school-year-offense aggregate of the fact rows `base` (load_fact_rows).
+
+    Also creates an "All" geography that sums On-campus + Non-campus + Public property
+    (excluding Residence halls to avoid double-counting).
+
+    Schema:
+        year: int16
+        unitid: int32
+        institution_name: string     # Denormalized for convenience
+        offense: string
+        offense_family: string
+        geo: string
+        count: int32
+        fte: int32                   # FTE enrollment (may be null)
+        rate_per_10k: float          # Rate per 10,000 FTE students (may be null)
+    """
+    agg = base.copy()
 
     # Add institution names from dimension
-    dims_path = CURATED_DIR / "dims" / "dim_institution.parquet"
-    if not dims_path.is_file():
-        raise RuntimeError(f"{dims_path} not found. Run 03_build_dimensions.py first.")
-    dim_inst = pd.read_parquet(dims_path)
     name_map = dim_inst.set_index("unitid")["institution_name"].to_dict()
     agg["institution_name"] = agg["unitid"].map(name_map)
 
@@ -184,7 +239,6 @@ def create_school_year_offense_agg(ivy_only: bool = False) -> pd.DataFrame:
     # Join enrollment data for FTE and rate calculations
     # Note: Crime data uses extended UNITID format (UNITID * 1000 + branch)
     # IPEDS uses base UNITID, so we need to extract base UNITID for joining
-    enrollment = load_enrollment_data()
     print(f"  Joining enrollment data ({len(enrollment):,} records)...")
     # Extract base UNITID from extended format
     agg["base_unitid"] = (agg["unitid"] // 1000).astype("int32")
@@ -212,16 +266,114 @@ def create_school_year_offense_agg(ivy_only: bool = False) -> pd.DataFrame:
 
     print(f"  With 'All' geography: {len(agg):,} records")
 
-    # Save
-    agg_dir = CURATED_DIR / "aggs"
-    agg_dir.mkdir(parents=True, exist_ok=True)
-
-    output_path = agg_dir / "agg_school_year_offense.parquet"
-    agg.to_parquet(output_path, index=False)
-
-    print(f"  Saved to: {output_path}")
-
     return agg
+
+
+def load_campus_year_sources() -> pd.DataFrame:
+    if not SOURCES_PATH.is_file():
+        raise RuntimeError(f"{SOURCES_PATH} not found. Run 02_transform_to_parquet.py first.")
+    return pd.read_parquet(SOURCES_PATH)
+
+
+def find_shared_blocks(base: pd.DataFrame, dim_inst: pd.DataFrame, enrollment: pd.DataFrame,
+                       sources: pd.DataFrame) -> pd.DataFrame:
+    """
+    The blocks that two or more campuses report identically (see
+    SHARED_MIN_NONZERO above), one row per campus and block. In each copy
+    group one campus is the host, the campus the figures are counted under;
+    the others are shadows. The host is the first campus by:
+      1. its campus-year is taken from the newest DOE release that covers
+         the year, not restored from an older one (campus_year_sources),
+      2. it is a main campus (UNITID_P ending in 001),
+      3. larger FTE that year (the FTE rates use; no FTE sorts last),
+      4. larger total for the campus-year over GEO_FOR_ALL,
+      5. lower UNITID_P.
+
+    Schema:
+        year: int16, geo: string, state: string   # the block
+        group: int32                 # copy group, numbered within the table
+        unitid: int32
+        role: string                 # "host" or "shadow"
+        host_unitid: int32           # the group's host
+        group_size: int16            # campuses in the group
+        nonzero_cells: int16         # cells of the block that are not 0
+        block_count: int32           # sum of the block's 20 cells
+    """
+    unknown = sorted(set(base["offense"]) - set(OFFENSE_ORDER))
+    if unknown:
+        raise RuntimeError(f"The facts hold offenses not in OFFENSE_ORDER ({', '.join(unknown)}), so shared "
+                           "statistics cannot be compared cell by cell. Add them to OFFENSE_ORDER in config.py.")
+    rows = base[base["geo"].isin(GEO_FOR_ALL)]
+    cells = rows.pivot_table(index=["year", "geo", "unitid"], columns="offense", values="count",
+                             aggfunc="sum", fill_value=0)
+    cells = cells.reindex(columns=OFFENSE_ORDER, fill_value=0).astype("int64")
+    nonzero = (cells != 0).sum(axis=1)
+    blocks = cells[nonzero >= SHARED_MIN_NONZERO].reset_index()
+    blocks["nonzero_cells"] = nonzero[nonzero >= SHARED_MIN_NONZERO].to_numpy()
+    blocks["block_count"] = blocks[OFFENSE_ORDER].sum(axis=1)
+
+    # Copies are looked for within one state, among the campuses that state and
+    # national rankings count (a state in US_STATES). A campus with a blank
+    # state or another code is never ranked, so nothing of it is counted twice.
+    blocks["state"] = blocks["unitid"].map(dim_inst.set_index("unitid")["state"])
+    blocks = blocks[blocks["state"].isin(US_STATES.keys())]
+    key = ["year", "geo", "state"] + OFFENSE_ORDER
+    blocks["group_size"] = blocks.groupby(key)["unitid"].transform("size")
+    blocks = blocks[blocks["group_size"] >= 2].copy()
+    blocks["group"] = blocks.groupby(key, sort=True).ngroup()
+
+    # What chooses the host
+    restored = sources.set_index(["unitid", "year"])["restored"]
+    blocks["restored"] = [restored.get((u, y)) for u, y in zip(blocks["unitid"].tolist(), blocks["year"].tolist())]
+    if blocks["restored"].isna().any():
+        first = blocks[blocks["restored"].isna()].iloc[0]
+        raise RuntimeError(f"{SOURCES_PATH.name} has no release for campus {first['unitid']} in {first['year']}, "
+                           "which has fact rows. Run 02_transform_to_parquet.py again, then 03 and this step.")
+    fte = enrollment.assign(unitid=enrollment["unitid"].astype("int64")).set_index(["unitid", "year"])["fte"]
+    blocks["fte"] = [fte.get((u // 1000, y)) for u, y in zip(blocks["unitid"].tolist(), blocks["year"].tolist())]
+    totals = rows.groupby(["unitid", "year"])["count"].sum()
+    blocks["campus_total"] = [totals[(u, y)] for u, y in zip(blocks["unitid"].tolist(), blocks["year"].tolist())]
+    blocks["by_restored"] = blocks["restored"].astype(bool).astype(int)       # newest release first
+    blocks["by_branch"] = (blocks["unitid"] % 1000 != 1).astype(int)          # main campus first
+    blocks["by_fte"] = (-pd.to_numeric(blocks["fte"], errors="coerce").astype("float64")).fillna(float("inf"))
+    blocks["by_total"] = -blocks["campus_total"].astype("float64")
+    blocks = blocks.sort_values(["group", "by_restored", "by_branch", "by_fte", "by_total", "unitid"],
+                                kind="mergesort")
+    blocks["host_unitid"] = blocks.groupby("group")["unitid"].transform("first")
+    blocks["role"] = (blocks["unitid"] == blocks["host_unitid"]).map({True: "host", False: "shadow"})
+
+    shared = blocks[["year", "geo", "state", "group", "unitid", "role", "host_unitid", "group_size",
+                     "nonzero_cells", "block_count"]].copy()
+    shared = shared.astype({"year": "int16", "group": "int32", "unitid": "int32", "host_unitid": "int32",
+                            "group_size": "int16", "nonzero_cells": "int16", "block_count": "int32"})
+    return shared.sort_values(["year", "geo", "group", "role", "unitid"]).reset_index(drop=True)
+
+
+def create_shared_blocks(base: pd.DataFrame, dim_inst: pd.DataFrame, enrollment: pd.DataFrame) -> pd.DataFrame:
+    """Find the shared blocks (find_shared_blocks), save them and print what they take out of the rankings."""
+    print("\nFinding statistics reported identically by two or more campuses...")
+    shared = find_shared_blocks(base, dim_inst, enrollment, load_campus_year_sources())
+    shared.to_parquet(SHARED_PATH, index=False)
+    shadows = shared[shared["role"] == "shadow"]
+    print(f"  Copy groups: {shared['group'].nunique():,}; shadow blocks (counted once, under the host): "
+          f"{len(shadows):,}; counts not added again: {int(shadows['block_count'].sum()):,}")
+    for year, part in shared.groupby("year"):
+        s = part[part["role"] == "shadow"]
+        print(f"    {year}: {part['group'].nunique():,} groups, {len(s):,} shadow blocks, "
+              f"{int(s['block_count'].sum()):,} counts")
+    print(f"  Saved to: {SHARED_PATH}")
+    return shared
+
+
+def without_shadows(base: pd.DataFrame, shared: pd.DataFrame) -> pd.DataFrame:
+    """The fact rows `base` without the shadow blocks: what totals and rankings count."""
+    shadows = shared[shared["role"] == "shadow"]
+    drop = set(zip(shadows["year"].astype(int).tolist(), shadows["geo"].tolist(), shadows["unitid"].astype(int).tolist()))
+    keep = [(y, g, u) not in drop for y, g, u in zip(base["year"].astype(int).tolist(), base["geo"].tolist(),
+                                                       base["unitid"].astype(int).tolist())]
+    kept = base[keep].reset_index(drop=True)
+    print(f"  Fact rows counted in totals and rankings: {len(kept):,} of {len(base):,}")
+    return kept
 
 
 def create_ivy_rankings(school_agg: pd.DataFrame = None) -> pd.DataFrame:
@@ -693,24 +845,31 @@ def main():
     # The files this step reads, checked against their steps' records before reading
     dims = CURATED_DIR / "dims"
     inputs_before = provenance.Snapshot(
-        "04", [FACTS_PATH, dims / "dim_institution.parquet", dims / "dim_enrollment.parquet"])
+        "04", [FACTS_PATH, dims / "dim_institution.parquet", dims / "dim_enrollment.parquet", SOURCES_PATH])
 
     # The old build record no longer describes the files about to be written
     provenance.invalidate(provenance.AGGS_MANIFEST)
 
-    # Create aggregates
-    school_agg = create_school_year_offense_agg(ivy_only=ivy_only)
-    ivy_rankings = create_ivy_rankings(school_agg)
+    # Create aggregates: every school's full figures, for its profile
+    school_agg, base = create_school_year_offense_agg(ivy_only=ivy_only)
+
+    # Rankings and their totals count statistics that several campuses report
+    # identically once, under the host campus
+    dim_inst, enrollment = load_dim_institution(), load_enrollment_data()
+    shared = create_shared_blocks(base, dim_inst, enrollment)
+    print("\nCreating the aggregate that rankings count (shadow blocks removed)...")
+    ranked_agg = build_school_agg(without_shadows(base, shared), dim_inst, enrollment)
+    ivy_rankings = create_ivy_rankings(ranked_agg)
 
     # Create state and national rankings if processing all schools
     state_rankings = None
     national_rankings = None
     if not ivy_only:
-        state_rankings = create_state_rankings(school_agg)
-        national_rankings = create_national_rankings(school_agg)
+        state_rankings = create_state_rankings(ranked_agg)
+        national_rankings = create_national_rankings(ranked_agg)
 
     aggs = CURATED_DIR / "aggs"
-    written = [aggs / "agg_school_year_offense.parquet", aggs / "agg_ivy_rankings.parquet"]
+    written = [aggs / "agg_school_year_offense.parquet", SHARED_PATH, aggs / "agg_ivy_rankings.parquet"]
     if not ivy_only:
         written += [aggs / "agg_state_rankings.parquet", aggs / "agg_national_rankings.parquet"]
     provenance.write_aggs_manifest(all_schools=not ivy_only, snapshot=inputs_before, outputs=written)

@@ -16,11 +16,69 @@ The Clery Act requires all postsecondary institutions participating in federal s
 
 DOE publishes one data release per collection year, and each release contains
 the three most recent calendar years (for example, the 2025 release covers
-calendar years 2022-2024). Consecutive releases therefore overlap. Each
-calendar year in our dataset is sourced exclusively from the newest release
-that covers it, because later collections incorporate corrections that
-institutions made to previously submitted figures. Overlapping releases are
-never combined.
+calendar years 2022-2024). Consecutive releases therefore overlap, and a
+campus that reports in one release is sometimes missing from the next (it
+closed, merged, or did not submit that year).
+
+Each campus-year (one campus, one calendar year) is taken from the newest
+release whose row for that campus and year is not entirely blank across the
+16 count files of the release (criminal offenses, VAWA offenses, arrests and
+disciplinary actions, each for on-campus, residence halls, non-campus and
+public property). A row of zeros counts as reported. Later collections
+incorporate corrections that institutions made to previously submitted
+figures, so the newest release that has the campus-year wins. All of that
+campus-year's figures, in all 16 files, come from that one release:
+releases are never mixed within a campus-year, and a blank file or cell is
+never filled in from another release. The release used for each campus-year
+is recorded in `data/curated/dims/campus_year_sources.parquet` and, per year,
+in the crime build record (`build record/crime_inputs.json`,
+`campus_year_sources`).
+
+#### Known Errors in DOE Files
+
+Two files of the 2021-2023 release (`Crime2024SAS.zip`, suffix `212223`) are
+wrong, and `02_transform_to_parquet.py` handles them by explicit, narrow
+rules (`KNOWN_DEFECTS`). They apply only to campus-years taken from that
+release, which are campuses missing from the 2022-2024 release:
+
+| File | Error | What we use |
+|------|-------|-------------|
+| `residencehalldiscipline212223` | Its 2022 and 2023 figures are a copy of `oncampusdiscipline212223` | 2022: residence-hall disciplinary actions from the 2020-2022 release (`202122`). 2023: left blank (no other release has them) |
+| `residencehallarrest212223` | It has no `LIQUOR22` column (it has a column named `LIQUOR2` instead, which we do not read) | 2022 residence-hall liquor-law arrests from the 2020-2022 release (`202122`) |
+
+These defective cells are also ignored when deciding whether a campus-year
+is blank in that release. If DOE corrects either file, the pipeline stops
+and asks for the rule to be updated rather than keep replacing good data.
+
+#### Figures Reported by More Than One Campus
+
+Some campuses report exactly the same figures as another campus: a medical
+school's sites repeating their university's main campus figures, several
+institutions on one shared campus, or a renumbered campus appearing under
+its old and new UNITID. Added up, those numbers would be counted twice.
+
+A block is one campus's figures for one year and one geography (on-campus,
+non-campus or public property; residence halls are a subset of on-campus and
+are not compared): its 20 counts (11 criminal offenses, 3 VAWA offenses, 3
+arrest and 3 disciplinary categories), a blank counting as 0. Two or more
+blocks of the same year and geography are copies when all 20 counts are
+equal, at least 6 of them are not 0, and the campuses are in the same state
+(campuses with no state, or outside the 50 states, DC, Puerto Rico and the
+U.S. Virgin Islands, are not ranked and are not compared). Fewer nonzero counts match by chance too
+often to call a copy.
+
+In each copy group one campus is the host, chosen in this order: its
+campus-year comes from the newest release that covers the year (not from an
+older one), it is a main campus (UNITID ending in 001), it has more students
+(the FTE used for rates; no FTE sorts last), it has the larger total for the
+campus-year over the three geographies, it has the lower UNITID. The other
+blocks are shadows. State and national totals and rankings count a shadow
+block's figures once, under the host; a campus-year whose every block with
+data is a shadow is not ranked at all. Each school page still shows the
+school's full figures as DOE publishes them, and a shadow campus's page names
+the host for each year and geography it shares
+(`sharedFigures` in its school file). The blocks are listed in
+`data/curated/aggs/shared_blocks.parquet`.
 
 ### Enrollment Data
 - **Source:** IPEDS (Integrated Postsecondary Education Data System)
@@ -101,6 +159,10 @@ Crime data is reported across multiple geographic categories:
 
 **Important:** Residence hall incidents are a subset of on-campus incidents and should not be added to on-campus counts.
 
+State and national totals and rankings leave out shadow blocks (see
+"Figures Reported by More Than One Campus" above), so figures that two
+campuses report identically count once, under the host campus.
+
 ## Offense Categories
 
 ### Criminal Offenses (Clery Act)
@@ -153,6 +215,7 @@ Our data pipeline includes validation steps to ensure accuracy:
 2. Verification that offense counts sum correctly
 3. Comparison of calculated FTE against official DRVEF values where available
 4. Spot checks against known institutions (Ivy League, major state universities)
+5. An audit (`07_comprehensive_audit.py`, check 8) that finds the shared blocks again from the fact table and verifies that every ranking entry counts the school's figures without its shadow blocks
 
 ## Source Code
 

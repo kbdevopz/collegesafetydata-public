@@ -9,9 +9,9 @@ Angular SPA; files are served from its API:
 IMPORTANT: Release zips are named by RELEASE year, not data year. Each release
 contains THREE calendar years of data (e.g. Crime2025SAS.zip covers calendar
 years 2022-2024, in files suffixed 222324). The transform step
-(02_transform_to_parquet.py) sources each calendar year from the newest
-release that covers it, so this script downloads the releases needed to cover
-DATA_YEARS at their newest.
+(02_transform_to_parquet.py) takes each campus-year from the newest release
+that has it, so this script downloads every release that covers a year of
+DATA_YEARS (for 2015-2024, Crime2016SAS.zip to Crime2025SAS.zip).
 
 Usage:
     python 01_download_raw_data.py                 # releases needed for DATA_YEARS
@@ -179,14 +179,17 @@ def download_file(url: str, dest_path: Path, desc: str = "", check=None) -> bool
 
 def needed_release_years() -> list[int]:
     """
-    Release years whose zips are needed to cover DATA_YEARS at their newest.
+    Release years whose zips the transform reads: every release that covers
+    a year of DATA_YEARS.
 
-    Release r contains calendar years r-3..r-1, so the newest release covering
-    data year y is release y+3. Trailing releases that DOE has not published
-    yet will 404 and can be ignored - the years they would cover are still
-    present (unrevised) in the newest published release.
+    Release r contains calendar years r-3..r-1, so data year y is in releases
+    y+1, y+2 and y+3. The transform takes each campus-year from the newest of
+    them that has it, so a campus missing from a newer release keeps an older
+    release's numbers. Trailing releases that DOE has not published yet will
+    404 and can be ignored - the years they would cover are still present
+    (unrevised) in the newest published release.
     """
-    return sorted({y + 3 for y in DATA_YEARS})
+    return sorted({y + k for y in DATA_YEARS for k in (1, 2, 3)})
 
 
 class ExtractError(Exception):

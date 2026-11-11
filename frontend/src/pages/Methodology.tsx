@@ -87,6 +87,26 @@ export default function Methodology() {
                       <span>Legal Basis: <strong className="text-gray-900 dark:text-gray-200">Clery Act</strong></span>
                       <span>Coverage: <strong className="text-gray-900 dark:text-gray-200">{metadata ? coverageText || '—' : 'Loading...'}</strong></span>
                     </div>
+                    <div className="space-y-3 text-sm mb-3">
+                      <div className="flex items-start gap-2">
+                        <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+                        <span className="text-gray-600 dark:text-gray-400">
+                          <strong className="text-gray-900 dark:text-gray-200">One release per campus-year:</strong> Each yearly DOE release covers three calendar years, and a campus that reports in one release is sometimes missing from the next. For each campus and year we use the newest release that reports that campus for that year (any figure, including zero), and take all of that campus-year's figures from that one release. Releases are never mixed, and a blank figure is never filled in from another release.
+                        </span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <Info className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
+                        <span className="text-gray-600 dark:text-gray-400">
+                          <strong className="text-gray-900 dark:text-gray-200">Known errors in DOE files:</strong> In the 2021-2023 release (Crime2024SAS.zip), the residence-hall disciplinary file repeats the on-campus figures for 2022 and 2023, and the residence-hall arrest file has no 2022 liquor-law column. For campuses whose 2022 or 2023 figures come from that release, 2022 residence-hall disciplinary actions and liquor-law arrests come from the 2020-2022 release, and 2023 residence-hall disciplinary actions are left blank.
+                        </span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <Info className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
+                        <span className="text-gray-600 dark:text-gray-400">
+                          <strong className="text-gray-900 dark:text-gray-200">Figures reported by more than one campus:</strong> Some campuses report exactly the same 20 figures for a location (on-campus, non-campus or public property) as another campus in the same state and year, at least six of them nonzero, usually because a branch repeats its parent's statistics. School pages show the figures as DOE publishes them; state and national totals and rankings count them once, under one host campus, which the school page names. The host is the campus whose figures come from the newest release for that year, then the main campus, then the one with more students (FTE), then the larger total, then the lower IPEDS ID.
+                        </span>
+                      </div>
+                    </div>
                     <a
                       href="https://ope.ed.gov/campussafety/"
                       target="_blank"
@@ -241,7 +261,8 @@ export default function Methodology() {
               <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
                 <h5 className="font-medium text-gray-900 dark:text-gray-100 text-sm mb-2">Total Counts</h5>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Sum of on-campus + non-campus + public property (excluding residence halls to avoid double-counting)
+                  Sum of on-campus + non-campus + public property (excluding residence halls to avoid double-counting).
+                  Figures reported identically by two campuses count once, under the host campus, in state and national totals and rankings.
                 </p>
               </div>
               <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
@@ -475,6 +496,7 @@ export default function Methodology() {
                   "Ranking order validation",
                   "Percentage sum validation",
                   "Aggregate consistency (the school-year aggregate table matches the fact table it is built from)",
+                  "Shared figures (figures two campuses report identically are counted once in totals and rankings)",
                 ].map((check, i) => (
                   <div key={i} className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
                     <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />

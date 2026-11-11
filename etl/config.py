@@ -246,6 +246,15 @@ OFFENSE_ORDER = [
 # Create order mapping for sorting
 OFFENSE_ORDER_MAP = {offense: i for i, offense in enumerate(OFFENSE_ORDER)}
 
+# Shared (copied) statistics, found by 04_create_aggregates.py and checked by
+# 07_comprehensive_audit.py. A block is one campus's figures for one year and
+# one geography of GEO_FOR_ALL: one cell per offense in OFFENSE_ORDER, a blank
+# cell counting as 0. Blocks of the same year and geography are copies when
+# all cells are equal, at least SHARED_MIN_NONZERO of them are not 0, and the
+# campuses are in the same state. Fewer nonzero cells match by chance too
+# often to call a copy.
+SHARED_MIN_NONZERO = 6
+
 # =============================================================================
 # OFFENSE FAMILIES (for grouping in UI)
 # =============================================================================

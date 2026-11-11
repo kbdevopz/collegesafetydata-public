@@ -7,18 +7,19 @@
   "ivyLeague": false,
   "isMainCampus": true,
   "campusType": "Main Campus",
-  "fte": 1154,
+  "fte": 612,
   "fteByYear": {
     "2015": 2041,
     "2016": 2047,
     "2018": 1412,
-    "2020": 1154
+    "2020": 1154,
+    "2023": 612
   },
   "summary": {
-    "latestYear": 2020,
-    "totalIncidents": 1,
-    "topOffense": "Domestic Violence",
-    "topOffenseCount": 1
+    "latestYear": 2023,
+    "totalIncidents": 10,
+    "topOffense": "Aggravated Assault",
+    "topOffenseCount": 4
   },
   "yearlyTotals": [
     {
@@ -36,6 +37,10 @@
     {
       "year": 2020,
       "total": 1
+    },
+    {
+      "year": 2023,
+      "total": 10
     }
   ],
   "trends": [
@@ -86,17 +91,71 @@
       "offense": "Domestic Violence",
       "offenseFamily": "VAWA",
       "count": 1
+    },
+    {
+      "year": 2023,
+      "offense": "Aggravated Assault",
+      "offenseFamily": "Criminal",
+      "count": 4
+    },
+    {
+      "year": 2023,
+      "offense": "Burglary",
+      "offenseFamily": "Criminal",
+      "count": 1
+    },
+    {
+      "year": 2023,
+      "offense": "Drug Arrest",
+      "offenseFamily": "Arrest",
+      "count": 2
+    },
+    {
+      "year": 2023,
+      "offense": "Liquor Arrest",
+      "offenseFamily": "Arrest",
+      "count": 1
+    },
+    {
+      "year": 2023,
+      "offense": "Rape",
+      "offenseFamily": "Criminal",
+      "count": 2
     }
   ],
   "breakdownByOffense": [
     {
-      "offense": "Domestic Violence",
+      "offense": "Aggravated Assault",
+      "count": 4
+    },
+    {
+      "offense": "Drug Arrest",
+      "count": 2
+    },
+    {
+      "offense": "Rape",
+      "count": 2
+    },
+    {
+      "offense": "Burglary",
+      "count": 1
+    },
+    {
+      "offense": "Liquor Arrest",
       "count": 1
     }
   ],
   "breakdownByGeo": [
     {
+      "geo": "On-campus",
+      "count": 5
+    },
+    {
       "geo": "Non-campus",
+      "count": 4
+    },
+    {
+      "geo": "Public property",
       "count": 1
     }
   ]

@@ -9,6 +9,8 @@ This script performs thorough validation of all schools:
 5. Ranking Order - Verify ranks match sorted counts, and rankByRate sorted rates
 6. Percentage Sums - Verify each offense % is count / group total, to 2 decimals
 7. Aggregate Consistency - Aggregates equal the fact table, per year and geography
+8. Shared Statistics - Figures two campuses report identically are counted
+   once in rankings and totals, under one host, and school files say so
 
 Each check's details say in "what_it_checks" exactly what it verifies. All of
 them compare the pipeline's own files with each other; none re-reads the DOE
@@ -41,11 +43,13 @@ from typing import Optional
 
 # Add parent to path for config import
 sys.path.insert(0, str(Path(__file__).parent))
-from config import CURATED_DIR, QA_DIR, JSON_DIR, DATA_YEARS, PROJECT_ROOT, GEO_CODES, GEO_FOR_ALL
+from config import (CURATED_DIR, QA_DIR, JSON_DIR, DATA_YEARS, PROJECT_ROOT, GEO_CODES, GEO_FOR_ALL,
+                    OFFENSE_ORDER, SHARED_MIN_NONZERO, US_STATES)
 import provenance
 
 # Curated files the checks read (relative to data/curated)
-CURATED_READ = ("facts/incidents.parquet", "aggs/agg_school_year_offense.parquet", "dims/dim_enrollment.parquet")
+CURATED_READ = ("facts/incidents.parquet", "aggs/agg_school_year_offense.parquet", "dims/dim_enrollment.parquet",
+                "dims/dim_institution.parquet", "dims/campus_year_sources.parquet", "aggs/shared_blocks.parquet")
 # FTE coverage: share of the schools with crime data in a year that have an FTE for that year
 FTE_COVERAGE_FAIL = 95.0  # below this in any year with enrollment, the check fails
 FTE_COVERAGE_WARN = 99.0  # below this, a warning (2015-2024 are 99.4-100% today)
@@ -826,6 +830,273 @@ def audit_aggregate_consistency(verbose: bool = False) -> AuditResult:
     return result
 
 
+def read_curated(name: str, step: str, columns=None) -> pd.DataFrame:
+    """A curated file, or an error naming the step that writes it."""
+    path = CURATED_DIR / name
+    if not path.is_file():
+        raise RuntimeError(f"{path} not found. Run {step}, then the later steps and 07 again.")
+    return pd.read_parquet(path, columns=columns)
+
+
+def audit_shared_statistics(verbose: bool = False) -> AuditResult:
+    """
+    CHECK 8: Statistics that two or more campuses report identically are
+    counted once, under one host campus.
+
+    From the fact table, by the rule in config.py (SHARED_MIN_NONZERO), it
+    finds the copy blocks again, without 04's code: per year and geography
+    of GEO_FOR_ALL, campuses in the same ranked state whose cells for all
+    offenses in OFFENSE_ORDER are equal (blank = 0), at least
+    SHARED_MIN_NONZERO of them not 0. aggs/shared_blocks.parquet must hold
+    exactly those blocks in exactly those groups, with one host per group,
+    the first campus by 04's order (find_shared_blocks: not restored from an
+    older release, main campus, larger FTE, larger campus-year total, lower
+    UNITID), and every other member a shadow pointing to it. Then:
+      - every entry of every rankings/*.json counts the school's facts
+        without its shadow blocks, and the state and national files rank
+        exactly the schools of their state(s) with such a count above 0;
+      - every school file's sharedFigures lists exactly its shadow blocks,
+        with the host's UNITID and the name of the host's school file.
+    """
+    result = AuditResult("Shared Statistics Counted Once")
+    print("\nCHECK 8: Shared Statistics Counted Once")
+
+    try:
+        facts = pd.read_parquet(get_facts_path(), columns=["year", "unitid", "offense", "geo", "count"])
+        inst = read_curated("dims/dim_institution.parquet", "03_build_dimensions.py", ["unitid", "state"])
+        sources = read_curated("dims/campus_year_sources.parquet", "02_transform_to_parquet.py")
+        enrollment = read_curated("dims/dim_enrollment.parquet", "02a_transform_enrollment.py",
+                                  ["unitid", "year", "fte"])
+        shared = read_curated("aggs/shared_blocks.parquet", "04_create_aggregates.py")
+        result.details["what_it_checks"] = (
+            "From data/curated/facts/incidents.parquet, without 04's code: the blocks (one campus, year "
+            "and geography of On-campus, Non-campus, Public property; one cell per offense, blank = 0) "
+            f"that campuses of the same ranked state report identically, at least {SHARED_MIN_NONZERO} "
+            "cells not 0. aggs/shared_blocks.parquet must hold exactly those blocks and groups, with one "
+            "host per group chosen by 04's order and every other member a shadow of it. Every "
+            "rankings/*.json entry must count the school's facts without its shadow blocks, the state and "
+            "national files must rank exactly the schools with such a count, and each school file's "
+            "sharedFigures must list exactly its shadow blocks and their host.")
+
+        problems = []
+
+        def problem(text):
+            problems.append(text)
+
+        state = {int(u): s for u, s in zip(inst["unitid"].tolist(), inst["state"].tolist())}
+        rows = facts[facts["geo"].isin(GEO_FOR_ALL)]
+        unknown = sorted(set(rows["offense"]) - set(OFFENSE_ORDER))
+        if unknown:
+            raise RuntimeError(f"The facts hold offenses not in OFFENSE_ORDER ({', '.join(unknown)}). "
+                               "Add them to OFFENSE_ORDER in config.py, then run 04 to 07 again.")
+        cell_of = {o: i for i, o in enumerate(OFFENSE_ORDER)}
+
+        # Every block's cells, and each campus-year's total over GEO_FOR_ALL
+        cells = {}
+        campus_total = {}
+        for y, u, o, g, c in zip(rows["year"].tolist(), rows["unitid"].tolist(), rows["offense"].tolist(),
+                                 rows["geo"].tolist(), rows["count"].tolist()):
+            key = (int(y), g, int(u))
+            cells.setdefault(key, [0] * len(OFFENSE_ORDER))[cell_of[o]] += int(c)
+            campus_total[(int(u), int(y))] = campus_total.get((int(u), int(y)), 0) + int(c)
+
+        # The copy groups, found again
+        by_cells = {}
+        for (y, g, u), v in cells.items():
+            if sum(1 for c in v if c != 0) >= SHARED_MIN_NONZERO and state.get(u) in US_STATES:
+                by_cells.setdefault((y, g, state[u], tuple(v)), []).append(u)
+        expected =[(y, g, sorted(us)) for (y, g, _st, _v), us in by_cells.items() if len(us) >= 2]
+
+        # 04's host order
+        restored = {(int(u), int(y)): bool(r) for u, y, r in zip(sources["unitid"].tolist(), sources["year"].tolist(),
+                                                                  sources["restored"].tolist())}
+        fte = {(int(u), int(y)): float(f) for u, y, f in zip(enrollment["unitid"].tolist(), enrollment["year"].tolist(),
+                                                             enrollment["fte"].tolist()) if pd.notna(f)}
+
+        def host_order(u, y):
+            if (u, y) not in restored:
+                raise RuntimeError(f"campus_year_sources.parquet has no release for {u} in {y}, which has fact "
+                                   "rows. Run 02_transform_to_parquet.py and 03 to 07 again.")
+            f = fte.get((u // 1000, y))
+            return (restored[(u, y)], u % 1000 != 1, -f if f is not None else float("inf"),
+                    -campus_total[(u, y)], u)
+
+        expected_role = {}  # (year, geo, unitid) -> host UNITID
+        expected_members = {}  # frozenset of (year, geo, unitid) of one group
+        for y, g, us in expected:
+            host = min(us, key=lambda u: host_order(u, y))
+            members = frozenset((y, g, u) for u in us)
+            expected_members[members] = host
+            for u in us:
+                expected_role[(y, g, u)] = host
+
+        # aggs/shared_blocks.parquet, against them
+        actual_groups = {}
+        actual_host = {}
+        for y, g, grp, u, role, h in zip(shared["year"].tolist(), shared["geo"].tolist(), shared["group"].tolist(),
+                                         shared["unitid"].tolist(), shared["role"].tolist(),
+                                         shared["host_unitid"].tolist()):
+            key = (int(y), g, int(u))
+            if key in actual_host:
+                problem(f"shared_blocks.parquet lists {u} {y} {g} twice")
+            actual_host[key] = (role, int(h))
+            actual_groups.setdefault(int(grp), set()).add(key)
+        missing = sorted(set(expected_role) - set(actual_host))
+        extra = sorted(set(actual_host) - set(expected_role))
+        if missing:
+            problem(f"{len(missing)} copied blocks are not in shared_blocks.parquet (first: {missing[0]})")
+        if extra:
+            problem(f"{len(extra)} blocks in shared_blocks.parquet are not copies (first: {extra[0]})")
+        groups_found = {frozenset(m) for m in actual_groups.values()}
+        if groups_found != set(expected_members):
+            problem("shared_blocks.parquet groups the blocks differently from the facts")
+        for members in groups_found & set(expected_members):
+            host = expected_members[members]
+            hosts = [k for k in members if actual_host[k][0] == "host"]
+            if [k[2] for k in hosts] != [host]:
+                problem(f"group of {min(members)}: host {[k[2] for k in hosts]}, expected {host}")
+            for k in members:
+                role, h = actual_host[k]
+                if h != host or role != ("host" if k[2] == host else "shadow"):
+                    problem(f"{k}: role {role} with host {h}, expected host {host}")
+        shadows = {k for k, (role, _h) in actual_host.items() if role == "shadow"}
+
+        # What totals and rankings count: the facts without the shadow blocks
+        counted = {}
+        for (y, g, u), v in cells.items():
+            if (y, g, u) in shadows:
+                continue
+            for o, c in zip(OFFENSE_ORDER, v):
+                if c:
+                    counted[(y, u, o)] = counted.get((y, u, o), 0) + c
+                    counted[(y, u, "all")] = counted.get((y, u, "all"), 0) + c
+        code_of = {o: o.lower().replace(" ", "_") for o in OFFENSE_ORDER}
+        code_of["all"] = "all"
+        ranked = {}  # (year, code) -> {unitid: count}, the schools a ranking of that offense must hold
+        for (y, u, o), c in counted.items():
+            ranked.setdefault((y, code_of[o]), {})[u] = c
+
+        entries_checked = 0
+        ranking_files = sorted((JSON_DIR / "rankings").glob("*.json"))
+        by_year = {}
+        for ranking_file in ranking_files:
+            data = json.loads(ranking_file.read_text(encoding="utf-8"))
+            preset, year = data.get("preset"), data.get("year")
+            if preset == "national":
+                in_scope = set(US_STATES)
+            elif preset in US_STATES:
+                in_scope = {preset}
+            else:
+                in_scope = None  # Ivy League: counts only
+            rankings = data.get("rankings", {})
+            codes = set(rankings)
+            if in_scope is not None:
+                codes |= {code for (y, code) in ranked if y == year}
+            for code in sorted(codes):
+                entries = rankings.get(code, [])
+                want = ranked.get((year, code), {})
+                for e in entries:
+                    entries_checked += 1
+                    if e.get("count") != want.get(e.get("unitid"), 0):
+                        problem(f"{ranking_file.name}/{code}: {e.get('unitid')} counts {e.get('count')}, "
+                                f"the facts without shadow blocks {want.get(e.get('unitid'), 0)}")
+                if in_scope is not None:
+                    should = {u for u in want if state.get(u) in in_scope}
+                    have = {e.get("unitid") for e in entries}
+                    if have != should:
+                        diff = sorted(should ^ have)
+                        problem(f"{ranking_file.name}/{code}: ranks {len(have)} schools, expected {len(should)} "
+                                f"(first difference: {diff[0]})")
+            if preset == "national":
+                by_year[year] = sum(e.get("count", 0) for e in rankings.get("all", []))
+
+        # Per year: DOE figures of the ranked schools, the shadow counts taken out, what the rankings count
+        all_cells = {}
+        for (y, g, u), v in cells.items():
+            if state.get(u) in US_STATES:
+                all_cells[y] = all_cells.get(y, 0) + sum(v)
+        shadow_counts = {}
+        for (y, g, u) in shadows:
+            shadow_counts[y] = shadow_counts.get(y, 0) + sum(cells[(y, g, u)])
+        rows_by_year = []
+        for year in sorted(by_year):
+            doe, out = all_cells.get(year, 0), shadow_counts.get(year, 0)
+            ranked_total = by_year[year]
+            rows_by_year.append({"year": year, "doe_figures": doe, "shadow_counts": out,
+                                 "national_total": ranked_total,
+                                 "groups": len({frozenset(m) for m in groups_found if min(m)[0] == year}),
+                                 "shadow_blocks": sum(1 for k in shadows if k[0] == year)})
+            if doe - out != ranked_total:
+                problem(f"national-{year}-all.json totals {ranked_total:,}; the ranked schools' facts are "
+                        f"{doe:,}, less {out:,} in shadow blocks = {doe - out:,}")
+
+        # School files' sharedFigures
+        geo_rank = {g: i for i, g in enumerate(GEO_FOR_ALL)}
+        notes_expected = {}
+        for (y, g, u) in sorted(shadows, key=lambda k: (k[2], k[0], geo_rank[k[1]])):
+            notes_expected.setdefault(u, []).append((y, g, actual_host[(y, g, u)][1]))
+        names = {}
+        notes_found = {}
+        for school_file in (JSON_DIR / "schools").glob("*.json"):
+            try:
+                unitid = int(school_file.stem)
+            except ValueError:
+                continue
+            school = json.loads(school_file.read_text(encoding="utf-8"))
+            names[unitid] = school.get("name")
+            if "sharedFigures" in school:
+                notes_found[unitid] = school["sharedFigures"]
+        for unitid in sorted(set(notes_expected) | set(notes_found)):
+            found = notes_found.get(unitid) or []
+            want = notes_expected.get(unitid, [])
+            got = [(f.get("year"), f.get("geo"), f.get("hostUnitid")) for f in found]
+            if got != want:
+                problem(f"schools/{unitid}.json sharedFigures {got[:3]}, expected {want[:3]}")
+            for f in found:
+                if f.get("hostName") != names.get(f.get("hostUnitid")):
+                    problem(f"schools/{unitid}.json names host {f.get('hostUnitid')} {f.get('hostName')!r}, "
+                            f"its school file says {names.get(f.get('hostUnitid'))!r}")
+
+        result.details["min_nonzero_cells"] = SHARED_MIN_NONZERO
+        result.details["copy_groups"] = len(groups_found)
+        result.details["shadow_blocks"] = len(shadows)
+        result.details["shadow_counts"] = sum(shadow_counts.values())
+        result.details["by_year"] = rows_by_year
+        result.details["ranking_entries_checked"] = entries_checked
+        result.details["schools_with_shared_figures"] = len(notes_found)
+        result.details["problems"] = len(problems)
+
+        print(f"  Copy groups: {len(groups_found):,}; shadow blocks: {len(shadows):,} "
+              f"({sum(shadow_counts.values()):,} counts, each counted once under its host)")
+        print(f"    {'Year':<6}{'Groups':>8}{'Shadows':>9}{'DOE figures':>13}{'Shadow':>9}{'National':>11}")
+        for r in rows_by_year:
+            print(f"    {r['year']:<6}{r['groups']:>8,}{r['shadow_blocks']:>9,}{r['doe_figures']:>13,}"
+                  f"{r['shadow_counts']:>9,}{r['national_total']:>11,}")
+        print(f"  Ranking entries checked: {entries_checked:,}; school files with sharedFigures: "
+              f"{len(notes_found):,}")
+        print(f"  Problems: {len(problems)}")
+
+        if problems:
+            result.failed(f"{len(problems)} problems with shared statistics (first: {problems[0]}). "
+                          f"Run 04_create_aggregates.py and 05_generate_json.py, then 07 again.")
+            if verbose:
+                for p in problems[:5]:
+                    print(f"    {p}")
+        elif not ranking_files:
+            result.failed(f"No ranking files in {JSON_DIR / 'rankings'} to check. Run 04_create_aggregates.py "
+                          f"and 05_generate_json.py.")
+        else:
+            result.passed()
+
+        print(f"  {result.status}")
+
+    except Exception as e:
+        result.failed(str(e))
+        print(f"  ERROR: {e}")
+
+    return result
+
+
 def generate_per_school_report(verbose: bool = False) -> pd.DataFrame:
     """
     Generate detailed per-school audit report.
@@ -1036,6 +1307,7 @@ def main():
         audit_ranking_order,
         audit_percentage_sums,
         audit_aggregate_consistency,
+        audit_shared_statistics,
     ]
 
     for check_fn in checks:

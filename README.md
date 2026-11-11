@@ -30,6 +30,9 @@ This project provides free, public access to campus safety data for over 8,100 U
 ### Methodology
 
 Our data processing pipeline is fully documented. See [etl/METHODOLOGY.md](etl/METHODOLOGY.md) for:
+- Which DOE release each campus-year comes from: the newest release that has that campus for that year, with all of its figures from that one release
+- Known errors in DOE files and how they are handled
+- Figures that two campuses report identically, counted once (under one host campus) in totals and rankings
 - FTE calculation using official IPEDS factors
 - Crime rate formulas
 - Geographic classifications
@@ -98,7 +101,7 @@ Generated JSON files are written to `frontend/public/data/`. Run one step at a t
 
 Each step from 02 to 05 writes a record of what it was built from, and step 05 publishes the last one with the site as `frontend/public/data/build_inputs.json`. The records hold:
 
-- the DOE release used for each year and the name and checksum of every DOE and NCES file behind the published numbers,
+- the DOE releases used for each year, how many campus-years each of them supplied (each campus-year comes from the newest release that has it; `data/curated/dims/campus_year_sources.parquet` lists the release of every campus-year), the known DOE file errors the build worked around, and the name and checksum of every DOE and NCES file behind the published numbers,
 - the checksum of each file the step read from the step before it, and of each file it wrote; for step 05 that is every file in `frontend/public/data`,
 - a checksum of the pipeline code and `config.py` the step ran with.
 
@@ -182,6 +185,7 @@ Every data run includes a comprehensive audit validating:
 - FTE coverage by year: of the schools with crime data in a year, the share that have FTE that year (a year whose enrollment NCES has not published is expected to have none)
 - Rate calculation verification
 - Ranking order validation
+- Shared statistics: figures two campuses report identically are found again from the fact table, and every ranking entry must count them once, under the host campus
 
 Download the latest audit: [audit.json](https://collegesafetydata.org/audit.json). It names the site data it audited (`audited_build`: the SHA-256 of that build's `build_inputs.json`) and when it ran, in UTC.
 
