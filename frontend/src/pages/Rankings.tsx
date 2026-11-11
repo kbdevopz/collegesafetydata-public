@@ -298,8 +298,10 @@ export default function Rankings() {
     [columnHelper, compareSchools, sortByRate]
   )
 
+  // The table gets the full list so a column sort orders every campus, not
+  // just the rows loaded so far; the rows shown are sliced after sorting.
   const table = useReactTable({
-    data: displayedRankings,
+    data: sortedRankings,
     columns,
     state: { sorting },
     onSortingChange: setSorting,
@@ -824,6 +826,11 @@ export default function Rankings() {
                               header.column.getIsSorted() && 'bg-gray-100 dark:bg-gray-700'
                             )}
                             onClick={header.column.getToggleSortingHandler()}
+                            aria-sort={
+                              header.column.getIsSorted() === 'asc' ? 'ascending'
+                                : header.column.getIsSorted() === 'desc' ? 'descending'
+                                : undefined
+                            }
                           >
                             <div className="flex items-center gap-2">
                               {flexRender(
@@ -844,7 +851,7 @@ export default function Rankings() {
                     ))}
                   </thead>
                   <tbody>
-                    {table.getRowModel().rows.map((row) => (
+                    {table.getRowModel().rows.slice(0, displayCount).map((row) => (
                       <tr key={row.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
                         {row.getVisibleCells().map((cell) => (
                           <td key={cell.id}>
