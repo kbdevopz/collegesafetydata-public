@@ -60,25 +60,44 @@ its old and new UNITID. Added up, those numbers would be counted twice.
 A block is one campus's figures for one year and one geography (on-campus,
 non-campus or public property; residence halls are a subset of on-campus and
 are not compared): its 20 counts (11 criminal offenses, 3 VAWA offenses, 3
-arrest and 3 disciplinary categories), a blank counting as 0. Two or more
-blocks of the same year and geography are copies when all 20 counts are
-equal, at least 6 of them are not 0, and the campuses are in the same state
-(campuses with no state, or outside the 50 states, DC, Puerto Rico and the
-U.S. Virgin Islands, are not ranked and are not compared). Fewer nonzero counts match by chance too
-often to call a copy.
+arrest and 3 disciplinary categories), a blank counting as 0. A campus-year's
+whole figures are its three blocks (60 counts). Copies are looked for only
+between campuses in the same state (campuses with no state, or outside the
+50 states, DC, Puerto Rico and the U.S. Virgin Islands, are not ranked and
+are not compared), and every test needs at least 6 counts that are not 0:
+fewer match by chance too often to call a copy.
 
-In each copy group one campus is the host, chosen in this order: its
-campus-year comes from the newest release that covers the year (not from an
-older one), it is a main campus (UNITID ending in 001), it has more students
-(the FTE used for rates; no FTE sorts last), it has the larger total for the
-campus-year over the three geographies, it has the lower UNITID. The other
-blocks are shadows. State and national totals and rankings count a shadow
-block's figures once, under the host; a campus-year whose every block with
-data is a shadow is not ranked at all. Each school page still shows the
+The host of a copy is chosen in this order: its campus-year comes from the
+newest release that covers the year (not from an older one), it is a main
+campus (UNITID ending in 001), it has more students (the FTE used for rates;
+no FTE sorts last), it has the larger total for the campus-year over the
+three geographies, it has the lower UNITID. The copies are shadows of the
+host. Four rules find them, in this order (a block keeps the first rule's
+answer):
+
+1. **Same block:** two or more campuses' blocks of the same year and
+   geography have all 20 counts equal. The host is the first by the order
+   above; the other blocks are its shadows.
+2. **Whole year:** two or more campus-years have all 60 counts equal. Every
+   block of the campus-years other than the host's is a shadow, including a
+   block with fewer than 6 nonzero counts of its own.
+3. **Whole year, in an older release:** a campus-year taken from an older
+   release has, in that release, all 60 counts equal to those of another
+   campus whose own figures for the year now come from a newer release
+   (where that campus may have corrected them). Every block of it is a
+   shadow of that campus.
+4. **Block, in an older release:** the same for one block of such a
+   campus-year (all 20 counts equal).
+
+State and national totals and rankings count a shadow block's figures once,
+under the host; a campus-year whose every block with data is a shadow is not
+ranked at all. Each school page still shows the
 school's full figures as DOE publishes them, and a shadow campus's page names
 the host for each year and geography it shares
 (`sharedFigures` in its school file). The blocks are listed in
-`data/curated/aggs/shared_blocks.parquet`.
+`data/curated/aggs/shared_blocks.parquet`, with the rule that found each
+shadow; the older releases' figures the last two rules compare are in
+`data/curated/dims/older_release_counts.parquet`.
 
 ### Enrollment Data
 - **Source:** IPEDS (Integrated Postsecondary Education Data System)
@@ -215,7 +234,7 @@ Our data pipeline includes validation steps to ensure accuracy:
 2. Verification that offense counts sum correctly
 3. Comparison of calculated FTE against official DRVEF values where available
 4. Spot checks against known institutions (Ivy League, major state universities)
-5. An audit (`07_comprehensive_audit.py`, check 8) that finds the shared blocks again from the fact table and verifies that every ranking entry counts the school's figures without its shadow blocks
+5. An audit (`07_comprehensive_audit.py`, check 8) that finds the shared blocks again from the fact table and the older releases' figures, and verifies that every ranking entry counts the school's figures without its shadow blocks
 
 ## Source Code
 

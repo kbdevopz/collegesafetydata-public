@@ -28,7 +28,13 @@ Output Schema:
 
 Also written: data/curated/dims/campus_year_sources.parquet, the release each
 campus-year was taken from (unitid, year, release, restored), including
-campus-years whose counts are all zero (the facts hold no rows for those).
+campus-years whose counts are all zero (the facts hold no rows for those);
+and data/curated/dims/older_release_counts.parquet: for each year and each
+older release that some campus-year of that year is taken from, every
+campus's nonzero counts in that release (On-campus, Non-campus and Public
+property), so 04_create_aggregates.py can tell whether a campus-year taken
+from an older release copied another campus there (release, year, unitid,
+offense, geo, count).
 
 Usage:
     python 02_transform_to_parquet.py
@@ -38,6 +44,7 @@ Usage:
 import sys
 import argparse
 import logging
+import numpy as np
 import pandas as pd
 import re
 from dataclasses import dataclass
@@ -106,6 +113,10 @@ CATEGORY_OFFENSES = {
 
 # Year-suffixed DOE columns that are not counts and are not read (FILTERyy)
 IGNORED_YEAR_COLUMNS = ["FILTER"]
+
+# The geographies whose figures 04_create_aggregates.py compares between
+# campuses (residence halls are a subset of on-campus and are not compared)
+COMPARED_GEOS = ["oncampus", "noncampus", "publicproperty"]
 
 # File suffix patterns -> year lists
 # Files are named like: oncampuscrime212223.sas7bdat (covers 2021, 2022, 2023)
@@ -321,6 +332,7 @@ YEAR_SOURCES: dict = {}  # year -> the releases on disk that cover it, newest fi
 READ_BEFORE: dict = {}  # CRC-32 and size of each used file, taken before reading
 CAMPUS_YEAR_SOURCES: List[pd.DataFrame] = []  # one table: unitid, year, release, restored
 DEFECTS_APPLIED: List[dict] = []  # how many campus-years each KNOWN_DEFECTS rule applied to
+OLDER_RELEASE_COUNTS: List[pd.DataFrame] = []  # one table: see older_release_counts.parquet above
 
 
 def parse_filename(filename: str) -> Optional[Tuple[str, str, List[int]]]:
@@ -499,6 +511,47 @@ def extract_offense_data(
                 })
 
     return records
+
+
+def release_counts(df: pd.DataFrame, ids: pd.Series, category: str, year: int, filename: str,
+                   skip: set) -> pd.DataFrame:
+    """
+    Every campus's counts for one year of one file, read as
+    extract_offense_data reads them (blank and 0 are left out; a value that is
+    not a number stops the build), but column by column rather than row by
+    row: (unitid, offense, count). `ids` are the file's campus ids
+    (campus_ids), `skip` offense codes not to read (KNOWN_DEFECTS).
+    """
+    check_columns(list(df.columns), filename, category, [year])
+    parts = []
+    for code in CATEGORY_OFFENSES[category]:
+        if code in skip:
+            continue
+        col = f"{code}{str(year)[-2:]}"
+        values = df[col]
+        has = filled(values).to_numpy()
+        try:
+            numbers = values[has].map(float).to_numpy(dtype="float64")
+            counts = np.trunc(numbers)  # int(float(value)), as extract_offense_data
+            if not np.isfinite(counts).all():
+                raise OverflowError
+        except (ValueError, TypeError, OverflowError):
+            bad = next(v for v in values[has] if not _is_number(v))
+            raise RuntimeError(f"{filename}: {col} holds {bad!r}, which is not a number") from None
+        positive = counts > 0
+        name = OFFENSE_MAP[code] + (f" {category.title()}" if category in ["arrest", "discipline"] else "")
+        parts.append(pd.DataFrame({"unitid": ids.to_numpy()[has][positive], "offense": name,
+                                   "count": counts[positive].astype("int64")}))
+    return pd.concat(parts, ignore_index=True)
+
+
+def _is_number(value) -> bool:
+    """True when int(float(value)) works, as extract_offense_data needs."""
+    try:
+        int(float(value))
+        return True
+    except (ValueError, TypeError, OverflowError):
+        return False
 
 
 def select_files(target_years: List[int]) -> Tuple[List[tuple], dict]:
@@ -686,6 +739,7 @@ def process_all_files(
 
     sources = {}  # (unitid, year) -> suffix of the release the campus-year is taken from
     done = set()  # releases processed so far (all newer than the current one)
+    older_counts = []  # tables of release_counts for older_release_counts.parquet
 
     def add(records: List[dict], geo: str, suffix: str) -> None:
         for rec in records:
@@ -712,6 +766,23 @@ def process_all_files(
             for unitid in mine:
                 sources[(unitid, year)] = suffix
             taken[year] = mine
+
+        # The years this release supplies as an older release: every campus's
+        # counts there, so 04 can see whether a campus-year taken from it
+        # copied another campus in this same release
+        for year in sorted(y for y, mine in taken.items() if mine and suffix != year_sources[y][0]):
+            for geo in COMPARED_GEOS:
+                for category in CATEGORY_MAP:
+                    filepath, df, ids, _years = frames[(geo, category)]
+                    if ivy_only:
+                        keep = ids.isin(IVY_UNITIDS).to_numpy()
+                        df, ids = df[keep], ids[keep]
+                    counts = release_counts(df, ids, category, year, filepath.name,
+                                            defective_offenses(suffix, geo, category, year))
+                    counts.insert(0, "release", suffix)
+                    counts.insert(1, "year", year)
+                    counts["geo"] = GEOGRAPHY_MAP[geo]
+                    older_counts.append(counts)
 
         for filepath, geo, category, years in files:
             _path, df, ids, _years = frames[(geo, category)]
@@ -791,6 +862,30 @@ def process_all_files(
     # Filter to target years
     facts = facts[facts["year"].isin(target_years)]
 
+    # Every campus's counts in each older release a campus-year is taken
+    # from. A campus-year taken from that release must have there exactly
+    # its fact counts, or the two readings of the files disagree.
+    columns = ["release", "year", "unitid", "offense", "geo", "count"]
+    older = (pd.concat(older_counts, ignore_index=True) if older_counts else pd.DataFrame(columns=columns))
+    older = older[columns].astype({"year": "int64", "unitid": "int64", "count": "int64"})
+    older = older.sort_values(["release", "year", "unitid", "geo", "offense"]).reset_index(drop=True)
+    if older.duplicated(["release", "year", "unitid", "geo", "offense"]).any():
+        raise RuntimeError("older_release_counts would hold a count twice. This is a bug in "
+                           "02_transform_to_parquet.py; nothing was written.")
+    taken_older = table[table["restored"]][["unitid", "year", "release"]]
+    compared = [GEOGRAPHY_MAP[g] for g in COMPARED_GEOS]
+    mine = older.merge(taken_older, on=["unitid", "year", "release"])
+    theirs = facts[facts["geo"].isin(compared)].merge(taken_older, on=["unitid", "year"])
+    key = ["release", "year", "unitid", "geo", "offense", "count"]
+    differ = pd.concat([mine[key], theirs[key]]).drop_duplicates(keep=False)
+    if len(differ):
+        first = differ.iloc[0]
+        raise RuntimeError(f"{len(differ):,} counts of campus-years taken from an older release differ between "
+                           f"the facts and older_release_counts (first: {first['unitid']} {first['year']} "
+                           f"{first['geo']} {first['offense']}). This is a bug in 02_transform_to_parquet.py; "
+                           "nothing was written.")
+    OLDER_RELEASE_COUNTS[:] = [older]
+
     # Create institutions DataFrame - keep first occurrence per school
     # (newest release first, so current names/addresses win)
     if all_institutions:
@@ -808,9 +903,12 @@ def process_all_files(
 # The release each campus-year is taken from (see the module docstring).
 # Not in data/curated/facts, where steps 03-07 accept only incidents.parquet.
 SOURCES_PATH = CURATED_DIR / "dims" / "campus_year_sources.parquet"
+# Every campus's counts in the older releases campus-years are taken from (see the module docstring)
+OLDER_PATH = CURATED_DIR / "dims" / "older_release_counts.parquet"
 
 
-def save_parquet(facts: pd.DataFrame, institutions: pd.DataFrame, sources: pd.DataFrame) -> None:
+def save_parquet(facts: pd.DataFrame, institutions: pd.DataFrame, sources: pd.DataFrame,
+                 older: pd.DataFrame) -> None:
     """Save DataFrames to Parquet files."""
     facts_dir = CURATED_DIR / "facts"
     facts_dir.mkdir(parents=True, exist_ok=True)
@@ -831,6 +929,8 @@ def save_parquet(facts: pd.DataFrame, institutions: pd.DataFrame, sources: pd.Da
 
     sources.to_parquet(SOURCES_PATH, index=False)
     print(f"Campus-year sources saved to: {SOURCES_PATH}")
+    older.to_parquet(OLDER_PATH, index=False)
+    print(f"Older release counts ({len(older):,} rows) saved to: {OLDER_PATH}")
 
 
 def sources_by_year(sources: pd.DataFrame) -> dict:
@@ -934,7 +1034,7 @@ def main():
 
     # Save to parquet
     sources = CAMPUS_YEAR_SOURCES[0]
-    save_parquet(facts, institutions, sources)
+    save_parquet(facts, institutions, sources, OLDER_RELEASE_COUNTS[0])
 
     # Record which releases and which SAS files each year came from, how many
     # campus-years each release supplied, the known defects applied, and the
@@ -942,7 +1042,7 @@ def main():
     written = [CURATED_DIR / "facts" / "incidents.parquet"]
     if not institutions.empty:
         written.append(CURATED_DIR / "dims" / "raw_institutions.parquet")
-    written.append(SOURCES_PATH)
+    written += [SOURCES_PATH, OLDER_PATH]
     provenance.write_crime_manifest(YEAR_SOURCES, USED_FILES, all_schools=not ivy_only,
                                     read_before=READ_BEFORE, outputs=written,
                                     campus_years=sources_by_year(sources), defects=DEFECTS_APPLIED)

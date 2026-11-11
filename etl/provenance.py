@@ -94,6 +94,7 @@ CURATED_WRITERS = {
     "facts/incidents.parquet": "02",
     "dims/raw_institutions.parquet": "02",
     "dims/campus_year_sources.parquet": "02",
+    "dims/older_release_counts.parquet": "02",
     "dims/dim_enrollment_ef.parquet": "02b",
     "dims/dim_enrollment.parquet": "02a",
     "dims/dim_institution.parquet": "03",

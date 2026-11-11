@@ -1,15 +1,16 @@
 {
-  "generated_at": "2026-11-11T00:07:39Z",
+  "generated_at": "2026-11-11T01:06:12Z",
   "audited_build": {
     "site_record": "frontend/public/data/build_inputs.json",
-    "site_record_sha256": "f40b8afcdcfd02714c5b20b08cde6a884a256980eb626132fe0d1bcba1dbee6a",
+    "site_record_sha256": "df2bec293ba0f9ca50509d336a4786e015244ffe17a941118b79d993f7d02619",
     "curated_sha256": {
       "facts/incidents.parquet": "7cf7d235e64853e934a877579aed578ee275692166bb5e6b182f6e3ff4f9a2a2",
       "aggs/agg_school_year_offense.parquet": "8a6273a1bd3edf79632c50ed680ffeb7dddce04987870e81c3453967d6804387",
       "dims/dim_enrollment.parquet": "37b328d2b319acbafca777aff55dbc096f0841f784f07ed973fa4b1a5f24aaba",
       "dims/dim_institution.parquet": "8d5e65263d49c83dd851f02a4bedbcd2a2916ed0cedf2ce043dcb3a5c526d51a",
       "dims/campus_year_sources.parquet": "c7f793917e246b7cd9eefaa9e595d8cccf5da81bc83edee514a6f28d0a4b5385",
-      "aggs/shared_blocks.parquet": "cb0bae563252d4e6e3aa978b492a93153aceaf47894ac2351368d69946b6d54b"
+      "dims/older_release_counts.parquet": "21eaa816a05c1835f513486714cbb4cc7becf7cb5b5416d8da26cfee689172bb",
+      "aggs/shared_blocks.parquet": "4184240dcd06962a7ce4706e65e7816ece4805e1ef3f4aaf26f4753d32e6ea0b"
     }
   },
   "overall_status": "PASS",
@@ -137,7 +138,7 @@
       "status": "PASS",
       "details": {
         "what_it_checks": "For every entry of rankings/*.json, rate equals count / fte x 10,000 to within 0.01, using the entry's own count and fte; an entry with a rate but no FTE above 0, or with an FTE but no rate, is an error. It does not compare the count or FTE with the aggregates or IPEDS.",
-        "ranking_entries_checked": 470955,
+        "ranking_entries_checked": 470083,
         "rate_errors": 0
       },
       "errors": [],
@@ -148,7 +149,7 @@
       "status": "PASS",
       "details": {
         "what_it_checks": "In every ranking group (one offense of one rankings/*.json file) of 2 or more entries, rank runs 1..N with counts non-increasing, and rankByRate runs 1..M over exactly the entries with a rate, with rates non-increasing. It checks the order of each file's own counts and rates; check 4 checks the rates' arithmetic.",
-        "groups_validated": 8998,
+        "groups_validated": 8996,
         "order_violations": 0
       },
       "errors": [],
@@ -160,9 +161,9 @@
       "details": {
         "what_it_checks": "In every ranking group (one offense of one rankings/*.json file), each entry's pct equals its count / the group's count sum x 100 to 2 decimals (within 0.005), and the file's totals entry equals that sum. Group pct sums differ from 100% only by that rounding; the largest difference is shown. It checks the files' own counts, not the counts against the aggregates.",
         "groups_validated": 9622,
-        "entries_checked": 471961,
+        "entries_checked": 471063,
         "pct_errors": 0,
-        "max_sum_deviation_pct": 4.82
+        "max_sum_deviation_pct": 4.86
       },
       "errors": [],
       "warnings": []
@@ -596,95 +597,109 @@
       "name": "Shared Statistics Counted Once",
       "status": "PASS",
       "details": {
-        "what_it_checks": "From data/curated/facts/incidents.parquet, without 04's code: the blocks (one campus, year and geography of On-campus, Non-campus, Public property; one cell per offense, blank = 0) that campuses of the same ranked state report identically, at least 6 cells not 0. aggs/shared_blocks.parquet must hold exactly those blocks and groups, with one host per group chosen by 04's order and every other member a shadow of it. Every rankings/*.json entry must count the school's facts without its shadow blocks, the state and national files must rank exactly the schools with such a count, and each school file's sharedFigures must list exactly its shadow blocks and their host.",
+        "what_it_checks": "Without 04's code, from data/curated/facts/incidents.parquet and dims/older_release_counts.parquet: the blocks (one campus, year and geography of On-campus, Non-campus, Public property; one cell per offense, blank = 0) counted under another campus of the same ranked state, each test needing at least 6 cells not 0, by 04's rules in order: equal blocks (same_block); equal whole campus-years, every block of the copy (whole_year); and, for a campus-year taken from an older release, whole figures or a block equal in that release to a campus whose figures now come from a newer release (whole_year_older_release, block_older_release). Hosts are chosen by 04's order. aggs/shared_blocks.parquet must hold exactly those shadows, hosts and rules. Every rankings/*.json entry must count the school's facts without its shadow blocks, the state and national files must rank exactly the schools with such a count, and each school file's sharedFigures must list exactly its shadow blocks and their host.",
         "min_nonzero_cells": 6,
-        "copy_groups": 230,
-        "shadow_blocks": 242,
-        "shadow_counts": 59725,
+        "host_groups": 369,
+        "shadow_blocks": 383,
+        "shadow_counts": 62418,
+        "by_rule": {
+          "block_older_release": {
+            "shadow_blocks": 1,
+            "counts": 1588
+          },
+          "same_block": {
+            "shadow_blocks": 242,
+            "counts": 59725
+          },
+          "whole_year": {
+            "shadow_blocks": 140,
+            "counts": 1105
+          }
+        },
         "by_year": [
           {
             "year": 2015,
             "doe_figures": 360138,
-            "shadow_counts": 9299,
-            "national_total": 350839,
-            "groups": 21,
-            "shadow_blocks": 21
+            "shadow_counts": 9491,
+            "national_total": 350647,
+            "groups": 37,
+            "shadow_blocks": 37
           },
           {
             "year": 2016,
             "doe_figures": 345328,
-            "shadow_counts": 8594,
-            "national_total": 336734,
-            "groups": 26,
-            "shadow_blocks": 26
+            "shadow_counts": 8682,
+            "national_total": 336646,
+            "groups": 39,
+            "shadow_blocks": 39
           },
           {
             "year": 2017,
             "doe_figures": 330603,
-            "shadow_counts": 8231,
-            "national_total": 322372,
-            "groups": 21,
-            "shadow_blocks": 21
+            "shadow_counts": 8323,
+            "national_total": 322280,
+            "groups": 34,
+            "shadow_blocks": 34
           },
           {
             "year": 2018,
             "doe_figures": 306600,
-            "shadow_counts": 6454,
-            "national_total": 300146,
-            "groups": 22,
-            "shadow_blocks": 22
+            "shadow_counts": 8190,
+            "national_total": 298410,
+            "groups": 41,
+            "shadow_blocks": 41
           },
           {
             "year": 2019,
             "doe_figures": 286281,
-            "shadow_counts": 3734,
-            "national_total": 282547,
-            "groups": 30,
-            "shadow_blocks": 30
+            "shadow_counts": 3849,
+            "national_total": 282432,
+            "groups": 46,
+            "shadow_blocks": 46
           },
           {
             "year": 2020,
             "doe_figures": 187679,
-            "shadow_counts": 3794,
-            "national_total": 183885,
-            "groups": 14,
-            "shadow_blocks": 14
+            "shadow_counts": 3898,
+            "national_total": 183781,
+            "groups": 32,
+            "shadow_blocks": 32
           },
           {
             "year": 2021,
             "doe_figures": 199024,
-            "shadow_counts": 4861,
-            "national_total": 194163,
-            "groups": 29,
-            "shadow_blocks": 30
+            "shadow_counts": 4978,
+            "national_total": 194046,
+            "groups": 45,
+            "shadow_blocks": 46
           },
           {
             "year": 2022,
             "doe_figures": 204597,
-            "shadow_counts": 4212,
-            "national_total": 200385,
-            "groups": 23,
-            "shadow_blocks": 25
+            "shadow_counts": 4321,
+            "national_total": 200276,
+            "groups": 32,
+            "shadow_blocks": 35
           },
           {
             "year": 2023,
             "doe_figures": 206604,
-            "shadow_counts": 6271,
-            "national_total": 200333,
-            "groups": 26,
-            "shadow_blocks": 32
+            "shadow_counts": 6323,
+            "national_total": 200281,
+            "groups": 33,
+            "shadow_blocks": 40
           },
           {
             "year": 2024,
             "doe_figures": 197664,
-            "shadow_counts": 4275,
-            "national_total": 193389,
-            "groups": 18,
-            "shadow_blocks": 21
+            "shadow_counts": 4363,
+            "national_total": 193301,
+            "groups": 30,
+            "shadow_blocks": 33
           }
         ],
-        "ranking_entries_checked": 471961,
-        "schools_with_shared_figures": 93,
+        "ranking_entries_checked": 471063,
+        "schools_with_shared_figures": 107,
         "problems": 0
       },
       "errors": [],
