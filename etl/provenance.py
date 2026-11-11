@@ -93,6 +93,8 @@ STAGE_CODE = {
 CURATED_WRITERS = {
     "facts/incidents.parquet": "02",
     "dims/raw_institutions.parquet": "02",
+    "dims/campus_year_sources.parquet": "02",
+    "dims/older_release_counts.parquet": "02",
     "dims/dim_enrollment_ef.parquet": "02b",
     "dims/dim_enrollment.parquet": "02a",
     "dims/dim_institution.parquet": "03",
@@ -393,11 +395,16 @@ def _check_csv_inputs(step: str, inputs: dict[int, dict]) -> None:
 # Writing each stage's record
 # --------------------------------------------------------------------------
 
-def write_crime_manifest(year_sources: dict[int, str], files: list[Path], all_schools: bool,
-                         read_before: dict[str, dict], outputs: list[Path]) -> None:
+def write_crime_manifest(year_sources: dict[int, list[str]], files: list[Path], all_schools: bool,
+                         read_before: dict[str, dict], outputs: list[Path],
+                         campus_years: dict[str, dict[str, int]], defects: list[dict]) -> None:
     """
     Called by 02 after saving its output. `read_before` is file_records(files)
-    taken before any SAS file was read.
+    taken before any SAS file was read. `year_sources` lists, for each year,
+    the releases that cover it (newest first); `campus_years` how many
+    campus-years of each year were taken from each release (the release of
+    each one is in dims/campus_year_sources.parquet); `defects` the known
+    DOE file defects 02 corrected and for how many campus-years.
     """
     if file_records(files) != read_before:
         now = file_records(files)
@@ -407,7 +414,9 @@ def write_crime_manifest(year_sources: dict[int, str], files: list[Path], all_sc
     _write(CRIME_MANIFEST, {
         "built_at": _now(),
         "all_schools": all_schools,
-        "year_sources": {str(y): s for y, s in sorted(year_sources.items())},
+        "year_sources": {str(y): list(s) for y, s in sorted(year_sources.items())},
+        "campus_year_sources": campus_years,
+        "known_defects": defects,
         "files": read_before,
         "outputs": _outputs(outputs),
         "code": code_fingerprint("02"),

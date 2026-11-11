@@ -115,6 +115,18 @@ export interface SchoolProfile {
   trends: TrendPoint[]
   breakdownByOffense: OffenseBreakdown[]
   breakdownByGeo: GeoBreakdown[]
+  // Present only when some of this school's figures are an exact copy of
+  // another campus's report for the same year and location. The school's own
+  // figures above include them as DOE publishes them; totals and rankings
+  // count them once, under the host campus.
+  sharedFigures?: SharedFigure[]
+}
+
+export interface SharedFigure {
+  year: number
+  geo: 'On-campus' | 'Non-campus' | 'Public property'
+  hostUnitid: number
+  hostName: string
 }
 
 export interface SummaryStats {

@@ -15,7 +15,7 @@ import {
   Pie,
   Cell,
 } from 'recharts'
-import { ArrowLeft, MapPin, AlertCircle, Loader2, TrendingUp, TrendingDown, Calendar, AlertTriangle, Users } from 'lucide-react'
+import { ArrowLeft, MapPin, AlertCircle, Loader2, TrendingUp, TrendingDown, Calendar, AlertTriangle, Users, Info } from 'lucide-react'
 import { fetchSchoolProfile } from '../lib/api'
 import type { SchoolProfile as SchoolProfileType, OffenseBreakdown } from '../lib/types'
 import {
@@ -30,6 +30,12 @@ import {
 } from '../lib/utils'
 import { fteFor, rateFor, latestFte } from '../lib/rates'
 import { useTheme } from '../hooks/useTheme'
+
+// "on-campus", "on-campus and public property", "a, b and c"
+function joinWithAnd(items: string[]): string {
+  if (items.length <= 1) return items.join('')
+  return `${items.slice(0, -1).join(', ')} and ${items[items.length - 1]}`
+}
 
 export default function SchoolProfile() {
   const { unitid } = useParams<{ unitid: string }>()
@@ -136,6 +142,21 @@ export default function SchoolProfile() {
       count: selectedYearOffenseBreakdown[0].count
     }
   }, [selectedYearOffenseBreakdown])
+
+  // Figures for the selected year that DOE also publishes, identically, for
+  // another campus; one entry per host, with the locations it shares.
+  const selectedYearShared = useMemo(() => {
+    if (!profile?.sharedFigures || !selectedYear) return []
+    const byHost = new Map<number, { hostUnitid: number; hostName: string; geos: string[] }>()
+    profile.sharedFigures
+      .filter((f) => f.year === selectedYear)
+      .forEach((f) => {
+        const entry = byHost.get(f.hostUnitid) ?? { hostUnitid: f.hostUnitid, hostName: f.hostName, geos: [] }
+        entry.geos.push(f.geo.toLowerCase())
+        byHost.set(f.hostUnitid, entry)
+      })
+    return Array.from(byHost.values())
+  }, [profile, selectedYear])
 
   // Calculate YoY change for selected year
   const selectedYearYoYChange = useMemo(() => {
@@ -465,6 +486,33 @@ export default function SchoolProfile() {
             <div className="text-sm text-gray-600 dark:text-gray-400">Categories with incidents</div>
           </div>
         </div>
+
+        {/* Figures shared with another campus (counted once, under the host) */}
+        {selectedYearShared.length > 0 && (
+          <div role="note" className="-mt-4 mb-6 space-y-1">
+            {selectedYearShared.map((entry) => (
+              <p
+                key={entry.hostUnitid}
+                className="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-400"
+              >
+                <Info className="w-4 h-4 flex-shrink-0 mt-0.5" aria-hidden="true" />
+                <span>
+                  <span className="font-medium text-gray-700 dark:text-gray-300">
+                    {selectedYear} {joinWithAnd(entry.geos)} figures:
+                  </span>{' '}
+                  These figures are also reported by{' '}
+                  <Link
+                    to={`/school/${entry.hostUnitid}`}
+                    className="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 underline"
+                  >
+                    {entry.hostName}
+                  </Link>{' '}
+                  and are counted once, under {entry.hostName}, in totals and rankings.
+                </span>
+              </p>
+            ))}
+          </div>
+        )}
 
         {/* Rate Info Banner */}
         {showRate && (
