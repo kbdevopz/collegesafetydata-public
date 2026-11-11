@@ -842,6 +842,65 @@ def check_ipeds() -> None:
             report("OK", f"{name}.zip (fall {next_year} enrollment) is not on NCES's listing yet")
 
 
+def check_ipeds_official() -> None:
+    """
+    The final IPEDS Access databases behind etl/reference/ipeds_official_fte.csv
+    (NCES's FTE for 2015-2020) must still be published at the recorded size.
+    One HEAD request each: the 430 MB are not downloaded. A different size
+    means NCES re-issued a database, and 01c_extract_ipeds_official.ps1
+    checks its SHA-256.
+    """
+    print("\nNCES IPEDS Access databases (official FTE 2015-2020, etl/reference)")
+    path = provenance.REFERENCE_DIR / "ipeds_official_sources.json"
+    try:
+        sources = json.loads(path.read_text(encoding="utf-8"))
+        entries = [(str(s["zip"]), str(s["url"]), int(s["bytes"])) for s in sources]
+    except (OSError, ValueError, KeyError, TypeError) as e:
+        report("ERROR", f"{path} cannot be read ({e!r}). Restore it with git.")
+        return
+    for name, url, size in entries:
+        response, failure = None, None
+        for attempt in range(3):
+            try:
+                response = ipeds_files.session().head(url, timeout=TIMEOUT, allow_redirects=True)
+                break
+            except RETRYABLE as e:
+                failure = e
+                time.sleep(2 * (attempt + 1))
+            except requests.RequestException as e:
+                failure = e
+                break
+        if response is None:
+            report("ERROR", f"{name}: NCES could not be asked ({failure!r})")
+        elif response.status_code in (404, 410):
+            report("CHANGED", f"{name} is no longer at {url}: NCES moved or withdrew it. Find where NCES "
+                              "publishes it now and update etl/reference/ipeds_official_sources.json and "
+                              "01c_extract_ipeds_official.ps1")
+        elif response.status_code != 200:
+            report("ERROR", f"{name}: NCES answered HTTP {response.status_code} for {url}")
+        elif not (response.headers.get("Content-Length") or "").isdigit():
+            report("ERROR", f"{name}: NCES did not say its size, so whether it changed is unknown ({url})")
+        elif int(response.headers["Content-Length"]) != size:
+            report("CHANGED", f"{name} is now {int(response.headers['Content-Length']):,} bytes, not the "
+                              f"{size:,} recorded: NCES may have re-issued it. On Windows, run "
+                              "etl/01c_extract_ipeds_official.ps1 to download it and compare its SHA-256")
+        else:
+            report("OK", f"{name} is still published at the recorded size ({size:,} bytes)")
+
+
+def reference_problems(ef: dict) -> list[tuple[str, str]]:
+    """The reference files 02b read (etl/reference) must be exactly the ones on disk."""
+    recorded = ef.get("reference")
+    if not isinstance(recorded, dict) or not recorded:
+        return [("02b", "step 02b's record has no checksums of etl/reference (an older pipeline made it)")]
+    changed = sorted(name for name, sha in recorded.items()
+                     if not (provenance.ETL_DIR / name).is_file()
+                     or provenance.reference_sha256(provenance.ETL_DIR / name) != sha)
+    if changed:
+        return [("02b", f"etl/{short(changed)} changed after step 02b read it")]
+    return []
+
+
 def check_chosen_csv(year: int, published_not_held: bool = False) -> list[tuple[str, str]]:
     """
     The CSV the transforms read must be the best one in the zip, extracted
@@ -1100,7 +1159,7 @@ def local_problems(rec: dict, crime_now: dict, enrollment_now: dict) -> list[tup
         if ef_years or EF_TABLE in ((enrollment or {}).get("read") or {}):
             problems.append(("02b", "no record of the fall enrollment files used (step 02b)"))
     else:
-        problems += code_problems("02b", ef) + output_problems("02b", ef)
+        problems += code_problems("02b", ef) + output_problems("02b", ef) + reference_problems(ef)
         stale = enrollment_differences(ef.get("inputs"), enrollment_now, ef_years)
         if stale:
             problems.append(("02b", f"fall enrollment (step 02b) differs for {short(stale)}"))
@@ -1873,7 +1932,7 @@ def main(argv: list[str] | None = None) -> int:
     print("=" * 60)
     print("Checking upstream sources for newer data")
     print("=" * 60)
-    for check in (check_doe, check_ipeds, check_build, check_release):
+    for check in (check_doe, check_ipeds, check_ipeds_official, check_build, check_release):
         try:
             check()
         except Exception as e:  # never let an unexpected failure read as "current"

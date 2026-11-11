@@ -2,8 +2,9 @@
 Transform IPEDS enrollment data into parquet format.
 
 Data Sources:
-- DRVEF (Derived Fall Enrollment) for 2021 onward: Pre-calculated FTE
-- EF (Fall Enrollment) for 2015-2020: Calculate FTE from FT/PT breakdown
+- DRVEF (Derived Fall Enrollment) CSVs for 2021 onward: NCES's FTE and PCTDEEXC
+- 2015-2020: NCES's FTE and PCTDEEXC from its Access databases, with EF headcounts
+  (02b_transform_ef_enrollment.py, dim_enrollment_ef.parquet)
 
 Output columns:
 - unitid: Institution ID
@@ -12,6 +13,7 @@ Output columns:
 - enrollment_total: Total headcount
 - enrollment_ft: Full-time enrollment
 - enrollment_pt: Part-time enrollment
+- pctdeexc: Percent of students enrolled exclusively in distance education (may be blank)
 
 Usage:
     python 02a_transform_enrollment.py
@@ -56,15 +58,30 @@ def load_drvef_file(year: int) -> pd.DataFrame:
     INPUTS[year] = ipeds_files.input_record(file_path)
     print(f"  Reading {file_path.name} ({'final' if INPUTS[year]['final'] else 'provisional'})")
 
-    # Read only the columns we need
-    cols = ['UNITID', 'ENRTOT', 'FTE', 'ENRFT', 'ENRPT']
+    # Read only the columns we need; PCTDEEXC is the percent of students
+    # enrolled exclusively in distance education
+    cols = ['UNITID', 'ENRTOT', 'FTE', 'ENRFT', 'ENRPT', 'PCTDEEXC']
+    header = pd.read_csv(file_path, nrows=0).columns
+    missing = [c for c in cols if c not in header]
+    if missing:
+        raise RuntimeError(f"{file_path.name} has no column {', '.join(missing)}. NCES may have renamed it; "
+                           "look at the file and update load_drvef_file in 02a_transform_enrollment.py.")
     df = pd.read_csv(file_path, usecols=cols)
 
     # Add year column
     df['year'] = year
 
-    # Clean up: remove rows with missing FTE
-    df = df.dropna(subset=['FTE'])
+    # Rows with no FTE: no rate that year
+    no_fte = df['FTE'].isna()
+    if no_fte.any():
+        print(f"  Left out, no rate that year: {int(no_fte.sum()):,} institutions whose FTE NCES left blank")
+    df = df[~no_fte].copy()
+    bad = df['PCTDEEXC'].notna() & ((df['PCTDEEXC'] < 0) | (df['PCTDEEXC'] > 100))
+    if bad.any():
+        raise RuntimeError(f"{file_path.name}: PCTDEEXC {df.loc[bad, 'PCTDEEXC'].iloc[0]!r} is not a percent. "
+                           "Look at the file.")
+    print(f"  Exclusively online (PCTDEEXC): 50% or more at {int((df['PCTDEEXC'] >= 50).sum()):,} "
+          f"institutions, blank for {int(df['PCTDEEXC'].isna().sum()):,}")
 
     # Convert to appropriate types
     df['UNITID'] = df['UNITID'].astype('int32')
@@ -73,6 +90,10 @@ def load_drvef_file(year: int) -> pd.DataFrame:
     df['ENRTOT'] = df['ENRTOT'].fillna(0).astype('int32')
     df['ENRFT'] = df['ENRFT'].fillna(0).astype('int32')
     df['ENRPT'] = df['ENRPT'].fillna(0).astype('int32')
+    if (df['PCTDEEXC'].dropna() % 1 != 0).any():
+        raise RuntimeError(f"{file_path.name}: PCTDEEXC holds a value that is not a whole percent. Look at the "
+                           "file and update load_drvef_file in 02a_transform_enrollment.py.")
+    df['PCTDEEXC'] = df['PCTDEEXC'].astype('Int16')
 
     return df
 
@@ -100,7 +121,7 @@ def main():
     print("=" * 60)
     print("Sources:")
     print(f"  - DRVEF files ({min(DRVEF_YEARS)}-{max(DRVEF_YEARS)}): Pre-calculated FTE")
-    print("  - EF files (2015-2020): Calculated FTE")
+    print("  - 02b (2015-2020): NCES's FTE from its Access databases")
 
     all_data = []
 
@@ -116,7 +137,8 @@ def main():
                 'FTE': 'fte',
                 'ENRTOT': 'enrollment_total',
                 'ENRFT': 'enrollment_ft',
-                'ENRPT': 'enrollment_pt'
+                'ENRPT': 'enrollment_pt',
+                'PCTDEEXC': 'pctdeexc',
             })
             print(f"  Loaded {len(df):,} institutions")
             all_data.append(df)
@@ -140,7 +162,9 @@ def main():
     combined = pd.concat(all_data, ignore_index=True)
 
     # Ensure correct column order
-    combined = combined[['unitid', 'year', 'fte', 'enrollment_total', 'enrollment_ft', 'enrollment_pt']]
+    combined = combined[['unitid', 'year', 'fte', 'enrollment_total', 'enrollment_ft', 'enrollment_pt',
+                         'pctdeexc']]
+    combined['pctdeexc'] = combined['pctdeexc'].astype('Int16')
 
     # Sort by unitid and year
     combined = combined.sort_values(['unitid', 'year']).reset_index(drop=True)

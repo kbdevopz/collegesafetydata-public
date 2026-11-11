@@ -33,7 +33,7 @@ Our data processing pipeline is fully documented. See [etl/METHODOLOGY.md](etl/M
 - Which DOE release each campus-year comes from: the newest release that has that campus for that year, with all of its figures from that one release
 - Known errors in DOE files and how they are handled
 - Figures that two campuses report identically (one location, or a whole year), counted once (under one host campus) in totals and rankings
-- FTE calculation using official IPEDS factors
+- Enrollment (FTE): NCES's own figures for every year
 - Crime rate formulas
 - Geographic classifications
 - Data limitations
@@ -71,7 +71,7 @@ python 00_check_for_updates.py --local-only   # release check without network: o
 python 01_download_raw_data.py        # DOE crime release zips
 python 01b_download_ipeds.py          # IPEDS enrollment files
 python 02_transform_to_parquet.py
-python 02b_transform_ef_enrollment.py # FTE from enrollment components (EF years)
+python 02b_transform_ef_enrollment.py # NCES's FTE for 2015-2020 (etl/reference) and EF headcounts
 python 02a_transform_enrollment.py    # official FTE (DRVEF); reads 02b's table, so run it after 02b
 python 03_build_dimensions.py
 python 04_create_aggregates.py
@@ -130,7 +130,9 @@ The closing RESULT line says the build is committed, on `main` or served only wh
 │   ├── 01_download_raw_data.py   # Download DOE data
 │   ├── 02_transform_to_parquet.py # Transform to Parquet
 │   ├── 02a_transform_enrollment.py # Process DRVEF (2021-2024)
-│   ├── 02b_transform_ef_enrollment.py # Calculate FTE from EF (2015-2020)
+│   ├── 01c_extract_ipeds_official.ps1 # Copy NCES's 2015-2020 FTE from its Access databases (Windows)
+│   ├── 02b_transform_ef_enrollment.py # NCES's FTE for 2015-2020, from etl/reference
+│   ├── reference/                # NCES's 2015-2020 FTE and the databases it came from
 │   ├── 03_build_dimensions.py    # Build dimension tables
 │   ├── 04_create_aggregates.py   # Create aggregate rankings
 │   ├── 05_generate_json.py       # Export to JSON
@@ -162,18 +164,16 @@ The closing RESULT line says the build is committed, on `main` or served only wh
 | Tables | TanStack Table v8 |
 | Hosting | Cloudflare Pages (collegesafetydata.org) and Vercel (collegesafetydata.com), both static |
 
-## FTE Calculation
+## FTE (Enrollment)
 
-Full-Time Equivalent (FTE) enrollment is used as the denominator for crime rate calculations:
+Full-Time Equivalent (FTE) enrollment is the denominator of the rates. Every year uses NCES's own FTE; the pipeline does not calculate it:
 
-- **Every year**: the pipeline reads NCES's final revised file (`*_rv.csv`) when it has been published and the provisional file otherwise. As of November 2026, 2015-2023 are final and 2024 is provisional. `etl/00_check_for_updates.py` reports which file each year uses, and `enrollmentStatus` in `frontend/public/data/metadata.json` records it for each year of the build (`final`, `provisional`, or `missing` when NCES has not published the year).
-- **2021-2024**: Official IPEDS pre-calculated FTE values
-- **2015-2020**: Calculated from raw enrollment components using official IPEDS factors:
+- **2021-2024**: the DRVEF file of each year. The pipeline reads NCES's final revised file (`*_rv.csv`) when it has been published and the provisional file otherwise. As of November 2026, 2015-2023 are final and 2024 is provisional. `etl/00_check_for_updates.py` reports which file each year uses, and `enrollmentStatus` in `frontend/public/data/metadata.json` records it for each year of the build (`final`, `provisional`, or `missing` when NCES has not published the year).
+- **2015-2020**: NCES publishes FTE for these falls only inside its final IPEDS Access databases. `etl/reference/ipeds_official_fte.csv` holds it (and the percent of students enrolled exclusively online), with each database's URL, size and SHA-256 in `etl/reference/ipeds_official_sources.json`. Both are committed, so the build needs no Access. To check or refresh them, run on Windows (it needs Microsoft's 64-bit Access ODBC driver, from the Microsoft Access Database Engine 2016 Redistributable):
   ```
-  FTE = FT_Undergrad + FT_Graduate
-      + (PT_Undergrad × 0.403543)
-      + (PT_Graduate × 0.361702)
+  powershell -ExecutionPolicy Bypass -File etl\01c_extract_ipeds_official.ps1
   ```
+  It downloads the six databases (about 430 MB) into `data/raw/ipeds_official`, stops if one differs from the recorded SHA-256, and rewrites the CSV. `00_check_for_updates.py` checks on every run, without downloading, that each database is still published at the recorded size. The EF fall enrollment files still supply 2015-2020 headcounts and the `final`/`provisional` status of those years.
 
 See [etl/METHODOLOGY.md](etl/METHODOLOGY.md) for complete documentation.
 

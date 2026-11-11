@@ -12,10 +12,13 @@ This script performs thorough validation of all schools:
 8. Shared Statistics - Figures two campuses report identically (in the data
    used, or in the older release a campus-year is taken from) are counted
    once in rankings and totals, under one host, and school files say so
+9. Enrollment Sources - FTE and the share of exclusively online students are
+   NCES's own (official FTE for every year, none estimated)
 
-Each check's details say in "what_it_checks" exactly what it verifies. All of
-them compare the pipeline's own files with each other; none re-reads the DOE
-or IPEDS downloads.
+Each check's details say in "what_it_checks" exactly what it verifies. Checks
+1-8 compare the pipeline's own files with each other; check 9 re-reads NCES's
+enrollment figures (the DRVEF CSVs and etl/reference). None re-reads the DOE
+downloads.
 
 Usage:
     python 07_comprehensive_audit.py
@@ -1316,6 +1319,85 @@ def generate_per_school_report(verbose: bool = False) -> pd.DataFrame:
     return df
 
 
+def audit_enrollment_sources(verbose: bool = False) -> AuditResult:
+    """
+    CHECK 9: The FTE and the share of exclusively online students
+    (pctdeexc) in dims/dim_enrollment.parquet are NCES's own: for 2015-2020
+    those in etl/reference/ipeds_official_fte.csv (read from NCES's final
+    Access databases), from 2021 on those in the DRVEF CSV the pipeline reads
+    for the year. Every institution-year there with an FTE must be in the
+    table with the same FTE and pctdeexc, and the table must hold nothing
+    else. The formula that estimated 2015-2020 FTE before is not used.
+    """
+    result = AuditResult("Enrollment Matches NCES")
+    print("\nCHECK 9: Enrollment Matches NCES")
+    try:
+        import ipeds_files
+        enrollment = read_curated("dims/dim_enrollment.parquet", "02a_transform_enrollment.py",
+                                  ["unitid", "year", "fte", "pctdeexc"])
+        reference = provenance.REFERENCE_DIR / "ipeds_official_fte.csv"
+        if not reference.is_file():
+            raise RuntimeError(f"{reference} not found. Restore it with git (or run "
+                               "01c_extract_ipeds_official.ps1 on Windows), then 02b, 02a and 04 to 07 again.")
+        nces = {}  # (unitid, year) -> (fte, pctdeexc); FTE blank = no row
+        ref = pd.read_csv(reference, dtype=str, keep_default_na=False)
+        for y, u, f, p in zip(ref["year"], ref["unitid"], ref["fte"], ref["pctdeexc"]):
+            if f.strip():
+                nces[(int(u), int(y))] = (int(f), int(p) if p.strip() else None)
+        sources = {"2015-2020": reference.name}
+        for year in sorted(set(int(y) for y in enrollment["year"].unique()) | set(DATA_YEARS)):
+            if year <= 2020:
+                continue
+            path = ipeds_files.pipeline_csv(year, f"drvef{year}")
+            if path is None:
+                if (enrollment["year"] == year).any():
+                    result.failed(f"{year}: dim_enrollment.parquet has FTE, but there is no DRVEF{year} CSV. "
+                                  "Run 01b_download_ipeds.py, then 02a and 04 to 07 again.")
+                continue
+            sources[str(year)] = path.name
+            csv = pd.read_csv(path, usecols=["UNITID", "FTE", "PCTDEEXC"])
+            for u, f, p in zip(csv["UNITID"], csv["FTE"], csv["PCTDEEXC"]):
+                if pd.notna(f):
+                    nces[(int(u), year)] = (int(f), int(p) if pd.notna(p) else None)
+        ours = {(int(u), int(y)): (int(f), int(p) if pd.notna(p) else None)
+                for u, y, f, p in zip(enrollment["unitid"], enrollment["year"], enrollment["fte"],
+                                      enrollment["pctdeexc"])}
+        years = sorted({y for _, y in ours} | {y for _, y in nces if y in {y2 for _, y2 in ours}})
+        rows = []
+        for year in years:
+            want = {k: v for k, v in nces.items() if k[1] == year}
+            have = {k: v for k, v in ours.items() if k[1] == year}
+            missing, extra = sorted(set(want) - set(have)), sorted(set(have) - set(want))
+            differ = sorted(k for k in set(want) & set(have) if want[k] != have[k])
+            rows.append({"year": year, "institutions": len(have), "missing": len(missing), "extra": len(extra),
+                         "differ": len(differ)})
+            print(f"  {year}: {len(have):,} institutions; missing {len(missing)}, extra {len(extra)}, "
+                  f"different FTE or pctdeexc {len(differ)}")
+            for what, keys in (("are missing from", missing), ("should not be in", extra)):
+                if keys:
+                    result.failed(f"{year}: {len(keys)} institutions with an FTE {what} dim_enrollment.parquet "
+                                  f"(first: {keys[0][0]}). Run 02b and 02a, then 04 to 07 again.")
+            if differ:
+                k = differ[0]
+                result.failed(f"{year}: {len(differ)} institutions have another FTE or pctdeexc than NCES's "
+                              f"(first: {k[0]}: {have[k]}, NCES {want[k]}). Run 02b and 02a, then 04 to 07 again.")
+        result.details["what_it_checks"] = (
+            "dims/dim_enrollment.parquet against NCES's own figures, re-read: 2015-2020 from "
+            "etl/reference/ipeds_official_fte.csv (DRVEF tables of NCES's final Access databases), 2021 on "
+            "from the DRVEF CSV the pipeline reads. Every institution-year with an FTE must be there with the "
+            "same FTE and percent of exclusively online students (pctdeexc), and nothing else.")
+        result.details["sources"] = sources
+        result.details["by_year"] = rows
+        if not rows:
+            result.failed("dim_enrollment.parquet has no rows. Run 02b and 02a.")
+        result.passed()
+        print(f"  {result.status}")
+    except Exception as e:
+        result.failed(str(e))
+        print(f"  ERROR: {e}")
+    return result
+
+
 def audited_build() -> dict:
     """
     What this audit is of: the SHA-256 of the site's build record (it lists
@@ -1422,6 +1504,7 @@ def main():
         audit_percentage_sums,
         audit_aggregate_consistency,
         audit_shared_statistics,
+        audit_enrollment_sources,
     ]
 
     for check_fn in checks:

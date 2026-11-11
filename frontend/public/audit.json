@@ -1,12 +1,12 @@
 {
-  "generated_at": "2026-11-11T01:06:12Z",
+  "generated_at": "2026-11-11T02:13:18Z",
   "audited_build": {
     "site_record": "frontend/public/data/build_inputs.json",
-    "site_record_sha256": "df2bec293ba0f9ca50509d336a4786e015244ffe17a941118b79d993f7d02619",
+    "site_record_sha256": "dbd4c6791108a42a0b8b9e21739a9769150008788a25d305714397ec25f23a52",
     "curated_sha256": {
       "facts/incidents.parquet": "7cf7d235e64853e934a877579aed578ee275692166bb5e6b182f6e3ff4f9a2a2",
-      "aggs/agg_school_year_offense.parquet": "8a6273a1bd3edf79632c50ed680ffeb7dddce04987870e81c3453967d6804387",
-      "dims/dim_enrollment.parquet": "37b328d2b319acbafca777aff55dbc096f0841f784f07ed973fa4b1a5f24aaba",
+      "aggs/agg_school_year_offense.parquet": "ead11484db841122d29b52ca15826ec8dd0669e895e0d163b5ef998126a9fe6c",
+      "dims/dim_enrollment.parquet": "32e220b7db8a2fd5997b4b81757a9c5b98948040b4c7c539474823012d5b6386",
       "dims/dim_institution.parquet": "8d5e65263d49c83dd851f02a4bedbcd2a2916ed0cedf2ce043dcb3a5c526d51a",
       "dims/campus_year_sources.parquet": "c7f793917e246b7cd9eefaa9e595d8cccf5da81bc83edee514a6f28d0a4b5385",
       "dims/older_release_counts.parquet": "21eaa816a05c1835f513486714cbb4cc7becf7cb5b5416d8da26cfee689172bb",
@@ -15,8 +15,8 @@
   },
   "overall_status": "PASS",
   "summary": {
-    "total_checks": 8,
-    "passed": 8,
+    "total_checks": 9,
+    "passed": 9,
     "failed": 0,
     "warnings": 0
   },
@@ -55,7 +55,7 @@
           {
             "year": 2015,
             "schools_with_data": 4721,
-            "schools_with_fte": 4698,
+            "schools_with_fte": 4699,
             "coverage_pct": 99.5,
             "enrollment": "final"
           },
@@ -138,7 +138,7 @@
       "status": "PASS",
       "details": {
         "what_it_checks": "For every entry of rankings/*.json, rate equals count / fte x 10,000 to within 0.01, using the entry's own count and fte; an entry with a rate but no FTE above 0, or with an FTE but no rate, is an error. It does not compare the count or FTE with the aggregates or IPEDS.",
-        "ranking_entries_checked": 470083,
+        "ranking_entries_checked": 470091,
         "rate_errors": 0
       },
       "errors": [],
@@ -704,14 +704,102 @@
       },
       "errors": [],
       "warnings": []
+    },
+    {
+      "name": "Enrollment Matches NCES",
+      "status": "PASS",
+      "details": {
+        "what_it_checks": "dims/dim_enrollment.parquet against NCES's own figures, re-read: 2015-2020 from etl/reference/ipeds_official_fte.csv (DRVEF tables of NCES's final Access databases), 2021 on from the DRVEF CSV the pipeline reads. Every institution-year with an FTE must be there with the same FTE and percent of exclusively online students (pctdeexc), and nothing else.",
+        "sources": {
+          "2015-2020": "ipeds_official_fte.csv",
+          "2021": "drvef2021_rv.csv",
+          "2022": "drvef2022_rv.csv",
+          "2023": "drvef2023_rv.csv",
+          "2024": "drvef2024.csv"
+        },
+        "by_year": [
+          {
+            "year": 2015,
+            "institutions": 7230,
+            "missing": 0,
+            "extra": 0,
+            "differ": 0
+          },
+          {
+            "year": 2016,
+            "institutions": 6820,
+            "missing": 0,
+            "extra": 0,
+            "differ": 0
+          },
+          {
+            "year": 2017,
+            "institutions": 6677,
+            "missing": 0,
+            "extra": 0,
+            "differ": 0
+          },
+          {
+            "year": 2018,
+            "institutions": 6355,
+            "missing": 0,
+            "extra": 0,
+            "differ": 0
+          },
+          {
+            "year": 2019,
+            "institutions": 6181,
+            "missing": 0,
+            "extra": 0,
+            "differ": 0
+          },
+          {
+            "year": 2020,
+            "institutions": 6129,
+            "missing": 0,
+            "extra": 0,
+            "differ": 0
+          },
+          {
+            "year": 2021,
+            "institutions": 6051,
+            "missing": 0,
+            "extra": 0,
+            "differ": 0
+          },
+          {
+            "year": 2022,
+            "institutions": 5979,
+            "missing": 0,
+            "extra": 0,
+            "differ": 0
+          },
+          {
+            "year": 2023,
+            "institutions": 5915,
+            "missing": 0,
+            "extra": 0,
+            "differ": 0
+          },
+          {
+            "year": 2024,
+            "institutions": 5843,
+            "missing": 0,
+            "extra": 0,
+            "differ": 0
+          }
+        ]
+      },
+      "errors": [],
+      "warnings": []
     }
   ],
   "schools": {
     "what_it_checks": "Per site school file: yearlyTotals equal the aggregates' geo \"All\" totals (as check 2), and fteByYear and fte equal dim_enrollment's FTE for the school's years (FAIL otherwise); WARNING when fewer than 80% of its years have an FTE. A school that fails makes the overall status FAIL.",
     "total": 8844,
-    "passed": 8765,
+    "passed": 8766,
     "failed": 0,
-    "warnings": 79,
+    "warnings": 78,
     "failed_unitids_first_20": []
   }
 }

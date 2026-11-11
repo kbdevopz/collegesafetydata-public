@@ -103,54 +103,31 @@ shadow; the older releases' figures the last two rules compare are in
 - **Source:** IPEDS (Integrated Postsecondary Education Data System)
 - **URL:** https://nces.ed.gov/ipeds/
 - **Files Used:**
-  - DRVEF (Derived Fall Enrollment) for 2021-2024: Pre-calculated FTE (fall 2024 is provisional release data)
-  - EF (Fall Enrollment) for 2015-2020: Calculated FTE from component data
+  - 2021-2024: DRVEF (Derived Fall Enrollment) files, with NCES's FTE and the percent of students enrolled exclusively in distance education (fall 2024 is provisional release data)
+  - 2015-2020: the DRVEF tables of NCES's final IPEDS Access databases, copied into `etl/reference/ipeds_official_fte.csv` (see below); the EF (Fall Enrollment) files only for headcounts
 
-## FTE (Full-Time Equivalent) Enrollment Calculation
+## FTE (Full-Time Equivalent) Enrollment
 
-FTE is used as the denominator for calculating per-student crime rates, enabling fair comparisons between institutions of different sizes.
+FTE is the denominator of the per-student rates: full-time students count fully, part-time students in part. The site uses the FTE that NCES (the National Center for Education Statistics) publishes for each institution and fall, for every year. It does not calculate FTE.
 
-### 2021-2024: Official IPEDS FTE
-For these years, we use the pre-calculated FTE values directly from IPEDS DRVEF files. These are the official values computed by NCES.
+| Years | Source of NCES's FTE |
+|-------|----------------------|
+| 2021-2024 | The year's DRVEF file (`drvef<year>_rv.csv` when NCES has published the final revised file, otherwise `drvef<year>.csv`) |
+| 2015-2020 | Table `DRVEF<year>` in NCES's final IPEDS database of the collection year (`IPEDS_2015-16_Final.zip` to `IPEDS_2020-21_Final.zip`, Microsoft Access) |
 
-### 2015-2020: Calculated FTE Using Official IPEDS Factors
-For years where pre-calculated FTE is not available in DRVEF files, we calculate FTE from Fall Enrollment (EF) component data using the official IPEDS methodology:
+NCES publishes FTE for falls before 2021 only inside those databases (60 to 77 MB each). `etl/01c_extract_ipeds_official.ps1` (Windows only: it needs Microsoft's 64-bit Access ODBC driver) downloads them, checks each zip's size and SHA-256 against `etl/reference/ipeds_official_sources.json`, and writes FTE and PCTDEEXC (percent of students enrolled exclusively in distance education) of every institution to `etl/reference/ipeds_official_fte.csv`. Both files are committed, so the build (`02b_transform_ef_enrollment.py`) does not need Access or the downloads. `00_check_for_updates.py` checks on every run that NCES still publishes each database at the recorded size; a different size means it may have been re-issued, and the script compares its SHA-256.
+
+An institution-year whose FTE NCES left blank has no rate that year (23 institutions in 2019).
+
+### Earlier estimate for 2015-2020 (no longer used)
+
+Earlier builds estimated 2015-2020 FTE from the EF headcounts with one formula for every institution:
 
 ```
-FTE = FT_Undergrad + FT_Graduate +
-      (PT_Undergrad × 0.403543) +
-      (PT_Graduate × 0.361702)
+FTE = FT_Undergrad + FT_Graduate + (PT_Undergrad × 0.403543) + (PT_Graduate × 0.361702)
 ```
 
-#### Official IPEDS Conversion Factors
-| Student Type | Factor | Source |
-|--------------|--------|--------|
-| Full-time Undergraduate | 1.0 | Counts as 1.0 FTE |
-| Full-time Graduate | 1.0 | Counts as 1.0 FTE |
-| Part-time Undergraduate | 0.403543 | IPEDS official factor |
-| Part-time Graduate | 0.361702 | IPEDS official factor |
-
-**Source:** NCES IPEDS Survey Methodology. These factors represent the average course load of part-time students relative to full-time students, as defined by the National Center for Education Statistics.
-
-See: https://nces.ed.gov/ipeds/survey-components/8
-
-#### EFALEVEL Codes Used
-| Code | Description |
-|------|-------------|
-| 22 | Full-time undergraduate |
-| 32 | Full-time graduate (including professional) |
-| 42 | Part-time undergraduate |
-| 52 | Part-time graduate (including professional) |
-
-#### Implementation Reference
-The FTE calculation for 2015-2020 is implemented in:
-- **Script:** `etl/02b_transform_ef_enrollment.py`
-- **Constants:** `PT_FACTOR_UNDERGRAD = 0.403543`, `PT_FACTOR_GRADUATE = 0.361702`
-
-### Why Different Methods for Different Years?
-IPEDS DRVEF (Derived Fall Enrollment) files, which contain pre-calculated FTE, are only available starting from 2021. For earlier years, we calculate FTE from the component enrollment data in EF files using the official IPEDS methodology.
-
-This ensures our FTE calculations are directly comparable to Department of Education Campus Safety calculations and align with federal standards.
+That matched NCES's FTE exactly for only 58% of institution-years (46% of those with crime data) and was off by more than 5% for about 830 institutions a year (4,978 institution-years in 2015-2020), so it was replaced by NCES's own figures.
 
 ## Crime Rate Calculation
 
