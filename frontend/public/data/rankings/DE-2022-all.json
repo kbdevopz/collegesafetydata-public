@@ -1,1172 +1,582 @@
 {
   "preset": "DE",
   "year": 2022,
+  "campuses": {
+    "130907001": {
+      "name": "Delaware Technical Community College-Terry",
+      "short": null,
+      "state": "DE",
+      "main": true,
+      "fte": 7045,
+      "campuses": 4
+    },
+    "130907002": {
+      "name": "Delaware Technical Community College-Terry",
+      "short": null,
+      "state": "DE",
+      "main": false,
+      "fte": 7045,
+      "campuses": 4
+    },
+    "130907003": {
+      "name": "Delaware Technical Community College-Terry",
+      "short": null,
+      "state": "DE",
+      "main": false,
+      "fte": 7045,
+      "campuses": 4
+    },
+    "130907004": {
+      "name": "Delaware Technical Community College-Terry",
+      "short": null,
+      "state": "DE",
+      "main": false,
+      "fte": 7045,
+      "campuses": 4
+    },
+    "130934001": {
+      "name": "Delaware State University",
+      "short": null,
+      "state": "DE",
+      "main": true,
+      "fte": 5173,
+      "campuses": 4
+    },
+    "130934004": {
+      "name": "Delaware State University",
+      "short": null,
+      "state": "DE",
+      "main": false,
+      "fte": 5173,
+      "campuses": 4
+    },
+    "130943001": {
+      "name": "University of Delaware",
+      "short": null,
+      "state": "DE",
+      "main": true,
+      "fte": 22589,
+      "campuses": 6
+    },
+    "130943005": {
+      "name": "University of Delaware",
+      "short": null,
+      "state": "DE",
+      "main": false,
+      "fte": 22589,
+      "campuses": 6
+    },
+    "130989001": {
+      "name": "Goldey-Beacom College",
+      "short": null,
+      "state": "DE",
+      "main": true,
+      "fte": 770,
+      "campuses": 1
+    },
+    "131113001": {
+      "name": "Wilmington University",
+      "short": null,
+      "state": "DE",
+      "main": true,
+      "fte": 7986,
+      "campuses": 11
+    },
+    "131113004": {
+      "name": "Wilmington University",
+      "short": null,
+      "state": "DE",
+      "main": false,
+      "fte": 7986,
+      "campuses": 11
+    },
+    "131113006": {
+      "name": "Wilmington University",
+      "short": null,
+      "state": "DE",
+      "main": false,
+      "fte": 7986,
+      "campuses": 11
+    },
+    "491473001": {
+      "name": "Polytech Adult Education",
+      "short": null,
+      "state": "DE",
+      "main": true,
+      "fte": 280,
+      "campuses": 1
+    }
+  },
   "rankings": {
     "criminal": [
       {
         "rank": 1,
-        "rankByRate": 4,
         "unitid": 130943001,
-        "name": "University of Delaware",
-        "short": null,
-        "state": "DE",
-        "count": 59,
-        "pct": 61.46,
-        "fte": 22589,
-        "rate": 26.12,
-        "isMainCampus": true
+        "count": 59
       },
       {
         "rank": 2,
-        "rankByRate": 3,
         "unitid": 130934001,
-        "name": "Delaware State University",
-        "short": null,
-        "state": "DE",
-        "count": 17,
-        "pct": 17.71,
-        "fte": 5173,
-        "rate": 32.86,
-        "isMainCampus": true
+        "count": 17
       },
       {
         "rank": 3,
-        "rankByRate": 5,
         "unitid": 131113001,
-        "name": "Wilmington University",
-        "short": null,
-        "state": "DE",
-        "count": 4,
-        "pct": 4.17,
-        "fte": 7986,
-        "rate": 5.01,
-        "isMainCampus": true
+        "count": 4
       },
       {
         "rank": 4,
-        "rankByRate": 6,
         "unitid": 130907001,
-        "name": "Delaware Technical Community College-Terry",
-        "short": null,
-        "state": "DE",
-        "count": 3,
-        "pct": 3.12,
-        "fte": 7045,
-        "rate": 4.26,
-        "isMainCampus": true
+        "count": 3
       },
       {
         "rank": 4,
-        "rankByRate": 2,
         "unitid": 130989001,
-        "name": "Goldey-Beacom College",
-        "short": null,
-        "state": "DE",
-        "count": 3,
-        "pct": 3.12,
-        "fte": 770,
-        "rate": 38.96,
-        "isMainCampus": true
+        "count": 3
       },
       {
         "rank": 6,
-        "rankByRate": 7,
         "unitid": 130907002,
-        "name": "Delaware Technical Community College-Terry",
-        "short": null,
-        "state": "DE",
-        "count": 2,
-        "pct": 2.08,
-        "fte": 7045,
-        "rate": 2.84,
-        "isMainCampus": false
+        "count": 2
       },
       {
         "rank": 6,
-        "rankByRate": 7,
         "unitid": 130907004,
-        "name": "Delaware Technical Community College-Terry",
-        "short": null,
-        "state": "DE",
-        "count": 2,
-        "pct": 2.08,
-        "fte": 7045,
-        "rate": 2.84,
-        "isMainCampus": false
+        "count": 2
       },
       {
         "rank": 6,
-        "rankByRate": 1,
         "unitid": 491473001,
-        "name": "Polytech Adult Education",
-        "short": null,
-        "state": "DE",
-        "count": 2,
-        "pct": 2.08,
-        "fte": 280,
-        "rate": 71.43,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 9,
-        "rankByRate": 9,
         "unitid": 130934004,
-        "name": "Delaware State University",
-        "short": null,
-        "state": "DE",
-        "count": 1,
-        "pct": 1.04,
-        "fte": 5173,
-        "rate": 1.93,
-        "isMainCampus": false
+        "count": 1
       },
       {
         "rank": 9,
-        "rankByRate": 12,
         "unitid": 130943005,
-        "name": "University of Delaware",
-        "short": null,
-        "state": "DE",
-        "count": 1,
-        "pct": 1.04,
-        "fte": 22589,
-        "rate": 0.44,
-        "isMainCampus": false
+        "count": 1
       },
       {
         "rank": 9,
-        "rankByRate": 10,
         "unitid": 131113004,
-        "name": "Wilmington University",
-        "short": null,
-        "state": "DE",
-        "count": 1,
-        "pct": 1.04,
-        "fte": 7986,
-        "rate": 1.25,
-        "isMainCampus": false
+        "count": 1
       },
       {
         "rank": 9,
-        "rankByRate": 10,
         "unitid": 131113006,
-        "name": "Wilmington University",
-        "short": null,
-        "state": "DE",
-        "count": 1,
-        "pct": 1.04,
-        "fte": 7986,
-        "rate": 1.25,
-        "isMainCampus": false
+        "count": 1
       }
     ],
     "all": [
       {
         "rank": 1,
-        "rankByRate": 4,
         "unitid": 130943001,
-        "name": "University of Delaware",
-        "short": null,
-        "state": "DE",
-        "count": 151,
-        "pct": 38.13,
-        "fte": 22589,
-        "rate": 66.85,
-        "isMainCampus": true
+        "count": 151
       },
       {
         "rank": 2,
-        "rankByRate": 3,
         "unitid": 130934001,
-        "name": "Delaware State University",
-        "short": null,
-        "state": "DE",
-        "count": 137,
-        "pct": 34.6,
-        "fte": 5173,
-        "rate": 264.84,
-        "isMainCampus": true
+        "count": 137
       },
       {
         "rank": 3,
-        "rankByRate": 1,
         "unitid": 130989001,
-        "name": "Goldey-Beacom College",
-        "short": null,
-        "state": "DE",
-        "count": 55,
-        "pct": 13.89,
-        "fte": 770,
-        "rate": 714.29,
-        "isMainCampus": true
+        "count": 55
       },
       {
         "rank": 4,
-        "rankByRate": 5,
         "unitid": 131113001,
-        "name": "Wilmington University",
-        "short": null,
-        "state": "DE",
-        "count": 13,
-        "pct": 3.28,
-        "fte": 7986,
-        "rate": 16.28,
-        "isMainCampus": true
+        "count": 13
       },
       {
         "rank": 5,
-        "rankByRate": 2,
         "unitid": 491473001,
-        "name": "Polytech Adult Education",
-        "short": null,
-        "state": "DE",
-        "count": 8,
-        "pct": 2.02,
-        "fte": 280,
-        "rate": 285.71,
-        "isMainCampus": true
+        "count": 8
       },
       {
         "rank": 6,
-        "rankByRate": 6,
         "unitid": 130907002,
-        "name": "Delaware Technical Community College-Terry",
-        "short": null,
-        "state": "DE",
-        "count": 7,
-        "pct": 1.77,
-        "fte": 7045,
-        "rate": 9.94,
-        "isMainCampus": false
+        "count": 7
       },
       {
         "rank": 6,
-        "rankByRate": 6,
         "unitid": 130907004,
-        "name": "Delaware Technical Community College-Terry",
-        "short": null,
-        "state": "DE",
-        "count": 7,
-        "pct": 1.77,
-        "fte": 7045,
-        "rate": 9.94,
-        "isMainCampus": false
+        "count": 7
       },
       {
         "rank": 8,
-        "rankByRate": 9,
         "unitid": 130907001,
-        "name": "Delaware Technical Community College-Terry",
-        "short": null,
-        "state": "DE",
-        "count": 4,
-        "pct": 1.01,
-        "fte": 7045,
-        "rate": 5.68,
-        "isMainCampus": true
+        "count": 4
       },
       {
         "rank": 8,
-        "rankByRate": 9,
         "unitid": 130907003,
-        "name": "Delaware Technical Community College-Terry",
-        "short": null,
-        "state": "DE",
-        "count": 4,
-        "pct": 1.01,
-        "fte": 7045,
-        "rate": 5.68,
-        "isMainCampus": false
+        "count": 4
       },
       {
         "rank": 8,
-        "rankByRate": 11,
         "unitid": 131113004,
-        "name": "Wilmington University",
-        "short": null,
-        "state": "DE",
-        "count": 4,
-        "pct": 1.01,
-        "fte": 7986,
-        "rate": 5.01,
-        "isMainCampus": false
+        "count": 4
       },
       {
         "rank": 11,
-        "rankByRate": 8,
         "unitid": 130934004,
-        "name": "Delaware State University",
-        "short": null,
-        "state": "DE",
-        "count": 3,
-        "pct": 0.76,
-        "fte": 5173,
-        "rate": 5.8,
-        "isMainCampus": false
+        "count": 3
       },
       {
         "rank": 12,
-        "rankByRate": 13,
         "unitid": 130943005,
-        "name": "University of Delaware",
-        "short": null,
-        "state": "DE",
-        "count": 2,
-        "pct": 0.51,
-        "fte": 22589,
-        "rate": 0.89,
-        "isMainCampus": false
+        "count": 2
       },
       {
         "rank": 13,
-        "rankByRate": 12,
         "unitid": 131113006,
-        "name": "Wilmington University",
-        "short": null,
-        "state": "DE",
-        "count": 1,
-        "pct": 0.25,
-        "fte": 7986,
-        "rate": 1.25,
-        "isMainCampus": false
+        "count": 1
       }
     ],
     "aggravated_assault": [
       {
         "rank": 1,
-        "rankByRate": 3,
         "unitid": 130943001,
-        "name": "University of Delaware",
-        "short": null,
-        "state": "DE",
-        "count": 20,
-        "pct": 80.0,
-        "fte": 22589,
-        "rate": 8.85,
-        "isMainCampus": true
+        "count": 20
       },
       {
         "rank": 2,
-        "rankByRate": 4,
         "unitid": 130934001,
-        "name": "Delaware State University",
-        "short": null,
-        "state": "DE",
-        "count": 2,
-        "pct": 8.0,
-        "fte": 5173,
-        "rate": 3.87,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 3,
-        "rankByRate": 2,
         "unitid": 130989001,
-        "name": "Goldey-Beacom College",
-        "short": null,
-        "state": "DE",
-        "count": 1,
-        "pct": 4.0,
-        "fte": 770,
-        "rate": 12.99,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 3,
-        "rankByRate": 1,
         "unitid": 491473001,
-        "name": "Polytech Adult Education",
-        "short": null,
-        "state": "DE",
-        "count": 1,
-        "pct": 4.0,
-        "fte": 280,
-        "rate": 35.71,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 3,
-        "rankByRate": 5,
         "unitid": 131113001,
-        "name": "Wilmington University",
-        "short": null,
-        "state": "DE",
-        "count": 1,
-        "pct": 4.0,
-        "fte": 7986,
-        "rate": 1.25,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "arson": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 130943001,
-        "name": "University of Delaware",
-        "short": null,
-        "state": "DE",
-        "count": 6,
-        "pct": 100.0,
-        "fte": 22589,
-        "rate": 2.66,
-        "isMainCampus": true
+        "count": 6
       }
     ],
     "burglary": [
       {
         "rank": 1,
-        "rankByRate": 2,
         "unitid": 130943001,
-        "name": "University of Delaware",
-        "short": null,
-        "state": "DE",
-        "count": 8,
-        "pct": 61.54,
-        "fte": 22589,
-        "rate": 3.54,
-        "isMainCampus": true
+        "count": 8
       },
       {
         "rank": 2,
-        "rankByRate": 1,
         "unitid": 130934001,
-        "name": "Delaware State University",
-        "short": null,
-        "state": "DE",
-        "count": 2,
-        "pct": 15.38,
-        "fte": 5173,
-        "rate": 3.87,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 3,
-        "rankByRate": 3,
         "unitid": 130907001,
-        "name": "Delaware Technical Community College-Terry",
-        "short": null,
-        "state": "DE",
-        "count": 1,
-        "pct": 7.69,
-        "fte": 7045,
-        "rate": 1.42,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 3,
-        "rankByRate": 4,
         "unitid": 131113001,
-        "name": "Wilmington University",
-        "short": null,
-        "state": "DE",
-        "count": 1,
-        "pct": 7.69,
-        "fte": 7986,
-        "rate": 1.25,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 3,
-        "rankByRate": 4,
         "unitid": 131113004,
-        "name": "Wilmington University",
-        "short": null,
-        "state": "DE",
-        "count": 1,
-        "pct": 7.69,
-        "fte": 7986,
-        "rate": 1.25,
-        "isMainCampus": false
+        "count": 1
       }
     ],
     "dating_violence": [
       {
         "rank": 1,
-        "rankByRate": 2,
         "unitid": 130943001,
-        "name": "University of Delaware",
-        "short": null,
-        "state": "DE",
-        "count": 14,
-        "pct": 66.67,
-        "fte": 22589,
-        "rate": 6.2,
-        "isMainCampus": true
+        "count": 14
       },
       {
         "rank": 2,
-        "rankByRate": 1,
         "unitid": 130989001,
-        "name": "Goldey-Beacom College",
-        "short": null,
-        "state": "DE",
-        "count": 4,
-        "pct": 19.05,
-        "fte": 770,
-        "rate": 51.95,
-        "isMainCampus": true
+        "count": 4
       },
       {
         "rank": 3,
-        "rankByRate": 3,
         "unitid": 130907002,
-        "name": "Delaware Technical Community College-Terry",
-        "short": null,
-        "state": "DE",
-        "count": 2,
-        "pct": 9.52,
-        "fte": 7045,
-        "rate": 2.84,
-        "isMainCampus": false
+        "count": 2
       },
       {
         "rank": 4,
-        "rankByRate": 4,
         "unitid": 131113001,
-        "name": "Wilmington University",
-        "short": null,
-        "state": "DE",
-        "count": 1,
-        "pct": 4.76,
-        "fte": 7986,
-        "rate": 1.25,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "domestic_violence": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 130934001,
-        "name": "Delaware State University",
-        "short": null,
-        "state": "DE",
-        "count": 5,
-        "pct": 31.25,
-        "fte": 5173,
-        "rate": 9.67,
-        "isMainCampus": true
+        "count": 5
       },
       {
         "rank": 2,
-        "rankByRate": 2,
         "unitid": 130907002,
-        "name": "Delaware Technical Community College-Terry",
-        "short": null,
-        "state": "DE",
-        "count": 3,
-        "pct": 18.75,
-        "fte": 7045,
-        "rate": 4.26,
-        "isMainCampus": false
+        "count": 3
       },
       {
         "rank": 2,
-        "rankByRate": 2,
         "unitid": 130907003,
-        "name": "Delaware Technical Community College-Terry",
-        "short": null,
-        "state": "DE",
-        "count": 3,
-        "pct": 18.75,
-        "fte": 7045,
-        "rate": 4.26,
-        "isMainCampus": false
+        "count": 3
       },
       {
         "rank": 2,
-        "rankByRate": 5,
         "unitid": 130943001,
-        "name": "University of Delaware",
-        "short": null,
-        "state": "DE",
-        "count": 3,
-        "pct": 18.75,
-        "fte": 22589,
-        "rate": 1.33,
-        "isMainCampus": true
+        "count": 3
       },
       {
         "rank": 5,
-        "rankByRate": 4,
         "unitid": 130907004,
-        "name": "Delaware Technical Community College-Terry",
-        "short": null,
-        "state": "DE",
-        "count": 2,
-        "pct": 12.5,
-        "fte": 7045,
-        "rate": 2.84,
-        "isMainCampus": false
+        "count": 2
       }
     ],
     "drug_arrest": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 491473001,
-        "name": "Polytech Adult Education",
-        "short": null,
-        "state": "DE",
-        "count": 6,
-        "pct": 30.0,
-        "fte": 280,
-        "rate": 214.29,
-        "isMainCampus": true
+        "count": 6
       },
       {
         "rank": 2,
-        "rankByRate": 5,
         "unitid": 130943001,
-        "name": "University of Delaware",
-        "short": null,
-        "state": "DE",
-        "count": 5,
-        "pct": 25.0,
-        "fte": 22589,
-        "rate": 2.21,
-        "isMainCampus": true
+        "count": 5
       },
       {
         "rank": 3,
-        "rankByRate": 3,
         "unitid": 131113004,
-        "name": "Wilmington University",
-        "short": null,
-        "state": "DE",
-        "count": 3,
-        "pct": 15.0,
-        "fte": 7986,
-        "rate": 3.76,
-        "isMainCampus": false
+        "count": 3
       },
       {
         "rank": 4,
-        "rankByRate": 4,
         "unitid": 131113001,
-        "name": "Wilmington University",
-        "short": null,
-        "state": "DE",
-        "count": 2,
-        "pct": 10.0,
-        "fte": 7986,
-        "rate": 2.5,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 5,
-        "rankByRate": 6,
         "unitid": 130934001,
-        "name": "Delaware State University",
-        "short": null,
-        "state": "DE",
-        "count": 1,
-        "pct": 5.0,
-        "fte": 5173,
-        "rate": 1.93,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 5,
-        "rankByRate": 7,
         "unitid": 130907004,
-        "name": "Delaware Technical Community College-Terry",
-        "short": null,
-        "state": "DE",
-        "count": 1,
-        "pct": 5.0,
-        "fte": 7045,
-        "rate": 1.42,
-        "isMainCampus": false
+        "count": 1
       },
       {
         "rank": 5,
-        "rankByRate": 2,
         "unitid": 130989001,
-        "name": "Goldey-Beacom College",
-        "short": null,
-        "state": "DE",
-        "count": 1,
-        "pct": 5.0,
-        "fte": 770,
-        "rate": 12.99,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 5,
-        "rankByRate": 8,
         "unitid": 130943005,
-        "name": "University of Delaware",
-        "short": null,
-        "state": "DE",
-        "count": 1,
-        "pct": 5.0,
-        "fte": 22589,
-        "rate": 0.44,
-        "isMainCampus": false
+        "count": 1
       }
     ],
     "drug_discipline": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 130934001,
-        "name": "Delaware State University",
-        "short": null,
-        "state": "DE",
-        "count": 87,
-        "pct": 97.75,
-        "fte": 5173,
-        "rate": 168.18,
-        "isMainCampus": true
+        "count": 87
       },
       {
         "rank": 2,
-        "rankByRate": 2,
         "unitid": 130934004,
-        "name": "Delaware State University",
-        "short": null,
-        "state": "DE",
-        "count": 2,
-        "pct": 2.25,
-        "fte": 5173,
-        "rate": 3.87,
-        "isMainCampus": false
+        "count": 2
       }
     ],
     "fondling": [
       {
         "rank": 1,
-        "rankByRate": 3,
         "unitid": 130943001,
-        "name": "University of Delaware",
-        "short": null,
-        "state": "DE",
-        "count": 5,
-        "pct": 38.46,
-        "fte": 22589,
-        "rate": 2.21,
-        "isMainCampus": true
+        "count": 5
       },
       {
         "rank": 2,
-        "rankByRate": 2,
         "unitid": 130934001,
-        "name": "Delaware State University",
-        "short": null,
-        "state": "DE",
-        "count": 3,
-        "pct": 23.08,
-        "fte": 5173,
-        "rate": 5.8,
-        "isMainCampus": true
+        "count": 3
       },
       {
         "rank": 3,
-        "rankByRate": 4,
         "unitid": 130907001,
-        "name": "Delaware Technical Community College-Terry",
-        "short": null,
-        "state": "DE",
-        "count": 1,
-        "pct": 7.69,
-        "fte": 7045,
-        "rate": 1.42,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 3,
-        "rankByRate": 4,
         "unitid": 130907002,
-        "name": "Delaware Technical Community College-Terry",
-        "short": null,
-        "state": "DE",
-        "count": 1,
-        "pct": 7.69,
-        "fte": 7045,
-        "rate": 1.42,
-        "isMainCampus": false
+        "count": 1
       },
       {
         "rank": 3,
-        "rankByRate": 4,
         "unitid": 130907004,
-        "name": "Delaware Technical Community College-Terry",
-        "short": null,
-        "state": "DE",
-        "count": 1,
-        "pct": 7.69,
-        "fte": 7045,
-        "rate": 1.42,
-        "isMainCampus": false
+        "count": 1
       },
       {
         "rank": 3,
-        "rankByRate": 1,
         "unitid": 491473001,
-        "name": "Polytech Adult Education",
-        "short": null,
-        "state": "DE",
-        "count": 1,
-        "pct": 7.69,
-        "fte": 280,
-        "rate": 35.71,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 3,
-        "rankByRate": 7,
         "unitid": 131113001,
-        "name": "Wilmington University",
-        "short": null,
-        "state": "DE",
-        "count": 1,
-        "pct": 7.69,
-        "fte": 7986,
-        "rate": 1.25,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "liquor_arrest": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 130943001,
-        "name": "University of Delaware",
-        "short": null,
-        "state": "DE",
-        "count": 40,
-        "pct": 100.0,
-        "fte": 22589,
-        "rate": 17.71,
-        "isMainCampus": true
+        "count": 40
       }
     ],
     "liquor_discipline": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 130989001,
-        "name": "Goldey-Beacom College",
-        "short": null,
-        "state": "DE",
-        "count": 47,
-        "pct": 64.38,
-        "fte": 770,
-        "rate": 610.39,
-        "isMainCampus": true
+        "count": 47
       },
       {
         "rank": 2,
-        "rankByRate": 2,
         "unitid": 130934001,
-        "name": "Delaware State University",
-        "short": null,
-        "state": "DE",
-        "count": 26,
-        "pct": 35.62,
-        "fte": 5173,
-        "rate": 50.26,
-        "isMainCampus": true
+        "count": 26
       }
     ],
     "motor_vehicle_theft": [
       {
         "rank": 1,
-        "rankByRate": 3,
         "unitid": 130943001,
-        "name": "University of Delaware",
-        "short": null,
-        "state": "DE",
-        "count": 2,
-        "pct": 40.0,
-        "fte": 22589,
-        "rate": 0.89,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 2,
-        "rankByRate": 1,
         "unitid": 130907001,
-        "name": "Delaware Technical Community College-Terry",
-        "short": null,
-        "state": "DE",
-        "count": 1,
-        "pct": 20.0,
-        "fte": 7045,
-        "rate": 1.42,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 2,
-        "rankByRate": 1,
         "unitid": 130907002,
-        "name": "Delaware Technical Community College-Terry",
-        "short": null,
-        "state": "DE",
-        "count": 1,
-        "pct": 20.0,
-        "fte": 7045,
-        "rate": 1.42,
-        "isMainCampus": false
+        "count": 1
       },
       {
         "rank": 2,
-        "rankByRate": 4,
         "unitid": 130943005,
-        "name": "University of Delaware",
-        "short": null,
-        "state": "DE",
-        "count": 1,
-        "pct": 20.0,
-        "fte": 22589,
-        "rate": 0.44,
-        "isMainCampus": false
+        "count": 1
       }
     ],
     "rape": [
       {
         "rank": 1,
-        "rankByRate": 3,
         "unitid": 130943001,
-        "name": "University of Delaware",
-        "short": null,
-        "state": "DE",
-        "count": 15,
-        "pct": 53.57,
-        "fte": 22589,
-        "rate": 6.64,
-        "isMainCampus": true
+        "count": 15
       },
       {
         "rank": 2,
-        "rankByRate": 2,
         "unitid": 130934001,
-        "name": "Delaware State University",
-        "short": null,
-        "state": "DE",
-        "count": 9,
-        "pct": 32.14,
-        "fte": 5173,
-        "rate": 17.4,
-        "isMainCampus": true
+        "count": 9
       },
       {
         "rank": 3,
-        "rankByRate": 1,
         "unitid": 130989001,
-        "name": "Goldey-Beacom College",
-        "short": null,
-        "state": "DE",
-        "count": 2,
-        "pct": 7.14,
-        "fte": 770,
-        "rate": 25.97,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 4,
-        "rankByRate": 4,
         "unitid": 130934004,
-        "name": "Delaware State University",
-        "short": null,
-        "state": "DE",
-        "count": 1,
-        "pct": 3.57,
-        "fte": 5173,
-        "rate": 1.93,
-        "isMainCampus": false
+        "count": 1
       },
       {
         "rank": 4,
-        "rankByRate": 5,
         "unitid": 131113001,
-        "name": "Wilmington University",
-        "short": null,
-        "state": "DE",
-        "count": 1,
-        "pct": 3.57,
-        "fte": 7986,
-        "rate": 1.25,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "robbery": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 130934001,
-        "name": "Delaware State University",
-        "short": null,
-        "state": "DE",
-        "count": 1,
-        "pct": 25.0,
-        "fte": 5173,
-        "rate": 1.93,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 1,
-        "rankByRate": 2,
         "unitid": 130907004,
-        "name": "Delaware Technical Community College-Terry",
-        "short": null,
-        "state": "DE",
-        "count": 1,
-        "pct": 25.0,
-        "fte": 7045,
-        "rate": 1.42,
-        "isMainCampus": false
+        "count": 1
       },
       {
         "rank": 1,
-        "rankByRate": 4,
         "unitid": 130943001,
-        "name": "University of Delaware",
-        "short": null,
-        "state": "DE",
-        "count": 1,
-        "pct": 25.0,
-        "fte": 22589,
-        "rate": 0.44,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 1,
-        "rankByRate": 3,
         "unitid": 131113006,
-        "name": "Wilmington University",
-        "short": null,
-        "state": "DE",
-        "count": 1,
-        "pct": 25.0,
-        "fte": 7986,
-        "rate": 1.25,
-        "isMainCampus": false
+        "count": 1
       }
     ],
     "stalking": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 130943001,
-        "name": "University of Delaware",
-        "short": null,
-        "state": "DE",
-        "count": 27,
-        "pct": 90.0,
-        "fte": 22589,
-        "rate": 11.95,
-        "isMainCampus": true
+        "count": 27
       },
       {
         "rank": 2,
-        "rankByRate": 2,
         "unitid": 130907001,
-        "name": "Delaware Technical Community College-Terry",
-        "short": null,
-        "state": "DE",
-        "count": 1,
-        "pct": 3.33,
-        "fte": 7045,
-        "rate": 1.42,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 2,
-        "rankByRate": 2,
         "unitid": 130907003,
-        "name": "Delaware Technical Community College-Terry",
-        "short": null,
-        "state": "DE",
-        "count": 1,
-        "pct": 3.33,
-        "fte": 7045,
-        "rate": 1.42,
-        "isMainCampus": false
+        "count": 1
       },
       {
         "rank": 2,
-        "rankByRate": 2,
         "unitid": 130907004,
-        "name": "Delaware Technical Community College-Terry",
-        "short": null,
-        "state": "DE",
-        "count": 1,
-        "pct": 3.33,
-        "fte": 7045,
-        "rate": 1.42,
-        "isMainCampus": false
+        "count": 1
       }
     ],
     "statutory_rape": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 130943001,
-        "name": "University of Delaware",
-        "short": null,
-        "state": "DE",
-        "count": 2,
-        "pct": 100.0,
-        "fte": 22589,
-        "rate": 0.89,
-        "isMainCampus": true
+        "count": 2
       }
     ],
     "weapons_arrest": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 131113001,
-        "name": "Wilmington University",
-        "short": null,
-        "state": "DE",
-        "count": 6,
-        "pct": 54.55,
-        "fte": 7986,
-        "rate": 7.51,
-        "isMainCampus": true
+        "count": 6
       },
       {
         "rank": 2,
-        "rankByRate": 4,
         "unitid": 130943001,
-        "name": "University of Delaware",
-        "short": null,
-        "state": "DE",
-        "count": 3,
-        "pct": 27.27,
-        "fte": 22589,
-        "rate": 1.33,
-        "isMainCampus": true
+        "count": 3
       },
       {
         "rank": 3,
-        "rankByRate": 2,
         "unitid": 130934001,
-        "name": "Delaware State University",
-        "short": null,
-        "state": "DE",
-        "count": 1,
-        "pct": 9.09,
-        "fte": 5173,
-        "rate": 1.93,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 3,
-        "rankByRate": 3,
         "unitid": 130907004,
-        "name": "Delaware Technical Community College-Terry",
-        "short": null,
-        "state": "DE",
-        "count": 1,
-        "pct": 9.09,
-        "fte": 7045,
-        "rate": 1.42,
-        "isMainCampus": false
+        "count": 1
       }
     ]
   },
@@ -1189,5 +599,304 @@
     "stalking": 30,
     "statutory_rape": 2,
     "weapons_arrest": 11
+  },
+  "institutions": {
+    "130907": {
+      "name": "Delaware Technical Community College-Terry",
+      "unitid": 130907001,
+      "state": "DE",
+      "fte": 7045,
+      "campuses": 4
+    },
+    "130934": {
+      "name": "Delaware State University",
+      "unitid": 130934001,
+      "state": "DE",
+      "fte": 5173,
+      "campuses": 4
+    },
+    "130943": {
+      "name": "University of Delaware",
+      "unitid": 130943001,
+      "state": "DE",
+      "fte": 22589,
+      "campuses": 6
+    }
+  },
+  "rateRankings": {
+    "criminal": [
+      {
+        "rank": 1,
+        "id": 130934,
+        "count": 18,
+        "rate": 34.8
+      },
+      {
+        "rank": 2,
+        "id": 130943,
+        "count": 60,
+        "rate": 26.56
+      },
+      {
+        "rank": 3,
+        "id": 130907,
+        "count": 7,
+        "rate": 9.94
+      }
+    ],
+    "all": [
+      {
+        "rank": 1,
+        "id": 130934,
+        "count": 140,
+        "rate": 270.64
+      },
+      {
+        "rank": 2,
+        "id": 130943,
+        "count": 153,
+        "rate": 67.73
+      },
+      {
+        "rank": 3,
+        "id": 130907,
+        "count": 22,
+        "rate": 31.23
+      }
+    ],
+    "aggravated_assault": [
+      {
+        "rank": 1,
+        "id": 130943,
+        "count": 20,
+        "rate": 8.85
+      },
+      {
+        "rank": 2,
+        "id": 130934,
+        "count": 2,
+        "rate": 3.87
+      }
+    ],
+    "arson": [
+      {
+        "rank": 1,
+        "id": 130943,
+        "count": 6,
+        "rate": 2.66
+      }
+    ],
+    "burglary": [
+      {
+        "rank": 1,
+        "id": 130934,
+        "count": 2,
+        "rate": 3.87
+      },
+      {
+        "rank": 2,
+        "id": 130943,
+        "count": 8,
+        "rate": 3.54
+      },
+      {
+        "rank": 3,
+        "id": 130907,
+        "count": 1,
+        "rate": 1.42
+      }
+    ],
+    "dating_violence": [
+      {
+        "rank": 1,
+        "id": 130943,
+        "count": 14,
+        "rate": 6.2
+      },
+      {
+        "rank": 2,
+        "id": 130907,
+        "count": 2,
+        "rate": 2.84
+      }
+    ],
+    "domestic_violence": [
+      {
+        "rank": 1,
+        "id": 130907,
+        "count": 8,
+        "rate": 11.36
+      },
+      {
+        "rank": 2,
+        "id": 130934,
+        "count": 5,
+        "rate": 9.67
+      },
+      {
+        "rank": 3,
+        "id": 130943,
+        "count": 3,
+        "rate": 1.33
+      }
+    ],
+    "drug_arrest": [
+      {
+        "rank": 1,
+        "id": 130943,
+        "count": 6,
+        "rate": 2.66
+      },
+      {
+        "rank": 2,
+        "id": 130934,
+        "count": 1,
+        "rate": 1.93
+      },
+      {
+        "rank": 3,
+        "id": 130907,
+        "count": 1,
+        "rate": 1.42
+      }
+    ],
+    "drug_discipline": [
+      {
+        "rank": 1,
+        "id": 130934,
+        "count": 89,
+        "rate": 172.05
+      }
+    ],
+    "fondling": [
+      {
+        "rank": 1,
+        "id": 130934,
+        "count": 3,
+        "rate": 5.8
+      },
+      {
+        "rank": 2,
+        "id": 130907,
+        "count": 3,
+        "rate": 4.26
+      },
+      {
+        "rank": 3,
+        "id": 130943,
+        "count": 5,
+        "rate": 2.21
+      }
+    ],
+    "incest": [],
+    "liquor_arrest": [
+      {
+        "rank": 1,
+        "id": 130943,
+        "count": 40,
+        "rate": 17.71
+      }
+    ],
+    "liquor_discipline": [
+      {
+        "rank": 1,
+        "id": 130934,
+        "count": 26,
+        "rate": 50.26
+      }
+    ],
+    "motor_vehicle_theft": [
+      {
+        "rank": 1,
+        "id": 130907,
+        "count": 2,
+        "rate": 2.84
+      },
+      {
+        "rank": 2,
+        "id": 130943,
+        "count": 3,
+        "rate": 1.33
+      }
+    ],
+    "murder": [],
+    "negligent_manslaughter": [],
+    "rape": [
+      {
+        "rank": 1,
+        "id": 130934,
+        "count": 10,
+        "rate": 19.33
+      },
+      {
+        "rank": 2,
+        "id": 130943,
+        "count": 15,
+        "rate": 6.64
+      }
+    ],
+    "robbery": [
+      {
+        "rank": 1,
+        "id": 130934,
+        "count": 1,
+        "rate": 1.93
+      },
+      {
+        "rank": 2,
+        "id": 130907,
+        "count": 1,
+        "rate": 1.42
+      },
+      {
+        "rank": 3,
+        "id": 130943,
+        "count": 1,
+        "rate": 0.44
+      }
+    ],
+    "stalking": [
+      {
+        "rank": 1,
+        "id": 130943,
+        "count": 27,
+        "rate": 11.95
+      },
+      {
+        "rank": 2,
+        "id": 130907,
+        "count": 3,
+        "rate": 4.26
+      }
+    ],
+    "statutory_rape": [
+      {
+        "rank": 1,
+        "id": 130943,
+        "count": 2,
+        "rate": 0.89
+      }
+    ],
+    "weapons_arrest": [
+      {
+        "rank": 1,
+        "id": 130934,
+        "count": 1,
+        "rate": 1.93
+      },
+      {
+        "rank": 2,
+        "id": 130907,
+        "count": 1,
+        "rate": 1.42
+      },
+      {
+        "rank": 3,
+        "id": 130943,
+        "count": 3,
+        "rate": 1.33
+      }
+    ],
+    "weapons_discipline": []
   }
 }

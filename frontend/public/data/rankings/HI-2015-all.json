@@ -1,1497 +1,755 @@
 {
   "preset": "HI",
   "year": 2015,
+  "campuses": {
+    "141486001": {
+      "name": "Chaminade University of Honolulu",
+      "short": null,
+      "state": "HI",
+      "main": true,
+      "fte": 2103,
+      "campuses": 1
+    },
+    "141565001": {
+      "name": "University of Hawaii at Hilo",
+      "short": null,
+      "state": "HI",
+      "main": true,
+      "fte": 3308,
+      "campuses": 1
+    },
+    "141574001": {
+      "name": "University of Hawaii at Manoa",
+      "short": null,
+      "state": "HI",
+      "main": true,
+      "fte": 15978,
+      "campuses": 2
+    },
+    "141574002": {
+      "name": "University of Hawaii at Manoa",
+      "short": null,
+      "state": "HI",
+      "main": false,
+      "fte": 15978,
+      "campuses": 2
+    },
+    "141644001": {
+      "name": "Hawaii Pacific University",
+      "short": null,
+      "state": "HI",
+      "main": true,
+      "fte": 3901,
+      "campuses": 3
+    },
+    "141644002": {
+      "name": "Hawaii Pacific University",
+      "short": null,
+      "state": "HI",
+      "main": false,
+      "fte": 3901,
+      "campuses": 3
+    },
+    "141680001": {
+      "name": "Honolulu Community College",
+      "short": null,
+      "state": "HI",
+      "main": true,
+      "fte": 2426,
+      "campuses": 4
+    },
+    "141680004": {
+      "name": "Honolulu Community College",
+      "short": null,
+      "state": "HI",
+      "main": false,
+      "fte": 2426,
+      "campuses": 4
+    },
+    "141796001": {
+      "name": "Kapiolani Community College",
+      "short": null,
+      "state": "HI",
+      "main": true,
+      "fte": 4618,
+      "campuses": 1
+    },
+    "141802001": {
+      "name": "Kauai Community College",
+      "short": null,
+      "state": "HI",
+      "main": true,
+      "fte": 792,
+      "campuses": 1
+    },
+    "141811001": {
+      "name": "Leeward Community College",
+      "short": null,
+      "state": "HI",
+      "main": true,
+      "fte": 4567,
+      "campuses": 1
+    },
+    "141839001": {
+      "name": "University of Hawaii Maui College",
+      "short": null,
+      "state": "HI",
+      "main": true,
+      "fte": 2215,
+      "campuses": 5
+    },
+    "141839005": {
+      "name": "University of Hawaii Maui College",
+      "short": null,
+      "state": "HI",
+      "main": false,
+      "fte": 2215,
+      "campuses": 5
+    },
+    "141981001": {
+      "name": "University of Hawaii-West Oahu",
+      "short": null,
+      "state": "HI",
+      "main": true,
+      "fte": 1944,
+      "campuses": 1
+    },
+    "141990001": {
+      "name": "Windward Community College",
+      "short": null,
+      "state": "HI",
+      "main": true,
+      "fte": 1427,
+      "campuses": 1
+    },
+    "230047001": {
+      "name": "Brigham Young University-Hawaii",
+      "short": null,
+      "state": "HI",
+      "main": true,
+      "fte": 2522,
+      "campuses": 1
+    },
+    "366748001": {
+      "name": "Argosy University-Hawaii",
+      "short": null,
+      "state": "HI",
+      "main": true,
+      "fte": 662,
+      "campuses": 1
+    },
+    "383190001": {
+      "name": "Hawaii Community College",
+      "short": null,
+      "state": "HI",
+      "main": true,
+      "fte": 1871,
+      "campuses": 2
+    },
+    "460756001": {
+      "name": "Hawaii Medical College",
+      "short": null,
+      "state": "HI",
+      "main": true,
+      "fte": 510,
+      "campuses": 1
+    }
+  },
   "rankings": {
     "criminal": [
       {
         "rank": 1,
-        "rankByRate": 6,
         "unitid": 141574001,
-        "name": "University of Hawaii at Manoa",
-        "short": null,
-        "state": "HI",
-        "count": 53,
-        "pct": 33.54,
-        "fte": 15978,
-        "rate": 33.17,
-        "isMainCampus": true
+        "count": 53
       },
       {
         "rank": 2,
-        "rankByRate": 1,
         "unitid": 230047001,
-        "name": "Brigham Young University-Hawaii",
-        "short": null,
-        "state": "HI",
-        "count": 28,
-        "pct": 17.72,
-        "fte": 2522,
-        "rate": 111.02,
-        "isMainCampus": true
+        "count": 28
       },
       {
         "rank": 3,
-        "rankByRate": 2,
         "unitid": 141565001,
-        "name": "University of Hawaii at Hilo",
-        "short": null,
-        "state": "HI",
-        "count": 22,
-        "pct": 13.92,
-        "fte": 3308,
-        "rate": 66.51,
-        "isMainCampus": true
+        "count": 22
       },
       {
         "rank": 4,
-        "rankByRate": 3,
         "unitid": 141839001,
-        "name": "University of Hawaii Maui College",
-        "short": null,
-        "state": "HI",
-        "count": 12,
-        "pct": 7.59,
-        "fte": 2215,
-        "rate": 54.18,
-        "isMainCampus": true
+        "count": 12
       },
       {
         "rank": 5,
-        "rankByRate": 4,
         "unitid": 383190001,
-        "name": "Hawaii Community College",
-        "short": null,
-        "state": "HI",
-        "count": 10,
-        "pct": 6.33,
-        "fte": 1871,
-        "rate": 53.45,
-        "isMainCampus": true
+        "count": 10
       },
       {
         "rank": 6,
-        "rankByRate": 7,
         "unitid": 141486001,
-        "name": "Chaminade University of Honolulu",
-        "short": null,
-        "state": "HI",
-        "count": 6,
-        "pct": 3.8,
-        "fte": 2103,
-        "rate": 28.53,
-        "isMainCampus": true
+        "count": 6
       },
       {
         "rank": 6,
-        "rankByRate": 8,
         "unitid": 141680001,
-        "name": "Honolulu Community College",
-        "short": null,
-        "state": "HI",
-        "count": 6,
-        "pct": 3.8,
-        "fte": 2426,
-        "rate": 24.73,
-        "isMainCampus": true
+        "count": 6
       },
       {
         "rank": 8,
-        "rankByRate": 11,
         "unitid": 141644001,
-        "name": "Hawaii Pacific University",
-        "short": null,
-        "state": "HI",
-        "count": 5,
-        "pct": 3.16,
-        "fte": 3901,
-        "rate": 12.82,
-        "isMainCampus": true
+        "count": 5
       },
       {
         "rank": 8,
-        "rankByRate": 5,
         "unitid": 141990001,
-        "name": "Windward Community College",
-        "short": null,
-        "state": "HI",
-        "count": 5,
-        "pct": 3.16,
-        "fte": 1427,
-        "rate": 35.04,
-        "isMainCampus": true
+        "count": 5
       },
       {
         "rank": 10,
-        "rankByRate": 12,
         "unitid": 141796001,
-        "name": "Kapiolani Community College",
-        "short": null,
-        "state": "HI",
-        "count": 3,
-        "pct": 1.9,
-        "fte": 4618,
-        "rate": 6.5,
-        "isMainCampus": true
+        "count": 3
       },
       {
         "rank": 11,
-        "rankByRate": 14,
         "unitid": 141811001,
-        "name": "Leeward Community College",
-        "short": null,
-        "state": "HI",
-        "count": 2,
-        "pct": 1.27,
-        "fte": 4567,
-        "rate": 4.38,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 12,
-        "rankByRate": 10,
         "unitid": 366748001,
-        "name": "Argosy University-Hawaii",
-        "short": null,
-        "state": "HI",
-        "count": 1,
-        "pct": 0.63,
-        "fte": 662,
-        "rate": 15.11,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 12,
-        "rankByRate": 9,
         "unitid": 460756001,
-        "name": "Hawaii Medical College",
-        "short": null,
-        "state": "HI",
-        "count": 1,
-        "pct": 0.63,
-        "fte": 510,
-        "rate": 19.61,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 12,
-        "rankByRate": 16,
         "unitid": 141644002,
-        "name": "Hawaii Pacific University",
-        "short": null,
-        "state": "HI",
-        "count": 1,
-        "pct": 0.63,
-        "fte": 3901,
-        "rate": 2.56,
-        "isMainCampus": false
+        "count": 1
       },
       {
         "rank": 12,
-        "rankByRate": 15,
         "unitid": 141680004,
-        "name": "Honolulu Community College",
-        "short": null,
-        "state": "HI",
-        "count": 1,
-        "pct": 0.63,
-        "fte": 2426,
-        "rate": 4.12,
-        "isMainCampus": false
+        "count": 1
       },
       {
         "rank": 12,
-        "rankByRate": 13,
         "unitid": 141839005,
-        "name": "University of Hawaii Maui College",
-        "short": null,
-        "state": "HI",
-        "count": 1,
-        "pct": 0.63,
-        "fte": 2215,
-        "rate": 4.51,
-        "isMainCampus": false
+        "count": 1
       },
       {
         "rank": 12,
-        "rankByRate": 17,
         "unitid": 141574002,
-        "name": "University of Hawaii at Manoa",
-        "short": null,
-        "state": "HI",
-        "count": 1,
-        "pct": 0.63,
-        "fte": 15978,
-        "rate": 0.63,
-        "isMainCampus": false
+        "count": 1
       }
     ],
     "all": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 141574001,
-        "name": "University of Hawaii at Manoa",
-        "short": null,
-        "state": "HI",
-        "count": 1469,
-        "pct": 82.11,
-        "fte": 15978,
-        "rate": 919.39,
-        "isMainCampus": true
+        "count": 1469
       },
       {
         "rank": 2,
-        "rankByRate": 3,
         "unitid": 141565001,
-        "name": "University of Hawaii at Hilo",
-        "short": null,
-        "state": "HI",
-        "count": 111,
-        "pct": 6.2,
-        "fte": 3308,
-        "rate": 335.55,
-        "isMainCampus": true
+        "count": 111
       },
       {
         "rank": 3,
-        "rankByRate": 2,
         "unitid": 230047001,
-        "name": "Brigham Young University-Hawaii",
-        "short": null,
-        "state": "HI",
-        "count": 88,
-        "pct": 4.92,
-        "fte": 2522,
-        "rate": 348.93,
-        "isMainCampus": true
+        "count": 88
       },
       {
         "rank": 4,
-        "rankByRate": 4,
         "unitid": 141486001,
-        "name": "Chaminade University of Honolulu",
-        "short": null,
-        "state": "HI",
-        "count": 38,
-        "pct": 2.12,
-        "fte": 2103,
-        "rate": 180.69,
-        "isMainCampus": true
+        "count": 38
       },
       {
         "rank": 5,
-        "rankByRate": 6,
         "unitid": 141839001,
-        "name": "University of Hawaii Maui College",
-        "short": null,
-        "state": "HI",
-        "count": 14,
-        "pct": 0.78,
-        "fte": 2215,
-        "rate": 63.21,
-        "isMainCampus": true
+        "count": 14
       },
       {
         "rank": 6,
-        "rankByRate": 8,
         "unitid": 141680001,
-        "name": "Honolulu Community College",
-        "short": null,
-        "state": "HI",
-        "count": 13,
-        "pct": 0.73,
-        "fte": 2426,
-        "rate": 53.59,
-        "isMainCampus": true
+        "count": 13
       },
       {
         "rank": 7,
-        "rankByRate": 5,
         "unitid": 383190001,
-        "name": "Hawaii Community College",
-        "short": null,
-        "state": "HI",
-        "count": 12,
-        "pct": 0.67,
-        "fte": 1871,
-        "rate": 64.14,
-        "isMainCampus": true
+        "count": 12
       },
       {
         "rank": 8,
-        "rankByRate": 11,
         "unitid": 141644001,
-        "name": "Hawaii Pacific University",
-        "short": null,
-        "state": "HI",
-        "count": 9,
-        "pct": 0.5,
-        "fte": 3901,
-        "rate": 23.07,
-        "isMainCampus": true
+        "count": 9
       },
       {
         "rank": 8,
-        "rankByRate": 7,
         "unitid": 141990001,
-        "name": "Windward Community College",
-        "short": null,
-        "state": "HI",
-        "count": 9,
-        "pct": 0.5,
-        "fte": 1427,
-        "rate": 63.07,
-        "isMainCampus": true
+        "count": 9
       },
       {
         "rank": 10,
-        "rankByRate": 13,
         "unitid": 141811001,
-        "name": "Leeward Community College",
-        "short": null,
-        "state": "HI",
-        "count": 8,
-        "pct": 0.45,
-        "fte": 4567,
-        "rate": 17.52,
-        "isMainCampus": true
+        "count": 8
       },
       {
         "rank": 11,
-        "rankByRate": 14,
         "unitid": 141796001,
-        "name": "Kapiolani Community College",
-        "short": null,
-        "state": "HI",
-        "count": 6,
-        "pct": 0.34,
-        "fte": 4618,
-        "rate": 12.99,
-        "isMainCampus": true
+        "count": 6
       },
       {
         "rank": 12,
-        "rankByRate": 9,
         "unitid": 141802001,
-        "name": "Kauai Community College",
-        "short": null,
-        "state": "HI",
-        "count": 3,
-        "pct": 0.17,
-        "fte": 792,
-        "rate": 37.88,
-        "isMainCampus": true
+        "count": 3
       },
       {
         "rank": 13,
-        "rankByRate": 10,
         "unitid": 366748001,
-        "name": "Argosy University-Hawaii",
-        "short": null,
-        "state": "HI",
-        "count": 2,
-        "pct": 0.11,
-        "fte": 662,
-        "rate": 30.21,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 13,
-        "rankByRate": 15,
         "unitid": 141981001,
-        "name": "University of Hawaii-West Oahu",
-        "short": null,
-        "state": "HI",
-        "count": 2,
-        "pct": 0.11,
-        "fte": 1944,
-        "rate": 10.29,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 15,
-        "rankByRate": 12,
         "unitid": 460756001,
-        "name": "Hawaii Medical College",
-        "short": null,
-        "state": "HI",
-        "count": 1,
-        "pct": 0.06,
-        "fte": 510,
-        "rate": 19.61,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 15,
-        "rankByRate": 18,
         "unitid": 141644002,
-        "name": "Hawaii Pacific University",
-        "short": null,
-        "state": "HI",
-        "count": 1,
-        "pct": 0.06,
-        "fte": 3901,
-        "rate": 2.56,
-        "isMainCampus": false
+        "count": 1
       },
       {
         "rank": 15,
-        "rankByRate": 17,
         "unitid": 141680004,
-        "name": "Honolulu Community College",
-        "short": null,
-        "state": "HI",
-        "count": 1,
-        "pct": 0.06,
-        "fte": 2426,
-        "rate": 4.12,
-        "isMainCampus": false
+        "count": 1
       },
       {
         "rank": 15,
-        "rankByRate": 16,
         "unitid": 141839005,
-        "name": "University of Hawaii Maui College",
-        "short": null,
-        "state": "HI",
-        "count": 1,
-        "pct": 0.06,
-        "fte": 2215,
-        "rate": 4.51,
-        "isMainCampus": false
+        "count": 1
       },
       {
         "rank": 15,
-        "rankByRate": 19,
         "unitid": 141574002,
-        "name": "University of Hawaii at Manoa",
-        "short": null,
-        "state": "HI",
-        "count": 1,
-        "pct": 0.06,
-        "fte": 15978,
-        "rate": 0.63,
-        "isMainCampus": false
+        "count": 1
       }
     ],
     "aggravated_assault": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 141839001,
-        "name": "University of Hawaii Maui College",
-        "short": null,
-        "state": "HI",
-        "count": 2,
-        "pct": 50.0,
-        "fte": 2215,
-        "rate": 9.03,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 2,
-        "rankByRate": 2,
         "unitid": 383190001,
-        "name": "Hawaii Community College",
-        "short": null,
-        "state": "HI",
-        "count": 1,
-        "pct": 25.0,
-        "fte": 1871,
-        "rate": 5.34,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 2,
-        "rankByRate": 3,
         "unitid": 141680001,
-        "name": "Honolulu Community College",
-        "short": null,
-        "state": "HI",
-        "count": 1,
-        "pct": 25.0,
-        "fte": 2426,
-        "rate": 4.12,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "arson": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 141574001,
-        "name": "University of Hawaii at Manoa",
-        "short": null,
-        "state": "HI",
-        "count": 1,
-        "pct": 100.0,
-        "fte": 15978,
-        "rate": 0.63,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "burglary": [
       {
         "rank": 1,
-        "rankByRate": 9,
         "unitid": 141574001,
-        "name": "University of Hawaii at Manoa",
-        "short": null,
-        "state": "HI",
-        "count": 12,
-        "pct": 21.05,
-        "fte": 15978,
-        "rate": 7.51,
-        "isMainCampus": true
+        "count": 12
       },
       {
         "rank": 2,
-        "rankByRate": 1,
         "unitid": 141839001,
-        "name": "University of Hawaii Maui College",
-        "short": null,
-        "state": "HI",
-        "count": 10,
-        "pct": 17.54,
-        "fte": 2215,
-        "rate": 45.15,
-        "isMainCampus": true
+        "count": 10
       },
       {
         "rank": 3,
-        "rankByRate": 2,
         "unitid": 230047001,
-        "name": "Brigham Young University-Hawaii",
-        "short": null,
-        "state": "HI",
-        "count": 9,
-        "pct": 15.79,
-        "fte": 2522,
-        "rate": 35.69,
-        "isMainCampus": true
+        "count": 9
       },
       {
         "rank": 4,
-        "rankByRate": 6,
         "unitid": 141565001,
-        "name": "University of Hawaii at Hilo",
-        "short": null,
-        "state": "HI",
-        "count": 6,
-        "pct": 10.53,
-        "fte": 3308,
-        "rate": 18.14,
-        "isMainCampus": true
+        "count": 6
       },
       {
         "rank": 5,
-        "rankByRate": 3,
         "unitid": 141990001,
-        "name": "Windward Community College",
-        "short": null,
-        "state": "HI",
-        "count": 5,
-        "pct": 8.77,
-        "fte": 1427,
-        "rate": 35.04,
-        "isMainCampus": true
+        "count": 5
       },
       {
         "rank": 6,
-        "rankByRate": 5,
         "unitid": 141486001,
-        "name": "Chaminade University of Honolulu",
-        "short": null,
-        "state": "HI",
-        "count": 4,
-        "pct": 7.02,
-        "fte": 2103,
-        "rate": 19.02,
-        "isMainCampus": true
+        "count": 4
       },
       {
         "rank": 7,
-        "rankByRate": 8,
         "unitid": 141680001,
-        "name": "Honolulu Community College",
-        "short": null,
-        "state": "HI",
-        "count": 3,
-        "pct": 5.26,
-        "fte": 2426,
-        "rate": 12.37,
-        "isMainCampus": true
+        "count": 3
       },
       {
         "rank": 8,
-        "rankByRate": 11,
         "unitid": 141796001,
-        "name": "Kapiolani Community College",
-        "short": null,
-        "state": "HI",
-        "count": 2,
-        "pct": 3.51,
-        "fte": 4618,
-        "rate": 4.33,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 9,
-        "rankByRate": 7,
         "unitid": 366748001,
-        "name": "Argosy University-Hawaii",
-        "short": null,
-        "state": "HI",
-        "count": 1,
-        "pct": 1.75,
-        "fte": 662,
-        "rate": 15.11,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 9,
-        "rankByRate": 4,
         "unitid": 460756001,
-        "name": "Hawaii Medical College",
-        "short": null,
-        "state": "HI",
-        "count": 1,
-        "pct": 1.75,
-        "fte": 510,
-        "rate": 19.61,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 9,
-        "rankByRate": 13,
         "unitid": 141644001,
-        "name": "Hawaii Pacific University",
-        "short": null,
-        "state": "HI",
-        "count": 1,
-        "pct": 1.75,
-        "fte": 3901,
-        "rate": 2.56,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 9,
-        "rankByRate": 13,
         "unitid": 141644002,
-        "name": "Hawaii Pacific University",
-        "short": null,
-        "state": "HI",
-        "count": 1,
-        "pct": 1.75,
-        "fte": 3901,
-        "rate": 2.56,
-        "isMainCampus": false
+        "count": 1
       },
       {
         "rank": 9,
-        "rankByRate": 12,
         "unitid": 141680004,
-        "name": "Honolulu Community College",
-        "short": null,
-        "state": "HI",
-        "count": 1,
-        "pct": 1.75,
-        "fte": 2426,
-        "rate": 4.12,
-        "isMainCampus": false
+        "count": 1
       },
       {
         "rank": 9,
-        "rankByRate": 10,
         "unitid": 141839005,
-        "name": "University of Hawaii Maui College",
-        "short": null,
-        "state": "HI",
-        "count": 1,
-        "pct": 1.75,
-        "fte": 2215,
-        "rate": 4.51,
-        "isMainCampus": false
+        "count": 1
       }
     ],
     "dating_violence": [
       {
         "rank": 1,
-        "rankByRate": 4,
         "unitid": 141574001,
-        "name": "University of Hawaii at Manoa",
-        "short": null,
-        "state": "HI",
-        "count": 8,
-        "pct": 38.1,
-        "fte": 15978,
-        "rate": 5.01,
-        "isMainCampus": true
+        "count": 8
       },
       {
         "rank": 2,
-        "rankByRate": 1,
         "unitid": 230047001,
-        "name": "Brigham Young University-Hawaii",
-        "short": null,
-        "state": "HI",
-        "count": 6,
-        "pct": 28.57,
-        "fte": 2522,
-        "rate": 23.79,
-        "isMainCampus": true
+        "count": 6
       },
       {
         "rank": 3,
-        "rankByRate": 2,
         "unitid": 141680001,
-        "name": "Honolulu Community College",
-        "short": null,
-        "state": "HI",
-        "count": 3,
-        "pct": 14.29,
-        "fte": 2426,
-        "rate": 12.37,
-        "isMainCampus": true
+        "count": 3
       },
       {
         "rank": 4,
-        "rankByRate": 3,
         "unitid": 141486001,
-        "name": "Chaminade University of Honolulu",
-        "short": null,
-        "state": "HI",
-        "count": 2,
-        "pct": 9.52,
-        "fte": 2103,
-        "rate": 9.51,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 5,
-        "rankByRate": 6,
         "unitid": 141811001,
-        "name": "Leeward Community College",
-        "short": null,
-        "state": "HI",
-        "count": 1,
-        "pct": 4.76,
-        "fte": 4567,
-        "rate": 2.19,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 5,
-        "rankByRate": 5,
         "unitid": 141565001,
-        "name": "University of Hawaii at Hilo",
-        "short": null,
-        "state": "HI",
-        "count": 1,
-        "pct": 4.76,
-        "fte": 3308,
-        "rate": 3.02,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "domestic_violence": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 230047001,
-        "name": "Brigham Young University-Hawaii",
-        "short": null,
-        "state": "HI",
-        "count": 13,
-        "pct": 54.17,
-        "fte": 2522,
-        "rate": 51.55,
-        "isMainCampus": true
+        "count": 13
       },
       {
         "rank": 2,
-        "rankByRate": 3,
         "unitid": 141680001,
-        "name": "Honolulu Community College",
-        "short": null,
-        "state": "HI",
-        "count": 3,
-        "pct": 12.5,
-        "fte": 2426,
-        "rate": 12.37,
-        "isMainCampus": true
+        "count": 3
       },
       {
         "rank": 2,
-        "rankByRate": 6,
         "unitid": 141574001,
-        "name": "University of Hawaii at Manoa",
-        "short": null,
-        "state": "HI",
-        "count": 3,
-        "pct": 12.5,
-        "fte": 15978,
-        "rate": 1.88,
-        "isMainCampus": true
+        "count": 3
       },
       {
         "rank": 4,
-        "rankByRate": 5,
         "unitid": 141796001,
-        "name": "Kapiolani Community College",
-        "short": null,
-        "state": "HI",
-        "count": 2,
-        "pct": 8.33,
-        "fte": 4618,
-        "rate": 4.33,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 4,
-        "rankByRate": 4,
         "unitid": 141981001,
-        "name": "University of Hawaii-West Oahu",
-        "short": null,
-        "state": "HI",
-        "count": 2,
-        "pct": 8.33,
-        "fte": 1944,
-        "rate": 10.29,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 6,
-        "rankByRate": 2,
         "unitid": 366748001,
-        "name": "Argosy University-Hawaii",
-        "short": null,
-        "state": "HI",
-        "count": 1,
-        "pct": 4.17,
-        "fte": 662,
-        "rate": 15.11,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "drug_arrest": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 141839001,
-        "name": "University of Hawaii Maui College",
-        "short": null,
-        "state": "HI",
-        "count": 2,
-        "pct": 100.0,
-        "fte": 2215,
-        "rate": 9.03,
-        "isMainCampus": true
+        "count": 2
       }
     ],
     "drug_discipline": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 141574001,
-        "name": "University of Hawaii at Manoa",
-        "short": null,
-        "state": "HI",
-        "count": 509,
-        "pct": 86.27,
-        "fte": 15978,
-        "rate": 318.56,
-        "isMainCampus": true
+        "count": 509
       },
       {
         "rank": 2,
-        "rankByRate": 2,
         "unitid": 141565001,
-        "name": "University of Hawaii at Hilo",
-        "short": null,
-        "state": "HI",
-        "count": 61,
-        "pct": 10.34,
-        "fte": 3308,
-        "rate": 184.4,
-        "isMainCampus": true
+        "count": 61
       },
       {
         "rank": 3,
-        "rankByRate": 3,
         "unitid": 230047001,
-        "name": "Brigham Young University-Hawaii",
-        "short": null,
-        "state": "HI",
-        "count": 10,
-        "pct": 1.69,
-        "fte": 2522,
-        "rate": 39.65,
-        "isMainCampus": true
+        "count": 10
       },
       {
         "rank": 4,
-        "rankByRate": 4,
         "unitid": 141486001,
-        "name": "Chaminade University of Honolulu",
-        "short": null,
-        "state": "HI",
-        "count": 8,
-        "pct": 1.36,
-        "fte": 2103,
-        "rate": 38.04,
-        "isMainCampus": true
+        "count": 8
       },
       {
         "rank": 5,
-        "rankByRate": 5,
         "unitid": 141680001,
-        "name": "Honolulu Community College",
-        "short": null,
-        "state": "HI",
-        "count": 1,
-        "pct": 0.17,
-        "fte": 2426,
-        "rate": 4.12,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 5,
-        "rankByRate": 6,
         "unitid": 141811001,
-        "name": "Leeward Community College",
-        "short": null,
-        "state": "HI",
-        "count": 1,
-        "pct": 0.17,
-        "fte": 4567,
-        "rate": 2.19,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "fondling": [
       {
         "rank": 1,
-        "rankByRate": 6,
         "unitid": 141574001,
-        "name": "University of Hawaii at Manoa",
-        "short": null,
-        "state": "HI",
-        "count": 3,
-        "pct": 33.33,
-        "fte": 15978,
-        "rate": 1.88,
-        "isMainCampus": true
+        "count": 3
       },
       {
         "rank": 2,
-        "rankByRate": 2,
         "unitid": 230047001,
-        "name": "Brigham Young University-Hawaii",
-        "short": null,
-        "state": "HI",
-        "count": 1,
-        "pct": 11.11,
-        "fte": 2522,
-        "rate": 3.97,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 2,
-        "rankByRate": 4,
         "unitid": 141644001,
-        "name": "Hawaii Pacific University",
-        "short": null,
-        "state": "HI",
-        "count": 1,
-        "pct": 11.11,
-        "fte": 3901,
-        "rate": 2.56,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 2,
-        "rankByRate": 1,
         "unitid": 141680001,
-        "name": "Honolulu Community College",
-        "short": null,
-        "state": "HI",
-        "count": 1,
-        "pct": 11.11,
-        "fte": 2426,
-        "rate": 4.12,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 2,
-        "rankByRate": 5,
         "unitid": 141811001,
-        "name": "Leeward Community College",
-        "short": null,
-        "state": "HI",
-        "count": 1,
-        "pct": 11.11,
-        "fte": 4567,
-        "rate": 2.19,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 2,
-        "rankByRate": 3,
         "unitid": 141565001,
-        "name": "University of Hawaii at Hilo",
-        "short": null,
-        "state": "HI",
-        "count": 1,
-        "pct": 11.11,
-        "fte": 3308,
-        "rate": 3.02,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 2,
-        "rankByRate": 7,
         "unitid": 141574002,
-        "name": "University of Hawaii at Manoa",
-        "short": null,
-        "state": "HI",
-        "count": 1,
-        "pct": 11.11,
-        "fte": 15978,
-        "rate": 0.63,
-        "isMainCampus": false
+        "count": 1
       }
     ],
     "liquor_arrest": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 141802001,
-        "name": "Kauai Community College",
-        "short": null,
-        "state": "HI",
-        "count": 1,
-        "pct": 100.0,
-        "fte": 792,
-        "rate": 12.63,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "liquor_discipline": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 141574001,
-        "name": "University of Hawaii at Manoa",
-        "short": null,
-        "state": "HI",
-        "count": 884,
-        "pct": 92.28,
-        "fte": 15978,
-        "rate": 553.26,
-        "isMainCampus": true
+        "count": 884
       },
       {
         "rank": 2,
-        "rankByRate": 2,
         "unitid": 230047001,
-        "name": "Brigham Young University-Hawaii",
-        "short": null,
-        "state": "HI",
-        "count": 27,
-        "pct": 2.82,
-        "fte": 2522,
-        "rate": 107.06,
-        "isMainCampus": true
+        "count": 27
       },
       {
         "rank": 3,
-        "rankByRate": 4,
         "unitid": 141565001,
-        "name": "University of Hawaii at Hilo",
-        "short": null,
-        "state": "HI",
-        "count": 24,
-        "pct": 2.51,
-        "fte": 3308,
-        "rate": 72.55,
-        "isMainCampus": true
+        "count": 24
       },
       {
         "rank": 4,
-        "rankByRate": 3,
         "unitid": 141486001,
-        "name": "Chaminade University of Honolulu",
-        "short": null,
-        "state": "HI",
-        "count": 21,
-        "pct": 2.19,
-        "fte": 2103,
-        "rate": 99.86,
-        "isMainCampus": true
+        "count": 21
       },
       {
         "rank": 5,
-        "rankByRate": 5,
         "unitid": 141802001,
-        "name": "Kauai Community College",
-        "short": null,
-        "state": "HI",
-        "count": 2,
-        "pct": 0.21,
-        "fte": 792,
-        "rate": 25.25,
-        "isMainCampus": true
+        "count": 2
       }
     ],
     "motor_vehicle_theft": [
       {
         "rank": 1,
-        "rankByRate": 4,
         "unitid": 141574001,
-        "name": "University of Hawaii at Manoa",
-        "short": null,
-        "state": "HI",
-        "count": 33,
-        "pct": 45.21,
-        "fte": 15978,
-        "rate": 20.65,
-        "isMainCampus": true
+        "count": 33
       },
       {
         "rank": 2,
-        "rankByRate": 3,
         "unitid": 141565001,
-        "name": "University of Hawaii at Hilo",
-        "short": null,
-        "state": "HI",
-        "count": 14,
-        "pct": 19.18,
-        "fte": 3308,
-        "rate": 42.32,
-        "isMainCampus": true
+        "count": 14
       },
       {
         "rank": 3,
-        "rankByRate": 2,
         "unitid": 230047001,
-        "name": "Brigham Young University-Hawaii",
-        "short": null,
-        "state": "HI",
-        "count": 11,
-        "pct": 15.07,
-        "fte": 2522,
-        "rate": 43.62,
-        "isMainCampus": true
+        "count": 11
       },
       {
         "rank": 4,
-        "rankByRate": 1,
         "unitid": 383190001,
-        "name": "Hawaii Community College",
-        "short": null,
-        "state": "HI",
-        "count": 9,
-        "pct": 12.33,
-        "fte": 1871,
-        "rate": 48.1,
-        "isMainCampus": true
+        "count": 9
       },
       {
         "rank": 5,
-        "rankByRate": 5,
         "unitid": 141486001,
-        "name": "Chaminade University of Honolulu",
-        "short": null,
-        "state": "HI",
-        "count": 2,
-        "pct": 2.74,
-        "fte": 2103,
-        "rate": 9.51,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 6,
-        "rankByRate": 7,
         "unitid": 141644001,
-        "name": "Hawaii Pacific University",
-        "short": null,
-        "state": "HI",
-        "count": 1,
-        "pct": 1.37,
-        "fte": 3901,
-        "rate": 2.56,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 6,
-        "rankByRate": 6,
         "unitid": 141680001,
-        "name": "Honolulu Community College",
-        "short": null,
-        "state": "HI",
-        "count": 1,
-        "pct": 1.37,
-        "fte": 2426,
-        "rate": 4.12,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 6,
-        "rankByRate": 9,
         "unitid": 141796001,
-        "name": "Kapiolani Community College",
-        "short": null,
-        "state": "HI",
-        "count": 1,
-        "pct": 1.37,
-        "fte": 4618,
-        "rate": 2.17,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 6,
-        "rankByRate": 8,
         "unitid": 141811001,
-        "name": "Leeward Community College",
-        "short": null,
-        "state": "HI",
-        "count": 1,
-        "pct": 1.37,
-        "fte": 4567,
-        "rate": 2.19,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "rape": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 230047001,
-        "name": "Brigham Young University-Hawaii",
-        "short": null,
-        "state": "HI",
-        "count": 7,
-        "pct": 63.64,
-        "fte": 2522,
-        "rate": 27.76,
-        "isMainCampus": true
+        "count": 7
       },
       {
         "rank": 2,
-        "rankByRate": 3,
         "unitid": 141574001,
-        "name": "University of Hawaii at Manoa",
-        "short": null,
-        "state": "HI",
-        "count": 3,
-        "pct": 27.27,
-        "fte": 15978,
-        "rate": 1.88,
-        "isMainCampus": true
+        "count": 3
       },
       {
         "rank": 3,
-        "rankByRate": 2,
         "unitid": 141644001,
-        "name": "Hawaii Pacific University",
-        "short": null,
-        "state": "HI",
-        "count": 1,
-        "pct": 9.09,
-        "fte": 3901,
-        "rate": 2.56,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "robbery": [
       {
         "rank": 1,
-        "rankByRate": 2,
         "unitid": 141644001,
-        "name": "Hawaii Pacific University",
-        "short": null,
-        "state": "HI",
-        "count": 1,
-        "pct": 33.33,
-        "fte": 3901,
-        "rate": 2.56,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 141565001,
-        "name": "University of Hawaii at Hilo",
-        "short": null,
-        "state": "HI",
-        "count": 1,
-        "pct": 33.33,
-        "fte": 3308,
-        "rate": 3.02,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 1,
-        "rankByRate": 3,
         "unitid": 141574001,
-        "name": "University of Hawaii at Manoa",
-        "short": null,
-        "state": "HI",
-        "count": 1,
-        "pct": 33.33,
-        "fte": 15978,
-        "rate": 0.63,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "stalking": [
       {
         "rank": 1,
-        "rankByRate": 6,
         "unitid": 141574001,
-        "name": "University of Hawaii at Manoa",
-        "short": null,
-        "state": "HI",
-        "count": 11,
-        "pct": 33.33,
-        "fte": 15978,
-        "rate": 6.88,
-        "isMainCampus": true
+        "count": 11
       },
       {
         "rank": 2,
-        "rankByRate": 2,
         "unitid": 230047001,
-        "name": "Brigham Young University-Hawaii",
-        "short": null,
-        "state": "HI",
-        "count": 4,
-        "pct": 12.12,
-        "fte": 2522,
-        "rate": 15.86,
-        "isMainCampus": true
+        "count": 4
       },
       {
         "rank": 2,
-        "rankByRate": 4,
         "unitid": 141644001,
-        "name": "Hawaii Pacific University",
-        "short": null,
-        "state": "HI",
-        "count": 4,
-        "pct": 12.12,
-        "fte": 3901,
-        "rate": 10.25,
-        "isMainCampus": true
+        "count": 4
       },
       {
         "rank": 2,
-        "rankByRate": 5,
         "unitid": 141811001,
-        "name": "Leeward Community College",
-        "short": null,
-        "state": "HI",
-        "count": 4,
-        "pct": 12.12,
-        "fte": 4567,
-        "rate": 8.76,
-        "isMainCampus": true
+        "count": 4
       },
       {
         "rank": 2,
-        "rankByRate": 1,
         "unitid": 141990001,
-        "name": "Windward Community College",
-        "short": null,
-        "state": "HI",
-        "count": 4,
-        "pct": 12.12,
-        "fte": 1427,
-        "rate": 28.03,
-        "isMainCampus": true
+        "count": 4
       },
       {
         "rank": 6,
-        "rankByRate": 3,
         "unitid": 383190001,
-        "name": "Hawaii Community College",
-        "short": null,
-        "state": "HI",
-        "count": 2,
-        "pct": 6.06,
-        "fte": 1871,
-        "rate": 10.69,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 6,
-        "rankByRate": 7,
         "unitid": 141565001,
-        "name": "University of Hawaii at Hilo",
-        "short": null,
-        "state": "HI",
-        "count": 2,
-        "pct": 6.06,
-        "fte": 3308,
-        "rate": 6.05,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 8,
-        "rankByRate": 8,
         "unitid": 141486001,
-        "name": "Chaminade University of Honolulu",
-        "short": null,
-        "state": "HI",
-        "count": 1,
-        "pct": 3.03,
-        "fte": 2103,
-        "rate": 4.76,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 8,
-        "rankByRate": 9,
         "unitid": 141796001,
-        "name": "Kapiolani Community College",
-        "short": null,
-        "state": "HI",
-        "count": 1,
-        "pct": 3.03,
-        "fte": 4618,
-        "rate": 2.17,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "weapons_arrest": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 141574001,
-        "name": "University of Hawaii at Manoa",
-        "short": null,
-        "state": "HI",
-        "count": 1,
-        "pct": 100.0,
-        "fte": 15978,
-        "rate": 0.63,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "weapons_discipline": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 141565001,
-        "name": "University of Hawaii at Hilo",
-        "short": null,
-        "state": "HI",
-        "count": 1,
-        "pct": 100.0,
-        "fte": 3308,
-        "rate": 3.02,
-        "isMainCampus": true
+        "count": 1
       }
     ]
   },
@@ -1514,5 +772,672 @@
     "stalking": 33,
     "weapons_arrest": 1,
     "weapons_discipline": 1
+  },
+  "institutions": {
+    "141486": {
+      "name": "Chaminade University of Honolulu",
+      "unitid": 141486001,
+      "state": "HI",
+      "fte": 2103,
+      "campuses": 1
+    },
+    "141565": {
+      "name": "University of Hawaii at Hilo",
+      "unitid": 141565001,
+      "state": "HI",
+      "fte": 3308,
+      "campuses": 1
+    },
+    "141574": {
+      "name": "University of Hawaii at Manoa",
+      "unitid": 141574001,
+      "state": "HI",
+      "fte": 15978,
+      "campuses": 2
+    },
+    "141644": {
+      "name": "Hawaii Pacific University",
+      "unitid": 141644001,
+      "state": "HI",
+      "fte": 3901,
+      "campuses": 3
+    },
+    "141680": {
+      "name": "Honolulu Community College",
+      "unitid": 141680001,
+      "state": "HI",
+      "fte": 2426,
+      "campuses": 4
+    },
+    "141796": {
+      "name": "Kapiolani Community College",
+      "unitid": 141796001,
+      "state": "HI",
+      "fte": 4618,
+      "campuses": 1
+    },
+    "141811": {
+      "name": "Leeward Community College",
+      "unitid": 141811001,
+      "state": "HI",
+      "fte": 4567,
+      "campuses": 1
+    },
+    "141839": {
+      "name": "University of Hawaii Maui College",
+      "unitid": 141839001,
+      "state": "HI",
+      "fte": 2215,
+      "campuses": 5
+    },
+    "141981": {
+      "name": "University of Hawaii-West Oahu",
+      "unitid": 141981001,
+      "state": "HI",
+      "fte": 1944,
+      "campuses": 1
+    },
+    "141990": {
+      "name": "Windward Community College",
+      "unitid": 141990001,
+      "state": "HI",
+      "fte": 1427,
+      "campuses": 1
+    },
+    "230047": {
+      "name": "Brigham Young University-Hawaii",
+      "unitid": 230047001,
+      "state": "HI",
+      "fte": 2522,
+      "campuses": 1
+    },
+    "383190": {
+      "name": "Hawaii Community College",
+      "unitid": 383190001,
+      "state": "HI",
+      "fte": 1871,
+      "campuses": 2
+    }
+  },
+  "rateRankings": {
+    "criminal": [
+      {
+        "rank": 1,
+        "id": 230047,
+        "count": 28,
+        "rate": 111.02
+      },
+      {
+        "rank": 2,
+        "id": 141565,
+        "count": 22,
+        "rate": 66.51
+      },
+      {
+        "rank": 3,
+        "id": 141839,
+        "count": 13,
+        "rate": 58.69
+      },
+      {
+        "rank": 4,
+        "id": 383190,
+        "count": 10,
+        "rate": 53.45
+      },
+      {
+        "rank": 5,
+        "id": 141990,
+        "count": 5,
+        "rate": 35.04
+      },
+      {
+        "rank": 6,
+        "id": 141574,
+        "count": 54,
+        "rate": 33.8
+      },
+      {
+        "rank": 7,
+        "id": 141680,
+        "count": 7,
+        "rate": 28.85
+      },
+      {
+        "rank": 8,
+        "id": 141486,
+        "count": 6,
+        "rate": 28.53
+      },
+      {
+        "rank": 9,
+        "id": 141644,
+        "count": 6,
+        "rate": 15.38
+      },
+      {
+        "rank": 10,
+        "id": 141796,
+        "count": 3,
+        "rate": 6.5
+      },
+      {
+        "rank": 11,
+        "id": 141811,
+        "count": 2,
+        "rate": 4.38
+      }
+    ],
+    "all": [
+      {
+        "rank": 1,
+        "id": 141574,
+        "count": 1470,
+        "rate": 920.02
+      },
+      {
+        "rank": 2,
+        "id": 230047,
+        "count": 88,
+        "rate": 348.93
+      },
+      {
+        "rank": 3,
+        "id": 141565,
+        "count": 111,
+        "rate": 335.55
+      },
+      {
+        "rank": 4,
+        "id": 141486,
+        "count": 38,
+        "rate": 180.69
+      },
+      {
+        "rank": 5,
+        "id": 141839,
+        "count": 15,
+        "rate": 67.72
+      },
+      {
+        "rank": 6,
+        "id": 383190,
+        "count": 12,
+        "rate": 64.14
+      },
+      {
+        "rank": 7,
+        "id": 141990,
+        "count": 9,
+        "rate": 63.07
+      },
+      {
+        "rank": 8,
+        "id": 141680,
+        "count": 14,
+        "rate": 57.71
+      },
+      {
+        "rank": 9,
+        "id": 141644,
+        "count": 10,
+        "rate": 25.63
+      },
+      {
+        "rank": 10,
+        "id": 141811,
+        "count": 8,
+        "rate": 17.52
+      },
+      {
+        "rank": 11,
+        "id": 141796,
+        "count": 6,
+        "rate": 12.99
+      },
+      {
+        "rank": 12,
+        "id": 141981,
+        "count": 2,
+        "rate": 10.29
+      }
+    ],
+    "aggravated_assault": [
+      {
+        "rank": 1,
+        "id": 141839,
+        "count": 2,
+        "rate": 9.03
+      },
+      {
+        "rank": 2,
+        "id": 383190,
+        "count": 1,
+        "rate": 5.34
+      },
+      {
+        "rank": 3,
+        "id": 141680,
+        "count": 1,
+        "rate": 4.12
+      }
+    ],
+    "arson": [
+      {
+        "rank": 1,
+        "id": 141574,
+        "count": 1,
+        "rate": 0.63
+      }
+    ],
+    "burglary": [
+      {
+        "rank": 1,
+        "id": 141839,
+        "count": 11,
+        "rate": 49.66
+      },
+      {
+        "rank": 2,
+        "id": 230047,
+        "count": 9,
+        "rate": 35.69
+      },
+      {
+        "rank": 3,
+        "id": 141990,
+        "count": 5,
+        "rate": 35.04
+      },
+      {
+        "rank": 4,
+        "id": 141486,
+        "count": 4,
+        "rate": 19.02
+      },
+      {
+        "rank": 5,
+        "id": 141565,
+        "count": 6,
+        "rate": 18.14
+      },
+      {
+        "rank": 6,
+        "id": 141680,
+        "count": 4,
+        "rate": 16.49
+      },
+      {
+        "rank": 7,
+        "id": 141574,
+        "count": 12,
+        "rate": 7.51
+      },
+      {
+        "rank": 8,
+        "id": 141644,
+        "count": 2,
+        "rate": 5.13
+      },
+      {
+        "rank": 9,
+        "id": 141796,
+        "count": 2,
+        "rate": 4.33
+      }
+    ],
+    "dating_violence": [
+      {
+        "rank": 1,
+        "id": 230047,
+        "count": 6,
+        "rate": 23.79
+      },
+      {
+        "rank": 2,
+        "id": 141680,
+        "count": 3,
+        "rate": 12.37
+      },
+      {
+        "rank": 3,
+        "id": 141486,
+        "count": 2,
+        "rate": 9.51
+      },
+      {
+        "rank": 4,
+        "id": 141574,
+        "count": 8,
+        "rate": 5.01
+      },
+      {
+        "rank": 5,
+        "id": 141565,
+        "count": 1,
+        "rate": 3.02
+      },
+      {
+        "rank": 6,
+        "id": 141811,
+        "count": 1,
+        "rate": 2.19
+      }
+    ],
+    "domestic_violence": [
+      {
+        "rank": 1,
+        "id": 230047,
+        "count": 13,
+        "rate": 51.55
+      },
+      {
+        "rank": 2,
+        "id": 141680,
+        "count": 3,
+        "rate": 12.37
+      },
+      {
+        "rank": 3,
+        "id": 141981,
+        "count": 2,
+        "rate": 10.29
+      },
+      {
+        "rank": 4,
+        "id": 141796,
+        "count": 2,
+        "rate": 4.33
+      },
+      {
+        "rank": 5,
+        "id": 141574,
+        "count": 3,
+        "rate": 1.88
+      }
+    ],
+    "drug_arrest": [
+      {
+        "rank": 1,
+        "id": 141839,
+        "count": 2,
+        "rate": 9.03
+      }
+    ],
+    "drug_discipline": [
+      {
+        "rank": 1,
+        "id": 141574,
+        "count": 509,
+        "rate": 318.56
+      },
+      {
+        "rank": 2,
+        "id": 141565,
+        "count": 61,
+        "rate": 184.4
+      },
+      {
+        "rank": 3,
+        "id": 230047,
+        "count": 10,
+        "rate": 39.65
+      },
+      {
+        "rank": 4,
+        "id": 141486,
+        "count": 8,
+        "rate": 38.04
+      },
+      {
+        "rank": 5,
+        "id": 141680,
+        "count": 1,
+        "rate": 4.12
+      },
+      {
+        "rank": 6,
+        "id": 141811,
+        "count": 1,
+        "rate": 2.19
+      }
+    ],
+    "fondling": [
+      {
+        "rank": 1,
+        "id": 141680,
+        "count": 1,
+        "rate": 4.12
+      },
+      {
+        "rank": 2,
+        "id": 230047,
+        "count": 1,
+        "rate": 3.97
+      },
+      {
+        "rank": 3,
+        "id": 141565,
+        "count": 1,
+        "rate": 3.02
+      },
+      {
+        "rank": 4,
+        "id": 141644,
+        "count": 1,
+        "rate": 2.56
+      },
+      {
+        "rank": 5,
+        "id": 141574,
+        "count": 4,
+        "rate": 2.5
+      },
+      {
+        "rank": 6,
+        "id": 141811,
+        "count": 1,
+        "rate": 2.19
+      }
+    ],
+    "incest": [],
+    "liquor_arrest": [],
+    "liquor_discipline": [
+      {
+        "rank": 1,
+        "id": 141574,
+        "count": 884,
+        "rate": 553.26
+      },
+      {
+        "rank": 2,
+        "id": 230047,
+        "count": 27,
+        "rate": 107.06
+      },
+      {
+        "rank": 3,
+        "id": 141486,
+        "count": 21,
+        "rate": 99.86
+      },
+      {
+        "rank": 4,
+        "id": 141565,
+        "count": 24,
+        "rate": 72.55
+      }
+    ],
+    "motor_vehicle_theft": [
+      {
+        "rank": 1,
+        "id": 383190,
+        "count": 9,
+        "rate": 48.1
+      },
+      {
+        "rank": 2,
+        "id": 230047,
+        "count": 11,
+        "rate": 43.62
+      },
+      {
+        "rank": 3,
+        "id": 141565,
+        "count": 14,
+        "rate": 42.32
+      },
+      {
+        "rank": 4,
+        "id": 141574,
+        "count": 33,
+        "rate": 20.65
+      },
+      {
+        "rank": 5,
+        "id": 141486,
+        "count": 2,
+        "rate": 9.51
+      },
+      {
+        "rank": 6,
+        "id": 141680,
+        "count": 1,
+        "rate": 4.12
+      },
+      {
+        "rank": 7,
+        "id": 141644,
+        "count": 1,
+        "rate": 2.56
+      },
+      {
+        "rank": 8,
+        "id": 141811,
+        "count": 1,
+        "rate": 2.19
+      },
+      {
+        "rank": 9,
+        "id": 141796,
+        "count": 1,
+        "rate": 2.17
+      }
+    ],
+    "murder": [],
+    "negligent_manslaughter": [],
+    "rape": [
+      {
+        "rank": 1,
+        "id": 230047,
+        "count": 7,
+        "rate": 27.76
+      },
+      {
+        "rank": 2,
+        "id": 141644,
+        "count": 1,
+        "rate": 2.56
+      },
+      {
+        "rank": 3,
+        "id": 141574,
+        "count": 3,
+        "rate": 1.88
+      }
+    ],
+    "robbery": [
+      {
+        "rank": 1,
+        "id": 141565,
+        "count": 1,
+        "rate": 3.02
+      },
+      {
+        "rank": 2,
+        "id": 141644,
+        "count": 1,
+        "rate": 2.56
+      },
+      {
+        "rank": 3,
+        "id": 141574,
+        "count": 1,
+        "rate": 0.63
+      }
+    ],
+    "stalking": [
+      {
+        "rank": 1,
+        "id": 141990,
+        "count": 4,
+        "rate": 28.03
+      },
+      {
+        "rank": 2,
+        "id": 230047,
+        "count": 4,
+        "rate": 15.86
+      },
+      {
+        "rank": 3,
+        "id": 383190,
+        "count": 2,
+        "rate": 10.69
+      },
+      {
+        "rank": 4,
+        "id": 141644,
+        "count": 4,
+        "rate": 10.25
+      },
+      {
+        "rank": 5,
+        "id": 141811,
+        "count": 4,
+        "rate": 8.76
+      },
+      {
+        "rank": 6,
+        "id": 141574,
+        "count": 11,
+        "rate": 6.88
+      },
+      {
+        "rank": 7,
+        "id": 141565,
+        "count": 2,
+        "rate": 6.05
+      },
+      {
+        "rank": 8,
+        "id": 141486,
+        "count": 1,
+        "rate": 4.76
+      },
+      {
+        "rank": 9,
+        "id": 141796,
+        "count": 1,
+        "rate": 2.17
+      }
+    ],
+    "statutory_rape": [],
+    "weapons_arrest": [
+      {
+        "rank": 1,
+        "id": 141574,
+        "count": 1,
+        "rate": 0.63
+      }
+    ],
+    "weapons_discipline": [
+      {
+        "rank": 1,
+        "id": 141565,
+        "count": 1,
+        "rate": 3.02
+      }
+    ]
   }
 }

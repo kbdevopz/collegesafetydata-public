@@ -1,1196 +1,686 @@
 {
   "preset": "PR",
   "year": 2023,
+  "campuses": {
+    "165167007": {
+      "name": "Cambridge College",
+      "short": null,
+      "state": "PR",
+      "main": false,
+      "fte": 1060,
+      "campuses": 2
+    },
+    "241216001": {
+      "name": "Atlantic University",
+      "short": null,
+      "state": "PR",
+      "main": true,
+      "fte": 1339,
+      "campuses": 1
+    },
+    "241225001": {
+      "name": "Universidad Central de Bayamon",
+      "short": null,
+      "state": "PR",
+      "main": true,
+      "fte": 639,
+      "campuses": 1
+    },
+    "241377001": {
+      "name": "Caribbean University-Bayamon",
+      "short": null,
+      "state": "PR",
+      "main": true,
+      "fte": 736,
+      "campuses": 1
+    },
+    "241720001": {
+      "name": "Colegio Universitario de San Juan",
+      "short": null,
+      "state": "PR",
+      "main": true,
+      "fte": 448,
+      "campuses": 1
+    },
+    "241739001": {
+      "name": "Universidad Ana G. Mendez-Cupey Campus",
+      "short": null,
+      "state": "PR",
+      "main": true,
+      "fte": 4913,
+      "campuses": 6
+    },
+    "241766001": {
+      "name": "Puerto Rico Conservatory of Music",
+      "short": null,
+      "state": "PR",
+      "main": true,
+      "fte": 254,
+      "campuses": 1
+    },
+    "242556001": {
+      "name": "Instituto Tecnologico de Puerto Rico-Recinto de Guayama",
+      "short": null,
+      "state": "PR",
+      "main": true,
+      "fte": 254,
+      "campuses": 1
+    },
+    "242583001": {
+      "name": "Instituto Tecnologico de Puerto Rico-Recinto de San Juan",
+      "short": null,
+      "state": "PR",
+      "main": true,
+      "fte": 163,
+      "campuses": 1
+    },
+    "242617001": {
+      "name": "Inter American University of Puerto Rico-San German",
+      "short": null,
+      "state": "PR",
+      "main": true,
+      "fte": 2813,
+      "campuses": 1
+    },
+    "242653001": {
+      "name": "Inter American University of Puerto Rico-Metro",
+      "short": null,
+      "state": "PR",
+      "main": true,
+      "fte": 3581,
+      "campuses": 1
+    },
+    "242699001": {
+      "name": "Inter American University of Puerto Rico-Guayama",
+      "short": null,
+      "state": "PR",
+      "main": true,
+      "fte": 1597,
+      "campuses": 1
+    },
+    "242972016": {
+      "name": "NUC University",
+      "short": null,
+      "state": "PR",
+      "main": false,
+      "fte": 28453,
+      "campuses": 27
+    },
+    "242972017": {
+      "name": "NUC University",
+      "short": null,
+      "state": "PR",
+      "main": false,
+      "fte": 28453,
+      "campuses": 27
+    },
+    "243106001": {
+      "name": "University of Puerto Rico-Aguadilla",
+      "short": null,
+      "state": "PR",
+      "main": true,
+      "fte": 1790,
+      "campuses": 1
+    },
+    "243133001": {
+      "name": "University of Puerto Rico-Bayamon",
+      "short": null,
+      "state": "PR",
+      "main": true,
+      "fte": 2732,
+      "campuses": 1
+    },
+    "243151001": {
+      "name": "University of Puerto Rico at Cayey",
+      "short": null,
+      "state": "PR",
+      "main": true,
+      "fte": 2059,
+      "campuses": 1
+    },
+    "243179001": {
+      "name": "University of Puerto Rico-Humacao",
+      "short": null,
+      "state": "PR",
+      "main": true,
+      "fte": 2442,
+      "campuses": 1
+    },
+    "243197001": {
+      "name": "University of Puerto Rico-Mayaguez",
+      "short": null,
+      "state": "PR",
+      "main": true,
+      "fte": 9970,
+      "campuses": 1
+    },
+    "243203001": {
+      "name": "University of Puerto Rico-Medical Sciences",
+      "short": null,
+      "state": "PR",
+      "main": true,
+      "fte": 1883,
+      "campuses": 1
+    },
+    "243221001": {
+      "name": "University of Puerto Rico-Rio Piedras",
+      "short": null,
+      "state": "PR",
+      "main": true,
+      "fte": 10260,
+      "campuses": 1
+    },
+    "243346001": {
+      "name": "Universidad Ana G. Mendez-Carolina Campus",
+      "short": null,
+      "state": "PR",
+      "main": true,
+      "fte": 4252,
+      "campuses": 7
+    },
+    "444732001": {
+      "name": "Leston College",
+      "short": null,
+      "state": "PR",
+      "main": true,
+      "fte": 26,
+      "campuses": 2
+    },
+    "444732002": {
+      "name": "Leston College",
+      "short": null,
+      "state": "PR",
+      "main": false,
+      "fte": 26,
+      "campuses": 2
+    },
+    "498012001": {
+      "name": "Commonwealth of Puerto Rico Department of Education-PRAMI",
+      "short": null,
+      "state": "PR",
+      "main": true,
+      "fte": 81,
+      "campuses": 1
+    }
+  },
   "rankings": {
     "criminal": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 241720001,
-        "name": "Colegio Universitario de San Juan",
-        "short": null,
-        "state": "PR",
-        "count": 53,
-        "pct": 43.44,
-        "fte": 448,
-        "rate": 1183.04,
-        "isMainCampus": true
+        "count": 53
       },
       {
         "rank": 2,
-        "rankByRate": 5,
         "unitid": 165167007,
-        "name": "Cambridge College",
-        "short": null,
-        "state": "PR",
-        "count": 29,
-        "pct": 23.77,
-        "fte": 1060,
-        "rate": 273.58,
-        "isMainCampus": false
+        "count": 29
       },
       {
         "rank": 3,
-        "rankByRate": 12,
         "unitid": 243221001,
-        "name": "University of Puerto Rico-Rio Piedras",
-        "short": null,
-        "state": "PR",
-        "count": 8,
-        "pct": 6.56,
-        "fte": 10260,
-        "rate": 7.8,
-        "isMainCampus": true
+        "count": 8
       },
       {
         "rank": 4,
-        "rankByRate": 4,
         "unitid": 242556001,
-        "name": "Instituto Tecnologico de Puerto Rico-Recinto de Guayama",
-        "short": null,
-        "state": "PR",
-        "count": 7,
-        "pct": 5.74,
-        "fte": 254,
-        "rate": 275.59,
-        "isMainCampus": true
+        "count": 7
       },
       {
         "rank": 5,
-        "rankByRate": 9,
         "unitid": 243179001,
-        "name": "University of Puerto Rico-Humacao",
-        "short": null,
-        "state": "PR",
-        "count": 6,
-        "pct": 4.92,
-        "fte": 2442,
-        "rate": 24.57,
-        "isMainCampus": true
+        "count": 6
       },
       {
         "rank": 6,
-        "rankByRate": 11,
         "unitid": 243151001,
-        "name": "University of Puerto Rico at Cayey",
-        "short": null,
-        "state": "PR",
-        "count": 3,
-        "pct": 2.46,
-        "fte": 2059,
-        "rate": 14.57,
-        "isMainCampus": true
+        "count": 3
       },
       {
         "rank": 7,
-        "rankByRate": 10,
         "unitid": 241216001,
-        "name": "Atlantic University",
-        "short": null,
-        "state": "PR",
-        "count": 2,
-        "pct": 1.64,
-        "fte": 1339,
-        "rate": 14.94,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 7,
-        "rankByRate": 2,
         "unitid": 444732001,
-        "name": "Leston College",
-        "short": null,
-        "state": "PR",
-        "count": 2,
-        "pct": 1.64,
-        "fte": 26,
-        "rate": 769.23,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 7,
-        "rankByRate": 8,
         "unitid": 241225001,
-        "name": "Universidad Central de Bayamon",
-        "short": null,
-        "state": "PR",
-        "count": 2,
-        "pct": 1.64,
-        "fte": 639,
-        "rate": 31.3,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 7,
-        "rankByRate": 16,
         "unitid": 243197001,
-        "name": "University of Puerto Rico-Mayaguez",
-        "short": null,
-        "state": "PR",
-        "count": 2,
-        "pct": 1.64,
-        "fte": 9970,
-        "rate": 2.01,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 11,
-        "rankByRate": 6,
         "unitid": 498012001,
-        "name": "Commonwealth of Puerto Rico Department of Education-PRAMI",
-        "short": null,
-        "state": "PR",
-        "count": 1,
-        "pct": 0.82,
-        "fte": 81,
-        "rate": 123.46,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 11,
-        "rankByRate": 13,
         "unitid": 242653001,
-        "name": "Inter American University of Puerto Rico-Metro",
-        "short": null,
-        "state": "PR",
-        "count": 1,
-        "pct": 0.82,
-        "fte": 3581,
-        "rate": 2.79,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 11,
-        "rankByRate": 3,
         "unitid": 444732002,
-        "name": "Leston College",
-        "short": null,
-        "state": "PR",
-        "count": 1,
-        "pct": 0.82,
-        "fte": 26,
-        "rate": 384.62,
-        "isMainCampus": false
+        "count": 1
       },
       {
         "rank": 11,
-        "rankByRate": 17,
         "unitid": 242972016,
-        "name": "NUC University",
-        "short": null,
-        "state": "PR",
-        "count": 1,
-        "pct": 0.82,
-        "fte": 28453,
-        "rate": 0.35,
-        "isMainCampus": false
+        "count": 1
       },
       {
         "rank": 11,
-        "rankByRate": 17,
         "unitid": 242972017,
-        "name": "NUC University",
-        "short": null,
-        "state": "PR",
-        "count": 1,
-        "pct": 0.82,
-        "fte": 28453,
-        "rate": 0.35,
-        "isMainCampus": false
+        "count": 1
       },
       {
         "rank": 11,
-        "rankByRate": 7,
         "unitid": 241766001,
-        "name": "Puerto Rico Conservatory of Music",
-        "short": null,
-        "state": "PR",
-        "count": 1,
-        "pct": 0.82,
-        "fte": 254,
-        "rate": 39.37,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 11,
-        "rankByRate": 14,
         "unitid": 243346001,
-        "name": "Universidad Ana G. Mendez-Carolina Campus",
-        "short": null,
-        "state": "PR",
-        "count": 1,
-        "pct": 0.82,
-        "fte": 4252,
-        "rate": 2.35,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 11,
-        "rankByRate": 15,
         "unitid": 241739001,
-        "name": "Universidad Ana G. Mendez-Cupey Campus",
-        "short": null,
-        "state": "PR",
-        "count": 1,
-        "pct": 0.82,
-        "fte": 4913,
-        "rate": 2.04,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "all": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 241720001,
-        "name": "Colegio Universitario de San Juan",
-        "short": null,
-        "state": "PR",
-        "count": 64,
-        "pct": 40.0,
-        "fte": 448,
-        "rate": 1428.57,
-        "isMainCampus": true
+        "count": 64
       },
       {
         "rank": 2,
-        "rankByRate": 5,
         "unitid": 165167007,
-        "name": "Cambridge College",
-        "short": null,
-        "state": "PR",
-        "count": 29,
-        "pct": 18.12,
-        "fte": 1060,
-        "rate": 273.58,
-        "isMainCampus": false
+        "count": 29
       },
       {
         "rank": 3,
-        "rankByRate": 17,
         "unitid": 243221001,
-        "name": "University of Puerto Rico-Rio Piedras",
-        "short": null,
-        "state": "PR",
-        "count": 11,
-        "pct": 6.88,
-        "fte": 10260,
-        "rate": 10.72,
-        "isMainCampus": true
+        "count": 11
       },
       {
         "rank": 4,
-        "rankByRate": 4,
         "unitid": 242556001,
-        "name": "Instituto Tecnologico de Puerto Rico-Recinto de Guayama",
-        "short": null,
-        "state": "PR",
-        "count": 8,
-        "pct": 5.0,
-        "fte": 254,
-        "rate": 314.96,
-        "isMainCampus": true
+        "count": 8
       },
       {
         "rank": 5,
-        "rankByRate": 20,
         "unitid": 243197001,
-        "name": "University of Puerto Rico-Mayaguez",
-        "short": null,
-        "state": "PR",
-        "count": 7,
-        "pct": 4.38,
-        "fte": 9970,
-        "rate": 7.02,
-        "isMainCampus": true
+        "count": 7
       },
       {
         "rank": 6,
-        "rankByRate": 10,
         "unitid": 243179001,
-        "name": "University of Puerto Rico-Humacao",
-        "short": null,
-        "state": "PR",
-        "count": 6,
-        "pct": 3.75,
-        "fte": 2442,
-        "rate": 24.57,
-        "isMainCampus": true
+        "count": 6
       },
       {
         "rank": 7,
-        "rankByRate": 11,
         "unitid": 242699001,
-        "name": "Inter American University of Puerto Rico-Guayama",
-        "short": null,
-        "state": "PR",
-        "count": 3,
-        "pct": 1.88,
-        "fte": 1597,
-        "rate": 18.79,
-        "isMainCampus": true
+        "count": 3
       },
       {
         "rank": 7,
-        "rankByRate": 21,
         "unitid": 241739001,
-        "name": "Universidad Ana G. Mendez-Cupey Campus",
-        "short": null,
-        "state": "PR",
-        "count": 3,
-        "pct": 1.88,
-        "fte": 4913,
-        "rate": 6.11,
-        "isMainCampus": true
+        "count": 3
       },
       {
         "rank": 7,
-        "rankByRate": 15,
         "unitid": 243151001,
-        "name": "University of Puerto Rico at Cayey",
-        "short": null,
-        "state": "PR",
-        "count": 3,
-        "pct": 1.88,
-        "fte": 2059,
-        "rate": 14.57,
-        "isMainCampus": true
+        "count": 3
       },
       {
         "rank": 7,
-        "rankByRate": 12,
         "unitid": 243106001,
-        "name": "University of Puerto Rico-Aguadilla",
-        "short": null,
-        "state": "PR",
-        "count": 3,
-        "pct": 1.88,
-        "fte": 1790,
-        "rate": 16.76,
-        "isMainCampus": true
+        "count": 3
       },
       {
         "rank": 7,
-        "rankByRate": 13,
         "unitid": 243203001,
-        "name": "University of Puerto Rico-Medical Sciences",
-        "short": null,
-        "state": "PR",
-        "count": 3,
-        "pct": 1.88,
-        "fte": 1883,
-        "rate": 15.93,
-        "isMainCampus": true
+        "count": 3
       },
       {
         "rank": 12,
-        "rankByRate": 14,
         "unitid": 241216001,
-        "name": "Atlantic University",
-        "short": null,
-        "state": "PR",
-        "count": 2,
-        "pct": 1.25,
-        "fte": 1339,
-        "rate": 14.94,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 12,
-        "rankByRate": 7,
         "unitid": 242583001,
-        "name": "Instituto Tecnologico de Puerto Rico-Recinto de San Juan",
-        "short": null,
-        "state": "PR",
-        "count": 2,
-        "pct": 1.25,
-        "fte": 163,
-        "rate": 122.7,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 12,
-        "rankByRate": 19,
         "unitid": 242617001,
-        "name": "Inter American University of Puerto Rico-San German",
-        "short": null,
-        "state": "PR",
-        "count": 2,
-        "pct": 1.25,
-        "fte": 2813,
-        "rate": 7.11,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 12,
-        "rankByRate": 2,
         "unitid": 444732001,
-        "name": "Leston College",
-        "short": null,
-        "state": "PR",
-        "count": 2,
-        "pct": 1.25,
-        "fte": 26,
-        "rate": 769.23,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 12,
-        "rankByRate": 9,
         "unitid": 241225001,
-        "name": "Universidad Central de Bayamon",
-        "short": null,
-        "state": "PR",
-        "count": 2,
-        "pct": 1.25,
-        "fte": 639,
-        "rate": 31.3,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 12,
-        "rankByRate": 18,
         "unitid": 243133001,
-        "name": "University of Puerto Rico-Bayamon",
-        "short": null,
-        "state": "PR",
-        "count": 2,
-        "pct": 1.25,
-        "fte": 2732,
-        "rate": 7.32,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 18,
-        "rankByRate": 16,
         "unitid": 241377001,
-        "name": "Caribbean University-Bayamon",
-        "short": null,
-        "state": "PR",
-        "count": 1,
-        "pct": 0.62,
-        "fte": 736,
-        "rate": 13.59,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 18,
-        "rankByRate": 6,
         "unitid": 498012001,
-        "name": "Commonwealth of Puerto Rico Department of Education-PRAMI",
-        "short": null,
-        "state": "PR",
-        "count": 1,
-        "pct": 0.62,
-        "fte": 81,
-        "rate": 123.46,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 18,
-        "rankByRate": 22,
         "unitid": 242653001,
-        "name": "Inter American University of Puerto Rico-Metro",
-        "short": null,
-        "state": "PR",
-        "count": 1,
-        "pct": 0.62,
-        "fte": 3581,
-        "rate": 2.79,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 18,
-        "rankByRate": 3,
         "unitid": 444732002,
-        "name": "Leston College",
-        "short": null,
-        "state": "PR",
-        "count": 1,
-        "pct": 0.62,
-        "fte": 26,
-        "rate": 384.62,
-        "isMainCampus": false
+        "count": 1
       },
       {
         "rank": 18,
-        "rankByRate": 24,
         "unitid": 242972016,
-        "name": "NUC University",
-        "short": null,
-        "state": "PR",
-        "count": 1,
-        "pct": 0.62,
-        "fte": 28453,
-        "rate": 0.35,
-        "isMainCampus": false
+        "count": 1
       },
       {
         "rank": 18,
-        "rankByRate": 24,
         "unitid": 242972017,
-        "name": "NUC University",
-        "short": null,
-        "state": "PR",
-        "count": 1,
-        "pct": 0.62,
-        "fte": 28453,
-        "rate": 0.35,
-        "isMainCampus": false
+        "count": 1
       },
       {
         "rank": 18,
-        "rankByRate": 8,
         "unitid": 241766001,
-        "name": "Puerto Rico Conservatory of Music",
-        "short": null,
-        "state": "PR",
-        "count": 1,
-        "pct": 0.62,
-        "fte": 254,
-        "rate": 39.37,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 18,
-        "rankByRate": 23,
         "unitid": 243346001,
-        "name": "Universidad Ana G. Mendez-Carolina Campus",
-        "short": null,
-        "state": "PR",
-        "count": 1,
-        "pct": 0.62,
-        "fte": 4252,
-        "rate": 2.35,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "aggravated_assault": [
       {
         "rank": 1,
-        "rankByRate": 2,
         "unitid": 165167007,
-        "name": "Cambridge College",
-        "short": null,
-        "state": "PR",
-        "count": 16,
-        "pct": 51.61,
-        "fte": 1060,
-        "rate": 150.94,
-        "isMainCampus": false
+        "count": 16
       },
       {
         "rank": 2,
-        "rankByRate": 1,
         "unitid": 241720001,
-        "name": "Colegio Universitario de San Juan",
-        "short": null,
-        "state": "PR",
-        "count": 11,
-        "pct": 35.48,
-        "fte": 448,
-        "rate": 245.54,
-        "isMainCampus": true
+        "count": 11
       },
       {
         "rank": 3,
-        "rankByRate": 4,
         "unitid": 243197001,
-        "name": "University of Puerto Rico-Mayaguez",
-        "short": null,
-        "state": "PR",
-        "count": 2,
-        "pct": 6.45,
-        "fte": 9970,
-        "rate": 2.01,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 4,
-        "rankByRate": 3,
         "unitid": 241216001,
-        "name": "Atlantic University",
-        "short": null,
-        "state": "PR",
-        "count": 1,
-        "pct": 3.23,
-        "fte": 1339,
-        "rate": 7.47,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 4,
-        "rankByRate": 5,
         "unitid": 243221001,
-        "name": "University of Puerto Rico-Rio Piedras",
-        "short": null,
-        "state": "PR",
-        "count": 1,
-        "pct": 3.23,
-        "fte": 10260,
-        "rate": 0.97,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "arson": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 241720001,
-        "name": "Colegio Universitario de San Juan",
-        "short": null,
-        "state": "PR",
-        "count": 1,
-        "pct": 50.0,
-        "fte": 448,
-        "rate": 22.32,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 1,
-        "rankByRate": 2,
         "unitid": 242653001,
-        "name": "Inter American University of Puerto Rico-Metro",
-        "short": null,
-        "state": "PR",
-        "count": 1,
-        "pct": 50.0,
-        "fte": 3581,
-        "rate": 2.79,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "burglary": [
       {
         "rank": 1,
-        "rankByRate": 4,
         "unitid": 243221001,
-        "name": "University of Puerto Rico-Rio Piedras",
-        "short": null,
-        "state": "PR",
-        "count": 5,
-        "pct": 38.46,
-        "fte": 10260,
-        "rate": 4.87,
-        "isMainCampus": true
+        "count": 5
       },
       {
         "rank": 2,
-        "rankByRate": 2,
         "unitid": 243151001,
-        "name": "University of Puerto Rico at Cayey",
-        "short": null,
-        "state": "PR",
-        "count": 3,
-        "pct": 23.08,
-        "fte": 2059,
-        "rate": 14.57,
-        "isMainCampus": true
+        "count": 3
       },
       {
         "rank": 3,
-        "rankByRate": 1,
         "unitid": 241225001,
-        "name": "Universidad Central de Bayamon",
-        "short": null,
-        "state": "PR",
-        "count": 2,
-        "pct": 15.38,
-        "fte": 639,
-        "rate": 31.3,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 3,
-        "rankByRate": 3,
         "unitid": 243179001,
-        "name": "University of Puerto Rico-Humacao",
-        "short": null,
-        "state": "PR",
-        "count": 2,
-        "pct": 15.38,
-        "fte": 2442,
-        "rate": 8.19,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 5,
-        "rankByRate": 5,
         "unitid": 242972016,
-        "name": "NUC University",
-        "short": null,
-        "state": "PR",
-        "count": 1,
-        "pct": 7.69,
-        "fte": 28453,
-        "rate": 0.35,
-        "isMainCampus": false
+        "count": 1
       }
     ],
     "dating_violence": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 242583001,
-        "name": "Instituto Tecnologico de Puerto Rico-Recinto de San Juan",
-        "short": null,
-        "state": "PR",
-        "count": 2,
-        "pct": 66.67,
-        "fte": 163,
-        "rate": 122.7,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 2,
-        "rankByRate": 2,
         "unitid": 242556001,
-        "name": "Instituto Tecnologico de Puerto Rico-Recinto de Guayama",
-        "short": null,
-        "state": "PR",
-        "count": 1,
-        "pct": 33.33,
-        "fte": 254,
-        "rate": 39.37,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "domestic_violence": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 242699001,
-        "name": "Inter American University of Puerto Rico-Guayama",
-        "short": null,
-        "state": "PR",
-        "count": 3,
-        "pct": 42.86,
-        "fte": 1597,
-        "rate": 18.79,
-        "isMainCampus": true
+        "count": 3
       },
       {
         "rank": 1,
-        "rankByRate": 2,
         "unitid": 243203001,
-        "name": "University of Puerto Rico-Medical Sciences",
-        "short": null,
-        "state": "PR",
-        "count": 3,
-        "pct": 42.86,
-        "fte": 1883,
-        "rate": 15.93,
-        "isMainCampus": true
+        "count": 3
       },
       {
         "rank": 3,
-        "rankByRate": 3,
         "unitid": 241377001,
-        "name": "Caribbean University-Bayamon",
-        "short": null,
-        "state": "PR",
-        "count": 1,
-        "pct": 14.29,
-        "fte": 736,
-        "rate": 13.59,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "drug_arrest": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 241720001,
-        "name": "Colegio Universitario de San Juan",
-        "short": null,
-        "state": "PR",
-        "count": 3,
-        "pct": 100.0,
-        "fte": 448,
-        "rate": 66.96,
-        "isMainCampus": true
+        "count": 3
       }
     ],
     "fondling": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 241720001,
-        "name": "Colegio Universitario de San Juan",
-        "short": null,
-        "state": "PR",
-        "count": 6,
-        "pct": 85.71,
-        "fte": 448,
-        "rate": 133.93,
-        "isMainCampus": true
+        "count": 6
       },
       {
         "rank": 2,
-        "rankByRate": 2,
         "unitid": 242556001,
-        "name": "Instituto Tecnologico de Puerto Rico-Recinto de Guayama",
-        "short": null,
-        "state": "PR",
-        "count": 1,
-        "pct": 14.29,
-        "fte": 254,
-        "rate": 39.37,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "liquor_arrest": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 241720001,
-        "name": "Colegio Universitario de San Juan",
-        "short": null,
-        "state": "PR",
-        "count": 3,
-        "pct": 100.0,
-        "fte": 448,
-        "rate": 66.96,
-        "isMainCampus": true
+        "count": 3
       }
     ],
     "liquor_discipline": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 241739001,
-        "name": "Universidad Ana G. Mendez-Cupey Campus",
-        "short": null,
-        "state": "PR",
-        "count": 1,
-        "pct": 100.0,
-        "fte": 4913,
-        "rate": 2.04,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "motor_vehicle_theft": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 241720001,
-        "name": "Colegio Universitario de San Juan",
-        "short": null,
-        "state": "PR",
-        "count": 26,
-        "pct": 76.47,
-        "fte": 448,
-        "rate": 580.36,
-        "isMainCampus": true
+        "count": 26
       },
       {
         "rank": 2,
-        "rankByRate": 2,
         "unitid": 242556001,
-        "name": "Instituto Tecnologico de Puerto Rico-Recinto de Guayama",
-        "short": null,
-        "state": "PR",
-        "count": 3,
-        "pct": 8.82,
-        "fte": 254,
-        "rate": 118.11,
-        "isMainCampus": true
+        "count": 3
       },
       {
         "rank": 3,
-        "rankByRate": 5,
         "unitid": 243221001,
-        "name": "University of Puerto Rico-Rio Piedras",
-        "short": null,
-        "state": "PR",
-        "count": 2,
-        "pct": 5.88,
-        "fte": 10260,
-        "rate": 1.95,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 4,
-        "rankByRate": 3,
         "unitid": 241216001,
-        "name": "Atlantic University",
-        "short": null,
-        "state": "PR",
-        "count": 1,
-        "pct": 2.94,
-        "fte": 1339,
-        "rate": 7.47,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 4,
-        "rankByRate": 6,
         "unitid": 242972017,
-        "name": "NUC University",
-        "short": null,
-        "state": "PR",
-        "count": 1,
-        "pct": 2.94,
-        "fte": 28453,
-        "rate": 0.35,
-        "isMainCampus": false
+        "count": 1
       },
       {
         "rank": 4,
-        "rankByRate": 4,
         "unitid": 241739001,
-        "name": "Universidad Ana G. Mendez-Cupey Campus",
-        "short": null,
-        "state": "PR",
-        "count": 1,
-        "pct": 2.94,
-        "fte": 4913,
-        "rate": 2.04,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "murder": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 243346001,
-        "name": "Universidad Ana G. Mendez-Carolina Campus",
-        "short": null,
-        "state": "PR",
-        "count": 1,
-        "pct": 100.0,
-        "fte": 4252,
-        "rate": 2.35,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "rape": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 242556001,
-        "name": "Instituto Tecnologico de Puerto Rico-Recinto de Guayama",
-        "short": null,
-        "state": "PR",
-        "count": 1,
-        "pct": 100.0,
-        "fte": 254,
-        "rate": 39.37,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "robbery": [
       {
         "rank": 1,
-        "rankByRate": 5,
         "unitid": 165167007,
-        "name": "Cambridge College",
-        "short": null,
-        "state": "PR",
-        "count": 13,
-        "pct": 39.39,
-        "fte": 1060,
-        "rate": 122.64,
-        "isMainCampus": false
+        "count": 13
       },
       {
         "rank": 2,
-        "rankByRate": 3,
         "unitid": 241720001,
-        "name": "Colegio Universitario de San Juan",
-        "short": null,
-        "state": "PR",
-        "count": 9,
-        "pct": 27.27,
-        "fte": 448,
-        "rate": 200.89,
-        "isMainCampus": true
+        "count": 9
       },
       {
         "rank": 3,
-        "rankByRate": 8,
         "unitid": 243179001,
-        "name": "University of Puerto Rico-Humacao",
-        "short": null,
-        "state": "PR",
-        "count": 4,
-        "pct": 12.12,
-        "fte": 2442,
-        "rate": 16.38,
-        "isMainCampus": true
+        "count": 4
       },
       {
         "rank": 4,
-        "rankByRate": 6,
         "unitid": 242556001,
-        "name": "Instituto Tecnologico de Puerto Rico-Recinto de Guayama",
-        "short": null,
-        "state": "PR",
-        "count": 2,
-        "pct": 6.06,
-        "fte": 254,
-        "rate": 78.74,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 4,
-        "rankByRate": 1,
         "unitid": 444732001,
-        "name": "Leston College",
-        "short": null,
-        "state": "PR",
-        "count": 2,
-        "pct": 6.06,
-        "fte": 26,
-        "rate": 769.23,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 6,
-        "rankByRate": 4,
         "unitid": 498012001,
-        "name": "Commonwealth of Puerto Rico Department of Education-PRAMI",
-        "short": null,
-        "state": "PR",
-        "count": 1,
-        "pct": 3.03,
-        "fte": 81,
-        "rate": 123.46,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 6,
-        "rankByRate": 2,
         "unitid": 444732002,
-        "name": "Leston College",
-        "short": null,
-        "state": "PR",
-        "count": 1,
-        "pct": 3.03,
-        "fte": 26,
-        "rate": 384.62,
-        "isMainCampus": false
+        "count": 1
       },
       {
         "rank": 6,
-        "rankByRate": 7,
         "unitid": 241766001,
-        "name": "Puerto Rico Conservatory of Music",
-        "short": null,
-        "state": "PR",
-        "count": 1,
-        "pct": 3.03,
-        "fte": 254,
-        "rate": 39.37,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "stalking": [
       {
         "rank": 1,
-        "rankByRate": 3,
         "unitid": 243197001,
-        "name": "University of Puerto Rico-Mayaguez",
-        "short": null,
-        "state": "PR",
-        "count": 5,
-        "pct": 33.33,
-        "fte": 9970,
-        "rate": 5.02,
-        "isMainCampus": true
+        "count": 5
       },
       {
         "rank": 2,
-        "rankByRate": 1,
         "unitid": 243106001,
-        "name": "University of Puerto Rico-Aguadilla",
-        "short": null,
-        "state": "PR",
-        "count": 3,
-        "pct": 20.0,
-        "fte": 1790,
-        "rate": 16.76,
-        "isMainCampus": true
+        "count": 3
       },
       {
         "rank": 2,
-        "rankByRate": 5,
         "unitid": 243221001,
-        "name": "University of Puerto Rico-Rio Piedras",
-        "short": null,
-        "state": "PR",
-        "count": 3,
-        "pct": 20.0,
-        "fte": 10260,
-        "rate": 2.92,
-        "isMainCampus": true
+        "count": 3
       },
       {
         "rank": 4,
-        "rankByRate": 2,
         "unitid": 243133001,
-        "name": "University of Puerto Rico-Bayamon",
-        "short": null,
-        "state": "PR",
-        "count": 2,
-        "pct": 13.33,
-        "fte": 2732,
-        "rate": 7.32,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 5,
-        "rankByRate": 4,
         "unitid": 242617001,
-        "name": "Inter American University of Puerto Rico-San German",
-        "short": null,
-        "state": "PR",
-        "count": 1,
-        "pct": 6.67,
-        "fte": 2813,
-        "rate": 3.55,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 5,
-        "rankByRate": 6,
         "unitid": 241739001,
-        "name": "Universidad Ana G. Mendez-Cupey Campus",
-        "short": null,
-        "state": "PR",
-        "count": 1,
-        "pct": 6.67,
-        "fte": 4913,
-        "rate": 2.04,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "weapons_arrest": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 241720001,
-        "name": "Colegio Universitario de San Juan",
-        "short": null,
-        "state": "PR",
-        "count": 5,
-        "pct": 83.33,
-        "fte": 448,
-        "rate": 111.61,
-        "isMainCampus": true
+        "count": 5
       },
       {
         "rank": 2,
-        "rankByRate": 2,
         "unitid": 242617001,
-        "name": "Inter American University of Puerto Rico-San German",
-        "short": null,
-        "state": "PR",
-        "count": 1,
-        "pct": 16.67,
-        "fte": 2813,
-        "rate": 3.55,
-        "isMainCampus": true
+        "count": 1
       }
     ]
   },
@@ -1212,5 +702,436 @@
     "robbery": 33,
     "stalking": 15,
     "weapons_arrest": 6
+  },
+  "institutions": {
+    "241216": {
+      "name": "Atlantic University",
+      "unitid": 241216001,
+      "state": "PR",
+      "fte": 1339,
+      "campuses": 1
+    },
+    "241739": {
+      "name": "Universidad Ana G. Mendez-Cupey Campus",
+      "unitid": 241739001,
+      "state": "PR",
+      "fte": 4913,
+      "campuses": 6
+    },
+    "242617": {
+      "name": "Inter American University of Puerto Rico-San German",
+      "unitid": 242617001,
+      "state": "PR",
+      "fte": 2813,
+      "campuses": 1
+    },
+    "242653": {
+      "name": "Inter American University of Puerto Rico-Metro",
+      "unitid": 242653001,
+      "state": "PR",
+      "fte": 3581,
+      "campuses": 1
+    },
+    "242699": {
+      "name": "Inter American University of Puerto Rico-Guayama",
+      "unitid": 242699001,
+      "state": "PR",
+      "fte": 1597,
+      "campuses": 1
+    },
+    "242972": {
+      "name": "NUC University",
+      "unitid": 242972001,
+      "state": "PR",
+      "fte": 28453,
+      "campuses": 27
+    },
+    "243106": {
+      "name": "University of Puerto Rico-Aguadilla",
+      "unitid": 243106001,
+      "state": "PR",
+      "fte": 1790,
+      "campuses": 1
+    },
+    "243133": {
+      "name": "University of Puerto Rico-Bayamon",
+      "unitid": 243133001,
+      "state": "PR",
+      "fte": 2732,
+      "campuses": 1
+    },
+    "243151": {
+      "name": "University of Puerto Rico at Cayey",
+      "unitid": 243151001,
+      "state": "PR",
+      "fte": 2059,
+      "campuses": 1
+    },
+    "243179": {
+      "name": "University of Puerto Rico-Humacao",
+      "unitid": 243179001,
+      "state": "PR",
+      "fte": 2442,
+      "campuses": 1
+    },
+    "243197": {
+      "name": "University of Puerto Rico-Mayaguez",
+      "unitid": 243197001,
+      "state": "PR",
+      "fte": 9970,
+      "campuses": 1
+    },
+    "243203": {
+      "name": "University of Puerto Rico-Medical Sciences",
+      "unitid": 243203001,
+      "state": "PR",
+      "fte": 1883,
+      "campuses": 1
+    },
+    "243221": {
+      "name": "University of Puerto Rico-Rio Piedras",
+      "unitid": 243221001,
+      "state": "PR",
+      "fte": 10260,
+      "campuses": 1
+    },
+    "243346": {
+      "name": "Universidad Ana G. Mendez-Carolina Campus",
+      "unitid": 243346001,
+      "state": "PR",
+      "fte": 4252,
+      "campuses": 7
+    }
+  },
+  "rateRankings": {
+    "criminal": [
+      {
+        "rank": 1,
+        "id": 243179,
+        "count": 6,
+        "rate": 24.57
+      },
+      {
+        "rank": 2,
+        "id": 241216,
+        "count": 2,
+        "rate": 14.94
+      },
+      {
+        "rank": 3,
+        "id": 243151,
+        "count": 3,
+        "rate": 14.57
+      },
+      {
+        "rank": 4,
+        "id": 243221,
+        "count": 8,
+        "rate": 7.8
+      },
+      {
+        "rank": 5,
+        "id": 242653,
+        "count": 1,
+        "rate": 2.79
+      },
+      {
+        "rank": 6,
+        "id": 243346,
+        "count": 1,
+        "rate": 2.35
+      },
+      {
+        "rank": 7,
+        "id": 241739,
+        "count": 1,
+        "rate": 2.04
+      },
+      {
+        "rank": 8,
+        "id": 243197,
+        "count": 2,
+        "rate": 2.01
+      },
+      {
+        "rank": 9,
+        "id": 242972,
+        "count": 4,
+        "rate": 1.41
+      }
+    ],
+    "all": [
+      {
+        "rank": 1,
+        "id": 243179,
+        "count": 6,
+        "rate": 24.57
+      },
+      {
+        "rank": 2,
+        "id": 242699,
+        "count": 3,
+        "rate": 18.79
+      },
+      {
+        "rank": 3,
+        "id": 243106,
+        "count": 3,
+        "rate": 16.76
+      },
+      {
+        "rank": 4,
+        "id": 243203,
+        "count": 3,
+        "rate": 15.93
+      },
+      {
+        "rank": 5,
+        "id": 241216,
+        "count": 2,
+        "rate": 14.94
+      },
+      {
+        "rank": 6,
+        "id": 243151,
+        "count": 3,
+        "rate": 14.57
+      },
+      {
+        "rank": 7,
+        "id": 243221,
+        "count": 11,
+        "rate": 10.72
+      },
+      {
+        "rank": 8,
+        "id": 243133,
+        "count": 2,
+        "rate": 7.32
+      },
+      {
+        "rank": 9,
+        "id": 242617,
+        "count": 2,
+        "rate": 7.11
+      },
+      {
+        "rank": 10,
+        "id": 243197,
+        "count": 7,
+        "rate": 7.02
+      },
+      {
+        "rank": 11,
+        "id": 241739,
+        "count": 3,
+        "rate": 6.11
+      },
+      {
+        "rank": 12,
+        "id": 242653,
+        "count": 1,
+        "rate": 2.79
+      },
+      {
+        "rank": 13,
+        "id": 243346,
+        "count": 1,
+        "rate": 2.35
+      },
+      {
+        "rank": 14,
+        "id": 242972,
+        "count": 6,
+        "rate": 2.11
+      }
+    ],
+    "aggravated_assault": [
+      {
+        "rank": 1,
+        "id": 241216,
+        "count": 1,
+        "rate": 7.47
+      },
+      {
+        "rank": 2,
+        "id": 243197,
+        "count": 2,
+        "rate": 2.01
+      },
+      {
+        "rank": 3,
+        "id": 243221,
+        "count": 1,
+        "rate": 0.97
+      }
+    ],
+    "arson": [
+      {
+        "rank": 1,
+        "id": 242653,
+        "count": 1,
+        "rate": 2.79
+      }
+    ],
+    "burglary": [
+      {
+        "rank": 1,
+        "id": 243151,
+        "count": 3,
+        "rate": 14.57
+      },
+      {
+        "rank": 2,
+        "id": 243179,
+        "count": 2,
+        "rate": 8.19
+      },
+      {
+        "rank": 3,
+        "id": 243221,
+        "count": 5,
+        "rate": 4.87
+      },
+      {
+        "rank": 4,
+        "id": 242972,
+        "count": 1,
+        "rate": 0.35
+      }
+    ],
+    "dating_violence": [],
+    "domestic_violence": [
+      {
+        "rank": 1,
+        "id": 242699,
+        "count": 3,
+        "rate": 18.79
+      },
+      {
+        "rank": 2,
+        "id": 243203,
+        "count": 3,
+        "rate": 15.93
+      },
+      {
+        "rank": 3,
+        "id": 242972,
+        "count": 1,
+        "rate": 0.35
+      }
+    ],
+    "drug_arrest": [
+      {
+        "rank": 1,
+        "id": 242972,
+        "count": 1,
+        "rate": 0.35
+      }
+    ],
+    "drug_discipline": [],
+    "fondling": [],
+    "incest": [],
+    "liquor_arrest": [],
+    "liquor_discipline": [
+      {
+        "rank": 1,
+        "id": 241739,
+        "count": 1,
+        "rate": 2.04
+      }
+    ],
+    "motor_vehicle_theft": [
+      {
+        "rank": 1,
+        "id": 241216,
+        "count": 1,
+        "rate": 7.47
+      },
+      {
+        "rank": 2,
+        "id": 241739,
+        "count": 1,
+        "rate": 2.04
+      },
+      {
+        "rank": 3,
+        "id": 243221,
+        "count": 2,
+        "rate": 1.95
+      },
+      {
+        "rank": 4,
+        "id": 242972,
+        "count": 3,
+        "rate": 1.05
+      }
+    ],
+    "murder": [
+      {
+        "rank": 1,
+        "id": 243346,
+        "count": 1,
+        "rate": 2.35
+      }
+    ],
+    "negligent_manslaughter": [],
+    "rape": [],
+    "robbery": [
+      {
+        "rank": 1,
+        "id": 243179,
+        "count": 4,
+        "rate": 16.38
+      }
+    ],
+    "stalking": [
+      {
+        "rank": 1,
+        "id": 243106,
+        "count": 3,
+        "rate": 16.76
+      },
+      {
+        "rank": 2,
+        "id": 243133,
+        "count": 2,
+        "rate": 7.32
+      },
+      {
+        "rank": 3,
+        "id": 243197,
+        "count": 5,
+        "rate": 5.02
+      },
+      {
+        "rank": 4,
+        "id": 242617,
+        "count": 1,
+        "rate": 3.55
+      },
+      {
+        "rank": 5,
+        "id": 243221,
+        "count": 3,
+        "rate": 2.92
+      },
+      {
+        "rank": 6,
+        "id": 241739,
+        "count": 1,
+        "rate": 2.04
+      }
+    ],
+    "statutory_rape": [],
+    "weapons_arrest": [
+      {
+        "rank": 1,
+        "id": 242617,
+        "count": 1,
+        "rate": 3.55
+      }
+    ],
+    "weapons_discipline": []
   }
 }

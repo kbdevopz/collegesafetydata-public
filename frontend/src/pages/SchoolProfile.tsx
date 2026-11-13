@@ -16,8 +16,8 @@ import {
   Cell,
 } from 'recharts'
 import { ArrowLeft, MapPin, AlertCircle, Loader2, TrendingUp, TrendingDown, Calendar, AlertTriangle, Users, Info } from 'lucide-react'
-import { fetchSchoolProfile } from '../lib/api'
-import type { SchoolProfile as SchoolProfileType, OffenseBreakdown } from '../lib/types'
+import { fetchSchoolProfile, getMetadata } from '../lib/api'
+import type { SchoolProfile as SchoolProfileType, OffenseBreakdown, RateRules } from '../lib/types'
 import {
   cn,
   formatNumber,
@@ -28,7 +28,7 @@ import {
   calculateYoYChange,
   isSmallSample,
 } from '../lib/utils'
-import { fteFor, rateFor, latestFte } from '../lib/rates'
+import { fteFor, latestFte, institutionRate, rateNote, campusesPhrase } from '../lib/rates'
 import { ALL, CRIMINAL, SUMMARY_LABELS, inSelection, isSummary, selectionLabel } from '../lib/selection'
 import { useTheme } from '../hooks/useTheme'
 
@@ -48,6 +48,14 @@ export default function SchoolProfile() {
   // 'criminal' (default), 'all' (every category) or one offense name
   const [selectedOffense, setSelectedOffense] = useState<string>(CRIMINAL)
   const [showRate, setShowRate] = useState(false)
+  // Who rate rankings list (metadata.json), for the note on a left-out rate
+  const [rateRules, setRateRules] = useState<RateRules | null>(null)
+
+  useEffect(() => {
+    getMetadata()
+      .then((m) => setRateRules(m.rateRules))
+      .catch(() => setRateRules(null))
+  }, [])
 
   useEffect(() => {
     if (!unitid) return
@@ -130,11 +138,22 @@ export default function SchoolProfile() {
   // Newest FTE and the year it belongs to (for the header)
   const headerFte = useMemo(() => latestFte(profile), [profile])
 
-  // Calculate rate per 10k students for selected year (that year's FTE only)
-  const selectedYearRate = useMemo(
-    () => rateFor(profile, selectedYear, selectedYearTotal),
-    [profile, selectedYear, selectedYearTotal]
+  // The rate per 10k students in the selected year (that year's FTE only).
+  // It is the institution's: the incidents of all its campuses per its FTE,
+  // as NCES publishes FTE per institution.
+  const selectedYearInstitution = useMemo(
+    () => institutionRate(profile, selectedYear, selectedOffense, selectedYearTotal),
+    [profile, selectedYear, selectedOffense, selectedYearTotal]
   )
+  const selectedYearRate = selectedYearInstitution?.rate ?? null
+  const selectedYearRateCount = selectedYearInstitution?.count ?? selectedYearTotal
+  const selectedYearCampuses = campusesPhrase(selectedYearInstitution?.campuses ?? 1)
+  const selectedYearRateNote = rateNote(selectedYearInstitution, rateRules)
+
+  // Number of campuses of the institution in the header FTE's year
+  const headerCampuses = headerFte
+    ? profile?.institution?.byYear[String(headerFte.year)]?.campuses ?? 1
+    : 1
 
   // Get top offense for selected year
   const selectedYearTopOffense = useMemo(() => {
@@ -297,9 +316,13 @@ export default function SchoolProfile() {
               {profile.city}, {profile.state}
             </span>
             {headerFte && (
-              <span className="flex items-center gap-1.5" title="Enrollment for latest available year">
+              <span
+                className="flex items-center gap-1.5"
+                title="Enrollment (FTE) of the whole institution for the latest available year; NCES counts enrollment per institution, not per campus"
+              >
                 <Users className="w-4 h-4" />
                 {formatNumber(headerFte.fte)} students
+                {headerCampuses > 1 && <> at all {headerCampuses} campuses</>}
                 <span className="text-xs text-gray-400 dark:text-gray-500">({headerFte.year})</span>
               </span>
             )}
@@ -431,7 +454,7 @@ export default function SchoolProfile() {
                     <span className="text-lg font-normal text-gray-500 dark:text-gray-400 ml-1">
                       per 10k
                     </span>
-                    {isSmallSample(selectedYearFte, selectedYearTotal) && (
+                    {isSmallSample(selectedYearFte, selectedYearRateCount) && (
                       <span className="text-amber-500 ml-1" title="Small sample size">*</span>
                     )}
                   </>
@@ -460,7 +483,15 @@ export default function SchoolProfile() {
             )}
             {showRate && selectedYearFte && (
               <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                Based on {formatNumber(selectedYearFte)} FTE
+                {selectedYearCampuses ? (
+                  // The institution's rate: all its campuses' incidents per its FTE
+                  <>
+                    Institution rate ({selectedYearCampuses}):{' '}
+                    {formatNumber(selectedYearRateCount)} per {formatNumber(selectedYearFte)} FTE
+                  </>
+                ) : (
+                  <>Based on {formatNumber(selectedYearFte)} FTE</>
+                )}
               </div>
             )}
           </div>
@@ -530,11 +561,23 @@ export default function SchoolProfile() {
               <Users className="w-4 h-4 flex-shrink-0" />
               <span>
                 <strong>Rate view:</strong> Incidents per 10,000 full-time equivalent (FTE) students.
-                {isSmallSample(selectedYearFte, selectedYearTotal) && (
+                {selectedYearCampuses && (
+                  <span className="ml-1">
+                    NCES counts enrollment per institution, not per campus, so this is the institution's rate:
+                    the incidents of {selectedYearCampuses} per its FTE.
+                  </span>
+                )}
+                {isSmallSample(selectedYearFte, selectedYearRateCount) && (
                   <span className="ml-1">* indicates small sample size (FTE &lt; 1,000 or incidents &lt; 10).</span>
                 )}
               </span>
             </div>
+            {selectedYearRateNote && (
+              <p role="note" className="flex items-start gap-2 mt-2 text-sm text-blue-700 dark:text-blue-300">
+                <Info className="w-4 h-4 flex-shrink-0 mt-0.5" aria-hidden="true" />
+                <span>In {selectedYear}: {selectedYearRateNote}</span>
+              </p>
+            )}
           </div>
         )}
 
@@ -758,7 +801,7 @@ export default function SchoolProfile() {
               <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                 By Location
                 <span className="ml-2 text-sm font-normal text-amber-600 dark:text-amber-400">
-                  ({profile.summary.latestYear} data only)
+                  ({profile.summary.latestYear}, all categories)
                 </span>
               </h2>
             </div>

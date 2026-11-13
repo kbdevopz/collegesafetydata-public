@@ -394,7 +394,9 @@ export default function About() {
                 <div>
                   <h4 className="font-medium text-gray-900 dark:text-gray-100 text-sm">Per 10k Rates</h4>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Incidents per 10,000 FTE students — enables fair comparison between schools of different sizes
+                    Incidents per 10,000 FTE students — enables fair comparison between schools of different sizes.
+                    Rates are per institution (all its campuses), because NCES counts enrollment per institution, and
+                    rate rankings leave out institutions where at least half of the students study exclusively online.
                   </p>
                 </div>
               </div>

@@ -36,6 +36,7 @@ Our data processing pipeline is fully documented. See [etl/METHODOLOGY.md](etl/M
 - Enrollment (FTE): NCES's own figures for every year
 - Totals: criminal offenses by default; "all categories" mixes crimes, arrests and disciplinary referrals
 - Ranking ties: equal counts share a rank (1, 2, 2, 4), listed by name
+- Rates are per institution (all its campuses' incidents per the institution's FTE, as NCES publishes FTE per institution); rate rankings list institutions with at least 1,000 FTE and under 50% of students exclusively online
 - Crime rate formulas
 - Geographic classifications
 - Data limitations
@@ -188,6 +189,7 @@ Every data run includes a comprehensive audit validating:
 - Rate calculation verification
 - Ranking order validation
 - Shared statistics: figures two campuses report identically (in the data used, or in the older release a campus-year is taken from) are found again from the fact table and the older releases' figures, and every ranking entry must count them once, under the host campus
+- Institution rates: each institution's campuses, counts, link campus, FTE and online share are recomputed from the facts and NCES's enrollment, and every rate ranking must list exactly the institutions the rate rules allow
 
 Download the latest audit: [audit.json](https://collegesafetydata.org/audit.json). It names the site data it audited (`audited_build`: the SHA-256 of that build's `build_inputs.json`) and when it ran, in UTC.
 

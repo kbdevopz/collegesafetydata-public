@@ -88,3 +88,13 @@ export function selectionLabel(selection: string): string {
 export function isSummary(selection: string): boolean {
   return selection === ALL || selection === CRIMINAL
 }
+
+/**
+ * The code of a profile selection in the site files: a summary code as is,
+ * an offense name the way the pipeline makes codes (05's offense_code:
+ * lower case, spaces to "_", e.g. "Motor Vehicle Theft" ->
+ * "motor_vehicle_theft").
+ */
+export function selectionCode(selection: string): string {
+  return isSummary(selection) ? selection : selection.toLowerCase().split(' ').join('_')
+}

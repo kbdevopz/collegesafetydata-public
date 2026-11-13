@@ -1,1690 +1,804 @@
 {
   "preset": "RI",
   "year": 2024,
+  "campuses": {
+    "217156001": {
+      "name": "Brown University",
+      "short": "Brown",
+      "state": "RI",
+      "main": true,
+      "fte": 11401,
+      "campuses": 1
+    },
+    "217165001": {
+      "name": "Bryant University",
+      "short": null,
+      "state": "RI",
+      "main": true,
+      "fte": 3494,
+      "campuses": 1
+    },
+    "217235001": {
+      "name": "Johnson & Wales University-Providence",
+      "short": null,
+      "state": "RI",
+      "main": true,
+      "fte": 4137,
+      "campuses": 2
+    },
+    "217235002": {
+      "name": "Johnson & Wales University-Providence",
+      "short": null,
+      "state": "RI",
+      "main": false,
+      "fte": 4137,
+      "campuses": 2
+    },
+    "217305001": {
+      "name": "New England Institute of Technology",
+      "short": null,
+      "state": "RI",
+      "main": true,
+      "fte": 1818,
+      "campuses": 3
+    },
+    "217402001": {
+      "name": "Providence College",
+      "short": null,
+      "state": "RI",
+      "main": true,
+      "fte": 4511,
+      "campuses": 1
+    },
+    "217420001": {
+      "name": "Rhode Island College",
+      "short": null,
+      "state": "RI",
+      "main": true,
+      "fte": 5233,
+      "campuses": 1
+    },
+    "217475001": {
+      "name": "Community College of Rhode Island",
+      "short": null,
+      "state": "RI",
+      "main": true,
+      "fte": 7234,
+      "campuses": 5
+    },
+    "217484001": {
+      "name": "University of Rhode Island",
+      "short": null,
+      "state": "RI",
+      "main": true,
+      "fte": 15490,
+      "campuses": 5
+    },
+    "217484004": {
+      "name": "University of Rhode Island",
+      "short": null,
+      "state": "RI",
+      "main": false,
+      "fte": 15490,
+      "campuses": 5
+    },
+    "217493001": {
+      "name": "Rhode Island School of Design",
+      "short": null,
+      "state": "RI",
+      "main": true,
+      "fte": 2520,
+      "campuses": 1
+    },
+    "217518001": {
+      "name": "Roger Williams University",
+      "short": null,
+      "state": "RI",
+      "main": true,
+      "fte": 4025,
+      "campuses": 2
+    },
+    "217518002": {
+      "name": "Roger Williams University",
+      "short": null,
+      "state": "RI",
+      "main": false,
+      "fte": 4025,
+      "campuses": 2
+    },
+    "217536001": {
+      "name": "Salve Regina University",
+      "short": null,
+      "state": "RI",
+      "main": true,
+      "fte": 2486,
+      "campuses": 1
+    },
+    "217581001": {
+      "name": "Empire Beauty School-Warwick",
+      "short": null,
+      "state": "RI",
+      "main": true,
+      "fte": 91,
+      "campuses": 1
+    },
+    "443641001": {
+      "name": "Paul Mitchell the School-Rhode Island",
+      "short": null,
+      "state": "RI",
+      "main": true,
+      "fte": 119,
+      "campuses": 1
+    }
+  },
   "rankings": {
     "criminal": [
       {
         "rank": 1,
-        "rankByRate": 3,
         "unitid": 217156001,
-        "name": "Brown University",
-        "short": "Brown",
-        "state": "RI",
-        "count": 48,
-        "pct": 27.43,
-        "fte": 11401,
-        "rate": 42.1,
-        "isMainCampus": true
+        "count": 48
       },
       {
         "rank": 2,
-        "rankByRate": 2,
         "unitid": 217493001,
-        "name": "Rhode Island School of Design",
-        "short": null,
-        "state": "RI",
-        "count": 24,
-        "pct": 13.71,
-        "fte": 2520,
-        "rate": 95.24,
-        "isMainCampus": true
+        "count": 24
       },
       {
         "rank": 3,
-        "rankByRate": 5,
         "unitid": 217518001,
-        "name": "Roger Williams University",
-        "short": null,
-        "state": "RI",
-        "count": 15,
-        "pct": 8.57,
-        "fte": 4025,
-        "rate": 37.27,
-        "isMainCampus": true
+        "count": 15
       },
       {
         "rank": 4,
-        "rankByRate": 6,
         "unitid": 217235001,
-        "name": "Johnson & Wales University-Providence",
-        "short": null,
-        "state": "RI",
-        "count": 14,
-        "pct": 8.0,
-        "fte": 4137,
-        "rate": 33.84,
-        "isMainCampus": true
+        "count": 14
       },
       {
         "rank": 5,
-        "rankByRate": 8,
         "unitid": 217402001,
-        "name": "Providence College",
-        "short": null,
-        "state": "RI",
-        "count": 12,
-        "pct": 6.86,
-        "fte": 4511,
-        "rate": 26.6,
-        "isMainCampus": true
+        "count": 12
       },
       {
         "rank": 6,
-        "rankByRate": 12,
         "unitid": 217484001,
-        "name": "University of Rhode Island",
-        "short": null,
-        "state": "RI",
-        "count": 11,
-        "pct": 6.29,
-        "fte": 15490,
-        "rate": 7.1,
-        "isMainCampus": true
+        "count": 11
       },
       {
         "rank": 7,
-        "rankByRate": 7,
         "unitid": 217165001,
-        "name": "Bryant University",
-        "short": null,
-        "state": "RI",
-        "count": 10,
-        "pct": 5.71,
-        "fte": 3494,
-        "rate": 28.62,
-        "isMainCampus": true
+        "count": 10
       },
       {
         "rank": 7,
-        "rankByRate": 1,
         "unitid": 443641001,
-        "name": "Paul Mitchell the School-Rhode Island",
-        "short": null,
-        "state": "RI",
-        "count": 10,
-        "pct": 5.71,
-        "fte": 119,
-        "rate": 840.34,
-        "isMainCampus": true
+        "count": 10
       },
       {
         "rank": 7,
-        "rankByRate": 4,
         "unitid": 217536001,
-        "name": "Salve Regina University",
-        "short": null,
-        "state": "RI",
-        "count": 10,
-        "pct": 5.71,
-        "fte": 2486,
-        "rate": 40.23,
-        "isMainCampus": true
+        "count": 10
       },
       {
         "rank": 10,
-        "rankByRate": 9,
         "unitid": 217235002,
-        "name": "Johnson & Wales University-Providence",
-        "short": null,
-        "state": "RI",
-        "count": 7,
-        "pct": 4.0,
-        "fte": 4137,
-        "rate": 16.92,
-        "isMainCampus": false
+        "count": 7
       },
       {
         "rank": 10,
-        "rankByRate": 10,
         "unitid": 217420001,
-        "name": "Rhode Island College",
-        "short": null,
-        "state": "RI",
-        "count": 7,
-        "pct": 4.0,
-        "fte": 5233,
-        "rate": 13.38,
-        "isMainCampus": true
+        "count": 7
       },
       {
         "rank": 12,
-        "rankByRate": 11,
         "unitid": 217518002,
-        "name": "Roger Williams University",
-        "short": null,
-        "state": "RI",
-        "count": 3,
-        "pct": 1.71,
-        "fte": 4025,
-        "rate": 7.45,
-        "isMainCampus": false
+        "count": 3
       },
       {
         "rank": 13,
-        "rankByRate": 13,
         "unitid": 217475001,
-        "name": "Community College of Rhode Island",
-        "short": null,
-        "state": "RI",
-        "count": 2,
-        "pct": 1.14,
-        "fte": 7234,
-        "rate": 2.76,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 13,
-        "rankByRate": 14,
         "unitid": 217484004,
-        "name": "University of Rhode Island",
-        "short": null,
-        "state": "RI",
-        "count": 2,
-        "pct": 1.14,
-        "fte": 15490,
-        "rate": 1.29,
-        "isMainCampus": false
+        "count": 2
       }
     ],
     "all": [
       {
         "rank": 1,
-        "rankByRate": 3,
         "unitid": 217402001,
-        "name": "Providence College",
-        "short": null,
-        "state": "RI",
-        "count": 360,
-        "pct": 21.79,
-        "fte": 4511,
-        "rate": 798.05,
-        "isMainCampus": true
+        "count": 360
       },
       {
         "rank": 2,
-        "rankByRate": 1,
         "unitid": 217536001,
-        "name": "Salve Regina University",
-        "short": null,
-        "state": "RI",
-        "count": 238,
-        "pct": 14.41,
-        "fte": 2486,
-        "rate": 957.36,
-        "isMainCampus": true
+        "count": 238
       },
       {
         "rank": 3,
-        "rankByRate": 4,
         "unitid": 217518001,
-        "name": "Roger Williams University",
-        "short": null,
-        "state": "RI",
-        "count": 226,
-        "pct": 13.68,
-        "fte": 4025,
-        "rate": 561.49,
-        "isMainCampus": true
+        "count": 226
       },
       {
         "rank": 4,
-        "rankByRate": 11,
         "unitid": 217484001,
-        "name": "University of Rhode Island",
-        "short": null,
-        "state": "RI",
-        "count": 192,
-        "pct": 11.62,
-        "fte": 15490,
-        "rate": 123.95,
-        "isMainCampus": true
+        "count": 192
       },
       {
         "rank": 5,
-        "rankByRate": 7,
         "unitid": 217156001,
-        "name": "Brown University",
-        "short": "Brown",
-        "state": "RI",
-        "count": 187,
-        "pct": 11.32,
-        "fte": 11401,
-        "rate": 164.02,
-        "isMainCampus": true
+        "count": 187
       },
       {
         "rank": 6,
-        "rankByRate": 5,
         "unitid": 217493001,
-        "name": "Rhode Island School of Design",
-        "short": null,
-        "state": "RI",
-        "count": 126,
-        "pct": 7.63,
-        "fte": 2520,
-        "rate": 500.0,
-        "isMainCampus": true
+        "count": 126
       },
       {
         "rank": 7,
-        "rankByRate": 6,
         "unitid": 217165001,
-        "name": "Bryant University",
-        "short": null,
-        "state": "RI",
-        "count": 109,
-        "pct": 6.6,
-        "fte": 3494,
-        "rate": 311.96,
-        "isMainCampus": true
+        "count": 109
       },
       {
         "rank": 8,
-        "rankByRate": 10,
         "unitid": 217420001,
-        "name": "Rhode Island College",
-        "short": null,
-        "state": "RI",
-        "count": 66,
-        "pct": 4.0,
-        "fte": 5233,
-        "rate": 126.12,
-        "isMainCampus": true
+        "count": 66
       },
       {
         "rank": 9,
-        "rankByRate": 8,
         "unitid": 217235001,
-        "name": "Johnson & Wales University-Providence",
-        "short": null,
-        "state": "RI",
-        "count": 60,
-        "pct": 3.63,
-        "fte": 4137,
-        "rate": 145.03,
-        "isMainCampus": true
+        "count": 60
       },
       {
         "rank": 10,
-        "rankByRate": 13,
         "unitid": 217235002,
-        "name": "Johnson & Wales University-Providence",
-        "short": null,
-        "state": "RI",
-        "count": 44,
-        "pct": 2.66,
-        "fte": 4137,
-        "rate": 106.36,
-        "isMainCampus": false
+        "count": 44
       },
       {
         "rank": 11,
-        "rankByRate": 9,
         "unitid": 217305001,
-        "name": "New England Institute of Technology",
-        "short": null,
-        "state": "RI",
-        "count": 24,
-        "pct": 1.45,
-        "fte": 1818,
-        "rate": 132.01,
-        "isMainCampus": true
+        "count": 24
       },
       {
         "rank": 12,
-        "rankByRate": 2,
         "unitid": 443641001,
-        "name": "Paul Mitchell the School-Rhode Island",
-        "short": null,
-        "state": "RI",
-        "count": 10,
-        "pct": 0.61,
-        "fte": 119,
-        "rate": 840.34,
-        "isMainCampus": true
+        "count": 10
       },
       {
         "rank": 13,
-        "rankByRate": 15,
         "unitid": 217475001,
-        "name": "Community College of Rhode Island",
-        "short": null,
-        "state": "RI",
-        "count": 4,
-        "pct": 0.24,
-        "fte": 7234,
-        "rate": 5.53,
-        "isMainCampus": true
+        "count": 4
       },
       {
         "rank": 14,
-        "rankByRate": 14,
         "unitid": 217518002,
-        "name": "Roger Williams University",
-        "short": null,
-        "state": "RI",
-        "count": 3,
-        "pct": 0.18,
-        "fte": 4025,
-        "rate": 7.45,
-        "isMainCampus": false
+        "count": 3
       },
       {
         "rank": 15,
-        "rankByRate": 16,
         "unitid": 217484004,
-        "name": "University of Rhode Island",
-        "short": null,
-        "state": "RI",
-        "count": 2,
-        "pct": 0.12,
-        "fte": 15490,
-        "rate": 1.29,
-        "isMainCampus": false
+        "count": 2
       },
       {
         "rank": 16,
-        "rankByRate": 12,
         "unitid": 217581001,
-        "name": "Empire Beauty School-Warwick",
-        "short": null,
-        "state": "RI",
-        "count": 1,
-        "pct": 0.06,
-        "fte": 91,
-        "rate": 109.89,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "aggravated_assault": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 217165001,
-        "name": "Bryant University",
-        "short": null,
-        "state": "RI",
-        "count": 2,
-        "pct": 28.57,
-        "fte": 3494,
-        "rate": 5.72,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 1,
-        "rankByRate": 2,
         "unitid": 217518002,
-        "name": "Roger Williams University",
-        "short": null,
-        "state": "RI",
-        "count": 2,
-        "pct": 28.57,
-        "fte": 4025,
-        "rate": 4.97,
-        "isMainCampus": false
+        "count": 2
       },
       {
         "rank": 3,
-        "rankByRate": 4,
         "unitid": 217156001,
-        "name": "Brown University",
-        "short": "Brown",
-        "state": "RI",
-        "count": 1,
-        "pct": 14.29,
-        "fte": 11401,
-        "rate": 0.88,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 3,
-        "rankByRate": 3,
         "unitid": 217536001,
-        "name": "Salve Regina University",
-        "short": null,
-        "state": "RI",
-        "count": 1,
-        "pct": 14.29,
-        "fte": 2486,
-        "rate": 4.02,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 3,
-        "rankByRate": 5,
         "unitid": 217484001,
-        "name": "University of Rhode Island",
-        "short": null,
-        "state": "RI",
-        "count": 1,
-        "pct": 14.29,
-        "fte": 15490,
-        "rate": 0.65,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "arson": [
       {
         "rank": 1,
-        "rankByRate": 4,
         "unitid": 217156001,
-        "name": "Brown University",
-        "short": "Brown",
-        "state": "RI",
-        "count": 3,
-        "pct": 37.5,
-        "fte": 11401,
-        "rate": 2.63,
-        "isMainCampus": true
+        "count": 3
       },
       {
         "rank": 2,
-        "rankByRate": 5,
         "unitid": 217484001,
-        "name": "University of Rhode Island",
-        "short": null,
-        "state": "RI",
-        "count": 2,
-        "pct": 25.0,
-        "fte": 15490,
-        "rate": 1.29,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 3,
-        "rankByRate": 3,
         "unitid": 217165001,
-        "name": "Bryant University",
-        "short": null,
-        "state": "RI",
-        "count": 1,
-        "pct": 12.5,
-        "fte": 3494,
-        "rate": 2.86,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 3,
-        "rankByRate": 2,
         "unitid": 217493001,
-        "name": "Rhode Island School of Design",
-        "short": null,
-        "state": "RI",
-        "count": 1,
-        "pct": 12.5,
-        "fte": 2520,
-        "rate": 3.97,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 3,
-        "rankByRate": 1,
         "unitid": 217536001,
-        "name": "Salve Regina University",
-        "short": null,
-        "state": "RI",
-        "count": 1,
-        "pct": 12.5,
-        "fte": 2486,
-        "rate": 4.02,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "burglary": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 217518001,
-        "name": "Roger Williams University",
-        "short": null,
-        "state": "RI",
-        "count": 11,
-        "pct": 37.93,
-        "fte": 4025,
-        "rate": 27.33,
-        "isMainCampus": true
+        "count": 11
       },
       {
         "rank": 2,
-        "rankByRate": 3,
         "unitid": 217156001,
-        "name": "Brown University",
-        "short": "Brown",
-        "state": "RI",
-        "count": 7,
-        "pct": 24.14,
-        "fte": 11401,
-        "rate": 6.14,
-        "isMainCampus": true
+        "count": 7
       },
       {
         "rank": 3,
-        "rankByRate": 2,
         "unitid": 217402001,
-        "name": "Providence College",
-        "short": null,
-        "state": "RI",
-        "count": 3,
-        "pct": 10.34,
-        "fte": 4511,
-        "rate": 6.65,
-        "isMainCampus": true
+        "count": 3
       },
       {
         "rank": 4,
-        "rankByRate": 4,
         "unitid": 217165001,
-        "name": "Bryant University",
-        "short": null,
-        "state": "RI",
-        "count": 2,
-        "pct": 6.9,
-        "fte": 3494,
-        "rate": 5.72,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 4,
-        "rankByRate": 9,
         "unitid": 217484004,
-        "name": "University of Rhode Island",
-        "short": null,
-        "state": "RI",
-        "count": 2,
-        "pct": 6.9,
-        "fte": 15490,
-        "rate": 1.29,
-        "isMainCampus": false
+        "count": 2
       },
       {
         "rank": 6,
-        "rankByRate": 8,
         "unitid": 217475001,
-        "name": "Community College of Rhode Island",
-        "short": null,
-        "state": "RI",
-        "count": 1,
-        "pct": 3.45,
-        "fte": 7234,
-        "rate": 1.38,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 6,
-        "rankByRate": 6,
         "unitid": 217235001,
-        "name": "Johnson & Wales University-Providence",
-        "short": null,
-        "state": "RI",
-        "count": 1,
-        "pct": 3.45,
-        "fte": 4137,
-        "rate": 2.42,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 6,
-        "rankByRate": 7,
         "unitid": 217420001,
-        "name": "Rhode Island College",
-        "short": null,
-        "state": "RI",
-        "count": 1,
-        "pct": 3.45,
-        "fte": 5233,
-        "rate": 1.91,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 6,
-        "rankByRate": 5,
         "unitid": 217493001,
-        "name": "Rhode Island School of Design",
-        "short": null,
-        "state": "RI",
-        "count": 1,
-        "pct": 3.45,
-        "fte": 2520,
-        "rate": 3.97,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "dating_violence": [
       {
         "rank": 1,
-        "rankByRate": 2,
         "unitid": 217493001,
-        "name": "Rhode Island School of Design",
-        "short": null,
-        "state": "RI",
-        "count": 18,
-        "pct": 52.94,
-        "fte": 2520,
-        "rate": 71.43,
-        "isMainCampus": true
+        "count": 18
       },
       {
         "rank": 2,
-        "rankByRate": 3,
         "unitid": 217402001,
-        "name": "Providence College",
-        "short": null,
-        "state": "RI",
-        "count": 4,
-        "pct": 11.76,
-        "fte": 4511,
-        "rate": 8.87,
-        "isMainCampus": true
+        "count": 4
       },
       {
         "rank": 3,
-        "rankByRate": 4,
         "unitid": 217235001,
-        "name": "Johnson & Wales University-Providence",
-        "short": null,
-        "state": "RI",
-        "count": 3,
-        "pct": 8.82,
-        "fte": 4137,
-        "rate": 7.25,
-        "isMainCampus": true
+        "count": 3
       },
       {
         "rank": 3,
-        "rankByRate": 5,
         "unitid": 217420001,
-        "name": "Rhode Island College",
-        "short": null,
-        "state": "RI",
-        "count": 3,
-        "pct": 8.82,
-        "fte": 5233,
-        "rate": 5.73,
-        "isMainCampus": true
+        "count": 3
       },
       {
         "rank": 5,
-        "rankByRate": 6,
         "unitid": 217165001,
-        "name": "Bryant University",
-        "short": null,
-        "state": "RI",
-        "count": 2,
-        "pct": 5.88,
-        "fte": 3494,
-        "rate": 5.72,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 6,
-        "rankByRate": 9,
         "unitid": 217156001,
-        "name": "Brown University",
-        "short": "Brown",
-        "state": "RI",
-        "count": 1,
-        "pct": 2.94,
-        "fte": 11401,
-        "rate": 0.88,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 6,
-        "rankByRate": 1,
         "unitid": 217581001,
-        "name": "Empire Beauty School-Warwick",
-        "short": null,
-        "state": "RI",
-        "count": 1,
-        "pct": 2.94,
-        "fte": 91,
-        "rate": 109.89,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 6,
-        "rankByRate": 8,
         "unitid": 217235002,
-        "name": "Johnson & Wales University-Providence",
-        "short": null,
-        "state": "RI",
-        "count": 1,
-        "pct": 2.94,
-        "fte": 4137,
-        "rate": 2.42,
-        "isMainCampus": false
+        "count": 1
       },
       {
         "rank": 6,
-        "rankByRate": 7,
         "unitid": 217518001,
-        "name": "Roger Williams University",
-        "short": null,
-        "state": "RI",
-        "count": 1,
-        "pct": 2.94,
-        "fte": 4025,
-        "rate": 2.48,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "domestic_violence": [
       {
         "rank": 1,
-        "rankByRate": 4,
         "unitid": 217156001,
-        "name": "Brown University",
-        "short": "Brown",
-        "state": "RI",
-        "count": 6,
-        "pct": 30.0,
-        "fte": 11401,
-        "rate": 5.26,
-        "isMainCampus": true
+        "count": 6
       },
       {
         "rank": 1,
-        "rankByRate": 5,
         "unitid": 217484001,
-        "name": "University of Rhode Island",
-        "short": null,
-        "state": "RI",
-        "count": 6,
-        "pct": 30.0,
-        "fte": 15490,
-        "rate": 3.87,
-        "isMainCampus": true
+        "count": 6
       },
       {
         "rank": 3,
-        "rankByRate": 3,
         "unitid": 217235002,
-        "name": "Johnson & Wales University-Providence",
-        "short": null,
-        "state": "RI",
-        "count": 3,
-        "pct": 15.0,
-        "fte": 4137,
-        "rate": 7.25,
-        "isMainCampus": false
+        "count": 3
       },
       {
         "rank": 4,
-        "rankByRate": 2,
         "unitid": 217493001,
-        "name": "Rhode Island School of Design",
-        "short": null,
-        "state": "RI",
-        "count": 2,
-        "pct": 10.0,
-        "fte": 2520,
-        "rate": 7.94,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 4,
-        "rankByRate": 1,
         "unitid": 217536001,
-        "name": "Salve Regina University",
-        "short": null,
-        "state": "RI",
-        "count": 2,
-        "pct": 10.0,
-        "fte": 2486,
-        "rate": 8.05,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 6,
-        "rankByRate": 6,
         "unitid": 217235001,
-        "name": "Johnson & Wales University-Providence",
-        "short": null,
-        "state": "RI",
-        "count": 1,
-        "pct": 5.0,
-        "fte": 4137,
-        "rate": 2.42,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "drug_arrest": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 217165001,
-        "name": "Bryant University",
-        "short": null,
-        "state": "RI",
-        "count": 2,
-        "pct": 28.57,
-        "fte": 3494,
-        "rate": 5.72,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 1,
-        "rankByRate": 2,
         "unitid": 217475001,
-        "name": "Community College of Rhode Island",
-        "short": null,
-        "state": "RI",
-        "count": 2,
-        "pct": 28.57,
-        "fte": 7234,
-        "rate": 2.76,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 1,
-        "rankByRate": 4,
         "unitid": 217484001,
-        "name": "University of Rhode Island",
-        "short": null,
-        "state": "RI",
-        "count": 2,
-        "pct": 28.57,
-        "fte": 15490,
-        "rate": 1.29,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 4,
-        "rankByRate": 3,
         "unitid": 217235001,
-        "name": "Johnson & Wales University-Providence",
-        "short": null,
-        "state": "RI",
-        "count": 1,
-        "pct": 14.29,
-        "fte": 4137,
-        "rate": 2.42,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "drug_discipline": [
       {
         "rank": 1,
-        "rankByRate": 2,
         "unitid": 217484001,
-        "name": "University of Rhode Island",
-        "short": null,
-        "state": "RI",
-        "count": 30,
-        "pct": 53.57,
-        "fte": 15490,
-        "rate": 19.37,
-        "isMainCampus": true
+        "count": 30
       },
       {
         "rank": 2,
-        "rankByRate": 3,
         "unitid": 217156001,
-        "name": "Brown University",
-        "short": "Brown",
-        "state": "RI",
-        "count": 12,
-        "pct": 21.43,
-        "fte": 11401,
-        "rate": 10.53,
-        "isMainCampus": true
+        "count": 12
       },
       {
         "rank": 3,
-        "rankByRate": 1,
         "unitid": 217305001,
-        "name": "New England Institute of Technology",
-        "short": null,
-        "state": "RI",
-        "count": 9,
-        "pct": 16.07,
-        "fte": 1818,
-        "rate": 49.5,
-        "isMainCampus": true
+        "count": 9
       },
       {
         "rank": 4,
-        "rankByRate": 5,
         "unitid": 217235002,
-        "name": "Johnson & Wales University-Providence",
-        "short": null,
-        "state": "RI",
-        "count": 2,
-        "pct": 3.57,
-        "fte": 4137,
-        "rate": 4.83,
-        "isMainCampus": false
+        "count": 2
       },
       {
         "rank": 4,
-        "rankByRate": 4,
         "unitid": 217493001,
-        "name": "Rhode Island School of Design",
-        "short": null,
-        "state": "RI",
-        "count": 2,
-        "pct": 3.57,
-        "fte": 2520,
-        "rate": 7.94,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 6,
-        "rankByRate": 6,
         "unitid": 217402001,
-        "name": "Providence College",
-        "short": null,
-        "state": "RI",
-        "count": 1,
-        "pct": 1.79,
-        "fte": 4511,
-        "rate": 2.22,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "fondling": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 217493001,
-        "name": "Rhode Island School of Design",
-        "short": null,
-        "state": "RI",
-        "count": 7,
-        "pct": 24.14,
-        "fte": 2520,
-        "rate": 27.78,
-        "isMainCampus": true
+        "count": 7
       },
       {
         "rank": 2,
-        "rankByRate": 2,
         "unitid": 217235001,
-        "name": "Johnson & Wales University-Providence",
-        "short": null,
-        "state": "RI",
-        "count": 4,
-        "pct": 13.79,
-        "fte": 4137,
-        "rate": 9.67,
-        "isMainCampus": true
+        "count": 4
       },
       {
         "rank": 3,
-        "rankByRate": 8,
         "unitid": 217156001,
-        "name": "Brown University",
-        "short": "Brown",
-        "state": "RI",
-        "count": 3,
-        "pct": 10.34,
-        "fte": 11401,
-        "rate": 2.63,
-        "isMainCampus": true
+        "count": 3
       },
       {
         "rank": 3,
-        "rankByRate": 3,
         "unitid": 217165001,
-        "name": "Bryant University",
-        "short": null,
-        "state": "RI",
-        "count": 3,
-        "pct": 10.34,
-        "fte": 3494,
-        "rate": 8.59,
-        "isMainCampus": true
+        "count": 3
       },
       {
         "rank": 3,
-        "rankByRate": 6,
         "unitid": 217235002,
-        "name": "Johnson & Wales University-Providence",
-        "short": null,
-        "state": "RI",
-        "count": 3,
-        "pct": 10.34,
-        "fte": 4137,
-        "rate": 7.25,
-        "isMainCampus": false
+        "count": 3
       },
       {
         "rank": 3,
-        "rankByRate": 7,
         "unitid": 217402001,
-        "name": "Providence College",
-        "short": null,
-        "state": "RI",
-        "count": 3,
-        "pct": 10.34,
-        "fte": 4511,
-        "rate": 6.65,
-        "isMainCampus": true
+        "count": 3
       },
       {
         "rank": 3,
-        "rankByRate": 5,
         "unitid": 217518001,
-        "name": "Roger Williams University",
-        "short": null,
-        "state": "RI",
-        "count": 3,
-        "pct": 10.34,
-        "fte": 4025,
-        "rate": 7.45,
-        "isMainCampus": true
+        "count": 3
       },
       {
         "rank": 8,
-        "rankByRate": 4,
         "unitid": 217536001,
-        "name": "Salve Regina University",
-        "short": null,
-        "state": "RI",
-        "count": 2,
-        "pct": 6.9,
-        "fte": 2486,
-        "rate": 8.05,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 9,
-        "rankByRate": 9,
         "unitid": 217420001,
-        "name": "Rhode Island College",
-        "short": null,
-        "state": "RI",
-        "count": 1,
-        "pct": 3.45,
-        "fte": 5233,
-        "rate": 1.91,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "liquor_arrest": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 217484001,
-        "name": "University of Rhode Island",
-        "short": null,
-        "state": "RI",
-        "count": 22,
-        "pct": 100.0,
-        "fte": 15490,
-        "rate": 14.2,
-        "isMainCampus": true
+        "count": 22
       }
     ],
     "liquor_discipline": [
       {
         "rank": 1,
-        "rankByRate": 2,
         "unitid": 217402001,
-        "name": "Providence College",
-        "short": null,
-        "state": "RI",
-        "count": 340,
-        "pct": 26.15,
-        "fte": 4511,
-        "rate": 753.71,
-        "isMainCampus": true
+        "count": 340
       },
       {
         "rank": 2,
-        "rankByRate": 1,
         "unitid": 217536001,
-        "name": "Salve Regina University",
-        "short": null,
-        "state": "RI",
-        "count": 226,
-        "pct": 17.38,
-        "fte": 2486,
-        "rate": 909.09,
-        "isMainCampus": true
+        "count": 226
       },
       {
         "rank": 3,
-        "rankByRate": 3,
         "unitid": 217518001,
-        "name": "Roger Williams University",
-        "short": null,
-        "state": "RI",
-        "count": 201,
-        "pct": 15.46,
-        "fte": 4025,
-        "rate": 499.38,
-        "isMainCampus": true
+        "count": 201
       },
       {
         "rank": 4,
-        "rankByRate": 11,
         "unitid": 217484001,
-        "name": "University of Rhode Island",
-        "short": null,
-        "state": "RI",
-        "count": 116,
-        "pct": 8.92,
-        "fte": 15490,
-        "rate": 74.89,
-        "isMainCampus": true
+        "count": 116
       },
       {
         "rank": 5,
-        "rankByRate": 8,
         "unitid": 217156001,
-        "name": "Brown University",
-        "short": "Brown",
-        "state": "RI",
-        "count": 110,
-        "pct": 8.46,
-        "fte": 11401,
-        "rate": 96.48,
-        "isMainCampus": true
+        "count": 110
       },
       {
         "rank": 6,
-        "rankByRate": 5,
         "unitid": 217165001,
-        "name": "Bryant University",
-        "short": null,
-        "state": "RI",
-        "count": 93,
-        "pct": 7.15,
-        "fte": 3494,
-        "rate": 266.17,
-        "isMainCampus": true
+        "count": 93
       },
       {
         "rank": 7,
-        "rankByRate": 4,
         "unitid": 217493001,
-        "name": "Rhode Island School of Design",
-        "short": null,
-        "state": "RI",
-        "count": 76,
-        "pct": 5.85,
-        "fte": 2520,
-        "rate": 301.59,
-        "isMainCampus": true
+        "count": 76
       },
       {
         "rank": 8,
-        "rankByRate": 6,
         "unitid": 217420001,
-        "name": "Rhode Island College",
-        "short": null,
-        "state": "RI",
-        "count": 52,
-        "pct": 4.0,
-        "fte": 5233,
-        "rate": 99.37,
-        "isMainCampus": true
+        "count": 52
       },
       {
         "rank": 9,
-        "rankByRate": 7,
         "unitid": 217235001,
-        "name": "Johnson & Wales University-Providence",
-        "short": null,
-        "state": "RI",
-        "count": 40,
-        "pct": 3.08,
-        "fte": 4137,
-        "rate": 96.69,
-        "isMainCampus": true
+        "count": 40
       },
       {
         "rank": 10,
-        "rankByRate": 10,
         "unitid": 217235002,
-        "name": "Johnson & Wales University-Providence",
-        "short": null,
-        "state": "RI",
-        "count": 31,
-        "pct": 2.38,
-        "fte": 4137,
-        "rate": 74.93,
-        "isMainCampus": false
+        "count": 31
       },
       {
         "rank": 11,
-        "rankByRate": 9,
         "unitid": 217305001,
-        "name": "New England Institute of Technology",
-        "short": null,
-        "state": "RI",
-        "count": 15,
-        "pct": 1.15,
-        "fte": 1818,
-        "rate": 82.51,
-        "isMainCampus": true
+        "count": 15
       }
     ],
     "motor_vehicle_theft": [
       {
         "rank": 1,
-        "rankByRate": 2,
         "unitid": 217156001,
-        "name": "Brown University",
-        "short": "Brown",
-        "state": "RI",
-        "count": 24,
-        "pct": 54.55,
-        "fte": 11401,
-        "rate": 21.05,
-        "isMainCampus": true
+        "count": 24
       },
       {
         "rank": 2,
-        "rankByRate": 1,
         "unitid": 217493001,
-        "name": "Rhode Island School of Design",
-        "short": null,
-        "state": "RI",
-        "count": 7,
-        "pct": 15.91,
-        "fte": 2520,
-        "rate": 27.78,
-        "isMainCampus": true
+        "count": 7
       },
       {
         "rank": 3,
-        "rankByRate": 3,
         "unitid": 217235001,
-        "name": "Johnson & Wales University-Providence",
-        "short": null,
-        "state": "RI",
-        "count": 4,
-        "pct": 9.09,
-        "fte": 4137,
-        "rate": 9.67,
-        "isMainCampus": true
+        "count": 4
       },
       {
         "rank": 4,
-        "rankByRate": 5,
         "unitid": 217165001,
-        "name": "Bryant University",
-        "short": null,
-        "state": "RI",
-        "count": 2,
-        "pct": 4.55,
-        "fte": 3494,
-        "rate": 5.72,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 4,
-        "rankByRate": 6,
         "unitid": 217402001,
-        "name": "Providence College",
-        "short": null,
-        "state": "RI",
-        "count": 2,
-        "pct": 4.55,
-        "fte": 4511,
-        "rate": 4.43,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 4,
-        "rankByRate": 7,
         "unitid": 217420001,
-        "name": "Rhode Island College",
-        "short": null,
-        "state": "RI",
-        "count": 2,
-        "pct": 4.55,
-        "fte": 5233,
-        "rate": 3.82,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 4,
-        "rankByRate": 4,
         "unitid": 217536001,
-        "name": "Salve Regina University",
-        "short": null,
-        "state": "RI",
-        "count": 2,
-        "pct": 4.55,
-        "fte": 2486,
-        "rate": 8.05,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 8,
-        "rankByRate": 8,
         "unitid": 217518002,
-        "name": "Roger Williams University",
-        "short": null,
-        "state": "RI",
-        "count": 1,
-        "pct": 2.27,
-        "fte": 4025,
-        "rate": 2.48,
-        "isMainCampus": false
+        "count": 1
       }
     ],
     "rape": [
       {
         "rank": 1,
-        "rankByRate": 6,
         "unitid": 217156001,
-        "name": "Brown University",
-        "short": "Brown",
-        "state": "RI",
-        "count": 10,
-        "pct": 21.74,
-        "fte": 11401,
-        "rate": 8.77,
-        "isMainCampus": true
+        "count": 10
       },
       {
         "rank": 2,
-        "rankByRate": 1,
         "unitid": 217493001,
-        "name": "Rhode Island School of Design",
-        "short": null,
-        "state": "RI",
-        "count": 8,
-        "pct": 17.39,
-        "fte": 2520,
-        "rate": 31.75,
-        "isMainCampus": true
+        "count": 8
       },
       {
         "rank": 2,
-        "rankByRate": 8,
         "unitid": 217484001,
-        "name": "University of Rhode Island",
-        "short": null,
-        "state": "RI",
-        "count": 8,
-        "pct": 17.39,
-        "fte": 15490,
-        "rate": 5.16,
-        "isMainCampus": true
+        "count": 8
       },
       {
         "rank": 4,
-        "rankByRate": 3,
         "unitid": 217235001,
-        "name": "Johnson & Wales University-Providence",
-        "short": null,
-        "state": "RI",
-        "count": 4,
-        "pct": 8.7,
-        "fte": 4137,
-        "rate": 9.67,
-        "isMainCampus": true
+        "count": 4
       },
       {
         "rank": 4,
-        "rankByRate": 3,
         "unitid": 217235002,
-        "name": "Johnson & Wales University-Providence",
-        "short": null,
-        "state": "RI",
-        "count": 4,
-        "pct": 8.7,
-        "fte": 4137,
-        "rate": 9.67,
-        "isMainCampus": false
+        "count": 4
       },
       {
         "rank": 4,
-        "rankByRate": 5,
         "unitid": 217402001,
-        "name": "Providence College",
-        "short": null,
-        "state": "RI",
-        "count": 4,
-        "pct": 8.7,
-        "fte": 4511,
-        "rate": 8.87,
-        "isMainCampus": true
+        "count": 4
       },
       {
         "rank": 7,
-        "rankByRate": 7,
         "unitid": 217420001,
-        "name": "Rhode Island College",
-        "short": null,
-        "state": "RI",
-        "count": 3,
-        "pct": 6.52,
-        "fte": 5233,
-        "rate": 5.73,
-        "isMainCampus": true
+        "count": 3
       },
       {
         "rank": 7,
-        "rankByRate": 2,
         "unitid": 217536001,
-        "name": "Salve Regina University",
-        "short": null,
-        "state": "RI",
-        "count": 3,
-        "pct": 6.52,
-        "fte": 2486,
-        "rate": 12.07,
-        "isMainCampus": true
+        "count": 3
       },
       {
         "rank": 9,
-        "rankByRate": 10,
         "unitid": 217475001,
-        "name": "Community College of Rhode Island",
-        "short": null,
-        "state": "RI",
-        "count": 1,
-        "pct": 2.17,
-        "fte": 7234,
-        "rate": 1.38,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 9,
-        "rankByRate": 9,
         "unitid": 217518001,
-        "name": "Roger Williams University",
-        "short": null,
-        "state": "RI",
-        "count": 1,
-        "pct": 2.17,
-        "fte": 4025,
-        "rate": 2.48,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "robbery": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 443641001,
-        "name": "Paul Mitchell the School-Rhode Island",
-        "short": null,
-        "state": "RI",
-        "count": 10,
-        "pct": 83.33,
-        "fte": 119,
-        "rate": 840.34,
-        "isMainCampus": true
+        "count": 10
       },
       {
         "rank": 2,
-        "rankByRate": 3,
         "unitid": 217235001,
-        "name": "Johnson & Wales University-Providence",
-        "short": null,
-        "state": "RI",
-        "count": 1,
-        "pct": 8.33,
-        "fte": 4137,
-        "rate": 2.42,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 2,
-        "rankByRate": 2,
         "unitid": 217536001,
-        "name": "Salve Regina University",
-        "short": null,
-        "state": "RI",
-        "count": 1,
-        "pct": 8.33,
-        "fte": 2486,
-        "rate": 4.02,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "stalking": [
       {
         "rank": 1,
-        "rankByRate": 3,
         "unitid": 217156001,
-        "name": "Brown University",
-        "short": "Brown",
-        "state": "RI",
-        "count": 9,
-        "pct": 29.03,
-        "fte": 11401,
-        "rate": 7.89,
-        "isMainCampus": true
+        "count": 9
       },
       {
         "rank": 2,
-        "rankByRate": 1,
         "unitid": 217518001,
-        "name": "Roger Williams University",
-        "short": null,
-        "state": "RI",
-        "count": 7,
-        "pct": 22.58,
-        "fte": 4025,
-        "rate": 17.39,
-        "isMainCampus": true
+        "count": 7
       },
       {
         "rank": 3,
-        "rankByRate": 4,
         "unitid": 217420001,
-        "name": "Rhode Island College",
-        "short": null,
-        "state": "RI",
-        "count": 4,
-        "pct": 12.9,
-        "fte": 5233,
-        "rate": 7.64,
-        "isMainCampus": true
+        "count": 4
       },
       {
         "rank": 3,
-        "rankByRate": 2,
         "unitid": 217493001,
-        "name": "Rhode Island School of Design",
-        "short": null,
-        "state": "RI",
-        "count": 4,
-        "pct": 12.9,
-        "fte": 2520,
-        "rate": 15.87,
-        "isMainCampus": true
+        "count": 4
       },
       {
         "rank": 5,
-        "rankByRate": 5,
         "unitid": 217402001,
-        "name": "Providence College",
-        "short": null,
-        "state": "RI",
-        "count": 3,
-        "pct": 9.68,
-        "fte": 4511,
-        "rate": 6.65,
-        "isMainCampus": true
+        "count": 3
       },
       {
         "rank": 6,
-        "rankByRate": 6,
         "unitid": 217165001,
-        "name": "Bryant University",
-        "short": null,
-        "state": "RI",
-        "count": 2,
-        "pct": 6.45,
-        "fte": 3494,
-        "rate": 5.72,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 6,
-        "rankByRate": 7,
         "unitid": 217484001,
-        "name": "University of Rhode Island",
-        "short": null,
-        "state": "RI",
-        "count": 2,
-        "pct": 6.45,
-        "fte": 15490,
-        "rate": 1.29,
-        "isMainCampus": true
+        "count": 2
       }
     ],
     "weapons_discipline": [
       {
         "rank": 1,
-        "rankByRate": 3,
         "unitid": 217484001,
-        "name": "University of Rhode Island",
-        "short": null,
-        "state": "RI",
-        "count": 3,
-        "pct": 42.86,
-        "fte": 15490,
-        "rate": 1.94,
-        "isMainCampus": true
+        "count": 3
       },
       {
         "rank": 2,
-        "rankByRate": 1,
         "unitid": 217518001,
-        "name": "Roger Williams University",
-        "short": null,
-        "state": "RI",
-        "count": 2,
-        "pct": 28.57,
-        "fte": 4025,
-        "rate": 4.97,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 3,
-        "rankByRate": 4,
         "unitid": 217156001,
-        "name": "Brown University",
-        "short": "Brown",
-        "state": "RI",
-        "count": 1,
-        "pct": 14.29,
-        "fte": 11401,
-        "rate": 0.88,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 3,
-        "rankByRate": 2,
         "unitid": 217235001,
-        "name": "Johnson & Wales University-Providence",
-        "short": null,
-        "state": "RI",
-        "count": 1,
-        "pct": 14.29,
-        "fte": 4137,
-        "rate": 2.42,
-        "isMainCampus": true
+        "count": 1
       }
     ]
   },
@@ -1706,5 +820,791 @@
     "robbery": 12,
     "stalking": 31,
     "weapons_discipline": 7
+  },
+  "institutions": {
+    "217156": {
+      "name": "Brown University",
+      "unitid": 217156001,
+      "state": "RI",
+      "fte": 11401,
+      "campuses": 1
+    },
+    "217165": {
+      "name": "Bryant University",
+      "unitid": 217165001,
+      "state": "RI",
+      "fte": 3494,
+      "campuses": 1
+    },
+    "217235": {
+      "name": "Johnson & Wales University-Providence",
+      "unitid": 217235001,
+      "state": "RI",
+      "fte": 4137,
+      "campuses": 2
+    },
+    "217305": {
+      "name": "New England Institute of Technology",
+      "unitid": 217305001,
+      "state": "RI",
+      "fte": 1818,
+      "campuses": 3
+    },
+    "217402": {
+      "name": "Providence College",
+      "unitid": 217402001,
+      "state": "RI",
+      "fte": 4511,
+      "campuses": 1
+    },
+    "217420": {
+      "name": "Rhode Island College",
+      "unitid": 217420001,
+      "state": "RI",
+      "fte": 5233,
+      "campuses": 1
+    },
+    "217475": {
+      "name": "Community College of Rhode Island",
+      "unitid": 217475001,
+      "state": "RI",
+      "fte": 7234,
+      "campuses": 5
+    },
+    "217484": {
+      "name": "University of Rhode Island",
+      "unitid": 217484001,
+      "state": "RI",
+      "fte": 15490,
+      "campuses": 5
+    },
+    "217493": {
+      "name": "Rhode Island School of Design",
+      "unitid": 217493001,
+      "state": "RI",
+      "fte": 2520,
+      "campuses": 1
+    },
+    "217518": {
+      "name": "Roger Williams University",
+      "unitid": 217518001,
+      "state": "RI",
+      "fte": 4025,
+      "campuses": 2
+    },
+    "217536": {
+      "name": "Salve Regina University",
+      "unitid": 217536001,
+      "state": "RI",
+      "fte": 2486,
+      "campuses": 1
+    }
+  },
+  "rateRankings": {
+    "criminal": [
+      {
+        "rank": 1,
+        "id": 217493,
+        "count": 24,
+        "rate": 95.24
+      },
+      {
+        "rank": 2,
+        "id": 217235,
+        "count": 21,
+        "rate": 50.76
+      },
+      {
+        "rank": 3,
+        "id": 217518,
+        "count": 18,
+        "rate": 44.72
+      },
+      {
+        "rank": 4,
+        "id": 217156,
+        "count": 48,
+        "rate": 42.1
+      },
+      {
+        "rank": 5,
+        "id": 217536,
+        "count": 10,
+        "rate": 40.23
+      },
+      {
+        "rank": 6,
+        "id": 217165,
+        "count": 10,
+        "rate": 28.62
+      },
+      {
+        "rank": 7,
+        "id": 217402,
+        "count": 12,
+        "rate": 26.6
+      },
+      {
+        "rank": 8,
+        "id": 217420,
+        "count": 7,
+        "rate": 13.38
+      },
+      {
+        "rank": 9,
+        "id": 217484,
+        "count": 13,
+        "rate": 8.39
+      },
+      {
+        "rank": 10,
+        "id": 217475,
+        "count": 2,
+        "rate": 2.76
+      }
+    ],
+    "all": [
+      {
+        "rank": 1,
+        "id": 217536,
+        "count": 238,
+        "rate": 957.36
+      },
+      {
+        "rank": 2,
+        "id": 217402,
+        "count": 360,
+        "rate": 798.05
+      },
+      {
+        "rank": 3,
+        "id": 217518,
+        "count": 229,
+        "rate": 568.94
+      },
+      {
+        "rank": 4,
+        "id": 217493,
+        "count": 126,
+        "rate": 500.0
+      },
+      {
+        "rank": 5,
+        "id": 217165,
+        "count": 109,
+        "rate": 311.96
+      },
+      {
+        "rank": 6,
+        "id": 217235,
+        "count": 104,
+        "rate": 251.39
+      },
+      {
+        "rank": 7,
+        "id": 217156,
+        "count": 187,
+        "rate": 164.02
+      },
+      {
+        "rank": 8,
+        "id": 217305,
+        "count": 24,
+        "rate": 132.01
+      },
+      {
+        "rank": 9,
+        "id": 217420,
+        "count": 66,
+        "rate": 126.12
+      },
+      {
+        "rank": 10,
+        "id": 217484,
+        "count": 194,
+        "rate": 125.24
+      },
+      {
+        "rank": 11,
+        "id": 217475,
+        "count": 4,
+        "rate": 5.53
+      }
+    ],
+    "aggravated_assault": [
+      {
+        "rank": 1,
+        "id": 217165,
+        "count": 2,
+        "rate": 5.72
+      },
+      {
+        "rank": 2,
+        "id": 217518,
+        "count": 2,
+        "rate": 4.97
+      },
+      {
+        "rank": 3,
+        "id": 217536,
+        "count": 1,
+        "rate": 4.02
+      },
+      {
+        "rank": 4,
+        "id": 217156,
+        "count": 1,
+        "rate": 0.88
+      },
+      {
+        "rank": 5,
+        "id": 217484,
+        "count": 1,
+        "rate": 0.65
+      }
+    ],
+    "arson": [
+      {
+        "rank": 1,
+        "id": 217536,
+        "count": 1,
+        "rate": 4.02
+      },
+      {
+        "rank": 2,
+        "id": 217493,
+        "count": 1,
+        "rate": 3.97
+      },
+      {
+        "rank": 3,
+        "id": 217165,
+        "count": 1,
+        "rate": 2.86
+      },
+      {
+        "rank": 4,
+        "id": 217156,
+        "count": 3,
+        "rate": 2.63
+      },
+      {
+        "rank": 5,
+        "id": 217484,
+        "count": 2,
+        "rate": 1.29
+      }
+    ],
+    "burglary": [
+      {
+        "rank": 1,
+        "id": 217518,
+        "count": 11,
+        "rate": 27.33
+      },
+      {
+        "rank": 2,
+        "id": 217402,
+        "count": 3,
+        "rate": 6.65
+      },
+      {
+        "rank": 3,
+        "id": 217156,
+        "count": 7,
+        "rate": 6.14
+      },
+      {
+        "rank": 4,
+        "id": 217165,
+        "count": 2,
+        "rate": 5.72
+      },
+      {
+        "rank": 5,
+        "id": 217493,
+        "count": 1,
+        "rate": 3.97
+      },
+      {
+        "rank": 6,
+        "id": 217235,
+        "count": 1,
+        "rate": 2.42
+      },
+      {
+        "rank": 7,
+        "id": 217420,
+        "count": 1,
+        "rate": 1.91
+      },
+      {
+        "rank": 8,
+        "id": 217475,
+        "count": 1,
+        "rate": 1.38
+      },
+      {
+        "rank": 9,
+        "id": 217484,
+        "count": 2,
+        "rate": 1.29
+      }
+    ],
+    "dating_violence": [
+      {
+        "rank": 1,
+        "id": 217493,
+        "count": 18,
+        "rate": 71.43
+      },
+      {
+        "rank": 2,
+        "id": 217235,
+        "count": 4,
+        "rate": 9.67
+      },
+      {
+        "rank": 3,
+        "id": 217402,
+        "count": 4,
+        "rate": 8.87
+      },
+      {
+        "rank": 4,
+        "id": 217420,
+        "count": 3,
+        "rate": 5.73
+      },
+      {
+        "rank": 5,
+        "id": 217165,
+        "count": 2,
+        "rate": 5.72
+      },
+      {
+        "rank": 6,
+        "id": 217518,
+        "count": 1,
+        "rate": 2.48
+      },
+      {
+        "rank": 7,
+        "id": 217156,
+        "count": 1,
+        "rate": 0.88
+      }
+    ],
+    "domestic_violence": [
+      {
+        "rank": 1,
+        "id": 217235,
+        "count": 4,
+        "rate": 9.67
+      },
+      {
+        "rank": 2,
+        "id": 217536,
+        "count": 2,
+        "rate": 8.05
+      },
+      {
+        "rank": 3,
+        "id": 217493,
+        "count": 2,
+        "rate": 7.94
+      },
+      {
+        "rank": 4,
+        "id": 217156,
+        "count": 6,
+        "rate": 5.26
+      },
+      {
+        "rank": 5,
+        "id": 217484,
+        "count": 6,
+        "rate": 3.87
+      }
+    ],
+    "drug_arrest": [
+      {
+        "rank": 1,
+        "id": 217165,
+        "count": 2,
+        "rate": 5.72
+      },
+      {
+        "rank": 2,
+        "id": 217475,
+        "count": 2,
+        "rate": 2.76
+      },
+      {
+        "rank": 3,
+        "id": 217235,
+        "count": 1,
+        "rate": 2.42
+      },
+      {
+        "rank": 4,
+        "id": 217484,
+        "count": 2,
+        "rate": 1.29
+      }
+    ],
+    "drug_discipline": [
+      {
+        "rank": 1,
+        "id": 217305,
+        "count": 9,
+        "rate": 49.5
+      },
+      {
+        "rank": 2,
+        "id": 217484,
+        "count": 30,
+        "rate": 19.37
+      },
+      {
+        "rank": 3,
+        "id": 217156,
+        "count": 12,
+        "rate": 10.53
+      },
+      {
+        "rank": 4,
+        "id": 217493,
+        "count": 2,
+        "rate": 7.94
+      },
+      {
+        "rank": 5,
+        "id": 217235,
+        "count": 2,
+        "rate": 4.83
+      },
+      {
+        "rank": 6,
+        "id": 217402,
+        "count": 1,
+        "rate": 2.22
+      }
+    ],
+    "fondling": [
+      {
+        "rank": 1,
+        "id": 217493,
+        "count": 7,
+        "rate": 27.78
+      },
+      {
+        "rank": 2,
+        "id": 217235,
+        "count": 7,
+        "rate": 16.92
+      },
+      {
+        "rank": 3,
+        "id": 217165,
+        "count": 3,
+        "rate": 8.59
+      },
+      {
+        "rank": 4,
+        "id": 217536,
+        "count": 2,
+        "rate": 8.05
+      },
+      {
+        "rank": 5,
+        "id": 217518,
+        "count": 3,
+        "rate": 7.45
+      },
+      {
+        "rank": 6,
+        "id": 217402,
+        "count": 3,
+        "rate": 6.65
+      },
+      {
+        "rank": 7,
+        "id": 217156,
+        "count": 3,
+        "rate": 2.63
+      },
+      {
+        "rank": 8,
+        "id": 217420,
+        "count": 1,
+        "rate": 1.91
+      }
+    ],
+    "incest": [],
+    "liquor_arrest": [
+      {
+        "rank": 1,
+        "id": 217484,
+        "count": 22,
+        "rate": 14.2
+      }
+    ],
+    "liquor_discipline": [
+      {
+        "rank": 1,
+        "id": 217536,
+        "count": 226,
+        "rate": 909.09
+      },
+      {
+        "rank": 2,
+        "id": 217402,
+        "count": 340,
+        "rate": 753.71
+      },
+      {
+        "rank": 3,
+        "id": 217518,
+        "count": 201,
+        "rate": 499.38
+      },
+      {
+        "rank": 4,
+        "id": 217493,
+        "count": 76,
+        "rate": 301.59
+      },
+      {
+        "rank": 5,
+        "id": 217165,
+        "count": 93,
+        "rate": 266.17
+      },
+      {
+        "rank": 6,
+        "id": 217235,
+        "count": 71,
+        "rate": 171.62
+      },
+      {
+        "rank": 7,
+        "id": 217420,
+        "count": 52,
+        "rate": 99.37
+      },
+      {
+        "rank": 8,
+        "id": 217156,
+        "count": 110,
+        "rate": 96.48
+      },
+      {
+        "rank": 9,
+        "id": 217305,
+        "count": 15,
+        "rate": 82.51
+      },
+      {
+        "rank": 10,
+        "id": 217484,
+        "count": 116,
+        "rate": 74.89
+      }
+    ],
+    "motor_vehicle_theft": [
+      {
+        "rank": 1,
+        "id": 217493,
+        "count": 7,
+        "rate": 27.78
+      },
+      {
+        "rank": 2,
+        "id": 217156,
+        "count": 24,
+        "rate": 21.05
+      },
+      {
+        "rank": 3,
+        "id": 217235,
+        "count": 4,
+        "rate": 9.67
+      },
+      {
+        "rank": 4,
+        "id": 217536,
+        "count": 2,
+        "rate": 8.05
+      },
+      {
+        "rank": 5,
+        "id": 217165,
+        "count": 2,
+        "rate": 5.72
+      },
+      {
+        "rank": 6,
+        "id": 217402,
+        "count": 2,
+        "rate": 4.43
+      },
+      {
+        "rank": 7,
+        "id": 217420,
+        "count": 2,
+        "rate": 3.82
+      },
+      {
+        "rank": 8,
+        "id": 217518,
+        "count": 1,
+        "rate": 2.48
+      }
+    ],
+    "murder": [],
+    "negligent_manslaughter": [],
+    "rape": [
+      {
+        "rank": 1,
+        "id": 217493,
+        "count": 8,
+        "rate": 31.75
+      },
+      {
+        "rank": 2,
+        "id": 217235,
+        "count": 8,
+        "rate": 19.34
+      },
+      {
+        "rank": 3,
+        "id": 217536,
+        "count": 3,
+        "rate": 12.07
+      },
+      {
+        "rank": 4,
+        "id": 217402,
+        "count": 4,
+        "rate": 8.87
+      },
+      {
+        "rank": 5,
+        "id": 217156,
+        "count": 10,
+        "rate": 8.77
+      },
+      {
+        "rank": 6,
+        "id": 217420,
+        "count": 3,
+        "rate": 5.73
+      },
+      {
+        "rank": 7,
+        "id": 217484,
+        "count": 8,
+        "rate": 5.16
+      },
+      {
+        "rank": 8,
+        "id": 217518,
+        "count": 1,
+        "rate": 2.48
+      },
+      {
+        "rank": 9,
+        "id": 217475,
+        "count": 1,
+        "rate": 1.38
+      }
+    ],
+    "robbery": [
+      {
+        "rank": 1,
+        "id": 217536,
+        "count": 1,
+        "rate": 4.02
+      },
+      {
+        "rank": 2,
+        "id": 217235,
+        "count": 1,
+        "rate": 2.42
+      }
+    ],
+    "stalking": [
+      {
+        "rank": 1,
+        "id": 217518,
+        "count": 7,
+        "rate": 17.39
+      },
+      {
+        "rank": 2,
+        "id": 217493,
+        "count": 4,
+        "rate": 15.87
+      },
+      {
+        "rank": 3,
+        "id": 217156,
+        "count": 9,
+        "rate": 7.89
+      },
+      {
+        "rank": 4,
+        "id": 217420,
+        "count": 4,
+        "rate": 7.64
+      },
+      {
+        "rank": 5,
+        "id": 217402,
+        "count": 3,
+        "rate": 6.65
+      },
+      {
+        "rank": 6,
+        "id": 217165,
+        "count": 2,
+        "rate": 5.72
+      },
+      {
+        "rank": 7,
+        "id": 217484,
+        "count": 2,
+        "rate": 1.29
+      }
+    ],
+    "statutory_rape": [],
+    "weapons_arrest": [],
+    "weapons_discipline": [
+      {
+        "rank": 1,
+        "id": 217518,
+        "count": 2,
+        "rate": 4.97
+      },
+      {
+        "rank": 2,
+        "id": 217235,
+        "count": 1,
+        "rate": 2.42
+      },
+      {
+        "rank": 3,
+        "id": 217484,
+        "count": 3,
+        "rate": 1.94
+      },
+      {
+        "rank": 4,
+        "id": 217156,
+        "count": 1,
+        "rate": 0.88
+      }
+    ]
   }
 }

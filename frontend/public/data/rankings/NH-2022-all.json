@@ -1,2080 +1,986 @@
 {
   "preset": "NH",
   "year": 2022,
+  "campuses": {
+    "182634001": {
+      "name": "Colby-Sawyer College",
+      "short": null,
+      "state": "NH",
+      "main": true,
+      "fte": 838,
+      "campuses": 1
+    },
+    "182670001": {
+      "name": "Dartmouth College",
+      "short": "Dartmouth",
+      "state": "NH",
+      "main": true,
+      "fte": 6717,
+      "campuses": 2
+    },
+    "182670002": {
+      "name": "Dartmouth College",
+      "short": null,
+      "state": "NH",
+      "main": false,
+      "fte": 6717,
+      "campuses": 2
+    },
+    "182795001": {
+      "name": "Franklin Pierce University",
+      "short": null,
+      "state": "NH",
+      "main": true,
+      "fte": 1498,
+      "campuses": 4
+    },
+    "182829001": {
+      "name": "University of New Hampshire-Franklin Pierce School of Law",
+      "short": null,
+      "state": "NH",
+      "main": true,
+      "fte": 509,
+      "campuses": 1
+    },
+    "182980001": {
+      "name": "New England College",
+      "short": null,
+      "state": "NH",
+      "main": true,
+      "fte": 2755,
+      "campuses": 2
+    },
+    "183026001": {
+      "name": "Southern New Hampshire University",
+      "short": null,
+      "state": "NH",
+      "main": true,
+      "fte": 88788,
+      "campuses": 2
+    },
+    "183044001": {
+      "name": "University of New Hampshire-Main Campus",
+      "short": null,
+      "state": "NH",
+      "main": true,
+      "fte": 13072,
+      "campuses": 3
+    },
+    "183062001": {
+      "name": "Keene State College",
+      "short": null,
+      "state": "NH",
+      "main": true,
+      "fte": 2733,
+      "campuses": 2
+    },
+    "183071001": {
+      "name": "University of New Hampshire at Manchester",
+      "short": null,
+      "state": "NH",
+      "main": true,
+      "fte": 479,
+      "campuses": 1
+    },
+    "183080001": {
+      "name": "Plymouth State University",
+      "short": null,
+      "state": "NH",
+      "main": true,
+      "fte": 3566,
+      "campuses": 1
+    },
+    "183099001": {
+      "name": "NHTI-Concord's Community College",
+      "short": null,
+      "state": "NH",
+      "main": true,
+      "fte": 1478,
+      "campuses": 1
+    },
+    "183114001": {
+      "name": "River Valley Community College",
+      "short": null,
+      "state": "NH",
+      "main": true,
+      "fte": 294,
+      "campuses": 3
+    },
+    "183114002": {
+      "name": "River Valley Community College",
+      "short": null,
+      "state": "NH",
+      "main": false,
+      "fte": 294,
+      "campuses": 3
+    },
+    "183114003": {
+      "name": "River Valley Community College",
+      "short": null,
+      "state": "NH",
+      "main": false,
+      "fte": 294,
+      "campuses": 3
+    },
+    "183123001": {
+      "name": "Lakes Region Community College",
+      "short": null,
+      "state": "NH",
+      "main": true,
+      "fte": 368,
+      "campuses": 1
+    },
+    "183141001": {
+      "name": "Nashua Community College",
+      "short": null,
+      "state": "NH",
+      "main": true,
+      "fte": 645,
+      "campuses": 1
+    },
+    "183211001": {
+      "name": "Rivier University",
+      "short": null,
+      "state": "NH",
+      "main": true,
+      "fte": 1925,
+      "campuses": 1
+    },
+    "183239001": {
+      "name": "Saint Anselm College",
+      "short": null,
+      "state": "NH",
+      "main": true,
+      "fte": 1964,
+      "campuses": 1
+    },
+    "245865001": {
+      "name": "Antioch University-New England",
+      "short": null,
+      "state": "NH",
+      "main": true,
+      "fte": 858,
+      "campuses": 1
+    }
+  },
   "rankings": {
     "criminal": [
       {
         "rank": 1,
-        "rankByRate": 3,
         "unitid": 182670001,
-        "name": "Dartmouth College",
-        "short": "Dartmouth",
-        "state": "NH",
-        "count": 65,
-        "pct": 32.66,
-        "fte": 6717,
-        "rate": 96.77,
-        "isMainCampus": true
+        "count": 65
       },
       {
         "rank": 2,
-        "rankByRate": 5,
         "unitid": 183044001,
-        "name": "University of New Hampshire-Main Campus",
-        "short": null,
-        "state": "NH",
-        "count": 59,
-        "pct": 29.65,
-        "fte": 13072,
-        "rate": 45.13,
-        "isMainCampus": true
+        "count": 59
       },
       {
         "rank": 3,
-        "rankByRate": 15,
         "unitid": 183026001,
-        "name": "Southern New Hampshire University",
-        "short": null,
-        "state": "NH",
-        "count": 18,
-        "pct": 9.05,
-        "fte": 88788,
-        "rate": 2.03,
-        "isMainCampus": true
+        "count": 18
       },
       {
         "rank": 4,
-        "rankByRate": 2,
         "unitid": 183099001,
-        "name": "NHTI-Concord's Community College",
-        "short": null,
-        "state": "NH",
-        "count": 15,
-        "pct": 7.54,
-        "fte": 1478,
-        "rate": 101.49,
-        "isMainCampus": true
+        "count": 15
       },
       {
         "rank": 5,
-        "rankByRate": 10,
         "unitid": 182670002,
-        "name": "Dartmouth College",
-        "short": null,
-        "state": "NH",
-        "count": 12,
-        "pct": 6.03,
-        "fte": 6717,
-        "rate": 17.87,
-        "isMainCampus": false
+        "count": 12
       },
       {
         "rank": 6,
-        "rankByRate": 9,
         "unitid": 183239001,
-        "name": "Saint Anselm College",
-        "short": null,
-        "state": "NH",
-        "count": 5,
-        "pct": 2.51,
-        "fte": 1964,
-        "rate": 25.46,
-        "isMainCampus": true
+        "count": 5
       },
       {
         "rank": 7,
-        "rankByRate": 8,
         "unitid": 182795001,
-        "name": "Franklin Pierce University",
-        "short": null,
-        "state": "NH",
-        "count": 4,
-        "pct": 2.01,
-        "fte": 1498,
-        "rate": 26.7,
-        "isMainCampus": true
+        "count": 4
       },
       {
         "rank": 7,
-        "rankByRate": 11,
         "unitid": 183062001,
-        "name": "Keene State College",
-        "short": null,
-        "state": "NH",
-        "count": 4,
-        "pct": 2.01,
-        "fte": 2733,
-        "rate": 14.64,
-        "isMainCampus": true
+        "count": 4
       },
       {
         "rank": 7,
-        "rankByRate": 12,
         "unitid": 183080001,
-        "name": "Plymouth State University",
-        "short": null,
-        "state": "NH",
-        "count": 4,
-        "pct": 2.01,
-        "fte": 3566,
-        "rate": 11.22,
-        "isMainCampus": true
+        "count": 4
       },
       {
         "rank": 7,
-        "rankByRate": 1,
         "unitid": 183114003,
-        "name": "River Valley Community College",
-        "short": null,
-        "state": "NH",
-        "count": 4,
-        "pct": 2.01,
-        "fte": 294,
-        "rate": 136.05,
-        "isMainCampus": false
+        "count": 4
       },
       {
         "rank": 11,
-        "rankByRate": 6,
         "unitid": 182634001,
-        "name": "Colby-Sawyer College",
-        "short": null,
-        "state": "NH",
-        "count": 3,
-        "pct": 1.51,
-        "fte": 838,
-        "rate": 35.8,
-        "isMainCampus": true
+        "count": 3
       },
       {
         "rank": 11,
-        "rankByRate": 4,
         "unitid": 183071001,
-        "name": "University of New Hampshire at Manchester",
-        "short": null,
-        "state": "NH",
-        "count": 3,
-        "pct": 1.51,
-        "fte": 479,
-        "rate": 62.63,
-        "isMainCampus": true
+        "count": 3
       },
       {
         "rank": 13,
-        "rankByRate": 14,
         "unitid": 182980001,
-        "name": "New England College",
-        "short": null,
-        "state": "NH",
-        "count": 1,
-        "pct": 0.5,
-        "fte": 2755,
-        "rate": 3.63,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 13,
-        "rankByRate": 7,
         "unitid": 183114001,
-        "name": "River Valley Community College",
-        "short": null,
-        "state": "NH",
-        "count": 1,
-        "pct": 0.5,
-        "fte": 294,
-        "rate": 34.01,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 13,
-        "rankByRate": 13,
         "unitid": 183211001,
-        "name": "Rivier University",
-        "short": null,
-        "state": "NH",
-        "count": 1,
-        "pct": 0.5,
-        "fte": 1925,
-        "rate": 5.19,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "all": [
       {
         "rank": 1,
-        "rankByRate": 7,
         "unitid": 183044001,
-        "name": "University of New Hampshire-Main Campus",
-        "short": null,
-        "state": "NH",
-        "count": 742,
-        "pct": 30.88,
-        "fte": 13072,
-        "rate": 567.63,
-        "isMainCampus": true
+        "count": 742
       },
       {
         "rank": 2,
-        "rankByRate": 1,
         "unitid": 183062001,
-        "name": "Keene State College",
-        "short": null,
-        "state": "NH",
-        "count": 439,
-        "pct": 18.27,
-        "fte": 2733,
-        "rate": 1606.29,
-        "isMainCampus": true
+        "count": 439
       },
       {
         "rank": 3,
-        "rankByRate": 4,
         "unitid": 183080001,
-        "name": "Plymouth State University",
-        "short": null,
-        "state": "NH",
-        "count": 304,
-        "pct": 12.65,
-        "fte": 3566,
-        "rate": 852.5,
-        "isMainCampus": true
+        "count": 304
       },
       {
         "rank": 4,
-        "rankByRate": 2,
         "unitid": 182795001,
-        "name": "Franklin Pierce University",
-        "short": null,
-        "state": "NH",
-        "count": 195,
-        "pct": 8.11,
-        "fte": 1498,
-        "rate": 1301.74,
-        "isMainCampus": true
+        "count": 195
       },
       {
         "rank": 5,
-        "rankByRate": 12,
         "unitid": 182670001,
-        "name": "Dartmouth College",
-        "short": "Dartmouth",
-        "state": "NH",
-        "count": 169,
-        "pct": 7.03,
-        "fte": 6717,
-        "rate": 251.6,
-        "isMainCampus": true
+        "count": 169
       },
       {
         "rank": 6,
-        "rankByRate": 20,
         "unitid": 183026001,
-        "name": "Southern New Hampshire University",
-        "short": null,
-        "state": "NH",
-        "count": 156,
-        "pct": 6.49,
-        "fte": 88788,
-        "rate": 17.57,
-        "isMainCampus": true
+        "count": 156
       },
       {
         "rank": 7,
-        "rankByRate": 6,
         "unitid": 183239001,
-        "name": "Saint Anselm College",
-        "short": null,
-        "state": "NH",
-        "count": 112,
-        "pct": 4.66,
-        "fte": 1964,
-        "rate": 570.26,
-        "isMainCampus": true
+        "count": 112
       },
       {
         "rank": 8,
-        "rankByRate": 10,
         "unitid": 183099001,
-        "name": "NHTI-Concord's Community College",
-        "short": null,
-        "state": "NH",
-        "count": 57,
-        "pct": 2.37,
-        "fte": 1478,
-        "rate": 385.66,
-        "isMainCampus": true
+        "count": 57
       },
       {
         "rank": 9,
-        "rankByRate": 5,
         "unitid": 182634001,
-        "name": "Colby-Sawyer College",
-        "short": null,
-        "state": "NH",
-        "count": 52,
-        "pct": 2.16,
-        "fte": 838,
-        "rate": 620.53,
-        "isMainCampus": true
+        "count": 52
       },
       {
         "rank": 10,
-        "rankByRate": 15,
         "unitid": 182980001,
-        "name": "New England College",
-        "short": null,
-        "state": "NH",
-        "count": 33,
-        "pct": 1.37,
-        "fte": 2755,
-        "rate": 119.78,
-        "isMainCampus": true
+        "count": 33
       },
       {
         "rank": 11,
-        "rankByRate": 14,
         "unitid": 183211001,
-        "name": "Rivier University",
-        "short": null,
-        "state": "NH",
-        "count": 29,
-        "pct": 1.21,
-        "fte": 1925,
-        "rate": 150.65,
-        "isMainCampus": true
+        "count": 29
       },
       {
         "rank": 12,
-        "rankByRate": 3,
         "unitid": 183114002,
-        "name": "River Valley Community College",
-        "short": null,
-        "state": "NH",
-        "count": 26,
-        "pct": 1.08,
-        "fte": 294,
-        "rate": 884.35,
-        "isMainCampus": false
+        "count": 26
       },
       {
         "rank": 13,
-        "rankByRate": 11,
         "unitid": 245865001,
-        "name": "Antioch University-New England",
-        "short": null,
-        "state": "NH",
-        "count": 24,
-        "pct": 1.0,
-        "fte": 858,
-        "rate": 279.72,
-        "isMainCampus": true
+        "count": 24
       },
       {
         "rank": 14,
-        "rankByRate": 8,
         "unitid": 183123001,
-        "name": "Lakes Region Community College",
-        "short": null,
-        "state": "NH",
-        "count": 18,
-        "pct": 0.75,
-        "fte": 368,
-        "rate": 489.13,
-        "isMainCampus": true
+        "count": 18
       },
       {
         "rank": 15,
-        "rankByRate": 19,
         "unitid": 182670002,
-        "name": "Dartmouth College",
-        "short": null,
-        "state": "NH",
-        "count": 16,
-        "pct": 0.67,
-        "fte": 6717,
-        "rate": 23.82,
-        "isMainCampus": false
+        "count": 16
       },
       {
         "rank": 16,
-        "rankByRate": 9,
         "unitid": 183114003,
-        "name": "River Valley Community College",
-        "short": null,
-        "state": "NH",
-        "count": 12,
-        "pct": 0.5,
-        "fte": 294,
-        "rate": 408.16,
-        "isMainCampus": false
+        "count": 12
       },
       {
         "rank": 17,
-        "rankByRate": 13,
         "unitid": 183071001,
-        "name": "University of New Hampshire at Manchester",
-        "short": null,
-        "state": "NH",
-        "count": 11,
-        "pct": 0.46,
-        "fte": 479,
-        "rate": 229.65,
-        "isMainCampus": true
+        "count": 11
       },
       {
         "rank": 18,
-        "rankByRate": 17,
         "unitid": 183141001,
-        "name": "Nashua Community College",
-        "short": null,
-        "state": "NH",
-        "count": 3,
-        "pct": 0.12,
-        "fte": 645,
-        "rate": 46.51,
-        "isMainCampus": true
+        "count": 3
       },
       {
         "rank": 18,
-        "rankByRate": 16,
         "unitid": 183114001,
-        "name": "River Valley Community College",
-        "short": null,
-        "state": "NH",
-        "count": 3,
-        "pct": 0.12,
-        "fte": 294,
-        "rate": 102.04,
-        "isMainCampus": true
+        "count": 3
       },
       {
         "rank": 20,
-        "rankByRate": 18,
         "unitid": 182829001,
-        "name": "University of New Hampshire-Franklin Pierce School of Law",
-        "short": null,
-        "state": "NH",
-        "count": 2,
-        "pct": 0.08,
-        "fte": 509,
-        "rate": 39.29,
-        "isMainCampus": true
+        "count": 2
       }
     ],
     "aggravated_assault": [
       {
         "rank": 1,
-        "rankByRate": 5,
         "unitid": 183044001,
-        "name": "University of New Hampshire-Main Campus",
-        "short": null,
-        "state": "NH",
-        "count": 5,
-        "pct": 35.71,
-        "fte": 13072,
-        "rate": 3.82,
-        "isMainCampus": true
+        "count": 5
       },
       {
         "rank": 2,
-        "rankByRate": 4,
         "unitid": 182670001,
-        "name": "Dartmouth College",
-        "short": "Dartmouth",
-        "state": "NH",
-        "count": 4,
-        "pct": 28.57,
-        "fte": 6717,
-        "rate": 5.96,
-        "isMainCampus": true
+        "count": 4
       },
       {
         "rank": 3,
-        "rankByRate": 3,
         "unitid": 182795001,
-        "name": "Franklin Pierce University",
-        "short": null,
-        "state": "NH",
-        "count": 1,
-        "pct": 7.14,
-        "fte": 1498,
-        "rate": 6.68,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 3,
-        "rankByRate": 6,
         "unitid": 183062001,
-        "name": "Keene State College",
-        "short": null,
-        "state": "NH",
-        "count": 1,
-        "pct": 7.14,
-        "fte": 2733,
-        "rate": 3.66,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 3,
-        "rankByRate": 2,
         "unitid": 183099001,
-        "name": "NHTI-Concord's Community College",
-        "short": null,
-        "state": "NH",
-        "count": 1,
-        "pct": 7.14,
-        "fte": 1478,
-        "rate": 6.77,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 3,
-        "rankByRate": 7,
         "unitid": 183026001,
-        "name": "Southern New Hampshire University",
-        "short": null,
-        "state": "NH",
-        "count": 1,
-        "pct": 7.14,
-        "fte": 88788,
-        "rate": 0.11,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 3,
-        "rankByRate": 1,
         "unitid": 183071001,
-        "name": "University of New Hampshire at Manchester",
-        "short": null,
-        "state": "NH",
-        "count": 1,
-        "pct": 7.14,
-        "fte": 479,
-        "rate": 20.88,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "arson": [
       {
         "rank": 1,
-        "rankByRate": 2,
         "unitid": 182670001,
-        "name": "Dartmouth College",
-        "short": "Dartmouth",
-        "state": "NH",
-        "count": 2,
-        "pct": 40.0,
-        "fte": 6717,
-        "rate": 2.98,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 183099001,
-        "name": "NHTI-Concord's Community College",
-        "short": null,
-        "state": "NH",
-        "count": 2,
-        "pct": 40.0,
-        "fte": 1478,
-        "rate": 13.53,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 3,
-        "rankByRate": 3,
         "unitid": 183026001,
-        "name": "Southern New Hampshire University",
-        "short": null,
-        "state": "NH",
-        "count": 1,
-        "pct": 20.0,
-        "fte": 88788,
-        "rate": 0.11,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "burglary": [
       {
         "rank": 1,
-        "rankByRate": 2,
         "unitid": 182670001,
-        "name": "Dartmouth College",
-        "short": "Dartmouth",
-        "state": "NH",
-        "count": 24,
-        "pct": 54.55,
-        "fte": 6717,
-        "rate": 35.73,
-        "isMainCampus": true
+        "count": 24
       },
       {
         "rank": 2,
-        "rankByRate": 3,
         "unitid": 183044001,
-        "name": "University of New Hampshire-Main Campus",
-        "short": null,
-        "state": "NH",
-        "count": 11,
-        "pct": 25.0,
-        "fte": 13072,
-        "rate": 8.41,
-        "isMainCampus": true
+        "count": 11
       },
       {
         "rank": 3,
-        "rankByRate": 1,
         "unitid": 183099001,
-        "name": "NHTI-Concord's Community College",
-        "short": null,
-        "state": "NH",
-        "count": 6,
-        "pct": 13.64,
-        "fte": 1478,
-        "rate": 40.6,
-        "isMainCampus": true
+        "count": 6
       },
       {
         "rank": 4,
-        "rankByRate": 5,
         "unitid": 183080001,
-        "name": "Plymouth State University",
-        "short": null,
-        "state": "NH",
-        "count": 1,
-        "pct": 2.27,
-        "fte": 3566,
-        "rate": 2.8,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 4,
-        "rankByRate": 4,
         "unitid": 183239001,
-        "name": "Saint Anselm College",
-        "short": null,
-        "state": "NH",
-        "count": 1,
-        "pct": 2.27,
-        "fte": 1964,
-        "rate": 5.09,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 4,
-        "rankByRate": 6,
         "unitid": 183026001,
-        "name": "Southern New Hampshire University",
-        "short": null,
-        "state": "NH",
-        "count": 1,
-        "pct": 2.27,
-        "fte": 88788,
-        "rate": 0.11,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "dating_violence": [
       {
         "rank": 1,
-        "rankByRate": 2,
         "unitid": 182980001,
-        "name": "New England College",
-        "short": null,
-        "state": "NH",
-        "count": 3,
-        "pct": 25.0,
-        "fte": 2755,
-        "rate": 10.89,
-        "isMainCampus": true
+        "count": 3
       },
       {
         "rank": 1,
-        "rankByRate": 4,
         "unitid": 183080001,
-        "name": "Plymouth State University",
-        "short": null,
-        "state": "NH",
-        "count": 3,
-        "pct": 25.0,
-        "fte": 3566,
-        "rate": 8.41,
-        "isMainCampus": true
+        "count": 3
       },
       {
         "rank": 3,
-        "rankByRate": 5,
         "unitid": 183062001,
-        "name": "Keene State College",
-        "short": null,
-        "state": "NH",
-        "count": 2,
-        "pct": 16.67,
-        "fte": 2733,
-        "rate": 7.32,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 3,
-        "rankByRate": 3,
         "unitid": 183239001,
-        "name": "Saint Anselm College",
-        "short": null,
-        "state": "NH",
-        "count": 2,
-        "pct": 16.67,
-        "fte": 1964,
-        "rate": 10.18,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 5,
-        "rankByRate": 1,
         "unitid": 182634001,
-        "name": "Colby-Sawyer College",
-        "short": null,
-        "state": "NH",
-        "count": 1,
-        "pct": 8.33,
-        "fte": 838,
-        "rate": 11.93,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 5,
-        "rankByRate": 6,
         "unitid": 182795001,
-        "name": "Franklin Pierce University",
-        "short": null,
-        "state": "NH",
-        "count": 1,
-        "pct": 8.33,
-        "fte": 1498,
-        "rate": 6.68,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "domestic_violence": [
       {
         "rank": 1,
-        "rankByRate": 3,
         "unitid": 183044001,
-        "name": "University of New Hampshire-Main Campus",
-        "short": null,
-        "state": "NH",
-        "count": 18,
-        "pct": 51.43,
-        "fte": 13072,
-        "rate": 13.77,
-        "isMainCampus": true
+        "count": 18
       },
       {
         "rank": 2,
-        "rankByRate": 1,
         "unitid": 183071001,
-        "name": "University of New Hampshire at Manchester",
-        "short": null,
-        "state": "NH",
-        "count": 7,
-        "pct": 20.0,
-        "fte": 479,
-        "rate": 146.14,
-        "isMainCampus": true
+        "count": 7
       },
       {
         "rank": 3,
-        "rankByRate": 6,
         "unitid": 182670001,
-        "name": "Dartmouth College",
-        "short": "Dartmouth",
-        "state": "NH",
-        "count": 4,
-        "pct": 11.43,
-        "fte": 6717,
-        "rate": 5.96,
-        "isMainCampus": true
+        "count": 4
       },
       {
         "rank": 4,
-        "rankByRate": 2,
         "unitid": 183141001,
-        "name": "Nashua Community College",
-        "short": null,
-        "state": "NH",
-        "count": 2,
-        "pct": 5.71,
-        "fte": 645,
-        "rate": 31.01,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 4,
-        "rankByRate": 4,
         "unitid": 182980001,
-        "name": "New England College",
-        "short": null,
-        "state": "NH",
-        "count": 2,
-        "pct": 5.71,
-        "fte": 2755,
-        "rate": 7.26,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 6,
-        "rankByRate": 5,
         "unitid": 183099001,
-        "name": "NHTI-Concord's Community College",
-        "short": null,
-        "state": "NH",
-        "count": 1,
-        "pct": 2.86,
-        "fte": 1478,
-        "rate": 6.77,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 6,
-        "rankByRate": 7,
         "unitid": 183026001,
-        "name": "Southern New Hampshire University",
-        "short": null,
-        "state": "NH",
-        "count": 1,
-        "pct": 2.86,
-        "fte": 88788,
-        "rate": 0.11,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "drug_arrest": [
       {
         "rank": 1,
-        "rankByRate": 7,
         "unitid": 183062001,
-        "name": "Keene State College",
-        "short": null,
-        "state": "NH",
-        "count": 6,
-        "pct": 14.63,
-        "fte": 2733,
-        "rate": 21.95,
-        "isMainCampus": true
+        "count": 6
       },
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 183114003,
-        "name": "River Valley Community College",
-        "short": null,
-        "state": "NH",
-        "count": 6,
-        "pct": 14.63,
-        "fte": 294,
-        "rate": 204.08,
-        "isMainCampus": false
+        "count": 6
       },
       {
         "rank": 3,
-        "rankByRate": 4,
         "unitid": 182795001,
-        "name": "Franklin Pierce University",
-        "short": null,
-        "state": "NH",
-        "count": 5,
-        "pct": 12.2,
-        "fte": 1498,
-        "rate": 33.38,
-        "isMainCampus": true
+        "count": 5
       },
       {
         "rank": 3,
-        "rankByRate": 11,
         "unitid": 183044001,
-        "name": "University of New Hampshire-Main Campus",
-        "short": null,
-        "state": "NH",
-        "count": 5,
-        "pct": 12.2,
-        "fte": 13072,
-        "rate": 3.82,
-        "isMainCampus": true
+        "count": 5
       },
       {
         "rank": 5,
-        "rankByRate": 2,
         "unitid": 183114002,
-        "name": "River Valley Community College",
-        "short": null,
-        "state": "NH",
-        "count": 4,
-        "pct": 9.76,
-        "fte": 294,
-        "rate": 136.05,
-        "isMainCampus": false
+        "count": 4
       },
       {
         "rank": 6,
-        "rankByRate": 10,
         "unitid": 182670002,
-        "name": "Dartmouth College",
-        "short": null,
-        "state": "NH",
-        "count": 3,
-        "pct": 7.32,
-        "fte": 6717,
-        "rate": 4.47,
-        "isMainCampus": false
+        "count": 3
       },
       {
         "rank": 7,
-        "rankByRate": 6,
         "unitid": 245865001,
-        "name": "Antioch University-New England",
-        "short": null,
-        "state": "NH",
-        "count": 2,
-        "pct": 4.88,
-        "fte": 858,
-        "rate": 23.31,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 7,
-        "rankByRate": 5,
         "unitid": 182634001,
-        "name": "Colby-Sawyer College",
-        "short": null,
-        "state": "NH",
-        "count": 2,
-        "pct": 4.88,
-        "fte": 838,
-        "rate": 23.87,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 7,
-        "rankByRate": 3,
         "unitid": 183114001,
-        "name": "River Valley Community College",
-        "short": null,
-        "state": "NH",
-        "count": 2,
-        "pct": 4.88,
-        "fte": 294,
-        "rate": 68.03,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 7,
-        "rankByRate": 9,
         "unitid": 183239001,
-        "name": "Saint Anselm College",
-        "short": null,
-        "state": "NH",
-        "count": 2,
-        "pct": 4.88,
-        "fte": 1964,
-        "rate": 10.18,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 7,
-        "rankByRate": 13,
         "unitid": 183026001,
-        "name": "Southern New Hampshire University",
-        "short": null,
-        "state": "NH",
-        "count": 2,
-        "pct": 4.88,
-        "fte": 88788,
-        "rate": 0.23,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 12,
-        "rankByRate": 12,
         "unitid": 182670001,
-        "name": "Dartmouth College",
-        "short": "Dartmouth",
-        "state": "NH",
-        "count": 1,
-        "pct": 2.44,
-        "fte": 6717,
-        "rate": 1.49,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 12,
-        "rankByRate": 8,
         "unitid": 183141001,
-        "name": "Nashua Community College",
-        "short": null,
-        "state": "NH",
-        "count": 1,
-        "pct": 2.44,
-        "fte": 645,
-        "rate": 15.5,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "drug_discipline": [
       {
         "rank": 1,
-        "rankByRate": 2,
         "unitid": 183062001,
-        "name": "Keene State College",
-        "short": null,
-        "state": "NH",
-        "count": 84,
-        "pct": 43.75,
-        "fte": 2733,
-        "rate": 307.35,
-        "isMainCampus": true
+        "count": 84
       },
       {
         "rank": 2,
-        "rankByRate": 1,
         "unitid": 182795001,
-        "name": "Franklin Pierce University",
-        "short": null,
-        "state": "NH",
-        "count": 54,
-        "pct": 28.12,
-        "fte": 1498,
-        "rate": 360.48,
-        "isMainCampus": true
+        "count": 54
       },
       {
         "rank": 3,
-        "rankByRate": 3,
         "unitid": 182634001,
-        "name": "Colby-Sawyer College",
-        "short": null,
-        "state": "NH",
-        "count": 16,
-        "pct": 8.33,
-        "fte": 838,
-        "rate": 190.93,
-        "isMainCampus": true
+        "count": 16
       },
       {
         "rank": 3,
-        "rankByRate": 4,
         "unitid": 182980001,
-        "name": "New England College",
-        "short": null,
-        "state": "NH",
-        "count": 16,
-        "pct": 8.33,
-        "fte": 2755,
-        "rate": 58.08,
-        "isMainCampus": true
+        "count": 16
       },
       {
         "rank": 5,
-        "rankByRate": 6,
         "unitid": 183099001,
-        "name": "NHTI-Concord's Community College",
-        "short": null,
-        "state": "NH",
-        "count": 6,
-        "pct": 3.12,
-        "fte": 1478,
-        "rate": 40.6,
-        "isMainCampus": true
+        "count": 6
       },
       {
         "rank": 6,
-        "rankByRate": 8,
         "unitid": 182670001,
-        "name": "Dartmouth College",
-        "short": "Dartmouth",
-        "state": "NH",
-        "count": 5,
-        "pct": 2.6,
-        "fte": 6717,
-        "rate": 7.44,
-        "isMainCampus": true
+        "count": 5
       },
       {
         "rank": 6,
-        "rankByRate": 7,
         "unitid": 183239001,
-        "name": "Saint Anselm College",
-        "short": null,
-        "state": "NH",
-        "count": 5,
-        "pct": 2.6,
-        "fte": 1964,
-        "rate": 25.46,
-        "isMainCampus": true
+        "count": 5
       },
       {
         "rank": 8,
-        "rankByRate": 5,
         "unitid": 183123001,
-        "name": "Lakes Region Community College",
-        "short": null,
-        "state": "NH",
-        "count": 2,
-        "pct": 1.04,
-        "fte": 368,
-        "rate": 54.35,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 8,
-        "rankByRate": 11,
         "unitid": 183026001,
-        "name": "Southern New Hampshire University",
-        "short": null,
-        "state": "NH",
-        "count": 2,
-        "pct": 1.04,
-        "fte": 88788,
-        "rate": 0.23,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 10,
-        "rankByRate": 10,
         "unitid": 183080001,
-        "name": "Plymouth State University",
-        "short": null,
-        "state": "NH",
-        "count": 1,
-        "pct": 0.52,
-        "fte": 3566,
-        "rate": 2.8,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 10,
-        "rankByRate": 9,
         "unitid": 183211001,
-        "name": "Rivier University",
-        "short": null,
-        "state": "NH",
-        "count": 1,
-        "pct": 0.52,
-        "fte": 1925,
-        "rate": 5.19,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "fondling": [
       {
         "rank": 1,
-        "rankByRate": 6,
         "unitid": 183044001,
-        "name": "University of New Hampshire-Main Campus",
-        "short": null,
-        "state": "NH",
-        "count": 12,
-        "pct": 27.27,
-        "fte": 13072,
-        "rate": 9.18,
-        "isMainCampus": true
+        "count": 12
       },
       {
         "rank": 2,
-        "rankByRate": 2,
         "unitid": 182670001,
-        "name": "Dartmouth College",
-        "short": "Dartmouth",
-        "state": "NH",
-        "count": 11,
-        "pct": 25.0,
-        "fte": 6717,
-        "rate": 16.38,
-        "isMainCampus": true
+        "count": 11
       },
       {
         "rank": 3,
-        "rankByRate": 5,
         "unitid": 182670002,
-        "name": "Dartmouth College",
-        "short": null,
-        "state": "NH",
-        "count": 7,
-        "pct": 15.91,
-        "fte": 6717,
-        "rate": 10.42,
-        "isMainCampus": false
+        "count": 7
       },
       {
         "rank": 4,
-        "rankByRate": 10,
         "unitid": 183026001,
-        "name": "Southern New Hampshire University",
-        "short": null,
-        "state": "NH",
-        "count": 6,
-        "pct": 13.64,
-        "fte": 88788,
-        "rate": 0.68,
-        "isMainCampus": true
+        "count": 6
       },
       {
         "rank": 5,
-        "rankByRate": 3,
         "unitid": 183099001,
-        "name": "NHTI-Concord's Community College",
-        "short": null,
-        "state": "NH",
-        "count": 2,
-        "pct": 4.55,
-        "fte": 1478,
-        "rate": 13.53,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 5,
-        "rankByRate": 1,
         "unitid": 183114003,
-        "name": "River Valley Community College",
-        "short": null,
-        "state": "NH",
-        "count": 2,
-        "pct": 4.55,
-        "fte": 294,
-        "rate": 68.03,
-        "isMainCampus": false
+        "count": 2
       },
       {
         "rank": 7,
-        "rankByRate": 4,
         "unitid": 182634001,
-        "name": "Colby-Sawyer College",
-        "short": null,
-        "state": "NH",
-        "count": 1,
-        "pct": 2.27,
-        "fte": 838,
-        "rate": 11.93,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 7,
-        "rankByRate": 7,
         "unitid": 182795001,
-        "name": "Franklin Pierce University",
-        "short": null,
-        "state": "NH",
-        "count": 1,
-        "pct": 2.27,
-        "fte": 1498,
-        "rate": 6.68,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 7,
-        "rankByRate": 8,
         "unitid": 183062001,
-        "name": "Keene State College",
-        "short": null,
-        "state": "NH",
-        "count": 1,
-        "pct": 2.27,
-        "fte": 2733,
-        "rate": 3.66,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 7,
-        "rankByRate": 9,
         "unitid": 183080001,
-        "name": "Plymouth State University",
-        "short": null,
-        "state": "NH",
-        "count": 1,
-        "pct": 2.27,
-        "fte": 3566,
-        "rate": 2.8,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "liquor_arrest": [
       {
         "rank": 1,
-        "rankByRate": 3,
         "unitid": 183044001,
-        "name": "University of New Hampshire-Main Campus",
-        "short": null,
-        "state": "NH",
-        "count": 178,
-        "pct": 66.42,
-        "fte": 13072,
-        "rate": 136.17,
-        "isMainCampus": true
+        "count": 178
       },
       {
         "rank": 2,
-        "rankByRate": 4,
         "unitid": 183062001,
-        "name": "Keene State College",
-        "short": null,
-        "state": "NH",
-        "count": 27,
-        "pct": 10.07,
-        "fte": 2733,
-        "rate": 98.79,
-        "isMainCampus": true
+        "count": 27
       },
       {
         "rank": 3,
-        "rankByRate": 2,
         "unitid": 245865001,
-        "name": "Antioch University-New England",
-        "short": null,
-        "state": "NH",
-        "count": 22,
-        "pct": 8.21,
-        "fte": 858,
-        "rate": 256.41,
-        "isMainCampus": true
+        "count": 22
       },
       {
         "rank": 3,
-        "rankByRate": 1,
         "unitid": 183114002,
-        "name": "River Valley Community College",
-        "short": null,
-        "state": "NH",
-        "count": 22,
-        "pct": 8.21,
-        "fte": 294,
-        "rate": 748.3,
-        "isMainCampus": false
+        "count": 22
       },
       {
         "rank": 5,
-        "rankByRate": 7,
         "unitid": 183080001,
-        "name": "Plymouth State University",
-        "short": null,
-        "state": "NH",
-        "count": 10,
-        "pct": 3.73,
-        "fte": 3566,
-        "rate": 28.04,
-        "isMainCampus": true
+        "count": 10
       },
       {
         "rank": 6,
-        "rankByRate": 6,
         "unitid": 182634001,
-        "name": "Colby-Sawyer College",
-        "short": null,
-        "state": "NH",
-        "count": 5,
-        "pct": 1.87,
-        "fte": 838,
-        "rate": 59.67,
-        "isMainCampus": true
+        "count": 5
       },
       {
         "rank": 7,
-        "rankByRate": 5,
         "unitid": 183114003,
-        "name": "River Valley Community College",
-        "short": null,
-        "state": "NH",
-        "count": 2,
-        "pct": 0.75,
-        "fte": 294,
-        "rate": 68.03,
-        "isMainCampus": false
+        "count": 2
       },
       {
         "rank": 8,
-        "rankByRate": 9,
         "unitid": 182980001,
-        "name": "New England College",
-        "short": null,
-        "state": "NH",
-        "count": 1,
-        "pct": 0.37,
-        "fte": 2755,
-        "rate": 3.63,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 8,
-        "rankByRate": 8,
         "unitid": 183239001,
-        "name": "Saint Anselm College",
-        "short": null,
-        "state": "NH",
-        "count": 1,
-        "pct": 0.37,
-        "fte": 1964,
-        "rate": 5.09,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "liquor_discipline": [
       {
         "rank": 1,
-        "rankByRate": 6,
         "unitid": 183044001,
-        "name": "University of New Hampshire-Main Campus",
-        "short": null,
-        "state": "NH",
-        "count": 455,
-        "pct": 28.74,
-        "fte": 13072,
-        "rate": 348.07,
-        "isMainCampus": true
+        "count": 455
       },
       {
         "rank": 2,
-        "rankByRate": 1,
         "unitid": 183062001,
-        "name": "Keene State College",
-        "short": null,
-        "state": "NH",
-        "count": 313,
-        "pct": 19.77,
-        "fte": 2733,
-        "rate": 1145.26,
-        "isMainCampus": true
+        "count": 313
       },
       {
         "rank": 3,
-        "rankByRate": 3,
         "unitid": 183080001,
-        "name": "Plymouth State University",
-        "short": null,
-        "state": "NH",
-        "count": 284,
-        "pct": 17.94,
-        "fte": 3566,
-        "rate": 796.41,
-        "isMainCampus": true
+        "count": 284
       },
       {
         "rank": 4,
-        "rankByRate": 12,
         "unitid": 183026001,
-        "name": "Southern New Hampshire University",
-        "short": null,
-        "state": "NH",
-        "count": 132,
-        "pct": 8.34,
-        "fte": 88788,
-        "rate": 14.87,
-        "isMainCampus": true
+        "count": 132
       },
       {
         "rank": 5,
-        "rankByRate": 2,
         "unitid": 182795001,
-        "name": "Franklin Pierce University",
-        "short": null,
-        "state": "NH",
-        "count": 123,
-        "pct": 7.77,
-        "fte": 1498,
-        "rate": 821.09,
-        "isMainCampus": true
+        "count": 123
       },
       {
         "rank": 6,
-        "rankByRate": 4,
         "unitid": 183239001,
-        "name": "Saint Anselm College",
-        "short": null,
-        "state": "NH",
-        "count": 92,
-        "pct": 5.81,
-        "fte": 1964,
-        "rate": 468.43,
-        "isMainCampus": true
+        "count": 92
       },
       {
         "rank": 7,
-        "rankByRate": 10,
         "unitid": 182670001,
-        "name": "Dartmouth College",
-        "short": "Dartmouth",
-        "state": "NH",
-        "count": 73,
-        "pct": 4.61,
-        "fte": 6717,
-        "rate": 108.68,
-        "isMainCampus": true
+        "count": 73
       },
       {
         "rank": 8,
-        "rankByRate": 8,
         "unitid": 183099001,
-        "name": "NHTI-Concord's Community College",
-        "short": null,
-        "state": "NH",
-        "count": 35,
-        "pct": 2.21,
-        "fte": 1478,
-        "rate": 236.81,
-        "isMainCampus": true
+        "count": 35
       },
       {
         "rank": 9,
-        "rankByRate": 9,
         "unitid": 183211001,
-        "name": "Rivier University",
-        "short": null,
-        "state": "NH",
-        "count": 27,
-        "pct": 1.71,
-        "fte": 1925,
-        "rate": 140.26,
-        "isMainCampus": true
+        "count": 27
       },
       {
         "rank": 10,
-        "rankByRate": 7,
         "unitid": 182634001,
-        "name": "Colby-Sawyer College",
-        "short": null,
-        "state": "NH",
-        "count": 24,
-        "pct": 1.52,
-        "fte": 838,
-        "rate": 286.4,
-        "isMainCampus": true
+        "count": 24
       },
       {
         "rank": 11,
-        "rankByRate": 5,
         "unitid": 183123001,
-        "name": "Lakes Region Community College",
-        "short": null,
-        "state": "NH",
-        "count": 15,
-        "pct": 0.95,
-        "fte": 368,
-        "rate": 407.61,
-        "isMainCampus": true
+        "count": 15
       },
       {
         "rank": 12,
-        "rankByRate": 11,
         "unitid": 182980001,
-        "name": "New England College",
-        "short": null,
-        "state": "NH",
-        "count": 10,
-        "pct": 0.63,
-        "fte": 2755,
-        "rate": 36.3,
-        "isMainCampus": true
+        "count": 10
       }
     ],
     "motor_vehicle_theft": [
       {
         "rank": 1,
-        "rankByRate": 3,
         "unitid": 182670001,
-        "name": "Dartmouth College",
-        "short": "Dartmouth",
-        "state": "NH",
-        "count": 18,
-        "pct": 64.29,
-        "fte": 6717,
-        "rate": 26.8,
-        "isMainCampus": true
+        "count": 18
       },
       {
         "rank": 2,
-        "rankByRate": 7,
         "unitid": 183044001,
-        "name": "University of New Hampshire-Main Campus",
-        "short": null,
-        "state": "NH",
-        "count": 3,
-        "pct": 10.71,
-        "fte": 13072,
-        "rate": 2.29,
-        "isMainCampus": true
+        "count": 3
       },
       {
         "rank": 3,
-        "rankByRate": 6,
         "unitid": 182670002,
-        "name": "Dartmouth College",
-        "short": null,
-        "state": "NH",
-        "count": 2,
-        "pct": 7.14,
-        "fte": 6717,
-        "rate": 2.98,
-        "isMainCampus": false
+        "count": 2
       },
       {
         "rank": 3,
-        "rankByRate": 1,
         "unitid": 183114003,
-        "name": "River Valley Community College",
-        "short": null,
-        "state": "NH",
-        "count": 2,
-        "pct": 7.14,
-        "fte": 294,
-        "rate": 68.03,
-        "isMainCampus": false
+        "count": 2
       },
       {
         "rank": 5,
-        "rankByRate": 5,
         "unitid": 182634001,
-        "name": "Colby-Sawyer College",
-        "short": null,
-        "state": "NH",
-        "count": 1,
-        "pct": 3.57,
-        "fte": 838,
-        "rate": 11.93,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 5,
-        "rankByRate": 2,
         "unitid": 183114001,
-        "name": "River Valley Community College",
-        "short": null,
-        "state": "NH",
-        "count": 1,
-        "pct": 3.57,
-        "fte": 294,
-        "rate": 34.01,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 5,
-        "rankByRate": 4,
         "unitid": 183071001,
-        "name": "University of New Hampshire at Manchester",
-        "short": null,
-        "state": "NH",
-        "count": 1,
-        "pct": 3.57,
-        "fte": 479,
-        "rate": 20.88,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "rape": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 183044001,
-        "name": "University of New Hampshire-Main Campus",
-        "short": null,
-        "state": "NH",
-        "count": 28,
-        "pct": 46.67,
-        "fte": 13072,
-        "rate": 21.42,
-        "isMainCampus": true
+        "count": 28
       },
       {
         "rank": 2,
-        "rankByRate": 12,
         "unitid": 183026001,
-        "name": "Southern New Hampshire University",
-        "short": null,
-        "state": "NH",
-        "count": 9,
-        "pct": 15.0,
-        "fte": 88788,
-        "rate": 1.01,
-        "isMainCampus": true
+        "count": 9
       },
       {
         "rank": 3,
-        "rankByRate": 5,
         "unitid": 182670001,
-        "name": "Dartmouth College",
-        "short": "Dartmouth",
-        "state": "NH",
-        "count": 6,
-        "pct": 10.0,
-        "fte": 6717,
-        "rate": 8.93,
-        "isMainCampus": true
+        "count": 6
       },
       {
         "rank": 4,
-        "rankByRate": 2,
         "unitid": 183239001,
-        "name": "Saint Anselm College",
-        "short": null,
-        "state": "NH",
-        "count": 4,
-        "pct": 6.67,
-        "fte": 1964,
-        "rate": 20.37,
-        "isMainCampus": true
+        "count": 4
       },
       {
         "rank": 5,
-        "rankByRate": 3,
         "unitid": 183099001,
-        "name": "NHTI-Concord's Community College",
-        "short": null,
-        "state": "NH",
-        "count": 3,
-        "pct": 5.0,
-        "fte": 1478,
-        "rate": 20.3,
-        "isMainCampus": true
+        "count": 3
       },
       {
         "rank": 6,
-        "rankByRate": 11,
         "unitid": 182670002,
-        "name": "Dartmouth College",
-        "short": null,
-        "state": "NH",
-        "count": 2,
-        "pct": 3.33,
-        "fte": 6717,
-        "rate": 2.98,
-        "isMainCampus": false
+        "count": 2
       },
       {
         "rank": 6,
-        "rankByRate": 6,
         "unitid": 183062001,
-        "name": "Keene State College",
-        "short": null,
-        "state": "NH",
-        "count": 2,
-        "pct": 3.33,
-        "fte": 2733,
-        "rate": 7.32,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 6,
-        "rankByRate": 8,
         "unitid": 183080001,
-        "name": "Plymouth State University",
-        "short": null,
-        "state": "NH",
-        "count": 2,
-        "pct": 3.33,
-        "fte": 3566,
-        "rate": 5.61,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 9,
-        "rankByRate": 4,
         "unitid": 182634001,
-        "name": "Colby-Sawyer College",
-        "short": null,
-        "state": "NH",
-        "count": 1,
-        "pct": 1.67,
-        "fte": 838,
-        "rate": 11.93,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 9,
-        "rankByRate": 7,
         "unitid": 182795001,
-        "name": "Franklin Pierce University",
-        "short": null,
-        "state": "NH",
-        "count": 1,
-        "pct": 1.67,
-        "fte": 1498,
-        "rate": 6.68,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 9,
-        "rankByRate": 10,
         "unitid": 182980001,
-        "name": "New England College",
-        "short": null,
-        "state": "NH",
-        "count": 1,
-        "pct": 1.67,
-        "fte": 2755,
-        "rate": 3.63,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 9,
-        "rankByRate": 9,
         "unitid": 183211001,
-        "name": "Rivier University",
-        "short": null,
-        "state": "NH",
-        "count": 1,
-        "pct": 1.67,
-        "fte": 1925,
-        "rate": 5.19,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "robbery": [
       {
         "rank": 1,
-        "rankByRate": 4,
         "unitid": 182670002,
-        "name": "Dartmouth College",
-        "short": null,
-        "state": "NH",
-        "count": 1,
-        "pct": 25.0,
-        "fte": 6717,
-        "rate": 1.49,
-        "isMainCampus": false
+        "count": 1
       },
       {
         "rank": 1,
-        "rankByRate": 3,
         "unitid": 182795001,
-        "name": "Franklin Pierce University",
-        "short": null,
-        "state": "NH",
-        "count": 1,
-        "pct": 25.0,
-        "fte": 1498,
-        "rate": 6.68,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 1,
-        "rankByRate": 2,
         "unitid": 183099001,
-        "name": "NHTI-Concord's Community College",
-        "short": null,
-        "state": "NH",
-        "count": 1,
-        "pct": 25.0,
-        "fte": 1478,
-        "rate": 6.77,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 183071001,
-        "name": "University of New Hampshire at Manchester",
-        "short": null,
-        "state": "NH",
-        "count": 1,
-        "pct": 25.0,
-        "fte": 479,
-        "rate": 20.88,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "stalking": [
       {
         "rank": 1,
-        "rankByRate": 6,
         "unitid": 183044001,
-        "name": "University of New Hampshire-Main Campus",
-        "short": null,
-        "state": "NH",
-        "count": 26,
-        "pct": 38.81,
-        "fte": 13072,
-        "rate": 19.89,
-        "isMainCampus": true
+        "count": 26
       },
       {
         "rank": 2,
-        "rankByRate": 3,
         "unitid": 182670001,
-        "name": "Dartmouth College",
-        "short": "Dartmouth",
-        "state": "NH",
-        "count": 21,
-        "pct": 31.34,
-        "fte": 6717,
-        "rate": 31.26,
-        "isMainCampus": true
+        "count": 21
       },
       {
         "rank": 3,
-        "rankByRate": 2,
         "unitid": 182795001,
-        "name": "Franklin Pierce University",
-        "short": null,
-        "state": "NH",
-        "count": 5,
-        "pct": 7.46,
-        "fte": 1498,
-        "rate": 33.38,
-        "isMainCampus": true
+        "count": 5
       },
       {
         "rank": 3,
-        "rankByRate": 4,
         "unitid": 183239001,
-        "name": "Saint Anselm College",
-        "short": null,
-        "state": "NH",
-        "count": 5,
-        "pct": 7.46,
-        "fte": 1964,
-        "rate": 25.46,
-        "isMainCampus": true
+        "count": 5
       },
       {
         "rank": 5,
-        "rankByRate": 8,
         "unitid": 183062001,
-        "name": "Keene State College",
-        "short": null,
-        "state": "NH",
-        "count": 3,
-        "pct": 4.48,
-        "fte": 2733,
-        "rate": 10.98,
-        "isMainCampus": true
+        "count": 3
       },
       {
         "rank": 6,
-        "rankByRate": 1,
         "unitid": 182829001,
-        "name": "University of New Hampshire-Franklin Pierce School of Law",
-        "short": null,
-        "state": "NH",
-        "count": 2,
-        "pct": 2.99,
-        "fte": 509,
-        "rate": 39.29,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 7,
-        "rankByRate": 7,
         "unitid": 182634001,
-        "name": "Colby-Sawyer College",
-        "short": null,
-        "state": "NH",
-        "count": 1,
-        "pct": 1.49,
-        "fte": 838,
-        "rate": 11.93,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 7,
-        "rankByRate": 10,
         "unitid": 182670002,
-        "name": "Dartmouth College",
-        "short": null,
-        "state": "NH",
-        "count": 1,
-        "pct": 1.49,
-        "fte": 6717,
-        "rate": 1.49,
-        "isMainCampus": false
+        "count": 1
       },
       {
         "rank": 7,
-        "rankByRate": 9,
         "unitid": 183080001,
-        "name": "Plymouth State University",
-        "short": null,
-        "state": "NH",
-        "count": 1,
-        "pct": 1.49,
-        "fte": 3566,
-        "rate": 2.8,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 7,
-        "rankByRate": 11,
         "unitid": 183026001,
-        "name": "Southern New Hampshire University",
-        "short": null,
-        "state": "NH",
-        "count": 1,
-        "pct": 1.49,
-        "fte": 88788,
-        "rate": 0.11,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 7,
-        "rankByRate": 5,
         "unitid": 183071001,
-        "name": "University of New Hampshire at Manchester",
-        "short": null,
-        "state": "NH",
-        "count": 1,
-        "pct": 1.49,
-        "fte": 479,
-        "rate": 20.88,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "weapons_discipline": [
       {
         "rank": 1,
-        "rankByRate": 2,
         "unitid": 182795001,
-        "name": "Franklin Pierce University",
-        "short": null,
-        "state": "NH",
-        "count": 3,
-        "pct": 50.0,
-        "fte": 1498,
-        "rate": 20.03,
-        "isMainCampus": true
+        "count": 3
       },
       {
         "rank": 2,
-        "rankByRate": 1,
         "unitid": 183123001,
-        "name": "Lakes Region Community College",
-        "short": null,
-        "state": "NH",
-        "count": 1,
-        "pct": 16.67,
-        "fte": 368,
-        "rate": 27.17,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 2,
-        "rankByRate": 3,
         "unitid": 183080001,
-        "name": "Plymouth State University",
-        "short": null,
-        "state": "NH",
-        "count": 1,
-        "pct": 16.67,
-        "fte": 3566,
-        "rate": 2.8,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 2,
-        "rankByRate": 4,
         "unitid": 183044001,
-        "name": "University of New Hampshire-Main Campus",
-        "short": null,
-        "state": "NH",
-        "count": 1,
-        "pct": 16.67,
-        "fte": 13072,
-        "rate": 0.76,
-        "isMainCampus": true
+        "count": 1
       }
     ]
   },
@@ -2096,5 +1002,681 @@
     "robbery": 4,
     "stalking": 67,
     "weapons_discipline": 6
+  },
+  "institutions": {
+    "182670": {
+      "name": "Dartmouth College",
+      "unitid": 182670001,
+      "state": "NH",
+      "fte": 6717,
+      "campuses": 2
+    },
+    "182795": {
+      "name": "Franklin Pierce University",
+      "unitid": 182795001,
+      "state": "NH",
+      "fte": 1498,
+      "campuses": 4
+    },
+    "182980": {
+      "name": "New England College",
+      "unitid": 182980001,
+      "state": "NH",
+      "fte": 2755,
+      "campuses": 2
+    },
+    "183044": {
+      "name": "University of New Hampshire-Main Campus",
+      "unitid": 183044001,
+      "state": "NH",
+      "fte": 13072,
+      "campuses": 3
+    },
+    "183062": {
+      "name": "Keene State College",
+      "unitid": 183062001,
+      "state": "NH",
+      "fte": 2733,
+      "campuses": 2
+    },
+    "183080": {
+      "name": "Plymouth State University",
+      "unitid": 183080001,
+      "state": "NH",
+      "fte": 3566,
+      "campuses": 1
+    },
+    "183099": {
+      "name": "NHTI-Concord's Community College",
+      "unitid": 183099001,
+      "state": "NH",
+      "fte": 1478,
+      "campuses": 1
+    },
+    "183211": {
+      "name": "Rivier University",
+      "unitid": 183211001,
+      "state": "NH",
+      "fte": 1925,
+      "campuses": 1
+    },
+    "183239": {
+      "name": "Saint Anselm College",
+      "unitid": 183239001,
+      "state": "NH",
+      "fte": 1964,
+      "campuses": 1
+    }
+  },
+  "rateRankings": {
+    "criminal": [
+      {
+        "rank": 1,
+        "id": 182670,
+        "count": 77,
+        "rate": 114.63
+      },
+      {
+        "rank": 2,
+        "id": 183099,
+        "count": 15,
+        "rate": 101.49
+      },
+      {
+        "rank": 3,
+        "id": 183044,
+        "count": 59,
+        "rate": 45.13
+      },
+      {
+        "rank": 4,
+        "id": 182795,
+        "count": 4,
+        "rate": 26.7
+      },
+      {
+        "rank": 5,
+        "id": 183239,
+        "count": 5,
+        "rate": 25.46
+      },
+      {
+        "rank": 6,
+        "id": 183062,
+        "count": 4,
+        "rate": 14.64
+      },
+      {
+        "rank": 7,
+        "id": 183080,
+        "count": 4,
+        "rate": 11.22
+      },
+      {
+        "rank": 8,
+        "id": 183211,
+        "count": 1,
+        "rate": 5.19
+      },
+      {
+        "rank": 9,
+        "id": 182980,
+        "count": 1,
+        "rate": 3.63
+      }
+    ],
+    "all": [
+      {
+        "rank": 1,
+        "id": 183062,
+        "count": 439,
+        "rate": 1606.29
+      },
+      {
+        "rank": 2,
+        "id": 182795,
+        "count": 195,
+        "rate": 1301.74
+      },
+      {
+        "rank": 3,
+        "id": 183080,
+        "count": 304,
+        "rate": 852.5
+      },
+      {
+        "rank": 4,
+        "id": 183239,
+        "count": 112,
+        "rate": 570.26
+      },
+      {
+        "rank": 5,
+        "id": 183044,
+        "count": 742,
+        "rate": 567.63
+      },
+      {
+        "rank": 6,
+        "id": 183099,
+        "count": 57,
+        "rate": 385.66
+      },
+      {
+        "rank": 7,
+        "id": 182670,
+        "count": 185,
+        "rate": 275.42
+      },
+      {
+        "rank": 8,
+        "id": 183211,
+        "count": 29,
+        "rate": 150.65
+      },
+      {
+        "rank": 9,
+        "id": 182980,
+        "count": 33,
+        "rate": 119.78
+      }
+    ],
+    "aggravated_assault": [
+      {
+        "rank": 1,
+        "id": 183099,
+        "count": 1,
+        "rate": 6.77
+      },
+      {
+        "rank": 2,
+        "id": 182795,
+        "count": 1,
+        "rate": 6.68
+      },
+      {
+        "rank": 3,
+        "id": 182670,
+        "count": 4,
+        "rate": 5.96
+      },
+      {
+        "rank": 4,
+        "id": 183044,
+        "count": 5,
+        "rate": 3.82
+      },
+      {
+        "rank": 5,
+        "id": 183062,
+        "count": 1,
+        "rate": 3.66
+      }
+    ],
+    "arson": [
+      {
+        "rank": 1,
+        "id": 183099,
+        "count": 2,
+        "rate": 13.53
+      },
+      {
+        "rank": 2,
+        "id": 182670,
+        "count": 2,
+        "rate": 2.98
+      }
+    ],
+    "burglary": [
+      {
+        "rank": 1,
+        "id": 183099,
+        "count": 6,
+        "rate": 40.6
+      },
+      {
+        "rank": 2,
+        "id": 182670,
+        "count": 24,
+        "rate": 35.73
+      },
+      {
+        "rank": 3,
+        "id": 183044,
+        "count": 11,
+        "rate": 8.41
+      },
+      {
+        "rank": 4,
+        "id": 183239,
+        "count": 1,
+        "rate": 5.09
+      },
+      {
+        "rank": 5,
+        "id": 183080,
+        "count": 1,
+        "rate": 2.8
+      }
+    ],
+    "dating_violence": [
+      {
+        "rank": 1,
+        "id": 182980,
+        "count": 3,
+        "rate": 10.89
+      },
+      {
+        "rank": 2,
+        "id": 183239,
+        "count": 2,
+        "rate": 10.18
+      },
+      {
+        "rank": 3,
+        "id": 183080,
+        "count": 3,
+        "rate": 8.41
+      },
+      {
+        "rank": 4,
+        "id": 183062,
+        "count": 2,
+        "rate": 7.32
+      },
+      {
+        "rank": 5,
+        "id": 182795,
+        "count": 1,
+        "rate": 6.68
+      }
+    ],
+    "domestic_violence": [
+      {
+        "rank": 1,
+        "id": 183044,
+        "count": 18,
+        "rate": 13.77
+      },
+      {
+        "rank": 2,
+        "id": 182980,
+        "count": 2,
+        "rate": 7.26
+      },
+      {
+        "rank": 3,
+        "id": 183099,
+        "count": 1,
+        "rate": 6.77
+      },
+      {
+        "rank": 4,
+        "id": 182670,
+        "count": 4,
+        "rate": 5.96
+      }
+    ],
+    "drug_arrest": [
+      {
+        "rank": 1,
+        "id": 182795,
+        "count": 5,
+        "rate": 33.38
+      },
+      {
+        "rank": 2,
+        "id": 183062,
+        "count": 6,
+        "rate": 21.95
+      },
+      {
+        "rank": 3,
+        "id": 183239,
+        "count": 2,
+        "rate": 10.18
+      },
+      {
+        "rank": 4,
+        "id": 182670,
+        "count": 4,
+        "rate": 5.96
+      },
+      {
+        "rank": 5,
+        "id": 183044,
+        "count": 5,
+        "rate": 3.82
+      }
+    ],
+    "drug_discipline": [
+      {
+        "rank": 1,
+        "id": 182795,
+        "count": 54,
+        "rate": 360.48
+      },
+      {
+        "rank": 2,
+        "id": 183062,
+        "count": 84,
+        "rate": 307.35
+      },
+      {
+        "rank": 3,
+        "id": 182980,
+        "count": 16,
+        "rate": 58.08
+      },
+      {
+        "rank": 4,
+        "id": 183099,
+        "count": 6,
+        "rate": 40.6
+      },
+      {
+        "rank": 5,
+        "id": 183239,
+        "count": 5,
+        "rate": 25.46
+      },
+      {
+        "rank": 6,
+        "id": 182670,
+        "count": 5,
+        "rate": 7.44
+      },
+      {
+        "rank": 7,
+        "id": 183211,
+        "count": 1,
+        "rate": 5.19
+      },
+      {
+        "rank": 8,
+        "id": 183080,
+        "count": 1,
+        "rate": 2.8
+      }
+    ],
+    "fondling": [
+      {
+        "rank": 1,
+        "id": 182670,
+        "count": 18,
+        "rate": 26.8
+      },
+      {
+        "rank": 2,
+        "id": 183099,
+        "count": 2,
+        "rate": 13.53
+      },
+      {
+        "rank": 3,
+        "id": 183044,
+        "count": 12,
+        "rate": 9.18
+      },
+      {
+        "rank": 4,
+        "id": 182795,
+        "count": 1,
+        "rate": 6.68
+      },
+      {
+        "rank": 5,
+        "id": 183062,
+        "count": 1,
+        "rate": 3.66
+      },
+      {
+        "rank": 6,
+        "id": 183080,
+        "count": 1,
+        "rate": 2.8
+      }
+    ],
+    "incest": [],
+    "liquor_arrest": [
+      {
+        "rank": 1,
+        "id": 183044,
+        "count": 178,
+        "rate": 136.17
+      },
+      {
+        "rank": 2,
+        "id": 183062,
+        "count": 27,
+        "rate": 98.79
+      },
+      {
+        "rank": 3,
+        "id": 183080,
+        "count": 10,
+        "rate": 28.04
+      },
+      {
+        "rank": 4,
+        "id": 183239,
+        "count": 1,
+        "rate": 5.09
+      },
+      {
+        "rank": 5,
+        "id": 182980,
+        "count": 1,
+        "rate": 3.63
+      }
+    ],
+    "liquor_discipline": [
+      {
+        "rank": 1,
+        "id": 183062,
+        "count": 313,
+        "rate": 1145.26
+      },
+      {
+        "rank": 2,
+        "id": 182795,
+        "count": 123,
+        "rate": 821.09
+      },
+      {
+        "rank": 3,
+        "id": 183080,
+        "count": 284,
+        "rate": 796.41
+      },
+      {
+        "rank": 4,
+        "id": 183239,
+        "count": 92,
+        "rate": 468.43
+      },
+      {
+        "rank": 5,
+        "id": 183044,
+        "count": 455,
+        "rate": 348.07
+      },
+      {
+        "rank": 6,
+        "id": 183099,
+        "count": 35,
+        "rate": 236.81
+      },
+      {
+        "rank": 7,
+        "id": 183211,
+        "count": 27,
+        "rate": 140.26
+      },
+      {
+        "rank": 8,
+        "id": 182670,
+        "count": 73,
+        "rate": 108.68
+      },
+      {
+        "rank": 9,
+        "id": 182980,
+        "count": 10,
+        "rate": 36.3
+      }
+    ],
+    "motor_vehicle_theft": [
+      {
+        "rank": 1,
+        "id": 182670,
+        "count": 20,
+        "rate": 29.78
+      },
+      {
+        "rank": 2,
+        "id": 183044,
+        "count": 3,
+        "rate": 2.29
+      }
+    ],
+    "murder": [],
+    "negligent_manslaughter": [],
+    "rape": [
+      {
+        "rank": 1,
+        "id": 183044,
+        "count": 28,
+        "rate": 21.42
+      },
+      {
+        "rank": 2,
+        "id": 183239,
+        "count": 4,
+        "rate": 20.37
+      },
+      {
+        "rank": 3,
+        "id": 183099,
+        "count": 3,
+        "rate": 20.3
+      },
+      {
+        "rank": 4,
+        "id": 182670,
+        "count": 8,
+        "rate": 11.91
+      },
+      {
+        "rank": 5,
+        "id": 183062,
+        "count": 2,
+        "rate": 7.32
+      },
+      {
+        "rank": 6,
+        "id": 182795,
+        "count": 1,
+        "rate": 6.68
+      },
+      {
+        "rank": 7,
+        "id": 183080,
+        "count": 2,
+        "rate": 5.61
+      },
+      {
+        "rank": 8,
+        "id": 183211,
+        "count": 1,
+        "rate": 5.19
+      },
+      {
+        "rank": 9,
+        "id": 182980,
+        "count": 1,
+        "rate": 3.63
+      }
+    ],
+    "robbery": [
+      {
+        "rank": 1,
+        "id": 183099,
+        "count": 1,
+        "rate": 6.77
+      },
+      {
+        "rank": 2,
+        "id": 182795,
+        "count": 1,
+        "rate": 6.68
+      },
+      {
+        "rank": 3,
+        "id": 182670,
+        "count": 1,
+        "rate": 1.49
+      }
+    ],
+    "stalking": [
+      {
+        "rank": 1,
+        "id": 182795,
+        "count": 5,
+        "rate": 33.38
+      },
+      {
+        "rank": 2,
+        "id": 182670,
+        "count": 22,
+        "rate": 32.75
+      },
+      {
+        "rank": 3,
+        "id": 183239,
+        "count": 5,
+        "rate": 25.46
+      },
+      {
+        "rank": 4,
+        "id": 183044,
+        "count": 26,
+        "rate": 19.89
+      },
+      {
+        "rank": 5,
+        "id": 183062,
+        "count": 3,
+        "rate": 10.98
+      },
+      {
+        "rank": 6,
+        "id": 183080,
+        "count": 1,
+        "rate": 2.8
+      }
+    ],
+    "statutory_rape": [],
+    "weapons_arrest": [],
+    "weapons_discipline": [
+      {
+        "rank": 1,
+        "id": 182795,
+        "count": 3,
+        "rate": 20.03
+      },
+      {
+        "rank": 2,
+        "id": 183080,
+        "count": 1,
+        "rate": 2.8
+      },
+      {
+        "rank": 3,
+        "id": 183044,
+        "count": 1,
+        "rate": 0.76
+      }
+    ]
   }
 }

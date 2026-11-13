@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-11-11T02:26:21Z",
+  "generated_at": "2026-11-13T00:44:21Z",
   "audited_build": {
     "site_record": "frontend/public/data/build_inputs.json",
-    "site_record_sha256": "76d28e6f46280426052db6db3638e5ed190af1a2338d55db65e50b86fbf726b6",
+    "site_record_sha256": "9869626b62e2ae09000a4c756d5e2c68da4ba27336f6c6b0b275ebc92432dba5",
     "curated_sha256": {
       "facts/incidents.parquet": "7cf7d235e64853e934a877579aed578ee275692166bb5e6b182f6e3ff4f9a2a2",
       "aggs/agg_school_year_offense.parquet": "ead11484db841122d29b52ca15826ec8dd0669e895e0d163b5ef998126a9fe6c",
@@ -15,8 +15,8 @@
   },
   "overall_status": "PASS",
   "summary": {
-    "total_checks": 9,
-    "passed": 9,
+    "total_checks": 10,
+    "passed": 10,
     "failed": 0,
     "warnings": 0
   },
@@ -137,8 +137,8 @@
       "name": "Rate Calculation Accuracy",
       "status": "PASS",
       "details": {
-        "what_it_checks": "For every entry of rankings/*.json, rate equals count / fte x 10,000 to within 0.01, using the entry's own count and fte; an entry with a rate but no FTE above 0, or with an FTE but no rate, is an error. It does not compare the count or FTE with the aggregates or IPEDS.",
-        "ranking_entries_checked": 534929,
+        "what_it_checks": "For every entry of every rateRankings list of rankings/*.json, rate equals count / fte x 10,000 to 2 decimals (within 0.005), with the FTE of the entry's institution in the file's institutions table, which must be above 0. Check 10 compares the counts and FTE with the facts and NCES's enrollment.",
+        "rate_entries_checked": 349169,
         "rate_errors": 0
       },
       "errors": [],
@@ -148,23 +148,21 @@
       "name": "Ranking Order Validation",
       "status": "PASS",
       "details": {
-        "what_it_checks": "In every ranking (one code of one rankings/*.json file, the summary codes included), entries are listed by count, largest first, ties by name, then UNITID; each rank is 1 + the number of entries with a larger count, so tied counts share a rank (1, 2, 2, 4); each rankByRate is 1 + the number of entries with a larger rate, over exactly the entries with a rate. It checks the order of each file's own counts and rates; check 4 checks the rates' arithmetic.",
-        "groups_validated": 10172,
-        "entries_checked": 536047,
+        "what_it_checks": "In every count ranking (one code of a rankings/*.json file's rankings, the summary codes included), entries are listed by count, largest first, ties by name (the file's campuses table), then UNITID, and each rank is 1 + the number of entries with a larger count, so tied counts share a rank (1, 2, 2, 4). Every rate ranking (rateRankings) likewise by rate, ties by institution name, then base UNITID. It checks the order of each file's own counts and rates; check 4 checks the rates' arithmetic.",
+        "groups_validated": 20212,
+        "entries_checked": 885216,
         "order_violations": 0
       },
       "errors": [],
       "warnings": []
     },
     {
-      "name": "Percentage Sum Validation",
+      "name": "Ranking Totals and Tables",
       "status": "PASS",
       "details": {
-        "what_it_checks": "In every ranking group (one offense of one rankings/*.json file), each entry's pct equals its count / the group's count sum x 100 to 2 decimals (within 0.005), and the file's totals entry equals that sum. Group pct sums differ from 100% only by that rounding; the largest difference is shown. It checks the files' own counts, not the counts against the aggregates.",
+        "what_it_checks": "In every rankings/*.json file, totals[code] equals the sum of rankings[code]'s counts for every code, the campuses table holds exactly the ranked campuses, and the institutions table every rate-ranked institution, each with an FTE above 0. It checks the files' own numbers; check 8 compares the counts with the facts.",
         "groups_validated": 10172,
-        "entries_checked": 536047,
-        "pct_errors": 0,
-        "max_sum_deviation_pct": 4.86
+        "problems": 0
       },
       "errors": [],
       "warnings": []
@@ -790,6 +788,111 @@
             "differ": 0
           }
         ]
+      },
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "Institution Rates",
+      "status": "PASS",
+      "details": {
+        "what_it_checks": "Without 04's or 05's code, from the facts without shadow blocks, the reported campus-years, dim_institution and dim_enrollment: the institutions (base UNITIDs) each year, their campuses that count (reported, not all shadow blocks), counts over all those campuses (residence halls and shadow blocks left out), link campus (the 001 campus, else the campus with the most incidents), FTE and share of exclusively online students. Every rankings/*.json file must list in institutions exactly its preset's institutions with at least 1,000 FTE and under 50% exclusively online students (or no such figure), and in rateRankings per code exactly those with a count above 0, each with that count and rate = count / FTE x 10,000 (within 0.005). Every school file's institution years must match too.",
+        "by_year": [
+          {
+            "year": 2015,
+            "institutions": 3608,
+            "with_more_than_one_campus": 1192,
+            "rate_ranked": 2144,
+            "left_out_online": 94,
+            "left_out_fte": 1370,
+            "no_online_figure": 0
+          },
+          {
+            "year": 2016,
+            "institutions": 3538,
+            "with_more_than_one_campus": 1203,
+            "rate_ranked": 2129,
+            "left_out_online": 94,
+            "left_out_fte": 1315,
+            "no_online_figure": 0
+          },
+          {
+            "year": 2017,
+            "institutions": 3520,
+            "with_more_than_one_campus": 1258,
+            "rate_ranked": 2109,
+            "left_out_online": 112,
+            "left_out_fte": 1299,
+            "no_online_figure": 0
+          },
+          {
+            "year": 2018,
+            "institutions": 3359,
+            "with_more_than_one_campus": 1268,
+            "rate_ranked": 2086,
+            "left_out_online": 98,
+            "left_out_fte": 1175,
+            "no_online_figure": 0
+          },
+          {
+            "year": 2019,
+            "institutions": 3176,
+            "with_more_than_one_campus": 1229,
+            "rate_ranked": 2041,
+            "left_out_online": 105,
+            "left_out_fte": 1030,
+            "no_online_figure": 0
+          },
+          {
+            "year": 2020,
+            "institutions": 2940,
+            "with_more_than_one_campus": 1176,
+            "rate_ranked": 1381,
+            "left_out_online": 691,
+            "left_out_fte": 868,
+            "no_online_figure": 0
+          },
+          {
+            "year": 2021,
+            "institutions": 3012,
+            "with_more_than_one_campus": 1171,
+            "rate_ranked": 1712,
+            "left_out_online": 331,
+            "left_out_fte": 969,
+            "no_online_figure": 0
+          },
+          {
+            "year": 2022,
+            "institutions": 3011,
+            "with_more_than_one_campus": 1181,
+            "rate_ranked": 1818,
+            "left_out_online": 204,
+            "left_out_fte": 989,
+            "no_online_figure": 0
+          },
+          {
+            "year": 2023,
+            "institutions": 2956,
+            "with_more_than_one_campus": 1169,
+            "rate_ranked": 1846,
+            "left_out_online": 189,
+            "left_out_fte": 921,
+            "no_online_figure": 0
+          },
+          {
+            "year": 2024,
+            "institutions": 2867,
+            "with_more_than_one_campus": 1160,
+            "rate_ranked": 1862,
+            "left_out_online": 174,
+            "left_out_fte": 831,
+            "no_online_figure": 0
+          }
+        ],
+        "ranking_files_checked": 550,
+        "rate_entries_checked": 349169,
+        "school_files_checked": 8844,
+        "problems": 0
       },
       "errors": [],
       "warnings": []

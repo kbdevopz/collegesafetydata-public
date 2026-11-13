@@ -1,2017 +1,1003 @@
 {
   "preset": "DC",
   "year": 2020,
+  "campuses": {
+    "131159001": {
+      "name": "American University",
+      "short": null,
+      "state": "DC",
+      "main": true,
+      "fte": 11779,
+      "campuses": 4
+    },
+    "131283001": {
+      "name": "The Catholic University of America",
+      "short": null,
+      "state": "DC",
+      "main": true,
+      "fte": 4480,
+      "campuses": 1
+    },
+    "131399001": {
+      "name": "University of the District of Columbia",
+      "short": null,
+      "state": "DC",
+      "main": true,
+      "fte": 2598,
+      "campuses": 8
+    },
+    "131399003": {
+      "name": "University of the District of Columbia",
+      "short": null,
+      "state": "DC",
+      "main": false,
+      "fte": 2598,
+      "campuses": 8
+    },
+    "131399005": {
+      "name": "University of the District of Columbia",
+      "short": null,
+      "state": "DC",
+      "main": false,
+      "fte": 2598,
+      "campuses": 8
+    },
+    "131399006": {
+      "name": "University of the District of Columbia",
+      "short": null,
+      "state": "DC",
+      "main": false,
+      "fte": 2598,
+      "campuses": 8
+    },
+    "131399008": {
+      "name": "University of the District of Columbia",
+      "short": null,
+      "state": "DC",
+      "main": false,
+      "fte": 2598,
+      "campuses": 8
+    },
+    "131399009": {
+      "name": "University of the District of Columbia",
+      "short": null,
+      "state": "DC",
+      "main": false,
+      "fte": 2598,
+      "campuses": 8
+    },
+    "131399011": {
+      "name": "University of the District of Columbia",
+      "short": null,
+      "state": "DC",
+      "main": false,
+      "fte": 2598,
+      "campuses": 8
+    },
+    "131450001": {
+      "name": "Gallaudet University",
+      "short": null,
+      "state": "DC",
+      "main": true,
+      "fte": 1273,
+      "campuses": 1
+    },
+    "131469001": {
+      "name": "George Washington University",
+      "short": null,
+      "state": "DC",
+      "main": true,
+      "fte": 21155,
+      "campuses": 7
+    },
+    "131469002": {
+      "name": "George Washington University",
+      "short": null,
+      "state": "DC",
+      "main": false,
+      "fte": 21155,
+      "campuses": 7
+    },
+    "131496001": {
+      "name": "Georgetown University",
+      "short": null,
+      "state": "DC",
+      "main": true,
+      "fte": 16074,
+      "campuses": 6
+    },
+    "131496002": {
+      "name": "Georgetown University",
+      "short": null,
+      "state": "DC",
+      "main": false,
+      "fte": 16074,
+      "campuses": 6
+    },
+    "131496007": {
+      "name": "Georgetown University",
+      "short": null,
+      "state": "DC",
+      "main": false,
+      "fte": 16074,
+      "campuses": 6
+    },
+    "131520001": {
+      "name": "Howard University",
+      "short": null,
+      "state": "DC",
+      "main": true,
+      "fte": 10363,
+      "campuses": 3
+    },
+    "131803008": {
+      "name": "Strayer University-District of Columbia",
+      "short": null,
+      "state": "DC",
+      "main": false,
+      "fte": 343,
+      "campuses": 2
+    },
+    "131830001": {
+      "name": "National Conservatory of Dramatic Arts",
+      "short": null,
+      "state": "DC",
+      "main": true,
+      "fte": 32,
+      "campuses": 1
+    },
+    "147767004": {
+      "name": "Northwestern University",
+      "short": null,
+      "state": "DC",
+      "main": false,
+      "fte": 19600,
+      "campuses": 6
+    },
+    "177834012": {
+      "name": "A T Still University of Health Sciences",
+      "short": null,
+      "state": "DC",
+      "main": false,
+      "fte": 3389,
+      "campuses": 15
+    },
+    "193900018": {
+      "name": "New York University",
+      "short": null,
+      "state": "DC",
+      "main": false,
+      "fte": 47399,
+      "campuses": 18
+    },
+    "228778010": {
+      "name": "The University of Texas at Austin",
+      "short": null,
+      "state": "DC",
+      "main": false,
+      "fte": 48402,
+      "campuses": 11
+    },
+    "231624003": {
+      "name": "William & Mary",
+      "short": null,
+      "state": "DC",
+      "main": false,
+      "fte": 8236,
+      "campuses": 5
+    },
+    "455813001": {
+      "name": "Pontifical John Paul II Institute for Studies on Marriage and Family",
+      "short": null,
+      "state": "DC",
+      "main": true,
+      "fte": 62,
+      "campuses": 1
+    },
+    "459745001": {
+      "name": "The Chicago School at Washington DC",
+      "short": null,
+      "state": "DC",
+      "main": true,
+      "fte": 586,
+      "campuses": 1
+    }
+  },
   "rankings": {
     "criminal": [
       {
         "rank": 1,
-        "rankByRate": 3,
         "unitid": 131450001,
-        "name": "Gallaudet University",
-        "short": null,
-        "state": "DC",
-        "count": 43,
-        "pct": 19.72,
-        "fte": 1273,
-        "rate": 337.78,
-        "isMainCampus": true
+        "count": 43
       },
       {
         "rank": 2,
-        "rankByRate": 9,
         "unitid": 131496001,
-        "name": "Georgetown University",
-        "short": null,
-        "state": "DC",
-        "count": 42,
-        "pct": 19.27,
-        "fte": 16074,
-        "rate": 26.13,
-        "isMainCampus": true
+        "count": 42
       },
       {
         "rank": 3,
-        "rankByRate": 7,
         "unitid": 131520001,
-        "name": "Howard University",
-        "short": null,
-        "state": "DC",
-        "count": 31,
-        "pct": 14.22,
-        "fte": 10363,
-        "rate": 29.91,
-        "isMainCampus": true
+        "count": 31
       },
       {
         "rank": 4,
-        "rankByRate": 10,
         "unitid": 131159001,
-        "name": "American University",
-        "short": null,
-        "state": "DC",
-        "count": 26,
-        "pct": 11.93,
-        "fte": 11779,
-        "rate": 22.07,
-        "isMainCampus": true
+        "count": 26
       },
       {
         "rank": 5,
-        "rankByRate": 12,
         "unitid": 131469001,
-        "name": "George Washington University",
-        "short": null,
-        "state": "DC",
-        "count": 18,
-        "pct": 8.26,
-        "fte": 21155,
-        "rate": 8.51,
-        "isMainCampus": true
+        "count": 18
       },
       {
         "rank": 6,
-        "rankByRate": 5,
         "unitid": 131399011,
-        "name": "University of the District of Columbia",
-        "short": null,
-        "state": "DC",
-        "count": 11,
-        "pct": 5.05,
-        "fte": 2598,
-        "rate": 42.34,
-        "isMainCampus": false
+        "count": 11
       },
       {
         "rank": 7,
-        "rankByRate": 6,
         "unitid": 131399001,
-        "name": "University of the District of Columbia",
-        "short": null,
-        "state": "DC",
-        "count": 10,
-        "pct": 4.59,
-        "fte": 2598,
-        "rate": 38.49,
-        "isMainCampus": true
+        "count": 10
       },
       {
         "rank": 8,
-        "rankByRate": 1,
         "unitid": 455813001,
-        "name": "Pontifical John Paul II Institute for Studies on Marriage and Family",
-        "short": null,
-        "state": "DC",
-        "count": 8,
-        "pct": 3.67,
-        "fte": 62,
-        "rate": 1290.32,
-        "isMainCampus": true
+        "count": 8
       },
       {
         "rank": 8,
-        "rankByRate": 11,
         "unitid": 131283001,
-        "name": "The Catholic University of America",
-        "short": null,
-        "state": "DC",
-        "count": 8,
-        "pct": 3.67,
-        "fte": 4480,
-        "rate": 17.86,
-        "isMainCampus": true
+        "count": 8
       },
       {
         "rank": 10,
-        "rankByRate": 4,
         "unitid": 459745001,
-        "name": "The Chicago School at Washington DC",
-        "short": null,
-        "state": "DC",
-        "count": 5,
-        "pct": 2.29,
-        "fte": 586,
-        "rate": 85.32,
-        "isMainCampus": true
+        "count": 5
       },
       {
         "rank": 11,
-        "rankByRate": 17,
         "unitid": 228778010,
-        "name": "The University of Texas at Austin",
-        "short": null,
-        "state": "DC",
-        "count": 4,
-        "pct": 1.83,
-        "fte": 48402,
-        "rate": 0.83,
-        "isMainCampus": false
+        "count": 4
       },
       {
         "rank": 12,
-        "rankByRate": 2,
         "unitid": 131830001,
-        "name": "National Conservatory of Dramatic Arts",
-        "short": null,
-        "state": "DC",
-        "count": 2,
-        "pct": 0.92,
-        "fte": 32,
-        "rate": 625.0,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 12,
-        "rankByRate": 16,
         "unitid": 231624003,
-        "name": "William & Mary",
-        "short": null,
-        "state": "DC",
-        "count": 2,
-        "pct": 0.92,
-        "fte": 8236,
-        "rate": 2.43,
-        "isMainCampus": false
+        "count": 2
       },
       {
         "rank": 14,
-        "rankByRate": 15,
         "unitid": 177834012,
-        "name": "A T Still University of Health Sciences",
-        "short": null,
-        "state": "DC",
-        "count": 1,
-        "pct": 0.46,
-        "fte": 3389,
-        "rate": 2.95,
-        "isMainCampus": false
+        "count": 1
       },
       {
         "rank": 14,
-        "rankByRate": 21,
         "unitid": 131469002,
-        "name": "George Washington University",
-        "short": null,
-        "state": "DC",
-        "count": 1,
-        "pct": 0.46,
-        "fte": 21155,
-        "rate": 0.47,
-        "isMainCampus": false
+        "count": 1
       },
       {
         "rank": 14,
-        "rankByRate": 18,
         "unitid": 131496002,
-        "name": "Georgetown University",
-        "short": null,
-        "state": "DC",
-        "count": 1,
-        "pct": 0.46,
-        "fte": 16074,
-        "rate": 0.62,
-        "isMainCampus": false
+        "count": 1
       },
       {
         "rank": 14,
-        "rankByRate": 18,
         "unitid": 131496007,
-        "name": "Georgetown University",
-        "short": null,
-        "state": "DC",
-        "count": 1,
-        "pct": 0.46,
-        "fte": 16074,
-        "rate": 0.62,
-        "isMainCampus": false
+        "count": 1
       },
       {
         "rank": 14,
-        "rankByRate": 20,
         "unitid": 147767004,
-        "name": "Northwestern University",
-        "short": null,
-        "state": "DC",
-        "count": 1,
-        "pct": 0.46,
-        "fte": 19600,
-        "rate": 0.51,
-        "isMainCampus": false
+        "count": 1
       },
       {
         "rank": 14,
-        "rankByRate": 8,
         "unitid": 131803008,
-        "name": "Strayer University-District of Columbia",
-        "short": null,
-        "state": "DC",
-        "count": 1,
-        "pct": 0.46,
-        "fte": 343,
-        "rate": 29.15,
-        "isMainCampus": false
+        "count": 1
       },
       {
         "rank": 14,
-        "rankByRate": 13,
         "unitid": 131399006,
-        "name": "University of the District of Columbia",
-        "short": null,
-        "state": "DC",
-        "count": 1,
-        "pct": 0.46,
-        "fte": 2598,
-        "rate": 3.85,
-        "isMainCampus": false
+        "count": 1
       },
       {
         "rank": 14,
-        "rankByRate": 13,
         "unitid": 131399009,
-        "name": "University of the District of Columbia",
-        "short": null,
-        "state": "DC",
-        "count": 1,
-        "pct": 0.46,
-        "fte": 2598,
-        "rate": 3.85,
-        "isMainCampus": false
+        "count": 1
       }
     ],
     "all": [
       {
         "rank": 1,
-        "rankByRate": 7,
         "unitid": 131469001,
-        "name": "George Washington University",
-        "short": null,
-        "state": "DC",
-        "count": 267,
-        "pct": 24.23,
-        "fte": 21155,
-        "rate": 126.21,
-        "isMainCampus": true
+        "count": 267
       },
       {
         "rank": 2,
-        "rankByRate": 6,
         "unitid": 131159001,
-        "name": "American University",
-        "short": null,
-        "state": "DC",
-        "count": 214,
-        "pct": 19.42,
-        "fte": 11779,
-        "rate": 181.68,
-        "isMainCampus": true
+        "count": 214
       },
       {
         "rank": 3,
-        "rankByRate": 5,
         "unitid": 131283001,
-        "name": "The Catholic University of America",
-        "short": null,
-        "state": "DC",
-        "count": 131,
-        "pct": 11.89,
-        "fte": 4480,
-        "rate": 292.41,
-        "isMainCampus": true
+        "count": 131
       },
       {
         "rank": 4,
-        "rankByRate": 1,
         "unitid": 455813001,
-        "name": "Pontifical John Paul II Institute for Studies on Marriage and Family",
-        "short": null,
-        "state": "DC",
-        "count": 129,
-        "pct": 11.71,
-        "fte": 62,
-        "rate": 20806.45,
-        "isMainCampus": true
+        "count": 129
       },
       {
         "rank": 5,
-        "rankByRate": 2,
         "unitid": 131450001,
-        "name": "Gallaudet University",
-        "short": null,
-        "state": "DC",
-        "count": 121,
-        "pct": 10.98,
-        "fte": 1273,
-        "rate": 950.51,
-        "isMainCampus": true
+        "count": 121
       },
       {
         "rank": 6,
-        "rankByRate": 9,
         "unitid": 131496001,
-        "name": "Georgetown University",
-        "short": null,
-        "state": "DC",
-        "count": 107,
-        "pct": 9.71,
-        "fte": 16074,
-        "rate": 66.57,
-        "isMainCampus": true
+        "count": 107
       },
       {
         "rank": 7,
-        "rankByRate": 12,
         "unitid": 131520001,
-        "name": "Howard University",
-        "short": null,
-        "state": "DC",
-        "count": 34,
-        "pct": 3.09,
-        "fte": 10363,
-        "rate": 32.81,
-        "isMainCampus": true
+        "count": 34
       },
       {
         "rank": 8,
-        "rankByRate": 4,
         "unitid": 459745001,
-        "name": "The Chicago School at Washington DC",
-        "short": null,
-        "state": "DC",
-        "count": 26,
-        "pct": 2.36,
-        "fte": 586,
-        "rate": 443.69,
-        "isMainCampus": true
+        "count": 26
       },
       {
         "rank": 9,
-        "rankByRate": 15,
         "unitid": 131469002,
-        "name": "George Washington University",
-        "short": null,
-        "state": "DC",
-        "count": 15,
-        "pct": 1.36,
-        "fte": 21155,
-        "rate": 7.09,
-        "isMainCampus": false
+        "count": 15
       },
       {
         "rank": 9,
-        "rankByRate": 10,
         "unitid": 131399011,
-        "name": "University of the District of Columbia",
-        "short": null,
-        "state": "DC",
-        "count": 15,
-        "pct": 1.36,
-        "fte": 2598,
-        "rate": 57.74,
-        "isMainCampus": false
+        "count": 15
       },
       {
         "rank": 11,
-        "rankByRate": 11,
         "unitid": 131399001,
-        "name": "University of the District of Columbia",
-        "short": null,
-        "state": "DC",
-        "count": 14,
-        "pct": 1.27,
-        "fte": 2598,
-        "rate": 53.89,
-        "isMainCampus": true
+        "count": 14
       },
       {
         "rank": 12,
-        "rankByRate": 21,
         "unitid": 228778010,
-        "name": "The University of Texas at Austin",
-        "short": null,
-        "state": "DC",
-        "count": 5,
-        "pct": 0.45,
-        "fte": 48402,
-        "rate": 1.03,
-        "isMainCampus": false
+        "count": 5
       },
       {
         "rank": 13,
-        "rankByRate": 22,
         "unitid": 193900018,
-        "name": "New York University",
-        "short": null,
-        "state": "DC",
-        "count": 4,
-        "pct": 0.36,
-        "fte": 47399,
-        "rate": 0.84,
-        "isMainCampus": false
+        "count": 4
       },
       {
         "rank": 13,
-        "rankByRate": 8,
         "unitid": 131803008,
-        "name": "Strayer University-District of Columbia",
-        "short": null,
-        "state": "DC",
-        "count": 4,
-        "pct": 0.36,
-        "fte": 343,
-        "rate": 116.62,
-        "isMainCampus": false
+        "count": 4
       },
       {
         "rank": 15,
-        "rankByRate": 13,
         "unitid": 131399009,
-        "name": "University of the District of Columbia",
-        "short": null,
-        "state": "DC",
-        "count": 3,
-        "pct": 0.27,
-        "fte": 2598,
-        "rate": 11.55,
-        "isMainCampus": false
+        "count": 3
       },
       {
         "rank": 16,
-        "rankByRate": 3,
         "unitid": 131830001,
-        "name": "National Conservatory of Dramatic Arts",
-        "short": null,
-        "state": "DC",
-        "count": 2,
-        "pct": 0.18,
-        "fte": 32,
-        "rate": 625.0,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 16,
-        "rankByRate": 14,
         "unitid": 131399006,
-        "name": "University of the District of Columbia",
-        "short": null,
-        "state": "DC",
-        "count": 2,
-        "pct": 0.18,
-        "fte": 2598,
-        "rate": 7.7,
-        "isMainCampus": false
+        "count": 2
       },
       {
         "rank": 16,
-        "rankByRate": 20,
         "unitid": 231624003,
-        "name": "William & Mary",
-        "short": null,
-        "state": "DC",
-        "count": 2,
-        "pct": 0.18,
-        "fte": 8236,
-        "rate": 2.43,
-        "isMainCampus": false
+        "count": 2
       },
       {
         "rank": 19,
-        "rankByRate": 19,
         "unitid": 177834012,
-        "name": "A T Still University of Health Sciences",
-        "short": null,
-        "state": "DC",
-        "count": 1,
-        "pct": 0.09,
-        "fte": 3389,
-        "rate": 2.95,
-        "isMainCampus": false
+        "count": 1
       },
       {
         "rank": 19,
-        "rankByRate": 23,
         "unitid": 131496002,
-        "name": "Georgetown University",
-        "short": null,
-        "state": "DC",
-        "count": 1,
-        "pct": 0.09,
-        "fte": 16074,
-        "rate": 0.62,
-        "isMainCampus": false
+        "count": 1
       },
       {
         "rank": 19,
-        "rankByRate": 23,
         "unitid": 131496007,
-        "name": "Georgetown University",
-        "short": null,
-        "state": "DC",
-        "count": 1,
-        "pct": 0.09,
-        "fte": 16074,
-        "rate": 0.62,
-        "isMainCampus": false
+        "count": 1
       },
       {
         "rank": 19,
-        "rankByRate": 25,
         "unitid": 147767004,
-        "name": "Northwestern University",
-        "short": null,
-        "state": "DC",
-        "count": 1,
-        "pct": 0.09,
-        "fte": 19600,
-        "rate": 0.51,
-        "isMainCampus": false
+        "count": 1
       },
       {
         "rank": 19,
-        "rankByRate": 16,
         "unitid": 131399003,
-        "name": "University of the District of Columbia",
-        "short": null,
-        "state": "DC",
-        "count": 1,
-        "pct": 0.09,
-        "fte": 2598,
-        "rate": 3.85,
-        "isMainCampus": false
+        "count": 1
       },
       {
         "rank": 19,
-        "rankByRate": 16,
         "unitid": 131399005,
-        "name": "University of the District of Columbia",
-        "short": null,
-        "state": "DC",
-        "count": 1,
-        "pct": 0.09,
-        "fte": 2598,
-        "rate": 3.85,
-        "isMainCampus": false
+        "count": 1
       },
       {
         "rank": 19,
-        "rankByRate": 16,
         "unitid": 131399008,
-        "name": "University of the District of Columbia",
-        "short": null,
-        "state": "DC",
-        "count": 1,
-        "pct": 0.09,
-        "fte": 2598,
-        "rate": 3.85,
-        "isMainCampus": false
+        "count": 1
       }
     ],
     "aggravated_assault": [
       {
         "rank": 1,
-        "rankByRate": 3,
         "unitid": 131520001,
-        "name": "Howard University",
-        "short": null,
-        "state": "DC",
-        "count": 10,
-        "pct": 52.63,
-        "fte": 10363,
-        "rate": 9.65,
-        "isMainCampus": true
+        "count": 10
       },
       {
         "rank": 2,
-        "rankByRate": 2,
         "unitid": 131450001,
-        "name": "Gallaudet University",
-        "short": null,
-        "state": "DC",
-        "count": 2,
-        "pct": 10.53,
-        "fte": 1273,
-        "rate": 15.71,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 3,
-        "rankByRate": 8,
         "unitid": 131469001,
-        "name": "George Washington University",
-        "short": null,
-        "state": "DC",
-        "count": 1,
-        "pct": 5.26,
-        "fte": 21155,
-        "rate": 0.47,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 3,
-        "rankByRate": 6,
         "unitid": 131496002,
-        "name": "Georgetown University",
-        "short": null,
-        "state": "DC",
-        "count": 1,
-        "pct": 5.26,
-        "fte": 16074,
-        "rate": 0.62,
-        "isMainCampus": false
+        "count": 1
       },
       {
         "rank": 3,
-        "rankByRate": 7,
         "unitid": 147767004,
-        "name": "Northwestern University",
-        "short": null,
-        "state": "DC",
-        "count": 1,
-        "pct": 5.26,
-        "fte": 19600,
-        "rate": 0.51,
-        "isMainCampus": false
+        "count": 1
       },
       {
         "rank": 3,
-        "rankByRate": 1,
         "unitid": 455813001,
-        "name": "Pontifical John Paul II Institute for Studies on Marriage and Family",
-        "short": null,
-        "state": "DC",
-        "count": 1,
-        "pct": 5.26,
-        "fte": 62,
-        "rate": 161.29,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 3,
-        "rankByRate": 5,
         "unitid": 131283001,
-        "name": "The Catholic University of America",
-        "short": null,
-        "state": "DC",
-        "count": 1,
-        "pct": 5.26,
-        "fte": 4480,
-        "rate": 2.23,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 3,
-        "rankByRate": 9,
         "unitid": 228778010,
-        "name": "The University of Texas at Austin",
-        "short": null,
-        "state": "DC",
-        "count": 1,
-        "pct": 5.26,
-        "fte": 48402,
-        "rate": 0.21,
-        "isMainCampus": false
+        "count": 1
       },
       {
         "rank": 3,
-        "rankByRate": 4,
         "unitid": 131399011,
-        "name": "University of the District of Columbia",
-        "short": null,
-        "state": "DC",
-        "count": 1,
-        "pct": 5.26,
-        "fte": 2598,
-        "rate": 3.85,
-        "isMainCampus": false
+        "count": 1
       }
     ],
     "arson": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 131450001,
-        "name": "Gallaudet University",
-        "short": null,
-        "state": "DC",
-        "count": 2,
-        "pct": 66.67,
-        "fte": 1273,
-        "rate": 15.71,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 2,
-        "rankByRate": 2,
         "unitid": 131469001,
-        "name": "George Washington University",
-        "short": null,
-        "state": "DC",
-        "count": 1,
-        "pct": 33.33,
-        "fte": 21155,
-        "rate": 0.47,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "burglary": [
       {
         "rank": 1,
-        "rankByRate": 5,
         "unitid": 131496001,
-        "name": "Georgetown University",
-        "short": null,
-        "state": "DC",
-        "count": 27,
-        "pct": 34.62,
-        "fte": 16074,
-        "rate": 16.8,
-        "isMainCampus": true
+        "count": 27
       },
       {
         "rank": 2,
-        "rankByRate": 4,
         "unitid": 131520001,
-        "name": "Howard University",
-        "short": null,
-        "state": "DC",
-        "count": 18,
-        "pct": 23.08,
-        "fte": 10363,
-        "rate": 17.37,
-        "isMainCampus": true
+        "count": 18
       },
       {
         "rank": 3,
-        "rankByRate": 1,
         "unitid": 131450001,
-        "name": "Gallaudet University",
-        "short": null,
-        "state": "DC",
-        "count": 14,
-        "pct": 17.95,
-        "fte": 1273,
-        "rate": 109.98,
-        "isMainCampus": true
+        "count": 14
       },
       {
         "rank": 4,
-        "rankByRate": 2,
         "unitid": 131399001,
-        "name": "University of the District of Columbia",
-        "short": null,
-        "state": "DC",
-        "count": 6,
-        "pct": 7.69,
-        "fte": 2598,
-        "rate": 23.09,
-        "isMainCampus": true
+        "count": 6
       },
       {
         "rank": 4,
-        "rankByRate": 2,
         "unitid": 131399011,
-        "name": "University of the District of Columbia",
-        "short": null,
-        "state": "DC",
-        "count": 6,
-        "pct": 7.69,
-        "fte": 2598,
-        "rate": 23.09,
-        "isMainCampus": false
+        "count": 6
       },
       {
         "rank": 6,
-        "rankByRate": 7,
         "unitid": 131159001,
-        "name": "American University",
-        "short": null,
-        "state": "DC",
-        "count": 3,
-        "pct": 3.85,
-        "fte": 11779,
-        "rate": 2.55,
-        "isMainCampus": true
+        "count": 3
       },
       {
         "rank": 7,
-        "rankByRate": 8,
         "unitid": 131469001,
-        "name": "George Washington University",
-        "short": null,
-        "state": "DC",
-        "count": 2,
-        "pct": 2.56,
-        "fte": 21155,
-        "rate": 0.95,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 8,
-        "rankByRate": 6,
         "unitid": 177834012,
-        "name": "A T Still University of Health Sciences",
-        "short": null,
-        "state": "DC",
-        "count": 1,
-        "pct": 1.28,
-        "fte": 3389,
-        "rate": 2.95,
-        "isMainCampus": false
+        "count": 1
       },
       {
         "rank": 8,
-        "rankByRate": 9,
         "unitid": 131469002,
-        "name": "George Washington University",
-        "short": null,
-        "state": "DC",
-        "count": 1,
-        "pct": 1.28,
-        "fte": 21155,
-        "rate": 0.47,
-        "isMainCampus": false
+        "count": 1
       }
     ],
     "dating_violence": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 131450001,
-        "name": "Gallaudet University",
-        "short": null,
-        "state": "DC",
-        "count": 6,
-        "pct": 75.0,
-        "fte": 1273,
-        "rate": 47.13,
-        "isMainCampus": true
+        "count": 6
       },
       {
         "rank": 2,
-        "rankByRate": 2,
         "unitid": 131469001,
-        "name": "George Washington University",
-        "short": null,
-        "state": "DC",
-        "count": 2,
-        "pct": 25.0,
-        "fte": 21155,
-        "rate": 0.95,
-        "isMainCampus": true
+        "count": 2
       }
     ],
     "domestic_violence": [
       {
         "rank": 1,
-        "rankByRate": 2,
         "unitid": 131450001,
-        "name": "Gallaudet University",
-        "short": null,
-        "state": "DC",
-        "count": 18,
-        "pct": 48.65,
-        "fte": 1273,
-        "rate": 141.4,
-        "isMainCampus": true
+        "count": 18
       },
       {
         "rank": 2,
-        "rankByRate": 4,
         "unitid": 131159001,
-        "name": "American University",
-        "short": null,
-        "state": "DC",
-        "count": 4,
-        "pct": 10.81,
-        "fte": 11779,
-        "rate": 3.4,
-        "isMainCampus": true
+        "count": 4
       },
       {
         "rank": 2,
-        "rankByRate": 6,
         "unitid": 131496001,
-        "name": "Georgetown University",
-        "short": null,
-        "state": "DC",
-        "count": 4,
-        "pct": 10.81,
-        "fte": 16074,
-        "rate": 2.49,
-        "isMainCampus": true
+        "count": 4
       },
       {
         "rank": 4,
-        "rankByRate": 5,
         "unitid": 131520001,
-        "name": "Howard University",
-        "short": null,
-        "state": "DC",
-        "count": 3,
-        "pct": 8.11,
-        "fte": 10363,
-        "rate": 2.89,
-        "isMainCampus": true
+        "count": 3
       },
       {
         "rank": 4,
-        "rankByRate": 1,
         "unitid": 455813001,
-        "name": "Pontifical John Paul II Institute for Studies on Marriage and Family",
-        "short": null,
-        "state": "DC",
-        "count": 3,
-        "pct": 8.11,
-        "fte": 62,
-        "rate": 483.87,
-        "isMainCampus": true
+        "count": 3
       },
       {
         "rank": 4,
-        "rankByRate": 3,
         "unitid": 131283001,
-        "name": "The Catholic University of America",
-        "short": null,
-        "state": "DC",
-        "count": 3,
-        "pct": 8.11,
-        "fte": 4480,
-        "rate": 6.7,
-        "isMainCampus": true
+        "count": 3
       },
       {
         "rank": 7,
-        "rankByRate": 7,
         "unitid": 131469001,
-        "name": "George Washington University",
-        "short": null,
-        "state": "DC",
-        "count": 2,
-        "pct": 5.41,
-        "fte": 21155,
-        "rate": 0.95,
-        "isMainCampus": true
+        "count": 2
       }
     ],
     "drug_arrest": [
       {
         "rank": 1,
-        "rankByRate": 2,
         "unitid": 131450001,
-        "name": "Gallaudet University",
-        "short": null,
-        "state": "DC",
-        "count": 16,
-        "pct": 51.61,
-        "fte": 1273,
-        "rate": 125.69,
-        "isMainCampus": true
+        "count": 16
       },
       {
         "rank": 2,
-        "rankByRate": 1,
         "unitid": 459745001,
-        "name": "The Chicago School at Washington DC",
-        "short": null,
-        "state": "DC",
-        "count": 10,
-        "pct": 32.26,
-        "fte": 586,
-        "rate": 170.65,
-        "isMainCampus": true
+        "count": 10
       },
       {
         "rank": 3,
-        "rankByRate": 7,
         "unitid": 228778010,
-        "name": "The University of Texas at Austin",
-        "short": null,
-        "state": "DC",
-        "count": 1,
-        "pct": 3.23,
-        "fte": 48402,
-        "rate": 0.21,
-        "isMainCampus": false
+        "count": 1
       },
       {
         "rank": 3,
-        "rankByRate": 3,
         "unitid": 131399001,
-        "name": "University of the District of Columbia",
-        "short": null,
-        "state": "DC",
-        "count": 1,
-        "pct": 3.23,
-        "fte": 2598,
-        "rate": 3.85,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 3,
-        "rankByRate": 3,
         "unitid": 131399003,
-        "name": "University of the District of Columbia",
-        "short": null,
-        "state": "DC",
-        "count": 1,
-        "pct": 3.23,
-        "fte": 2598,
-        "rate": 3.85,
-        "isMainCampus": false
+        "count": 1
       },
       {
         "rank": 3,
-        "rankByRate": 3,
         "unitid": 131399009,
-        "name": "University of the District of Columbia",
-        "short": null,
-        "state": "DC",
-        "count": 1,
-        "pct": 3.23,
-        "fte": 2598,
-        "rate": 3.85,
-        "isMainCampus": false
+        "count": 1
       },
       {
         "rank": 3,
-        "rankByRate": 3,
         "unitid": 131399011,
-        "name": "University of the District of Columbia",
-        "short": null,
-        "state": "DC",
-        "count": 1,
-        "pct": 3.23,
-        "fte": 2598,
-        "rate": 3.85,
-        "isMainCampus": false
+        "count": 1
       }
     ],
     "drug_discipline": [
       {
         "rank": 1,
-        "rankByRate": 4,
         "unitid": 131469001,
-        "name": "George Washington University",
-        "short": null,
-        "state": "DC",
-        "count": 105,
-        "pct": 41.02,
-        "fte": 21155,
-        "rate": 49.63,
-        "isMainCampus": true
+        "count": 105
       },
       {
         "rank": 2,
-        "rankByRate": 3,
         "unitid": 131159001,
-        "name": "American University",
-        "short": null,
-        "state": "DC",
-        "count": 65,
-        "pct": 25.39,
-        "fte": 11779,
-        "rate": 55.18,
-        "isMainCampus": true
+        "count": 65
       },
       {
         "rank": 3,
-        "rankByRate": 1,
         "unitid": 455813001,
-        "name": "Pontifical John Paul II Institute for Studies on Marriage and Family",
-        "short": null,
-        "state": "DC",
-        "count": 26,
-        "pct": 10.16,
-        "fte": 62,
-        "rate": 4193.55,
-        "isMainCampus": true
+        "count": 26
       },
       {
         "rank": 3,
-        "rankByRate": 2,
         "unitid": 131283001,
-        "name": "The Catholic University of America",
-        "short": null,
-        "state": "DC",
-        "count": 26,
-        "pct": 10.16,
-        "fte": 4480,
-        "rate": 58.04,
-        "isMainCampus": true
+        "count": 26
       },
       {
         "rank": 5,
-        "rankByRate": 8,
         "unitid": 131496001,
-        "name": "Georgetown University",
-        "short": null,
-        "state": "DC",
-        "count": 15,
-        "pct": 5.86,
-        "fte": 16074,
-        "rate": 9.33,
-        "isMainCampus": true
+        "count": 15
       },
       {
         "rank": 6,
-        "rankByRate": 5,
         "unitid": 131450001,
-        "name": "Gallaudet University",
-        "short": null,
-        "state": "DC",
-        "count": 5,
-        "pct": 1.95,
-        "fte": 1273,
-        "rate": 39.28,
-        "isMainCampus": true
+        "count": 5
       },
       {
         "rank": 6,
-        "rankByRate": 10,
         "unitid": 131469002,
-        "name": "George Washington University",
-        "short": null,
-        "state": "DC",
-        "count": 5,
-        "pct": 1.95,
-        "fte": 21155,
-        "rate": 2.36,
-        "isMainCampus": false
+        "count": 5
       },
       {
         "rank": 8,
-        "rankByRate": 6,
         "unitid": 131399001,
-        "name": "University of the District of Columbia",
-        "short": null,
-        "state": "DC",
-        "count": 3,
-        "pct": 1.17,
-        "fte": 2598,
-        "rate": 11.55,
-        "isMainCampus": true
+        "count": 3
       },
       {
         "rank": 8,
-        "rankByRate": 6,
         "unitid": 131399011,
-        "name": "University of the District of Columbia",
-        "short": null,
-        "state": "DC",
-        "count": 3,
-        "pct": 1.17,
-        "fte": 2598,
-        "rate": 11.55,
-        "isMainCampus": false
+        "count": 3
       },
       {
         "rank": 10,
-        "rankByRate": 11,
         "unitid": 193900018,
-        "name": "New York University",
-        "short": null,
-        "state": "DC",
-        "count": 2,
-        "pct": 0.78,
-        "fte": 47399,
-        "rate": 0.42,
-        "isMainCampus": false
+        "count": 2
       },
       {
         "rank": 11,
-        "rankByRate": 9,
         "unitid": 131399008,
-        "name": "University of the District of Columbia",
-        "short": null,
-        "state": "DC",
-        "count": 1,
-        "pct": 0.39,
-        "fte": 2598,
-        "rate": 3.85,
-        "isMainCampus": false
+        "count": 1
       }
     ],
     "fondling": [
       {
         "rank": 1,
-        "rankByRate": 2,
         "unitid": 131450001,
-        "name": "Gallaudet University",
-        "short": null,
-        "state": "DC",
-        "count": 8,
-        "pct": 27.59,
-        "fte": 1273,
-        "rate": 62.84,
-        "isMainCampus": true
+        "count": 8
       },
       {
         "rank": 2,
-        "rankByRate": 6,
         "unitid": 131469001,
-        "name": "George Washington University",
-        "short": null,
-        "state": "DC",
-        "count": 6,
-        "pct": 20.69,
-        "fte": 21155,
-        "rate": 2.84,
-        "isMainCampus": true
+        "count": 6
       },
       {
         "rank": 2,
-        "rankByRate": 4,
         "unitid": 131496001,
-        "name": "Georgetown University",
-        "short": null,
-        "state": "DC",
-        "count": 6,
-        "pct": 20.69,
-        "fte": 16074,
-        "rate": 3.73,
-        "isMainCampus": true
+        "count": 6
       },
       {
         "rank": 4,
-        "rankByRate": 5,
         "unitid": 131159001,
-        "name": "American University",
-        "short": null,
-        "state": "DC",
-        "count": 4,
-        "pct": 13.79,
-        "fte": 11779,
-        "rate": 3.4,
-        "isMainCampus": true
+        "count": 4
       },
       {
         "rank": 5,
-        "rankByRate": 1,
         "unitid": 455813001,
-        "name": "Pontifical John Paul II Institute for Studies on Marriage and Family",
-        "short": null,
-        "state": "DC",
-        "count": 2,
-        "pct": 6.9,
-        "fte": 62,
-        "rate": 322.58,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 5,
-        "rankByRate": 3,
         "unitid": 131283001,
-        "name": "The Catholic University of America",
-        "short": null,
-        "state": "DC",
-        "count": 2,
-        "pct": 6.9,
-        "fte": 4480,
-        "rate": 4.46,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 7,
-        "rankByRate": 7,
         "unitid": 131520001,
-        "name": "Howard University",
-        "short": null,
-        "state": "DC",
-        "count": 1,
-        "pct": 3.45,
-        "fte": 10363,
-        "rate": 0.96,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "liquor_arrest": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 131450001,
-        "name": "Gallaudet University",
-        "short": null,
-        "state": "DC",
-        "count": 1,
-        "pct": 100.0,
-        "fte": 1273,
-        "rate": 7.86,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "liquor_discipline": [
       {
         "rank": 1,
-        "rankByRate": 5,
         "unitid": 131469001,
-        "name": "George Washington University",
-        "short": null,
-        "state": "DC",
-        "count": 132,
-        "pct": 27.16,
-        "fte": 21155,
-        "rate": 62.4,
-        "isMainCampus": true
+        "count": 132
       },
       {
         "rank": 2,
-        "rankByRate": 4,
         "unitid": 131159001,
-        "name": "American University",
-        "short": null,
-        "state": "DC",
-        "count": 107,
-        "pct": 22.02,
-        "fte": 11779,
-        "rate": 90.84,
-        "isMainCampus": true
+        "count": 107
       },
       {
         "rank": 3,
-        "rankByRate": 1,
         "unitid": 455813001,
-        "name": "Pontifical John Paul II Institute for Studies on Marriage and Family",
-        "short": null,
-        "state": "DC",
-        "count": 90,
-        "pct": 18.52,
-        "fte": 62,
-        "rate": 14516.13,
-        "isMainCampus": true
+        "count": 90
       },
       {
         "rank": 3,
-        "rankByRate": 2,
         "unitid": 131283001,
-        "name": "The Catholic University of America",
-        "short": null,
-        "state": "DC",
-        "count": 90,
-        "pct": 18.52,
-        "fte": 4480,
-        "rate": 200.89,
-        "isMainCampus": true
+        "count": 90
       },
       {
         "rank": 5,
-        "rankByRate": 6,
         "unitid": 131496001,
-        "name": "Georgetown University",
-        "short": null,
-        "state": "DC",
-        "count": 33,
-        "pct": 6.79,
-        "fte": 16074,
-        "rate": 20.53,
-        "isMainCampus": true
+        "count": 33
       },
       {
         "rank": 6,
-        "rankByRate": 3,
         "unitid": 131450001,
-        "name": "Gallaudet University",
-        "short": null,
-        "state": "DC",
-        "count": 23,
-        "pct": 4.73,
-        "fte": 1273,
-        "rate": 180.68,
-        "isMainCampus": true
+        "count": 23
       },
       {
         "rank": 7,
-        "rankByRate": 7,
         "unitid": 131469002,
-        "name": "George Washington University",
-        "short": null,
-        "state": "DC",
-        "count": 9,
-        "pct": 1.85,
-        "fte": 21155,
-        "rate": 4.25,
-        "isMainCampus": false
+        "count": 9
       },
       {
         "rank": 8,
-        "rankByRate": 8,
         "unitid": 193900018,
-        "name": "New York University",
-        "short": null,
-        "state": "DC",
-        "count": 2,
-        "pct": 0.41,
-        "fte": 47399,
-        "rate": 0.42,
-        "isMainCampus": false
+        "count": 2
       }
     ],
     "motor_vehicle_theft": [
       {
         "rank": 1,
-        "rankByRate": 3,
         "unitid": 131450001,
-        "name": "Gallaudet University",
-        "short": null,
-        "state": "DC",
-        "count": 9,
-        "pct": 34.62,
-        "fte": 1273,
-        "rate": 70.7,
-        "isMainCampus": true
+        "count": 9
       },
       {
         "rank": 2,
-        "rankByRate": 11,
         "unitid": 228778010,
-        "name": "The University of Texas at Austin",
-        "short": null,
-        "state": "DC",
-        "count": 3,
-        "pct": 11.54,
-        "fte": 48402,
-        "rate": 0.62,
-        "isMainCampus": false
+        "count": 3
       },
       {
         "rank": 3,
-        "rankByRate": 1,
         "unitid": 131830001,
-        "name": "National Conservatory of Dramatic Arts",
-        "short": null,
-        "state": "DC",
-        "count": 2,
-        "pct": 7.69,
-        "fte": 32,
-        "rate": 625.0,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 3,
-        "rankByRate": 4,
         "unitid": 459745001,
-        "name": "The Chicago School at Washington DC",
-        "short": null,
-        "state": "DC",
-        "count": 2,
-        "pct": 7.69,
-        "fte": 586,
-        "rate": 34.13,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 3,
-        "rankByRate": 9,
         "unitid": 231624003,
-        "name": "William & Mary",
-        "short": null,
-        "state": "DC",
-        "count": 2,
-        "pct": 7.69,
-        "fte": 8236,
-        "rate": 2.43,
-        "isMainCampus": false
+        "count": 2
       },
       {
         "rank": 6,
-        "rankByRate": 11,
         "unitid": 131496001,
-        "name": "Georgetown University",
-        "short": null,
-        "state": "DC",
-        "count": 1,
-        "pct": 3.85,
-        "fte": 16074,
-        "rate": 0.62,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 6,
-        "rankByRate": 11,
         "unitid": 131496007,
-        "name": "Georgetown University",
-        "short": null,
-        "state": "DC",
-        "count": 1,
-        "pct": 3.85,
-        "fte": 16074,
-        "rate": 0.62,
-        "isMainCampus": false
+        "count": 1
       },
       {
         "rank": 6,
-        "rankByRate": 2,
         "unitid": 455813001,
-        "name": "Pontifical John Paul II Institute for Studies on Marriage and Family",
-        "short": null,
-        "state": "DC",
-        "count": 1,
-        "pct": 3.85,
-        "fte": 62,
-        "rate": 161.29,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 6,
-        "rankByRate": 10,
         "unitid": 131283001,
-        "name": "The Catholic University of America",
-        "short": null,
-        "state": "DC",
-        "count": 1,
-        "pct": 3.85,
-        "fte": 4480,
-        "rate": 2.23,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 6,
-        "rankByRate": 5,
         "unitid": 131399001,
-        "name": "University of the District of Columbia",
-        "short": null,
-        "state": "DC",
-        "count": 1,
-        "pct": 3.85,
-        "fte": 2598,
-        "rate": 3.85,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 6,
-        "rankByRate": 5,
         "unitid": 131399006,
-        "name": "University of the District of Columbia",
-        "short": null,
-        "state": "DC",
-        "count": 1,
-        "pct": 3.85,
-        "fte": 2598,
-        "rate": 3.85,
-        "isMainCampus": false
+        "count": 1
       },
       {
         "rank": 6,
-        "rankByRate": 5,
         "unitid": 131399009,
-        "name": "University of the District of Columbia",
-        "short": null,
-        "state": "DC",
-        "count": 1,
-        "pct": 3.85,
-        "fte": 2598,
-        "rate": 3.85,
-        "isMainCampus": false
+        "count": 1
       },
       {
         "rank": 6,
-        "rankByRate": 5,
         "unitid": 131399011,
-        "name": "University of the District of Columbia",
-        "short": null,
-        "state": "DC",
-        "count": 1,
-        "pct": 3.85,
-        "fte": 2598,
-        "rate": 3.85,
-        "isMainCampus": false
+        "count": 1
       }
     ],
     "rape": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 131159001,
-        "name": "American University",
-        "short": null,
-        "state": "DC",
-        "count": 19,
-        "pct": 51.35,
-        "fte": 11779,
-        "rate": 16.13,
-        "isMainCampus": true
+        "count": 19
       },
       {
         "rank": 2,
-        "rankByRate": 6,
         "unitid": 131469001,
-        "name": "George Washington University",
-        "short": null,
-        "state": "DC",
-        "count": 6,
-        "pct": 16.22,
-        "fte": 21155,
-        "rate": 2.84,
-        "isMainCampus": true
+        "count": 6
       },
       {
         "rank": 2,
-        "rankByRate": 5,
         "unitid": 131496001,
-        "name": "Georgetown University",
-        "short": null,
-        "state": "DC",
-        "count": 6,
-        "pct": 16.22,
-        "fte": 16074,
-        "rate": 3.73,
-        "isMainCampus": true
+        "count": 6
       },
       {
         "rank": 4,
-        "rankByRate": 2,
         "unitid": 131450001,
-        "name": "Gallaudet University",
-        "short": null,
-        "state": "DC",
-        "count": 2,
-        "pct": 5.41,
-        "fte": 1273,
-        "rate": 15.71,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 4,
-        "rankByRate": 3,
         "unitid": 131399001,
-        "name": "University of the District of Columbia",
-        "short": null,
-        "state": "DC",
-        "count": 2,
-        "pct": 5.41,
-        "fte": 2598,
-        "rate": 7.7,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 4,
-        "rankByRate": 3,
         "unitid": 131399011,
-        "name": "University of the District of Columbia",
-        "short": null,
-        "state": "DC",
-        "count": 2,
-        "pct": 5.41,
-        "fte": 2598,
-        "rate": 7.7,
-        "isMainCampus": false
+        "count": 2
       }
     ],
     "robbery": [
       {
         "rank": 1,
-        "rankByRate": 3,
         "unitid": 131450001,
-        "name": "Gallaudet University",
-        "short": null,
-        "state": "DC",
-        "count": 6,
-        "pct": 23.08,
-        "fte": 1273,
-        "rate": 47.13,
-        "isMainCampus": true
+        "count": 6
       },
       {
         "rank": 2,
-        "rankByRate": 1,
         "unitid": 455813001,
-        "name": "Pontifical John Paul II Institute for Studies on Marriage and Family",
-        "short": null,
-        "state": "DC",
-        "count": 4,
-        "pct": 15.38,
-        "fte": 62,
-        "rate": 645.16,
-        "isMainCampus": true
+        "count": 4
       },
       {
         "rank": 2,
-        "rankByRate": 5,
         "unitid": 131283001,
-        "name": "The Catholic University of America",
-        "short": null,
-        "state": "DC",
-        "count": 4,
-        "pct": 15.38,
-        "fte": 4480,
-        "rate": 8.93,
-        "isMainCampus": true
+        "count": 4
       },
       {
         "rank": 4,
-        "rankByRate": 2,
         "unitid": 459745001,
-        "name": "The Chicago School at Washington DC",
-        "short": null,
-        "state": "DC",
-        "count": 3,
-        "pct": 11.54,
-        "fte": 586,
-        "rate": 51.19,
-        "isMainCampus": true
+        "count": 3
       },
       {
         "rank": 5,
-        "rankByRate": 10,
         "unitid": 131469001,
-        "name": "George Washington University",
-        "short": null,
-        "state": "DC",
-        "count": 2,
-        "pct": 7.69,
-        "fte": 21155,
-        "rate": 0.95,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 5,
-        "rankByRate": 9,
         "unitid": 131496001,
-        "name": "Georgetown University",
-        "short": null,
-        "state": "DC",
-        "count": 2,
-        "pct": 7.69,
-        "fte": 16074,
-        "rate": 1.24,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 5,
-        "rankByRate": 8,
         "unitid": 131520001,
-        "name": "Howard University",
-        "short": null,
-        "state": "DC",
-        "count": 2,
-        "pct": 7.69,
-        "fte": 10363,
-        "rate": 1.93,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 8,
-        "rankByRate": 4,
         "unitid": 131803008,
-        "name": "Strayer University-District of Columbia",
-        "short": null,
-        "state": "DC",
-        "count": 1,
-        "pct": 3.85,
-        "fte": 343,
-        "rate": 29.15,
-        "isMainCampus": false
+        "count": 1
       },
       {
         "rank": 8,
-        "rankByRate": 6,
         "unitid": 131399001,
-        "name": "University of the District of Columbia",
-        "short": null,
-        "state": "DC",
-        "count": 1,
-        "pct": 3.85,
-        "fte": 2598,
-        "rate": 3.85,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 8,
-        "rankByRate": 6,
         "unitid": 131399011,
-        "name": "University of the District of Columbia",
-        "short": null,
-        "state": "DC",
-        "count": 1,
-        "pct": 3.85,
-        "fte": 2598,
-        "rate": 3.85,
-        "isMainCampus": false
+        "count": 1
       }
     ],
     "stalking": [
       {
         "rank": 1,
-        "rankByRate": 5,
         "unitid": 131496001,
-        "name": "Georgetown University",
-        "short": null,
-        "state": "DC",
-        "count": 13,
-        "pct": 30.23,
-        "fte": 16074,
-        "rate": 8.09,
-        "isMainCampus": true
+        "count": 13
       },
       {
         "rank": 2,
-        "rankByRate": 3,
         "unitid": 131159001,
-        "name": "American University",
-        "short": null,
-        "state": "DC",
-        "count": 12,
-        "pct": 27.91,
-        "fte": 11779,
-        "rate": 10.19,
-        "isMainCampus": true
+        "count": 12
       },
       {
         "rank": 3,
-        "rankByRate": 2,
         "unitid": 131450001,
-        "name": "Gallaudet University",
-        "short": null,
-        "state": "DC",
-        "count": 7,
-        "pct": 16.28,
-        "fte": 1273,
-        "rate": 54.99,
-        "isMainCampus": true
+        "count": 7
       },
       {
         "rank": 4,
-        "rankByRate": 6,
         "unitid": 131469001,
-        "name": "George Washington University",
-        "short": null,
-        "state": "DC",
-        "count": 5,
-        "pct": 11.63,
-        "fte": 21155,
-        "rate": 2.36,
-        "isMainCampus": true
+        "count": 5
       },
       {
         "rank": 5,
-        "rankByRate": 4,
         "unitid": 131283001,
-        "name": "The Catholic University of America",
-        "short": null,
-        "state": "DC",
-        "count": 4,
-        "pct": 9.3,
-        "fte": 4480,
-        "rate": 8.93,
-        "isMainCampus": true
+        "count": 4
       },
       {
         "rank": 6,
-        "rankByRate": 1,
         "unitid": 455813001,
-        "name": "Pontifical John Paul II Institute for Studies on Marriage and Family",
-        "short": null,
-        "state": "DC",
-        "count": 2,
-        "pct": 4.65,
-        "fte": 62,
-        "rate": 322.58,
-        "isMainCampus": true
+        "count": 2
       }
     ],
     "weapons_arrest": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 459745001,
-        "name": "The Chicago School at Washington DC",
-        "short": null,
-        "state": "DC",
-        "count": 11,
-        "pct": 52.38,
-        "fte": 586,
-        "rate": 187.71,
-        "isMainCampus": true
+        "count": 11
       },
       {
         "rank": 2,
-        "rankByRate": 2,
         "unitid": 131803008,
-        "name": "Strayer University-District of Columbia",
-        "short": null,
-        "state": "DC",
-        "count": 3,
-        "pct": 14.29,
-        "fte": 343,
-        "rate": 87.46,
-        "isMainCampus": false
+        "count": 3
       },
       {
         "rank": 3,
-        "rankByRate": 3,
         "unitid": 131450001,
-        "name": "Gallaudet University",
-        "short": null,
-        "state": "DC",
-        "count": 2,
-        "pct": 9.52,
-        "fte": 1273,
-        "rate": 15.71,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 3,
-        "rankByRate": 7,
         "unitid": 131469001,
-        "name": "George Washington University",
-        "short": null,
-        "state": "DC",
-        "count": 2,
-        "pct": 9.52,
-        "fte": 21155,
-        "rate": 0.95,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 5,
-        "rankByRate": 4,
         "unitid": 131399005,
-        "name": "University of the District of Columbia",
-        "short": null,
-        "state": "DC",
-        "count": 1,
-        "pct": 4.76,
-        "fte": 2598,
-        "rate": 3.85,
-        "isMainCampus": false
+        "count": 1
       },
       {
         "rank": 5,
-        "rankByRate": 4,
         "unitid": 131399006,
-        "name": "University of the District of Columbia",
-        "short": null,
-        "state": "DC",
-        "count": 1,
-        "pct": 4.76,
-        "fte": 2598,
-        "rate": 3.85,
-        "isMainCampus": false
+        "count": 1
       },
       {
         "rank": 5,
-        "rankByRate": 4,
         "unitid": 131399009,
-        "name": "University of the District of Columbia",
-        "short": null,
-        "state": "DC",
-        "count": 1,
-        "pct": 4.76,
-        "fte": 2598,
-        "rate": 3.85,
-        "isMainCampus": false
+        "count": 1
       }
     ],
     "weapons_discipline": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 131469001,
-        "name": "George Washington University",
-        "short": null,
-        "state": "DC",
-        "count": 1,
-        "pct": 100.0,
-        "fte": 21155,
-        "rate": 0.47,
-        "isMainCampus": true
+        "count": 1
       }
     ]
   },
@@ -2034,5 +1020,432 @@
     "stalking": 43,
     "weapons_arrest": 21,
     "weapons_discipline": 1
+  },
+  "institutions": {
+    "131159": {
+      "name": "American University",
+      "unitid": 131159001,
+      "state": "DC",
+      "fte": 11779,
+      "campuses": 4
+    },
+    "131399": {
+      "name": "University of the District of Columbia",
+      "unitid": 131399001,
+      "state": "DC",
+      "fte": 2598,
+      "campuses": 8
+    },
+    "131450": {
+      "name": "Gallaudet University",
+      "unitid": 131450001,
+      "state": "DC",
+      "fte": 1273,
+      "campuses": 1
+    },
+    "131469": {
+      "name": "George Washington University",
+      "unitid": 131469001,
+      "state": "DC",
+      "fte": 21155,
+      "campuses": 7
+    },
+    "131520": {
+      "name": "Howard University",
+      "unitid": 131520001,
+      "state": "DC",
+      "fte": 10363,
+      "campuses": 3
+    }
+  },
+  "rateRankings": {
+    "criminal": [
+      {
+        "rank": 1,
+        "id": 131450,
+        "count": 43,
+        "rate": 337.78
+      },
+      {
+        "rank": 2,
+        "id": 131399,
+        "count": 23,
+        "rate": 88.53
+      },
+      {
+        "rank": 3,
+        "id": 131520,
+        "count": 31,
+        "rate": 29.91
+      },
+      {
+        "rank": 4,
+        "id": 131159,
+        "count": 26,
+        "rate": 22.07
+      },
+      {
+        "rank": 5,
+        "id": 131469,
+        "count": 19,
+        "rate": 8.98
+      }
+    ],
+    "all": [
+      {
+        "rank": 1,
+        "id": 131450,
+        "count": 121,
+        "rate": 950.51
+      },
+      {
+        "rank": 2,
+        "id": 131159,
+        "count": 214,
+        "rate": 181.68
+      },
+      {
+        "rank": 3,
+        "id": 131399,
+        "count": 37,
+        "rate": 142.42
+      },
+      {
+        "rank": 4,
+        "id": 131469,
+        "count": 283,
+        "rate": 133.77
+      },
+      {
+        "rank": 5,
+        "id": 131520,
+        "count": 34,
+        "rate": 32.81
+      }
+    ],
+    "aggravated_assault": [
+      {
+        "rank": 1,
+        "id": 131450,
+        "count": 2,
+        "rate": 15.71
+      },
+      {
+        "rank": 2,
+        "id": 131520,
+        "count": 10,
+        "rate": 9.65
+      },
+      {
+        "rank": 3,
+        "id": 131399,
+        "count": 1,
+        "rate": 3.85
+      },
+      {
+        "rank": 4,
+        "id": 131469,
+        "count": 1,
+        "rate": 0.47
+      }
+    ],
+    "arson": [
+      {
+        "rank": 1,
+        "id": 131450,
+        "count": 2,
+        "rate": 15.71
+      },
+      {
+        "rank": 2,
+        "id": 131469,
+        "count": 1,
+        "rate": 0.47
+      }
+    ],
+    "burglary": [
+      {
+        "rank": 1,
+        "id": 131450,
+        "count": 14,
+        "rate": 109.98
+      },
+      {
+        "rank": 2,
+        "id": 131399,
+        "count": 12,
+        "rate": 46.19
+      },
+      {
+        "rank": 3,
+        "id": 131520,
+        "count": 18,
+        "rate": 17.37
+      },
+      {
+        "rank": 4,
+        "id": 131159,
+        "count": 3,
+        "rate": 2.55
+      },
+      {
+        "rank": 5,
+        "id": 131469,
+        "count": 3,
+        "rate": 1.42
+      }
+    ],
+    "dating_violence": [
+      {
+        "rank": 1,
+        "id": 131450,
+        "count": 6,
+        "rate": 47.13
+      },
+      {
+        "rank": 2,
+        "id": 131469,
+        "count": 2,
+        "rate": 0.95
+      }
+    ],
+    "domestic_violence": [
+      {
+        "rank": 1,
+        "id": 131450,
+        "count": 18,
+        "rate": 141.4
+      },
+      {
+        "rank": 2,
+        "id": 131159,
+        "count": 4,
+        "rate": 3.4
+      },
+      {
+        "rank": 3,
+        "id": 131520,
+        "count": 3,
+        "rate": 2.89
+      },
+      {
+        "rank": 4,
+        "id": 131469,
+        "count": 2,
+        "rate": 0.95
+      }
+    ],
+    "drug_arrest": [
+      {
+        "rank": 1,
+        "id": 131450,
+        "count": 16,
+        "rate": 125.69
+      },
+      {
+        "rank": 2,
+        "id": 131399,
+        "count": 4,
+        "rate": 15.4
+      }
+    ],
+    "drug_discipline": [
+      {
+        "rank": 1,
+        "id": 131159,
+        "count": 65,
+        "rate": 55.18
+      },
+      {
+        "rank": 2,
+        "id": 131469,
+        "count": 110,
+        "rate": 52.0
+      },
+      {
+        "rank": 3,
+        "id": 131450,
+        "count": 5,
+        "rate": 39.28
+      },
+      {
+        "rank": 4,
+        "id": 131399,
+        "count": 7,
+        "rate": 26.94
+      }
+    ],
+    "fondling": [
+      {
+        "rank": 1,
+        "id": 131450,
+        "count": 8,
+        "rate": 62.84
+      },
+      {
+        "rank": 2,
+        "id": 131159,
+        "count": 4,
+        "rate": 3.4
+      },
+      {
+        "rank": 3,
+        "id": 131469,
+        "count": 6,
+        "rate": 2.84
+      },
+      {
+        "rank": 4,
+        "id": 131520,
+        "count": 1,
+        "rate": 0.96
+      }
+    ],
+    "incest": [],
+    "liquor_arrest": [
+      {
+        "rank": 1,
+        "id": 131450,
+        "count": 1,
+        "rate": 7.86
+      }
+    ],
+    "liquor_discipline": [
+      {
+        "rank": 1,
+        "id": 131450,
+        "count": 23,
+        "rate": 180.68
+      },
+      {
+        "rank": 2,
+        "id": 131159,
+        "count": 107,
+        "rate": 90.84
+      },
+      {
+        "rank": 3,
+        "id": 131469,
+        "count": 141,
+        "rate": 66.65
+      }
+    ],
+    "motor_vehicle_theft": [
+      {
+        "rank": 1,
+        "id": 131450,
+        "count": 9,
+        "rate": 70.7
+      },
+      {
+        "rank": 2,
+        "id": 131399,
+        "count": 4,
+        "rate": 15.4
+      }
+    ],
+    "murder": [],
+    "negligent_manslaughter": [],
+    "rape": [
+      {
+        "rank": 1,
+        "id": 131159,
+        "count": 19,
+        "rate": 16.13
+      },
+      {
+        "rank": 2,
+        "id": 131450,
+        "count": 2,
+        "rate": 15.71
+      },
+      {
+        "rank": 3,
+        "id": 131399,
+        "count": 4,
+        "rate": 15.4
+      },
+      {
+        "rank": 4,
+        "id": 131469,
+        "count": 6,
+        "rate": 2.84
+      }
+    ],
+    "robbery": [
+      {
+        "rank": 1,
+        "id": 131450,
+        "count": 6,
+        "rate": 47.13
+      },
+      {
+        "rank": 2,
+        "id": 131399,
+        "count": 2,
+        "rate": 7.7
+      },
+      {
+        "rank": 3,
+        "id": 131520,
+        "count": 2,
+        "rate": 1.93
+      },
+      {
+        "rank": 4,
+        "id": 131469,
+        "count": 2,
+        "rate": 0.95
+      }
+    ],
+    "stalking": [
+      {
+        "rank": 1,
+        "id": 131450,
+        "count": 7,
+        "rate": 54.99
+      },
+      {
+        "rank": 2,
+        "id": 131159,
+        "count": 12,
+        "rate": 10.19
+      },
+      {
+        "rank": 3,
+        "id": 131469,
+        "count": 6,
+        "rate": 2.84
+      }
+    ],
+    "statutory_rape": [],
+    "weapons_arrest": [
+      {
+        "rank": 1,
+        "id": 131450,
+        "count": 2,
+        "rate": 15.71
+      },
+      {
+        "rank": 2,
+        "id": 131399,
+        "count": 3,
+        "rate": 11.55
+      },
+      {
+        "rank": 3,
+        "id": 131469,
+        "count": 2,
+        "rate": 0.95
+      }
+    ],
+    "weapons_discipline": [
+      {
+        "rank": 1,
+        "id": 131469,
+        "count": 1,
+        "rate": 0.47
+      }
+    ]
   }
 }

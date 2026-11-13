@@ -231,6 +231,19 @@ export default function Methodology() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4 sm:col-span-2">
+                <h5 className="font-medium text-gray-900 dark:text-gray-100 text-sm mb-2">Rates Are Per Institution</h5>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  NCES publishes enrollment (FTE) for each institution, not for each campus, and every campus of an
+                  institution (all campuses whose UNITID starts with the same six digits) carries the same FTE. So a
+                  rate divides the incidents of all the institution's campuses that year by the institution's FTE.
+                  Rate rankings list institutions, one row each, under the institution's name and linked to its main
+                  campus (or, when the main campus did not report, its campus with the most incidents that year);
+                  school pages and Compare label such a rate "all N campuses combined". Rankings by count still list
+                  each campus. The incidents are counted as in rankings: residence halls are not added (they are part
+                  of on-campus), and figures also reported by another campus count once.
+                </p>
+              </div>
               <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
                 <h5 className="font-medium text-gray-900 dark:text-gray-100 text-sm mb-2">Total Counts</h5>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -239,9 +252,15 @@ export default function Methodology() {
                 </p>
               </div>
               <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
-                <h5 className="font-medium text-gray-900 dark:text-gray-100 text-sm mb-2">Rate Display Threshold</h5>
+                <h5 className="font-medium text-gray-900 dark:text-gray-100 text-sm mb-2">Who Rate Rankings Leave Out</h5>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Rates only displayed for institutions with FTE ≥ 1,000 to avoid misleading statistics
+                  Institutions with fewer than 1,000 FTE students that year, where a few incidents swing the rate.
+                  And institutions where at least 50% of students study exclusively online (NCES's share of students
+                  enrolled exclusively in distance education): Clery figures cover the campus, which most of their
+                  students never attend, so their rate is not comparable. School pages still show these rates, with a
+                  note. An institution without NCES's online figure is not left out. In fall 2020 and 2021, when many
+                  institutions taught mostly online, many more are left out: about 560 of the 1,940 institutions with
+                  1,000+ FTE in 2020 and 250 in 2021, against about 80 in 2019.
                 </p>
               </div>
               <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4 sm:col-span-2">
@@ -492,10 +511,11 @@ export default function Methodology() {
                   "FTE coverage by year",
                   "Rate calculation verification",
                   "Ranking order validation (ties share a rank: 1, 2, 2, 4)",
-                  "Percentage sum validation",
+                  "Ranking totals (each ranking's total and tables agree with its entries)",
                   "Aggregate consistency (the school-year aggregate table matches the fact table it is built from)",
                   "Shared figures (figures two campuses report identically are counted once in totals and rankings)",
                   "Enrollment matches NCES (every FTE is NCES's own published figure)",
+                  "Institution rates (recomputed from the facts: all campuses' incidents per institution FTE, and exactly the institutions rate rankings may list)",
                 ].map((check, i) => (
                   <div key={i} className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
                     <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />

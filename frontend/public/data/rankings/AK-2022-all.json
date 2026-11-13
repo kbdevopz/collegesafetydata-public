@@ -1,1003 +1,525 @@
 {
   "preset": "AK",
   "year": 2022,
+  "campuses": {
+    "102553001": {
+      "name": "University of Alaska Anchorage",
+      "short": null,
+      "state": "AK",
+      "main": true,
+      "fte": 6617,
+      "campuses": 10
+    },
+    "102553002": {
+      "name": "University of Alaska Anchorage",
+      "short": null,
+      "state": "AK",
+      "main": false,
+      "fte": 6617,
+      "campuses": 10
+    },
+    "102553007": {
+      "name": "University of Alaska Anchorage",
+      "short": null,
+      "state": "AK",
+      "main": false,
+      "fte": 6617,
+      "campuses": 10
+    },
+    "102614001": {
+      "name": "University of Alaska Fairbanks",
+      "short": null,
+      "state": "AK",
+      "main": true,
+      "fte": 4228,
+      "campuses": 9
+    },
+    "102614002": {
+      "name": "University of Alaska Fairbanks",
+      "short": null,
+      "state": "AK",
+      "main": false,
+      "fte": 4228,
+      "campuses": 9
+    },
+    "102614007": {
+      "name": "University of Alaska Fairbanks",
+      "short": null,
+      "state": "AK",
+      "main": false,
+      "fte": 4228,
+      "campuses": 9
+    },
+    "102614008": {
+      "name": "University of Alaska Fairbanks",
+      "short": null,
+      "state": "AK",
+      "main": false,
+      "fte": 4228,
+      "campuses": 9
+    },
+    "102632001": {
+      "name": "University of Alaska Southeast",
+      "short": null,
+      "state": "AK",
+      "main": true,
+      "fte": 1086,
+      "campuses": 3
+    },
+    "102632002": {
+      "name": "University of Alaska Southeast",
+      "short": null,
+      "state": "AK",
+      "main": false,
+      "fte": 1086,
+      "campuses": 3
+    },
+    "102669001": {
+      "name": "Alaska Pacific University",
+      "short": null,
+      "state": "AK",
+      "main": true,
+      "fte": 458,
+      "campuses": 1
+    },
+    "102711002": {
+      "name": "Alaska Vocational Technical Center",
+      "short": null,
+      "state": "AK",
+      "main": false,
+      "fte": 156,
+      "campuses": 4
+    },
+    "142276005": {
+      "name": "Idaho State University",
+      "short": null,
+      "state": "AK",
+      "main": false,
+      "fte": 9020,
+      "campuses": 6
+    },
+    "434584001": {
+      "name": "Ilisagvik College",
+      "short": null,
+      "state": "AK",
+      "main": true,
+      "fte": 101,
+      "campuses": 1
+    },
+    "442523001": {
+      "name": "Alaska Christian College",
+      "short": null,
+      "state": "AK",
+      "main": true,
+      "fte": 74,
+      "campuses": 1
+    }
+  },
   "rankings": {
     "criminal": [
       {
         "rank": 1,
-        "rankByRate": 2,
         "unitid": 102553001,
-        "name": "University of Alaska Anchorage",
-        "short": null,
-        "state": "AK",
-        "count": 36,
-        "pct": 48.65,
-        "fte": 6617,
-        "rate": 54.41,
-        "isMainCampus": true
+        "count": 36
       },
       {
         "rank": 2,
-        "rankByRate": 1,
         "unitid": 102614001,
-        "name": "University of Alaska Fairbanks",
-        "short": null,
-        "state": "AK",
-        "count": 27,
-        "pct": 36.49,
-        "fte": 4228,
-        "rate": 63.86,
-        "isMainCampus": true
+        "count": 27
       },
       {
         "rank": 3,
-        "rankByRate": 4,
         "unitid": 102614002,
-        "name": "University of Alaska Fairbanks",
-        "short": null,
-        "state": "AK",
-        "count": 6,
-        "pct": 8.11,
-        "fte": 4228,
-        "rate": 14.19,
-        "isMainCampus": false
+        "count": 6
       },
       {
         "rank": 4,
-        "rankByRate": 3,
         "unitid": 102669001,
-        "name": "Alaska Pacific University",
-        "short": null,
-        "state": "AK",
-        "count": 2,
-        "pct": 2.7,
-        "fte": 458,
-        "rate": 43.67,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 5,
-        "rankByRate": 7,
         "unitid": 142276005,
-        "name": "Idaho State University",
-        "short": null,
-        "state": "AK",
-        "count": 1,
-        "pct": 1.35,
-        "fte": 9020,
-        "rate": 1.11,
-        "isMainCampus": false
+        "count": 1
       },
       {
         "rank": 5,
-        "rankByRate": 6,
         "unitid": 102553007,
-        "name": "University of Alaska Anchorage",
-        "short": null,
-        "state": "AK",
-        "count": 1,
-        "pct": 1.35,
-        "fte": 6617,
-        "rate": 1.51,
-        "isMainCampus": false
+        "count": 1
       },
       {
         "rank": 5,
-        "rankByRate": 5,
         "unitid": 102614007,
-        "name": "University of Alaska Fairbanks",
-        "short": null,
-        "state": "AK",
-        "count": 1,
-        "pct": 1.35,
-        "fte": 4228,
-        "rate": 2.37,
-        "isMainCampus": false
+        "count": 1
       }
     ],
     "all": [
       {
         "rank": 1,
-        "rankByRate": 3,
         "unitid": 102614001,
-        "name": "University of Alaska Fairbanks",
-        "short": null,
-        "state": "AK",
-        "count": 109,
-        "pct": 40.98,
-        "fte": 4228,
-        "rate": 257.81,
-        "isMainCampus": true
+        "count": 109
       },
       {
         "rank": 2,
-        "rankByRate": 5,
         "unitid": 102553001,
-        "name": "University of Alaska Anchorage",
-        "short": null,
-        "state": "AK",
-        "count": 96,
-        "pct": 36.09,
-        "fte": 6617,
-        "rate": 145.08,
-        "isMainCampus": true
+        "count": 96
       },
       {
         "rank": 3,
-        "rankByRate": 1,
         "unitid": 442523001,
-        "name": "Alaska Christian College",
-        "short": null,
-        "state": "AK",
-        "count": 16,
-        "pct": 6.02,
-        "fte": 74,
-        "rate": 2162.16,
-        "isMainCampus": true
+        "count": 16
       },
       {
         "rank": 4,
-        "rankByRate": 6,
         "unitid": 102632001,
-        "name": "University of Alaska Southeast",
-        "short": null,
-        "state": "AK",
-        "count": 14,
-        "pct": 5.26,
-        "fte": 1086,
-        "rate": 128.91,
-        "isMainCampus": true
+        "count": 14
       },
       {
         "rank": 5,
-        "rankByRate": 8,
         "unitid": 102614002,
-        "name": "University of Alaska Fairbanks",
-        "short": null,
-        "state": "AK",
-        "count": 8,
-        "pct": 3.01,
-        "fte": 4228,
-        "rate": 18.92,
-        "isMainCampus": false
+        "count": 8
       },
       {
         "rank": 6,
-        "rankByRate": 7,
         "unitid": 102669001,
-        "name": "Alaska Pacific University",
-        "short": null,
-        "state": "AK",
-        "count": 5,
-        "pct": 1.88,
-        "fte": 458,
-        "rate": 109.17,
-        "isMainCampus": true
+        "count": 5
       },
       {
         "rank": 6,
-        "rankByRate": 10,
         "unitid": 102553007,
-        "name": "University of Alaska Anchorage",
-        "short": null,
-        "state": "AK",
-        "count": 5,
-        "pct": 1.88,
-        "fte": 6617,
-        "rate": 7.56,
-        "isMainCampus": false
+        "count": 5
       },
       {
         "rank": 8,
-        "rankByRate": 4,
         "unitid": 102711002,
-        "name": "Alaska Vocational Technical Center",
-        "short": null,
-        "state": "AK",
-        "count": 4,
-        "pct": 1.5,
-        "fte": 156,
-        "rate": 256.41,
-        "isMainCampus": false
+        "count": 4
       },
       {
         "rank": 8,
-        "rankByRate": 2,
         "unitid": 434584001,
-        "name": "Ilisagvik College",
-        "short": null,
-        "state": "AK",
-        "count": 4,
-        "pct": 1.5,
-        "fte": 101,
-        "rate": 396.04,
-        "isMainCampus": true
+        "count": 4
       },
       {
         "rank": 10,
-        "rankByRate": 14,
         "unitid": 142276005,
-        "name": "Idaho State University",
-        "short": null,
-        "state": "AK",
-        "count": 1,
-        "pct": 0.38,
-        "fte": 9020,
-        "rate": 1.11,
-        "isMainCampus": false
+        "count": 1
       },
       {
         "rank": 10,
-        "rankByRate": 13,
         "unitid": 102553002,
-        "name": "University of Alaska Anchorage",
-        "short": null,
-        "state": "AK",
-        "count": 1,
-        "pct": 0.38,
-        "fte": 6617,
-        "rate": 1.51,
-        "isMainCampus": false
+        "count": 1
       },
       {
         "rank": 10,
-        "rankByRate": 11,
         "unitid": 102614007,
-        "name": "University of Alaska Fairbanks",
-        "short": null,
-        "state": "AK",
-        "count": 1,
-        "pct": 0.38,
-        "fte": 4228,
-        "rate": 2.37,
-        "isMainCampus": false
+        "count": 1
       },
       {
         "rank": 10,
-        "rankByRate": 11,
         "unitid": 102614008,
-        "name": "University of Alaska Fairbanks",
-        "short": null,
-        "state": "AK",
-        "count": 1,
-        "pct": 0.38,
-        "fte": 4228,
-        "rate": 2.37,
-        "isMainCampus": false
+        "count": 1
       },
       {
         "rank": 10,
-        "rankByRate": 9,
         "unitid": 102632002,
-        "name": "University of Alaska Southeast",
-        "short": null,
-        "state": "AK",
-        "count": 1,
-        "pct": 0.38,
-        "fte": 1086,
-        "rate": 9.21,
-        "isMainCampus": false
+        "count": 1
       }
     ],
     "aggravated_assault": [
       {
         "rank": 1,
-        "rankByRate": 2,
         "unitid": 102614001,
-        "name": "University of Alaska Fairbanks",
-        "short": null,
-        "state": "AK",
-        "count": 4,
-        "pct": 36.36,
-        "fte": 4228,
-        "rate": 9.46,
-        "isMainCampus": true
+        "count": 4
       },
       {
         "rank": 2,
-        "rankByRate": 3,
         "unitid": 102614002,
-        "name": "University of Alaska Fairbanks",
-        "short": null,
-        "state": "AK",
-        "count": 3,
-        "pct": 27.27,
-        "fte": 4228,
-        "rate": 7.1,
-        "isMainCampus": false
+        "count": 3
       },
       {
         "rank": 3,
-        "rankByRate": 4,
         "unitid": 102553001,
-        "name": "University of Alaska Anchorage",
-        "short": null,
-        "state": "AK",
-        "count": 2,
-        "pct": 18.18,
-        "fte": 6617,
-        "rate": 3.02,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 4,
-        "rankByRate": 1,
         "unitid": 102669001,
-        "name": "Alaska Pacific University",
-        "short": null,
-        "state": "AK",
-        "count": 1,
-        "pct": 9.09,
-        "fte": 458,
-        "rate": 21.83,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 4,
-        "rankByRate": 5,
         "unitid": 102614007,
-        "name": "University of Alaska Fairbanks",
-        "short": null,
-        "state": "AK",
-        "count": 1,
-        "pct": 9.09,
-        "fte": 4228,
-        "rate": 2.37,
-        "isMainCampus": false
+        "count": 1
       }
     ],
     "arson": [
       {
         "rank": 1,
-        "rankByRate": 2,
         "unitid": 102553001,
-        "name": "University of Alaska Anchorage",
-        "short": null,
-        "state": "AK",
-        "count": 2,
-        "pct": 50.0,
-        "fte": 6617,
-        "rate": 3.02,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 102614001,
-        "name": "University of Alaska Fairbanks",
-        "short": null,
-        "state": "AK",
-        "count": 2,
-        "pct": 50.0,
-        "fte": 4228,
-        "rate": 4.73,
-        "isMainCampus": true
+        "count": 2
       }
     ],
     "burglary": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 102553001,
-        "name": "University of Alaska Anchorage",
-        "short": null,
-        "state": "AK",
-        "count": 9,
-        "pct": 56.25,
-        "fte": 6617,
-        "rate": 13.6,
-        "isMainCampus": true
+        "count": 9
       },
       {
         "rank": 2,
-        "rankByRate": 2,
         "unitid": 102614001,
-        "name": "University of Alaska Fairbanks",
-        "short": null,
-        "state": "AK",
-        "count": 4,
-        "pct": 25.0,
-        "fte": 4228,
-        "rate": 9.46,
-        "isMainCampus": true
+        "count": 4
       },
       {
         "rank": 3,
-        "rankByRate": 3,
         "unitid": 102614002,
-        "name": "University of Alaska Fairbanks",
-        "short": null,
-        "state": "AK",
-        "count": 2,
-        "pct": 12.5,
-        "fte": 4228,
-        "rate": 4.73,
-        "isMainCampus": false
+        "count": 2
       },
       {
         "rank": 4,
-        "rankByRate": 4,
         "unitid": 142276005,
-        "name": "Idaho State University",
-        "short": null,
-        "state": "AK",
-        "count": 1,
-        "pct": 6.25,
-        "fte": 9020,
-        "rate": 1.11,
-        "isMainCampus": false
+        "count": 1
       }
     ],
     "dating_violence": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 442523001,
-        "name": "Alaska Christian College",
-        "short": null,
-        "state": "AK",
-        "count": 2,
-        "pct": 66.67,
-        "fte": 74,
-        "rate": 270.27,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 2,
-        "rankByRate": 2,
         "unitid": 102553001,
-        "name": "University of Alaska Anchorage",
-        "short": null,
-        "state": "AK",
-        "count": 1,
-        "pct": 33.33,
-        "fte": 6617,
-        "rate": 1.51,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "domestic_violence": [
       {
         "rank": 1,
-        "rankByRate": 2,
         "unitid": 102614001,
-        "name": "University of Alaska Fairbanks",
-        "short": null,
-        "state": "AK",
-        "count": 9,
-        "pct": 50.0,
-        "fte": 4228,
-        "rate": 21.29,
-        "isMainCampus": true
+        "count": 9
       },
       {
         "rank": 2,
-        "rankByRate": 3,
         "unitid": 102553001,
-        "name": "University of Alaska Anchorage",
-        "short": null,
-        "state": "AK",
-        "count": 6,
-        "pct": 33.33,
-        "fte": 6617,
-        "rate": 9.07,
-        "isMainCampus": true
+        "count": 6
       },
       {
         "rank": 3,
-        "rankByRate": 4,
         "unitid": 102614002,
-        "name": "University of Alaska Fairbanks",
-        "short": null,
-        "state": "AK",
-        "count": 2,
-        "pct": 11.11,
-        "fte": 4228,
-        "rate": 4.73,
-        "isMainCampus": false
+        "count": 2
       },
       {
         "rank": 4,
-        "rankByRate": 1,
         "unitid": 434584001,
-        "name": "Ilisagvik College",
-        "short": null,
-        "state": "AK",
-        "count": 1,
-        "pct": 5.56,
-        "fte": 101,
-        "rate": 99.01,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "drug_arrest": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 102553001,
-        "name": "University of Alaska Anchorage",
-        "short": null,
-        "state": "AK",
-        "count": 4,
-        "pct": 80.0,
-        "fte": 6617,
-        "rate": 6.05,
-        "isMainCampus": true
+        "count": 4
       },
       {
         "rank": 2,
-        "rankByRate": 2,
         "unitid": 102614001,
-        "name": "University of Alaska Fairbanks",
-        "short": null,
-        "state": "AK",
-        "count": 1,
-        "pct": 20.0,
-        "fte": 4228,
-        "rate": 2.37,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "drug_discipline": [
       {
         "rank": 1,
-        "rankByRate": 2,
         "unitid": 102614001,
-        "name": "University of Alaska Fairbanks",
-        "short": null,
-        "state": "AK",
-        "count": 13,
-        "pct": 59.09,
-        "fte": 4228,
-        "rate": 30.75,
-        "isMainCampus": true
+        "count": 13
       },
       {
         "rank": 2,
-        "rankByRate": 4,
         "unitid": 102553001,
-        "name": "University of Alaska Anchorage",
-        "short": null,
-        "state": "AK",
-        "count": 4,
-        "pct": 18.18,
-        "fte": 6617,
-        "rate": 6.05,
-        "isMainCampus": true
+        "count": 4
       },
       {
         "rank": 3,
-        "rankByRate": 3,
         "unitid": 102632001,
-        "name": "University of Alaska Southeast",
-        "short": null,
-        "state": "AK",
-        "count": 3,
-        "pct": 13.64,
-        "fte": 1086,
-        "rate": 27.62,
-        "isMainCampus": true
+        "count": 3
       },
       {
         "rank": 4,
-        "rankByRate": 1,
         "unitid": 102669001,
-        "name": "Alaska Pacific University",
-        "short": null,
-        "state": "AK",
-        "count": 2,
-        "pct": 9.09,
-        "fte": 458,
-        "rate": 43.67,
-        "isMainCampus": true
+        "count": 2
       }
     ],
     "fondling": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 102553001,
-        "name": "University of Alaska Anchorage",
-        "short": null,
-        "state": "AK",
-        "count": 9,
-        "pct": 69.23,
-        "fte": 6617,
-        "rate": 13.6,
-        "isMainCampus": true
+        "count": 9
       },
       {
         "rank": 2,
-        "rankByRate": 2,
         "unitid": 102614001,
-        "name": "University of Alaska Fairbanks",
-        "short": null,
-        "state": "AK",
-        "count": 4,
-        "pct": 30.77,
-        "fte": 4228,
-        "rate": 9.46,
-        "isMainCampus": true
+        "count": 4
       }
     ],
     "liquor_arrest": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 102711002,
-        "name": "Alaska Vocational Technical Center",
-        "short": null,
-        "state": "AK",
-        "count": 2,
-        "pct": 33.33,
-        "fte": 156,
-        "rate": 128.21,
-        "isMainCampus": false
+        "count": 2
       },
       {
         "rank": 1,
-        "rankByRate": 2,
         "unitid": 102614001,
-        "name": "University of Alaska Fairbanks",
-        "short": null,
-        "state": "AK",
-        "count": 2,
-        "pct": 33.33,
-        "fte": 4228,
-        "rate": 4.73,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 3,
-        "rankByRate": 4,
         "unitid": 102553001,
-        "name": "University of Alaska Anchorage",
-        "short": null,
-        "state": "AK",
-        "count": 1,
-        "pct": 16.67,
-        "fte": 6617,
-        "rate": 1.51,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 3,
-        "rankByRate": 3,
         "unitid": 102614008,
-        "name": "University of Alaska Fairbanks",
-        "short": null,
-        "state": "AK",
-        "count": 1,
-        "pct": 16.67,
-        "fte": 4228,
-        "rate": 2.37,
-        "isMainCampus": false
+        "count": 1
       }
     ],
     "liquor_discipline": [
       {
         "rank": 1,
-        "rankByRate": 4,
         "unitid": 102614001,
-        "name": "University of Alaska Fairbanks",
-        "short": null,
-        "state": "AK",
-        "count": 45,
-        "pct": 47.87,
-        "fte": 4228,
-        "rate": 106.43,
-        "isMainCampus": true
+        "count": 45
       },
       {
         "rank": 2,
-        "rankByRate": 6,
         "unitid": 102553001,
-        "name": "University of Alaska Anchorage",
-        "short": null,
-        "state": "AK",
-        "count": 20,
-        "pct": 21.28,
-        "fte": 6617,
-        "rate": 30.23,
-        "isMainCampus": true
+        "count": 20
       },
       {
         "rank": 3,
-        "rankByRate": 1,
         "unitid": 442523001,
-        "name": "Alaska Christian College",
-        "short": null,
-        "state": "AK",
-        "count": 14,
-        "pct": 14.89,
-        "fte": 74,
-        "rate": 1891.89,
-        "isMainCampus": true
+        "count": 14
       },
       {
         "rank": 4,
-        "rankByRate": 5,
         "unitid": 102632001,
-        "name": "University of Alaska Southeast",
-        "short": null,
-        "state": "AK",
-        "count": 5,
-        "pct": 5.32,
-        "fte": 1086,
-        "rate": 46.04,
-        "isMainCampus": true
+        "count": 5
       },
       {
         "rank": 5,
-        "rankByRate": 8,
         "unitid": 102553007,
-        "name": "University of Alaska Anchorage",
-        "short": null,
-        "state": "AK",
-        "count": 4,
-        "pct": 4.26,
-        "fte": 6617,
-        "rate": 6.05,
-        "isMainCampus": false
+        "count": 4
       },
       {
         "rank": 6,
-        "rankByRate": 2,
         "unitid": 434584001,
-        "name": "Ilisagvik College",
-        "short": null,
-        "state": "AK",
-        "count": 3,
-        "pct": 3.19,
-        "fte": 101,
-        "rate": 297.03,
-        "isMainCampus": true
+        "count": 3
       },
       {
         "rank": 7,
-        "rankByRate": 3,
         "unitid": 102711002,
-        "name": "Alaska Vocational Technical Center",
-        "short": null,
-        "state": "AK",
-        "count": 2,
-        "pct": 2.13,
-        "fte": 156,
-        "rate": 128.21,
-        "isMainCampus": false
+        "count": 2
       },
       {
         "rank": 8,
-        "rankByRate": 7,
         "unitid": 102669001,
-        "name": "Alaska Pacific University",
-        "short": null,
-        "state": "AK",
-        "count": 1,
-        "pct": 1.06,
-        "fte": 458,
-        "rate": 21.83,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "motor_vehicle_theft": [
       {
         "rank": 1,
-        "rankByRate": 2,
         "unitid": 102553001,
-        "name": "University of Alaska Anchorage",
-        "short": null,
-        "state": "AK",
-        "count": 8,
-        "pct": 61.54,
-        "fte": 6617,
-        "rate": 12.09,
-        "isMainCampus": true
+        "count": 8
       },
       {
         "rank": 2,
-        "rankByRate": 3,
         "unitid": 102614001,
-        "name": "University of Alaska Fairbanks",
-        "short": null,
-        "state": "AK",
-        "count": 4,
-        "pct": 30.77,
-        "fte": 4228,
-        "rate": 9.46,
-        "isMainCampus": true
+        "count": 4
       },
       {
         "rank": 3,
-        "rankByRate": 1,
         "unitid": 102669001,
-        "name": "Alaska Pacific University",
-        "short": null,
-        "state": "AK",
-        "count": 1,
-        "pct": 7.69,
-        "fte": 458,
-        "rate": 21.83,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "rape": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 102614001,
-        "name": "University of Alaska Fairbanks",
-        "short": null,
-        "state": "AK",
-        "count": 9,
-        "pct": 60.0,
-        "fte": 4228,
-        "rate": 21.29,
-        "isMainCampus": true
+        "count": 9
       },
       {
         "rank": 2,
-        "rankByRate": 2,
         "unitid": 102553001,
-        "name": "University of Alaska Anchorage",
-        "short": null,
-        "state": "AK",
-        "count": 4,
-        "pct": 26.67,
-        "fte": 6617,
-        "rate": 6.05,
-        "isMainCampus": true
+        "count": 4
       },
       {
         "rank": 3,
-        "rankByRate": 4,
         "unitid": 102553007,
-        "name": "University of Alaska Anchorage",
-        "short": null,
-        "state": "AK",
-        "count": 1,
-        "pct": 6.67,
-        "fte": 6617,
-        "rate": 1.51,
-        "isMainCampus": false
+        "count": 1
       },
       {
         "rank": 3,
-        "rankByRate": 3,
         "unitid": 102614002,
-        "name": "University of Alaska Fairbanks",
-        "short": null,
-        "state": "AK",
-        "count": 1,
-        "pct": 6.67,
-        "fte": 4228,
-        "rate": 2.37,
-        "isMainCampus": false
+        "count": 1
       }
     ],
     "robbery": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 102553001,
-        "name": "University of Alaska Anchorage",
-        "short": null,
-        "state": "AK",
-        "count": 2,
-        "pct": 100.0,
-        "fte": 6617,
-        "rate": 3.02,
-        "isMainCampus": true
+        "count": 2
       }
     ],
     "stalking": [
       {
         "rank": 1,
-        "rankByRate": 2,
         "unitid": 102553001,
-        "name": "University of Alaska Anchorage",
-        "short": null,
-        "state": "AK",
-        "count": 23,
-        "pct": 56.1,
-        "fte": 6617,
-        "rate": 34.76,
-        "isMainCampus": true
+        "count": 23
       },
       {
         "rank": 2,
-        "rankByRate": 3,
         "unitid": 102614001,
-        "name": "University of Alaska Fairbanks",
-        "short": null,
-        "state": "AK",
-        "count": 10,
-        "pct": 24.39,
-        "fte": 4228,
-        "rate": 23.65,
-        "isMainCampus": true
+        "count": 10
       },
       {
         "rank": 3,
-        "rankByRate": 1,
         "unitid": 102632001,
-        "name": "University of Alaska Southeast",
-        "short": null,
-        "state": "AK",
-        "count": 6,
-        "pct": 14.63,
-        "fte": 1086,
-        "rate": 55.25,
-        "isMainCampus": true
+        "count": 6
       },
       {
         "rank": 4,
-        "rankByRate": 5,
         "unitid": 102553002,
-        "name": "University of Alaska Anchorage",
-        "short": null,
-        "state": "AK",
-        "count": 1,
-        "pct": 2.44,
-        "fte": 6617,
-        "rate": 1.51,
-        "isMainCampus": false
+        "count": 1
       },
       {
         "rank": 4,
-        "rankByRate": 4,
         "unitid": 102632002,
-        "name": "University of Alaska Southeast",
-        "short": null,
-        "state": "AK",
-        "count": 1,
-        "pct": 2.44,
-        "fte": 1086,
-        "rate": 9.21,
-        "isMainCampus": false
+        "count": 1
       }
     ],
     "weapons_arrest": [
       {
         "rank": 1,
-        "rankByRate": 2,
         "unitid": 102553001,
-        "name": "University of Alaska Anchorage",
-        "short": null,
-        "state": "AK",
-        "count": 1,
-        "pct": 50.0,
-        "fte": 6617,
-        "rate": 1.51,
-        "isMainCampus": true
+        "count": 1
       },
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 102614001,
-        "name": "University of Alaska Fairbanks",
-        "short": null,
-        "state": "AK",
-        "count": 1,
-        "pct": 50.0,
-        "fte": 4228,
-        "rate": 2.37,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "weapons_discipline": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 102614001,
-        "name": "University of Alaska Fairbanks",
-        "short": null,
-        "state": "AK",
-        "count": 1,
-        "pct": 100.0,
-        "fte": 4228,
-        "rate": 2.37,
-        "isMainCampus": true
+        "count": 1
       }
     ]
   },
@@ -1020,5 +542,310 @@
     "stalking": 41,
     "weapons_arrest": 2,
     "weapons_discipline": 1
+  },
+  "institutions": {
+    "102553": {
+      "name": "University of Alaska Anchorage",
+      "unitid": 102553001,
+      "state": "AK",
+      "fte": 6617,
+      "campuses": 10
+    },
+    "102614": {
+      "name": "University of Alaska Fairbanks",
+      "unitid": 102614001,
+      "state": "AK",
+      "fte": 4228,
+      "campuses": 9
+    },
+    "102845": {
+      "name": "Charter College",
+      "unitid": 102845001,
+      "state": "AK",
+      "fte": 2117,
+      "campuses": 14
+    }
+  },
+  "rateRankings": {
+    "criminal": [
+      {
+        "rank": 1,
+        "id": 102614,
+        "count": 34,
+        "rate": 80.42
+      },
+      {
+        "rank": 2,
+        "id": 102553,
+        "count": 37,
+        "rate": 55.92
+      },
+      {
+        "rank": 3,
+        "id": 102845,
+        "count": 3,
+        "rate": 14.17
+      }
+    ],
+    "all": [
+      {
+        "rank": 1,
+        "id": 102614,
+        "count": 119,
+        "rate": 281.46
+      },
+      {
+        "rank": 2,
+        "id": 102553,
+        "count": 102,
+        "rate": 154.15
+      },
+      {
+        "rank": 3,
+        "id": 102845,
+        "count": 10,
+        "rate": 47.24
+      }
+    ],
+    "aggravated_assault": [
+      {
+        "rank": 1,
+        "id": 102614,
+        "count": 8,
+        "rate": 18.92
+      },
+      {
+        "rank": 2,
+        "id": 102553,
+        "count": 2,
+        "rate": 3.02
+      }
+    ],
+    "arson": [
+      {
+        "rank": 1,
+        "id": 102614,
+        "count": 2,
+        "rate": 4.73
+      },
+      {
+        "rank": 2,
+        "id": 102553,
+        "count": 2,
+        "rate": 3.02
+      }
+    ],
+    "burglary": [
+      {
+        "rank": 1,
+        "id": 102614,
+        "count": 6,
+        "rate": 14.19
+      },
+      {
+        "rank": 2,
+        "id": 102845,
+        "count": 3,
+        "rate": 14.17
+      },
+      {
+        "rank": 3,
+        "id": 102553,
+        "count": 9,
+        "rate": 13.6
+      }
+    ],
+    "dating_violence": [
+      {
+        "rank": 1,
+        "id": 102845,
+        "count": 1,
+        "rate": 4.72
+      },
+      {
+        "rank": 2,
+        "id": 102553,
+        "count": 1,
+        "rate": 1.51
+      }
+    ],
+    "domestic_violence": [
+      {
+        "rank": 1,
+        "id": 102614,
+        "count": 11,
+        "rate": 26.02
+      },
+      {
+        "rank": 2,
+        "id": 102845,
+        "count": 2,
+        "rate": 9.45
+      },
+      {
+        "rank": 3,
+        "id": 102553,
+        "count": 6,
+        "rate": 9.07
+      }
+    ],
+    "drug_arrest": [
+      {
+        "rank": 1,
+        "id": 102553,
+        "count": 4,
+        "rate": 6.05
+      },
+      {
+        "rank": 2,
+        "id": 102614,
+        "count": 1,
+        "rate": 2.37
+      }
+    ],
+    "drug_discipline": [
+      {
+        "rank": 1,
+        "id": 102614,
+        "count": 13,
+        "rate": 30.75
+      },
+      {
+        "rank": 2,
+        "id": 102553,
+        "count": 4,
+        "rate": 6.05
+      },
+      {
+        "rank": 3,
+        "id": 102845,
+        "count": 1,
+        "rate": 4.72
+      }
+    ],
+    "fondling": [
+      {
+        "rank": 1,
+        "id": 102553,
+        "count": 9,
+        "rate": 13.6
+      },
+      {
+        "rank": 2,
+        "id": 102614,
+        "count": 4,
+        "rate": 9.46
+      }
+    ],
+    "incest": [],
+    "liquor_arrest": [
+      {
+        "rank": 1,
+        "id": 102845,
+        "count": 3,
+        "rate": 14.17
+      },
+      {
+        "rank": 2,
+        "id": 102614,
+        "count": 3,
+        "rate": 7.1
+      },
+      {
+        "rank": 3,
+        "id": 102553,
+        "count": 1,
+        "rate": 1.51
+      }
+    ],
+    "liquor_discipline": [
+      {
+        "rank": 1,
+        "id": 102614,
+        "count": 45,
+        "rate": 106.43
+      },
+      {
+        "rank": 2,
+        "id": 102553,
+        "count": 24,
+        "rate": 36.27
+      }
+    ],
+    "motor_vehicle_theft": [
+      {
+        "rank": 1,
+        "id": 102553,
+        "count": 8,
+        "rate": 12.09
+      },
+      {
+        "rank": 2,
+        "id": 102614,
+        "count": 4,
+        "rate": 9.46
+      }
+    ],
+    "murder": [],
+    "negligent_manslaughter": [],
+    "rape": [
+      {
+        "rank": 1,
+        "id": 102614,
+        "count": 10,
+        "rate": 23.65
+      },
+      {
+        "rank": 2,
+        "id": 102553,
+        "count": 5,
+        "rate": 7.56
+      }
+    ],
+    "robbery": [
+      {
+        "rank": 1,
+        "id": 102553,
+        "count": 2,
+        "rate": 3.02
+      }
+    ],
+    "stalking": [
+      {
+        "rank": 1,
+        "id": 102553,
+        "count": 24,
+        "rate": 36.27
+      },
+      {
+        "rank": 2,
+        "id": 102614,
+        "count": 10,
+        "rate": 23.65
+      }
+    ],
+    "statutory_rape": [],
+    "weapons_arrest": [
+      {
+        "rank": 1,
+        "id": 102614,
+        "count": 1,
+        "rate": 2.37
+      },
+      {
+        "rank": 2,
+        "id": 102553,
+        "count": 1,
+        "rate": 1.51
+      }
+    ],
+    "weapons_discipline": [
+      {
+        "rank": 1,
+        "id": 102614,
+        "count": 1,
+        "rate": 2.37
+      }
+    ]
   }
 }

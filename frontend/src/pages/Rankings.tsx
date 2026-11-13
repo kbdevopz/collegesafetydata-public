@@ -10,14 +10,26 @@ import {
 } from '@tanstack/react-table'
 import { ChevronUp, ChevronDown, ExternalLink, AlertCircle, Loader2, MapPin, Calendar, AlertTriangle, Plus, Check, GitCompare, X, ChevronRight, Info } from 'lucide-react'
 import { fetchRankings, getMetadata } from '../lib/api'
-import type { RankingEntry, Metadata, Offense } from '../lib/types'
+import type { RankingsData, Metadata, Offense } from '../lib/types'
 import { cn, formatNumber, formatPercent, groupOffensesByFamily, isSmallSample } from '../lib/utils'
-import { CRIMINAL, compareText, competitionRanks, countHeader, countPhrase } from '../lib/selection'
+import { CRIMINAL, countHeader, countPhrase } from '../lib/selection'
 import SchoolSearch from '../components/SchoolSearch'
 import OffensePopover from '../components/OffensePopover'
 
-// A ranking entry with the rank shown for it in the current view
-type RankedRow = RankingEntry & { shownRank: number }
+// One row of the table: a campus (count view) or an institution, all its
+// campuses together (rate view, as NCES publishes FTE per institution)
+interface Row {
+  key: number // campus UNITID, or base UNITID of an institution
+  rank: number // the rank in the file (ties share a rank: 1, 2, 2, 4)
+  unitid: number // the school page the row links to
+  name: string
+  branch: boolean // count view: not the main campus
+  campuses: number // the institution's campuses that year
+  count: number
+  pct: number // count view: share of the file's total
+  fte: number | null
+  rate: number | null
+}
 
 export default function Rankings() {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -25,8 +37,7 @@ export default function Rankings() {
 
   // State
   const [metadata, setMetadata] = useState<Metadata | null>(null)
-  const [rankings, setRankings] = useState<RankingEntry[]>([])
-  const [totals, setTotals] = useState<Record<string, number>>({})
+  const [data, setData] = useState<RankingsData | null>(null)
   const [sorting, setSorting] = useState<SortingState>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -87,10 +98,8 @@ export default function Rankings() {
     setDisplayCount(25) // Reset display count on filter change
 
     fetchRankings(selectedPreset, selectedYear)
-      .then((data) => {
-        const offenseRankings = data.rankings[selectedOffense] || []
-        setRankings(offenseRankings)
-        setTotals(data.totals)
+      .then((file) => {
+        setData(file)
         setLoading(false)
       })
       .catch(() => {
@@ -109,38 +118,65 @@ export default function Rankings() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  // The rate view is always offered; an entry without an FTE (e.g. a year NCES has not published) has no rate
+  // The rate view is always offered; a year without NCES enrollment has no rate rankings
   const canShowRate = true
 
-  // Minimum FTE threshold for rate rankings (prevents small schools from dominating)
-  const MIN_FTE_FOR_RATE = 1000
+  // Who rate rankings list (etl/config.py, written to metadata.json)
+  const rules = metadata?.rateRules
+  const rateRulesText = rules
+    ? `${formatNumber(rules.minFte)}+ FTE, under ${rules.onlineExclusionPct}% online`
+    : ''
 
-  // Sort and slice rankings for display (Load More pattern)
-  const sortedRankings = useMemo((): RankedRow[] => {
-    if (!sortByRate) return rankings.map((r) => ({ ...r, shownRank: r.rank }))
-
-    // Filter to schools with sufficient enrollment for meaningful rates
-    const qualified = rankings.filter(
-      (r) => r.fte !== null && r.fte >= MIN_FTE_FOR_RATE && r.rate !== null
-    )
-
-    // Rate high to low, ties by name, then UNITID (the pipeline's tie order),
-    // ranked 1, 2, 2, 4: tied rates share a rank
-    const ordered = qualified.slice().sort(
-      (a, b) => (b.rate ?? 0) - (a.rate ?? 0) || compareText(a.name, b.name) || a.unitid - b.unitid
-    )
-    const ranks = competitionRanks(ordered, (r) => r.rate ?? 0)
-    return ordered.map((r, i) => ({ ...r, shownRank: ranks[i] }))
-  }, [rankings, sortByRate])
+  // The rows of the selected view, in the file's order and with its ranks:
+  // campuses by count, or institutions by rate
+  const sortedRankings = useMemo((): Row[] => {
+    if (!data) return []
+    if (sortByRate) {
+      return (data.rateRankings[selectedOffense] || []).map((e) => {
+        const inst = data.institutions[String(e.id)]
+        return {
+          key: e.id,
+          rank: e.rank,
+          unitid: inst?.unitid ?? e.id * 1000 + 1,
+          name: inst?.name ?? `Institution ${e.id}`,
+          branch: false,
+          campuses: inst?.campuses ?? 1,
+          count: e.count,
+          pct: 0,
+          fte: inst?.fte ?? null,
+          rate: e.rate,
+        }
+      })
+    }
+    const total = data.totals[selectedOffense] || 0
+    return (data.rankings[selectedOffense] || []).map((e) => {
+      const campus = data.campuses[String(e.unitid)]
+      return {
+        key: e.unitid,
+        rank: e.rank,
+        unitid: e.unitid,
+        name: campus?.name ?? `School ${e.unitid}`,
+        branch: campus ? !campus.main : false,
+        campuses: campus?.campuses ?? 1,
+        count: e.count,
+        pct: total > 0 ? (e.count / total) * 100 : 0,
+        fte: campus?.fte ?? null,
+        rate: null,
+      }
+    })
+  }, [data, selectedOffense, sortByRate])
 
   const displayedRankings = useMemo(() => {
     return sortedRankings.slice(0, displayCount)
   }, [sortedRankings, displayCount])
 
-  // Check if rate data is available for the selected year
+  // Whether the selected year has rates (NCES enrollment)
   const hasRateData = useMemo(() => {
-    return rankings.some(r => r.rate !== null)
-  }, [rankings])
+    return Object.keys(data?.institutions ?? {}).length > 0
+  }, [data])
+
+  // What the rows are
+  const rowUnit = sortByRate ? 'institutions' : 'campuses'
 
   const hasMoreToLoad = displayCount < sortedRankings.length
   const remainingCount = sortedRankings.length - displayCount
@@ -160,18 +196,18 @@ export default function Rankings() {
 
   // Find current offense info
   const currentOffense = metadata?.offenses.find((o) => o.code === selectedOffense)
-  const currentTotal = totals[selectedOffense] || 0
+  const currentTotal = data?.totals[selectedOffense] || 0
   const countLabel = countHeader(currentOffense)
 
   // Table setup
-  const columnHelper = createColumnHelper<RankedRow>()
+  const columnHelper = createColumnHelper<Row>()
 
   const columns = useMemo(
     () => [
-      columnHelper.accessor('shownRank', {
+      columnHelper.accessor('rank', {
         header: 'Rank',
         cell: (info) => (
-          // The published rank by count, or the rank by rate among the rows shown
+          // The published rank, by count or by rate
           <span className="font-medium text-gray-500 dark:text-gray-400">
             #{info.getValue()}
           </span>
@@ -179,15 +215,23 @@ export default function Rankings() {
         size: 70,
       }),
       columnHelper.accessor('name', {
-        header: 'School',
+        header: sortByRate ? 'Institution' : 'School',
         cell: (info) => (
           <Link
             to={`/school/${info.row.original.unitid}`}
             className="group flex items-center gap-2 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 font-medium"
           >
             {info.getValue()}
-            {info.row.original.isMainCampus === false && (
+            {info.row.original.branch && (
               <span className="text-xs font-normal text-gray-500 dark:text-gray-400">(Branch)</span>
+            )}
+            {sortByRate && info.row.original.campuses > 1 && (
+              <span
+                className="text-xs font-normal text-gray-500 dark:text-gray-400"
+                title="The rate counts the incidents of all the institution's campuses"
+              >
+                ({info.row.original.campuses} campuses)
+              </span>
             )}
             <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
           </Link>
@@ -399,8 +443,9 @@ export default function Rankings() {
                 />
               </div>
             )}
-            {/* Desktop: Single row with dividers */}
-            <div className="hidden sm:flex items-center gap-4">
+            {/* Desktop: Single row with dividers (wraps on narrow screens
+                rather than running off the page) */}
+            <div className="hidden sm:flex flex-wrap items-center gap-x-4 gap-y-2">
               {/* Data Filters Group */}
               <div className="flex items-center gap-3">
                 {/* Preset */}
@@ -505,7 +550,7 @@ export default function Rankings() {
                   </div>
                   {sortByRate && (
                     <span className="text-xs text-gray-500 dark:text-gray-400">
-                      per 10k students · 1,000+ FTE only · <span className="text-amber-600 dark:text-amber-400">*small sample</span>
+                      per 10k FTE, whole institutions · {rateRulesText} · <span className="text-amber-600 dark:text-amber-400">*small sample</span>
                     </span>
                   )}
                 </div>
@@ -623,7 +668,7 @@ export default function Rankings() {
               {/* Mobile asterisk legend */}
               {sortByRate && hasRateData && (
                 <div className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                  per 10k students · 1,000+ FTE only · <span className="text-amber-600 dark:text-amber-400">*small sample</span>
+                  per 10k FTE, whole institutions · {rateRulesText} · <span className="text-amber-600 dark:text-amber-400">*small sample</span>
                 </div>
               )}
             </div>
@@ -635,7 +680,7 @@ export default function Rankings() {
               <div className="flex items-center gap-6 text-sm">
                 <div>
                   <span className="text-gray-500 dark:text-gray-400">Showing: </span>
-                  <span className="font-medium text-gray-900 dark:text-gray-100">{sortedRankings.length.toLocaleString()} campuses</span>
+                  <span className="font-medium text-gray-900 dark:text-gray-100">{sortedRankings.length.toLocaleString()} {rowUnit}</span>
                 </div>
                 <div>
                   <span className="text-gray-500 dark:text-gray-400">{countLabel === 'Total' ? 'Total' : `Total ${countLabel.toLowerCase()}`}: </span>
@@ -643,7 +688,7 @@ export default function Rankings() {
                 </div>
                 {sortByRate && (
                   <div className="text-xs text-amber-600 dark:text-amber-400">
-                    Filtered to schools with 1,000+ FTE students
+                    Institutions with {rateRulesText} only
                   </div>
                 )}
               </div>
@@ -667,8 +712,14 @@ export default function Rankings() {
           <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 mb-4 flex items-center gap-2">
             <Info className="w-4 h-4 text-blue-500 flex-shrink-0" />
             <p className="text-sm text-blue-700 dark:text-blue-300">
-              Per 10k students (1,000+ FTE only). Lower numbers may reflect reporting differences.
-              {' '}<Link to="/about" className="underline hover:text-blue-800 dark:hover:text-blue-200">Learn more</Link>
+              Rates are per institution: the incidents of all its campuses per 10,000 FTE students, because NCES counts enrollment per institution, not per campus.
+              {rules && (
+                <>
+                  {' '}Institutions with fewer than {formatNumber(rules.minFte)} FTE students, or where at least {rules.onlineExclusionPct}% of students study exclusively online, are left out.
+                </>
+              )}
+              {' '}Lower numbers may reflect reporting differences.
+              {' '}<Link to="/methodology" className="underline hover:text-blue-800 dark:hover:text-blue-200">Learn more</Link>
             </p>
           </div>
         )}
@@ -685,7 +736,7 @@ export default function Rankings() {
               <AlertCircle className="w-8 h-8 text-red-500 dark:text-red-400 mx-auto mb-2" />
               <p className="text-red-700 dark:text-red-400">{error}</p>
             </div>
-          ) : rankings.length === 0 ? (
+          ) : sortedRankings.length === 0 ? (
             <div className="p-6 text-center text-gray-500 dark:text-gray-400">
               No data available for {currentOffense?.display || selectedOffense} in{' '}
               {selectedYear}
@@ -697,7 +748,7 @@ export default function Rankings() {
                 {/* Mobile header row */}
                 <div className="flex items-center justify-between px-4 py-2 bg-gray-50 dark:bg-gray-800 border-b dark:border-gray-700">
                   <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
-                    Showing {displayedRankings.length} of {sortedRankings.length.toLocaleString()} campuses
+                    Showing {displayedRankings.length} of {sortedRankings.length.toLocaleString()} {rowUnit}
                   </span>
                   <span className="flex items-center gap-1 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                     <GitCompare className="w-3.5 h-3.5" />
@@ -706,20 +757,25 @@ export default function Rankings() {
                 </div>
                 <div className="divide-y divide-gray-100 dark:divide-gray-800">
                 {displayedRankings.map((item) => (
-                  <div key={item.unitid} className="flex items-stretch">
+                  <div key={item.key} className="flex items-stretch">
                     <Link
                       to={`/school/${item.unitid}`}
-                      className="flex-1 p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
+                      className="flex-1 min-w-0 p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
                     >
                       <div className="flex items-start justify-between gap-3 mb-2">
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-3 min-w-0">
                           <span className="flex-shrink-0 w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300 text-sm font-bold flex items-center justify-center">
-                            {item.shownRank}
+                            {item.rank}
                           </span>
                           <span className="font-medium text-gray-900 dark:text-gray-100">
                             {item.name}
-                            {item.isMainCampus === false && (
+                            {item.branch && (
                               <span className="ml-1.5 text-xs font-normal text-gray-500 dark:text-gray-400">(Branch)</span>
+                            )}
+                            {sortByRate && item.campuses > 1 && (
+                              <span className="ml-1.5 text-xs font-normal text-gray-500 dark:text-gray-400">
+                                ({item.campuses} campuses)
+                              </span>
                             )}
                           </span>
                         </div>
@@ -727,7 +783,7 @@ export default function Rankings() {
                       </div>
                       <div className="ml-11">
                         {sortByRate ? (
-                          <div className="flex items-center gap-3 text-sm">
+                          <div className="flex items-center flex-wrap gap-x-3 gap-y-1 text-sm">
                             <span className="font-semibold text-primary-600 dark:text-primary-400 tabular-nums">
                               {item.rate !== null ? (
                                 <>
@@ -811,7 +867,7 @@ export default function Rankings() {
                 {/* Desktop header row */}
                 <div className="flex items-center justify-between px-4 py-2 bg-gray-50 dark:bg-gray-800 border-b dark:border-gray-700">
                   <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
-                    Showing {displayedRankings.length} of {sortedRankings.length.toLocaleString()} campuses
+                    Showing {displayedRankings.length} of {sortedRankings.length.toLocaleString()} {rowUnit}
                   </span>
                 </div>
                 <div className="overflow-x-auto">
@@ -887,7 +943,7 @@ export default function Rankings() {
               {/* Showing count footer */}
               {!hasMoreToLoad && sortedRankings.length > 25 && (
                 <div className="p-4 border-t border-gray-100 dark:border-gray-800 text-center text-sm text-gray-500 dark:text-gray-400">
-                  Showing all {sortedRankings.length.toLocaleString()} campuses
+                  Showing all {sortedRankings.length.toLocaleString()} {rowUnit}
                 </div>
               )}
             </>

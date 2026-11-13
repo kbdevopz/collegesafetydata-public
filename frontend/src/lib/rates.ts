@@ -1,15 +1,19 @@
 /**
- * Per-10,000-FTE rates for one school-year, computed exactly the way the
- * pipeline computes the rates it publishes in rankings/*.json
- * (etl/04_create_aggregates.py and etl/05_generate_json.py):
+ * Per-10,000-FTE rates, computed exactly the way the pipeline computes the
+ * rates it publishes in rankings/*.json (etl/05_generate_json.py):
  *
  *   rate = round(count / fte * 10000, 2)   using that year's FTE
  *
  * and no rate at all when that year has no FTE. Another year's FTE is never
  * used. Display rounding (toFixed) is left to the pages.
+ *
+ * Rates are institution rates: NCES publishes FTE per institution (all
+ * campuses with the same first six UNITID digits), not per campus, so the
+ * count is that of all the institution's campuses (institutionRate).
  */
 
-import type { SchoolProfile } from './types'
+import type { InstitutionYear, RateRules, SchoolProfile } from './types'
+import { selectionCode } from './selection'
 
 type FteSource = Pick<SchoolProfile, 'fteByYear'> | null | undefined
 
@@ -66,4 +70,58 @@ export function latestFte(profile: FteSource): { year: number; fte: number } | n
   if (newest === null) return null
   const fte = fteFor(profile, newest)
   return fte === null ? null : { year: newest, fte }
+}
+
+/** A school's institution in one year, as its rate counts it. */
+export interface InstitutionRate extends Omit<InstitutionYear, 'counts'> {
+  count: number // incidents of all its campuses
+  fte: number | null
+  rate: number | null // per 10,000 FTE; null without an FTE
+}
+
+/**
+ * The rate of the school's institution for `selection` (a summary code or
+ * an offense name) in `year`: the count of all the institution's campuses
+ * (institution.byYear counts, or `ownCount`, the school's own count, when
+ * the file leaves them out because they are the same) per 10,000 of its
+ * FTE. Null when the institution is not listed that year.
+ */
+export function institutionRate(
+  profile: Pick<SchoolProfile, 'fteByYear' | 'institution'> | null | undefined,
+  year: number | null | undefined,
+  selection: string,
+  ownCount: number
+): InstitutionRate | null {
+  if (!profile || year === null || year === undefined) return null
+  const entry = profile.institution?.byYear[String(year)]
+  if (!entry) return null
+  const count = entry.counts ? entry.counts[selectionCode(selection)] ?? 0 : ownCount
+  return {
+    campuses: entry.campuses,
+    online: entry.online,
+    rateRanked: entry.rateRanked,
+    count,
+    fte: fteFor(profile, year),
+    rate: rateFor(profile, year, count),
+  }
+}
+
+/**
+ * Why an institution is left out of rate rankings, as a plain sentence, or
+ * null when it is listed (or `rules` are not loaded yet).
+ */
+export function rateNote(inst: InstitutionRate | null, rules: RateRules | null | undefined): string | null {
+  if (!inst || inst.rateRanked || !rules) return null
+  if (inst.online !== null && inst.online >= rules.onlineExclusionPct) {
+    return `${inst.online}% of its students study exclusively online, so its rate is not comparable and it is left out of rate rankings.`
+  }
+  if (inst.fte !== null && inst.fte < rules.minFte) {
+    return `Its enrollment is under ${rules.minFte.toLocaleString()} FTE students, so it is left out of rate rankings.`
+  }
+  return null
+}
+
+/** "all 3 campuses combined" for an institution of more than one campus, else null. */
+export function campusesPhrase(campuses: number): string | null {
+  return campuses > 1 ? `all ${campuses} campuses combined` : null
 }

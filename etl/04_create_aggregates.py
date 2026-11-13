@@ -6,8 +6,10 @@ This script creates aggregate tables that power the dashboard:
   school's full DOE figures, as its profile shows them)
 - shared_blocks: statistics that DOE reports identically for two or more
   campuses (see find_shared_blocks), and the one campus they are counted under
-- agg_ivy_rankings, agg_state_rankings, agg_national_rankings: rankings by
-  year/offense/geography, in which shared statistics are counted once
+- agg_ivy_rankings, agg_state_rankings, agg_national_rankings: campus rankings
+  by count, by year/offense/geography, in which shared statistics are counted once
+- agg_institution_year, agg_institution_year_offense: the institutions rates
+  are calculated for (all campuses of a base UNITID, per its FTE)
 
 Usage:
     python 04_create_aggregates.py
@@ -544,14 +546,12 @@ def create_ivy_rankings(school_agg: pd.DataFrame = None) -> pd.DataFrame:
         offense: string
         geo: string
         rank: int8                   # 1-8 for Ivy League
-        rank_by_rate: int8           # Rank by rate per 10k (may be null)
         unitid: int32
         institution_name: string
         short_name: string
         count: int32
         pct_of_ivy_total: float      # Percent of total Ivy incidents
         fte: int32                   # FTE enrollment (may be null)
-        rate_per_10k: float          # Rate per 10,000 FTE students (may be null)
     """
     print("\nCreating Ivy League rankings...")
 
@@ -578,11 +578,9 @@ def create_ivy_rankings(school_agg: pd.DataFrame = None) -> pd.DataFrame:
     groups = ivy_data.groupby(["year", "offense", "geo"])
 
     for (year, offense, geo), group in groups:
-        # By count, largest first, and by rate (schools with FTE data only);
-        # ties by name, then UNITID, ranked 1, 2, 2, 4 (ranked)
+        # By count, largest first; ties by name, then UNITID, ranked 1, 2, 2, 4
+        # (ranked). Rates are per institution (create_institution_tables).
         sorted_group, ranks = ranked(group, "count")
-        by_rate, rate_rank_list = ranked(group, "rate_per_10k")
-        rate_ranks = dict(zip(by_rate["unitid"].tolist(), rate_rank_list))
 
         # Calculate total for percentage
         total_count = sorted_group["count"].sum()
@@ -596,14 +594,12 @@ def create_ivy_rankings(school_agg: pd.DataFrame = None) -> pd.DataFrame:
                 "offense_family": row["offense_family"],
                 "geo": geo,
                 "rank": rank,
-                "rank_by_rate": rate_ranks.get(row["unitid"]),
                 "unitid": row["unitid"],
                 "institution_name": row["institution_name"],
                 "short_name": row["short_name"],
                 "count": row["count"],
                 "pct_of_ivy_total": round(pct, 2),
                 "fte": row.get("fte") if pd.notna(row.get("fte")) else None,
-                "rate_per_10k": row.get("rate_per_10k") if pd.notna(row.get("rate_per_10k")) else None,
             })
 
     rankings_df = pd.DataFrame(rankings)
@@ -611,7 +607,6 @@ def create_ivy_rankings(school_agg: pd.DataFrame = None) -> pd.DataFrame:
     # Ensure proper types
     rankings_df["year"] = rankings_df["year"].astype("int16")
     rankings_df["rank"] = rankings_df["rank"].astype("int8")
-    rankings_df["rank_by_rate"] = rankings_df["rank_by_rate"].astype("Int8")  # Nullable
     rankings_df["unitid"] = rankings_df["unitid"].astype("int32")
     rankings_df["count"] = rankings_df["count"].astype("int32")
     rankings_df["fte"] = rankings_df["fte"].astype("Int32")  # Nullable
@@ -662,14 +657,12 @@ def create_state_rankings(school_agg: pd.DataFrame = None) -> pd.DataFrame:
         offense: string
         geo: string
         rank: int16                  # Rank within state
-        rank_by_rate: int16          # Rank by rate per 10k (may be null)
         unitid: int32
         institution_name: string
         short_name: string           # May be null for non-Ivy
         count: int32
         pct_of_state_total: float    # Percent of state's total incidents
         fte: int32                   # FTE enrollment (may be null)
-        rate_per_10k: float          # Rate per 10,000 FTE students (may be null)
     """
     print("\nCreating state-based rankings...")
 
@@ -713,11 +706,9 @@ def create_state_rankings(school_agg: pd.DataFrame = None) -> pd.DataFrame:
         if i % 10000 == 0 and i > 0:
             print(f"  Processed {i:,}/{total_groups:,} groups...")
 
-        # By count, largest first, and by rate (schools with FTE data only);
-        # ties by name, then UNITID, ranked 1, 2, 2, 4 (ranked)
+        # By count, largest first; ties by name, then UNITID, ranked 1, 2, 2, 4
+        # (ranked). Rates are per institution (create_institution_tables).
         sorted_group, ranks = ranked(group, "count")
-        by_rate, rate_rank_list = ranked(group, "rate_per_10k")
-        rate_ranks = dict(zip(by_rate["unitid"].tolist(), rate_rank_list))
 
         # Calculate total for percentage
         total_count = sorted_group["count"].sum()
@@ -732,14 +723,12 @@ def create_state_rankings(school_agg: pd.DataFrame = None) -> pd.DataFrame:
                 "offense_family": row["offense_family"],
                 "geo": geo,
                 "rank": rank,
-                "rank_by_rate": rate_ranks.get(row["unitid"]),
                 "unitid": row["unitid"],
                 "institution_name": row["institution_name"],
                 "short_name": row.get("short_name"),
                 "count": row["count"],
                 "pct_of_state_total": round(pct, 2),
                 "fte": row.get("fte") if pd.notna(row.get("fte")) else None,
-                "rate_per_10k": row.get("rate_per_10k") if pd.notna(row.get("rate_per_10k")) else None,
             })
 
     rankings_df = pd.DataFrame(rankings)
@@ -750,7 +739,6 @@ def create_state_rankings(school_agg: pd.DataFrame = None) -> pd.DataFrame:
     # Ensure proper types
     rankings_df["year"] = rankings_df["year"].astype("int16")
     rankings_df["rank"] = rankings_df["rank"].astype("int16")
-    rankings_df["rank_by_rate"] = rankings_df["rank_by_rate"].astype("Int16")  # Nullable
     rankings_df["unitid"] = rankings_df["unitid"].astype("int32")
     rankings_df["count"] = rankings_df["count"].astype("int32")
     rankings_df["fte"] = rankings_df["fte"].astype("Int32")  # Nullable
@@ -802,7 +790,6 @@ def create_national_rankings(school_agg: pd.DataFrame = None) -> pd.DataFrame:
         offense: string
         geo: string
         rank: int16                  # Rank nationally (by count)
-        rank_by_rate: int16          # Rank nationally (by rate per 10k)
         unitid: int32
         institution_name: string
         short_name: string           # May be null for non-Ivy
@@ -810,7 +797,6 @@ def create_national_rankings(school_agg: pd.DataFrame = None) -> pd.DataFrame:
         count: int32
         pct_of_national_total: float # Percent of national total incidents
         fte: int32                   # FTE enrollment (may be null)
-        rate_per_10k: float          # Rate per 10,000 FTE students (may be null)
     """
     print("\nCreating national rankings...")
 
@@ -853,11 +839,9 @@ def create_national_rankings(school_agg: pd.DataFrame = None) -> pd.DataFrame:
         if i % 1000 == 0 and i > 0:
             print(f"  Processed {i:,}/{total_groups:,} groups...")
 
-        # By count, largest first, and by rate (schools with FTE data only);
-        # ties by name, then UNITID, ranked 1, 2, 2, 4 (ranked)
+        # By count, largest first; ties by name, then UNITID, ranked 1, 2, 2, 4
+        # (ranked). Rates are per institution (create_institution_tables).
         sorted_group, ranks = ranked(group, "count")
-        by_rate, rate_rank_list = ranked(group, "rate_per_10k")
-        rate_ranks = dict(zip(by_rate["unitid"].tolist(), rate_rank_list))
 
         # Calculate total for percentage
         total_count = sorted_group["count"].sum()
@@ -871,7 +855,6 @@ def create_national_rankings(school_agg: pd.DataFrame = None) -> pd.DataFrame:
                 "offense_family": row["offense_family"],
                 "geo": geo,
                 "rank": rank,
-                "rank_by_rate": rate_ranks.get(row["unitid"]),
                 "unitid": row["unitid"],
                 "institution_name": row["institution_name"],
                 "short_name": row.get("short_name"),
@@ -879,7 +862,6 @@ def create_national_rankings(school_agg: pd.DataFrame = None) -> pd.DataFrame:
                 "count": row["count"],
                 "pct_of_national_total": round(pct, 2),
                 "fte": row.get("fte") if pd.notna(row.get("fte")) else None,
-                "rate_per_10k": row.get("rate_per_10k") if pd.notna(row.get("rate_per_10k")) else None,
             })
 
     rankings_df = pd.DataFrame(rankings)
@@ -890,7 +872,6 @@ def create_national_rankings(school_agg: pd.DataFrame = None) -> pd.DataFrame:
     # Ensure proper types
     rankings_df["year"] = rankings_df["year"].astype("int16")
     rankings_df["rank"] = rankings_df["rank"].astype("int16")
-    rankings_df["rank_by_rate"] = rankings_df["rank_by_rate"].astype("Int16")  # Nullable
     rankings_df["unitid"] = rankings_df["unitid"].astype("int32")
     rankings_df["count"] = rankings_df["count"].astype("int32")
     rankings_df["fte"] = rankings_df["fte"].astype("Int32")  # Nullable
@@ -913,8 +894,8 @@ def create_national_rankings(school_agg: pd.DataFrame = None) -> pd.DataFrame:
     print(f"\n  National rankings summary:")
     print(f"    Years: {rankings_df['year'].min()}-{rankings_df['year'].max()}")
     print(f"    Total schools: {rankings_df['unitid'].nunique()}")
-    schools_with_rate = rankings_df["fte"].notna().sum()
-    print(f"    Records with FTE/rate: {schools_with_rate:,} ({schools_with_rate/len(rankings_df)*100:.1f}%)")
+    schools_with_fte = rankings_df["fte"].notna().sum()
+    print(f"    Records with FTE: {schools_with_fte:,} ({schools_with_fte/len(rankings_df)*100:.1f}%)")
 
     # Show sample for Burglary
     latest_year = rankings_df["year"].max()
@@ -928,10 +909,140 @@ def create_national_rankings(school_agg: pd.DataFrame = None) -> pd.DataFrame:
         print(f"\n  Sample: National Burglary rankings ({latest_year}, All locations, top 5):")
         for _, row in sample.iterrows():
             name = row["short_name"] or row["institution_name"][:30]
-            rate_str = f", rate={row['rate_per_10k']:.1f}/10k" if pd.notna(row['rate_per_10k']) else ""
-            print(f"    {row['rank']}. {name} ({row['state']}): {row['count']}{rate_str}")
+            print(f"    {row['rank']}. {name} ({row['state']}): {row['count']}")
 
     return rankings_df
+
+
+INSTITUTION_YEAR_PATH = CURATED_DIR / "aggs" / "agg_institution_year.parquet"
+INSTITUTION_OFFENSE_PATH = CURATED_DIR / "aggs" / "agg_institution_year_offense.parquet"
+
+
+def load_institution_enrollment() -> pd.DataFrame:
+    """
+    FTE and the share of students enrolled exclusively online (pctdeexc) per
+    institution (base UNITID) and year, from dim_enrollment.parquet.
+    """
+    path = CURATED_DIR / "dims" / "dim_enrollment.parquet"
+    df = pd.read_parquet(path)
+    if "pctdeexc" not in df.columns:
+        raise RuntimeError(f"{path} has no pctdeexc column. Run 02b_transform_ef_enrollment.py and "
+                           "02a_transform_enrollment.py again, then this step.")
+    return df[["unitid", "year", "fte", "pctdeexc"]]
+
+
+def create_institution_tables(ranked_agg: pd.DataFrame, shared: pd.DataFrame, dim_inst: pd.DataFrame,
+                              enrollment: pd.DataFrame, sources: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """
+    The institutions that rates are calculated for (config.py, "SUMMARY
+    CODES AND RATES"): an institution is a base UNITID (the first six digits,
+    which NCES's FTE is for), and its campuses are the campuses with that
+    base UNITID.
+
+    A campus counts for its institution in a year when it reported that year
+    (campus_year_sources.parquet) and its figures are not all counted under
+    another campus (a campus-year whose every block with counts is a shadow
+    block is left out). The institution's counts are those of all such
+    campuses, in any state, without shadow blocks and residence halls (the
+    geo "All" of `ranked_agg`). An institution is listed for a year when at
+    least one of its campuses has an incident that year.
+
+    Each institution-year has a link campus, whose school page the rate
+    rankings link to and whose name and state they show: the main campus
+    (UNITID ending in 001) when it counts that year, otherwise the campus
+    with the most incidents that year (ties: the lowest UNITID). Only a
+    campus with a school file (dim_institution.parquet) can be the link.
+
+    Saves and returns:
+      agg_institution_year.parquet: year, base_unitid, institution_name,
+        link_unitid, state, campuses (that count that year), fte, pctdeexc
+      agg_institution_year_offense.parquet: year, base_unitid, offense,
+        offense_family, count (above 0 only)
+    """
+    print("\nCreating institution tables (rates are per institution)...")
+    counted = ranked_agg[ranked_agg["geo"] == "All"]
+    campus_totals = counted.groupby(["year", "unitid"], as_index=False)["count"].sum()
+
+    # Campus-years that count: reported, and not entirely shadow blocks
+    reported = sources[["unitid", "year"]].drop_duplicates()
+    stray = campus_totals.merge(reported, on=["unitid", "year"], how="left", indicator=True)
+    stray = stray[stray["_merge"] == "left_only"]
+    if len(stray):
+        first = stray.iloc[0]
+        raise RuntimeError(f"{len(stray):,} campus-years have counts but no release in {SOURCES_PATH.name} "
+                           f"(first: {int(first['unitid'])} {int(first['year'])}). "
+                           "Run 02_transform_to_parquet.py and 03 again, then this step.")
+    shadowed = shared[shared["role"] == "shadow"][["unitid", "year"]].drop_duplicates()
+    with_counts = set(zip(campus_totals["unitid"].tolist(), campus_totals["year"].tolist()))
+    left_out = {(int(u), int(y)) for u, y in zip(shadowed["unitid"].tolist(), shadowed["year"].tolist())
+                if (int(u), int(y)) not in with_counts}
+    campus_years = reported[[(int(u), int(y)) not in left_out
+                             for u, y in zip(reported["unitid"].tolist(), reported["year"].tolist())]].copy()
+    campus_years = campus_years.merge(campus_totals, on=["unitid", "year"], how="left")
+    campus_years["count"] = campus_years["count"].fillna(0).astype("int64")
+    campus_years["base_unitid"] = (campus_years["unitid"] // 1000).astype("int64")
+    print(f"  Campus-years that count for their institution: {len(campus_years):,} "
+          f"(left out, all figures counted under another campus: {len(left_out):,})")
+
+    # Institution-years with an incident, their campuses and link campus
+    has_file = set(dim_inst["unitid"].astype("int64").tolist())
+    name_of = dim_inst.set_index("unitid")["institution_name"].to_dict()
+    state_of = dim_inst.set_index("unitid")["state"].to_dict()
+    rows = []
+    for (year, base_id), group in campus_years.groupby(["year", "base_unitid"]):
+        if int(group["count"].sum()) == 0:
+            continue
+        candidates = group[group["unitid"].isin(has_file)]
+        if candidates.empty:
+            raise RuntimeError(f"Institution {base_id} has incidents in {year} but none of its campuses has a "
+                               "school file (dim_institution.parquet). Run 03_build_dimensions.py again.")
+        main_campus = int(base_id) * 1000 + 1
+        if main_campus in set(candidates["unitid"].tolist()):
+            link = main_campus
+        else:
+            link = int(candidates.sort_values(["count", "unitid"], ascending=[False, True]).iloc[0]["unitid"])
+        rows.append({"year": int(year), "base_unitid": int(base_id), "institution_name": name_of[link],
+                     "link_unitid": link, "state": opt_value(state_of.get(link)), "campuses": len(group)})
+    inst_year = pd.DataFrame(rows, columns=["year", "base_unitid", "institution_name", "link_unitid", "state",
+                                            "campuses"])
+
+    # FTE and online share of each institution-year (none when NCES has no figure)
+    enroll = enrollment.rename(columns={"unitid": "base_unitid"})
+    inst_year = inst_year.merge(enroll, on=["base_unitid", "year"], how="left")
+    inst_year = inst_year.astype({"year": "int16", "base_unitid": "int32", "link_unitid": "int32",
+                                  "campuses": "int16", "fte": "Int32", "pctdeexc": "Int16"})
+    inst_year = inst_year.sort_values(["year", "base_unitid"]).reset_index(drop=True)
+
+    # The counts of every campus of the institution
+    inst_offense = counted.assign(base_unitid=counted["unitid"] // 1000).groupby(
+        ["year", "base_unitid", "offense", "offense_family"], as_index=False)["count"].sum()
+    inst_offense = inst_offense[inst_offense["count"] > 0]
+    listed = set(zip(inst_year["year"].astype(int).tolist(), inst_year["base_unitid"].astype(int).tolist()))
+    unlisted = [k for k in zip(inst_offense["year"].astype(int).tolist(), inst_offense["base_unitid"].astype(int).tolist())
+                if k not in listed]
+    if unlisted:
+        raise RuntimeError(f"{len(unlisted):,} institution counts belong to no listed institution-year "
+                           f"(first: {unlisted[0]}). This is a bug in create_institution_tables.")
+    inst_offense = inst_offense.astype({"year": "int16", "base_unitid": "int32", "count": "int32"})
+    inst_offense = inst_offense.sort_values(["year", "base_unitid", "offense"]).reset_index(drop=True)
+
+    inst_year.to_parquet(INSTITUTION_YEAR_PATH, index=False)
+    inst_offense.to_parquet(INSTITUTION_OFFENSE_PATH, index=False)
+
+    multi = inst_year[inst_year["campuses"] > 1]
+    states_per_inst = campus_years.assign(state=campus_years["unitid"].map(state_of)).groupby(
+        ["year", "base_unitid"])["state"].nunique()
+    print(f"  Institution-years: {len(inst_year):,}; with more than one campus: {len(multi):,}; "
+          f"with campuses in more than one state: {int((states_per_inst > 1).sum()):,}")
+    no_fte = int(inst_year["fte"].isna().sum())
+    print(f"  Without an FTE (no rate): {no_fte:,}")
+    print(f"  Saved to: {INSTITUTION_YEAR_PATH} and {INSTITUTION_OFFENSE_PATH.name}")
+    return inst_year, inst_offense
+
+
+def opt_value(value):
+    """None for a missing value (None, NaN, NA), otherwise the value."""
+    return None if value is None or pd.isna(value) else value
 
 
 def main():
@@ -992,8 +1103,13 @@ def main():
         state_rankings = create_state_rankings(ranked_agg)
         national_rankings = create_national_rankings(ranked_agg)
 
+    # Rates are per institution: all its campuses' counts per its FTE
+    inst_year, _inst_offense = create_institution_tables(
+        ranked_agg, shared, dim_inst, load_institution_enrollment(), load_campus_year_sources())
+
     aggs = CURATED_DIR / "aggs"
-    written = [aggs / "agg_school_year_offense.parquet", SHARED_PATH, aggs / "agg_ivy_rankings.parquet"]
+    written = [aggs / "agg_school_year_offense.parquet", SHARED_PATH, aggs / "agg_ivy_rankings.parquet",
+               INSTITUTION_YEAR_PATH, INSTITUTION_OFFENSE_PATH]
     if not ivy_only:
         written += [aggs / "agg_state_rankings.parquet", aggs / "agg_national_rankings.parquet"]
     provenance.write_aggs_manifest(all_schools=not ivy_only, snapshot=inputs_before, outputs=written)
@@ -1002,6 +1118,7 @@ def main():
     print("Summary")
     print("=" * 60)
     print(f"School-year-offense records: {len(school_agg):,}")
+    print(f"Institution-years (rates): {len(inst_year):,}")
     if ivy_rankings is not None:
         print(f"Ivy rankings records: {len(ivy_rankings):,}")
     if state_rankings is not None:

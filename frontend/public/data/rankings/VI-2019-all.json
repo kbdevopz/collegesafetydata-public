@@ -1,106 +1,68 @@
 {
   "preset": "VI",
   "year": 2019,
+  "campuses": {
+    "243665001": {
+      "name": "University of the Virgin Islands",
+      "short": null,
+      "state": "VI",
+      "main": true,
+      "fte": 1612,
+      "campuses": 2
+    },
+    "243665002": {
+      "name": "University of the Virgin Islands",
+      "short": null,
+      "state": "VI",
+      "main": false,
+      "fte": 1612,
+      "campuses": 2
+    }
+  },
   "rankings": {
     "criminal": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 243665001,
-        "name": "University of the Virgin Islands",
-        "short": null,
-        "state": "VI",
-        "count": 5,
-        "pct": 83.33,
-        "fte": 1612,
-        "rate": 31.02,
-        "isMainCampus": true
+        "count": 5
       },
       {
         "rank": 2,
-        "rankByRate": 2,
         "unitid": 243665002,
-        "name": "University of the Virgin Islands",
-        "short": null,
-        "state": "VI",
-        "count": 1,
-        "pct": 16.67,
-        "fte": 1612,
-        "rate": 6.2,
-        "isMainCampus": false
+        "count": 1
       }
     ],
     "all": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 243665001,
-        "name": "University of the Virgin Islands",
-        "short": null,
-        "state": "VI",
-        "count": 8,
-        "pct": 88.89,
-        "fte": 1612,
-        "rate": 49.63,
-        "isMainCampus": true
+        "count": 8
       },
       {
         "rank": 2,
-        "rankByRate": 2,
         "unitid": 243665002,
-        "name": "University of the Virgin Islands",
-        "short": null,
-        "state": "VI",
-        "count": 1,
-        "pct": 11.11,
-        "fte": 1612,
-        "rate": 6.2,
-        "isMainCampus": false
+        "count": 1
       }
     ],
     "aggravated_assault": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 243665001,
-        "name": "University of the Virgin Islands",
-        "short": null,
-        "state": "VI",
-        "count": 5,
-        "pct": 100.0,
-        "fte": 1612,
-        "rate": 31.02,
-        "isMainCampus": true
+        "count": 5
       }
     ],
     "burglary": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 243665002,
-        "name": "University of the Virgin Islands",
-        "short": null,
-        "state": "VI",
-        "count": 1,
-        "pct": 100.0,
-        "fte": 1612,
-        "rate": 6.2,
-        "isMainCampus": false
+        "count": 1
       }
     ],
     "drug_discipline": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 243665001,
-        "name": "University of the Virgin Islands",
-        "short": null,
-        "state": "VI",
-        "count": 3,
-        "pct": 100.0,
-        "fte": 1612,
-        "rate": 18.61,
-        "isMainCampus": true
+        "count": 3
       }
     ]
   },
@@ -110,5 +72,73 @@
     "aggravated_assault": 5,
     "burglary": 1,
     "drug_discipline": 3
+  },
+  "institutions": {
+    "243665": {
+      "name": "University of the Virgin Islands",
+      "unitid": 243665001,
+      "state": "VI",
+      "fte": 1612,
+      "campuses": 2
+    }
+  },
+  "rateRankings": {
+    "criminal": [
+      {
+        "rank": 1,
+        "id": 243665,
+        "count": 6,
+        "rate": 37.22
+      }
+    ],
+    "all": [
+      {
+        "rank": 1,
+        "id": 243665,
+        "count": 9,
+        "rate": 55.83
+      }
+    ],
+    "aggravated_assault": [
+      {
+        "rank": 1,
+        "id": 243665,
+        "count": 5,
+        "rate": 31.02
+      }
+    ],
+    "arson": [],
+    "burglary": [
+      {
+        "rank": 1,
+        "id": 243665,
+        "count": 1,
+        "rate": 6.2
+      }
+    ],
+    "dating_violence": [],
+    "domestic_violence": [],
+    "drug_arrest": [],
+    "drug_discipline": [
+      {
+        "rank": 1,
+        "id": 243665,
+        "count": 3,
+        "rate": 18.61
+      }
+    ],
+    "fondling": [],
+    "incest": [],
+    "liquor_arrest": [],
+    "liquor_discipline": [],
+    "motor_vehicle_theft": [],
+    "murder": [],
+    "negligent_manslaughter": [],
+    "rape": [],
+    "robbery": [],
+    "stalking": [],
+    "statutory_rape": [],
+    "weapons_arrest": [],
+    "weapons_discipline": []
   }
 }

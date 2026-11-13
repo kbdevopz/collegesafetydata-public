@@ -26,10 +26,10 @@ import {
   AlertTriangle,
   Info,
 } from 'lucide-react'
-import { fetchSchoolProfile, fetchSchoolIndex, fetchPresets } from '../lib/api'
-import type { SchoolProfile, School, PresetDetail, SchoolIndex } from '../lib/types'
+import { fetchSchoolProfile, fetchSchoolIndex, fetchPresets, getMetadata } from '../lib/api'
+import type { SchoolProfile, School, PresetDetail, SchoolIndex, RateRules } from '../lib/types'
 import { cn, formatNumber, calculateYoYChange, isSmallSample } from '../lib/utils'
-import { fteFor, rateFor, latestFte } from '../lib/rates'
+import { fteFor, latestFte, institutionRate, rateNote, campusesPhrase } from '../lib/rates'
 import { ALL, CRIMINAL, SUMMARY_LABELS, inSelection, isSummary, selectionLabel } from '../lib/selection'
 import { useTheme } from '../hooks/useTheme'
 
@@ -67,6 +67,14 @@ export default function Compare() {
   const [selectedYear, setSelectedYear] = useState<string>('all')
   const [selectedOffense, setSelectedOffense] = useState<string>(CRIMINAL)
   const [showRate, setShowRate] = useState(false)
+  // Who rate rankings list (metadata.json), for the note on a left-out rate
+  const [rateRules, setRateRules] = useState<RateRules | null>(null)
+
+  useEffect(() => {
+    getMetadata()
+      .then((m) => setRateRules(m.rateRules))
+      .catch(() => setRateRules(null))
+  }, [])
 
   // Load school list on mount - try school index first, fallback to Ivy preset
   useEffect(() => {
@@ -295,10 +303,14 @@ export default function Compare() {
       }
 
       // Rate per 10k FTE - only for a single year, with that year's FTE
-      // (no rate when that year has no FTE)
+      // (no rate when that year has no FTE). It is the institution's rate:
+      // the incidents of all its campuses per its FTE, as NCES publishes FTE
+      // per institution.
       const year = selectedYear !== 'all' ? parseInt(selectedYear) : null
       const fte = year !== null ? fteFor(profile, year) : null
-      const rate = year !== null ? rateFor(profile, year, totalIncidents) : null
+      const inst = year !== null && totalIncidents !== null
+        ? institutionRate(profile, year, selectedOffense, totalIncidents)
+        : null
 
       return {
         unitid: profile.unitid,
@@ -306,20 +318,27 @@ export default function Compare() {
         yoyChange,
         hasData: totalIncidents !== null,
         fte,
-        rate,
+        rate: inst?.rate ?? null,
+        rateCount: inst?.count ?? totalIncidents ?? 0,
+        campuses: campusesPhrase(inst?.campuses ?? 1),
+        note: rateNote(inst, rateRules),
       }
     })
-  }, [profiles, selectedYear, selectedOffense])
+  }, [profiles, selectedYear, selectedOffense, rateRules])
 
   // FTE label for each school, with the year it belongs to: the selected
-  // year's FTE, or with "All Years" the newest FTE
+  // year's FTE, or with "All Years" the newest FTE. The FTE is the whole
+  // institution's (NCES counts enrollment per institution).
   const fteLabels = useMemo(() => {
     const year = selectedYear !== 'all' ? parseInt(selectedYear) : null
     const labels = new Map<number, string>()
     profiles.forEach((profile) => {
       const yearFte = year !== null ? fteFor(profile, year) : null
       const label = year === null ? latestFte(profile) : (yearFte !== null ? { year, fte: yearFte } : null)
-      if (label) labels.set(profile.unitid, `${formatNumber(label.fte)} students (${label.year})`)
+      if (!label) return
+      const campuses = profile.institution?.byYear[String(label.year)]?.campuses ?? 1
+      const where = campuses > 1 ? ` at all ${campuses} campuses` : ''
+      labels.set(profile.unitid, `${formatNumber(label.fte)} students${where} (${label.year})`)
     })
     return labels
   }, [profiles, selectedYear])
@@ -692,11 +711,21 @@ export default function Compare() {
                             metrics?.rate !== null && metrics?.rate !== undefined ? (
                               <div>
                                 <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                                  {metrics.rate.toFixed(1)}{isSmallSample(metrics.fte, metrics.totalIncidents ?? 0) ? '*' : ''}
+                                  {metrics.rate.toFixed(1)}{isSmallSample(metrics.fte, metrics.rateCount) ? '*' : ''}
                                 </span>
                                 <span className="text-sm font-normal text-gray-500 dark:text-gray-400 ml-1">
                                   per 10k
                                 </span>
+                                {metrics.campuses && (
+                                  <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                    Institution rate, {metrics.campuses}
+                                  </div>
+                                )}
+                                {metrics.note && (
+                                  <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 max-w-xs mx-auto">
+                                    {metrics.note}
+                                  </div>
+                                )}
                               </div>
                             ) : (
                               <span className="text-xl text-gray-400 dark:text-gray-500">N/A</span>
@@ -800,11 +829,23 @@ export default function Compare() {
                         )}
                         {showRate ? (
                           metrics?.rate !== null && metrics?.rate !== undefined ? (
-                            <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                              {metrics.rate.toFixed(1)}{isSmallSample(metrics.fte, metrics.totalIncidents ?? 0) ? '*' : ''}
-                              <span className="text-xs font-normal text-gray-500 dark:text-gray-400 ml-1">
-                                per 10k
-                              </span>
+                            <div>
+                              <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                                {metrics.rate.toFixed(1)}{isSmallSample(metrics.fte, metrics.rateCount) ? '*' : ''}
+                                <span className="text-xs font-normal text-gray-500 dark:text-gray-400 ml-1">
+                                  per 10k
+                                </span>
+                              </div>
+                              {metrics.campuses && (
+                                <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                  Institution rate, {metrics.campuses}
+                                </div>
+                              )}
+                              {metrics.note && (
+                                <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                  {metrics.note}
+                                </div>
+                              )}
                             </div>
                           ) : (
                             <div className="text-xl text-gray-400 dark:text-gray-500">N/A</div>

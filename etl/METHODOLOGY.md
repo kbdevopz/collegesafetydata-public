@@ -137,9 +137,47 @@ Crime rates are expressed as incidents per 10,000 FTE students:
 Rate = (Incident Count / FTE) × 10,000
 ```
 
-### Rate Display Thresholds
-- Rates are only displayed for institutions with FTE ≥ 1,000 to avoid misleading statistics from small sample sizes
-- Institutions with FTE < 1,000 or fewer than 10 incidents are marked with an asterisk (*) to indicate statistical caution
+### Rates are per institution
+NCES publishes FTE for each institution, not for each campus: every campus
+of an institution (all campuses whose UNITID starts with the same six
+digits, the base UNITID) carries the institution's FTE. A rate therefore
+divides the incidents of all the institution's campuses that year by the
+institution's FTE (`04_create_aggregates.py`, `create_institution_tables`):
+
+- A campus counts for its institution in a year when it reported that year
+  (`campus_year_sources`) and its figures are not all shadow blocks.
+- The incidents are counted as in rankings: the sum of on-campus, non-campus
+  and public property (residence halls are part of on-campus), shadow blocks
+  left out, campuses in any state.
+- Rate rankings list institutions, one row each, under the institution's
+  name. The row links to the main campus (UNITID ending in 001) when that
+  campus counts that year, otherwise to the institution's campus with the
+  most incidents that year (ties: the lowest UNITID), and is listed in that
+  campus's state. Rankings by count still list each campus.
+- School pages and Compare show the institution's rate and, for an
+  institution of more than one campus, label it "all N campuses combined".
+
+### Who rate rankings leave out
+Rate rankings list an institution only when that year (both in `config.py`,
+`MIN_FTE_FOR_RATE` and `ONLINE_EXCLUSION_PCT`):
+- it has at least 1,000 FTE students, so a few incidents do not swing its
+  rate; and
+- fewer than 50% of its students are enrolled exclusively in distance
+  education (NCES's PCTDEEXC, in the same DRVEF/EF tables as the FTE). Clery
+  figures cover the campus, which most students of a mostly online
+  institution never attend, so its rate is not comparable. An institution
+  without that figure is not left out (none of the institutions with crime
+  data and an FTE lacks it in 2015-2024).
+
+In fall 2020 and 2021, when many institutions taught mostly online, many
+more are left out: of the institutions with crime data and 1,000+ FTE, 560
+of 1,942 in 2020 (484 of them under 50% in 2019) and 247 of 1,967 in 2021,
+against 77 of 2,125 in 2019 and 127 of 1,990 in 2024. The 2020 and 2021
+rate rankings therefore cover fewer institutions.
+
+School pages still show these institutions' rates, with a note saying why
+they are not ranked. Rates with fewer than 10 incidents, or under 1,000 FTE,
+are marked with an asterisk (*) to indicate statistical caution.
 
 ## Geographic Classifications
 
@@ -190,7 +228,7 @@ campuses report identically count once, under the host campus.
 
 ## Rankings
 
-Each ranking lists schools by their count, largest first. Schools with the same count share a rank (standard competition ranking: 1, 2, 2, 4, so the rank after a tie skips the places the tie takes) and are listed by name, then by UNITID. Rate rankings rank the rates the same way.
+Each ranking lists schools by their count, largest first. Schools with the same count share a rank (standard competition ranking: 1, 2, 2, 4, so the rank after a tie skips the places the tie takes) and are listed by name, then by UNITID. Rate rankings rank institutions' rates the same way, ties by institution name, then base UNITID.
 
 ## Data Limitations
 
@@ -219,6 +257,7 @@ Our data pipeline includes validation steps to ensure accuracy:
 4. Spot checks against known institutions (Ivy League, major state universities)
 5. An audit (`07_comprehensive_audit.py`, check 8) that finds the shared blocks again from the fact table and the older releases' figures, and verifies that every ranking entry counts the school's figures without its shadow blocks
 6. The same audit (check 5) verifies that every ranking is listed in ranking order and that every rank is 1 + the number of schools with a larger count (or rate)
+7. The same audit (check 10) recomputes every institution's campuses, counts, link campus, FTE and online share from the fact table and NCES's enrollment, without the pipeline's code, and verifies that every rate ranking lists exactly the institutions the rules above allow, with rate = count / FTE × 10,000
 
 ## Source Code
 
