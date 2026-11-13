@@ -29,6 +29,7 @@ import {
   isSmallSample,
 } from '../lib/utils'
 import { fteFor, rateFor, latestFte } from '../lib/rates'
+import { ALL, CRIMINAL, SUMMARY_LABELS, inSelection, isSummary, selectionLabel } from '../lib/selection'
 import { useTheme } from '../hooks/useTheme'
 
 // "on-campus", "on-campus and public property", "a, b and c"
@@ -44,7 +45,8 @@ export default function SchoolProfile() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [selectedYear, setSelectedYear] = useState<number | null>(null)
-  const [selectedOffense, setSelectedOffense] = useState<string>('all')
+  // 'criminal' (default), 'all' (every category) or one offense name
+  const [selectedOffense, setSelectedOffense] = useState<string>(CRIMINAL)
   const [showRate, setShowRate] = useState(false)
 
   useEffect(() => {
@@ -77,9 +79,9 @@ export default function SchoolProfile() {
     return Array.from(offenses).sort()
   }, [profile])
 
-  // Get years that have data for the selected offense
+  // Get years that have data for the selected offense (every year for a summary)
   const yearsWithDataForOffense = useMemo(() => {
-    if (!profile || selectedOffense === 'all') {
+    if (!profile || isSummary(selectedOffense)) {
       return new Set(availableYears)
     }
     const years = new Set<number>()
@@ -91,9 +93,18 @@ export default function SchoolProfile() {
 
   // Check if current selection has data
   const hasDataForSelection = useMemo(() => {
-    if (selectedOffense === 'all') return true
+    if (isSummary(selectedOffense)) return true
     return yearsWithDataForOffense.has(selectedYear || 0)
   }, [selectedOffense, yearsWithDataForOffense, selectedYear])
+
+  // The selection's count in one year: the sum of its trend rows (0 when it has none)
+  const countIn = useMemo(() => {
+    const byYear = new Map<number, number>()
+    profile?.trends
+      .filter(t => inSelection(t, selectedOffense))
+      .forEach(t => byYear.set(t.year, (byYear.get(t.year) ?? 0) + t.count))
+    return (year: number) => byYear.get(year) ?? 0
+  }, [profile, selectedOffense])
 
   // Compute offense breakdown for selected year from trends
   const selectedYearOffenseBreakdown = useMemo((): OffenseBreakdown[] => {
@@ -107,20 +118,11 @@ export default function SchoolProfile() {
     return breakdown
   }, [profile, selectedYear])
 
-  // Get total incidents for selected year (and optionally filtered by offense)
+  // Count of the selection (a summary or one offense) in the selected year
   const selectedYearTotal = useMemo(() => {
     if (!profile || !selectedYear) return 0
-
-    if (selectedOffense === 'all') {
-      const yearData = profile.yearlyTotals.find(yt => yt.year === selectedYear)
-      return yearData?.total || 0
-    } else {
-      const offenseData = profile.trends.find(
-        t => t.year === selectedYear && t.offense === selectedOffense
-      )
-      return offenseData?.count || 0
-    }
-  }, [profile, selectedYear, selectedOffense])
+    return countIn(selectedYear)
+  }, [profile, selectedYear, countIn])
 
   // FTE for the selected year only (null when that year has no FTE)
   const selectedYearFte = useMemo(() => fteFor(profile, selectedYear), [profile, selectedYear])
@@ -162,11 +164,11 @@ export default function SchoolProfile() {
   const selectedYearYoYChange = useMemo(() => {
     if (!profile || !selectedYear) return null
 
-    if (selectedOffense === 'all') {
-      const currentYearData = profile.yearlyTotals.find(yt => yt.year === selectedYear)
-      const prevYearData = profile.yearlyTotals.find(yt => yt.year === selectedYear - 1)
-      if (!currentYearData || !prevYearData) return null
-      return calculateYoYChange(currentYearData.total, prevYearData.total)
+    if (isSummary(selectedOffense)) {
+      // Both years must be in the profile
+      const years = new Set(profile.yearlyTotals.map(yt => yt.year))
+      if (!years.has(selectedYear) || !years.has(selectedYear - 1)) return null
+      return calculateYoYChange(countIn(selectedYear), countIn(selectedYear - 1))
     } else {
       const currentData = profile.trends.find(
         t => t.year === selectedYear && t.offense === selectedOffense
@@ -177,27 +179,33 @@ export default function SchoolProfile() {
       if (!currentData || !prevData) return null
       return calculateYoYChange(currentData.count, prevData.count)
     }
-  }, [profile, selectedYear, selectedOffense])
+  }, [profile, selectedYear, selectedOffense, countIn])
 
-  // Prepare chart data
-  const topOffenses = useMemo(() => {
-    if (!profile) return []
-    return getTopOffenses(profile.trends, 5)
-  }, [profile])
+  // Prepare chart data: the top offenses of the selected summary
+  const selectionTrends = useMemo(
+    () => (profile ? profile.trends.filter(t => inSelection(t, selectedOffense)) : []),
+    [profile, selectedOffense]
+  )
+
+  const topOffenses = useMemo(() => getTopOffenses(selectionTrends, 5), [selectionTrends])
 
   const trendChartData = useMemo(() => {
-    if (!profile || topOffenses.length === 0) return []
-    return transformTrendsForChart(profile.trends, topOffenses)
-  }, [profile, topOffenses])
+    if (topOffenses.length === 0) return []
+    return transformTrendsForChart(selectionTrends, topOffenses)
+  }, [selectionTrends, topOffenses])
 
+  // The selected summary's count in each year of the profile
   const yearlyChartData = useMemo(() => {
     if (!profile) return []
-    return profile.yearlyTotals.sort((a, b) => a.year - b.year)
-  }, [profile])
+    return profile.yearlyTotals
+      .map(yt => yt.year)
+      .sort((a, b) => a - b)
+      .map(year => ({ year, count: countIn(year) }))
+  }, [profile, countIn])
 
   // Single offense trend data for when filtering by specific offense
   const singleOffenseTrendData = useMemo(() => {
-    if (!profile || selectedOffense === 'all') return []
+    if (!profile || isSummary(selectedOffense)) return []
     return profile.trends
       .filter(t => t.offense === selectedOffense)
       .sort((a, b) => a.year - b.year)
@@ -318,7 +326,7 @@ export default function SchoolProfile() {
                 onChange={(e) => setSelectedYear(parseInt(e.target.value))}
                 className={cn(
                   "text-sm font-medium bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1.5 cursor-pointer focus:ring-2 focus:ring-primary-500 focus:border-primary-500",
-                  selectedOffense === 'all' ? 'w-24' : 'w-36'
+                  isSummary(selectedOffense) ? 'w-24' : 'w-36'
                 )}
               >
                 {availableYears.map((year) => {
@@ -327,9 +335,9 @@ export default function SchoolProfile() {
                     <option
                       key={year}
                       value={year}
-                      style={!hasData && selectedOffense !== 'all' ? { color: '#9ca3af' } : undefined}
+                      style={!hasData && !isSummary(selectedOffense) ? { color: '#9ca3af' } : undefined}
                     >
-                      {year}{!hasData && selectedOffense !== 'all' ? ' (no data)' : ''}
+                      {year}{!hasData && !isSummary(selectedOffense) ? ' (no data)' : ''}
                     </option>
                   )
                 })}
@@ -346,9 +354,10 @@ export default function SchoolProfile() {
                 id="offense-select"
                 value={selectedOffense}
                 onChange={(e) => setSelectedOffense(e.target.value)}
-                className="w-44 text-sm font-medium bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1.5 cursor-pointer focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                className="w-56 max-w-full text-sm font-medium bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1.5 cursor-pointer focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               >
-                <option value="all">All Offenses</option>
+                <option value={CRIMINAL}>{SUMMARY_LABELS[CRIMINAL]}</option>
+                <option value={ALL}>{SUMMARY_LABELS[ALL]}</option>
                 {availableOffenses.map((offense) => (
                   <option key={offense} value={offense}>
                     {offense}
@@ -358,10 +367,10 @@ export default function SchoolProfile() {
             </div>
 
             {/* Filter indicator */}
-            {selectedOffense !== 'all' && (
+            {!isSummary(selectedOffense) && (
               <button
                 type="button"
-                onClick={() => setSelectedOffense('all')}
+                onClick={() => setSelectedOffense(CRIMINAL)}
                 className="text-xs text-primary-600 dark:text-primary-400 hover:underline"
               >
                 Clear filter
@@ -411,7 +420,7 @@ export default function SchoolProfile() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 p-6 transition-all duration-300">
             <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">
-              {selectedOffense === 'all' ? 'Total Incidents' : selectedOffense} ({selectedYear})
+              {selectionLabel(selectedOffense)} ({selectedYear})
               {showRate && ' - Rate'}
             </div>
             <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">
@@ -530,7 +539,7 @@ export default function SchoolProfile() {
         )}
 
         {/* No Data Message */}
-        {!hasDataForSelection && selectedOffense !== 'all' && (
+        {!hasDataForSelection && !isSummary(selectedOffense) && (
           <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-6 mb-8">
             <div className="flex items-start gap-3">
               <AlertCircle className="w-5 h-5 text-amber-500 dark:text-amber-400 flex-shrink-0 mt-0.5" />
@@ -552,10 +561,10 @@ export default function SchoolProfile() {
           {/* Yearly Trend Chart - changes based on offense filter */}
           <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 p-6 transition-colors duration-200">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-              {selectedOffense === 'all' ? 'Total Incidents Over Time' : `${selectedOffense} Over Time`}
+              {selectionLabel(selectedOffense)} Over Time
             </h2>
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={selectedOffense === 'all' ? yearlyChartData : singleOffenseTrendData}>
+              <BarChart data={isSummary(selectedOffense) ? yearlyChartData : singleOffenseTrendData}>
                 <CartesianGrid strokeDasharray="3 3" stroke={chartGridColor} />
                 <XAxis
                   dataKey="year"
@@ -576,10 +585,11 @@ export default function SchoolProfile() {
                   itemStyle={{ color: chartTextColor }}
                 />
                 <Bar
-                  dataKey={selectedOffense === 'all' ? 'total' : 'count'}
+                  dataKey="count"
+                  name={selectionLabel(selectedOffense)}
                   radius={[4, 4, 0, 0]}
                 >
-                  {(selectedOffense === 'all' ? yearlyChartData : singleOffenseTrendData).map((entry) => (
+                  {(isSummary(selectedOffense) ? yearlyChartData : singleOffenseTrendData).map((entry) => (
                     <Cell
                       key={entry.year}
                       fill={entry.year === selectedYear ? '#f59e0b' : barFillColor}
@@ -594,8 +604,8 @@ export default function SchoolProfile() {
             </p>
           </div>
 
-          {/* Top Offenses Trend - only show when viewing all offenses */}
-          {selectedOffense === 'all' ? (
+          {/* Top Offenses Trend - only show when viewing a summary */}
+          {isSummary(selectedOffense) ? (
             <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 p-6 transition-colors duration-200">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
                 Top {Math.min(topOffenses.length, 5)} Offenses Over Time
@@ -702,7 +712,7 @@ export default function SchoolProfile() {
                     <button
                       key={item.offense}
                       type="button"
-                      onClick={() => setSelectedOffense(item.offense === selectedOffense ? 'all' : item.offense)}
+                      onClick={() => setSelectedOffense(item.offense === selectedOffense ? CRIMINAL : item.offense)}
                       className={cn(
                         'w-full flex items-center gap-4 p-2 -mx-2 rounded-lg transition-colors',
                         isSelected

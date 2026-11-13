@@ -6,7 +6,7 @@ This script performs thorough validation of all schools:
 2. Incident Totals - JSON yearlyTotals match aggregate data
 3. FTE Coverage - Report enrollment data coverage by year
 4. Rate Calculations - Verify rate = (count / FTE) * 10,000
-5. Ranking Order - Verify ranks match sorted counts, and rankByRate sorted rates
+5. Ranking Order - Ranks are competition ranks (1, 2, 2, 4) of the counts, and of the rates
 6. Percentage Sums - Verify each offense % is count / group total, to 2 decimals
 7. Aggregate Consistency - Aggregates equal the fact table, per year and geography
 8. Shared Statistics - Figures two campuses report identically (in the data
@@ -38,6 +38,7 @@ Output:
 import os
 import sys
 import json
+import bisect
 import argparse
 import pandas as pd
 import duckdb
@@ -474,95 +475,98 @@ def audit_rate_calculations(verbose: bool = False) -> AuditResult:
     return result
 
 
+def competition_rank_problems(entries: list, value: str, rank: str) -> list[str]:
+    """
+    Problems with the standard competition ranks ("1, 2, 2, 4") in `rank` of
+    the entries that have a `value`: each must be 1 + the number of entries
+    with a larger value. Entries without a value must have no rank.
+    """
+    problems = []
+
+    def has_value(e):
+        return isinstance(e.get(value), (int, float)) and not isinstance(e.get(value), bool)
+
+    negated = sorted(-e[value] for e in entries if has_value(e))  # bisect: how many are larger
+    for e in entries:
+        if not has_value(e):
+            if e.get(rank) is not None:
+                problems.append(f"{e.get('unitid')}: {rank} {e.get(rank)} without a {value}")
+            continue
+        want = 1 + bisect.bisect_left(negated, -e[value])
+        if e.get(rank) != want:
+            problems.append(f"{e.get('unitid')}: {rank} {e.get(rank)} for {value} {e[value]}, expected {want} "
+                            f"(1 + the entries with a larger {value})")
+    return problems
+
+
 def audit_ranking_order(verbose: bool = False) -> AuditResult:
     """
-    CHECK 5: Verify ranks match sorted incident counts.
-    Rank N should have count >= Rank N+1, and the ranks run 1..N. Likewise
-    rankByRate runs 1..M over the entries with a rate, with rates non-increasing.
+    CHECK 5: Ranks are standard competition ranks of the counts, and the
+    entries are listed in ranking order.
+
+    In each ranking (one code of one rankings file) the entries are listed
+    by count, largest first, ties by name, then UNITID; each rank is 1 + the
+    number of entries with a larger count (tied counts share a rank: 1, 2,
+    2, 4). Likewise each rankByRate is 1 + the number of entries with a
+    larger rate, over the entries with a rate.
     """
     result = AuditResult("Ranking Order Validation")
     print("\nCHECK 5: Ranking Order Validation")
 
     try:
         rankings_dir = JSON_DIR / "rankings"
-        ranking_files = list(rankings_dir.glob("*.json"))
+        ranking_files = sorted(rankings_dir.glob("*.json"))
 
         order_violations = []
         groups_validated = 0
+        entries_checked = 0
 
         for ranking_file in ranking_files:
-            with open(ranking_file) as f:
+            with open(ranking_file, encoding="utf-8") as f:
                 data = json.load(f)
 
             for offense, entries in data.get("rankings", {}).items():
-                if len(entries) < 2:
+                if not entries:
                     continue
-
                 groups_validated += 1
+                entries_checked += len(entries)
 
-                # Sort by rank
-                sorted_entries = sorted(entries, key=lambda x: x.get("rank", 999))
+                def violation(text):
+                    order_violations.append({"file": ranking_file.name, "offense": offense, "problem": text})
 
-                # Check order (higher rank = lower count)
-                for i in range(len(sorted_entries) - 1):
-                    current = sorted_entries[i]
-                    next_entry = sorted_entries[i + 1]
+                # Listed in ranking order: count high to low, ties by name, then UNITID
+                def key(e):
+                    return (-(e.get("count") or 0), e.get("name") or "", e.get("unitid") or 0)
+                for i, (current, next_entry) in enumerate(zip(entries, entries[1:])):
+                    if key(current) > key(next_entry):
+                        violation(f"entry {i + 1} ({current.get('unitid')}, count {current.get('count')}) is "
+                                  f"listed before {next_entry.get('unitid')} (count {next_entry.get('count')})")
+                        break
 
-                    if current.get("count", 0) < next_entry.get("count", 0):
-                        order_violations.append({
-                            "file": ranking_file.name,
-                            "offense": offense,
-                            "rank": current.get("rank"),
-                            "current_count": current.get("count"),
-                            "next_rank": next_entry.get("rank"),
-                            "next_count": next_entry.get("count")
-                        })
-
-                # Ranks are 1..N (a missing or repeated rank cannot be in order)
-                ranks = sorted(e.get("rank") for e in entries if isinstance(e.get("rank"), int))
-                if ranks != list(range(1, len(entries) + 1)):
-                    order_violations.append({"file": ranking_file.name, "offense": offense,
-                                             "problem": "rank does not run 1..N"})
-
-                # rankByRate: 1..M over exactly the entries with a rate, rates non-increasing
-                rated = [e for e in entries if e.get("rate") is not None]
-                by_rate = sorted((e for e in rated if isinstance(e.get("rankByRate"), int)),
-                                 key=lambda x: x["rankByRate"])
-                if (any(e.get("rankByRate") is not None for e in entries if e.get("rate") is None)
-                        or [e["rankByRate"] for e in by_rate] != list(range(1, len(rated) + 1))):
-                    order_violations.append({"file": ranking_file.name, "offense": offense,
-                                             "problem": "rankByRate does not run 1..M over the entries with a rate"})
-                for current, next_entry in zip(by_rate, by_rate[1:]):
-                    if current["rate"] < next_entry["rate"]:
-                        order_violations.append({
-                            "file": ranking_file.name,
-                            "offense": offense,
-                            "problem": (f"rankByRate {current['rankByRate']} (rate {current['rate']}) < "
-                                        f"rankByRate {next_entry['rankByRate']} (rate {next_entry['rate']})"),
-                        })
+                for text in (competition_rank_problems(entries, "count", "rank")
+                             + competition_rank_problems(entries, "rate", "rankByRate"))[:1]:
+                    violation(text)
 
         result.details["what_it_checks"] = (
-            "In every ranking group (one offense of one rankings/*.json file) of 2 or more entries, rank "
-            "runs 1..N with counts non-increasing, and rankByRate runs 1..M over exactly the entries with "
-            "a rate, with rates non-increasing. It checks the order of each file's own counts and rates; "
-            "check 4 checks the rates' arithmetic.")
+            "In every ranking (one code of one rankings/*.json file, the summary codes included), entries are "
+            "listed by count, largest first, ties by name, then UNITID; each rank is 1 + the number of entries "
+            "with a larger count, so tied counts share a rank (1, 2, 2, 4); each rankByRate is 1 + the number "
+            "of entries with a larger rate, over exactly the entries with a rate. It checks the order of each "
+            "file's own counts and rates; check 4 checks the rates' arithmetic.")
         result.details["groups_validated"] = groups_validated
+        result.details["entries_checked"] = entries_checked
         result.details["order_violations"] = len(order_violations)
 
-        print(f"  Ranking groups (file x offense) validated: {groups_validated:,}")
-        print(f"  Rank order violations: {len(order_violations)}")
-
-        def describe(v):
-            return v.get("problem") or (f"rank {v['rank']} ({v['current_count']}) < "
-                                        f"rank {v['next_rank']} ({v['next_count']})")
+        print(f"  Ranking groups (file x code) validated: {groups_validated:,} ({entries_checked:,} entries)")
+        print(f"  Rank or order violations: {len(order_violations)}")
 
         if order_violations:
             v = order_violations[0]
             result.failed(f"Found {len(order_violations)} rank order violations (first: {v['file']}/{v['offense']}: "
-                          f"{describe(v)}). Run 04_create_aggregates.py and 05_generate_json.py, then 07 again.")
+                          f"{v['problem']}). Run 04_create_aggregates.py and 05_generate_json.py, then 07 again.")
             if verbose:
                 for v in order_violations[:5]:
-                    print(f"    {v['file']}/{v['offense']}: {describe(v)}")
+                    print(f"    {v['file']}/{v['offense']}: {v['problem']}")
         elif groups_validated == 0:
             result.failed(f"No ranking groups in {rankings_dir} to check. Run 04_create_aggregates.py "
                           f"and 05_generate_json.py.")
@@ -876,7 +880,9 @@ def audit_shared_statistics(verbose: bool = False) -> AuditResult:
     print("\nCHECK 8: Shared Statistics Counted Once")
 
     try:
-        facts = pd.read_parquet(get_facts_path(), columns=["year", "unitid", "offense", "geo", "count"])
+        facts = pd.read_parquet(get_facts_path(), columns=["year", "unitid", "offense", "offense_family", "geo",
+                                                           "count"])
+        family_of = dict(zip(facts["offense"].tolist(), facts["offense_family"].tolist()))
         inst = read_curated("dims/dim_institution.parquet", "03_build_dimensions.py", ["unitid", "state"])
         sources = read_curated("dims/campus_year_sources.parquet", "02_transform_to_parquet.py")
         older = read_curated("dims/older_release_counts.parquet", "02_transform_to_parquet.py")
@@ -893,7 +899,8 @@ def audit_shared_statistics(verbose: bool = False) -> AuditResult:
             "equal in that release to a campus whose figures now come from a newer release "
             "(whole_year_older_release, block_older_release). Hosts are chosen by 04's order. "
             "aggs/shared_blocks.parquet must hold exactly those shadows, hosts and rules. Every "
-            "rankings/*.json entry must count the school's facts without its shadow blocks, the state and "
+            "rankings/*.json entry must count the school's facts without its shadow blocks (for \"criminal\" "
+            "summed over the Criminal family, for \"all\" over every offense), the state and "
             "national files must rank exactly the schools with such a count, and each school file's "
             "sharedFigures must list exactly its shadow blocks and their host.")
 
@@ -1075,17 +1082,21 @@ def audit_shared_statistics(verbose: bool = False) -> AuditResult:
             n, c = by_rule.get(rule, (0, 0))
             by_rule[rule] = (n + 1, c + sum(cells.get(k, blank)))
 
-        # What totals and rankings count: the facts without the shadow blocks
+        # What totals and rankings count: the facts without the shadow blocks,
+        # per offense and summed for the summary codes ("criminal": the
+        # Criminal family; "all": every offense)
         counted = {}
         for (y, g, u), v in cells.items():
             if (y, g, u) in shadows:
                 continue
             for o, c in zip(OFFENSE_ORDER, v):
                 if c:
-                    counted[(y, u, o)] = counted.get((y, u, o), 0) + c
-                    counted[(y, u, "all")] = counted.get((y, u, "all"), 0) + c
+                    summaries = ("all", "criminal") if family_of.get(o) == "Criminal" else ("all",)
+                    for key in (o,) + summaries:
+                        counted[(y, u, key)] = counted.get((y, u, key), 0) + c
         code_of = {o: o.lower().replace(" ", "_") for o in OFFENSE_ORDER}
         code_of["all"] = "all"
+        code_of["criminal"] = "criminal"
         ranked = {}  # (year, code) -> {unitid: count}, the schools a ranking of that offense must hold
         for (y, u, o), c in counted.items():
             ranked.setdefault((y, code_of[o]), {})[u] = c

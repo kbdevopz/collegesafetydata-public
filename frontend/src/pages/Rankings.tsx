@@ -12,8 +12,12 @@ import { ChevronUp, ChevronDown, ExternalLink, AlertCircle, Loader2, MapPin, Cal
 import { fetchRankings, getMetadata } from '../lib/api'
 import type { RankingEntry, Metadata, Offense } from '../lib/types'
 import { cn, formatNumber, formatPercent, groupOffensesByFamily, isSmallSample } from '../lib/utils'
+import { CRIMINAL, compareText, competitionRanks, countHeader, countPhrase } from '../lib/selection'
 import SchoolSearch from '../components/SchoolSearch'
 import OffensePopover from '../components/OffensePopover'
+
+// A ranking entry with the rank shown for it in the current view
+type RankedRow = RankingEntry & { shownRank: number }
 
 export default function Rankings() {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -60,7 +64,8 @@ export default function Rankings() {
   const latestYear = metadata?.years?.length ? metadata.years[metadata.years.length - 1] : 2024
   const selectedPreset = searchParams.get('preset') || 'national'
   const selectedYear = parseInt(searchParams.get('year') || '') || latestYear
-  const selectedOffense = searchParams.get('offense') || 'all'
+  // Criminal offenses by default; ?offense=all (every category) still works
+  const selectedOffense = searchParams.get('offense') || CRIMINAL
 
   // Load More state - show 25 initially, +25 per click
   const [displayCount, setDisplayCount] = useState(25)
@@ -111,21 +116,21 @@ export default function Rankings() {
   const MIN_FTE_FOR_RATE = 1000
 
   // Sort and slice rankings for display (Load More pattern)
-  const sortedRankings = useMemo(() => {
-    if (!sortByRate) return rankings
+  const sortedRankings = useMemo((): RankedRow[] => {
+    if (!sortByRate) return rankings.map((r) => ({ ...r, shownRank: r.rank }))
 
     // Filter to schools with sufficient enrollment for meaningful rates
     const qualified = rankings.filter(
       (r) => r.fte !== null && r.fte >= MIN_FTE_FOR_RATE && r.rate !== null
     )
 
-    // Order by the published rate rank (rankByRate: rate high to low, ties in
-    // the pipeline's order), so the order matches the pipeline's ranking
-    return qualified.sort(
-      (a, b) =>
-        (a.rankByRate ?? Number.MAX_SAFE_INTEGER) - (b.rankByRate ?? Number.MAX_SAFE_INTEGER) ||
-        (b.rate ?? 0) - (a.rate ?? 0)
+    // Rate high to low, ties by name, then UNITID (the pipeline's tie order),
+    // ranked 1, 2, 2, 4: tied rates share a rank
+    const ordered = qualified.slice().sort(
+      (a, b) => (b.rate ?? 0) - (a.rate ?? 0) || compareText(a.name, b.name) || a.unitid - b.unitid
     )
+    const ranks = competitionRanks(ordered, (r) => r.rate ?? 0)
+    return ordered.map((r, i) => ({ ...r, shownRank: ranks[i] }))
   }, [rankings, sortByRate])
 
   const displayedRankings = useMemo(() => {
@@ -153,23 +158,24 @@ export default function Rankings() {
     setSearchParams(params)
   }
 
+  // Find current offense info
+  const currentOffense = metadata?.offenses.find((o) => o.code === selectedOffense)
+  const currentTotal = totals[selectedOffense] || 0
+  const countLabel = countHeader(currentOffense)
+
   // Table setup
-  const columnHelper = createColumnHelper<RankingEntry>()
+  const columnHelper = createColumnHelper<RankedRow>()
 
   const columns = useMemo(
     () => [
-      columnHelper.accessor('rank', {
+      columnHelper.accessor('shownRank', {
         header: 'Rank',
-        cell: (info) => {
-          // When sorting by rate, use row index (1-based) since we re-sorted/filtered the list
-          // When sorting by total, use the pre-computed rank
-          const displayRank = sortByRate ? info.row.index + 1 : info.getValue()
-          return (
-            <span className="font-medium text-gray-500 dark:text-gray-400">
-              #{displayRank}
-            </span>
-          )
-        },
+        cell: (info) => (
+          // The published rank by count, or the rank by rate among the rows shown
+          <span className="font-medium text-gray-500 dark:text-gray-400">
+            #{info.getValue()}
+          </span>
+        ),
         size: 70,
       }),
       columnHelper.accessor('name', {
@@ -188,7 +194,7 @@ export default function Rankings() {
         ),
       }),
       columnHelper.accessor('count', {
-        header: 'Incidents',
+        header: countLabel,
         cell: (info) => (
           <span className="font-semibold tabular-nums">
             {formatNumber(info.getValue())}
@@ -295,7 +301,7 @@ export default function Rankings() {
         size: 50,
       }),
     ],
-    [columnHelper, compareSchools, sortByRate]
+    [columnHelper, compareSchools, sortByRate, countLabel]
   )
 
   // The table gets the full list so a column sort orders every campus, not
@@ -314,10 +320,6 @@ export default function Rankings() {
     if (!metadata) return new Map()
     return groupOffensesByFamily(metadata.offenses)
   }, [metadata])
-
-  // Find current offense info
-  const currentOffense = metadata?.offenses.find((o) => o.code === selectedOffense)
-  const currentTotal = totals[selectedOffense] || 0
 
   // Total school count for hero - use national preset's count (not sum of all presets)
   const totalSchoolCount = useMemo(() => {
@@ -636,7 +638,7 @@ export default function Rankings() {
                   <span className="font-medium text-gray-900 dark:text-gray-100">{sortedRankings.length.toLocaleString()} campuses</span>
                 </div>
                 <div>
-                  <span className="text-gray-500 dark:text-gray-400">Total incidents: </span>
+                  <span className="text-gray-500 dark:text-gray-400">{countLabel === 'Total' ? 'Total' : `Total ${countLabel.toLowerCase()}`}: </span>
                   <span className="font-medium text-gray-900 dark:text-gray-100">{formatNumber(currentTotal)}</span>
                 </div>
                 {sortByRate && (
@@ -703,7 +705,7 @@ export default function Rankings() {
                   </span>
                 </div>
                 <div className="divide-y divide-gray-100 dark:divide-gray-800">
-                {displayedRankings.map((item, index) => (
+                {displayedRankings.map((item) => (
                   <div key={item.unitid} className="flex items-stretch">
                     <Link
                       to={`/school/${item.unitid}`}
@@ -712,7 +714,7 @@ export default function Rankings() {
                       <div className="flex items-start justify-between gap-3 mb-2">
                         <div className="flex items-center gap-3">
                           <span className="flex-shrink-0 w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300 text-sm font-bold flex items-center justify-center">
-                            {sortByRate ? index + 1 : item.rank}
+                            {item.shownRank}
                           </span>
                           <span className="font-medium text-gray-900 dark:text-gray-100">
                             {item.name}
@@ -742,7 +744,7 @@ export default function Rankings() {
                             </span>
                             <span className="text-gray-400">&middot;</span>
                             <span className="text-gray-600 dark:text-gray-400 tabular-nums">
-                              {formatNumber(item.count)} incidents
+                              {countPhrase(item.count, currentOffense, formatNumber(item.count))}
                             </span>
                             {item.fte && (
                               <>
@@ -757,7 +759,7 @@ export default function Rankings() {
                           <>
                             <div className="flex items-center flex-wrap gap-x-3 gap-y-1 text-sm mb-2">
                               <span className="font-semibold text-gray-900 dark:text-gray-100 tabular-nums">
-                                {formatNumber(item.count)} incidents
+                                {countPhrase(item.count, currentOffense, formatNumber(item.count))}
                               </span>
                               {item.fte && (
                                 <>

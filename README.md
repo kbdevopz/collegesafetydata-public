@@ -34,6 +34,8 @@ Our data processing pipeline is fully documented. See [etl/METHODOLOGY.md](etl/M
 - Known errors in DOE files and how they are handled
 - Figures that two campuses report identically (one location, or a whole year), counted once (under one host campus) in totals and rankings
 - Enrollment (FTE): NCES's own figures for every year
+- Totals: criminal offenses by default; "all categories" mixes crimes, arrests and disciplinary referrals
+- Ranking ties: equal counts share a rank (1, 2, 2, 4), listed by name
 - Crime rate formulas
 - Geographic classifications
 - Data limitations

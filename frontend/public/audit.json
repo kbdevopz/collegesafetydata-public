@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-11-11T02:13:18Z",
+  "generated_at": "2026-11-11T02:26:21Z",
   "audited_build": {
     "site_record": "frontend/public/data/build_inputs.json",
-    "site_record_sha256": "dbd4c6791108a42a0b8b9e21739a9769150008788a25d305714397ec25f23a52",
+    "site_record_sha256": "76d28e6f46280426052db6db3638e5ed190af1a2338d55db65e50b86fbf726b6",
     "curated_sha256": {
       "facts/incidents.parquet": "7cf7d235e64853e934a877579aed578ee275692166bb5e6b182f6e3ff4f9a2a2",
       "aggs/agg_school_year_offense.parquet": "ead11484db841122d29b52ca15826ec8dd0669e895e0d163b5ef998126a9fe6c",
@@ -138,7 +138,7 @@
       "status": "PASS",
       "details": {
         "what_it_checks": "For every entry of rankings/*.json, rate equals count / fte x 10,000 to within 0.01, using the entry's own count and fte; an entry with a rate but no FTE above 0, or with an FTE but no rate, is an error. It does not compare the count or FTE with the aggregates or IPEDS.",
-        "ranking_entries_checked": 470091,
+        "ranking_entries_checked": 534929,
         "rate_errors": 0
       },
       "errors": [],
@@ -148,8 +148,9 @@
       "name": "Ranking Order Validation",
       "status": "PASS",
       "details": {
-        "what_it_checks": "In every ranking group (one offense of one rankings/*.json file) of 2 or more entries, rank runs 1..N with counts non-increasing, and rankByRate runs 1..M over exactly the entries with a rate, with rates non-increasing. It checks the order of each file's own counts and rates; check 4 checks the rates' arithmetic.",
-        "groups_validated": 8996,
+        "what_it_checks": "In every ranking (one code of one rankings/*.json file, the summary codes included), entries are listed by count, largest first, ties by name, then UNITID; each rank is 1 + the number of entries with a larger count, so tied counts share a rank (1, 2, 2, 4); each rankByRate is 1 + the number of entries with a larger rate, over exactly the entries with a rate. It checks the order of each file's own counts and rates; check 4 checks the rates' arithmetic.",
+        "groups_validated": 10172,
+        "entries_checked": 536047,
         "order_violations": 0
       },
       "errors": [],
@@ -160,8 +161,8 @@
       "status": "PASS",
       "details": {
         "what_it_checks": "In every ranking group (one offense of one rankings/*.json file), each entry's pct equals its count / the group's count sum x 100 to 2 decimals (within 0.005), and the file's totals entry equals that sum. Group pct sums differ from 100% only by that rounding; the largest difference is shown. It checks the files' own counts, not the counts against the aggregates.",
-        "groups_validated": 9622,
-        "entries_checked": 471063,
+        "groups_validated": 10172,
+        "entries_checked": 536047,
         "pct_errors": 0,
         "max_sum_deviation_pct": 4.86
       },
@@ -597,7 +598,7 @@
       "name": "Shared Statistics Counted Once",
       "status": "PASS",
       "details": {
-        "what_it_checks": "Without 04's code, from data/curated/facts/incidents.parquet and dims/older_release_counts.parquet: the blocks (one campus, year and geography of On-campus, Non-campus, Public property; one cell per offense, blank = 0) counted under another campus of the same ranked state, each test needing at least 6 cells not 0, by 04's rules in order: equal blocks (same_block); equal whole campus-years, every block of the copy (whole_year); and, for a campus-year taken from an older release, whole figures or a block equal in that release to a campus whose figures now come from a newer release (whole_year_older_release, block_older_release). Hosts are chosen by 04's order. aggs/shared_blocks.parquet must hold exactly those shadows, hosts and rules. Every rankings/*.json entry must count the school's facts without its shadow blocks, the state and national files must rank exactly the schools with such a count, and each school file's sharedFigures must list exactly its shadow blocks and their host.",
+        "what_it_checks": "Without 04's code, from data/curated/facts/incidents.parquet and dims/older_release_counts.parquet: the blocks (one campus, year and geography of On-campus, Non-campus, Public property; one cell per offense, blank = 0) counted under another campus of the same ranked state, each test needing at least 6 cells not 0, by 04's rules in order: equal blocks (same_block); equal whole campus-years, every block of the copy (whole_year); and, for a campus-year taken from an older release, whole figures or a block equal in that release to a campus whose figures now come from a newer release (whole_year_older_release, block_older_release). Hosts are chosen by 04's order. aggs/shared_blocks.parquet must hold exactly those shadows, hosts and rules. Every rankings/*.json entry must count the school's facts without its shadow blocks (for \"criminal\" summed over the Criminal family, for \"all\" over every offense), the state and national files must rank exactly the schools with such a count, and each school file's sharedFigures must list exactly its shadow blocks and their host.",
         "min_nonzero_cells": 6,
         "host_groups": 369,
         "shadow_blocks": 383,
@@ -698,7 +699,7 @@
             "shadow_blocks": 33
           }
         ],
-        "ranking_entries_checked": 471063,
+        "ranking_entries_checked": 536047,
         "schools_with_shared_figures": 107,
         "problems": 0
       },

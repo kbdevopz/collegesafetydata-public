@@ -517,6 +517,24 @@ def without_shadows(base: pd.DataFrame, shared: pd.DataFrame) -> pd.DataFrame:
     return kept
 
 
+def ranked(group: pd.DataFrame, column: str) -> tuple[pd.DataFrame, list[int]]:
+    """
+    The rows of `group` that have a value in `column`, largest first, and
+    their ranks. Every ranking uses this order and rank: ties (equal values)
+    are listed by institution name, then UNITID, and share standard
+    competition ranks: 1, 2, 2, 4 (the rank after a tie skips the places
+    the tie takes). 05_generate_json.py ranks its summary codes the same way.
+    """
+    rows = group[group[column].notna()].sort_values(
+        [column, "institution_name", "unitid"], ascending=[False, True, True], kind="mergesort"
+    ).reset_index(drop=True)
+    values = rows[column].tolist()
+    ranks: list[int] = []
+    for i, value in enumerate(values):
+        ranks.append(ranks[-1] if i and value == values[i - 1] else i + 1)
+    return rows, ranks
+
+
 def create_ivy_rankings(school_agg: pd.DataFrame = None) -> pd.DataFrame:
     """
     Pre-compute Ivy League rankings for all year/offense/geo combinations.
@@ -560,28 +578,16 @@ def create_ivy_rankings(school_agg: pd.DataFrame = None) -> pd.DataFrame:
     groups = ivy_data.groupby(["year", "offense", "geo"])
 
     for (year, offense, geo), group in groups:
-        # Sort by count descending, then by name for deterministic tie-breaking
-        sorted_group = group.sort_values(
-            ["count", "institution_name"],
-            ascending=[False, True]
-        ).reset_index(drop=True)
+        # By count, largest first, and by rate (schools with FTE data only);
+        # ties by name, then UNITID, ranked 1, 2, 2, 4 (ranked)
+        sorted_group, ranks = ranked(group, "count")
+        by_rate, rate_rank_list = ranked(group, "rate_per_10k")
+        rate_ranks = dict(zip(by_rate["unitid"].tolist(), rate_rank_list))
 
         # Calculate total for percentage
         total_count = sorted_group["count"].sum()
 
-        # Create rank by rate (only for schools with FTE data)
-        # Sort by rate descending, then by name for deterministic tie-breaking
-        rate_ranks = {}
-        schools_with_rate = sorted_group[sorted_group["rate_per_10k"].notna()].copy() if "rate_per_10k" in sorted_group.columns else pd.DataFrame()
-        if len(schools_with_rate) > 0:
-            schools_with_rate = schools_with_rate.sort_values(
-                ["rate_per_10k", "institution_name"],
-                ascending=[False, True]
-            )
-            for rate_rank, (_, rate_row) in enumerate(schools_with_rate.iterrows(), 1):
-                rate_ranks[rate_row["unitid"]] = rate_rank
-
-        for rank, (_, row) in enumerate(sorted_group.iterrows(), 1):
+        for rank, (_, row) in zip(ranks, sorted_group.iterrows()):
             pct = (row["count"] / total_count * 100) if total_count > 0 else 0
 
             rankings.append({
@@ -707,28 +713,16 @@ def create_state_rankings(school_agg: pd.DataFrame = None) -> pd.DataFrame:
         if i % 10000 == 0 and i > 0:
             print(f"  Processed {i:,}/{total_groups:,} groups...")
 
-        # Sort by count descending, then by name for deterministic tie-breaking
-        sorted_group = group.sort_values(
-            ["count", "institution_name"],
-            ascending=[False, True]
-        ).reset_index(drop=True)
+        # By count, largest first, and by rate (schools with FTE data only);
+        # ties by name, then UNITID, ranked 1, 2, 2, 4 (ranked)
+        sorted_group, ranks = ranked(group, "count")
+        by_rate, rate_rank_list = ranked(group, "rate_per_10k")
+        rate_ranks = dict(zip(by_rate["unitid"].tolist(), rate_rank_list))
 
         # Calculate total for percentage
         total_count = sorted_group["count"].sum()
 
-        # Create rank by rate (only for schools with FTE data)
-        # Sort by rate descending, then by name for deterministic tie-breaking
-        rate_ranks = {}
-        schools_with_rate = sorted_group[sorted_group["rate_per_10k"].notna()].copy() if "rate_per_10k" in sorted_group.columns else pd.DataFrame()
-        if len(schools_with_rate) > 0:
-            schools_with_rate = schools_with_rate.sort_values(
-                ["rate_per_10k", "institution_name"],
-                ascending=[False, True]
-            )
-            for rate_rank, (_, rate_row) in enumerate(schools_with_rate.iterrows(), 1):
-                rate_ranks[rate_row["unitid"]] = rate_rank
-
-        for rank, (_, row) in enumerate(sorted_group.iterrows(), 1):
+        for rank, (_, row) in zip(ranks, sorted_group.iterrows()):
             pct = (row["count"] / total_count * 100) if total_count > 0 else 0
 
             rankings.append({
@@ -859,28 +853,16 @@ def create_national_rankings(school_agg: pd.DataFrame = None) -> pd.DataFrame:
         if i % 1000 == 0 and i > 0:
             print(f"  Processed {i:,}/{total_groups:,} groups...")
 
-        # Sort by count descending, then by name for deterministic tie-breaking
-        sorted_group = group.sort_values(
-            ["count", "institution_name"],
-            ascending=[False, True]
-        ).reset_index(drop=True)
+        # By count, largest first, and by rate (schools with FTE data only);
+        # ties by name, then UNITID, ranked 1, 2, 2, 4 (ranked)
+        sorted_group, ranks = ranked(group, "count")
+        by_rate, rate_rank_list = ranked(group, "rate_per_10k")
+        rate_ranks = dict(zip(by_rate["unitid"].tolist(), rate_rank_list))
 
         # Calculate total for percentage
         total_count = sorted_group["count"].sum()
 
-        # Create rank by rate (only for schools with FTE data)
-        # Sort by rate descending, then by name for deterministic tie-breaking
-        rate_ranks = {}
-        schools_with_rate = sorted_group[sorted_group["rate_per_10k"].notna()].copy()
-        if len(schools_with_rate) > 0:
-            schools_with_rate = schools_with_rate.sort_values(
-                ["rate_per_10k", "institution_name"],
-                ascending=[False, True]
-            )
-            for rate_rank, (_, rate_row) in enumerate(schools_with_rate.iterrows(), 1):
-                rate_ranks[rate_row["unitid"]] = rate_rank
-
-        for rank, (_, row) in enumerate(sorted_group.iterrows(), 1):
+        for rank, (_, row) in zip(ranks, sorted_group.iterrows()):
             pct = (row["count"] / total_count * 100) if total_count > 0 else 0
 
             rankings.append({

@@ -244,6 +244,13 @@ export default function Methodology() {
                   Rates only displayed for institutions with FTE ≥ 1,000 to avoid misleading statistics
                 </p>
               </div>
+              <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4 sm:col-span-2">
+                <h5 className="font-medium text-gray-900 dark:text-gray-100 text-sm mb-2">Ties in Rankings</h5>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Schools with the same count (or the same rate) share a rank, and the next rank skips the places
+                  the tie takes: 1, 2, 2, 4. Tied schools are listed by name.
+                </p>
+              </div>
             </div>
           </section>
 
@@ -344,6 +351,24 @@ export default function Methodology() {
                 <p className="text-xs text-gray-500 dark:text-gray-500 mt-3">
                   Note: High counts in these categories may reflect enforcement practices rather than safety levels.
                 </p>
+              </div>
+
+              <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-5">
+                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">Totals on This Site</h4>
+                <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                  <p>
+                    <strong className="text-gray-900 dark:text-gray-100">All criminal offenses</strong> (the
+                    default view): the 11 criminal offenses above, added up.
+                  </p>
+                  <p>
+                    <strong className="text-gray-900 dark:text-gray-100">All categories (crimes, arrests,
+                    referrals)</strong>: every category added up. These are different kinds of counts: arrests
+                    and disciplinary referrals count people (each person arrested or referred), not incidents,
+                    and an incident of dating violence, domestic violence or stalking can also be counted as a
+                    criminal offense such as aggravated assault. So this total is not a number of incidents,
+                    and high totals often reflect drug and alcohol enforcement rather than violent crime.
+                  </p>
+                </div>
               </div>
             </div>
           </section>
@@ -466,10 +491,11 @@ export default function Methodology() {
                   "Incident total accuracy (each school file's yearly totals match the aggregate table)",
                   "FTE coverage by year",
                   "Rate calculation verification",
-                  "Ranking order validation",
+                  "Ranking order validation (ties share a rank: 1, 2, 2, 4)",
                   "Percentage sum validation",
                   "Aggregate consistency (the school-year aggregate table matches the fact table it is built from)",
                   "Shared figures (figures two campuses report identically are counted once in totals and rankings)",
+                  "Enrollment matches NCES (every FTE is NCES's own published figure)",
                 ].map((check, i) => (
                   <div key={i} className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
                     <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />

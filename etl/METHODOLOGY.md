@@ -184,7 +184,13 @@ campuses report identically count once, under the host campus.
 - Drug Law (Arrests and Disciplinary Actions)
 - Liquor Law (Arrests and Disciplinary Actions)
 
-**Note:** The "All Offenses" category sums criminal offenses, VAWA offenses, AND arrests/disciplinary referrals. High counts in this category may reflect drug/alcohol enforcement rather than violent crime.
+### Totals shown on the site
+- **All criminal offenses** (the default view of rankings, school pages and comparisons): the 11 criminal offenses above, added up.
+- **All categories (crimes, arrests, referrals)**: every category added up, criminal offenses, VAWA offenses, arrests and disciplinary referrals. These are different kinds of counts. Arrests and disciplinary referrals count people (each person arrested or referred), not incidents, and an incident of dating violence, domestic violence or stalking can also be counted as a criminal offense such as aggravated assault. So this total is not a number of incidents, and high totals often reflect drug and alcohol enforcement rather than violent crime. It is still available (`?offense=all` on the rankings page).
+
+## Rankings
+
+Each ranking lists schools by their count, largest first. Schools with the same count share a rank (standard competition ranking: 1, 2, 2, 4, so the rank after a tie skips the places the tie takes) and are listed by name, then by UNITID. Rate rankings rank the rates the same way.
 
 ## Data Limitations
 
@@ -212,6 +218,7 @@ Our data pipeline includes validation steps to ensure accuracy:
 3. Comparison of calculated FTE against official DRVEF values where available
 4. Spot checks against known institutions (Ivy League, major state universities)
 5. An audit (`07_comprehensive_audit.py`, check 8) that finds the shared blocks again from the fact table and the older releases' figures, and verifies that every ranking entry counts the school's figures without its shadow blocks
+6. The same audit (check 5) verifies that every ranking is listed in ranking order and that every rank is 1 + the number of schools with a larger count (or rate)
 
 ## Source Code
 
