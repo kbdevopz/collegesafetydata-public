@@ -83,7 +83,9 @@ export interface Presets {
 // Rankings Types
 // =============================================================================
 
-// A campus of a rankings file (its "campuses" table)
+// A campus of a rankings file (its "campuses" table): every campus of the
+// file's scope that reported the year. A campus without an entry in a count
+// ranking had 0 of that category.
 export interface RankedCampus {
   name: string
   short: string | null
@@ -126,10 +128,12 @@ export interface RankingsData {
   preset: string
   year: number
   campuses: Record<string, RankedCampus>
-  // Count rankings per code, by campus
+  // Count rankings per code, by campus: the campuses with a count above 0
+  // (every other campus of `campuses` had 0)
   rankings: Record<string, CountEntry[]>
   totals: Record<string, number>
-  // Rate rankings per code, by institution (rate per 10,000 FTE)
+  // Rate rankings per code, by institution (rate per 10,000 FTE): those
+  // with a count above 0 (every other institution of `institutions` had 0)
   institutions: Record<string, RateInstitution>
   rateRankings: Record<string, RateEntry[]>
 }
@@ -150,7 +154,12 @@ export interface SchoolProfile {
   fte: number | null // Full-time equivalent enrollment (latest year available)
   fteByYear: Record<string, number> | null // FTE by year for historical rate calculations
   summary: SummaryStats
+  // Every year the campus reported (DOE published a row for it with at
+  // least one count), 0 included for a year with no incident
   yearlyTotals: YearlyTotal[]
+  // The years of the data it did not report (absent when there are none):
+  // no figures at all, which is not the same as 0
+  notReported?: number[]
   trends: TrendPoint[]
   breakdownByOffense: OffenseBreakdown[]
   breakdownByGeo: GeoBreakdown[]
@@ -223,7 +232,8 @@ export interface GeoBreakdown {
 
 export interface ChartDataPoint {
   year: number
-  [key: string]: number | string
+  // null: a year the campus did not report (a gap in the chart)
+  [key: string]: number | string | null
 }
 
 export interface TrendChartData {

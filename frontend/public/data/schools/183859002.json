@@ -7,20 +7,30 @@
   "ivyLeague": false,
   "isMainCampus": false,
   "campusType": "Branch Campus",
-  "fte": 6005,
+  "fte": 6074,
   "fteByYear": {
-    "2023": 6005
+    "2022": 6019,
+    "2023": 6005,
+    "2024": 6074
   },
   "summary": {
-    "latestYear": 2023,
-    "totalIncidents": 1,
-    "topOffense": "Burglary",
-    "topOffenseCount": 1
+    "latestYear": 2024,
+    "totalIncidents": 0,
+    "topOffense": null,
+    "topOffenseCount": 0
   },
   "yearlyTotals": [
     {
+      "year": 2022,
+      "total": 0
+    },
+    {
       "year": 2023,
       "total": 1
+    },
+    {
+      "year": 2024,
+      "total": 0
     }
   ],
   "trends": [
@@ -31,21 +41,34 @@
       "count": 1
     }
   ],
-  "breakdownByOffense": [
-    {
-      "offense": "Burglary",
-      "count": 1
-    }
-  ],
-  "breakdownByGeo": [
-    {
-      "geo": "On-campus",
-      "count": 1
-    }
+  "breakdownByOffense": [],
+  "breakdownByGeo": [],
+  "notReported": [
+    2015,
+    2016,
+    2017,
+    2018,
+    2019,
+    2020,
+    2021
   ],
   "institution": {
     "id": 183859,
     "byYear": {
+      "2022": {
+        "campuses": 6,
+        "online": 6,
+        "rateRanked": true,
+        "counts": {
+          "criminal": 3,
+          "all": 6,
+          "aggravated_assault": 1,
+          "drug_arrest": 1,
+          "liquor_arrest": 1,
+          "robbery": 2,
+          "stalking": 1
+        }
+      },
       "2023": {
         "campuses": 6,
         "online": 6,
@@ -59,6 +82,23 @@
           "liquor_arrest": 11,
           "rape": 1,
           "stalking": 4
+        }
+      },
+      "2024": {
+        "campuses": 6,
+        "online": 7,
+        "rateRanked": true,
+        "counts": {
+          "criminal": 7,
+          "all": 34,
+          "aggravated_assault": 3,
+          "burglary": 2,
+          "domestic_violence": 6,
+          "fondling": 1,
+          "liquor_arrest": 13,
+          "robbery": 1,
+          "stalking": 5,
+          "weapons_arrest": 3
         }
       }
     }

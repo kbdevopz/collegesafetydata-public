@@ -7,21 +7,30 @@
   "ivyLeague": false,
   "isMainCampus": false,
   "campusType": "Branch Campus",
-  "fte": 1851,
+  "fte": 2176,
   "fteByYear": {
+    "2015": 2087,
     "2016": 1975,
     "2017": 2006,
     "2018": 1904,
     "2019": 2033,
-    "2022": 1851
+    "2020": 1661,
+    "2021": 1758,
+    "2022": 1851,
+    "2023": 1743,
+    "2024": 2176
   },
   "summary": {
-    "latestYear": 2022,
-    "totalIncidents": 1,
-    "topOffense": "Burglary",
-    "topOffenseCount": 1
+    "latestYear": 2024,
+    "totalIncidents": 0,
+    "topOffense": null,
+    "topOffenseCount": 0
   },
   "yearlyTotals": [
+    {
+      "year": 2015,
+      "total": 0
+    },
     {
       "year": 2016,
       "total": 1
@@ -39,8 +48,24 @@
       "total": 1
     },
     {
+      "year": 2020,
+      "total": 0
+    },
+    {
+      "year": 2021,
+      "total": 0
+    },
+    {
       "year": 2022,
       "total": 1
+    },
+    {
+      "year": 2023,
+      "total": 0
+    },
+    {
+      "year": 2024,
+      "total": 0
     }
   ],
   "trends": [
@@ -81,21 +106,24 @@
       "count": 1
     }
   ],
-  "breakdownByOffense": [
-    {
-      "offense": "Burglary",
-      "count": 1
-    }
-  ],
-  "breakdownByGeo": [
-    {
-      "geo": "On-campus",
-      "count": 1
-    }
-  ],
+  "breakdownByOffense": [],
+  "breakdownByGeo": [],
   "institution": {
     "id": 105206,
     "byYear": {
+      "2015": {
+        "campuses": 4,
+        "online": 19,
+        "rateRanked": true,
+        "counts": {
+          "criminal": 5,
+          "all": 7,
+          "aggravated_assault": 1,
+          "burglary": 4,
+          "domestic_violence": 1,
+          "liquor_arrest": 1
+        }
+      },
       "2016": {
         "campuses": 4,
         "online": 19,
@@ -144,6 +172,28 @@
           "motor_vehicle_theft": 1
         }
       },
+      "2020": {
+        "campuses": 4,
+        "online": 100,
+        "rateRanked": false,
+        "counts": {
+          "criminal": 1,
+          "all": 5,
+          "burglary": 1,
+          "drug_arrest": 1,
+          "liquor_arrest": 3
+        }
+      },
+      "2021": {
+        "campuses": 4,
+        "online": 25,
+        "rateRanked": true,
+        "counts": {
+          "criminal": 1,
+          "all": 1,
+          "motor_vehicle_theft": 1
+        }
+      },
       "2022": {
         "campuses": 4,
         "online": 26,
@@ -154,6 +204,16 @@
           "burglary": 3,
           "motor_vehicle_theft": 1
         }
+      },
+      "2023": {
+        "campuses": 4,
+        "online": 28,
+        "rateRanked": true
+      },
+      "2024": {
+        "campuses": 4,
+        "online": 29,
+        "rateRanked": true
       }
     }
   }

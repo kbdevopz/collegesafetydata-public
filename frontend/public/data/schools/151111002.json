@@ -7,8 +7,9 @@
   "ivyLeague": false,
   "isMainCampus": false,
   "campusType": "Branch Campus",
-  "fte": 21913,
+  "fte": 19263,
   "fteByYear": {
+    "2015": 24899,
     "2016": 25036,
     "2017": 25184,
     "2018": 25135,
@@ -16,15 +17,20 @@
     "2020": 24990,
     "2021": 23569,
     "2022": 22280,
-    "2023": 21913
+    "2023": 21913,
+    "2024": 19263
   },
   "summary": {
-    "latestYear": 2023,
-    "totalIncidents": 1,
-    "topOffense": "Burglary",
-    "topOffenseCount": 1
+    "latestYear": 2024,
+    "totalIncidents": 0,
+    "topOffense": null,
+    "topOffenseCount": 0
   },
   "yearlyTotals": [
+    {
+      "year": 2015,
+      "total": 0
+    },
     {
       "year": 2016,
       "total": 1
@@ -56,6 +62,10 @@
     {
       "year": 2023,
       "total": 1
+    },
+    {
+      "year": 2024,
+      "total": 0
     }
   ],
   "trends": [
@@ -132,21 +142,34 @@
       "count": 1
     }
   ],
-  "breakdownByOffense": [
-    {
-      "offense": "Burglary",
-      "count": 1
-    }
-  ],
-  "breakdownByGeo": [
-    {
-      "geo": "On-campus",
-      "count": 1
-    }
-  ],
+  "breakdownByOffense": [],
+  "breakdownByGeo": [],
   "institution": {
     "id": 151111,
     "byYear": {
+      "2015": {
+        "campuses": 8,
+        "online": 7,
+        "rateRanked": true,
+        "counts": {
+          "criminal": 71,
+          "all": 536,
+          "aggravated_assault": 16,
+          "burglary": 21,
+          "dating_violence": 11,
+          "domestic_violence": 4,
+          "drug_arrest": 100,
+          "drug_discipline": 49,
+          "fondling": 6,
+          "liquor_arrest": 112,
+          "liquor_discipline": 150,
+          "motor_vehicle_theft": 16,
+          "rape": 6,
+          "robbery": 6,
+          "stalking": 31,
+          "weapons_arrest": 8
+        }
+      },
       "2016": {
         "campuses": 8,
         "online": 7,
@@ -343,6 +366,31 @@
           "rape": 15,
           "robbery": 3,
           "stalking": 36,
+          "weapons_arrest": 3
+        }
+      },
+      "2024": {
+        "campuses": 9,
+        "online": 13,
+        "rateRanked": true,
+        "counts": {
+          "criminal": 400,
+          "all": 1971,
+          "aggravated_assault": 26,
+          "arson": 15,
+          "burglary": 58,
+          "dating_violence": 29,
+          "domestic_violence": 55,
+          "drug_arrest": 133,
+          "drug_discipline": 217,
+          "fondling": 25,
+          "liquor_arrest": 232,
+          "liquor_discipline": 852,
+          "motor_vehicle_theft": 213,
+          "murder": 2,
+          "rape": 51,
+          "robbery": 10,
+          "stalking": 50,
           "weapons_arrest": 3
         }
       }

@@ -7,18 +7,21 @@
   "ivyLeague": false,
   "isMainCampus": false,
   "campusType": "Branch Campus",
-  "fte": 3946,
+  "fte": 2514,
   "fteByYear": {
     "2015": 4310,
     "2016": 4255,
+    "2017": 4410,
     "2018": 4038,
-    "2019": 3946
+    "2019": 3946,
+    "2020": 2731,
+    "2021": 2514
   },
   "summary": {
-    "latestYear": 2019,
-    "totalIncidents": 4,
-    "topOffense": "Domestic Violence",
-    "topOffenseCount": 1
+    "latestYear": 2021,
+    "totalIncidents": 0,
+    "topOffense": null,
+    "topOffenseCount": 0
   },
   "yearlyTotals": [
     {
@@ -30,12 +33,24 @@
       "total": 1
     },
     {
+      "year": 2017,
+      "total": 0
+    },
+    {
       "year": 2018,
       "total": 2
     },
     {
       "year": 2019,
       "total": 4
+    },
+    {
+      "year": 2020,
+      "total": 0
+    },
+    {
+      "year": 2021,
+      "total": 0
     }
   ],
   "trends": [
@@ -88,29 +103,12 @@
       "count": 1
     }
   ],
-  "breakdownByOffense": [
-    {
-      "offense": "Domestic Violence",
-      "count": 1
-    },
-    {
-      "offense": "Drug Discipline",
-      "count": 1
-    },
-    {
-      "offense": "Stalking",
-      "count": 1
-    },
-    {
-      "offense": "Weapons Discipline",
-      "count": 1
-    }
-  ],
-  "breakdownByGeo": [
-    {
-      "geo": "On-campus",
-      "count": 4
-    }
+  "breakdownByOffense": [],
+  "breakdownByGeo": [],
+  "notReported": [
+    2022,
+    2023,
+    2024
   ],
   "institution": {
     "id": 404994,
@@ -134,6 +132,16 @@
           "criminal": 2,
           "all": 2,
           "burglary": 2
+        }
+      },
+      "2017": {
+        "campuses": 4,
+        "online": 0,
+        "rateRanked": true,
+        "counts": {
+          "criminal": 1,
+          "all": 1,
+          "fondling": 1
         }
       },
       "2018": {
@@ -167,6 +175,23 @@
           "robbery": 1,
           "stalking": 1,
           "weapons_discipline": 1
+        }
+      },
+      "2020": {
+        "campuses": 3,
+        "online": 100,
+        "rateRanked": false
+      },
+      "2021": {
+        "campuses": 3,
+        "online": 0,
+        "rateRanked": true,
+        "counts": {
+          "criminal": 1,
+          "all": 3,
+          "drug_discipline": 1,
+          "murder": 1,
+          "weapons_arrest": 1
         }
       }
     }

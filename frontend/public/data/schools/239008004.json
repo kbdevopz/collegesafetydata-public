@@ -7,18 +7,25 @@
   "ivyLeague": false,
   "isMainCampus": false,
   "campusType": "Branch Campus",
-  "fte": 1423,
+  "fte": 1165,
   "fteByYear": {
+    "2016": 1352,
     "2017": 1377,
-    "2018": 1423
+    "2018": 1423,
+    "2019": 1302,
+    "2020": 1165
   },
   "summary": {
-    "latestYear": 2018,
-    "totalIncidents": 1,
-    "topOffense": "Drug Arrest",
-    "topOffenseCount": 1
+    "latestYear": 2020,
+    "totalIncidents": 0,
+    "topOffense": null,
+    "topOffenseCount": 0
   },
   "yearlyTotals": [
+    {
+      "year": 2016,
+      "total": 0
+    },
     {
       "year": 2017,
       "total": 1
@@ -26,6 +33,14 @@
     {
       "year": 2018,
       "total": 1
+    },
+    {
+      "year": 2019,
+      "total": 0
+    },
+    {
+      "year": 2020,
+      "total": 0
     }
   ],
   "trends": [
@@ -42,21 +57,23 @@
       "count": 1
     }
   ],
-  "breakdownByOffense": [
-    {
-      "offense": "Drug Arrest",
-      "count": 1
-    }
-  ],
-  "breakdownByGeo": [
-    {
-      "geo": "On-campus",
-      "count": 1
-    }
+  "breakdownByOffense": [],
+  "breakdownByGeo": [],
+  "notReported": [
+    2015,
+    2021,
+    2022,
+    2023,
+    2024
   ],
   "institution": {
     "id": 239008,
     "byYear": {
+      "2016": {
+        "campuses": 4,
+        "online": 9,
+        "rateRanked": true
+      },
       "2017": {
         "campuses": 4,
         "online": 11,
@@ -69,6 +86,20 @@
         "counts": {
           "all": 2,
           "drug_arrest": 2
+        }
+      },
+      "2019": {
+        "campuses": 4,
+        "online": 14,
+        "rateRanked": true
+      },
+      "2020": {
+        "campuses": 4,
+        "online": 22,
+        "rateRanked": true,
+        "counts": {
+          "all": 4,
+          "drug_arrest": 4
         }
       }
     }

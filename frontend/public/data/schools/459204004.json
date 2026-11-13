@@ -7,23 +7,34 @@
   "ivyLeague": false,
   "isMainCampus": false,
   "campusType": "Branch Campus",
-  "fte": 5191,
+  "fte": 5725,
   "fteByYear": {
+    "2015": 821,
+    "2016": 1464,
     "2017": 2715,
     "2018": 3774,
     "2019": 2147,
     "2020": 3618,
     "2021": 4188,
     "2022": 4857,
-    "2023": 5191
+    "2023": 5191,
+    "2024": 5725
   },
   "summary": {
-    "latestYear": 2023,
-    "totalIncidents": 1,
-    "topOffense": "Motor Vehicle Theft",
-    "topOffenseCount": 1
+    "latestYear": 2024,
+    "totalIncidents": 0,
+    "topOffense": null,
+    "topOffenseCount": 0
   },
   "yearlyTotals": [
+    {
+      "year": 2015,
+      "total": 0
+    },
+    {
+      "year": 2016,
+      "total": 0
+    },
     {
       "year": 2017,
       "total": 2
@@ -51,6 +62,10 @@
     {
       "year": 2023,
       "total": 1
+    },
+    {
+      "year": 2024,
+      "total": 0
     }
   ],
   "trends": [
@@ -115,21 +130,35 @@
       "count": 1
     }
   ],
-  "breakdownByOffense": [
-    {
-      "offense": "Motor Vehicle Theft",
-      "count": 1
-    }
-  ],
-  "breakdownByGeo": [
-    {
-      "geo": "Public property",
-      "count": 1
-    }
-  ],
+  "breakdownByOffense": [],
+  "breakdownByGeo": [],
   "institution": {
     "id": 459204,
     "byYear": {
+      "2015": {
+        "campuses": 3,
+        "online": 25,
+        "rateRanked": false,
+        "counts": {
+          "all": 3,
+          "domestic_violence": 1,
+          "drug_arrest": 1,
+          "liquor_arrest": 1
+        }
+      },
+      "2016": {
+        "campuses": 4,
+        "online": 14,
+        "rateRanked": true,
+        "counts": {
+          "criminal": 6,
+          "all": 7,
+          "drug_arrest": 1,
+          "motor_vehicle_theft": 2,
+          "rape": 1,
+          "robbery": 3
+        }
+      },
       "2017": {
         "campuses": 4,
         "online": 0,
@@ -222,6 +251,17 @@
           "drug_arrest": 1,
           "fondling": 1,
           "motor_vehicle_theft": 2
+        }
+      },
+      "2024": {
+        "campuses": 6,
+        "online": 13,
+        "rateRanked": true,
+        "counts": {
+          "criminal": 1,
+          "all": 4,
+          "drug_arrest": 3,
+          "robbery": 1
         }
       }
     }

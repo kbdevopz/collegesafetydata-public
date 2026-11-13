@@ -7,21 +7,24 @@
   "ivyLeague": false,
   "isMainCampus": false,
   "campusType": "Branch Campus",
-  "fte": 1366,
+  "fte": 1286,
   "fteByYear": {
     "2015": 843,
     "2016": 893,
     "2017": 873,
     "2018": 1096,
     "2019": 1218,
+    "2020": 1363,
     "2021": 1438,
-    "2022": 1366
+    "2022": 1366,
+    "2023": 1299,
+    "2024": 1286
   },
   "summary": {
-    "latestYear": 2022,
-    "totalIncidents": 1,
-    "topOffense": "Aggravated Assault",
-    "topOffenseCount": 1
+    "latestYear": 2024,
+    "totalIncidents": 0,
+    "topOffense": null,
+    "topOffenseCount": 0
   },
   "yearlyTotals": [
     {
@@ -45,12 +48,24 @@
       "total": 2
     },
     {
+      "year": 2020,
+      "total": 0
+    },
+    {
       "year": 2021,
       "total": 1
     },
     {
       "year": 2022,
       "total": 1
+    },
+    {
+      "year": 2023,
+      "total": 0
+    },
+    {
+      "year": 2024,
+      "total": 0
     }
   ],
   "trends": [
@@ -121,18 +136,8 @@
       "count": 1
     }
   ],
-  "breakdownByOffense": [
-    {
-      "offense": "Aggravated Assault",
-      "count": 1
-    }
-  ],
-  "breakdownByGeo": [
-    {
-      "geo": "Public property",
-      "count": 1
-    }
-  ],
+  "breakdownByOffense": [],
+  "breakdownByGeo": [],
   "institution": {
     "id": 142832,
     "byYear": {
@@ -206,6 +211,11 @@
           "robbery": 2
         }
       },
+      "2020": {
+        "campuses": 2,
+        "online": 25,
+        "rateRanked": true
+      },
       "2021": {
         "campuses": 2,
         "online": 33,
@@ -233,6 +243,31 @@
           "motor_vehicle_theft": 2,
           "robbery": 1,
           "weapons_arrest": 2
+        }
+      },
+      "2023": {
+        "campuses": 2,
+        "online": 26,
+        "rateRanked": true,
+        "counts": {
+          "criminal": 2,
+          "all": 3,
+          "robbery": 2,
+          "weapons_arrest": 1
+        }
+      },
+      "2024": {
+        "campuses": 2,
+        "online": 41,
+        "rateRanked": true,
+        "counts": {
+          "criminal": 7,
+          "all": 9,
+          "aggravated_assault": 1,
+          "domestic_violence": 1,
+          "drug_arrest": 1,
+          "motor_vehicle_theft": 3,
+          "robbery": 3
         }
       }
     }

@@ -8,6 +8,10 @@ This script creates aggregate tables that power the dashboard:
   campuses (see find_shared_blocks), and the one campus they are counted under
 - agg_ivy_rankings, agg_state_rankings, agg_national_rankings: campus rankings
   by count, by year/offense/geography, in which shared statistics are counted once
+- agg_campus_year: every campus-year that counts in rankings and rates
+  (reported, and not entirely figures counted under another campus), with
+  its count, 0 included: such a campus-year is ranked with 0 for every
+  offense it had none of
 - agg_institution_year, agg_institution_year_offense: the institutions rates
   are calculated for (all campuses of a base UNITID, per its FTE)
 
@@ -908,12 +912,13 @@ def create_national_rankings(school_agg: pd.DataFrame = None) -> pd.DataFrame:
     if not sample.empty:
         print(f"\n  Sample: National Burglary rankings ({latest_year}, All locations, top 5):")
         for _, row in sample.iterrows():
-            name = row["short_name"] or row["institution_name"][:30]
+            name = row["short_name"] if pd.notna(row["short_name"]) else row["institution_name"][:30]
             print(f"    {row['rank']}. {name} ({row['state']}): {row['count']}")
 
     return rankings_df
 
 
+CAMPUS_YEAR_PATH = CURATED_DIR / "aggs" / "agg_campus_year.parquet"
 INSTITUTION_YEAR_PATH = CURATED_DIR / "aggs" / "agg_institution_year.parquet"
 INSTITUTION_OFFENSE_PATH = CURATED_DIR / "aggs" / "agg_institution_year_offense.parquet"
 
@@ -934,18 +939,20 @@ def load_institution_enrollment() -> pd.DataFrame:
 def create_institution_tables(ranked_agg: pd.DataFrame, shared: pd.DataFrame, dim_inst: pd.DataFrame,
                               enrollment: pd.DataFrame, sources: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
     """
-    The institutions that rates are calculated for (config.py, "SUMMARY
-    CODES AND RATES"): an institution is a base UNITID (the first six digits,
-    which NCES's FTE is for), and its campuses are the campuses with that
-    base UNITID.
+    The campus-years that count in rankings and the institutions that rates
+    are calculated for (config.py, "SUMMARY CODES AND RATES"): an
+    institution is a base UNITID (the first six digits, which NCES's FTE is
+    for), and its campuses are the campuses with that base UNITID.
 
-    A campus counts for its institution in a year when it reported that year
-    (campus_year_sources.parquet) and its figures are not all counted under
-    another campus (a campus-year whose every block with counts is a shadow
-    block is left out). The institution's counts are those of all such
-    campuses, in any state, without shadow blocks and residence halls (the
-    geo "All" of `ranked_agg`). An institution is listed for a year when at
-    least one of its campuses has an incident that year.
+    A campus-year counts when the campus reported that year
+    (campus_year_sources.parquet: at least one count cell not blank) and its
+    figures are not all counted under another campus (a campus-year whose
+    every block with counts is a shadow block is left out). It is ranked
+    with its count, 0 for an offense it had none of. The institution's
+    counts are those of all its counting campuses, in any state, without
+    shadow blocks and residence halls (the geo "All" of `ranked_agg`). An
+    institution is listed for a year when at least one of its campuses
+    counts that year, incidents or not.
 
     Each institution-year has a link campus, whose school page the rate
     rankings link to and whose name and state they show: the main campus
@@ -954,6 +961,8 @@ def create_institution_tables(ranked_agg: pd.DataFrame, shared: pd.DataFrame, di
     campus with a school file (dim_institution.parquet) can be the link.
 
     Saves and returns:
+      agg_campus_year.parquet: year, unitid, base_unitid, state, count (the
+        geo "All" total of every offense, 0 included)
       agg_institution_year.parquet: year, base_unitid, institution_name,
         link_unitid, state, campuses (that count that year), fte, pctdeexc
       agg_institution_year_offense.parquet: year, base_unitid, offense,
@@ -984,18 +993,26 @@ def create_institution_tables(ranked_agg: pd.DataFrame, shared: pd.DataFrame, di
     print(f"  Campus-years that count for their institution: {len(campus_years):,} "
           f"(left out, all figures counted under another campus: {len(left_out):,})")
 
-    # Institution-years with an incident, their campuses and link campus
+    # Every counting campus-year has a school file (03 lists every campus that reported)
     has_file = set(dim_inst["unitid"].astype("int64").tolist())
     name_of = dim_inst.set_index("unitid")["institution_name"].to_dict()
     state_of = dim_inst.set_index("unitid")["state"].to_dict()
+    no_file = campus_years[~campus_years["unitid"].isin(has_file)]
+    if len(no_file):
+        first = no_file.iloc[0]
+        raise RuntimeError(f"{len(no_file):,} reported campus-years have no campus in dim_institution.parquet "
+                           f"(first: {int(first['unitid'])} {int(first['year'])}). Run 03_build_dimensions.py "
+                           "again, then this step.")
+    campus_out = campus_years.assign(state=campus_years["unitid"].map(state_of))[
+        ["year", "unitid", "base_unitid", "state", "count"]].astype(
+        {"year": "int16", "unitid": "int32", "base_unitid": "int32", "count": "int32"})
+    campus_out = campus_out.sort_values(["year", "unitid"]).reset_index(drop=True)
+    print(f"  Of these without an incident (ranked with 0): {int((campus_out['count'] == 0).sum()):,}")
+
+    # Institution-years (a counting campus, incidents or not), their campuses and link campus
     rows = []
     for (year, base_id), group in campus_years.groupby(["year", "base_unitid"]):
-        if int(group["count"].sum()) == 0:
-            continue
-        candidates = group[group["unitid"].isin(has_file)]
-        if candidates.empty:
-            raise RuntimeError(f"Institution {base_id} has incidents in {year} but none of its campuses has a "
-                               "school file (dim_institution.parquet). Run 03_build_dimensions.py again.")
+        candidates = group
         main_campus = int(base_id) * 1000 + 1
         if main_campus in set(candidates["unitid"].tolist()):
             link = main_campus
@@ -1026,17 +1043,19 @@ def create_institution_tables(ranked_agg: pd.DataFrame, shared: pd.DataFrame, di
     inst_offense = inst_offense.astype({"year": "int16", "base_unitid": "int32", "count": "int32"})
     inst_offense = inst_offense.sort_values(["year", "base_unitid", "offense"]).reset_index(drop=True)
 
+    campus_out.to_parquet(CAMPUS_YEAR_PATH, index=False)
     inst_year.to_parquet(INSTITUTION_YEAR_PATH, index=False)
     inst_offense.to_parquet(INSTITUTION_OFFENSE_PATH, index=False)
 
     multi = inst_year[inst_year["campuses"] > 1]
     states_per_inst = campus_years.assign(state=campus_years["unitid"].map(state_of)).groupby(
         ["year", "base_unitid"])["state"].nunique()
-    print(f"  Institution-years: {len(inst_year):,}; with more than one campus: {len(multi):,}; "
-          f"with campuses in more than one state: {int((states_per_inst > 1).sum()):,}")
+    no_incident = len(inst_year) - len(set(zip(inst_offense["year"].tolist(), inst_offense["base_unitid"].tolist())))
+    print(f"  Institution-years: {len(inst_year):,} (without an incident: {no_incident:,}); with more than one "
+          f"campus: {len(multi):,}; with campuses in more than one state: {int((states_per_inst > 1).sum()):,}")
     no_fte = int(inst_year["fte"].isna().sum())
     print(f"  Without an FTE (no rate): {no_fte:,}")
-    print(f"  Saved to: {INSTITUTION_YEAR_PATH} and {INSTITUTION_OFFENSE_PATH.name}")
+    print(f"  Saved to: {CAMPUS_YEAR_PATH}, {INSTITUTION_YEAR_PATH.name} and {INSTITUTION_OFFENSE_PATH.name}")
     return inst_year, inst_offense
 
 
@@ -1109,7 +1128,7 @@ def main():
 
     aggs = CURATED_DIR / "aggs"
     written = [aggs / "agg_school_year_offense.parquet", SHARED_PATH, aggs / "agg_ivy_rankings.parquet",
-               INSTITUTION_YEAR_PATH, INSTITUTION_OFFENSE_PATH]
+               CAMPUS_YEAR_PATH, INSTITUTION_YEAR_PATH, INSTITUTION_OFFENSE_PATH]
     if not ivy_only:
         written += [aggs / "agg_state_rankings.parquet", aggs / "agg_national_rankings.parquet"]
     provenance.write_aggs_manifest(all_schools=not ivy_only, snapshot=inputs_before, outputs=written)

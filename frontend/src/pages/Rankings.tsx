@@ -12,7 +12,7 @@ import { ChevronUp, ChevronDown, ExternalLink, AlertCircle, Loader2, MapPin, Cal
 import { fetchRankings, getMetadata } from '../lib/api'
 import type { RankingsData, Metadata, Offense } from '../lib/types'
 import { cn, formatNumber, formatPercent, groupOffensesByFamily, isSmallSample } from '../lib/utils'
-import { CRIMINAL, countHeader, countPhrase } from '../lib/selection'
+import { CRIMINAL, compareText, countHeader, countPhrase } from '../lib/selection'
 import SchoolSearch from '../components/SchoolSearch'
 import OffensePopover from '../components/OffensePopover'
 
@@ -129,10 +129,14 @@ export default function Rankings() {
 
   // The rows of the selected view, in the file's order and with its ranks:
   // campuses by count, or institutions by rate
+  // Campuses (or institutions) that reported the year but had none of the
+  // selection are ranked after the entries with 0, tied: rank = entries + 1,
+  // listed by name, then UNITID (the pipeline's tie rule)
   const sortedRankings = useMemo((): Row[] => {
     if (!data) return []
     if (sortByRate) {
-      return (data.rateRankings[selectedOffense] || []).map((e) => {
+      const entries = data.rateRankings[selectedOffense] || []
+      const rows: Row[] = entries.map((e) => {
         const inst = data.institutions[String(e.id)]
         return {
           key: e.id,
@@ -147,9 +151,28 @@ export default function Rankings() {
           rate: e.rate,
         }
       })
+      const listed = new Set(entries.map((e) => e.id))
+      const zeros = Object.entries(data.institutions)
+        .map(([id, inst]) => ({ id: Number(id), inst }))
+        .filter(({ id }) => !listed.has(id))
+        .sort((a, b) => compareText(a.inst.name, b.inst.name) || a.id - b.id)
+      zeros.forEach(({ id, inst }) => rows.push({
+        key: id,
+        rank: entries.length + 1,
+        unitid: inst.unitid,
+        name: inst.name,
+        branch: false,
+        campuses: inst.campuses,
+        count: 0,
+        pct: 0,
+        fte: inst.fte,
+        rate: 0,
+      }))
+      return rows
     }
     const total = data.totals[selectedOffense] || 0
-    return (data.rankings[selectedOffense] || []).map((e) => {
+    const entries = data.rankings[selectedOffense] || []
+    const rows: Row[] = entries.map((e) => {
       const campus = data.campuses[String(e.unitid)]
       return {
         key: e.unitid,
@@ -164,6 +187,24 @@ export default function Rankings() {
         rate: null,
       }
     })
+    const listed = new Set(entries.map((e) => e.unitid))
+    const zeros = Object.entries(data.campuses)
+      .map(([id, campus]) => ({ id: Number(id), campus }))
+      .filter(({ id }) => !listed.has(id))
+      .sort((a, b) => compareText(a.campus.name, b.campus.name) || a.id - b.id)
+    zeros.forEach(({ id, campus }) => rows.push({
+      key: id,
+      rank: entries.length + 1,
+      unitid: id,
+      name: campus.name,
+      branch: !campus.main,
+      campuses: campus.campuses,
+      count: 0,
+      pct: 0,
+      fte: campus.fte,
+      rate: null,
+    }))
+    return rows
   }, [data, selectedOffense, sortByRate])
 
   const displayedRankings = useMemo(() => {

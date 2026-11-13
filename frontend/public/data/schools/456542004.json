@@ -7,18 +7,30 @@
   "ivyLeague": false,
   "isMainCampus": false,
   "campusType": "Branch Campus",
-  "fte": 563,
+  "fte": 630,
   "fteByYear": {
+    "2016": 499,
+    "2017": 514,
     "2018": 525,
-    "2019": 563
+    "2019": 563,
+    "2020": 594,
+    "2021": 630
   },
   "summary": {
-    "latestYear": 2019,
-    "totalIncidents": 1,
-    "topOffense": "Aggravated Assault",
-    "topOffenseCount": 1
+    "latestYear": 2021,
+    "totalIncidents": 0,
+    "topOffense": null,
+    "topOffenseCount": 0
   },
   "yearlyTotals": [
+    {
+      "year": 2016,
+      "total": 0
+    },
+    {
+      "year": 2017,
+      "total": 0
+    },
     {
       "year": 2018,
       "total": 5
@@ -26,6 +38,14 @@
     {
       "year": 2019,
       "total": 1
+    },
+    {
+      "year": 2020,
+      "total": 0
+    },
+    {
+      "year": 2021,
+      "total": 0
     }
   ],
   "trends": [
@@ -48,21 +68,33 @@
       "count": 1
     }
   ],
-  "breakdownByOffense": [
-    {
-      "offense": "Aggravated Assault",
-      "count": 1
-    }
-  ],
-  "breakdownByGeo": [
-    {
-      "geo": "On-campus",
-      "count": 1
-    }
+  "breakdownByOffense": [],
+  "breakdownByGeo": [],
+  "notReported": [
+    2015,
+    2022,
+    2023,
+    2024
   ],
   "institution": {
     "id": 456542,
     "byYear": {
+      "2016": {
+        "campuses": 5,
+        "online": 0,
+        "rateRanked": false
+      },
+      "2017": {
+        "campuses": 5,
+        "online": 0,
+        "rateRanked": false,
+        "counts": {
+          "criminal": 5,
+          "all": 5,
+          "aggravated_assault": 4,
+          "rape": 1
+        }
+      },
       "2018": {
         "campuses": 5,
         "online": 0,
@@ -89,6 +121,37 @@
           "motor_vehicle_theft": 2,
           "rape": 2,
           "stalking": 1
+        }
+      },
+      "2020": {
+        "campuses": 6,
+        "online": 25,
+        "rateRanked": false,
+        "counts": {
+          "criminal": 90,
+          "all": 101,
+          "aggravated_assault": 72,
+          "burglary": 9,
+          "domestic_violence": 2,
+          "drug_arrest": 4,
+          "liquor_arrest": 1,
+          "rape": 3,
+          "robbery": 6,
+          "weapons_arrest": 4
+        }
+      },
+      "2021": {
+        "campuses": 6,
+        "online": 31,
+        "rateRanked": false,
+        "counts": {
+          "criminal": 18,
+          "all": 19,
+          "aggravated_assault": 2,
+          "burglary": 11,
+          "domestic_violence": 1,
+          "motor_vehicle_theft": 4,
+          "rape": 1
         }
       }
     }

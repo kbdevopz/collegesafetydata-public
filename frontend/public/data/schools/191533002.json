@@ -7,17 +7,19 @@
   "ivyLeague": false,
   "isMainCampus": false,
   "campusType": "Branch Campus",
-  "fte": 1101,
+  "fte": 1080,
   "fteByYear": {
     "2020": 1197,
     "2021": 1150,
-    "2023": 1101
+    "2022": 1088,
+    "2023": 1101,
+    "2024": 1080
   },
   "summary": {
-    "latestYear": 2023,
-    "totalIncidents": 1,
-    "topOffense": "Rape",
-    "topOffenseCount": 1
+    "latestYear": 2024,
+    "totalIncidents": 0,
+    "topOffense": null,
+    "topOffenseCount": 0
   },
   "yearlyTotals": [
     {
@@ -29,8 +31,16 @@
       "total": 1
     },
     {
+      "year": 2022,
+      "total": 0
+    },
+    {
       "year": 2023,
       "total": 1
+    },
+    {
+      "year": 2024,
+      "total": 0
     }
   ],
   "trends": [
@@ -53,21 +63,14 @@
       "count": 1
     }
   ],
-  "breakdownByOffense": [
-    {
-      "offense": "Rape",
-      "count": 1
-    }
-  ],
-  "breakdownByGeo": [
-    {
-      "geo": "On-campus",
-      "count": 1
-    },
-    {
-      "geo": "Residence halls",
-      "count": 1
-    }
+  "breakdownByOffense": [],
+  "breakdownByGeo": [],
+  "notReported": [
+    2015,
+    2016,
+    2017,
+    2018,
+    2019
   ],
   "institution": {
     "id": 191533,
@@ -107,6 +110,24 @@
           "weapons_discipline": 1
         }
       },
+      "2022": {
+        "campuses": 2,
+        "online": 0,
+        "rateRanked": true,
+        "counts": {
+          "criminal": 14,
+          "all": 209,
+          "burglary": 1,
+          "dating_violence": 8,
+          "domestic_violence": 1,
+          "drug_discipline": 43,
+          "fondling": 7,
+          "liquor_discipline": 122,
+          "rape": 6,
+          "stalking": 10,
+          "weapons_discipline": 11
+        }
+      },
       "2023": {
         "campuses": 2,
         "online": 0,
@@ -123,6 +144,23 @@
           "rape": 114,
           "stalking": 13,
           "weapons_discipline": 3
+        }
+      },
+      "2024": {
+        "campuses": 2,
+        "online": 0,
+        "rateRanked": true,
+        "counts": {
+          "criminal": 7,
+          "all": 137,
+          "burglary": 3,
+          "dating_violence": 8,
+          "drug_discipline": 65,
+          "liquor_discipline": 51,
+          "rape": 4,
+          "stalking": 4,
+          "weapons_arrest": 1,
+          "weapons_discipline": 1
         }
       }
     }

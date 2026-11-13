@@ -7,20 +7,35 @@
   "ivyLeague": false,
   "isMainCampus": false,
   "campusType": "Branch Campus",
-  "fte": 813,
+  "fte": 731,
   "fteByYear": {
-    "2016": 813
+    "2015": 692,
+    "2016": 813,
+    "2017": 795,
+    "2018": 731
   },
   "summary": {
-    "latestYear": 2016,
-    "totalIncidents": 5,
-    "topOffense": "Aggravated Assault",
-    "topOffenseCount": 2
+    "latestYear": 2018,
+    "totalIncidents": 0,
+    "topOffense": null,
+    "topOffenseCount": 0
   },
   "yearlyTotals": [
     {
+      "year": 2015,
+      "total": 0
+    },
+    {
       "year": 2016,
       "total": 5
+    },
+    {
+      "year": 2017,
+      "total": 0
+    },
+    {
+      "year": 2018,
+      "total": 0
     }
   ],
   "trends": [
@@ -43,29 +58,32 @@
       "count": 1
     }
   ],
-  "breakdownByOffense": [
-    {
-      "offense": "Aggravated Assault",
-      "count": 2
-    },
-    {
-      "offense": "Burglary",
-      "count": 2
-    },
-    {
-      "offense": "Robbery",
-      "count": 1
-    }
-  ],
-  "breakdownByGeo": [
-    {
-      "geo": "Non-campus",
-      "count": 5
-    }
+  "breakdownByOffense": [],
+  "breakdownByGeo": [],
+  "notReported": [
+    2019,
+    2020,
+    2021,
+    2022,
+    2023,
+    2024
   ],
   "institution": {
     "id": 215691,
     "byYear": {
+      "2015": {
+        "campuses": 2,
+        "online": 6,
+        "rateRanked": false,
+        "counts": {
+          "criminal": 4,
+          "all": 12,
+          "burglary": 3,
+          "fondling": 1,
+          "liquor_arrest": 1,
+          "liquor_discipline": 7
+        }
+      },
       "2016": {
         "campuses": 2,
         "online": 9,
@@ -82,6 +100,40 @@
           "rape": 1,
           "robbery": 1,
           "weapons_discipline": 2
+        }
+      },
+      "2017": {
+        "campuses": 2,
+        "online": 11,
+        "rateRanked": false,
+        "counts": {
+          "criminal": 2,
+          "all": 118,
+          "burglary": 1,
+          "dating_violence": 8,
+          "drug_arrest": 7,
+          "drug_discipline": 38,
+          "liquor_arrest": 10,
+          "liquor_discipline": 51,
+          "rape": 1,
+          "stalking": 1,
+          "weapons_discipline": 1
+        }
+      },
+      "2018": {
+        "campuses": 2,
+        "online": 17,
+        "rateRanked": false,
+        "counts": {
+          "criminal": 1,
+          "all": 85,
+          "dating_violence": 1,
+          "drug_arrest": 2,
+          "drug_discipline": 57,
+          "liquor_arrest": 1,
+          "liquor_discipline": 21,
+          "rape": 1,
+          "stalking": 2
         }
       }
     }

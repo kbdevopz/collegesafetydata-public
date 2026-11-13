@@ -7,18 +7,29 @@
   "ivyLeague": false,
   "isMainCampus": false,
   "campusType": "Branch Campus",
-  "fte": 890,
+  "fte": 494,
   "fteByYear": {
+    "2015": 3854,
+    "2016": 2597,
     "2017": 1600,
-    "2018": 890
+    "2018": 890,
+    "2019": 494
   },
   "summary": {
-    "latestYear": 2018,
-    "totalIncidents": 2,
-    "topOffense": "Burglary",
-    "topOffenseCount": 1
+    "latestYear": 2019,
+    "totalIncidents": 0,
+    "topOffense": null,
+    "topOffenseCount": 0
   },
   "yearlyTotals": [
+    {
+      "year": 2015,
+      "total": 0
+    },
+    {
+      "year": 2016,
+      "total": 0
+    },
     {
       "year": 2017,
       "total": 3
@@ -26,6 +37,10 @@
     {
       "year": 2018,
       "total": 2
+    },
+    {
+      "year": 2019,
+      "total": 0
     }
   ],
   "trends": [
@@ -60,29 +75,34 @@
       "count": 1
     }
   ],
-  "breakdownByOffense": [
-    {
-      "offense": "Burglary",
-      "count": 1
-    },
-    {
-      "offense": "Drug Arrest",
-      "count": 1
-    }
-  ],
-  "breakdownByGeo": [
-    {
-      "geo": "On-campus",
-      "count": 1
-    },
-    {
-      "geo": "Public property",
-      "count": 1
-    }
+  "breakdownByOffense": [],
+  "breakdownByGeo": [],
+  "notReported": [
+    2020,
+    2021,
+    2022,
+    2023,
+    2024
   ],
   "institution": {
     "id": 484756,
     "byYear": {
+      "2015": {
+        "campuses": 9,
+        "online": 24,
+        "rateRanked": true,
+        "counts": {
+          "criminal": 1,
+          "all": 2,
+          "drug_arrest": 1,
+          "motor_vehicle_theft": 1
+        }
+      },
+      "2016": {
+        "campuses": 6,
+        "online": 28,
+        "rateRanked": true
+      },
       "2017": {
         "campuses": 6,
         "online": 32,
@@ -107,6 +127,16 @@
           "burglary": 1,
           "domestic_violence": 1,
           "drug_arrest": 6
+        }
+      },
+      "2019": {
+        "campuses": 5,
+        "online": 35,
+        "rateRanked": false,
+        "counts": {
+          "criminal": 1,
+          "all": 1,
+          "aggravated_assault": 1
         }
       }
     }

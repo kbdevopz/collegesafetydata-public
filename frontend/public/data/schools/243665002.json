@@ -7,22 +7,30 @@
   "ivyLeague": false,
   "isMainCampus": false,
   "campusType": "Branch Campus",
-  "fte": 1212,
+  "fte": 1399,
   "fteByYear": {
+    "2015": 1858,
     "2016": 1845,
     "2017": 1680,
     "2018": 1571,
     "2019": 1612,
     "2020": 1392,
-    "2021": 1212
+    "2021": 1212,
+    "2022": 1254,
+    "2023": 1341,
+    "2024": 1399
   },
   "summary": {
-    "latestYear": 2021,
-    "totalIncidents": 1,
-    "topOffense": "Rape",
-    "topOffenseCount": 1
+    "latestYear": 2024,
+    "totalIncidents": 0,
+    "topOffense": null,
+    "topOffenseCount": 0
   },
   "yearlyTotals": [
+    {
+      "year": 2015,
+      "total": 0
+    },
     {
       "year": 2016,
       "total": 1
@@ -46,6 +54,18 @@
     {
       "year": 2021,
       "total": 1
+    },
+    {
+      "year": 2022,
+      "total": 0
+    },
+    {
+      "year": 2023,
+      "total": 0
+    },
+    {
+      "year": 2024,
+      "total": 0
     }
   ],
   "trends": [
@@ -86,25 +106,26 @@
       "count": 1
     }
   ],
-  "breakdownByOffense": [
-    {
-      "offense": "Rape",
-      "count": 1
-    }
-  ],
-  "breakdownByGeo": [
-    {
-      "geo": "On-campus",
-      "count": 1
-    },
-    {
-      "geo": "Residence halls",
-      "count": 1
-    }
-  ],
+  "breakdownByOffense": [],
+  "breakdownByGeo": [],
   "institution": {
     "id": 243665,
     "byYear": {
+      "2015": {
+        "campuses": 2,
+        "online": 1,
+        "rateRanked": true,
+        "counts": {
+          "criminal": 4,
+          "all": 10,
+          "burglary": 3,
+          "domestic_violence": 1,
+          "drug_discipline": 1,
+          "liquor_discipline": 3,
+          "motor_vehicle_theft": 1,
+          "weapons_arrest": 1
+        }
+      },
       "2016": {
         "campuses": 2,
         "online": 4,
@@ -174,6 +195,42 @@
           "domestic_violence": 1,
           "liquor_discipline": 2,
           "rape": 1
+        }
+      },
+      "2022": {
+        "campuses": 2,
+        "online": 16,
+        "rateRanked": true,
+        "counts": {
+          "criminal": 2,
+          "all": 9,
+          "drug_discipline": 4,
+          "liquor_discipline": 3,
+          "rape": 2
+        }
+      },
+      "2023": {
+        "campuses": 2,
+        "online": 12,
+        "rateRanked": true,
+        "counts": {
+          "criminal": 3,
+          "all": 3,
+          "rape": 3
+        }
+      },
+      "2024": {
+        "campuses": 2,
+        "online": 16,
+        "rateRanked": true,
+        "counts": {
+          "criminal": 5,
+          "all": 10,
+          "drug_discipline": 5,
+          "fondling": 1,
+          "motor_vehicle_theft": 1,
+          "murder": 2,
+          "robbery": 1
         }
       }
     }

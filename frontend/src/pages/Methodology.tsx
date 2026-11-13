@@ -95,6 +95,12 @@ export default function Methodology() {
                         </span>
                       </div>
                       <div className="flex items-start gap-2">
+                        <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+                        <span className="text-gray-600 dark:text-gray-400">
+                          <strong className="text-gray-900 dark:text-gray-200">Zero is not the same as not reported:</strong> A campus reported a year when its row in that release has at least one figure that is not blank. A reported year without incidents shows as 0 on the school page and in its charts, and the campus is ranked with 0 (rate 0 when its institution is in the rate rankings), after the campuses with incidents, sharing one rank, by name. A year a campus did not report has no figures at all: its page lists it as not reported and its charts leave a gap there, not a 0. Campuses that reported but never had an incident have school pages too.
+                        </span>
+                      </div>
+                      <div className="flex items-start gap-2">
                         <Info className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
                         <span className="text-gray-600 dark:text-gray-400">
                           <strong className="text-gray-900 dark:text-gray-200">Known errors in DOE files:</strong> In the 2021-2023 release (Crime2024SAS.zip), the residence-hall disciplinary file repeats the on-campus figures for 2022 and 2023, and the residence-hall arrest file has no 2022 liquor-law column. For campuses whose 2022 or 2023 figures come from that release, 2022 residence-hall disciplinary actions and liquor-law arrests come from the 2020-2022 release, and 2023 residence-hall disciplinary actions are left blank.
@@ -259,15 +265,16 @@ export default function Methodology() {
                   enrolled exclusively in distance education): Clery figures cover the campus, which most of their
                   students never attend, so their rate is not comparable. School pages still show these rates, with a
                   note. An institution without NCES's online figure is not left out. In fall 2020 and 2021, when many
-                  institutions taught mostly online, many more are left out: about 560 of the 1,940 institutions with
-                  1,000+ FTE in 2020 and 250 in 2021, against about 80 in 2019.
+                  institutions taught mostly online, many more are left out: about 680 of the 2,260 institutions with
+                  1,000+ FTE in 2020 and 330 in 2021, against about 100 in 2019.
                 </p>
               </div>
               <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4 sm:col-span-2">
                 <h5 className="font-medium text-gray-900 dark:text-gray-100 text-sm mb-2">Ties in Rankings</h5>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
                   Schools with the same count (or the same rate) share a rank, and the next rank skips the places
-                  the tie takes: 1, 2, 2, 4. Tied schools are listed by name.
+                  the tie takes: 1, 2, 2, 4. Tied schools are listed by name. Campuses that reported the year but
+                  had none of the selected category come last, with 0, sharing one rank.
                 </p>
               </div>
             </div>
@@ -506,8 +513,8 @@ export default function Methodology() {
               <h5 className="font-medium text-gray-900 dark:text-gray-100 text-sm mb-3">Audit Checks Performed:</h5>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
                 {[
-                  "School completeness (every school has a published file)",
-                  "Incident total accuracy (each school file's yearly totals match the aggregate table)",
+                  "School completeness (every campus that reported a year, zeros included, has a published file and is in the search)",
+                  "Incident total accuracy (each school file has exactly the years the campus reported, and its yearly totals match the aggregate table)",
                   "FTE coverage by year",
                   "Rate calculation verification",
                   "Ranking order validation (ties share a rank: 1, 2, 2, 4)",

@@ -7,19 +7,25 @@
   "ivyLeague": false,
   "isMainCampus": false,
   "campusType": "Branch Campus",
-  "fte": 4942,
+  "fte": 5081,
   "fteByYear": {
+    "2020": 5405,
     "2021": 4579,
     "2022": 4853,
-    "2023": 4942
+    "2023": 4942,
+    "2024": 5081
   },
   "summary": {
-    "latestYear": 2023,
-    "totalIncidents": 3,
-    "topOffense": "Drug Arrest",
-    "topOffenseCount": 2
+    "latestYear": 2024,
+    "totalIncidents": 0,
+    "topOffense": null,
+    "topOffenseCount": 0
   },
   "yearlyTotals": [
+    {
+      "year": 2020,
+      "total": 0
+    },
     {
       "year": 2021,
       "total": 3
@@ -31,6 +37,10 @@
     {
       "year": 2023,
       "total": 3
+    },
+    {
+      "year": 2024,
+      "total": 0
     }
   ],
   "trends": [
@@ -59,25 +69,34 @@
       "count": 1
     }
   ],
-  "breakdownByOffense": [
-    {
-      "offense": "Drug Arrest",
-      "count": 2
-    },
-    {
-      "offense": "Liquor Arrest",
-      "count": 1
-    }
-  ],
-  "breakdownByGeo": [
-    {
-      "geo": "Public property",
-      "count": 3
-    }
+  "breakdownByOffense": [],
+  "breakdownByGeo": [],
+  "notReported": [
+    2015,
+    2016,
+    2017,
+    2018,
+    2019
   ],
   "institution": {
     "id": 214379,
     "byYear": {
+      "2020": {
+        "campuses": 3,
+        "online": 29,
+        "rateRanked": true,
+        "counts": {
+          "criminal": 2,
+          "all": 23,
+          "aggravated_assault": 1,
+          "dating_violence": 3,
+          "domestic_violence": 1,
+          "drug_arrest": 7,
+          "drug_discipline": 7,
+          "fondling": 1,
+          "liquor_discipline": 3
+        }
+      },
       "2021": {
         "campuses": 3,
         "online": 27,
@@ -128,6 +147,26 @@
           "liquor_discipline": 31,
           "rape": 2,
           "weapons_discipline": 1
+        }
+      },
+      "2024": {
+        "campuses": 3,
+        "online": 36,
+        "rateRanked": true,
+        "counts": {
+          "criminal": 13,
+          "all": 101,
+          "aggravated_assault": 6,
+          "dating_violence": 11,
+          "drug_arrest": 10,
+          "drug_discipline": 24,
+          "fondling": 3,
+          "liquor_arrest": 2,
+          "liquor_discipline": 29,
+          "rape": 4,
+          "stalking": 9,
+          "weapons_arrest": 1,
+          "weapons_discipline": 2
         }
       }
     }

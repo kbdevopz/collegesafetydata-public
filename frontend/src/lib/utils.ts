@@ -89,24 +89,23 @@ export function truncate(text: string, maxLength: number): string {
  */
 export function transformTrendsForChart(
   trends: TrendPoint[],
-  offenses: string[]
+  offenses: string[],
+  years: number[],
+  reported: Set<number>
 ): ChartDataPoint[] {
-  // Group by year
-  const byYear = new Map<number, ChartDataPoint>()
-
+  // One point per year of `years`: each offense's count, 0 in a reported
+  // year without it, and null (a gap in the line) in a year not reported
+  const counts = new Map<string, number>()
   for (const point of trends) {
-    if (!offenses.includes(point.offense)) continue
-
-    if (!byYear.has(point.year)) {
-      byYear.set(point.year, { year: point.year })
-    }
-
-    const yearData = byYear.get(point.year)!
-    yearData[point.offense] = point.count
+    if (offenses.includes(point.offense)) counts.set(`${point.year}|${point.offense}`, point.count)
   }
-
-  // Convert to array and sort by year
-  return Array.from(byYear.values()).sort((a, b) => a.year - b.year)
+  return years.map((year) => {
+    const yearData: ChartDataPoint = { year }
+    for (const offense of offenses) {
+      yearData[offense] = reported.has(year) ? counts.get(`${year}|${offense}`) ?? 0 : null
+    }
+    return yearData
+  })
 }
 
 /**

@@ -7,21 +7,34 @@
   "ivyLeague": false,
   "isMainCampus": true,
   "campusType": "Main Campus",
-  "fte": 1450,
+  "fte": 1480,
   "fteByYear": {
+    "2015": 3440,
+    "2016": 3165,
     "2017": 2834,
     "2018": 2845,
     "2019": 2335,
     "2020": 2109,
-    "2023": 1450
+    "2021": 1731,
+    "2022": 1577,
+    "2023": 1450,
+    "2024": 1480
   },
   "summary": {
-    "latestYear": 2023,
-    "totalIncidents": 1,
-    "topOffense": "Stalking",
-    "topOffenseCount": 1
+    "latestYear": 2024,
+    "totalIncidents": 0,
+    "topOffense": null,
+    "topOffenseCount": 0
   },
   "yearlyTotals": [
+    {
+      "year": 2015,
+      "total": 0
+    },
+    {
+      "year": 2016,
+      "total": 0
+    },
     {
       "year": 2017,
       "total": 2
@@ -39,8 +52,20 @@
       "total": 1
     },
     {
+      "year": 2021,
+      "total": 0
+    },
+    {
+      "year": 2022,
+      "total": 0
+    },
+    {
       "year": 2023,
       "total": 1
+    },
+    {
+      "year": 2024,
+      "total": 0
     }
   ],
   "trends": [
@@ -81,21 +106,34 @@
       "count": 1
     }
   ],
-  "breakdownByOffense": [
-    {
-      "offense": "Stalking",
-      "count": 1
-    }
-  ],
-  "breakdownByGeo": [
-    {
-      "geo": "On-campus",
-      "count": 1
-    }
-  ],
+  "breakdownByOffense": [],
+  "breakdownByGeo": [],
   "institution": {
     "id": 183789,
     "byYear": {
+      "2015": {
+        "campuses": 5,
+        "online": 17,
+        "rateRanked": true,
+        "counts": {
+          "all": 2,
+          "domestic_violence": 1,
+          "stalking": 1
+        }
+      },
+      "2016": {
+        "campuses": 5,
+        "online": 20,
+        "rateRanked": true,
+        "counts": {
+          "criminal": 2,
+          "all": 7,
+          "domestic_violence": 1,
+          "drug_arrest": 3,
+          "robbery": 2,
+          "stalking": 1
+        }
+      },
       "2017": {
         "campuses": 4,
         "online": 21,
@@ -128,10 +166,25 @@
         "online": 52,
         "rateRanked": false
       },
+      "2021": {
+        "campuses": 3,
+        "online": 48,
+        "rateRanked": true
+      },
+      "2022": {
+        "campuses": 3,
+        "online": 52,
+        "rateRanked": false
+      },
       "2023": {
         "campuses": 3,
         "online": 52,
         "rateRanked": false
+      },
+      "2024": {
+        "campuses": 3,
+        "online": 49,
+        "rateRanked": true
       }
     }
   }

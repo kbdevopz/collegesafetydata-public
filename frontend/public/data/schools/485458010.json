@@ -9,17 +9,23 @@
   "campusType": "Branch Campus",
   "fte": 1818,
   "fteByYear": {
+    "2020": 1619,
     "2021": 1807,
     "2022": 1623,
-    "2023": 1818
+    "2023": 1818,
+    "2024": 1818
   },
   "summary": {
-    "latestYear": 2023,
-    "totalIncidents": 6,
-    "topOffense": "Drug Discipline",
-    "topOffenseCount": 6
+    "latestYear": 2024,
+    "totalIncidents": 0,
+    "topOffense": null,
+    "topOffenseCount": 0
   },
   "yearlyTotals": [
+    {
+      "year": 2020,
+      "total": 0
+    },
     {
       "year": 2021,
       "total": 3
@@ -31,6 +37,10 @@
     {
       "year": 2023,
       "total": 6
+    },
+    {
+      "year": 2024,
+      "total": 0
     }
   ],
   "trends": [
@@ -59,21 +69,31 @@
       "count": 6
     }
   ],
-  "breakdownByOffense": [
-    {
-      "offense": "Drug Discipline",
-      "count": 6
-    }
-  ],
-  "breakdownByGeo": [
-    {
-      "geo": "On-campus",
-      "count": 6
-    }
+  "breakdownByOffense": [],
+  "breakdownByGeo": [],
+  "notReported": [
+    2015,
+    2016,
+    2017,
+    2018,
+    2019
   ],
   "institution": {
     "id": 485458,
     "byYear": {
+      "2020": {
+        "campuses": 8,
+        "online": 26,
+        "rateRanked": true,
+        "counts": {
+          "criminal": 8,
+          "all": 13,
+          "aggravated_assault": 4,
+          "burglary": 1,
+          "drug_arrest": 5,
+          "motor_vehicle_theft": 3
+        }
+      },
       "2021": {
         "campuses": 8,
         "online": 23,
@@ -116,6 +136,17 @@
           "drug_discipline": 6,
           "stalking": 1,
           "weapons_arrest": 1
+        }
+      },
+      "2024": {
+        "campuses": 8,
+        "online": 22,
+        "rateRanked": true,
+        "counts": {
+          "all": 4,
+          "drug_discipline": 1,
+          "liquor_arrest": 1,
+          "stalking": 2
         }
       }
     }

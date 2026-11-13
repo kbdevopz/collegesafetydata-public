@@ -7,20 +7,40 @@
   "ivyLeague": false,
   "isMainCampus": false,
   "campusType": "Branch Campus",
-  "fte": 1678,
+  "fte": 1466,
   "fteByYear": {
-    "2018": 1678
+    "2016": 1327,
+    "2017": 1568,
+    "2018": 1678,
+    "2019": 1604,
+    "2020": 1466
   },
   "summary": {
-    "latestYear": 2018,
-    "totalIncidents": 1,
-    "topOffense": "Burglary",
-    "topOffenseCount": 1
+    "latestYear": 2020,
+    "totalIncidents": 0,
+    "topOffense": null,
+    "topOffenseCount": 0
   },
   "yearlyTotals": [
     {
+      "year": 2016,
+      "total": 0
+    },
+    {
+      "year": 2017,
+      "total": 0
+    },
+    {
       "year": 2018,
       "total": 1
+    },
+    {
+      "year": 2019,
+      "total": 0
+    },
+    {
+      "year": 2020,
+      "total": 0
     }
   ],
   "trends": [
@@ -31,21 +51,33 @@
       "count": 1
     }
   ],
-  "breakdownByOffense": [
-    {
-      "offense": "Burglary",
-      "count": 1
-    }
-  ],
-  "breakdownByGeo": [
-    {
-      "geo": "On-campus",
-      "count": 1
-    }
+  "breakdownByOffense": [],
+  "breakdownByGeo": [],
+  "notReported": [
+    2015,
+    2021,
+    2022,
+    2023,
+    2024
   ],
   "institution": {
     "id": 158088,
     "byYear": {
+      "2016": {
+        "campuses": 9,
+        "online": 3,
+        "rateRanked": true
+      },
+      "2017": {
+        "campuses": 9,
+        "online": 2,
+        "rateRanked": true,
+        "counts": {
+          "criminal": 3,
+          "all": 3,
+          "burglary": 3
+        }
+      },
       "2018": {
         "campuses": 8,
         "online": 2,
@@ -56,6 +88,29 @@
           "burglary": 2,
           "domestic_violence": 1,
           "drug_arrest": 1
+        }
+      },
+      "2019": {
+        "campuses": 8,
+        "online": 2,
+        "rateRanked": true,
+        "counts": {
+          "criminal": 3,
+          "all": 4,
+          "burglary": 1,
+          "drug_arrest": 1,
+          "fondling": 1,
+          "robbery": 1
+        }
+      },
+      "2020": {
+        "campuses": 8,
+        "online": 3,
+        "rateRanked": true,
+        "counts": {
+          "criminal": 1,
+          "all": 1,
+          "motor_vehicle_theft": 1
         }
       }
     }

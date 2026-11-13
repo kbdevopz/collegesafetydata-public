@@ -7,20 +7,30 @@
   "ivyLeague": false,
   "isMainCampus": false,
   "campusType": "Branch Campus",
-  "fte": 761,
+  "fte": 1055,
   "fteByYear": {
-    "2022": 761
+    "2022": 761,
+    "2023": 801,
+    "2024": 1055
   },
   "summary": {
-    "latestYear": 2022,
-    "totalIncidents": 1,
-    "topOffense": "Motor Vehicle Theft",
-    "topOffenseCount": 1
+    "latestYear": 2024,
+    "totalIncidents": 0,
+    "topOffense": null,
+    "topOffenseCount": 0
   },
   "yearlyTotals": [
     {
       "year": 2022,
       "total": 1
+    },
+    {
+      "year": 2023,
+      "total": 0
+    },
+    {
+      "year": 2024,
+      "total": 0
     }
   ],
   "trends": [
@@ -31,17 +41,16 @@
       "count": 1
     }
   ],
-  "breakdownByOffense": [
-    {
-      "offense": "Motor Vehicle Theft",
-      "count": 1
-    }
-  ],
-  "breakdownByGeo": [
-    {
-      "geo": "Public property",
-      "count": 1
-    }
+  "breakdownByOffense": [],
+  "breakdownByGeo": [],
+  "notReported": [
+    2015,
+    2016,
+    2017,
+    2018,
+    2019,
+    2020,
+    2021
   ],
   "institution": {
     "id": 454865,
@@ -50,6 +59,21 @@
         "campuses": 3,
         "online": 24,
         "rateRanked": false
+      },
+      "2023": {
+        "campuses": 3,
+        "online": 23,
+        "rateRanked": false
+      },
+      "2024": {
+        "campuses": 3,
+        "online": 22,
+        "rateRanked": true,
+        "counts": {
+          "criminal": 1,
+          "all": 1,
+          "motor_vehicle_theft": 1
+        }
       }
     }
   }

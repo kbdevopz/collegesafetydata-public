@@ -7,18 +7,22 @@
   "ivyLeague": false,
   "isMainCampus": false,
   "campusType": "Branch Campus",
-  "fte": 3577,
+  "fte": 2982,
   "fteByYear": {
     "2015": 4198,
     "2016": 3805,
     "2017": 3803,
-    "2019": 3577
+    "2018": 3730,
+    "2019": 3577,
+    "2020": 3279,
+    "2021": 3093,
+    "2022": 2982
   },
   "summary": {
-    "latestYear": 2019,
-    "totalIncidents": 1,
-    "topOffense": "Arson",
-    "topOffenseCount": 1
+    "latestYear": 2022,
+    "totalIncidents": 0,
+    "topOffense": null,
+    "topOffenseCount": 0
   },
   "yearlyTotals": [
     {
@@ -34,8 +38,24 @@
       "total": 3
     },
     {
+      "year": 2018,
+      "total": 0
+    },
+    {
       "year": 2019,
       "total": 1
+    },
+    {
+      "year": 2020,
+      "total": 0
+    },
+    {
+      "year": 2021,
+      "total": 0
+    },
+    {
+      "year": 2022,
+      "total": 0
     }
   ],
   "trends": [
@@ -88,17 +108,11 @@
       "count": 1
     }
   ],
-  "breakdownByOffense": [
-    {
-      "offense": "Arson",
-      "count": 1
-    }
-  ],
-  "breakdownByGeo": [
-    {
-      "geo": "On-campus",
-      "count": 1
-    }
+  "breakdownByOffense": [],
+  "breakdownByGeo": [],
+  "notReported": [
+    2023,
+    2024
   ],
   "institution": {
     "id": 130396,
@@ -159,6 +173,21 @@
           "weapons_discipline": 1
         }
       },
+      "2018": {
+        "campuses": 2,
+        "online": 3,
+        "rateRanked": true,
+        "counts": {
+          "criminal": 1,
+          "all": 9,
+          "domestic_violence": 2,
+          "drug_arrest": 3,
+          "liquor_arrest": 1,
+          "liquor_discipline": 1,
+          "motor_vehicle_theft": 1,
+          "stalking": 1
+        }
+      },
       "2019": {
         "campuses": 2,
         "online": 4,
@@ -173,6 +202,49 @@
           "fondling": 1,
           "liquor_arrest": 1,
           "robbery": 1
+        }
+      },
+      "2020": {
+        "campuses": 2,
+        "online": 88,
+        "rateRanked": false,
+        "counts": {
+          "criminal": 4,
+          "all": 10,
+          "domestic_violence": 2,
+          "drug_arrest": 1,
+          "fondling": 1,
+          "liquor_arrest": 1,
+          "motor_vehicle_theft": 1,
+          "robbery": 2,
+          "stalking": 2
+        }
+      },
+      "2021": {
+        "campuses": 2,
+        "online": 62,
+        "rateRanked": false,
+        "counts": {
+          "criminal": 4,
+          "all": 8,
+          "aggravated_assault": 2,
+          "domestic_violence": 1,
+          "drug_arrest": 1,
+          "motor_vehicle_theft": 1,
+          "robbery": 1,
+          "weapons_arrest": 2
+        }
+      },
+      "2022": {
+        "campuses": 2,
+        "online": 27,
+        "rateRanked": true,
+        "counts": {
+          "criminal": 7,
+          "all": 7,
+          "aggravated_assault": 3,
+          "arson": 1,
+          "motor_vehicle_theft": 3
         }
       }
     }

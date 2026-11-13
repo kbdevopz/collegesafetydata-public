@@ -7,16 +7,17 @@
   "ivyLeague": false,
   "isMainCampus": false,
   "campusType": "Branch Campus",
-  "fte": 800,
+  "fte": 700,
   "fteByYear": {
     "2016": 822,
-    "2017": 800
+    "2017": 800,
+    "2018": 700
   },
   "summary": {
-    "latestYear": 2017,
-    "totalIncidents": 2,
-    "topOffense": "Motor Vehicle Theft",
-    "topOffenseCount": 1
+    "latestYear": 2018,
+    "totalIncidents": 0,
+    "topOffense": null,
+    "topOffenseCount": 0
   },
   "yearlyTotals": [
     {
@@ -26,6 +27,10 @@
     {
       "year": 2017,
       "total": 2
+    },
+    {
+      "year": 2018,
+      "total": 0
     }
   ],
   "trends": [
@@ -78,21 +83,16 @@
       "count": 1
     }
   ],
-  "breakdownByOffense": [
-    {
-      "offense": "Motor Vehicle Theft",
-      "count": 1
-    },
-    {
-      "offense": "Weapons Arrest",
-      "count": 1
-    }
-  ],
-  "breakdownByGeo": [
-    {
-      "geo": "Public property",
-      "count": 2
-    }
+  "breakdownByOffense": [],
+  "breakdownByGeo": [],
+  "notReported": [
+    2015,
+    2019,
+    2020,
+    2021,
+    2022,
+    2023,
+    2024
   ],
   "institution": {
     "id": 210076,
@@ -116,6 +116,18 @@
         "campuses": 4,
         "online": 0,
         "rateRanked": false
+      },
+      "2018": {
+        "campuses": 3,
+        "online": 0,
+        "rateRanked": false,
+        "counts": {
+          "criminal": 2,
+          "all": 3,
+          "motor_vehicle_theft": 1,
+          "murder": 1,
+          "weapons_arrest": 1
+        }
       }
     }
   }

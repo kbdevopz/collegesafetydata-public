@@ -7,18 +7,25 @@
   "ivyLeague": false,
   "isMainCampus": false,
   "campusType": "Branch Campus",
-  "fte": 5239,
+  "fte": 6621,
   "fteByYear": {
+    "2015": 5605,
     "2016": 5553,
-    "2017": 5239
+    "2017": 5239,
+    "2018": 5275,
+    "2019": 6621
   },
   "summary": {
-    "latestYear": 2017,
-    "totalIncidents": 2,
-    "topOffense": "Burglary",
-    "topOffenseCount": 2
+    "latestYear": 2019,
+    "totalIncidents": 0,
+    "topOffense": null,
+    "topOffenseCount": 0
   },
   "yearlyTotals": [
+    {
+      "year": 2015,
+      "total": 0
+    },
     {
       "year": 2016,
       "total": 2
@@ -26,6 +33,14 @@
     {
       "year": 2017,
       "total": 2
+    },
+    {
+      "year": 2018,
+      "total": 0
+    },
+    {
+      "year": 2019,
+      "total": 0
     }
   ],
   "trends": [
@@ -42,21 +57,29 @@
       "count": 2
     }
   ],
-  "breakdownByOffense": [
-    {
-      "offense": "Burglary",
-      "count": 2
-    }
-  ],
-  "breakdownByGeo": [
-    {
-      "geo": "On-campus",
-      "count": 2
-    }
+  "breakdownByOffense": [],
+  "breakdownByGeo": [],
+  "notReported": [
+    2020,
+    2021,
+    2022,
+    2023,
+    2024
   ],
   "institution": {
     "id": 122685,
     "byYear": {
+      "2015": {
+        "campuses": 12,
+        "online": 13,
+        "rateRanked": true,
+        "counts": {
+          "criminal": 6,
+          "all": 6,
+          "burglary": 3,
+          "motor_vehicle_theft": 3
+        }
+      },
       "2016": {
         "campuses": 14,
         "online": 16,
@@ -84,6 +107,36 @@
           "drug_discipline": 2,
           "motor_vehicle_theft": 7,
           "robbery": 6
+        }
+      },
+      "2018": {
+        "campuses": 14,
+        "online": 10,
+        "rateRanked": true,
+        "counts": {
+          "criminal": 7,
+          "all": 8,
+          "burglary": 4,
+          "liquor_arrest": 1,
+          "motor_vehicle_theft": 3
+        }
+      },
+      "2019": {
+        "campuses": 14,
+        "online": 13,
+        "rateRanked": true,
+        "counts": {
+          "criminal": 13,
+          "all": 18,
+          "arson": 1,
+          "burglary": 3,
+          "domestic_violence": 1,
+          "drug_arrest": 2,
+          "liquor_arrest": 1,
+          "motor_vehicle_theft": 7,
+          "rape": 1,
+          "robbery": 1,
+          "weapons_arrest": 1
         }
       }
     }

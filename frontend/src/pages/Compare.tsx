@@ -37,14 +37,10 @@ import { useTheme } from '../hooks/useTheme'
 const SCHOOL_COLORS = ['#3b82f6', '#10b981'] // Blue, Emerald
 
 // One school's count of `selection` ('criminal', 'all' or an offense name)
-// in `year`; null when the profile has no figures for that year, or, for one
-// offense, no row for it that year.
+// in `year`: 0 when it reported the year without any of it, null when it did
+// not report that year (no figures at all).
 function selectionCount(p: SchoolProfile, year: number, selection: string): number | null {
   if (!p.yearlyTotals.some((yt) => yt.year === year)) return null
-  if (!isSummary(selection)) {
-    const row = p.trends.find((t) => t.year === year && t.offense === selection)
-    return row ? row.count : null
-  }
   return p.trends
     .filter((t) => t.year === year && inSelection(t, selection))
     .reduce((sum, t) => sum + t.count, 0)
@@ -264,15 +260,13 @@ export default function Compare() {
       const point: Record<string, number | string | null> = { offense }
       profiles.forEach((p) => {
         if (selectedYear === 'all') {
-          // Sum this offense across ALL years from trends
-          const totalForOffense = p.trends
+          // Sum this offense across ALL years from trends (0 when it had none)
+          point[p.shortName || p.name] = p.trends
             .filter((t) => t.offense === offense)
             .reduce((sum, t) => sum + t.count, 0)
-          point[p.shortName || p.name] = totalForOffense > 0 ? totalForOffense : null
         } else {
-          const year = parseInt(selectedYear)
-          const data = p.trends.find((t) => t.year === year && t.offense === offense)
-          point[p.shortName || p.name] = data ? data.count : null
+          // 0 in a reported year without it, null in a year not reported
+          point[p.shortName || p.name] = selectionCount(p, parseInt(selectedYear), offense)
         }
       })
       return point
@@ -512,22 +506,12 @@ export default function Compare() {
                 className="w-36 text-sm font-medium bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1.5 cursor-pointer focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               >
                 <option value="all">All Years</option>
-                {availableYears.map((year) => {
-                  // Check if either school has data for this year/offense combo
-                  const hasData = profiles.some(p => {
-                    const yearMap = yearDataByProfile.get(p.unitid)
-                    return yearMap?.get(year) ?? false
-                  })
-                  return (
-                    <option
-                      key={year}
-                      value={year.toString()}
-                      style={!hasData && !isSummary(selectedOffense) ? { color: '#9ca3af' } : undefined}
-                    >
-                      {year}{!hasData && !isSummary(selectedOffense) ? ' (no data)' : ''}
-                    </option>
-                  )
-                })}
+                {availableYears.map((year) => (
+                  // A year a school reported without the offense is a 0, not missing data
+                  <option key={year} value={year.toString()}>
+                    {year}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -622,11 +606,11 @@ export default function Compare() {
             <AlertCircle className="w-5 h-5 text-amber-500 dark:text-amber-400 flex-shrink-0 mt-0.5" />
             <div>
               <h3 className="font-medium text-amber-800 dark:text-amber-300">
-                No data available
+                None at either school
               </h3>
               <p className="text-sm text-amber-700 dark:text-amber-400 mt-1">
-                No {isSummary(selectedOffense) ? selectionLabel(selectedOffense).toLowerCase() : `${selectedOffense} incidents`} were reported
-                {selectedYear !== 'all' ? ` in ${selectedYear}` : ''} at either school.
+                Neither school has any {selectedOffense === 'criminal' ? 'criminal offenses' : selectedOffense === 'all' ? 'crimes, arrests or referrals' : `${selectedOffense} incidents`}
+                {selectedYear !== 'all' ? ` in ${selectedYear}` : ''}: each had 0, or did not report that year.
                 Try selecting a different year or offense.
               </p>
             </div>
@@ -736,7 +720,10 @@ export default function Compare() {
                                 {formatNumber(metrics.totalIncidents)}
                               </span>
                             ) : (
-                              <span className="text-xl text-gray-400 dark:text-gray-500">N/A</span>
+                              // A year the school did not report: no figures, not 0
+                              <span className="text-xl text-gray-400 dark:text-gray-500">
+                                {selectedYear === 'all' ? 'N/A' : 'Not reported'}
+                              </span>
                             )
                           )}
                         </td>
@@ -856,7 +843,10 @@ export default function Compare() {
                               {formatNumber(metrics.totalIncidents)}
                             </div>
                           ) : (
-                            <div className="text-xl text-gray-400 dark:text-gray-500">N/A</div>
+                            // A year the school did not report: no figures, not 0
+                            <div className="text-xl text-gray-400 dark:text-gray-500">
+                              {selectedYear === 'all' ? 'N/A' : 'Not reported'}
+                            </div>
                           )
                         )}
                       </div>

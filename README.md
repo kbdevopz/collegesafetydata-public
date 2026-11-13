@@ -31,6 +31,7 @@ This project provides free, public access to campus safety data for over 8,100 U
 
 Our data processing pipeline is fully documented. See [etl/METHODOLOGY.md](etl/METHODOLOGY.md) for:
 - Which DOE release each campus-year comes from: the newest release that has that campus for that year, with all of its figures from that one release
+- Zero versus not reported: a year a campus reported without incidents is a 0 (shown, charted and ranked as 0, and a campus that never had an incident still has a page); a year it did not report has no figures and is shown as not reported
 - Known errors in DOE files and how they are handled
 - Figures that two campuses report identically (one location, or a whole year), counted once (under one host campus) in totals and rankings
 - Enrollment (FTE): NCES's own figures for every year
@@ -183,8 +184,8 @@ See [etl/METHODOLOGY.md](etl/METHODOLOGY.md) for complete documentation.
 ## Data Quality
 
 Every data run includes a comprehensive audit validating:
-- School completeness (all schools have JSON files)
-- Incident total accuracy (sums match aggregates)
+- School completeness (every campus that reported a year, zeros included, has a JSON file and is in the search index)
+- Incident total accuracy (each file has exactly the years the campus reported, and its sums match the aggregates)
 - FTE coverage by year: of the schools with crime data in a year, the share that have FTE that year (a year whose enrollment NCES has not published is expected to have none)
 - Rate calculation verification
 - Ranking order validation

@@ -7,19 +7,24 @@
   "ivyLeague": false,
   "isMainCampus": true,
   "campusType": "Main Campus",
-  "fte": 7688,
+  "fte": 8115,
   "fteByYear": {
     "2015": 10337,
     "2016": 9744,
     "2017": 8651,
+    "2018": 7749,
     "2019": 7615,
-    "2020": 7688
+    "2020": 7688,
+    "2021": 6884,
+    "2022": 6792,
+    "2023": 7066,
+    "2024": 8115
   },
   "summary": {
-    "latestYear": 2020,
-    "totalIncidents": 2,
-    "topOffense": "Fondling",
-    "topOffenseCount": 1
+    "latestYear": 2024,
+    "totalIncidents": 0,
+    "topOffense": null,
+    "topOffenseCount": 0
   },
   "yearlyTotals": [
     {
@@ -35,12 +40,32 @@
       "total": 1
     },
     {
+      "year": 2018,
+      "total": 0
+    },
+    {
       "year": 2019,
       "total": 4
     },
     {
       "year": 2020,
       "total": 2
+    },
+    {
+      "year": 2021,
+      "total": 0
+    },
+    {
+      "year": 2022,
+      "total": 0
+    },
+    {
+      "year": 2023,
+      "total": 0
+    },
+    {
+      "year": 2024,
+      "total": 0
     }
   ],
   "trends": [
@@ -111,22 +136,8 @@
       "count": 1
     }
   ],
-  "breakdownByOffense": [
-    {
-      "offense": "Fondling",
-      "count": 1
-    },
-    {
-      "offense": "Stalking",
-      "count": 1
-    }
-  ],
-  "breakdownByGeo": [
-    {
-      "geo": "On-campus",
-      "count": 2
-    }
-  ],
+  "breakdownByOffense": [],
+  "breakdownByGeo": [],
   "institution": {
     "id": 171535,
     "byYear": {
@@ -173,6 +184,19 @@
           "stalking": 1
         }
       },
+      "2018": {
+        "campuses": 5,
+        "online": 3,
+        "rateRanked": true,
+        "counts": {
+          "criminal": 1,
+          "all": 5,
+          "drug_arrest": 2,
+          "drug_discipline": 1,
+          "fondling": 1,
+          "weapons_discipline": 1
+        }
+      },
       "2019": {
         "campuses": 5,
         "online": 3,
@@ -190,6 +214,44 @@
         "campuses": 5,
         "online": 8,
         "rateRanked": true
+      },
+      "2021": {
+        "campuses": 5,
+        "online": 19,
+        "rateRanked": true
+      },
+      "2022": {
+        "campuses": 5,
+        "online": 30,
+        "rateRanked": true,
+        "counts": {
+          "criminal": 1,
+          "all": 2,
+          "burglary": 1,
+          "domestic_violence": 1
+        }
+      },
+      "2023": {
+        "campuses": 5,
+        "online": 34,
+        "rateRanked": true,
+        "counts": {
+          "criminal": 1,
+          "all": 4,
+          "burglary": 1,
+          "domestic_violence": 1,
+          "stalking": 1,
+          "weapons_arrest": 1
+        }
+      },
+      "2024": {
+        "campuses": 5,
+        "online": 37,
+        "rateRanked": true,
+        "counts": {
+          "all": 1,
+          "domestic_violence": 1
+        }
       }
     }
   }

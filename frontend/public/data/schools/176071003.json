@@ -7,8 +7,9 @@
   "ivyLeague": false,
   "isMainCampus": false,
   "campusType": "Branch Campus",
-  "fte": 5830,
+  "fte": 6136,
   "fteByYear": {
+    "2015": 7445,
     "2016": 6985,
     "2017": 6936,
     "2018": 6828,
@@ -16,15 +17,20 @@
     "2020": 6318,
     "2021": 5892,
     "2022": 5769,
-    "2023": 5830
+    "2023": 5830,
+    "2024": 6136
   },
   "summary": {
-    "latestYear": 2023,
-    "totalIncidents": 2,
-    "topOffense": "Drug Discipline",
-    "topOffenseCount": 1
+    "latestYear": 2024,
+    "totalIncidents": 0,
+    "topOffense": null,
+    "topOffenseCount": 0
   },
   "yearlyTotals": [
+    {
+      "year": 2015,
+      "total": 0
+    },
     {
       "year": 2016,
       "total": 6
@@ -56,6 +62,10 @@
     {
       "year": 2023,
       "total": 2
+    },
+    {
+      "year": 2024,
+      "total": 0
     }
   ],
   "trends": [
@@ -180,25 +190,29 @@
       "count": 1
     }
   ],
-  "breakdownByOffense": [
-    {
-      "offense": "Drug Discipline",
-      "count": 1
-    },
-    {
-      "offense": "Stalking",
-      "count": 1
-    }
-  ],
-  "breakdownByGeo": [
-    {
-      "geo": "On-campus",
-      "count": 2
-    }
-  ],
+  "breakdownByOffense": [],
+  "breakdownByGeo": [],
   "institution": {
     "id": 176071,
     "byYear": {
+      "2015": {
+        "campuses": 8,
+        "online": 11,
+        "rateRanked": true,
+        "counts": {
+          "criminal": 2,
+          "all": 30,
+          "burglary": 2,
+          "domestic_violence": 2,
+          "drug_arrest": 11,
+          "drug_discipline": 5,
+          "liquor_arrest": 3,
+          "liquor_discipline": 1,
+          "stalking": 3,
+          "weapons_arrest": 1,
+          "weapons_discipline": 2
+        }
+      },
       "2016": {
         "campuses": 8,
         "online": 14,
@@ -335,6 +349,23 @@
           "liquor_discipline": 5,
           "motor_vehicle_theft": 5,
           "stalking": 1
+        }
+      },
+      "2024": {
+        "campuses": 10,
+        "online": 24,
+        "rateRanked": true,
+        "counts": {
+          "criminal": 9,
+          "all": 44,
+          "burglary": 9,
+          "domestic_violence": 1,
+          "drug_arrest": 1,
+          "drug_discipline": 11,
+          "liquor_arrest": 1,
+          "liquor_discipline": 12,
+          "weapons_arrest": 4,
+          "weapons_discipline": 5
         }
       }
     }

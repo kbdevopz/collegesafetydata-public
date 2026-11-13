@@ -52,8 +52,8 @@ from typing import Optional
 # Add parent to path for config import
 sys.path.insert(0, str(Path(__file__).parent))
 from config import (CURATED_DIR, QA_DIR, JSON_DIR, DATA_YEARS, PROJECT_ROOT, GEO_CODES, GEO_FOR_ALL,
-                    OFFENSE_ORDER, SHARED_MIN_NONZERO, US_STATES, IVY_BASE_UNITIDS, SUMMARY_FAMILIES,
-                    MIN_FTE_FOR_RATE, ONLINE_EXCLUSION_PCT)
+                    OFFENSE_ORDER, SHARED_MIN_NONZERO, US_STATES, IVY_LEAGUE, IVY_BASE_UNITIDS,
+                    SUMMARY_FAMILIES, MIN_FTE_FOR_RATE, ONLINE_EXCLUSION_PCT)
 import provenance
 
 # Curated files the checks read (relative to data/curated)
@@ -138,9 +138,25 @@ def get_facts_path() -> str:
     return str(FACTS_PATH)
 
 
+def reported_years() -> dict[int, set[int]]:
+    """
+    The years of DATA_YEARS each campus reported, from 02's
+    campus_year_sources.parquet (a campus-year is reported when its release
+    row has at least one count cell that is not blank, zeros included).
+    """
+    sources = read_curated("dims/campus_year_sources.parquet", "02_transform_to_parquet.py", ["unitid", "year"])
+    sources = sources[sources["year"].isin(DATA_YEARS)]
+    out: dict[int, set[int]] = {}
+    for u, y in zip(sources["unitid"].tolist(), sources["year"].tolist()):
+        out.setdefault(int(u), set()).add(int(y))
+    return out
+
+
 def audit_school_completeness(verbose: bool = False) -> AuditResult:
     """
-    CHECK 1: Verify all schools in facts have JSON files generated.
+    CHECK 1: Every campus that reported a year (zeros included) has a school
+    file, and every school file is such a campus; every school in the facts
+    reported.
     """
     result = AuditResult("School Completeness")
     print("\nCHECK 1: School Completeness")
@@ -155,8 +171,12 @@ def audit_school_completeness(verbose: bool = False) -> AuditResult:
             FROM read_parquet('{facts_file}')
         """).df()
 
-        facts_unitids = set(facts_schools["unitid"].tolist())
+        facts_unitids = set(int(u) for u in facts_schools["unitid"].tolist())
         print(f"  Schools in facts: {len(facts_unitids):,}")
+        reported = set(reported_years())
+        print(f"  Schools that reported a year: {len(reported):,} "
+              f"({len(reported - facts_unitids):,} of them never had an incident)")
+        unreported = facts_unitids - reported
 
         # Get JSON files
         schools_dir = JSON_DIR / "schools"
@@ -173,20 +193,43 @@ def audit_school_completeness(verbose: bool = False) -> AuditResult:
         print(f"  JSON files generated: {len(json_unitids):,}")
 
         # Find missing
-        missing_json = facts_unitids - json_unitids
-        extra_json = json_unitids - facts_unitids
+        missing_json = reported - json_unitids
+        extra_json = json_unitids - reported
+
+        # The search index must list exactly the schools with a file (a school
+        # missing from it can only be reached by a link)
+        index_path = JSON_DIR / "school-index.json"
+        if not index_path.is_file():
+            raise RuntimeError(f"{index_path} not found. Run 05_generate_json.py.")
+        index_entries = json.loads(index_path.read_text(encoding="utf-8")).get("schools", [])
+        index_unitids = [int(s["unitid"]) for s in index_entries]
+        print(f"  Schools in school-index.json: {len(index_unitids):,}")
 
         result.details["what_it_checks"] = (
-            "Every school (UNITID) in data/curated/facts/incidents.parquet has a site file "
-            "schools/<UNITID>.json, and every school file has fact data. It compares file names "
-            "only; check 2 and the per-school report compare the files' numbers.")
+            "Every campus (UNITID) that reported a year of DATA_YEARS in data/curated/dims/campus_year_sources.parquet "
+            "(a release row with a count cell that is not blank, zeros included) has a site file "
+            "schools/<UNITID>.json, every school file is such a campus, every school in "
+            "data/curated/facts/incidents.parquet reported, and school-index.json (the site search) lists every "
+            "school file once and nothing else. It compares file names only; check 2 and the per-school report "
+            "compare the files' numbers.")
+        result.details["schools_in_search_index"] = len(index_unitids)
         result.details["schools_in_facts"] = len(facts_unitids)
+        result.details["schools_reported"] = len(reported)
+        result.details["schools_reported_never_an_incident"] = len(reported - facts_unitids)
         result.details["json_files_generated"] = len(json_unitids)
         result.details["missing_json"] = len(missing_json)
         result.details["extra_json"] = len(extra_json)
 
         if not facts_unitids:
             result.failed("The fact table has no schools. Run 02_transform_to_parquet.py and 03 to 07 again.")
+        if unreported:
+            result.failed(f"{len(unreported)} schools have facts but reported no year in campus_year_sources.parquet "
+                          f"(first: {sorted(unreported)[0]}). Run 02_transform_to_parquet.py and 03 to 07 again.")
+        if len(index_unitids) != len(set(index_unitids)) or set(index_unitids) != json_unitids:
+            diff = sorted(set(index_unitids) ^ json_unitids)
+            result.failed(f"school-index.json lists {len(index_unitids):,} schools ({len(set(index_unitids)):,} "
+                          f"distinct) but there are {len(json_unitids):,} school files"
+                          f"{f' (first difference: {diff[0]})' if diff else ''}. Run 05_generate_json.py, then 07 again.")
         if missing_json:
             result.failed(f"Missing JSON files for {len(missing_json)} schools")
             if verbose and len(missing_json) <= 10:
@@ -196,7 +239,7 @@ def audit_school_completeness(verbose: bool = False) -> AuditResult:
             print(f"  Missing JSONs: 0")
 
         if extra_json:
-            result.warning(f"Found {len(extra_json)} JSON files without fact data "
+            result.warning(f"Found {len(extra_json)} JSON files of campuses that reported no year "
                            f"(first: schools/{sorted(extra_json)[0]}.json). Run 05_generate_json.py "
                            f"again: it removes school files it did not write.")
 
@@ -234,8 +277,10 @@ def audit_incident_totals(verbose: bool = False) -> AuditResult:
         # Load each school JSON and compare
         schools_dir = JSON_DIR / "schools"
         json_files = list(schools_dir.glob("*.json"))
+        years_of = reported_years()
 
         variances = []
+        year_problems = []  # files whose years are not the years the campus reported
         schools_validated = 0
         schools_with_variance = 0
 
@@ -249,6 +294,11 @@ def audit_incident_totals(verbose: bool = False) -> AuditResult:
                 school_data = json.load(f)
 
             yearly_totals = {int(yt["year"]): yt["total"] for yt in school_data.get("yearlyTotals", [])}
+            want_years = years_of.get(unitid, set())
+            not_reported = sorted(set(DATA_YEARS) - want_years)
+            if set(yearly_totals) != want_years or school_data.get("notReported", []) != not_reported:
+                year_problems.append(f"schools/{unitid}.json: years {sorted(yearly_totals)}, notReported "
+                                     f"{school_data.get('notReported', [])}; reported {sorted(want_years)}")
 
             # Compare every year in either: a year the file shows that the aggregates lack is a variance too
             school_agg = agg_by_school.get(unitid, {})
@@ -274,17 +324,26 @@ def audit_incident_totals(verbose: bool = False) -> AuditResult:
         schools_with_variance = len(set(v["unitid"] for v in variances))
 
         result.details["what_it_checks"] = (
-            "For every site school file schools/<UNITID>.json, the yearlyTotals total of each year "
-            "(every year in the file or the aggregates) equals the sum over offenses of that school's "
-            "geo \"All\" rows in agg_school_year_offense.parquet. The files' trends and breakdowns are "
-            "not compared, and check 7 compares the aggregates with the fact table.")
+            "For every site school file schools/<UNITID>.json, the yearlyTotals years are exactly the years the "
+            "campus reported (campus_year_sources.parquet, zeros included) and notReported the other years of "
+            "DATA_YEARS, and the total of each year (every year in the file or the aggregates; 0 when the "
+            "aggregates have none) equals the sum over offenses of that school's geo \"All\" rows in "
+            "agg_school_year_offense.parquet. The files' trends and breakdowns are not compared, and check 7 "
+            "compares the aggregates with the fact table.")
         result.details["schools_validated"] = schools_validated
         result.details["variances_found"] = len(variances)
+        result.details["files_with_other_years"] = len(year_problems)
+        result.details["reported_years_without_an_incident"] = sum(
+            1 for u, ys in years_of.items() for y in ys if y not in agg_by_school.get(u, {}))
         result.details["schools_with_variance"] = schools_with_variance
 
         print(f"  Schools validated: {schools_validated:,} / {len(json_files):,}")
         print(f"  Variances found: {len(variances)}")
+        print(f"  Files whose years are not the years the campus reported: {len(year_problems)}")
 
+        if year_problems:
+            result.failed(f"{len(year_problems)} school files do not have exactly the years the campus reported "
+                          f"(first: {year_problems[0]}). Run 05_generate_json.py, then 07 again.")
         if variances:
             v = variances[0]
             result.failed(f"Found {len(variances)} incident count variances across {schools_with_variance} schools "
@@ -295,7 +354,7 @@ def audit_incident_totals(verbose: bool = False) -> AuditResult:
                     print(f"    {v['unitid']} ({v['year']}): JSON={v['json_total']}, Agg={v['agg_total']}")
         elif schools_validated == 0:
             result.failed(f"No school files in {schools_dir} to check. Run 05_generate_json.py.")
-        else:
+        elif not year_problems:
             result.passed()
 
         print(f"  {result.status}")
@@ -604,10 +663,10 @@ def audit_ranking_totals(verbose: bool = False) -> AuditResult:
             if set(totals) != set(rankings):
                 problems.append(f"{ranking_file.name}: totals has codes {sorted(set(totals) ^ set(rankings))[:3]} "
                                 "without a ranking, or the reverse")
-            if ranked_ids != set(campuses):
-                diff = sorted(ranked_ids ^ set(campuses))
-                problems.append(f"{ranking_file.name}: the campuses table and the ranked campuses differ "
-                                f"({len(diff)}, first: {diff[0]})")
+            if ranked_ids - set(campuses):
+                diff = sorted(ranked_ids - set(campuses))
+                problems.append(f"{ranking_file.name}: {len(diff)} ranked campuses are not in the campuses table "
+                                f"(first: {diff[0]})")
             rate_ids = {str(e.get("id")) for entries in (data.get("rateRankings") or {}).values() for e in entries}
             if rate_ids - set(institutions):
                 problems.append(f"{ranking_file.name}: rate-ranked institutions missing from the institutions table "
@@ -618,9 +677,9 @@ def audit_ranking_totals(verbose: bool = False) -> AuditResult:
 
         result.details["what_it_checks"] = (
             "In every rankings/*.json file, totals[code] equals the sum of rankings[code]'s counts for every code, "
-            "the campuses table holds exactly the ranked campuses, and the institutions table every rate-ranked "
-            "institution, each with an FTE above 0. It checks the files' own numbers; check 8 compares the counts "
-            "with the facts.")
+            "the campuses table holds every ranked campus (and the campuses ranked with 0, which check 10 checks), "
+            "and the institutions table every rate-ranked institution, each with an FTE above 0. It checks the "
+            "files' own numbers; check 8 compares the counts with the facts.")
         result.details["groups_validated"] = groups_validated
         result.details["problems"] = len(problems)
 
@@ -1206,7 +1265,7 @@ def generate_per_school_report(verbose: bool = False) -> pd.DataFrame:
         every year of either (as check 2).
       fte_match: fteByYear, the FTE the school page's rates use, and fte (its
         newest year) equal dim_enrollment's FTE for the school's base UNITID
-        in each year it has aggregate data (the FTE 04 joins).
+        in each year it reported (campus_year_sources, zeros included).
       years_with_data / years_with_fte: the years in yearlyTotals, and how
         many of them have an FTE above 0 in dim_enrollment.
       status: FAIL if a match fails; WARNING if fewer than 80% of its years
@@ -1223,10 +1282,7 @@ def generate_per_school_report(verbose: bool = False) -> pd.DataFrame:
     agg_totals = {}  # unitid -> {year: total}
     for (uid, year), total in agg[agg["geo"] == "All"].groupby(["unitid", "year"])["count"].sum().items():
         agg_totals.setdefault(int(uid), {})[int(year)] = int(total)
-    agg_years = {}  # unitid -> years with any aggregate row, as 05 reads them (DATA_YEARS only)
-    in_years = agg[agg["year"].isin(DATA_YEARS)]
-    for uid, year in zip(in_years["unitid"].tolist(), in_years["year"].tolist()):
-        agg_years.setdefault(int(uid), set()).add(int(year))
+    agg_years = reported_years()  # unitid -> the years it reported (DATA_YEARS only)
 
     # Load enrollment for FTE check: (base unitid, year) -> FTE
     enrollment_path = CURATED_DIR / "dims" / "dim_enrollment.parquet"
@@ -1390,15 +1446,18 @@ def expected_institutions() -> tuple[dict, dict]:
     reported campus-years, dim_institution and dim_enrollment:
 
     returns ({(year, base): {name, link, state, campuses, fte, online}},
-             {(year, base, code): count above 0}).
+             {(year, base, code): count above 0},
+             {(year, unitid): {name, state}} of every counting campus-year).
 
-    A campus counts for its institution (base UNITID) in a year when it
-    reported that year and its figures are not all shadow blocks; the
-    institution's counts are all such campuses' counts in GEO_FOR_ALL without
-    shadow blocks, in any state. An institution-year is listed when it has an
-    incident. Its link campus is the main campus (UNITID ending in 001) when
-    that counts that year and has a school file, otherwise the counting
-    campus with a school file and the most incidents (ties: lowest UNITID).
+    A campus-year counts (in rankings, with 0 when it had no incident, and
+    for its institution, the base UNITID) when the campus reported that year
+    and its figures are not all shadow blocks; the institution's counts are
+    all such campuses' counts in GEO_FOR_ALL without shadow blocks, in any
+    state. An institution-year is listed when one of its campuses counts,
+    incidents or not. Its link campus is the main campus (UNITID ending in
+    001) when that counts that year and has a school file, otherwise the
+    counting campus with a school file and the most incidents (ties: lowest
+    UNITID).
     """
     facts = pd.read_parquet(get_facts_path(), columns=["year", "unitid", "offense", "offense_family", "geo", "count"])
     facts = facts[facts["geo"].isin(GEO_FOR_ALL)]
@@ -1439,18 +1498,22 @@ def expected_institutions() -> tuple[dict, dict]:
         by_inst.setdefault((y, u // 1000), []).append(u)
     institutions = {}
     for (y, b), campuses in by_inst.items():
-        if sum(campus_total.get((u, y), 0) for u in campuses) == 0:
-            continue
         with_file = [u for u in campuses if u in name]
         if not with_file:
-            raise RuntimeError(f"Institution {b} has incidents in {y} but no campus with a school file")
+            raise RuntimeError(f"Institution {b} has campuses that count in {y} but none in dim_institution")
         main = b * 1000 + 1
         link = main if main in with_file else min(with_file, key=lambda u: (-campus_total.get((u, y), 0), u))
         f, online = fte.get((b, y), (None, None))
         s = state.get(link)
         institutions[(y, b)] = {"name": name[link], "link": link, "state": None if pd.isna(s) else s,
                                 "campuses": len(campuses), "fte": f, "online": online}
-    return institutions, counts
+    campus_years = {}
+    for u, y in counting:
+        if u not in name:
+            raise RuntimeError(f"Campus {u} reported {y} but is not in dim_institution")
+        s = state.get(u)
+        campus_years[(y, u)] = {"name": name[u], "state": None if pd.isna(s) else s}
+    return institutions, counts, campus_years
 
 
 def rate_ranked(rec: dict) -> bool:
@@ -1483,22 +1546,24 @@ def audit_institution_rates(verbose: bool = False) -> AuditResult:
     try:
         result.details["what_it_checks"] = (
             "Without 04's or 05's code, from the facts without shadow blocks, the reported campus-years, "
-            "dim_institution and dim_enrollment: the institutions (base UNITIDs) each year, their campuses that "
-            "count (reported, not all shadow blocks), counts over all those campuses (residence halls and shadow "
-            "blocks left out), link campus (the 001 campus, else the campus with the most incidents), FTE and "
-            "share of exclusively online students. Every rankings/*.json file must list in institutions "
-            f"exactly its preset's institutions with at least {MIN_FTE_FOR_RATE:,} FTE and under "
-            f"{ONLINE_EXCLUSION_PCT}% exclusively online students (or no such figure), and in rateRankings per "
+            "dim_institution and dim_enrollment: the campus-years that count (reported, not all shadow blocks; "
+            "incidents or not), the institutions (base UNITIDs) each year with such a campus, counts over all "
+            "those campuses (residence halls and shadow blocks left out), link campus (the 001 campus, else the "
+            "campus with the most incidents), FTE and share of exclusively online students. Every "
+            "rankings/*.json file must list in campuses exactly its preset's counting campus-years, with their "
+            "name, state, institution FTE and number of campuses (the site ranks those without an entry with 0); "
+            f"in institutions exactly its preset's institutions with at least {MIN_FTE_FOR_RATE:,} FTE and under "
+            f"{ONLINE_EXCLUSION_PCT}% exclusively online students (or no such figure); and in rateRankings per "
             "code exactly those with a count above 0, each with that count and rate = count / FTE x 10,000 "
             "(within 0.005). Every school file's institution years must match too.")
-        institutions, counts = expected_institutions()
+        institutions, counts, campus_years = expected_institutions()
         problems = []
 
         def problem(text):
             problems.append(text)
 
         codes = sorted({code for (_y, _b, code) in counts})
-        files_checked = entries_checked = 0
+        files_checked = entries_checked = zero_campus_rows = 0
         for ranking_file in sorted((JSON_DIR / "rankings").glob("*.json")):
             data = json.loads(ranking_file.read_text(encoding="utf-8"))
             preset, year = data.get("preset"), data.get("year")
@@ -1510,6 +1575,29 @@ def audit_institution_rates(verbose: bool = False) -> AuditResult:
                 if preset == "ivy":
                     return b in IVY_BASE_UNITIDS
                 return rec["state"] == preset
+
+            # The campuses table: every campus-year of the preset that counts, incidents or not
+            def campus_in_preset(u, rec):
+                if preset == "national":
+                    return rec["state"] in US_STATES
+                if preset == "ivy":
+                    return u in IVY_LEAGUE
+                return rec["state"] == preset
+
+            want_campuses = {u: rec for (y, u), rec in campus_years.items() if y == year and campus_in_preset(u, rec)}
+            got_campuses = {int(k): v for k, v in (data.get("campuses") or {}).items()}
+            if set(got_campuses) != set(want_campuses):
+                diff = sorted(set(got_campuses) ^ set(want_campuses))
+                problem(f"{ranking_file.name}: the campuses table has {len(got_campuses)} campuses, expected "
+                        f"{len(want_campuses)} (first difference: {diff[0]})")
+            for u in sorted(set(got_campuses) & set(want_campuses)):
+                inst_rec = institutions[(year, u // 1000)]
+                expect = {"name": want_campuses[u]["name"], "state": want_campuses[u]["state"],
+                          "main": u % 1000 == 1, "fte": inst_rec["fte"], "campuses": inst_rec["campuses"]}
+                if {k: got_campuses[u].get(k) for k in expect} != expect:
+                    problem(f"{ranking_file.name}: campus {u} is {got_campuses[u]}, expected {expect}")
+                    break
+            zero_campus_rows += len(want_campuses) - len((data.get("rankings") or {}).get("all", []))
 
             want = {b: rec for (y, b), rec in institutions.items()
                     if y == year and in_preset(b, rec) and rate_ranked(rec)}
@@ -1611,6 +1699,7 @@ def audit_institution_rates(verbose: bool = False) -> AuditResult:
             })
         result.details["by_year"] = by_year
         result.details["ranking_files_checked"] = files_checked
+        result.details["campus_rows_with_0_all_files"] = zero_campus_rows
         result.details["rate_entries_checked"] = entries_checked
         result.details["school_files_checked"] = profiles_checked
         result.details["problems"] = len(problems)

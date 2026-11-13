@@ -7,18 +7,29 @@
   "ivyLeague": false,
   "isMainCampus": false,
   "campusType": "Branch Campus",
-  "fte": 4290,
+  "fte": 4459,
   "fteByYear": {
+    "2015": 4287,
+    "2016": 4331,
     "2017": 4246,
-    "2018": 4290
+    "2018": 4290,
+    "2019": 4459
   },
   "summary": {
-    "latestYear": 2018,
-    "totalIncidents": 3,
-    "topOffense": "Liquor Arrest",
-    "topOffenseCount": 2
+    "latestYear": 2019,
+    "totalIncidents": 0,
+    "topOffense": null,
+    "topOffenseCount": 0
   },
   "yearlyTotals": [
+    {
+      "year": 2015,
+      "total": 0
+    },
+    {
+      "year": 2016,
+      "total": 0
+    },
     {
       "year": 2017,
       "total": 1
@@ -26,6 +37,10 @@
     {
       "year": 2018,
       "total": 3
+    },
+    {
+      "year": 2019,
+      "total": 0
     }
   ],
   "trends": [
@@ -48,25 +63,40 @@
       "count": 2
     }
   ],
-  "breakdownByOffense": [
-    {
-      "offense": "Liquor Arrest",
-      "count": 2
-    },
-    {
-      "offense": "Drug Arrest",
-      "count": 1
-    }
-  ],
-  "breakdownByGeo": [
-    {
-      "geo": "On-campus",
-      "count": 3
-    }
+  "breakdownByOffense": [],
+  "breakdownByGeo": [],
+  "notReported": [
+    2020,
+    2021,
+    2022,
+    2023,
+    2024
   ],
   "institution": {
     "id": 367459,
     "byYear": {
+      "2015": {
+        "campuses": 5,
+        "online": 15,
+        "rateRanked": true,
+        "counts": {
+          "all": 2,
+          "domestic_violence": 1,
+          "liquor_arrest": 1
+        }
+      },
+      "2016": {
+        "campuses": 5,
+        "online": 14,
+        "rateRanked": true,
+        "counts": {
+          "all": 6,
+          "drug_arrest": 1,
+          "drug_discipline": 1,
+          "liquor_arrest": 3,
+          "stalking": 1
+        }
+      },
       "2017": {
         "campuses": 5,
         "online": 16,
@@ -95,6 +125,16 @@
           "drug_discipline": 1,
           "liquor_arrest": 2,
           "rape": 1
+        }
+      },
+      "2019": {
+        "campuses": 5,
+        "online": 18,
+        "rateRanked": true,
+        "counts": {
+          "all": 8,
+          "drug_arrest": 2,
+          "liquor_arrest": 6
         }
       }
     }

@@ -7,17 +7,24 @@
   "ivyLeague": false,
   "isMainCampus": true,
   "campusType": "Main Campus",
-  "fte": 303,
+  "fte": 1712,
   "fteByYear": {
     "2015": 141,
+    "2016": 157,
     "2017": 192,
-    "2019": 303
+    "2018": 197,
+    "2019": 303,
+    "2020": 211,
+    "2021": 271,
+    "2022": 1556,
+    "2023": 1800,
+    "2024": 1712
   },
   "summary": {
-    "latestYear": 2019,
-    "totalIncidents": 2,
-    "topOffense": "Burglary",
-    "topOffenseCount": 1
+    "latestYear": 2024,
+    "totalIncidents": 0,
+    "topOffense": null,
+    "topOffenseCount": 0
   },
   "yearlyTotals": [
     {
@@ -25,12 +32,40 @@
       "total": 2
     },
     {
+      "year": 2016,
+      "total": 0
+    },
+    {
       "year": 2017,
       "total": 1
     },
     {
+      "year": 2018,
+      "total": 0
+    },
+    {
       "year": 2019,
       "total": 2
+    },
+    {
+      "year": 2020,
+      "total": 0
+    },
+    {
+      "year": 2021,
+      "total": 0
+    },
+    {
+      "year": 2022,
+      "total": 0
+    },
+    {
+      "year": 2023,
+      "total": 0
+    },
+    {
+      "year": 2024,
+      "total": 0
     }
   ],
   "trends": [
@@ -59,30 +94,17 @@
       "count": 1
     }
   ],
-  "breakdownByOffense": [
-    {
-      "offense": "Burglary",
-      "count": 1
-    },
-    {
-      "offense": "Motor Vehicle Theft",
-      "count": 1
-    }
-  ],
-  "breakdownByGeo": [
-    {
-      "geo": "On-campus",
-      "count": 1
-    },
-    {
-      "geo": "Public property",
-      "count": 1
-    }
-  ],
+  "breakdownByOffense": [],
+  "breakdownByGeo": [],
   "institution": {
     "id": 446525,
     "byYear": {
       "2015": {
+        "campuses": 1,
+        "online": 0,
+        "rateRanked": false
+      },
+      "2016": {
         "campuses": 1,
         "online": 0,
         "rateRanked": false
@@ -92,10 +114,69 @@
         "online": 0,
         "rateRanked": false
       },
+      "2018": {
+        "campuses": 1,
+        "online": 0,
+        "rateRanked": false
+      },
       "2019": {
         "campuses": 1,
         "online": 0,
         "rateRanked": false
+      },
+      "2020": {
+        "campuses": 1,
+        "online": 0,
+        "rateRanked": false
+      },
+      "2021": {
+        "campuses": 5,
+        "online": 0,
+        "rateRanked": false,
+        "counts": {
+          "criminal": 10,
+          "all": 10,
+          "aggravated_assault": 1,
+          "motor_vehicle_theft": 7,
+          "robbery": 2
+        }
+      },
+      "2022": {
+        "campuses": 5,
+        "online": 0,
+        "rateRanked": true,
+        "counts": {
+          "criminal": 7,
+          "all": 9,
+          "aggravated_assault": 4,
+          "dating_violence": 1,
+          "domestic_violence": 1,
+          "motor_vehicle_theft": 3
+        }
+      },
+      "2023": {
+        "campuses": 5,
+        "online": 0,
+        "rateRanked": true,
+        "counts": {
+          "criminal": 3,
+          "all": 5,
+          "aggravated_assault": 1,
+          "burglary": 2,
+          "drug_arrest": 1,
+          "weapons_arrest": 1
+        }
+      },
+      "2024": {
+        "campuses": 5,
+        "online": 0,
+        "rateRanked": true,
+        "counts": {
+          "criminal": 3,
+          "all": 4,
+          "aggravated_assault": 3,
+          "weapons_arrest": 1
+        }
       }
     }
   }

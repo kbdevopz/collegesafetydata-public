@@ -7,20 +7,42 @@
   "ivyLeague": false,
   "isMainCampus": true,
   "campusType": "Main Campus",
-  "fte": 3216,
+  "fte": 3240,
   "fteByYear": {
+    "2015": 3703,
+    "2016": 3661,
+    "2017": 3595,
+    "2018": 3585,
     "2019": 3580,
     "2020": 3144,
     "2021": 3115,
-    "2023": 3216
+    "2022": 2944,
+    "2023": 3216,
+    "2024": 3240
   },
   "summary": {
-    "latestYear": 2023,
-    "totalIncidents": 1,
-    "topOffense": "Stalking",
-    "topOffenseCount": 1
+    "latestYear": 2024,
+    "totalIncidents": 0,
+    "topOffense": null,
+    "topOffenseCount": 0
   },
   "yearlyTotals": [
+    {
+      "year": 2015,
+      "total": 0
+    },
+    {
+      "year": 2016,
+      "total": 0
+    },
+    {
+      "year": 2017,
+      "total": 0
+    },
+    {
+      "year": 2018,
+      "total": 0
+    },
     {
       "year": 2019,
       "total": 2
@@ -34,8 +56,16 @@
       "total": 2
     },
     {
+      "year": 2022,
+      "total": 0
+    },
+    {
       "year": 2023,
       "total": 1
+    },
+    {
+      "year": 2024,
+      "total": 0
     }
   ],
   "trends": [
@@ -76,21 +106,41 @@
       "count": 1
     }
   ],
-  "breakdownByOffense": [
-    {
-      "offense": "Stalking",
-      "count": 1
-    }
-  ],
-  "breakdownByGeo": [
-    {
-      "geo": "On-campus",
-      "count": 1
-    }
-  ],
+  "breakdownByOffense": [],
+  "breakdownByGeo": [],
   "institution": {
     "id": 221397,
     "byYear": {
+      "2015": {
+        "campuses": 9,
+        "online": 10,
+        "rateRanked": true
+      },
+      "2016": {
+        "campuses": 9,
+        "online": 9,
+        "rateRanked": true,
+        "counts": {
+          "criminal": 1,
+          "all": 1,
+          "rape": 1
+        }
+      },
+      "2017": {
+        "campuses": 9,
+        "online": 9,
+        "rateRanked": true
+      },
+      "2018": {
+        "campuses": 9,
+        "online": 10,
+        "rateRanked": true,
+        "counts": {
+          "criminal": 1,
+          "all": 1,
+          "statutory_rape": 1
+        }
+      },
       "2019": {
         "campuses": 9,
         "online": 12,
@@ -126,10 +176,30 @@
           "rape": 1
         }
       },
+      "2022": {
+        "campuses": 9,
+        "online": 22,
+        "rateRanked": true,
+        "counts": {
+          "criminal": 1,
+          "all": 3,
+          "burglary": 1,
+          "stalking": 2
+        }
+      },
       "2023": {
         "campuses": 9,
         "online": 20,
         "rateRanked": true
+      },
+      "2024": {
+        "campuses": 9,
+        "online": 23,
+        "rateRanked": true,
+        "counts": {
+          "all": 3,
+          "stalking": 3
+        }
       }
     }
   }

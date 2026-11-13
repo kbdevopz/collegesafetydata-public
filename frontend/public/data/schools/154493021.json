@@ -7,21 +7,27 @@
   "ivyLeague": false,
   "isMainCampus": false,
   "campusType": "Branch Campus",
-  "fte": 2638,
+  "fte": 2221,
   "fteByYear": {
+    "2015": 3785,
     "2016": 3557,
     "2017": 3526,
     "2018": 3186,
     "2019": 3103,
-    "2020": 2638
+    "2020": 2638,
+    "2021": 2221
   },
   "summary": {
-    "latestYear": 2020,
-    "totalIncidents": 11,
-    "topOffense": "Drug Arrest",
-    "topOffenseCount": 8
+    "latestYear": 2021,
+    "totalIncidents": 0,
+    "topOffense": null,
+    "topOffenseCount": 0
   },
   "yearlyTotals": [
+    {
+      "year": 2015,
+      "total": 0
+    },
     {
       "year": 2016,
       "total": 7
@@ -41,6 +47,10 @@
     {
       "year": 2020,
       "total": 11
+    },
+    {
+      "year": 2021,
+      "total": 0
     }
   ],
   "trends": [
@@ -111,29 +121,33 @@
       "count": 1
     }
   ],
-  "breakdownByOffense": [
-    {
-      "offense": "Drug Arrest",
-      "count": 8
-    },
-    {
-      "offense": "Motor Vehicle Theft",
-      "count": 2
-    },
-    {
-      "offense": "Rape",
-      "count": 1
-    }
-  ],
-  "breakdownByGeo": [
-    {
-      "geo": "Public property",
-      "count": 11
-    }
+  "breakdownByOffense": [],
+  "breakdownByGeo": [],
+  "notReported": [
+    2022,
+    2023,
+    2024
   ],
   "institution": {
     "id": 154493,
     "byYear": {
+      "2015": {
+        "campuses": 21,
+        "online": 37,
+        "rateRanked": true,
+        "counts": {
+          "criminal": 7,
+          "all": 108,
+          "aggravated_assault": 1,
+          "burglary": 2,
+          "drug_arrest": 7,
+          "drug_discipline": 20,
+          "liquor_arrest": 8,
+          "liquor_discipline": 66,
+          "motor_vehicle_theft": 3,
+          "rape": 1
+        }
+      },
       "2016": {
         "campuses": 21,
         "online": 38,
@@ -235,6 +249,21 @@
           "rape": 2,
           "stalking": 2,
           "weapons_discipline": 1
+        }
+      },
+      "2021": {
+        "campuses": 21,
+        "online": 65,
+        "rateRanked": false,
+        "counts": {
+          "criminal": 1,
+          "all": 33,
+          "drug_arrest": 1,
+          "drug_discipline": 4,
+          "liquor_discipline": 21,
+          "negligent_manslaughter": 1,
+          "stalking": 1,
+          "weapons_discipline": 5
         }
       }
     }

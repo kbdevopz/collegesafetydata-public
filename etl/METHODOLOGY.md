@@ -34,6 +34,25 @@ is recorded in `data/curated/dims/campus_year_sources.parquet` and, per year,
 in the crime build record (`build record/crime_inputs.json`,
 `campus_year_sources`).
 
+#### Zero Versus Not Reported
+
+A campus reported a year when it is in `campus_year_sources.parquet` for that
+year: its release row has at least one count cell that is not blank. A
+reported year without any incident is a 0, not missing data:
+
+- its school page shows 0 for that year, and its charts show 0 there;
+- it is ranked with 0 for every category it had none of, after the campuses
+  with incidents, all sharing the next rank and listed by name, then UNITID
+  (the tie rule below); its institution is ranked with rate 0 when the rate
+  rules below allow it;
+- a campus that reported but never had an incident has a school page too.
+
+A year a campus did not report has no figures at all. Its school page lists
+it as not reported, its charts leave a gap there rather than a 0, and it is
+in no ranking for that year. A campus-year whose every figure is counted
+under another campus (see Figures Reported by More Than One Campus) is not
+ranked, with 0 or otherwise.
+
 #### Known Errors in DOE Files
 
 Two files of the 2021-2023 release (`Crime2024SAS.zip`, suffix `212223`) are
@@ -166,14 +185,14 @@ Rate rankings list an institution only when that year (both in `config.py`,
   education (NCES's PCTDEEXC, in the same DRVEF/EF tables as the FTE). Clery
   figures cover the campus, which most students of a mostly online
   institution never attend, so its rate is not comparable. An institution
-  without that figure is not left out (none of the institutions with crime
-  data and an FTE lacks it in 2015-2024).
+  without that figure is not left out (none of the institutions that
+  reported and have an FTE lacks it in 2015-2024).
 
 In fall 2020 and 2021, when many institutions taught mostly online, many
-more are left out: of the institutions with crime data and 1,000+ FTE, 560
-of 1,942 in 2020 (484 of them under 50% in 2019) and 247 of 1,967 in 2021,
-against 77 of 2,125 in 2019 and 127 of 1,990 in 2024. The 2020 and 2021
-rate rankings therefore cover fewer institutions.
+more are left out: of the institutions that reported Clery figures and have
+1,000+ FTE, 676 of 2,264 in 2020 (582 of them under 50% in 2019) and 325 of
+2,261 in 2021, against 103 of 2,320 in 2019 and 191 of 2,268 in 2024. The
+2020 and 2021 rate rankings therefore cover fewer institutions.
 
 School pages still show these institutions' rates, with a note saying why
 they are not ranked. Rates with fewer than 10 incidents, or under 1,000 FTE,
@@ -228,7 +247,7 @@ campuses report identically count once, under the host campus.
 
 ## Rankings
 
-Each ranking lists schools by their count, largest first. Schools with the same count share a rank (standard competition ranking: 1, 2, 2, 4, so the rank after a tie skips the places the tie takes) and are listed by name, then by UNITID. Rate rankings rank institutions' rates the same way, ties by institution name, then base UNITID.
+Each ranking lists schools by their count, largest first. Schools with the same count share a rank (standard competition ranking: 1, 2, 2, 4, so the rank after a tie skips the places the tie takes) and are listed by name, then by UNITID. Rate rankings rank institutions' rates the same way, ties by institution name, then base UNITID. Every campus that reported the year is in its rankings: those with none of a category are the last tie, with 0 (see Zero Versus Not Reported).
 
 ## Data Limitations
 
@@ -257,7 +276,8 @@ Our data pipeline includes validation steps to ensure accuracy:
 4. Spot checks against known institutions (Ivy League, major state universities)
 5. An audit (`07_comprehensive_audit.py`, check 8) that finds the shared blocks again from the fact table and the older releases' figures, and verifies that every ranking entry counts the school's figures without its shadow blocks
 6. The same audit (check 5) verifies that every ranking is listed in ranking order and that every rank is 1 + the number of schools with a larger count (or rate)
-7. The same audit (check 10) recomputes every institution's campuses, counts, link campus, FTE and online share from the fact table and NCES's enrollment, without the pipeline's code, and verifies that every rate ranking lists exactly the institutions the rules above allow, with rate = count / FTE × 10,000
+7. The same audit (check 10) recomputes every institution's campuses, counts, link campus, FTE and online share from the fact table and NCES's enrollment, without the pipeline's code, and verifies that every rate ranking lists exactly the institutions the rules above allow, with rate = count / FTE × 10,000, and that every rankings file lists exactly the campuses that reported its year (those with 0 included)
+8. The same audit (checks 1 and 2) verifies that every campus that reported a year has a school page and is in the site search, and that each page has exactly the years the campus reported, 0 included, and lists the others as not reported
 
 ## Source Code
 
