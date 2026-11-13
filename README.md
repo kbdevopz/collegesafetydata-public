@@ -229,7 +229,13 @@ Preview and staging builds are marked `noindex` by both hosts, so search engines
 
 ## License
 
-This project displays publicly available data from the U.S. Department of Education. Built for transparency and public education purposes.
+The code in this repository is released under the [MIT License](LICENSE).
+
+The data comes from the U.S. Department of Education (Campus Safety and Security) and the National Center for Education Statistics (IPEDS), which publish it as public information. The MIT License covers this project's code and its own presentation of the data, not the underlying government data.
+
+## Security
+
+To report a security issue, see [SECURITY.md](SECURITY.md). Please do not open a public issue for it.
 
 ## Data Citation
 
