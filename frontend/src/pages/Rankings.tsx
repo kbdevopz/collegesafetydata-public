@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, Fragment } from 'react'
 import { Link, useSearchParams, useNavigate } from 'react-router-dom'
 import {
   useReactTable,
@@ -12,7 +12,7 @@ import { ChevronUp, ChevronDown, ExternalLink, AlertCircle, Loader2, MapPin, Cal
 import { fetchRankings, getMetadata } from '../lib/api'
 import type { RankingsData, Metadata, Offense } from '../lib/types'
 import { cn, formatNumber, formatPercent, groupOffensesByFamily, isSmallSample } from '../lib/utils'
-import { CRIMINAL, compareText, countHeader, countPhrase } from '../lib/selection'
+import { CRIMINAL, compareText, countHeader, countPhrase, noneOfPhrase } from '../lib/selection'
 import SchoolSearch from '../components/SchoolSearch'
 import OffensePopover from '../components/OffensePopover'
 
@@ -399,6 +399,28 @@ export default function Rankings() {
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
   })
+
+  // Rate view: the institutions ranked with rate 0 (they reported none of
+  // the selection that year) and the note shown where their rows begin
+  const zeroRateCount = useMemo(
+    () => (sortByRate ? sortedRankings.filter((r) => r.count === 0).length : 0),
+    [sortByRate, sortedRankings]
+  )
+  const zeroRateNote = zeroRateCount > 0
+    ? `${formatNumber(zeroRateCount)} ${zeroRateCount === 1 ? 'institution' : 'institutions'} reported no ` +
+      `${noneOfPhrase(selectedOffense, currentOffense)} for ${selectedYear}. A reported zero can reflect how an ` +
+      'institution classifies or reports incidents, not only how safe it is.'
+    : null
+  // Desktop: the note goes before the first rate-0 row of the table's order
+  // when those rows are together (the default order, or sorted by rank,
+  // count or rate); when a column sort mixes them in, above the first row
+  const tableRows = table.getRowModel().rows
+  let zeroNoteBefore = -1
+  if (zeroRateNote) {
+    const zeroIdx = tableRows.flatMap((row, i) => (row.original.count === 0 ? [i] : []))
+    const together = zeroIdx.length > 0 && zeroIdx[zeroIdx.length - 1] - zeroIdx[0] === zeroIdx.length - 1
+    zeroNoteBefore = together ? zeroIdx[0] : 0
+  }
 
   // Group offenses by family for dropdown
   const offenseGroups = useMemo(() => {
@@ -797,8 +819,16 @@ export default function Rankings() {
                   </span>
                 </div>
                 <div className="divide-y divide-gray-100 dark:divide-gray-800">
-                {displayedRankings.map((item) => (
-                  <div key={item.key} className="flex items-stretch">
+                {displayedRankings.map((item, i) => (
+                  <Fragment key={item.key}>
+                  {/* The rate-0 institutions come last: the note goes before the first */}
+                  {zeroRateNote && item.count === 0 && (i === 0 || displayedRankings[i - 1].count !== 0) && (
+                    <p className="flex items-start gap-2 px-4 py-3 text-sm bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-300">
+                      <Info className="w-4 h-4 flex-shrink-0 mt-0.5" aria-hidden="true" />
+                      <span>{zeroRateNote}</span>
+                    </p>
+                  )}
+                  <div className="flex items-stretch">
                     <Link
                       to={`/school/${item.unitid}`}
                       className="flex-1 min-w-0 p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
@@ -899,6 +929,7 @@ export default function Rankings() {
                       )}
                     </button>
                   </div>
+                  </Fragment>
                 ))}
                 </div>
               </div>
@@ -950,14 +981,26 @@ export default function Rankings() {
                     ))}
                   </thead>
                   <tbody>
-                    {table.getRowModel().rows.slice(0, displayCount).map((row) => (
-                      <tr key={row.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                        {row.getVisibleCells().map((cell) => (
-                          <td key={cell.id}>
-                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                          </td>
-                        ))}
-                      </tr>
+                    {tableRows.slice(0, displayCount).map((row, i) => (
+                      <Fragment key={row.id}>
+                        {i === zeroNoteBefore && zeroRateNote && (
+                          <tr>
+                            <td colSpan={row.getVisibleCells().length} className="!py-3 bg-amber-50 dark:bg-amber-900/20">
+                              <p className="flex items-start gap-2 text-sm text-amber-800 dark:text-amber-300">
+                                <Info className="w-4 h-4 flex-shrink-0 mt-0.5" aria-hidden="true" />
+                                <span>{zeroRateNote}</span>
+                              </p>
+                            </td>
+                          </tr>
+                        )}
+                        <tr className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                          {row.getVisibleCells().map((cell) => (
+                            <td key={cell.id}>
+                              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                            </td>
+                          ))}
+                        </tr>
+                      </Fragment>
                     ))}
                   </tbody>
                 </table>

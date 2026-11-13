@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-11-13T01:10:58Z",
+  "generated_at": "2026-11-13T01:37:54Z",
   "audited_build": {
     "site_record": "frontend/public/data/build_inputs.json",
-    "site_record_sha256": "6d87119fb737b34deb5fa1a68d8e48e9c99f8c53a828478da89caad39baea3a2",
+    "site_record_sha256": "ba48430fdf91fd509fd012a233f6cd337f180c225d922f5db3fab043615fdff6",
     "curated_sha256": {
       "facts/incidents.parquet": "7cf7d235e64853e934a877579aed578ee275692166bb5e6b182f6e3ff4f9a2a2",
       "aggs/agg_school_year_offense.parquet": "ead11484db841122d29b52ca15826ec8dd0669e895e0d163b5ef998126a9fe6c",
@@ -143,7 +143,7 @@
       "status": "PASS",
       "details": {
         "what_it_checks": "For every entry of every rateRankings list of rankings/*.json, rate equals count / fte x 10,000 to 2 decimals (within 0.005), with the FTE of the entry's institution in the file's institutions table, which must be above 0. Check 10 compares the counts and FTE with the facts and NCES's enrollment.",
-        "rate_entries_checked": 349169,
+        "rate_entries_checked": 359435,
         "rate_errors": 0
       },
       "errors": [],
@@ -154,8 +154,8 @@
       "status": "PASS",
       "details": {
         "what_it_checks": "In every count ranking (one code of a rankings/*.json file's rankings, the summary codes included), entries are listed by count, largest first, ties by name (the file's campuses table), then UNITID, and each rank is 1 + the number of entries with a larger count, so tied counts share a rank (1, 2, 2, 4). Every rate ranking (rateRankings) likewise by rate, ties by institution name, then base UNITID. It checks the order of each file's own counts and rates; check 4 checks the rates' arithmetic.",
-        "groups_validated": 20212,
-        "entries_checked": 885216,
+        "groups_validated": 20258,
+        "entries_checked": 895482,
         "order_violations": 0
       },
       "errors": [],
@@ -801,7 +801,7 @@
       "name": "Institution Rates",
       "status": "PASS",
       "details": {
-        "what_it_checks": "Without 04's or 05's code, from the facts without shadow blocks, the reported campus-years, dim_institution and dim_enrollment: the campus-years that count (reported, not all shadow blocks; incidents or not), the institutions (base UNITIDs) each year with such a campus, counts over all those campuses (residence halls and shadow blocks left out), link campus (the 001 campus, else the campus with the most incidents), FTE and share of exclusively online students. Every rankings/*.json file must list in campuses exactly its preset's counting campus-years, with their name, state, institution FTE and number of campuses (the site ranks those without an entry with 0); in institutions exactly its preset's institutions with at least 1,000 FTE and under 50% exclusively online students (or no such figure); and in rateRankings per code exactly those with a count above 0, each with that count and rate = count / FTE x 10,000 (within 0.005). Every school file's institution years must match too.",
+        "what_it_checks": "Without 04's or 05's code, from the facts without shadow blocks, the reported campus-years, dim_institution and dim_enrollment: the campus-years that count (reported, not all shadow blocks; incidents or not), the institutions (base UNITIDs) each year with such a campus, counts over all those campuses (residence halls and shadow blocks left out), link campus (the 001 campus, else the campus with the most incidents), FTE and share of exclusively online students (in 2020, 2021, the share of the fall config.py ONLINE_SHARE_YEAR names when NCES has one, else the year's own). Every rankings/*.json file must list in campuses exactly its preset's counting campus-years, with their name, state, institution FTE and number of campuses (the site ranks those without an entry with 0); in institutions exactly its preset's institutions with at least 1,000 FTE and under 50% exclusively online students (or no such figure); and in rateRankings per code exactly those with a count above 0, each with that count and rate = count / FTE x 10,000 (within 0.005). Every school file's institution years must match too.",
         "by_year": [
           {
             "year": 2015,
@@ -810,7 +810,11 @@
             "rate_ranked": 2313,
             "left_out_online": 203,
             "left_out_fte": 4192,
-            "no_online_figure": 0
+            "no_online_figure": 0,
+            "online_share_own_year_used": null,
+            "online_share_own_year_used_1000_fte": null,
+            "left_out_online_1000_fte": 79,
+            "with_1000_fte": 2392
           },
           {
             "year": 2016,
@@ -819,7 +823,11 @@
             "rate_ranked": 2283,
             "left_out_online": 218,
             "left_out_fte": 4003,
-            "no_online_figure": 0
+            "no_online_figure": 0,
+            "online_share_own_year_used": null,
+            "online_share_own_year_used_1000_fte": null,
+            "left_out_online_1000_fte": 84,
+            "with_1000_fte": 2367
           },
           {
             "year": 2017,
@@ -828,7 +836,11 @@
             "rate_ranked": 2257,
             "left_out_online": 233,
             "left_out_fte": 3845,
-            "no_online_figure": 0
+            "no_online_figure": 0,
+            "online_share_own_year_used": null,
+            "online_share_own_year_used_1000_fte": null,
+            "left_out_online_1000_fte": 90,
+            "with_1000_fte": 2347
           },
           {
             "year": 2018,
@@ -837,7 +849,11 @@
             "rate_ranked": 2236,
             "left_out_online": 218,
             "left_out_fte": 3646,
-            "no_online_figure": 0
+            "no_online_figure": 0,
+            "online_share_own_year_used": null,
+            "online_share_own_year_used_1000_fte": null,
+            "left_out_online_1000_fte": 93,
+            "with_1000_fte": 2329
           },
           {
             "year": 2019,
@@ -846,25 +862,37 @@
             "rate_ranked": 2217,
             "left_out_online": 238,
             "left_out_fte": 3544,
-            "no_online_figure": 0
+            "no_online_figure": 0,
+            "online_share_own_year_used": null,
+            "online_share_own_year_used_1000_fte": null,
+            "left_out_online_1000_fte": 103,
+            "with_1000_fte": 2320
           },
           {
             "year": 2020,
             "institutions": 5926,
             "with_more_than_one_campus": 1537,
-            "rate_ranked": 1588,
-            "left_out_online": 1059,
-            "left_out_fte": 3279,
-            "no_online_figure": 0
+            "rate_ranked": 2168,
+            "left_out_online": 233,
+            "left_out_fte": 3525,
+            "no_online_figure": 0,
+            "online_share_own_year_used": 66,
+            "online_share_own_year_used_1000_fte": 1,
+            "left_out_online_1000_fte": 96,
+            "with_1000_fte": 2264
           },
           {
             "year": 2021,
             "institutions": 5863,
             "with_more_than_one_campus": 1537,
-            "rate_ranked": 1936,
-            "left_out_online": 583,
-            "left_out_fte": 3344,
-            "no_online_figure": 0
+            "rate_ranked": 2167,
+            "left_out_online": 232,
+            "left_out_fte": 3464,
+            "no_online_figure": 0,
+            "online_share_own_year_used": 102,
+            "online_share_own_year_used_1000_fte": 2,
+            "left_out_online_1000_fte": 94,
+            "with_1000_fte": 2261
           },
           {
             "year": 2022,
@@ -873,7 +901,11 @@
             "rate_ranked": 2033,
             "left_out_online": 424,
             "left_out_fte": 3322,
-            "no_online_figure": 0
+            "no_online_figure": 0,
+            "online_share_own_year_used": null,
+            "online_share_own_year_used_1000_fte": null,
+            "left_out_online_1000_fte": 204,
+            "with_1000_fte": 2237
           },
           {
             "year": 2023,
@@ -882,7 +914,11 @@
             "rate_ranked": 2055,
             "left_out_online": 401,
             "left_out_fte": 3214,
-            "no_online_figure": 0
+            "no_online_figure": 0,
+            "online_share_own_year_used": null,
+            "online_share_own_year_used_1000_fte": null,
+            "left_out_online_1000_fte": 188,
+            "with_1000_fte": 2243
           },
           {
             "year": 2024,
@@ -891,12 +927,16 @@
             "rate_ranked": 2077,
             "left_out_online": 405,
             "left_out_fte": 3100,
-            "no_online_figure": 0
+            "no_online_figure": 0,
+            "online_share_own_year_used": null,
+            "online_share_own_year_used_1000_fte": null,
+            "left_out_online_1000_fte": 191,
+            "with_1000_fte": 2268
           }
         ],
         "ranking_files_checked": 550,
         "campus_rows_with_0_all_files": 128312,
-        "rate_entries_checked": 349169,
+        "rate_entries_checked": 359435,
         "school_files_checked": 14081,
         "problems": 0
       },

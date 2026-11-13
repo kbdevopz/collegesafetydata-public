@@ -37,7 +37,7 @@ Our data processing pipeline is fully documented. See [etl/METHODOLOGY.md](etl/M
 - Enrollment (FTE): NCES's own figures for every year
 - Totals: criminal offenses by default; "all categories" mixes crimes, arrests and disciplinary referrals
 - Ranking ties: equal counts share a rank (1, 2, 2, 4), listed by name
-- Rates are per institution (all its campuses' incidents per the institution's FTE, as NCES publishes FTE per institution); rate rankings list institutions with at least 1,000 FTE and under 50% of students exclusively online
+- Rates are per institution (all its campuses' incidents per the institution's FTE, as NCES publishes FTE per institution); rate rankings list institutions with at least 1,000 FTE and under 50% of students exclusively online (for 2020 and 2021, by their fall 2019 share, so pandemic remote teaching does not count)
 - Crime rate formulas
 - Geographic classifications
 - Data limitations

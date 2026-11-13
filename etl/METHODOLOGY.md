@@ -47,6 +47,10 @@ reported year without any incident is a 0, not missing data:
   rules below allow it;
 - a campus that reported but never had an incident has a school page too.
 
+A reported zero can reflect how an institution classifies or reports
+incidents, not only how safe it is; the rate rankings say so where their
+zero rows begin.
+
 A year a campus did not report has no figures at all. Its school page lists
 it as not reported, its charts leave a gap there rather than a 0, and it is
 in no ranking for that year. A campus-year whose every figure is counted
@@ -188,11 +192,17 @@ Rate rankings list an institution only when that year (both in `config.py`,
   without that figure is not left out (none of the institutions that
   reported and have an FTE lacks it in 2015-2024).
 
-In fall 2020 and 2021, when many institutions taught mostly online, many
-more are left out: of the institutions that reported Clery figures and have
-1,000+ FTE, 676 of 2,264 in 2020 (582 of them under 50% in 2019) and 325 of
-2,261 in 2021, against 103 of 2,320 in 2019 and 191 of 2,268 in 2024. The
-2020 and 2021 rate rankings therefore cover fewer institutions.
+For 2020 and 2021 the test uses each institution's fall 2019 share
+(`ONLINE_SHARE_YEAR` in `config.py`), because temporary remote teaching
+during the pandemic does not make a school an online-only school. When NCES
+has no 2019 figure for an institution, that year's own share is used (66
+institutions in 2020 and 102 in 2021, of which 1 and 2 have 1,000+ FTE).
+Judged by their own 2020 shares, 676 of the 2,264 institutions with 1,000+
+FTE in 2020 would have been left out, 582 of them under 50% in 2019. Of the
+institutions that reported Clery figures and have 1,000+ FTE, the online
+test leaves out 103 of 2,320 in 2019, 96 of 2,264 in 2020, 94 of 2,261 in
+2021, 204 of 2,237 in 2022, 188 of 2,243 in 2023 and 191 of 2,268 in 2024.
+School pages for 2020 and 2021 say which fall's share they used.
 
 School pages still show these institutions' rates, with a note saying why
 they are not ranked. Rates with fewer than 10 incidents, or under 1,000 FTE,

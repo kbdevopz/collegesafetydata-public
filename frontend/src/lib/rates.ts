@@ -74,6 +74,7 @@ export function latestFte(profile: FteSource): { year: number; fte: number } | n
 
 /** A school's institution in one year, as its rate counts it. */
 export interface InstitutionRate extends Omit<InstitutionYear, 'counts'> {
+  year: number
   count: number // incidents of all its campuses
   fte: number | null
   rate: number | null // per 10,000 FTE; null without an FTE
@@ -97,8 +98,10 @@ export function institutionRate(
   if (!entry) return null
   const count = entry.counts ? entry.counts[selectionCode(selection)] ?? 0 : ownCount
   return {
+    year,
     campuses: entry.campuses,
     online: entry.online,
+    onlineYear: entry.onlineYear,
     rateRanked: entry.rateRanked,
     count,
     fte: fteFor(profile, year),
@@ -113,7 +116,17 @@ export function institutionRate(
 export function rateNote(inst: InstitutionRate | null, rules: RateRules | null | undefined): string | null {
   if (!inst || inst.rateRanked || !rules) return null
   if (inst.online !== null && inst.online >= rules.onlineExclusionPct) {
-    return `${inst.online}% of its students study exclusively online, so its rate is not comparable and it is left out of rate rankings.`
+    const leftOut = 'so its rate is not comparable and it is left out of rate rankings.'
+    // A pandemic year (rules.onlineShareYear) is judged by another fall's
+    // share, so the note says which share and fall it used
+    const shareYear = rules.onlineShareYear?.[String(inst.year)]
+    if (shareYear !== undefined && inst.onlineYear !== undefined) {
+      if (inst.onlineYear !== inst.year) {
+        return `${inst.online}% of its students studied exclusively online in fall ${inst.onlineYear}, before the pandemic (the share used for ${inst.year}), ${leftOut}`
+      }
+      return `${inst.online}% of its students studied exclusively online in fall ${inst.year} (NCES has no fall ${shareYear} figure for it), ${leftOut}`
+    }
+    return `${inst.online}% of its students study exclusively online, ${leftOut}`
   }
   if (inst.fte !== null && inst.fte < rules.minFte) {
     return `Its enrollment is under ${rules.minFte.toLocaleString()} FTE students, so it is left out of rate rankings.`

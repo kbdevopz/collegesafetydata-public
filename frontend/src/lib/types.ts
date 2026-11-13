@@ -29,6 +29,9 @@ export interface Metadata {
 export interface RateRules {
   minFte: number
   onlineExclusionPct: number
+  // Years judged by another fall's online share, e.g. {"2020": 2019}: the
+  // pandemic's remote teaching does not make a school an online one
+  onlineShareYear?: Record<string, number>
 }
 
 // "final": NCES final revised file; "provisional": NCES provisional release;
@@ -181,8 +184,12 @@ export interface InstitutionInfo {
 
 export interface InstitutionYear {
   campuses: number
-  // Percent of its students enrolled exclusively online (NCES), or null
+  // Percent of its students enrolled exclusively online (NCES) that the rate
+  // rules use, or null
   online: number | null
+  // In the years of RateRules.onlineShareYear only: the fall `online` is
+  // from (that other fall, or the year itself when NCES has no figure then)
+  onlineYear?: number
   // Whether rate rankings list it that year (Metadata.rateRules)
   rateRanked: boolean
   // Counts of all its campuses per code (shadow blocks left out); absent

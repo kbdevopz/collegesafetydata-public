@@ -30,7 +30,7 @@ from pathlib import Path
 # Add parent to path for config import
 sys.path.insert(0, str(Path(__file__).parent))
 from config import (CURATED_DIR, IVY_LEAGUE, GEO_FOR_ALL, US_STATES, PROCESS_ALL_SCHOOLS, OFFENSE_ORDER,
-                    SHARED_MIN_NONZERO)
+                    SHARED_MIN_NONZERO, MIN_FTE_FOR_RATE, ONLINE_SHARE_YEAR)
 import provenance
 
 # The one fact table that 02_transform_to_parquet.py writes
@@ -965,6 +965,9 @@ def create_institution_tables(ranked_agg: pd.DataFrame, shared: pd.DataFrame, di
         geo "All" total of every offense, 0 included)
       agg_institution_year.parquet: year, base_unitid, institution_name,
         link_unitid, state, campuses (that count that year), fte, pctdeexc
+        (that year's share of exclusively online students), online_pct and
+        online_year (the share the rate rules use and the fall it is from:
+        ONLINE_SHARE_YEAR)
       agg_institution_year_offense.parquet: year, base_unitid, offense,
         offense_family, count (above 0 only)
     """
@@ -1025,9 +1028,32 @@ def create_institution_tables(ranked_agg: pd.DataFrame, shared: pd.DataFrame, di
 
     # FTE and online share of each institution-year (none when NCES has no figure)
     enroll = enrollment.rename(columns={"unitid": "base_unitid"})
-    inst_year = inst_year.merge(enroll, on=["base_unitid", "year"], how="left")
+    inst_year = inst_year.merge(enroll, on=["base_unitid", "year"], how="left", validate="many_to_one")
+
+    # The online share the rate rules use (online_pct) and the fall it is
+    # from (online_year): the year's own, except in the years of
+    # ONLINE_SHARE_YEAR (config.py: the pandemic's remote teaching), which
+    # use that other year's share, or their own when NCES has none for it
+    inst_year["online_src"] = [ONLINE_SHARE_YEAR.get(int(y), int(y)) for y in inst_year["year"].tolist()]
+    src_share = enroll[["base_unitid", "year", "pctdeexc"]].rename(
+        columns={"year": "online_src", "pctdeexc": "src_pct"})
+    inst_year = inst_year.merge(src_share, on=["base_unitid", "online_src"], how="left", validate="many_to_one")
+    other_year = inst_year["online_src"] != inst_year["year"]
+    use_src = other_year & inst_year["src_pct"].notna()
+    inst_year["online_pct"] = inst_year["src_pct"].where(use_src, inst_year["pctdeexc"])
+    inst_year["online_year"] = inst_year["online_src"].where(use_src, inst_year["year"]).where(
+        inst_year["online_pct"].notna())
+    for year, src in sorted(ONLINE_SHARE_YEAR.items()):
+        in_year = inst_year["year"] == year
+        own_used = in_year & ~use_src & inst_year["pctdeexc"].notna()
+        big = inst_year["fte"].fillna(0) >= MIN_FTE_FOR_RATE
+        print(f"  {year}: online share from {src} for {int((in_year & use_src).sum()):,} institutions; "
+              f"no {src} share, own year's used: {int(own_used.sum()):,} ({int((own_used & big).sum()):,} with "
+              f"{MIN_FTE_FOR_RATE:,}+ FTE); no share at all: {int((in_year & inst_year['online_pct'].isna()).sum()):,}")
+    inst_year = inst_year.drop(columns=["online_src", "src_pct"])
     inst_year = inst_year.astype({"year": "int16", "base_unitid": "int32", "link_unitid": "int32",
-                                  "campuses": "int16", "fte": "Int32", "pctdeexc": "Int16"})
+                                  "campuses": "int16", "fte": "Int32", "pctdeexc": "Int16",
+                                  "online_pct": "Int16", "online_year": "Int16"})
     inst_year = inst_year.sort_values(["year", "base_unitid"]).reset_index(drop=True)
 
     # The counts of every campus of the institution

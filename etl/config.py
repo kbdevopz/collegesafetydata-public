@@ -338,6 +338,13 @@ SUMMARY_FAMILIES = {"criminal": "Criminal", "all": None}
 MIN_FTE_FOR_RATE = 1000
 ONLINE_EXCLUSION_PCT = 50
 
+# The years whose "mostly online" test uses another year's PCTDEEXC: in fall
+# 2020 and 2021 many institutions taught remotely for the pandemic, which
+# does not make them online-only schools, so those years use the
+# institution's fall 2019 share. When NCES has no 2019 figure for it, the
+# year's own share is used (the build reports how many).
+ONLINE_SHARE_YEAR = {2020: 2019, 2021: 2019}
+
 # =============================================================================
 # DOE DATA SOURCE URLS
 # =============================================================================

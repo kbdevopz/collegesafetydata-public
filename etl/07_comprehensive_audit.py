@@ -53,7 +53,7 @@ from typing import Optional
 sys.path.insert(0, str(Path(__file__).parent))
 from config import (CURATED_DIR, QA_DIR, JSON_DIR, DATA_YEARS, PROJECT_ROOT, GEO_CODES, GEO_FOR_ALL,
                     OFFENSE_ORDER, SHARED_MIN_NONZERO, US_STATES, IVY_LEAGUE, IVY_BASE_UNITIDS,
-                    SUMMARY_FAMILIES, MIN_FTE_FOR_RATE, ONLINE_EXCLUSION_PCT)
+                    SUMMARY_FAMILIES, MIN_FTE_FOR_RATE, ONLINE_EXCLUSION_PCT, ONLINE_SHARE_YEAR)
 import provenance
 
 # Curated files the checks read (relative to data/curated)
@@ -1445,7 +1445,7 @@ def expected_institutions() -> tuple[dict, dict]:
     blocks of aggs/shared_blocks.parquet (check 8 finds them again), the
     reported campus-years, dim_institution and dim_enrollment:
 
-    returns ({(year, base): {name, link, state, campuses, fte, online}},
+    returns ({(year, base): {name, link, state, campuses, fte, online, online_year}},
              {(year, base, code): count above 0},
              {(year, unitid): {name, state}} of every counting campus-year).
 
@@ -1504,9 +1504,17 @@ def expected_institutions() -> tuple[dict, dict]:
         main = b * 1000 + 1
         link = main if main in with_file else min(with_file, key=lambda u: (-campus_total.get((u, y), 0), u))
         f, online = fte.get((b, y), (None, None))
+        # The online share the rules use: in an ONLINE_SHARE_YEAR year, that
+        # other fall's share when NCES has one, else the year's own
+        online_year = y if online is not None else None
+        if y in ONLINE_SHARE_YEAR:
+            src_online = fte.get((b, ONLINE_SHARE_YEAR[y]), (None, None))[1]
+            if src_online is not None:
+                online, online_year = src_online, ONLINE_SHARE_YEAR[y]
         s = state.get(link)
         institutions[(y, b)] = {"name": name[link], "link": link, "state": None if pd.isna(s) else s,
-                                "campuses": len(campuses), "fte": f, "online": online}
+                                "campuses": len(campuses), "fte": f, "online": online,
+                                "online_year": online_year}
     campus_years = {}
     for u, y in counting:
         if u not in name:
@@ -1549,7 +1557,9 @@ def audit_institution_rates(verbose: bool = False) -> AuditResult:
             "dim_institution and dim_enrollment: the campus-years that count (reported, not all shadow blocks; "
             "incidents or not), the institutions (base UNITIDs) each year with such a campus, counts over all "
             "those campuses (residence halls and shadow blocks left out), link campus (the 001 campus, else the "
-            "campus with the most incidents), FTE and share of exclusively online students. Every "
+            "campus with the most incidents), FTE and share of exclusively online students (in "
+            f"{', '.join(str(y) for y in sorted(ONLINE_SHARE_YEAR))}, the share of the fall config.py "
+            "ONLINE_SHARE_YEAR names when NCES has one, else the year's own). Every "
             "rankings/*.json file must list in campuses exactly its preset's counting campus-years, with their "
             "name, state, institution FTE and number of campuses (the site ranks those without an entry with 0); "
             f"in institutions exactly its preset's institutions with at least {MIN_FTE_FOR_RATE:,} FTE and under "
@@ -1662,6 +1672,8 @@ def audit_institution_rates(verbose: bool = False) -> AuditResult:
                 c = {code: counts[(y, b, code)] for code in codes if counts.get((y, b, code), 0) > 0}
                 want[str(y)] = {"campuses": rec["campuses"], "online": rec["online"], "rateRanked": rate_ranked(rec),
                                 "counts": c}
+                if y in ONLINE_SHARE_YEAR and rec["online"] is not None:
+                    want[str(y)]["onlineYear"] = rec["online_year"]
             got = (school.get("institution") or {}).get("byYear") or {}
             if want and (school.get("institution") or {}).get("id") != b:
                 problem(f"schools/{unitid}.json: institution id {(school.get('institution') or {}).get('id')}, "
@@ -1696,6 +1708,15 @@ def audit_institution_rates(verbose: bool = False) -> AuditResult:
                 "left_out_online": online_left_out.get(y, 0),
                 "left_out_fte": small_left_out.get(y, 0),
                 "no_online_figure": sum(1 for r in listed if r["online"] is None and r["fte"] is not None),
+                # ONLINE_SHARE_YEAR years without that other fall's share: their own year's was used
+                "online_share_own_year_used": (sum(1 for r in listed if r["online_year"] == y)
+                                               if y in ONLINE_SHARE_YEAR else None),
+                "online_share_own_year_used_1000_fte": (
+                    sum(1 for r in listed if r["online_year"] == y and (r["fte"] or 0) >= MIN_FTE_FOR_RATE)
+                    if y in ONLINE_SHARE_YEAR else None),
+                "left_out_online_1000_fte": sum(1 for r in listed if (r["fte"] or 0) >= MIN_FTE_FOR_RATE
+                                                and r["online"] is not None and r["online"] >= ONLINE_EXCLUSION_PCT),
+                "with_1000_fte": sum(1 for r in listed if (r["fte"] or 0) >= MIN_FTE_FOR_RATE),
             })
         result.details["by_year"] = by_year
         result.details["ranking_files_checked"] = files_checked
@@ -1704,11 +1725,16 @@ def audit_institution_rates(verbose: bool = False) -> AuditResult:
         result.details["school_files_checked"] = profiles_checked
         result.details["problems"] = len(problems)
 
-        print(f"    {'Year':<6}{'Inst.':>7}{'Multi':>7}{'Ranked':>8}{'Online':>8}{'<FTE':>7}{'NoPct':>7}")
+        print(f"    {'Year':<6}{'Inst.':>7}{'Multi':>7}{'Ranked':>8}{'Online':>8}{'<FTE':>7}{'NoPct':>7}"
+              f"{'1000+':>7}{'Online1000+':>13}{'OwnYearPct':>12}")
         for r in by_year:
+            # OwnYearPct: in an ONLINE_SHARE_YEAR year, how many used their own year's share (with 1,000+ FTE)
+            own_used = r["online_share_own_year_used"]
+            own_text = "" if own_used is None else f"{own_used:,} ({r['online_share_own_year_used_1000_fte']:,})"
             print(f"    {r['year']:<6}{r['institutions']:>7,}{r['with_more_than_one_campus']:>7,}"
                   f"{r['rate_ranked']:>8,}{r['left_out_online']:>8,}{r['left_out_fte']:>7,}"
-                  f"{r['no_online_figure']:>7,}")
+                  f"{r['no_online_figure']:>7,}{r['with_1000_fte']:>7,}{r['left_out_online_1000_fte']:>13,}"
+                  f"{own_text:>12}")
         print(f"  Ranking files: {files_checked:,}; rate entries: {entries_checked:,}; school files: "
               f"{profiles_checked:,}")
         print(f"  Problems: {len(problems)}")

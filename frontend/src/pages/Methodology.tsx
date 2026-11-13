@@ -264,9 +264,9 @@ export default function Methodology() {
                   And institutions where at least 50% of students study exclusively online (NCES's share of students
                   enrolled exclusively in distance education): Clery figures cover the campus, which most of their
                   students never attend, so their rate is not comparable. School pages still show these rates, with a
-                  note. An institution without NCES's online figure is not left out. In fall 2020 and 2021, when many
-                  institutions taught mostly online, many more are left out: about 680 of the 2,260 institutions with
-                  1,000+ FTE in 2020 and 330 in 2021, against about 100 in 2019.
+                  note. An institution without NCES's online figure is not left out. For 2020 and 2021 the test uses
+                  each institution's fall 2019 share (its own year's only when NCES has no 2019 figure), because
+                  temporary remote teaching during the pandemic does not make a school an online-only school.
                 </p>
               </div>
               <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4 sm:col-span-2">
@@ -274,7 +274,8 @@ export default function Methodology() {
                 <p className="text-sm text-gray-600 dark:text-gray-400">
                   Schools with the same count (or the same rate) share a rank, and the next rank skips the places
                   the tie takes: 1, 2, 2, 4. Tied schools are listed by name. Campuses that reported the year but
-                  had none of the selected category come last, with 0, sharing one rank.
+                  had none of the selected category come last, with 0, sharing one rank. A reported zero can reflect how
+                  an institution classifies or reports incidents, not only how safe it is.
                 </p>
               </div>
             </div>

@@ -51,6 +51,20 @@ export function countPhrase(n: number, offense: Pick<Offense, 'code' | 'family'>
 }
 
 /**
+ * What "reported no ..." names for a rankings code: "criminal offenses",
+ * "crimes, arrests or referrals", "drug arrests", "liquor discipline
+ * referrals", or the offense itself ("burglary").
+ */
+export function noneOfPhrase(code: string, offense: Pick<Offense, 'display' | 'family'> | undefined): string {
+  if (code === CRIMINAL) return 'criminal offenses'
+  if (code === ALL) return 'crimes, arrests or referrals'
+  const name = (offense?.display ?? code.split('_').join(' ')).toLowerCase()
+  if (offense?.family === 'Arrest') return `${name}s`
+  if (offense?.family === 'Disciplinary') return `${name} referrals`
+  return name
+}
+
+/**
  * Text order the pipeline uses for ties (Python string order: by code
  * point), not the browser's locale order.
  */

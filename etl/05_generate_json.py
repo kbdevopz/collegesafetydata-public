@@ -23,7 +23,7 @@ from config import (
     CURATED_DIR, JSON_DIR, IVY_LEAGUE, IVY_BASE_UNITIDS,
     OFFENSE_DESCRIPTIONS, OFFENSE_FAMILIES, DATA_YEARS,
     US_STATES, PROCESS_ALL_SCHOOLS,
-    SUMMARY_FAMILIES, MIN_FTE_FOR_RATE, ONLINE_EXCLUSION_PCT
+    SUMMARY_FAMILIES, MIN_FTE_FOR_RATE, ONLINE_EXCLUSION_PCT, ONLINE_SHARE_YEAR
 )
 import provenance
 
@@ -277,8 +277,10 @@ def generate_metadata(aggs_record: dict) -> dict:
         "years": years,
         "enrollmentStatus": enrollment_status(years, aggs_record),
         # Who rate rankings list (config.py): institutions with at least
-        # minFte FTE and fewer than onlineExclusionPct % exclusively online
-        "rateRules": {"minFte": MIN_FTE_FOR_RATE, "onlineExclusionPct": ONLINE_EXCLUSION_PCT},
+        # minFte FTE and fewer than onlineExclusionPct % exclusively online;
+        # the years of onlineShareYear use that other fall's share
+        "rateRules": {"minFte": MIN_FTE_FOR_RATE, "onlineExclusionPct": ONLINE_EXCLUSION_PCT,
+                      "onlineShareYear": {str(y): src for y, src in sorted(ONLINE_SHARE_YEAR.items())}},
         "offenses": offenses,
         "geographies": ["All", "On-campus", "Non-campus", "Public property", "Residence halls"],
         "presets": presets,
@@ -440,8 +442,12 @@ class Institutions:
 
     @staticmethod
     def rate_ranked(rec: dict) -> bool:
-        """Whether an institution-year is in rate rankings (config.py, MIN_FTE_FOR_RATE, ONLINE_EXCLUSION_PCT)."""
-        fte, online = rec.get("fte"), rec.get("pctdeexc")
+        """
+        Whether an institution-year is in rate rankings (config.py,
+        MIN_FTE_FOR_RATE, ONLINE_EXCLUSION_PCT), by the online share 04 chose
+        for the rules (online_pct: ONLINE_SHARE_YEAR).
+        """
+        fte, online = rec.get("fte"), rec.get("online_pct")
         return (pd.notna(fte) and int(fte) >= MIN_FTE_FOR_RATE
                 and (pd.isna(online) or int(online) < ONLINE_EXCLUSION_PCT))
 
@@ -454,8 +460,9 @@ class Institutions:
     def profile_years(self, base_unitid: int, own: dict[int, dict[str, int]]) -> dict[str, dict]:
         """
         A school file's "institution" years: {year: {campuses, online,
-        rateRanked, counts}} for each year of `own` (the school's own counts
-        per year and code, above 0) in which its institution is listed.
+        onlineYear (ONLINE_SHARE_YEAR years only), rateRanked, counts}} for
+        each year of `own` (the school's own counts per year and code, above
+        0) in which its institution is listed.
 
         counts (per code, above 0) is left out when it equals the school's
         own counts that year (one campus and no shadow blocks), which keeps
@@ -470,9 +477,13 @@ class Institutions:
             counts = {code: n for code, n in counts.items() if n > 0}
             entry = {
                 "campuses": int(rec["campuses"]),
-                "online": int(rec["pctdeexc"]) if pd.notna(rec.get("pctdeexc")) else None,
+                "online": int(rec["online_pct"]) if pd.notna(rec.get("online_pct")) else None,
                 "rateRanked": self.rate_ranked(rec),
             }
+            # In the years of ONLINE_SHARE_YEAR, the fall the share is from
+            # (that other year, or the year itself when NCES has none for it)
+            if int(year) in ONLINE_SHARE_YEAR and entry["online"] is not None:
+                entry["onlineYear"] = int(rec["online_year"])
             if counts != own[year]:
                 entry["counts"] = counts
             out[str(year)] = entry
@@ -728,11 +739,13 @@ def generate_school_profiles() -> None:
         breakdownByOffense: BreakdownEntry[]
         breakdownByGeo: BreakdownEntry[]
         sharedFigures: SharedFigure[]  # only for a school with shadow blocks (see shared_figures)
-        institution: {id, byYear: {year: {campuses, online, rateRanked, counts?}}}
+        institution: {id, byYear: {year: {campuses, online, onlineYear?, rateRanked, counts?}}}
             the school's institution (base UNITID) in the school's years, as
             rates count it (Institutions.profile_years): all its campuses'
             counts per code without shadow blocks (left out when equal to
-            the school's own); fteByYear is its FTE
+            the school's own); fteByYear is its FTE. online is the share of
+            exclusively online students the rate rules use, and onlineYear
+            (in the years of ONLINE_SHARE_YEAR only) the fall it is from
 
     Every campus that reported a year has a file (dim_institution). Its
     years are the years it reported (campus_year_sources: a release row
