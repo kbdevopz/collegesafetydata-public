@@ -1,68 +1,142 @@
 {
   "preset": "VI",
   "year": 2022,
+  "campuses": {
+    "153603005": {
+      "name": "Iowa State University",
+      "short": null,
+      "state": "VI",
+      "main": false,
+      "fte": 28140,
+      "campuses": 5
+    },
+    "243665001": {
+      "name": "University of the Virgin Islands",
+      "short": null,
+      "state": "VI",
+      "main": true,
+      "fte": 1254,
+      "campuses": 2
+    },
+    "243665002": {
+      "name": "University of the Virgin Islands",
+      "short": null,
+      "state": "VI",
+      "main": false,
+      "fte": 1254,
+      "campuses": 2
+    }
+  },
   "rankings": {
+    "criminal": [
+      {
+        "rank": 1,
+        "unitid": 243665001,
+        "count": 2
+      }
+    ],
     "all": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 243665001,
-        "name": "University of the Virgin Islands",
-        "short": null,
-        "count": 9,
-        "pct": 100.0,
-        "fte": 1254,
-        "rate": 71.77,
-        "isMainCampus": true
+        "count": 9
       }
     ],
     "drug_discipline": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 243665001,
-        "name": "University of the Virgin Islands",
-        "short": null,
-        "count": 4,
-        "pct": 100.0,
-        "fte": 1254,
-        "rate": 31.9,
-        "isMainCampus": true
+        "count": 4
       }
     ],
     "liquor_discipline": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 243665001,
-        "name": "University of the Virgin Islands",
-        "short": null,
-        "count": 3,
-        "pct": 100.0,
-        "fte": 1254,
-        "rate": 23.92,
-        "isMainCampus": true
+        "count": 3
       }
     ],
     "rape": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 243665001,
-        "name": "University of the Virgin Islands",
-        "short": null,
-        "count": 2,
-        "pct": 100.0,
-        "fte": 1254,
-        "rate": 15.95,
-        "isMainCampus": true
+        "count": 2
       }
     ]
   },
   "totals": {
+    "criminal": 2,
     "all": 9,
     "drug_discipline": 4,
     "liquor_discipline": 3,
     "rape": 2
+  },
+  "institutions": {
+    "243665": {
+      "name": "University of the Virgin Islands",
+      "unitid": 243665001,
+      "state": "VI",
+      "fte": 1254,
+      "campuses": 2
+    }
+  },
+  "rateRankings": {
+    "criminal": [
+      {
+        "rank": 1,
+        "id": 243665,
+        "count": 2,
+        "rate": 15.95
+      }
+    ],
+    "all": [
+      {
+        "rank": 1,
+        "id": 243665,
+        "count": 9,
+        "rate": 71.77
+      }
+    ],
+    "aggravated_assault": [],
+    "arson": [],
+    "burglary": [],
+    "dating_violence": [],
+    "domestic_violence": [],
+    "drug_arrest": [],
+    "drug_discipline": [
+      {
+        "rank": 1,
+        "id": 243665,
+        "count": 4,
+        "rate": 31.9
+      }
+    ],
+    "fondling": [],
+    "incest": [],
+    "liquor_arrest": [],
+    "liquor_discipline": [
+      {
+        "rank": 1,
+        "id": 243665,
+        "count": 3,
+        "rate": 23.92
+      }
+    ],
+    "motor_vehicle_theft": [],
+    "murder": [],
+    "negligent_manslaughter": [],
+    "rape": [
+      {
+        "rank": 1,
+        "id": 243665,
+        "count": 2,
+        "rate": 15.95
+      }
+    ],
+    "robbery": [],
+    "stalking": [],
+    "statutory_rape": [],
+    "weapons_arrest": [],
+    "weapons_discipline": []
   }
 }

@@ -7,22 +7,24 @@
   "ivyLeague": false,
   "isMainCampus": true,
   "campusType": "Main Campus",
-  "fte": 2327,
+  "fte": 2432,
   "fteByYear": {
-    "2015": 984,
-    "2016": 979,
-    "2017": 880,
-    "2018": 795,
-    "2019": 755,
-    "2020": 652,
+    "2015": 943,
+    "2016": 940,
+    "2017": 843,
+    "2018": 758,
+    "2019": 723,
+    "2020": 623,
+    "2021": 586,
     "2022": 2325,
-    "2023": 2327
+    "2023": 2327,
+    "2024": 2432
   },
   "summary": {
-    "latestYear": 2023,
-    "totalIncidents": 20,
-    "topOffense": "Liquor Discipline",
-    "topOffenseCount": 20
+    "latestYear": 2024,
+    "totalIncidents": 0,
+    "topOffense": null,
+    "topOffenseCount": 0
   },
   "yearlyTotals": [
     {
@@ -50,12 +52,20 @@
       "total": 1
     },
     {
+      "year": 2021,
+      "total": 0
+    },
+    {
       "year": 2022,
       "total": 3
     },
     {
       "year": 2023,
       "total": 20
+    },
+    {
+      "year": 2024,
+      "total": 0
     }
   ],
   "trends": [
@@ -168,16 +178,97 @@
       "count": 20
     }
   ],
-  "breakdownByOffense": [
-    {
-      "offense": "Liquor Discipline",
-      "count": 20
+  "breakdownByOffense": [],
+  "breakdownByGeo": [],
+  "institution": {
+    "id": 173735,
+    "byYear": {
+      "2015": {
+        "campuses": 1,
+        "online": 13,
+        "rateRanked": false
+      },
+      "2016": {
+        "campuses": 1,
+        "online": 11,
+        "rateRanked": false
+      },
+      "2017": {
+        "campuses": 1,
+        "online": 10,
+        "rateRanked": false
+      },
+      "2018": {
+        "campuses": 1,
+        "online": 12,
+        "rateRanked": false
+      },
+      "2019": {
+        "campuses": 1,
+        "online": 11,
+        "rateRanked": false
+      },
+      "2020": {
+        "campuses": 1,
+        "online": 11,
+        "rateRanked": false,
+        "onlineYear": 2019
+      },
+      "2021": {
+        "campuses": 6,
+        "online": 11,
+        "rateRanked": false,
+        "onlineYear": 2019,
+        "counts": {
+          "all": 13,
+          "drug_discipline": 12,
+          "weapons_discipline": 1
+        }
+      },
+      "2022": {
+        "campuses": 6,
+        "online": 14,
+        "rateRanked": true,
+        "counts": {
+          "criminal": 2,
+          "all": 64,
+          "dating_violence": 2,
+          "drug_discipline": 11,
+          "liquor_discipline": 49,
+          "motor_vehicle_theft": 2
+        }
+      },
+      "2023": {
+        "campuses": 6,
+        "online": 14,
+        "rateRanked": true,
+        "counts": {
+          "criminal": 3,
+          "all": 81,
+          "dating_violence": 1,
+          "drug_discipline": 38,
+          "liquor_discipline": 36,
+          "motor_vehicle_theft": 1,
+          "rape": 1,
+          "robbery": 1,
+          "stalking": 3
+        }
+      },
+      "2024": {
+        "campuses": 6,
+        "online": 16,
+        "rateRanked": true,
+        "counts": {
+          "criminal": 5,
+          "all": 88,
+          "burglary": 1,
+          "dating_violence": 1,
+          "drug_discipline": 49,
+          "liquor_discipline": 33,
+          "rape": 2,
+          "statutory_rape": 2
+        }
+      }
     }
-  ],
-  "breakdownByGeo": [
-    {
-      "geo": "Non-campus",
-      "count": 20
-    }
-  ]
+  }
 }

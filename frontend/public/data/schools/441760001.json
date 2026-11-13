@@ -7,21 +7,24 @@
   "ivyLeague": false,
   "isMainCampus": true,
   "campusType": "Main Campus",
-  "fte": 2737,
+  "fte": 2897,
   "fteByYear": {
-    "2015": 1863,
-    "2016": 1902,
-    "2017": 1987,
-    "2018": 2132,
+    "2015": 1751,
+    "2016": 1792,
+    "2017": 1874,
+    "2018": 2003,
+    "2019": 2360,
+    "2020": 2458,
     "2021": 2428,
     "2022": 2524,
-    "2023": 2737
+    "2023": 2737,
+    "2024": 2897
   },
   "summary": {
-    "latestYear": 2023,
-    "totalIncidents": 4,
-    "topOffense": "Aggravated Assault",
-    "topOffenseCount": 1
+    "latestYear": 2024,
+    "totalIncidents": 0,
+    "topOffense": null,
+    "topOffenseCount": 0
   },
   "yearlyTotals": [
     {
@@ -41,6 +44,14 @@
       "total": 7
     },
     {
+      "year": 2019,
+      "total": 0
+    },
+    {
+      "year": 2020,
+      "total": 0
+    },
+    {
       "year": 2021,
       "total": 2
     },
@@ -51,6 +62,10 @@
     {
       "year": 2023,
       "total": 4
+    },
+    {
+      "year": 2024,
+      "total": 0
     }
   ],
   "trends": [
@@ -187,32 +202,78 @@
       "count": 1
     }
   ],
-  "breakdownByOffense": [
-    {
-      "offense": "Aggravated Assault",
-      "count": 1
-    },
-    {
-      "offense": "Drug Arrest",
-      "count": 1
-    },
-    {
-      "offense": "Motor Vehicle Theft",
-      "count": 1
-    },
-    {
-      "offense": "Weapons Arrest",
-      "count": 1
+  "breakdownByOffense": [],
+  "breakdownByGeo": [],
+  "institution": {
+    "id": 441760,
+    "byYear": {
+      "2015": {
+        "campuses": 1,
+        "online": 4,
+        "rateRanked": true
+      },
+      "2016": {
+        "campuses": 1,
+        "online": 5,
+        "rateRanked": true
+      },
+      "2017": {
+        "campuses": 1,
+        "online": 7,
+        "rateRanked": true
+      },
+      "2018": {
+        "campuses": 1,
+        "online": 12,
+        "rateRanked": true
+      },
+      "2019": {
+        "campuses": 1,
+        "online": 16,
+        "rateRanked": true
+      },
+      "2020": {
+        "campuses": 1,
+        "online": 16,
+        "rateRanked": true,
+        "onlineYear": 2019
+      },
+      "2021": {
+        "campuses": 1,
+        "online": 16,
+        "rateRanked": true,
+        "onlineYear": 2019
+      },
+      "2022": {
+        "campuses": 1,
+        "online": 25,
+        "rateRanked": true
+      },
+      "2023": {
+        "campuses": 5,
+        "online": 28,
+        "rateRanked": true,
+        "counts": {
+          "criminal": 8,
+          "all": 10,
+          "aggravated_assault": 1,
+          "burglary": 1,
+          "drug_arrest": 1,
+          "motor_vehicle_theft": 4,
+          "robbery": 2,
+          "weapons_arrest": 1
+        }
+      },
+      "2024": {
+        "campuses": 5,
+        "online": 32,
+        "rateRanked": true,
+        "counts": {
+          "criminal": 1,
+          "all": 1,
+          "aggravated_assault": 1
+        }
+      }
     }
-  ],
-  "breakdownByGeo": [
-    {
-      "geo": "Public property",
-      "count": 3
-    },
-    {
-      "geo": "On-campus",
-      "count": 1
-    }
-  ]
+  }
 }

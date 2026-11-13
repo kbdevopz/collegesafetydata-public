@@ -7,21 +7,24 @@
   "ivyLeague": false,
   "isMainCampus": true,
   "campusType": "Main Campus",
-  "fte": 1068,
+  "fte": 1213,
   "fteByYear": {
-    "2015": 1638,
-    "2016": 1472,
-    "2017": 1365,
-    "2018": 1347,
-    "2019": 1400,
-    "2020": 1215,
-    "2021": 1068
+    "2015": 1576,
+    "2016": 1419,
+    "2017": 1309,
+    "2018": 1293,
+    "2019": 1342,
+    "2020": 1169,
+    "2021": 1068,
+    "2022": 992,
+    "2023": 1122,
+    "2024": 1213
   },
   "summary": {
-    "latestYear": 2021,
-    "totalIncidents": 14,
-    "topOffense": "Drug Discipline",
-    "topOffenseCount": 6
+    "latestYear": 2024,
+    "totalIncidents": 0,
+    "topOffense": null,
+    "topOffenseCount": 0
   },
   "yearlyTotals": [
     {
@@ -51,6 +54,18 @@
     {
       "year": 2021,
       "total": 14
+    },
+    {
+      "year": 2022,
+      "total": 0
+    },
+    {
+      "year": 2023,
+      "total": 0
+    },
+    {
+      "year": 2024,
+      "total": 0
     }
   ],
   "trends": [
@@ -457,42 +472,8 @@
       "count": 1
     }
   ],
-  "breakdownByOffense": [
-    {
-      "offense": "Drug Discipline",
-      "count": 6
-    },
-    {
-      "offense": "Burglary",
-      "count": 3
-    },
-    {
-      "offense": "Rape",
-      "count": 2
-    },
-    {
-      "offense": "Aggravated Assault",
-      "count": 1
-    },
-    {
-      "offense": "Drug Arrest",
-      "count": 1
-    },
-    {
-      "offense": "Stalking",
-      "count": 1
-    }
-  ],
-  "breakdownByGeo": [
-    {
-      "geo": "On-campus",
-      "count": 14
-    },
-    {
-      "geo": "Residence halls",
-      "count": 8
-    }
-  ],
+  "breakdownByOffense": [],
+  "breakdownByGeo": [],
   "sharedFigures": [
     {
       "year": 2015,
@@ -560,5 +541,33 @@
       "hostUnitid": 237367001,
       "hostName": "Fairmont State University"
     }
-  ]
+  ],
+  "institution": {
+    "id": 443492,
+    "byYear": {
+      "2022": {
+        "campuses": 3,
+        "online": 42,
+        "rateRanked": false
+      },
+      "2023": {
+        "campuses": 4,
+        "online": 33,
+        "rateRanked": true,
+        "counts": {
+          "all": 8,
+          "drug_arrest": 8
+        }
+      },
+      "2024": {
+        "campuses": 4,
+        "online": 24,
+        "rateRanked": true,
+        "counts": {
+          "all": 3,
+          "drug_arrest": 3
+        }
+      }
+    }
+  }
 }

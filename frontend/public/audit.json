@@ -1,13 +1,13 @@
 {
-  "generated_at": "2026-11-11T01:06:12Z",
+  "generated_at": "2026-11-13T01:37:54Z",
   "audited_build": {
     "site_record": "frontend/public/data/build_inputs.json",
-    "site_record_sha256": "df2bec293ba0f9ca50509d336a4786e015244ffe17a941118b79d993f7d02619",
+    "site_record_sha256": "ba48430fdf91fd509fd012a233f6cd337f180c225d922f5db3fab043615fdff6",
     "curated_sha256": {
       "facts/incidents.parquet": "7cf7d235e64853e934a877579aed578ee275692166bb5e6b182f6e3ff4f9a2a2",
-      "aggs/agg_school_year_offense.parquet": "8a6273a1bd3edf79632c50ed680ffeb7dddce04987870e81c3453967d6804387",
-      "dims/dim_enrollment.parquet": "37b328d2b319acbafca777aff55dbc096f0841f784f07ed973fa4b1a5f24aaba",
-      "dims/dim_institution.parquet": "8d5e65263d49c83dd851f02a4bedbcd2a2916ed0cedf2ce043dcb3a5c526d51a",
+      "aggs/agg_school_year_offense.parquet": "ead11484db841122d29b52ca15826ec8dd0669e895e0d163b5ef998126a9fe6c",
+      "dims/dim_enrollment.parquet": "32e220b7db8a2fd5997b4b81757a9c5b98948040b4c7c539474823012d5b6386",
+      "dims/dim_institution.parquet": "88ffef2b489acbcb803d284968d599cdb1ba5895aafa79e62f1cf46b9b6f587c",
       "dims/campus_year_sources.parquet": "c7f793917e246b7cd9eefaa9e595d8cccf5da81bc83edee514a6f28d0a4b5385",
       "dims/older_release_counts.parquet": "21eaa816a05c1835f513486714cbb4cc7becf7cb5b5416d8da26cfee689172bb",
       "aggs/shared_blocks.parquet": "4184240dcd06962a7ce4706e65e7816ece4805e1ef3f4aaf26f4753d32e6ea0b"
@@ -15,8 +15,8 @@
   },
   "overall_status": "PASS",
   "summary": {
-    "total_checks": 8,
-    "passed": 8,
+    "total_checks": 10,
+    "passed": 10,
     "failed": 0,
     "warnings": 0
   },
@@ -25,9 +25,12 @@
       "name": "School Completeness",
       "status": "PASS",
       "details": {
-        "what_it_checks": "Every school (UNITID) in data/curated/facts/incidents.parquet has a site file schools/<UNITID>.json, and every school file has fact data. It compares file names only; check 2 and the per-school report compare the files' numbers.",
+        "what_it_checks": "Every campus (UNITID) that reported a year of DATA_YEARS in data/curated/dims/campus_year_sources.parquet (a release row with a count cell that is not blank, zeros included) has a site file schools/<UNITID>.json, every school file is such a campus, every school in data/curated/facts/incidents.parquet reported, and school-index.json (the site search) lists every school file once and nothing else. It compares file names only; check 2 and the per-school report compare the files' numbers.",
+        "schools_in_search_index": 14081,
         "schools_in_facts": 8844,
-        "json_files_generated": 8844,
+        "schools_reported": 14081,
+        "schools_reported_never_an_incident": 5237,
+        "json_files_generated": 14081,
         "missing_json": 0,
         "extra_json": 0
       },
@@ -38,9 +41,11 @@
       "name": "Incident Total Accuracy",
       "status": "PASS",
       "details": {
-        "what_it_checks": "For every site school file schools/<UNITID>.json, the yearlyTotals total of each year (every year in the file or the aggregates) equals the sum over offenses of that school's geo \"All\" rows in agg_school_year_offense.parquet. The files' trends and breakdowns are not compared, and check 7 compares the aggregates with the fact table.",
-        "schools_validated": 8844,
+        "what_it_checks": "For every site school file schools/<UNITID>.json, the yearlyTotals years are exactly the years the campus reported (campus_year_sources.parquet, zeros included) and notReported the other years of DATA_YEARS, and the total of each year (every year in the file or the aggregates; 0 when the aggregates have none) equals the sum over offenses of that school's geo \"All\" rows in agg_school_year_offense.parquet. The files' trends and breakdowns are not compared, and check 7 compares the aggregates with the fact table.",
+        "schools_validated": 14081,
         "variances_found": 0,
+        "files_with_other_years": 0,
+        "reported_years_without_an_incident": 66118,
         "schools_with_variance": 0
       },
       "errors": [],
@@ -55,7 +60,7 @@
           {
             "year": 2015,
             "schools_with_data": 4721,
-            "schools_with_fte": 4698,
+            "schools_with_fte": 4699,
             "coverage_pct": 99.5,
             "enrollment": "final"
           },
@@ -137,8 +142,8 @@
       "name": "Rate Calculation Accuracy",
       "status": "PASS",
       "details": {
-        "what_it_checks": "For every entry of rankings/*.json, rate equals count / fte x 10,000 to within 0.01, using the entry's own count and fte; an entry with a rate but no FTE above 0, or with an FTE but no rate, is an error. It does not compare the count or FTE with the aggregates or IPEDS.",
-        "ranking_entries_checked": 470083,
+        "what_it_checks": "For every entry of every rateRankings list of rankings/*.json, rate equals count / fte x 10,000 to 2 decimals (within 0.005), with the FTE of the entry's institution in the file's institutions table, which must be above 0. Check 10 compares the counts and FTE with the facts and NCES's enrollment.",
+        "rate_entries_checked": 359435,
         "rate_errors": 0
       },
       "errors": [],
@@ -148,22 +153,21 @@
       "name": "Ranking Order Validation",
       "status": "PASS",
       "details": {
-        "what_it_checks": "In every ranking group (one offense of one rankings/*.json file) of 2 or more entries, rank runs 1..N with counts non-increasing, and rankByRate runs 1..M over exactly the entries with a rate, with rates non-increasing. It checks the order of each file's own counts and rates; check 4 checks the rates' arithmetic.",
-        "groups_validated": 8996,
+        "what_it_checks": "In every count ranking (one code of a rankings/*.json file's rankings, the summary codes included), entries are listed by count, largest first, ties by name (the file's campuses table), then UNITID, and each rank is 1 + the number of entries with a larger count, so tied counts share a rank (1, 2, 2, 4). Every rate ranking (rateRankings) likewise by rate, ties by institution name, then base UNITID. It checks the order of each file's own counts and rates; check 4 checks the rates' arithmetic.",
+        "groups_validated": 20258,
+        "entries_checked": 895482,
         "order_violations": 0
       },
       "errors": [],
       "warnings": []
     },
     {
-      "name": "Percentage Sum Validation",
+      "name": "Ranking Totals and Tables",
       "status": "PASS",
       "details": {
-        "what_it_checks": "In every ranking group (one offense of one rankings/*.json file), each entry's pct equals its count / the group's count sum x 100 to 2 decimals (within 0.005), and the file's totals entry equals that sum. Group pct sums differ from 100% only by that rounding; the largest difference is shown. It checks the files' own counts, not the counts against the aggregates.",
-        "groups_validated": 9622,
-        "entries_checked": 471063,
-        "pct_errors": 0,
-        "max_sum_deviation_pct": 4.86
+        "what_it_checks": "In every rankings/*.json file, totals[code] equals the sum of rankings[code]'s counts for every code, the campuses table holds every ranked campus (and the campuses ranked with 0, which check 10 checks), and the institutions table every rate-ranked institution, each with an FTE above 0. It checks the files' own numbers; check 8 compares the counts with the facts.",
+        "groups_validated": 10172,
+        "problems": 0
       },
       "errors": [],
       "warnings": []
@@ -597,7 +601,7 @@
       "name": "Shared Statistics Counted Once",
       "status": "PASS",
       "details": {
-        "what_it_checks": "Without 04's code, from data/curated/facts/incidents.parquet and dims/older_release_counts.parquet: the blocks (one campus, year and geography of On-campus, Non-campus, Public property; one cell per offense, blank = 0) counted under another campus of the same ranked state, each test needing at least 6 cells not 0, by 04's rules in order: equal blocks (same_block); equal whole campus-years, every block of the copy (whole_year); and, for a campus-year taken from an older release, whole figures or a block equal in that release to a campus whose figures now come from a newer release (whole_year_older_release, block_older_release). Hosts are chosen by 04's order. aggs/shared_blocks.parquet must hold exactly those shadows, hosts and rules. Every rankings/*.json entry must count the school's facts without its shadow blocks, the state and national files must rank exactly the schools with such a count, and each school file's sharedFigures must list exactly its shadow blocks and their host.",
+        "what_it_checks": "Without 04's code, from data/curated/facts/incidents.parquet and dims/older_release_counts.parquet: the blocks (one campus, year and geography of On-campus, Non-campus, Public property; one cell per offense, blank = 0) counted under another campus of the same ranked state, each test needing at least 6 cells not 0, by 04's rules in order: equal blocks (same_block); equal whole campus-years, every block of the copy (whole_year); and, for a campus-year taken from an older release, whole figures or a block equal in that release to a campus whose figures now come from a newer release (whole_year_older_release, block_older_release). Hosts are chosen by 04's order. aggs/shared_blocks.parquet must hold exactly those shadows, hosts and rules. Every rankings/*.json entry must count the school's facts without its shadow blocks (for \"criminal\" summed over the Criminal family, for \"all\" over every offense), the state and national files must rank exactly the schools with such a count, and each school file's sharedFigures must list exactly its shadow blocks and their host.",
         "min_nonzero_cells": 6,
         "host_groups": 369,
         "shadow_blocks": 383,
@@ -698,8 +702,242 @@
             "shadow_blocks": 33
           }
         ],
-        "ranking_entries_checked": 471063,
+        "ranking_entries_checked": 536047,
         "schools_with_shared_figures": 107,
+        "problems": 0
+      },
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "Enrollment Matches NCES",
+      "status": "PASS",
+      "details": {
+        "what_it_checks": "dims/dim_enrollment.parquet against NCES's own figures, re-read: 2015-2020 from etl/reference/ipeds_official_fte.csv (DRVEF tables of NCES's final Access databases), 2021 on from the DRVEF CSV the pipeline reads. Every institution-year with an FTE must be there with the same FTE and percent of exclusively online students (pctdeexc), and nothing else.",
+        "sources": {
+          "2015-2020": "ipeds_official_fte.csv",
+          "2021": "drvef2021_rv.csv",
+          "2022": "drvef2022_rv.csv",
+          "2023": "drvef2023_rv.csv",
+          "2024": "drvef2024.csv"
+        },
+        "by_year": [
+          {
+            "year": 2015,
+            "institutions": 7230,
+            "missing": 0,
+            "extra": 0,
+            "differ": 0
+          },
+          {
+            "year": 2016,
+            "institutions": 6820,
+            "missing": 0,
+            "extra": 0,
+            "differ": 0
+          },
+          {
+            "year": 2017,
+            "institutions": 6677,
+            "missing": 0,
+            "extra": 0,
+            "differ": 0
+          },
+          {
+            "year": 2018,
+            "institutions": 6355,
+            "missing": 0,
+            "extra": 0,
+            "differ": 0
+          },
+          {
+            "year": 2019,
+            "institutions": 6181,
+            "missing": 0,
+            "extra": 0,
+            "differ": 0
+          },
+          {
+            "year": 2020,
+            "institutions": 6129,
+            "missing": 0,
+            "extra": 0,
+            "differ": 0
+          },
+          {
+            "year": 2021,
+            "institutions": 6051,
+            "missing": 0,
+            "extra": 0,
+            "differ": 0
+          },
+          {
+            "year": 2022,
+            "institutions": 5979,
+            "missing": 0,
+            "extra": 0,
+            "differ": 0
+          },
+          {
+            "year": 2023,
+            "institutions": 5915,
+            "missing": 0,
+            "extra": 0,
+            "differ": 0
+          },
+          {
+            "year": 2024,
+            "institutions": 5843,
+            "missing": 0,
+            "extra": 0,
+            "differ": 0
+          }
+        ]
+      },
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "Institution Rates",
+      "status": "PASS",
+      "details": {
+        "what_it_checks": "Without 04's or 05's code, from the facts without shadow blocks, the reported campus-years, dim_institution and dim_enrollment: the campus-years that count (reported, not all shadow blocks; incidents or not), the institutions (base UNITIDs) each year with such a campus, counts over all those campuses (residence halls and shadow blocks left out), link campus (the 001 campus, else the campus with the most incidents), FTE and share of exclusively online students (in 2020, 2021, the share of the fall config.py ONLINE_SHARE_YEAR names when NCES has one, else the year's own). Every rankings/*.json file must list in campuses exactly its preset's counting campus-years, with their name, state, institution FTE and number of campuses (the site ranks those without an entry with 0); in institutions exactly its preset's institutions with at least 1,000 FTE and under 50% exclusively online students (or no such figure); and in rateRankings per code exactly those with a count above 0, each with that count and rate = count / FTE x 10,000 (within 0.005). Every school file's institution years must match too.",
+        "by_year": [
+          {
+            "year": 2015,
+            "institutions": 6708,
+            "with_more_than_one_campus": 1450,
+            "rate_ranked": 2313,
+            "left_out_online": 203,
+            "left_out_fte": 4192,
+            "no_online_figure": 0,
+            "online_share_own_year_used": null,
+            "online_share_own_year_used_1000_fte": null,
+            "left_out_online_1000_fte": 79,
+            "with_1000_fte": 2392
+          },
+          {
+            "year": 2016,
+            "institutions": 6504,
+            "with_more_than_one_campus": 1482,
+            "rate_ranked": 2283,
+            "left_out_online": 218,
+            "left_out_fte": 4003,
+            "no_online_figure": 0,
+            "online_share_own_year_used": null,
+            "online_share_own_year_used_1000_fte": null,
+            "left_out_online_1000_fte": 84,
+            "with_1000_fte": 2367
+          },
+          {
+            "year": 2017,
+            "institutions": 6335,
+            "with_more_than_one_campus": 1512,
+            "rate_ranked": 2257,
+            "left_out_online": 233,
+            "left_out_fte": 3845,
+            "no_online_figure": 0,
+            "online_share_own_year_used": null,
+            "online_share_own_year_used_1000_fte": null,
+            "left_out_online_1000_fte": 90,
+            "with_1000_fte": 2347
+          },
+          {
+            "year": 2018,
+            "institutions": 6100,
+            "with_more_than_one_campus": 1540,
+            "rate_ranked": 2236,
+            "left_out_online": 218,
+            "left_out_fte": 3646,
+            "no_online_figure": 0,
+            "online_share_own_year_used": null,
+            "online_share_own_year_used_1000_fte": null,
+            "left_out_online_1000_fte": 93,
+            "with_1000_fte": 2329
+          },
+          {
+            "year": 2019,
+            "institutions": 5999,
+            "with_more_than_one_campus": 1539,
+            "rate_ranked": 2217,
+            "left_out_online": 238,
+            "left_out_fte": 3544,
+            "no_online_figure": 0,
+            "online_share_own_year_used": null,
+            "online_share_own_year_used_1000_fte": null,
+            "left_out_online_1000_fte": 103,
+            "with_1000_fte": 2320
+          },
+          {
+            "year": 2020,
+            "institutions": 5926,
+            "with_more_than_one_campus": 1537,
+            "rate_ranked": 2168,
+            "left_out_online": 233,
+            "left_out_fte": 3525,
+            "no_online_figure": 0,
+            "online_share_own_year_used": 66,
+            "online_share_own_year_used_1000_fte": 1,
+            "left_out_online_1000_fte": 96,
+            "with_1000_fte": 2264
+          },
+          {
+            "year": 2021,
+            "institutions": 5863,
+            "with_more_than_one_campus": 1537,
+            "rate_ranked": 2167,
+            "left_out_online": 232,
+            "left_out_fte": 3464,
+            "no_online_figure": 0,
+            "online_share_own_year_used": 102,
+            "online_share_own_year_used_1000_fte": 2,
+            "left_out_online_1000_fte": 94,
+            "with_1000_fte": 2261
+          },
+          {
+            "year": 2022,
+            "institutions": 5779,
+            "with_more_than_one_campus": 1531,
+            "rate_ranked": 2033,
+            "left_out_online": 424,
+            "left_out_fte": 3322,
+            "no_online_figure": 0,
+            "online_share_own_year_used": null,
+            "online_share_own_year_used_1000_fte": null,
+            "left_out_online_1000_fte": 204,
+            "with_1000_fte": 2237
+          },
+          {
+            "year": 2023,
+            "institutions": 5670,
+            "with_more_than_one_campus": 1514,
+            "rate_ranked": 2055,
+            "left_out_online": 401,
+            "left_out_fte": 3214,
+            "no_online_figure": 0,
+            "online_share_own_year_used": null,
+            "online_share_own_year_used_1000_fte": null,
+            "left_out_online_1000_fte": 188,
+            "with_1000_fte": 2243
+          },
+          {
+            "year": 2024,
+            "institutions": 5582,
+            "with_more_than_one_campus": 1512,
+            "rate_ranked": 2077,
+            "left_out_online": 405,
+            "left_out_fte": 3100,
+            "no_online_figure": 0,
+            "online_share_own_year_used": null,
+            "online_share_own_year_used_1000_fte": null,
+            "left_out_online_1000_fte": 191,
+            "with_1000_fte": 2268
+          }
+        ],
+        "ranking_files_checked": 550,
+        "campus_rows_with_0_all_files": 128312,
+        "rate_entries_checked": 359435,
+        "school_files_checked": 14081,
         "problems": 0
       },
       "errors": [],
@@ -708,10 +946,10 @@
   ],
   "schools": {
     "what_it_checks": "Per site school file: yearlyTotals equal the aggregates' geo \"All\" totals (as check 2), and fteByYear and fte equal dim_enrollment's FTE for the school's years (FAIL otherwise); WARNING when fewer than 80% of its years have an FTE. A school that fails makes the overall status FAIL.",
-    "total": 8844,
-    "passed": 8765,
+    "total": 14081,
+    "passed": 13972,
     "failed": 0,
-    "warnings": 79,
+    "warnings": 109,
     "failed_unitids_first_20": []
   }
 }

@@ -26,14 +26,25 @@ import {
   AlertTriangle,
   Info,
 } from 'lucide-react'
-import { fetchSchoolProfile, fetchSchoolIndex, fetchPresets } from '../lib/api'
-import type { SchoolProfile, School, PresetDetail, SchoolIndex } from '../lib/types'
+import { fetchSchoolProfile, fetchSchoolIndex, fetchPresets, getMetadata } from '../lib/api'
+import type { SchoolProfile, School, PresetDetail, SchoolIndex, RateRules } from '../lib/types'
 import { cn, formatNumber, calculateYoYChange, isSmallSample } from '../lib/utils'
-import { fteFor, rateFor, latestFte } from '../lib/rates'
+import { fteFor, latestFte, institutionRate, rateNote, campusesPhrase } from '../lib/rates'
+import { ALL, CRIMINAL, SUMMARY_LABELS, inSelection, isSummary, selectionLabel } from '../lib/selection'
 import { useTheme } from '../hooks/useTheme'
 
 // School colors for comparison
 const SCHOOL_COLORS = ['#3b82f6', '#10b981'] // Blue, Emerald
+
+// One school's count of `selection` ('criminal', 'all' or an offense name)
+// in `year`: 0 when it reported the year without any of it, null when it did
+// not report that year (no figures at all).
+function selectionCount(p: SchoolProfile, year: number, selection: string): number | null {
+  if (!p.yearlyTotals.some((yt) => yt.year === year)) return null
+  return p.trends
+    .filter((t) => t.year === year && inSelection(t, selection))
+    .reduce((sum, t) => sum + t.count, 0)
+}
 
 export default function Compare() {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -50,8 +61,16 @@ export default function Compare() {
 
   // Filter state
   const [selectedYear, setSelectedYear] = useState<string>('all')
-  const [selectedOffense, setSelectedOffense] = useState<string>('all')
+  const [selectedOffense, setSelectedOffense] = useState<string>(CRIMINAL)
   const [showRate, setShowRate] = useState(false)
+  // Who rate rankings list (metadata.json), for the note on a left-out rate
+  const [rateRules, setRateRules] = useState<RateRules | null>(null)
+
+  useEffect(() => {
+    getMetadata()
+      .then((m) => setRateRules(m.rateRules))
+      .catch(() => setRateRules(null))
+  }, [])
 
   // Load school list on mount - try school index first, fallback to Ivy preset
   useEffect(() => {
@@ -145,8 +164,8 @@ export default function Compare() {
     const result: Map<number, Map<number, boolean>> = new Map()
     profiles.forEach(p => {
       const yearMap = new Map<number, boolean>()
-      if (selectedOffense === 'all') {
-        p.yearlyTotals.forEach(yt => yearMap.set(yt.year, yt.total > 0))
+      if (isSummary(selectedOffense)) {
+        p.yearlyTotals.forEach(yt => yearMap.set(yt.year, (selectionCount(p, yt.year, selectedOffense) ?? 0) > 0))
       } else {
         availableYears.forEach(year => yearMap.set(year, false))
         p.trends
@@ -202,16 +221,8 @@ export default function Compare() {
     return years.map((year) => {
       const point: Record<string, number | string | null> = { year }
       profiles.forEach((p) => {
-        if (selectedOffense === 'all') {
-          const yearData = p.yearlyTotals.find((yt) => yt.year === year)
-          // Use null if no data for this year (shows gap in chart)
-          point[p.shortName || p.name] = yearData ? yearData.total : null
-        } else {
-          const offenseData = p.trends.find(
-            (t) => t.year === year && t.offense === selectedOffense
-          )
-          point[p.shortName || p.name] = offenseData ? offenseData.count : null
-        }
+        // null if no data for this year (shows gap in chart)
+        point[p.shortName || p.name] = selectionCount(p, year, selectedOffense)
       })
       return point
     })
@@ -249,15 +260,13 @@ export default function Compare() {
       const point: Record<string, number | string | null> = { offense }
       profiles.forEach((p) => {
         if (selectedYear === 'all') {
-          // Sum this offense across ALL years from trends
-          const totalForOffense = p.trends
+          // Sum this offense across ALL years from trends (0 when it had none)
+          point[p.shortName || p.name] = p.trends
             .filter((t) => t.offense === offense)
             .reduce((sum, t) => sum + t.count, 0)
-          point[p.shortName || p.name] = totalForOffense > 0 ? totalForOffense : null
         } else {
-          const year = parseInt(selectedYear)
-          const data = p.trends.find((t) => t.year === year && t.offense === offense)
-          point[p.shortName || p.name] = data ? data.count : null
+          // 0 in a reported year without it, null in a year not reported
+          point[p.shortName || p.name] = selectionCount(p, parseInt(selectedYear), offense)
         }
       })
       return point
@@ -270,44 +279,32 @@ export default function Compare() {
       let totalIncidents: number | null = null
       let yoyChange: { absolute: number; percent: number | null } | null = null
 
-      if (selectedYear === 'all' && selectedOffense === 'all') {
-        // Sum across ALL years (not just latest year from summary)
-        totalIncidents = profile.yearlyTotals.reduce((sum, yt) => sum + yt.total, 0)
-        // Don't show YoY for "All Years" - comparing latest 2 years is misleading when showing all-year totals
-        yoyChange = null
-      } else if (selectedYear !== 'all' && selectedOffense === 'all') {
-        // Filter by year only
-        const year = parseInt(selectedYear)
-        const yearData = profile.yearlyTotals.find((yt) => yt.year === year)
-        totalIncidents = yearData?.total ?? null
-        const prevYearData = profile.yearlyTotals.find((yt) => yt.year === year - 1)
-        if (yearData && prevYearData) {
-          yoyChange = calculateYoYChange(yearData.total, prevYearData.total)
-        }
-      } else if (selectedYear === 'all' && selectedOffense !== 'all') {
-        // Filter by offense only - sum across all years
-        const offenseData = profile.trends.filter((t) => t.offense === selectedOffense)
-        if (offenseData.length > 0) {
-          totalIncidents = offenseData.reduce((sum, t) => sum + t.count, 0)
-        }
+      if (selectedYear === 'all') {
+        // Sum across ALL years of the profile that have a count
+        const counts = profile.yearlyTotals
+          .map((yt) => selectionCount(profile, yt.year, selectedOffense))
+          .filter((c): c is number => c !== null)
+        totalIncidents = counts.length > 0 ? counts.reduce((sum, c) => sum + c, 0) : null
         // Don't show YoY for "All Years" - comparing latest 2 years is misleading when showing all-year totals
         yoyChange = null
       } else {
-        // Filter by both year and offense
         const year = parseInt(selectedYear)
-        const data = profile.trends.find((t) => t.year === year && t.offense === selectedOffense)
-        totalIncidents = data?.count ?? null
-        const prevData = profile.trends.find((t) => t.year === year - 1 && t.offense === selectedOffense)
-        if (data && prevData) {
-          yoyChange = calculateYoYChange(data.count, prevData.count)
+        totalIncidents = selectionCount(profile, year, selectedOffense)
+        const previous = selectionCount(profile, year - 1, selectedOffense)
+        if (totalIncidents !== null && previous !== null) {
+          yoyChange = calculateYoYChange(totalIncidents, previous)
         }
       }
 
       // Rate per 10k FTE - only for a single year, with that year's FTE
-      // (no rate when that year has no FTE)
+      // (no rate when that year has no FTE). It is the institution's rate:
+      // the incidents of all its campuses per its FTE, as NCES publishes FTE
+      // per institution.
       const year = selectedYear !== 'all' ? parseInt(selectedYear) : null
       const fte = year !== null ? fteFor(profile, year) : null
-      const rate = year !== null ? rateFor(profile, year, totalIncidents) : null
+      const inst = year !== null && totalIncidents !== null
+        ? institutionRate(profile, year, selectedOffense, totalIncidents)
+        : null
 
       return {
         unitid: profile.unitid,
@@ -315,31 +312,40 @@ export default function Compare() {
         yoyChange,
         hasData: totalIncidents !== null,
         fte,
-        rate,
+        rate: inst?.rate ?? null,
+        rateCount: inst?.count ?? totalIncidents ?? 0,
+        campuses: campusesPhrase(inst?.campuses ?? 1),
+        note: rateNote(inst, rateRules),
       }
     })
-  }, [profiles, selectedYear, selectedOffense])
+  }, [profiles, selectedYear, selectedOffense, rateRules])
 
   // FTE label for each school, with the year it belongs to: the selected
-  // year's FTE, or with "All Years" the newest FTE
+  // year's FTE, or with "All Years" the newest FTE. The FTE is the whole
+  // institution's (NCES counts enrollment per institution).
   const fteLabels = useMemo(() => {
     const year = selectedYear !== 'all' ? parseInt(selectedYear) : null
     const labels = new Map<number, string>()
     profiles.forEach((profile) => {
       const yearFte = year !== null ? fteFor(profile, year) : null
       const label = year === null ? latestFte(profile) : (yearFte !== null ? { year, fte: yearFte } : null)
-      if (label) labels.set(profile.unitid, `${formatNumber(label.fte)} students (${label.year})`)
+      if (!label) return
+      const campuses = profile.institution?.byYear[String(label.year)]?.campuses ?? 1
+      const where = campuses > 1 ? ` at all ${campuses} campuses` : ''
+      labels.set(profile.unitid, `${formatNumber(label.fte)} students${where} (${label.year})`)
     })
     return labels
   }, [profiles, selectedYear])
 
-  // Calculate top offense for each profile based on current filters
+  // Calculate top offense for each profile based on current filters (the
+  // offenses of the selected summary only)
   const profileTopOffenses = useMemo(() => {
     return profiles.map(profile => {
+      const trends = profile.trends.filter(t => inSelection(t, selectedOffense))
       if (selectedYear === 'all') {
         // Sum all offenses across all years from trends
         const offenseTotals = new Map<string, number>()
-        profile.trends.forEach(t => {
+        trends.forEach(t => {
           offenseTotals.set(t.offense, (offenseTotals.get(t.offense) || 0) + t.count)
         })
         const sorted = Array.from(offenseTotals.entries()).sort((a, b) => b[1] - a[1])
@@ -347,12 +353,12 @@ export default function Compare() {
       } else {
         // For single year, calculate from trends for that year
         const year = parseInt(selectedYear)
-        const yearTrends = profile.trends.filter(t => t.year === year)
+        const yearTrends = trends.filter(t => t.year === year)
         const sorted = yearTrends.sort((a, b) => b.count - a.count)
         return sorted.length > 0 ? { offense: sorted[0].offense, count: sorted[0].count } : { offense: null, count: 0 }
       }
     })
-  }, [profiles, selectedYear])
+  }, [profiles, selectedYear, selectedOffense])
 
   // Theme-aware chart styling
   const chartGridColor = resolvedTheme === 'dark' ? '#374151' : '#e5e7eb'
@@ -500,22 +506,12 @@ export default function Compare() {
                 className="w-36 text-sm font-medium bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1.5 cursor-pointer focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               >
                 <option value="all">All Years</option>
-                {availableYears.map((year) => {
-                  // Check if either school has data for this year/offense combo
-                  const hasData = profiles.some(p => {
-                    const yearMap = yearDataByProfile.get(p.unitid)
-                    return yearMap?.get(year) ?? false
-                  })
-                  return (
-                    <option
-                      key={year}
-                      value={year.toString()}
-                      style={!hasData && selectedOffense !== 'all' ? { color: '#9ca3af' } : undefined}
-                    >
-                      {year}{!hasData && selectedOffense !== 'all' ? ' (no data)' : ''}
-                    </option>
-                  )
-                })}
+                {availableYears.map((year) => (
+                  // A year a school reported without the offense is a 0, not missing data
+                  <option key={year} value={year.toString()}>
+                    {year}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -529,9 +525,10 @@ export default function Compare() {
                 id="compare-offense-select"
                 value={selectedOffense}
                 onChange={(e) => setSelectedOffense(e.target.value)}
-                className="w-44 text-sm font-medium bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1.5 cursor-pointer focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                className="w-56 max-w-full text-sm font-medium bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1.5 cursor-pointer focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               >
-                <option value="all">All Offenses</option>
+                <option value={CRIMINAL}>{SUMMARY_LABELS[CRIMINAL]}</option>
+                <option value={ALL}>{SUMMARY_LABELS[ALL]}</option>
                 {availableOffenses.map((offense) => (
                   <option key={offense} value={offense}>
                     {offense}
@@ -572,12 +569,12 @@ export default function Compare() {
             </div>
 
             {/* Clear filters */}
-            {(selectedYear !== 'all' || selectedOffense !== 'all') && (
+            {(selectedYear !== 'all' || selectedOffense !== CRIMINAL) && (
               <button
                 type="button"
                 onClick={() => {
                   setSelectedYear('all')
-                  setSelectedOffense('all')
+                  setSelectedOffense(CRIMINAL)
                 }}
                 className="text-xs text-primary-600 dark:text-primary-400 hover:underline"
               >
@@ -596,24 +593,24 @@ export default function Compare() {
             {showRate ? (
               <>Per 10,000 students. <span className="text-amber-600 dark:text-amber-400">*</span> = small sample.</>
             ) : (
-              <>Comparing total incidents. Toggle "Rate" for per-student comparison.</>
+              <>Comparing counts of {selectionLabel(selectedOffense).toLowerCase()}. Toggle "Rate" for per-student comparison.</>
             )}
           </p>
         </div>
       )}
 
       {/* No Data Message */}
-      {profiles.length === 2 && !anyProfileHasData && (selectedYear !== 'all' || selectedOffense !== 'all') && (
+      {profiles.length === 2 && !anyProfileHasData && (selectedYear !== 'all' || !isSummary(selectedOffense)) && (
         <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-6 mb-8">
           <div className="flex items-start gap-3">
             <AlertCircle className="w-5 h-5 text-amber-500 dark:text-amber-400 flex-shrink-0 mt-0.5" />
             <div>
               <h3 className="font-medium text-amber-800 dark:text-amber-300">
-                No data available
+                None at either school
               </h3>
               <p className="text-sm text-amber-700 dark:text-amber-400 mt-1">
-                No {selectedOffense !== 'all' ? selectedOffense : ''} incidents were reported
-                {selectedYear !== 'all' ? ` in ${selectedYear}` : ''} at either school.
+                Neither school has any {selectedOffense === 'criminal' ? 'criminal offenses' : selectedOffense === 'all' ? 'crimes, arrests or referrals' : `${selectedOffense} incidents`}
+                {selectedYear !== 'all' ? ` in ${selectedYear}` : ''}: each had 0, or did not report that year.
                 Try selecting a different year or offense.
               </p>
             </div>
@@ -649,7 +646,7 @@ export default function Compare() {
               <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                 Key Metrics
                 {selectedYear === 'all' ? ' (All Years)' : ` (${selectedYear})`}
-                {selectedOffense !== 'all' && ` - ${selectedOffense}`}
+                {` - ${selectionLabel(selectedOffense)}`}
               </h2>
             </div>
 
@@ -688,7 +685,7 @@ export default function Compare() {
                   {/* Total Incidents / Rate */}
                   <tr>
                     <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
-                      {selectedOffense !== 'all' ? selectedOffense : (showRate ? 'Rate (per 10k)' : 'Total Incidents')}
+                      {showRate ? `${selectionLabel(selectedOffense)}: rate (per 10k)` : selectionLabel(selectedOffense)}
                     </td>
                     {profiles.map((profile) => {
                       const metrics = filteredMetrics.find(m => m.unitid === profile.unitid)
@@ -698,11 +695,21 @@ export default function Compare() {
                             metrics?.rate !== null && metrics?.rate !== undefined ? (
                               <div>
                                 <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                                  {metrics.rate.toFixed(1)}{isSmallSample(metrics.fte, metrics.totalIncidents ?? 0) ? '*' : ''}
+                                  {metrics.rate.toFixed(1)}{isSmallSample(metrics.fte, metrics.rateCount) ? '*' : ''}
                                 </span>
                                 <span className="text-sm font-normal text-gray-500 dark:text-gray-400 ml-1">
                                   per 10k
                                 </span>
+                                {metrics.campuses && (
+                                  <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                    Institution rate, {metrics.campuses}
+                                  </div>
+                                )}
+                                {metrics.note && (
+                                  <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 max-w-xs mx-auto">
+                                    {metrics.note}
+                                  </div>
+                                )}
                               </div>
                             ) : (
                               <span className="text-xl text-gray-400 dark:text-gray-500">N/A</span>
@@ -713,7 +720,10 @@ export default function Compare() {
                                 {formatNumber(metrics.totalIncidents)}
                               </span>
                             ) : (
-                              <span className="text-xl text-gray-400 dark:text-gray-500">N/A</span>
+                              // A year the school did not report: no figures, not 0
+                              <span className="text-xl text-gray-400 dark:text-gray-500">
+                                {selectedYear === 'all' ? 'N/A' : 'Not reported'}
+                              </span>
                             )
                           )}
                         </td>
@@ -752,7 +762,7 @@ export default function Compare() {
                   </tr>
 
                   {/* Top Offense - only show when not filtering by specific offense */}
-                  {selectedOffense === 'all' && (
+                  {isSummary(selectedOffense) && (
                     <tr>
                       <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
                         Most Common Offense
@@ -783,7 +793,7 @@ export default function Compare() {
               {/* Total Incidents / Rate */}
               <div className="p-4">
                 <div className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">
-                  {selectedOffense !== 'all' ? selectedOffense : (showRate ? 'Rate (per 10k)' : 'Total Incidents')}
+                  {showRate ? `${selectionLabel(selectedOffense)}: rate (per 10k)` : selectionLabel(selectedOffense)}
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   {profiles.map((profile, index) => {
@@ -806,11 +816,23 @@ export default function Compare() {
                         )}
                         {showRate ? (
                           metrics?.rate !== null && metrics?.rate !== undefined ? (
-                            <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                              {metrics.rate.toFixed(1)}{isSmallSample(metrics.fte, metrics.totalIncidents ?? 0) ? '*' : ''}
-                              <span className="text-xs font-normal text-gray-500 dark:text-gray-400 ml-1">
-                                per 10k
-                              </span>
+                            <div>
+                              <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                                {metrics.rate.toFixed(1)}{isSmallSample(metrics.fte, metrics.rateCount) ? '*' : ''}
+                                <span className="text-xs font-normal text-gray-500 dark:text-gray-400 ml-1">
+                                  per 10k
+                                </span>
+                              </div>
+                              {metrics.campuses && (
+                                <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                  Institution rate, {metrics.campuses}
+                                </div>
+                              )}
+                              {metrics.note && (
+                                <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                  {metrics.note}
+                                </div>
+                              )}
                             </div>
                           ) : (
                             <div className="text-xl text-gray-400 dark:text-gray-500">N/A</div>
@@ -821,7 +843,10 @@ export default function Compare() {
                               {formatNumber(metrics.totalIncidents)}
                             </div>
                           ) : (
-                            <div className="text-xl text-gray-400 dark:text-gray-500">N/A</div>
+                            // A year the school did not report: no figures, not 0
+                            <div className="text-xl text-gray-400 dark:text-gray-500">
+                              {selectedYear === 'all' ? 'N/A' : 'Not reported'}
+                            </div>
                           )
                         )}
                       </div>
@@ -877,7 +902,7 @@ export default function Compare() {
               </div>
 
               {/* Top Offense - only show when not filtering by specific offense */}
-              {selectedOffense === 'all' && (
+              {isSummary(selectedOffense) && (
                 <div className="p-4">
                   <div className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">
                     Most Common Offense
@@ -918,7 +943,7 @@ export default function Compare() {
           {/* Trend Chart */}
           <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 p-4 sm:p-6 mb-8">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-              {selectedOffense !== 'all' ? `${selectedOffense} Over Time` : 'Total Incidents Over Time'}
+              {`${selectionLabel(selectedOffense)} Over Time`}
             </h2>
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={trendChartData}>

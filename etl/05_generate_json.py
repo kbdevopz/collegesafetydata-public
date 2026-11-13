@@ -20,9 +20,10 @@ from datetime import datetime
 # Add parent to path for config import
 sys.path.insert(0, str(Path(__file__).parent))
 from config import (
-    CURATED_DIR, JSON_DIR, IVY_LEAGUE,
+    CURATED_DIR, JSON_DIR, IVY_LEAGUE, IVY_BASE_UNITIDS,
     OFFENSE_DESCRIPTIONS, OFFENSE_FAMILIES, DATA_YEARS,
-    US_STATES, PROCESS_ALL_SCHOOLS
+    US_STATES, PROCESS_ALL_SCHOOLS,
+    SUMMARY_FAMILIES, MIN_FTE_FOR_RATE, ONLINE_EXCLUSION_PCT, ONLINE_SHARE_YEAR
 )
 import provenance
 
@@ -58,8 +59,13 @@ def required_inputs() -> list[Path]:
         CURATED_DIR / "aggs" / "agg_school_year_offense.parquet",
         CURATED_DIR / "aggs" / "shared_blocks.parquet",
         CURATED_DIR / "aggs" / "agg_ivy_rankings.parquet",
+        CURATED_DIR / "aggs" / "agg_campus_year.parquet",
+        CURATED_DIR / "aggs" / "agg_institution_year.parquet",
+        CURATED_DIR / "aggs" / "agg_institution_year_offense.parquet",
         CURATED_DIR / "dims" / "dim_institution.parquet",
         CURATED_DIR / "dims" / "dim_offense.parquet",
+        CURATED_DIR / "dims" / "dim_enrollment.parquet",
+        CURATED_DIR / "dims" / "campus_year_sources.parquet",
     ]
     if PROCESS_ALL_SCHOOLS:
         paths += [
@@ -172,17 +178,36 @@ def generate_metadata(aggs_record: dict) -> dict:
     # Load offense dimension
     dim_offense = pd.read_parquet(CURATED_DIR / "dims" / "dim_offense.parquet")
 
-    # Build offense list - start with "all" pseudo-offense
+    # Build offense list - start with the summary codes (SUMMARY_FAMILIES):
+    # criminal offenses (the default view), then every category
     offenses = [
         {
-            "code": "all",
-            "display": "All Offenses",
+            "code": "criminal",
+            "display": "All criminal offenses",
             "family": "Summary",
-            "familyDisplay": "Summary",
-            "description": "Total incidents across all categories including criminal offenses, VAWA offenses, AND arrests/disciplinary referrals for drugs, alcohol, and weapons. Note: High counts may reflect drug/alcohol enforcement, not violent crime.",
+            "familyDisplay": "Totals",
+            "description": "The 11 criminal offenses added up: murder, negligent manslaughter, rape, fondling, "
+                           "incest, statutory rape, robbery, aggravated assault, burglary, motor vehicle theft "
+                           "and arson. VAWA offenses, arrests and disciplinary referrals are not included.",
             "displayOrder": 0
+        },
+        {
+            "code": "all",
+            "display": "All categories (crimes, arrests, referrals)",
+            "family": "Summary",
+            "familyDisplay": "Totals",
+            "description": "Every category added up: criminal offenses, VAWA offenses (domestic violence, dating "
+                           "violence, stalking), arrests and disciplinary referrals for drug, liquor and weapons "
+                           "law violations. These are different kinds of counts: arrests and referrals count "
+                           "people, not incidents, and an incident of dating violence, domestic violence or "
+                           "stalking can also be counted as a criminal offense. High totals often reflect drug "
+                           "and alcohol enforcement, not violent crime.",
+            "displayOrder": 1
         }
     ]
+    if [o["code"] for o in offenses] != list(SUMMARY_FAMILIES):
+        raise SiteDataError("metadata.json would list other summary codes than SUMMARY_FAMILIES "
+                            "(config.py). Fix generate_metadata in 05.")
 
     # Add individual offenses
     for _, row in dim_offense.iterrows():
@@ -193,7 +218,7 @@ def generate_metadata(aggs_record: dict) -> dict:
             "family": row.get("offense_family", "Criminal"),
             "familyDisplay": OFFENSE_FAMILIES.get(row.get("offense_family", "Criminal"), {}).get("display", row.get("offense_family", "Criminal")),
             "description": row.get("description", OFFENSE_DESCRIPTIONS.get(row["offense"], "")),
-            "displayOrder": int(row.get("display_order", 999)) + 1  # Shift by 1 since "all" is 0
+            "displayOrder": int(row.get("display_order", 999)) + len(SUMMARY_FAMILIES)  # after the summary codes
         })
 
     # Sort by display order
@@ -251,6 +276,11 @@ def generate_metadata(aggs_record: dict) -> dict:
     metadata = {
         "years": years,
         "enrollmentStatus": enrollment_status(years, aggs_record),
+        # Who rate rankings list (config.py): institutions with at least
+        # minFte FTE and fewer than onlineExclusionPct % exclusively online;
+        # the years of onlineShareYear use that other fall's share
+        "rateRules": {"minFte": MIN_FTE_FOR_RATE, "onlineExclusionPct": ONLINE_EXCLUSION_PCT,
+                      "onlineShareYear": {str(y): src for y, src in sorted(ONLINE_SHARE_YEAR.items())}},
         "offenses": offenses,
         "geographies": ["All", "On-campus", "Non-campus", "Public property", "Residence halls"],
         "presets": presets,
@@ -351,89 +381,257 @@ def is_main_campus(unitid: int) -> bool:
     return int(unitid) % 1000 == 1
 
 
-def compute_all_offense_ranking(rankings_df: pd.DataFrame, pct_column: str) -> pd.DataFrame:
+def ranked(rows: pd.DataFrame, column: str) -> tuple[pd.DataFrame, list[int]]:
     """
-    Compute "all" offense ranking by summing across all offenses per school.
-
-    Returns a dataframe with total incidents per school, ranked.
+    The rows that have a value in `column`, largest first, and their ranks,
+    exactly as 04_create_aggregates.py ranks (its ranked): ties listed by
+    institution name, then UNITID, and given standard competition ranks
+    1, 2, 2, 4.
     """
-    # Filter to "All" geography
-    all_geo = rankings_df[rankings_df["geo"] == "All"].copy()
-
-    # Build aggregation dict based on available columns
-    agg_dict = {
-        "count": "sum",
-        "short_name": "first",  # Keep short name if exists
-    }
-    if "state" in all_geo.columns:
-        agg_dict["state"] = "first"
-    # FTE is the same for all offenses at a school, so take first
-    if "fte" in all_geo.columns:
-        agg_dict["fte"] = "first"
-
-    # Group by school and sum counts across all offenses (keep rows with a
-    # missing name so they are not dropped from the totals)
-    school_totals = all_geo.groupby(["unitid", "institution_name"], dropna=False).agg(agg_dict).reset_index()
-
-    # Ensure state column exists (set to None if not present)
-    if "state" not in school_totals.columns:
-        school_totals["state"] = None
-
-    # Calculate rate per 10k if FTE is available
-    if "fte" in school_totals.columns:
-        school_totals["rate_per_10k"] = (school_totals["count"] / school_totals["fte"] * 10000).round(2)
-        school_totals.loc[school_totals["fte"].isna() | (school_totals["fte"] == 0), "rate_per_10k"] = None
-    else:
-        school_totals["fte"] = None
-        school_totals["rate_per_10k"] = None
-
-    # Sort by count descending; ties by name, then unitid, so the order never
-    # depends on the sort algorithm of the installed pandas/numpy
-    school_totals = school_totals.sort_values(
-        ["count", "institution_name", "unitid"], ascending=[False, True, True]
+    rows = rows[rows[column].notna()].sort_values(
+        [column, "institution_name", "unitid"], ascending=[False, True, True], kind="mergesort"
     ).reset_index(drop=True)
+    values = rows[column].tolist()
+    ranks: list[int] = []
+    for i, value in enumerate(values):
+        ranks.append(ranks[-1] if i and value == values[i - 1] else i + 1)
+    return rows, ranks
 
-    # Calculate total for percentage
-    total_count = school_totals["count"].sum()
 
-    # Add rank and percentage
-    school_totals["rank"] = range(1, len(school_totals) + 1)
-    school_totals["pct"] = school_totals["count"].apply(
-        lambda x: round((x / total_count * 100) if total_count > 0 else 0, 2)
-    )
+def offense_code(offense: str) -> str:
+    """The code of an offense in the site files ("Motor Vehicle Theft" -> "motor_vehicle_theft")."""
+    code = offense.lower().replace(" ", "_")
+    if code in SUMMARY_FAMILIES:
+        raise SiteDataError(f"Offense {offense!r} has the code {code!r} of a summary code. "
+                            "Rename it in config.py (OFFENSE_ORDER) or SUMMARY_FAMILIES.")
+    return code
 
-    # Add rank by rate for schools that have rate data
-    schools_with_rate = school_totals[school_totals["rate_per_10k"].notna()].copy()
-    if len(schools_with_rate) > 0:
-        schools_with_rate = schools_with_rate.sort_values(
-            ["rate_per_10k", "institution_name", "unitid"], ascending=[False, True, True]
-        )
-        rate_ranks = {row["unitid"]: i + 1 for i, (_, row) in enumerate(schools_with_rate.iterrows())}
-        school_totals["rank_by_rate"] = school_totals["unitid"].map(rate_ranks)
-    else:
-        school_totals["rank_by_rate"] = None
 
-    return school_totals
+def code_counts(rows: pd.DataFrame, keys: list[str]) -> dict[str, pd.DataFrame]:
+    """
+    {code: rows of `keys` + count} for every summary code (SUMMARY_FAMILIES:
+    the sum over its family, or over every offense) and every offense in
+    `rows` (which have offense, offense_family and count), counts above 0.
+    """
+    out = {}
+    for code, family in SUMMARY_FAMILIES.items():
+        part = rows if family is None else rows[rows["offense_family"] == family]
+        out[code] = part.groupby(keys, as_index=False, dropna=False)["count"].sum()
+    for offense, part in rows.groupby("offense"):
+        out[offense_code(offense)] = part[keys + ["count"]]
+    return {code: df[df["count"] > 0] for code, df in out.items()}
+
+
+class Institutions:
+    """
+    The institutions rates are calculated for (04's agg_institution_year and
+    agg_institution_year_offense): per institution-year its link campus,
+    name, state, campuses, FTE and share of exclusively online students, and
+    its counts per code (code_counts).
+    """
+
+    def __init__(self):
+        aggs = CURATED_DIR / "aggs"
+        self.years = pd.read_parquet(aggs / "agg_institution_year.parquet")
+        offense_rows = pd.read_parquet(aggs / "agg_institution_year_offense.parquet")
+        self.counts = code_counts(offense_rows, ["year", "base_unitid"])
+        self.by_key = {(int(r["year"]), int(r["base_unitid"])): r for r in self.years.to_dict("records")}
+        self._count_of = {code: {(int(y), int(b)): int(c) for y, b, c in
+                                 zip(df["year"].tolist(), df["base_unitid"].tolist(), df["count"].tolist())}
+                          for code, df in self.counts.items()}
+
+    @staticmethod
+    def rate_ranked(rec: dict) -> bool:
+        """
+        Whether an institution-year is in rate rankings (config.py,
+        MIN_FTE_FOR_RATE, ONLINE_EXCLUSION_PCT), by the online share 04 chose
+        for the rules (online_pct: ONLINE_SHARE_YEAR).
+        """
+        fte, online = rec.get("fte"), rec.get("online_pct")
+        return (pd.notna(fte) and int(fte) >= MIN_FTE_FOR_RATE
+                and (pd.isna(online) or int(online) < ONLINE_EXCLUSION_PCT))
+
+    def count(self, code: str, year: int, base_unitid: int) -> int:
+        return self._count_of.get(code, {}).get((int(year), int(base_unitid)), 0)
+
+    def codes(self) -> list[str]:
+        return list(self.counts)
+
+    def profile_years(self, base_unitid: int, own: dict[int, dict[str, int]]) -> dict[str, dict]:
+        """
+        A school file's "institution" years: {year: {campuses, online,
+        onlineYear (ONLINE_SHARE_YEAR years only), rateRanked, counts}} for
+        each year of `own` (the school's own counts per year and code, above
+        0) in which its institution is listed.
+
+        counts (per code, above 0) is left out when it equals the school's
+        own counts that year (one campus and no shadow blocks), which keeps
+        the files small: the page then uses the school's own counts.
+        """
+        out = {}
+        for year in sorted(own):
+            rec = self.by_key.get((int(year), int(base_unitid)))
+            if rec is None:
+                continue
+            counts = {code: self.count(code, year, base_unitid) for code in self.counts}
+            counts = {code: n for code, n in counts.items() if n > 0}
+            entry = {
+                "campuses": int(rec["campuses"]),
+                "online": int(rec["online_pct"]) if pd.notna(rec.get("online_pct")) else None,
+                "rateRanked": self.rate_ranked(rec),
+            }
+            # In the years of ONLINE_SHARE_YEAR, the fall the share is from
+            # (that other year, or the year itself when NCES has none for it)
+            if int(year) in ONLINE_SHARE_YEAR and entry["online"] is not None:
+                entry["onlineYear"] = int(rec["online_year"])
+            if counts != own[year]:
+                entry["counts"] = counts
+            out[str(year)] = entry
+        return out
+
+
+def rate_rankings(institutions: Institutions, year: int, in_preset) -> tuple[dict, dict]:
+    """
+    One file's rate rankings: ({base UNITID: institution}, {code: entries}).
+
+    The institutions are those of the year that `in_preset(rec)` accepts and
+    that are rate ranked (Institutions.rate_ranked). Per code, those with a
+    count above 0 are ranked by rate = count / FTE x 10,000 rounded to 2
+    decimals, largest first, ties by name, then base UNITID, ranks 1, 2, 2, 4.
+    """
+    recs = [r for r in institutions.years[institutions.years["year"] == year].to_dict("records")
+            if in_preset(r) and Institutions.rate_ranked(r)]
+    table = {}
+    for r in sorted(recs, key=lambda r: int(r["base_unitid"])):
+        table[str(int(r["base_unitid"]))] = {
+            "name": r["institution_name"],
+            "unitid": int(r["link_unitid"]),
+            "state": opt(r["state"]),
+            "fte": int(r["fte"]),
+            "campuses": int(r["campuses"]),
+        }
+    frame = pd.DataFrame({
+        "unitid": [int(r["base_unitid"]) for r in recs],
+        "institution_name": [r["institution_name"] for r in recs],
+        "fte": [int(r["fte"]) for r in recs],
+    })
+    entries = {}
+    for code in institutions.codes():
+        rows = frame.assign(count=[institutions.count(code, year, u) for u in frame["unitid"].tolist()])
+        rows = rows[rows["count"] > 0].copy()
+        rows["rate"] = (rows["count"] / rows["fte"] * 10000).round(2)
+        rows, ranks = ranked(rows, "rate")
+        entries[code] = [{"rank": rank, "id": int(row["unitid"]), "count": int(row["count"]),
+                          "rate": float(row["rate"])}
+                         for rank, (_, row) in zip(ranks, rows.iterrows())]
+    return table, entries
+
+
+def rankings_output(year_data: pd.DataFrame, preset: str, year: int, institutions: Institutions,
+                    in_preset, campus_rows: pd.DataFrame) -> dict:
+    """
+    One rankings file.
+
+    Schema:
+        preset, year
+        campuses: {UNITID: {name, short, state, main, fte, campuses}}
+            every campus of this file's scope that counts this year
+            (`campus_rows`: 04's agg_campus_year, reported and not entirely
+            figures counted under another campus), incidents or not; fte is
+            its institution's (NCES publishes FTE per institution) and
+            campuses its institution's number of campuses that year
+        rankings: {code: [{rank, unitid, count}]}
+            per summary code (SUMMARY_FAMILIES) and offense, the campuses
+            with a count above 0 (04's geo "All", shadow blocks left out),
+            largest first, ties by name, then UNITID, ranks 1, 2, 2, 4. Every
+            other campus of `campuses` has 0 for that code: the site lists
+            those after them, all with rank (number of entries + 1), by name,
+            then UNITID (the same tie rule)
+        totals: {code: sum of the counts}
+        institutions: {base UNITID: {name, unitid (link campus), state, fte, campuses}}
+            every institution of the scope that rate rankings may list this
+            year, incidents or not
+        rateRankings: {code: [{rank, id (base UNITID), count, rate}]} (rate_rankings)
+            those with a count above 0; every other institution of
+            `institutions` has rate 0 for that code, listed after them the
+            same way
+    """
+    all_geo = year_data[year_data["geo"] == "All"]
+    output = {"preset": preset, "year": int(year), "campuses": {}, "rankings": {}, "totals": {}}
+
+    for row in campus_rows.sort_values("unitid").to_dict("records"):
+        unitid = int(row["unitid"])
+        inst = institutions.by_key.get((int(year), unitid // 1000))
+        if inst is None:
+            raise SiteDataError(f"{preset}-{year}: campus {unitid} counts this year but its institution is "
+                                "not in agg_institution_year.parquet. Re-run 04_create_aggregates.py, then 05.")
+        output["campuses"][str(unitid)] = {
+            "name": row["institution_name"],
+            "short": opt(row.get("short_name")),
+            "state": opt(row.get("state")),
+            "main": is_main_campus(unitid),
+            "fte": int(inst["fte"]) if pd.notna(inst.get("fte")) else None,
+            "campuses": int(inst["campuses"]),
+        }
+    ranked_ids = {str(int(u)) for u in all_geo["unitid"].unique()}
+    if ranked_ids - set(output["campuses"]):
+        raise SiteDataError(f"{preset}-{year}: {len(ranked_ids - set(output['campuses']))} ranked campuses are not "
+                            f"campus-years that count (first: {sorted(ranked_ids - set(output['campuses']))[0]}). "
+                            "Re-run 04_create_aggregates.py, then 05.")
+
+    names = all_geo.drop_duplicates("unitid")[["unitid", "institution_name"]]
+    for code, rows in code_counts(all_geo, ["unitid"]).items():
+        rows = rows.merge(names, on="unitid", how="left")
+        rows, ranks = ranked(rows, "count")
+        output["rankings"][code] = [{"rank": rank, "unitid": int(u), "count": int(c)}
+                                    for rank, u, c in zip(ranks, rows["unitid"].tolist(), rows["count"].tolist())]
+        output["totals"][code] = int(rows["count"].sum())
+
+    # 04's ranks of each offense must be the ones written (one ranking rule)
+    for offense, part in all_geo.groupby("offense"):
+        theirs = dict(zip(part["unitid"].astype(int).tolist(), part["rank"].astype(int).tolist()))
+        ours = {e["unitid"]: e["rank"] for e in output["rankings"][offense_code(offense)]}
+        if theirs != ours:
+            raise SiteDataError(f"{preset}-{year}: the ranks of {offense} differ from 04's. "
+                                "Re-run 04_create_aggregates.py, then 05.")
+
+    output["institutions"], output["rateRankings"] = rate_rankings(institutions, int(year), in_preset)
+    return output
+
+
+def campus_year_rows() -> pd.DataFrame:
+    """
+    04's agg_campus_year (the campus-years that count in rankings, 0
+    included) with each campus's name and short name from dim_institution.
+    """
+    rows = pd.read_parquet(CURATED_DIR / "aggs" / "agg_campus_year.parquet")
+    rows = rows[rows["year"].isin(DATA_YEARS)]
+    dim_inst = pd.read_parquet(CURATED_DIR / "dims" / "dim_institution.parquet")
+    names = dim_inst[["unitid", "institution_name", "short_name"]]
+    out = rows.merge(names, on="unitid", how="left", validate="many_to_one")
+    if out["institution_name"].isna().any():
+        first = out[out["institution_name"].isna()].iloc[0]
+        raise SiteDataError(f"Campus {int(first['unitid'])} counts in {int(first['year'])} but has no name in "
+                            "dim_institution.parquet. Re-run 03_build_dimensions.py and 04, then 05.")
+    return out
 
 
 def generate_rankings_json() -> None:
     """
-    Generate rankings JSON files for each year and preset.
+    Generate rankings JSON files for each year and preset (schema: rankings_output).
 
     Files:
         rankings/ivy-YYYY-all.json     (Ivy League rankings)
         rankings/CA-YYYY-all.json      (State rankings)
         rankings/national-YYYY-all.json (National rankings)
-    Schema:
-        preset: string
-        year: number
-        rankings: { [offense_code]: RankingEntry[] }  # Includes "all" for total
-        totals: { [offense_code]: number }
     """
     print("\nGenerating rankings JSON files...")
 
     rankings_dir = JSON_DIR / "rankings"
     rankings_dir.mkdir(exist_ok=True)
+    institutions = Institutions()
+    campus_years = campus_year_rows()
+    zero_rows = 0
 
     # Generate Ivy League rankings
     ivy_rankings_path = CURATED_DIR / "aggs" / "agg_ivy_rankings.parquet"
@@ -446,61 +644,10 @@ def generate_rankings_json() -> None:
 
         for year in sorted(rankings_df["year"].unique()):
             year_data = rankings_df[rankings_df["year"] == year].copy()
-
-            output = {
-                "preset": "ivy",
-                "year": int(year),
-                "rankings": {},
-                "totals": {}
-            }
-
-            all_geo = year_data[year_data["geo"] == "All"]
-
-            # Add "all" offense (sum across all offenses)
-            all_offense_ranking = compute_all_offense_ranking(year_data, "pct_of_ivy_total")
-            output["rankings"]["all"] = [
-                {
-                    "rank": int(row["rank"]),
-                    "rankByRate": int(row["rank_by_rate"]) if pd.notna(row.get("rank_by_rate")) else None,
-                    "unitid": int(row["unitid"]),
-                    "name": row["institution_name"],
-                    "short": opt(row["short_name"]),
-                    "count": int(row["count"]),
-                    "pct": float(row["pct"]),
-                    "fte": int(row["fte"]) if pd.notna(row.get("fte")) else None,
-                    "rate": float(row["rate_per_10k"]) if pd.notna(row.get("rate_per_10k")) else None,
-                    "isMainCampus": is_main_campus(row["unitid"])
-                }
-                for _, row in all_offense_ranking.iterrows()
-            ]
-            output["totals"]["all"] = int(all_offense_ranking["count"].sum())
-
-            # Add individual offense rankings
-            for offense in sorted(all_geo["offense"].unique()):
-                offense_data = all_geo[all_geo["offense"] == offense].sort_values(["rank", "unitid"])
-                offense_code = offense.lower().replace(" ", "_")
-
-                output["rankings"][offense_code] = [
-                    {
-                        "rank": int(row["rank"]),
-                        "rankByRate": int(row["rank_by_rate"]) if pd.notna(row.get("rank_by_rate")) else None,
-                        "unitid": int(row["unitid"]),
-                        "name": row["institution_name"],
-                        "short": opt(row["short_name"]),
-                        "count": int(row["count"]),
-                        "pct": float(row["pct_of_ivy_total"]),
-                        "fte": int(row["fte"]) if pd.notna(row.get("fte")) else None,
-                        "rate": float(row["rate_per_10k"]) if pd.notna(row.get("rate_per_10k")) else None,
-                        "isMainCampus": is_main_campus(row["unitid"])
-                    }
-                    for _, row in offense_data.iterrows()
-                ]
-
-                output["totals"][offense_code] = int(offense_data["count"].sum())
-
-            filename = f"ivy-{year}-all.json"
-            write_json(rankings_dir / filename, output)
-
+            scope = campus_years[(campus_years["year"] == year) & campus_years["unitid"].isin(IVY_LEAGUE.keys())]
+            output = rankings_output(year_data, "ivy", year, institutions,
+                                     lambda r: int(r["base_unitid"]) in IVY_BASE_UNITIDS, scope)
+            write_json(rankings_dir / f"ivy-{year}-all.json", output)
             ivy_files += 1
 
         print(f"  Ivy League: {ivy_files} files")
@@ -527,66 +674,17 @@ def generate_rankings_json() -> None:
 
                 for year in years:
                     year_data = state_data[state_data["year"] == year].copy()
-                    if len(year_data) == 0:
+                    scope = campus_years[(campus_years["year"] == year) & (campus_years["state"] == state)]
+                    # A state-year is published when a campus there reported it
+                    if len(year_data) == 0 and len(scope) == 0:
                         continue
-
-                    output = {
-                        "preset": state,
-                        "year": int(year),
-                        "rankings": {},
-                        "totals": {}
-                    }
-
-                    all_geo = year_data[year_data["geo"] == "All"]
-
-                    # Add "all" offense (sum across all offenses)
-                    all_offense_ranking = compute_all_offense_ranking(year_data, "pct_of_state_total")
-                    output["rankings"]["all"] = [
-                        {
-                            "rank": int(row["rank"]),
-                            "rankByRate": int(row["rank_by_rate"]) if pd.notna(row.get("rank_by_rate")) else None,
-                            "unitid": int(row["unitid"]),
-                            "name": row["institution_name"],
-                            "short": row["short_name"] if pd.notna(row.get("short_name")) else None,
-                            "count": int(row["count"]),
-                            "pct": float(row["pct"]),
-                            "fte": int(row["fte"]) if pd.notna(row.get("fte")) else None,
-                            "rate": float(row["rate_per_10k"]) if pd.notna(row.get("rate_per_10k")) else None,
-                            "isMainCampus": is_main_campus(row["unitid"])
-                        }
-                        for _, row in all_offense_ranking.iterrows()
-                    ]
-                    output["totals"]["all"] = int(all_offense_ranking["count"].sum())
-
-                    # Add individual offense rankings
-                    for offense in sorted(all_geo["offense"].unique()):
-                        offense_data = all_geo[all_geo["offense"] == offense].sort_values(["rank", "unitid"])
-                        offense_code = offense.lower().replace(" ", "_")
-
-                        output["rankings"][offense_code] = [
-                            {
-                                "rank": int(row["rank"]),
-                                "rankByRate": int(row["rank_by_rate"]) if pd.notna(row.get("rank_by_rate")) else None,
-                                "unitid": int(row["unitid"]),
-                                "name": row["institution_name"],
-                                "short": row["short_name"] if pd.notna(row.get("short_name")) else None,
-                                "count": int(row["count"]),
-                                "pct": float(row["pct_of_state_total"]),
-                                "fte": int(row["fte"]) if pd.notna(row.get("fte")) else None,
-                                "rate": float(row["rate_per_10k"]) if pd.notna(row.get("rate_per_10k")) else None,
-                                "isMainCampus": is_main_campus(row["unitid"])
-                            }
-                            for _, row in offense_data.iterrows()
-                        ]
-
-                        output["totals"][offense_code] = int(offense_data["count"].sum())
-
-                    filename = f"{state}-{year}-all.json"
-                    write_json(rankings_dir / filename, output)
-
+                    output = rankings_output(year_data, state, year, institutions,
+                                             lambda r, s=state: r["state"] == s, scope)
+                    zero_rows += len(scope) - len(output["rankings"]["all"])
+                    write_json(rankings_dir / f"{state}-{year}-all.json", output)
                     state_files += 1
 
-            print(f"  State rankings: {state_files} files")
+            print(f"  State rankings: {state_files} files ({zero_rows:,} campus-years ranked with 0)")
         else:
             raise SiteDataError(f"{state_rankings_path} not found. Run 04_create_aggregates.py first.")
 
@@ -608,63 +706,12 @@ def generate_rankings_json() -> None:
                 year_data = national_df[national_df["year"] == year].copy()
                 if len(year_data) == 0:
                     continue
-
-                output = {
-                    "preset": "national",
-                    "year": int(year),
-                    "rankings": {},
-                    "totals": {}
-                }
-
-                all_geo = year_data[year_data["geo"] == "All"]
-
-                # Add "all" offense (sum across all offenses)
-                all_offense_ranking = compute_all_offense_ranking(year_data, "pct_of_national_total")
-                output["rankings"]["all"] = [
-                    {
-                        "rank": int(row["rank"]),
-                        "rankByRate": int(row["rank_by_rate"]) if pd.notna(row.get("rank_by_rate")) else None,
-                        "unitid": int(row["unitid"]),
-                        "name": row["institution_name"],
-                        "short": row["short_name"] if pd.notna(row.get("short_name")) else None,
-                        "state": row["state"] if pd.notna(row.get("state")) else None,
-                        "count": int(row["count"]),
-                        "pct": float(row["pct"]),
-                        "fte": int(row["fte"]) if pd.notna(row.get("fte")) else None,
-                        "rate": float(row["rate_per_10k"]) if pd.notna(row.get("rate_per_10k")) else None,
-                        "isMainCampus": is_main_campus(row["unitid"])
-                    }
-                    for _, row in all_offense_ranking.iterrows()
-                ]
-                output["totals"]["all"] = int(all_offense_ranking["count"].sum())
-
-                # Add individual offense rankings
-                for offense in sorted(all_geo["offense"].unique()):
-                    offense_data = all_geo[all_geo["offense"] == offense].sort_values(["rank", "unitid"])
-                    offense_code = offense.lower().replace(" ", "_")
-
-                    output["rankings"][offense_code] = [
-                        {
-                            "rank": int(row["rank"]),
-                            "rankByRate": int(row["rank_by_rate"]) if pd.notna(row.get("rank_by_rate")) else None,
-                            "unitid": int(row["unitid"]),
-                            "name": row["institution_name"],
-                            "short": row["short_name"] if pd.notna(row.get("short_name")) else None,
-                            "state": row["state"] if pd.notna(row.get("state")) else None,
-                            "count": int(row["count"]),
-                            "pct": float(row["pct_of_national_total"]),
-                            "fte": int(row["fte"]) if pd.notna(row.get("fte")) else None,
-                            "rate": float(row["rate_per_10k"]) if pd.notna(row.get("rate_per_10k")) else None,
-                            "isMainCampus": is_main_campus(row["unitid"])
-                        }
-                        for _, row in offense_data.iterrows()
-                    ]
-
-                    output["totals"][offense_code] = int(offense_data["count"].sum())
-
-                filename = f"national-{year}-all.json"
-                write_json(rankings_dir / filename, output)
-
+                scope = campus_years[(campus_years["year"] == year) & campus_years["state"].isin(US_STATES)]
+                output = rankings_output(year_data, "national", year, institutions,
+                                         lambda r: r["state"] in US_STATES, scope)
+                print(f"    {year}: {len(scope):,} campuses ranked, "
+                      f"{len(scope) - len(output['rankings']['all']):,} of them with no incident (0)")
+                write_json(rankings_dir / f"national-{year}-all.json", output)
                 national_files += 1
 
             print(f"  National rankings: {national_files} files")
@@ -692,11 +739,38 @@ def generate_school_profiles() -> None:
         breakdownByOffense: BreakdownEntry[]
         breakdownByGeo: BreakdownEntry[]
         sharedFigures: SharedFigure[]  # only for a school with shadow blocks (see shared_figures)
+        institution: {id, byYear: {year: {campuses, online, onlineYear?, rateRanked, counts?}}}
+            the school's institution (base UNITID) in the school's years, as
+            rates count it (Institutions.profile_years): all its campuses'
+            counts per code without shadow blocks (left out when equal to
+            the school's own); fteByYear is its FTE. online is the share of
+            exclusively online students the rate rules use, and onlineYear
+            (in the years of ONLINE_SHARE_YEAR only) the fall it is from
+
+    Every campus that reported a year has a file (dim_institution). Its
+    years are the years it reported (campus_year_sources: a release row
+    with at least one count cell not blank): yearlyTotals has each of them,
+    0 for a year with no incident, and notReported lists the other years
+    of DATA_YEARS (left out when there are none), so a page can tell 0 from
+    not reported.
     """
     print("\nGenerating school profile JSON files...")
 
     # Load data
     agg = pd.read_parquet(CURATED_DIR / "aggs" / "agg_school_year_offense.parquet")
+    by_unitid = {int(u): rows for u, rows in agg.groupby("unitid", sort=False)}
+    institutions = Institutions()
+
+    # The years each campus reported, and each institution's FTE by year
+    sources = pd.read_parquet(CURATED_DIR / "dims" / "campus_year_sources.parquet", columns=["unitid", "year"])
+    sources = sources[sources["year"].isin(DATA_YEARS)]
+    reported_years = {int(u): sorted(int(y) for y in g["year"].tolist()) for u, g in sources.groupby("unitid")}
+    enrollment = pd.read_parquet(CURATED_DIR / "dims" / "dim_enrollment.parquet", columns=["unitid", "year", "fte"])
+    enrollment = enrollment[enrollment["fte"].notna() & enrollment["year"].isin(DATA_YEARS)]
+    fte_of = {(int(u), int(y)): int(f) for u, y, f in
+              zip(enrollment["unitid"].tolist(), enrollment["year"].tolist(), enrollment["fte"].tolist())}
+    zero_profiles = 0
+    zero_years = 0
     schools_dir = JSON_DIR / "schools"
     schools_dir.mkdir(exist_ok=True)
 
@@ -720,13 +794,22 @@ def generate_school_profiles() -> None:
 
     for _, inst_row in schools_to_process.iterrows():
         unitid = int(inst_row["unitid"])
-        school_data = agg[agg["unitid"] == unitid].copy()
+        school_data = by_unitid.get(unitid, agg.iloc[0:0]).copy()
 
         # Filter to only include years in DATA_YEARS
         school_data = school_data[school_data["year"].isin(DATA_YEARS)]
 
+        # The years it reported; a year with figures must be one of them
+        years = reported_years.get(unitid, [])
+        unreported = sorted(set(int(y) for y in school_data["year"].unique()) - set(years))
+        if unreported:
+            raise SiteDataError(f"School {unitid} has figures for {unreported} but no reported campus-year then in "
+                                "campus_year_sources.parquet. Re-run 02_transform_to_parquet.py to 04, then 05.")
+        if not years:
+            raise SiteDataError(f"School {unitid} is in dim_institution.parquet but reported no year of DATA_YEARS. "
+                                "Re-run 03_build_dimensions.py to 04, then 05.")
         if school_data.empty:
-            continue
+            zero_profiles += 1
 
         # Get school info
         is_ivy = unitid in IVY_LEAGUE
@@ -747,8 +830,8 @@ def generate_school_profiles() -> None:
             city = opt(inst_row.get("city"))
             state = opt(inst_row.get("state"))
 
-        # Latest year summary
-        latest_year = int(school_data["year"].max())
+        # Latest year summary (the newest year it reported)
+        latest_year = max(years)
         latest_all = school_data[
             (school_data["year"] == latest_year) &
             (school_data["geo"] == "All")
@@ -771,20 +854,10 @@ def generate_school_profiles() -> None:
                 top_offense = None
                 top_offense_count = 0
 
-        # Get FTE (enrollment) - build per-year dict and also store latest
-        # FTE is now available for all years (2015-2023)
-        fte_value = None
-        fte_by_year = {}
-        if "fte" in school_data.columns:
-            fte_data = school_data[school_data["fte"].notna()].copy()
-            if not fte_data.empty:
-                # Build fteByYear dictionary
-                for _, fte_row in fte_data.drop_duplicates(subset=["year"]).iterrows():
-                    fte_by_year[int(fte_row["year"])] = int(fte_row["fte"])
-                # Also store latest FTE for backwards compatibility
-                latest_fte_year = fte_data["year"].max()
-                fte_row = fte_data[fte_data["year"] == latest_fte_year].iloc[0]
-                fte_value = int(fte_row["fte"])
+        # FTE (enrollment) of its institution in each year it reported (NCES
+        # publishes FTE per institution); fte is the newest one
+        fte_by_year = {y: fte_of[(unitid // 1000, y)] for y in years if (unitid // 1000, y) in fte_of}
+        fte_value = fte_by_year[max(fte_by_year)] if fte_by_year else None
 
         # Trends (all years, geo="All", by offense)
         trends_data = school_data[school_data["geo"] == "All"].copy()
@@ -818,12 +891,11 @@ def generate_school_profiles() -> None:
             for _, row in geo_totals.sort_values(["count", "geo"], ascending=[False, True]).iterrows()
         ]
 
-        # Year-over-year totals
+        # Totals of every year it reported, 0 for a year without an incident
         yearly_totals = school_data[school_data["geo"] == "All"].groupby("year")["count"].sum()
-        yearly_data = [
-            {"year": int(year), "total": int(count)}
-            for year, count in yearly_totals.items()
-        ]
+        yearly_data = [{"year": year, "total": int(yearly_totals.get(year, 0))} for year in years]
+        zero_years += sum(1 for row in yearly_data if row["total"] == 0)
+        not_reported = [year for year in DATA_YEARS if year not in set(years)]
 
         # Build output
         output = {
@@ -848,11 +920,21 @@ def generate_school_profiles() -> None:
             "breakdownByOffense": offense_breakdown,
             "breakdownByGeo": geo_breakdown
         }
+        if not_reported:
+            output["notReported"] = not_reported
         # The school's figures stay as DOE reports them; these blocks are
         # counted under another campus in totals and rankings
         if unitid in shared:
             output["sharedFigures"] = shared[unitid]
             shared_written += 1
+        # The institution's counts, campuses and online share, for its rates
+        own = {year: {} for year in years}
+        for code, rows in code_counts(school_data[school_data["geo"] == "All"], ["year"]).items():
+            for y, c in zip(rows["year"].tolist(), rows["count"].tolist()):
+                own[int(y)][code] = int(c)
+        inst_years = institutions.profile_years(unitid // 1000, own)
+        if inst_years:
+            output["institution"] = {"id": unitid // 1000, "byYear": inst_years}
 
         # Save
         filename = f"{unitid}.json"
@@ -881,6 +963,8 @@ def generate_school_profiles() -> None:
     if PROCESS_ALL_SCHOOLS:
         print(f"    Other schools: {state_count}")
     print(f"    With figures counted under another campus (sharedFigures): {shared_written}")
+    print(f"    That reported but never had an incident: {zero_profiles}")
+    print(f"    Reported years without an incident (shown as 0): {zero_years:,}")
     print(f"  Saved to: {schools_dir}/")
 
 
@@ -921,15 +1005,14 @@ def generate_school_index() -> None:
     Files: school-index.json
     Schema:
         schools: [{unitid, name, short, city, state}]
+
+    It lists every school that has a school file: every campus in
+    dim_institution (every campus that reported a year, including those that
+    never had an incident).
     """
     print("\nGenerating school search index...")
 
     dim_inst = pd.read_parquet(CURATED_DIR / "dims" / "dim_institution.parquet")
-
-    # Build index - only include schools we have data for
-    agg = pd.read_parquet(CURATED_DIR / "aggs" / "agg_school_year_offense.parquet")
-    unitids_with_data = set(agg["unitid"].unique())
-    dim_inst = dim_inst[dim_inst["unitid"].isin(unitids_with_data)]
 
     # Sort by state, then name for better UX; unitid fixes the order of same-name campuses
     dim_inst = dim_inst.sort_values(["state", "institution_name", "unitid"])

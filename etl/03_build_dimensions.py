@@ -2,7 +2,9 @@
 Build dimension tables for institutions and offenses.
 
 This script creates dimension tables that enrich the fact data:
-- dim_institution: School metadata with Ivy League flags
+- dim_institution: School metadata with Ivy League flags, for every campus
+  that reported at least one year (campus_year_sources.parquet), including
+  campuses that never had an incident
 - dim_offense: Offense metadata with descriptions and ordering
 
 Usage:
@@ -26,6 +28,10 @@ import provenance
 
 # The one fact table that 02_transform_to_parquet.py writes
 FACTS_PATH = CURATED_DIR / "facts" / "incidents.parquet"
+# The campus-years DOE published (02_transform_to_parquet.py): a campus-year
+# is reported when its release row has at least one count cell that is not
+# blank, so a campus that reported only zeros is in it but not in the facts
+SOURCES_PATH = CURATED_DIR / "dims" / "campus_year_sources.parquet"
 
 
 def find_stray_facts() -> list:
@@ -93,7 +99,7 @@ def build_dim_institution() -> pd.DataFrame:
     # Get unique UNITIDs from facts (a read error stops the build)
     facts_file = get_facts_path()
     try:
-        unitids_df = con.execute(f"""
+        fact_ids = con.execute(f"""
             SELECT DISTINCT unitid
             FROM read_parquet('{facts_file}')
             ORDER BY unitid
@@ -101,7 +107,21 @@ def build_dim_institution() -> pd.DataFrame:
     except duckdb.Error as e:
         raise facts_read_error(e) from e
 
-    print(f"  Found {len(unitids_df)} unique institutions in facts")
+    # Every campus that reported a year, incidents or not: a reported year
+    # with no incident is a 0, which its school page and the rankings show
+    if not SOURCES_PATH.is_file():
+        raise RuntimeError(f"{SOURCES_PATH} not found. Run 02_transform_to_parquet.py first.")
+    reported_ids = set(pd.read_parquet(SOURCES_PATH, columns=["unitid"])["unitid"].astype(int).tolist())
+    fact_set = set(fact_ids["unitid"].astype(int).tolist())
+    unreported = sorted(fact_set - reported_ids)
+    if unreported:
+        raise RuntimeError(f"{len(unreported)} schools have incidents but no reported campus-year in "
+                           f"{SOURCES_PATH.name} (UNITIDs {unreported[:10]}). Run 02_transform_to_parquet.py "
+                           "again, then this step.")
+    unitids_df = pd.DataFrame({"unitid": sorted(reported_ids)})
+
+    print(f"  Found {len(unitids_df)} campuses that reported a year ({len(fact_set)} with incidents, "
+          f"{len(reported_ids - fact_set)} that only ever reported zeros)")
 
     # Names, cities and states come from the institution list that 02 writes
     raw_inst_path = dims_dir / "raw_institutions.parquet"
@@ -192,7 +212,7 @@ def build_dim_institution() -> pd.DataFrame:
     missing = dim_institution.loc[dim_institution["institution_name"].isna(), "unitid"].tolist()
     if missing:
         raise RuntimeError(
-            f"{len(missing)} schools in the facts have no name in {raw_inst_path.name} "
+            f"{len(missing)} reporting schools have no name in {raw_inst_path.name} "
             f"(UNITIDs {missing[:10]}). Run 02_transform_to_parquet.py again, then this step."
         )
 
@@ -324,7 +344,7 @@ def main():
 
     # The files this step reads, checked against 02's record before reading
     dims = CURATED_DIR / "dims"
-    inputs_before = provenance.Snapshot("03", [FACTS_PATH, dims / "raw_institutions.parquet"])
+    inputs_before = provenance.Snapshot("03", [FACTS_PATH, dims / "raw_institutions.parquet", SOURCES_PATH])
     provenance.invalidate(provenance.INSTITUTION_MANIFEST)
     dim_institution = build_dim_institution()
     dim_offense = build_dim_offense()

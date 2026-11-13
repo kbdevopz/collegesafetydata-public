@@ -316,6 +316,36 @@ OFFENSE_DESCRIPTIONS = {
 DATA_YEARS = list(range(2015, 2025))  # 2015-2024 (crime from DOE 2025 release; FTE from IPEDS provisional DRVEF2024)
 
 # =============================================================================
+# SUMMARY CODES AND RATES
+# =============================================================================
+
+# Summary codes of the rankings and school pages, each the sum of a group of
+# offenses: "criminal" the Criminal family (the site's default view), "all"
+# every offense (None). "all" mixes kinds of counts (arrests and referrals
+# count people, and a VAWA offense can also be counted as a criminal
+# offense), so the site labels it as a mix of categories.
+SUMMARY_FAMILIES = {"criminal": "Criminal", "all": None}
+
+# Rates are institution rates: the incidents of all of an institution's
+# campuses (the base UNITID, the first six digits) per 10,000 of the
+# institution's FTE, because NCES publishes FTE per institution, not per
+# campus. Rate rankings list an institution only when that year it has at
+# least MIN_FTE_FOR_RATE FTE students, and fewer than ONLINE_EXCLUSION_PCT
+# percent of its students enrolled exclusively in distance education (NCES
+# PCTDEEXC; an institution without that figure is not left out): campus
+# crime statistics cover the campus, so the rate of a mostly online
+# institution is not comparable.
+MIN_FTE_FOR_RATE = 1000
+ONLINE_EXCLUSION_PCT = 50
+
+# The years whose "mostly online" test uses another year's PCTDEEXC: in fall
+# 2020 and 2021 many institutions taught remotely for the pandemic, which
+# does not make them online-only schools, so those years use the
+# institution's fall 2019 share. When NCES has no 2019 figure for it, the
+# year's own share is used (the build reports how many).
+ONLINE_SHARE_YEAR = {2020: 2019, 2021: 2019}
+
+# =============================================================================
 # DOE DATA SOURCE URLS
 # =============================================================================
 

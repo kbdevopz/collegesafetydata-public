@@ -1,1451 +1,741 @@
 {
   "preset": "ivy",
   "year": 2016,
+  "campuses": {
+    "130794001": {
+      "name": "Yale University",
+      "short": "Yale",
+      "state": "CT",
+      "main": true,
+      "fte": 12388,
+      "campuses": 2
+    },
+    "166027001": {
+      "name": "Harvard University",
+      "short": "Harvard",
+      "state": "MA",
+      "main": true,
+      "fte": 24180,
+      "campuses": 7
+    },
+    "182670001": {
+      "name": "Dartmouth College",
+      "short": "Dartmouth",
+      "state": "NH",
+      "main": true,
+      "fte": 6341,
+      "campuses": 1
+    },
+    "186131001": {
+      "name": "Princeton University",
+      "short": "Princeton",
+      "state": "NJ",
+      "main": true,
+      "fte": 8091,
+      "campuses": 2
+    },
+    "190150001": {
+      "name": "Columbia University in the City of New York",
+      "short": "Columbia",
+      "state": "NY",
+      "main": true,
+      "fte": 26400,
+      "campuses": 4
+    },
+    "190415001": {
+      "name": "Cornell University",
+      "short": "Cornell",
+      "state": "NY",
+      "main": true,
+      "fte": 22262,
+      "campuses": 2
+    },
+    "215062001": {
+      "name": "University of Pennsylvania",
+      "short": "Penn",
+      "state": "PA",
+      "main": true,
+      "fte": 22748,
+      "campuses": 6
+    },
+    "217156001": {
+      "name": "Brown University",
+      "short": "Brown",
+      "state": "RI",
+      "main": true,
+      "fte": 9423,
+      "campuses": 1
+    }
+  },
   "rankings": {
-    "all": [
+    "criminal": [
       {
         "rank": 1,
-        "rankByRate": 3,
-        "unitid": 215062001,
-        "name": "University of Pennsylvania",
-        "short": "Penn",
-        "count": 641,
-        "pct": 23.22,
-        "fte": 22713,
-        "rate": 282.22,
-        "isMainCampus": true
+        "unitid": 166027001,
+        "count": 154
       },
       {
         "rank": 2,
-        "rankByRate": 1,
-        "unitid": 182670001,
-        "name": "Dartmouth College",
-        "short": "Dartmouth",
-        "count": 444,
-        "pct": 16.09,
-        "fte": 6340,
-        "rate": 700.32,
-        "isMainCampus": true
+        "unitid": 130794001,
+        "count": 113
       },
       {
         "rank": 3,
-        "rankByRate": 5,
-        "unitid": 190415001,
-        "name": "Cornell University",
-        "short": "Cornell",
-        "count": 437,
-        "pct": 15.83,
-        "fte": 22261,
-        "rate": 196.31,
-        "isMainCampus": true
+        "unitid": 215062001,
+        "count": 104
       },
       {
         "rank": 4,
-        "rankByRate": 7,
-        "unitid": 190150001,
-        "name": "Columbia University in the City of New York",
-        "short": "Columbia",
-        "count": 296,
-        "pct": 10.72,
-        "fte": 26320,
-        "rate": 112.46,
-        "isMainCampus": true
+        "unitid": 186131001,
+        "count": 69
       },
       {
         "rank": 5,
-        "rankByRate": 4,
         "unitid": 217156001,
-        "name": "Brown University",
-        "short": "Brown",
-        "count": 255,
-        "pct": 9.24,
-        "fte": 9423,
-        "rate": 270.61,
-        "isMainCampus": true
+        "count": 67
       },
       {
         "rank": 6,
-        "rankByRate": 2,
-        "unitid": 186131001,
-        "name": "Princeton University",
-        "short": "Princeton",
-        "count": 252,
-        "pct": 9.13,
-        "fte": 8092,
-        "rate": 311.42,
-        "isMainCampus": true
+        "unitid": 190415001,
+        "count": 62
       },
       {
         "rank": 7,
-        "rankByRate": 8,
-        "unitid": 166027001,
-        "name": "Harvard University",
-        "short": "Harvard",
-        "count": 234,
-        "pct": 8.48,
-        "fte": 24077,
-        "rate": 97.19,
-        "isMainCampus": true
+        "unitid": 182670001,
+        "count": 57
       },
       {
         "rank": 8,
-        "rankByRate": 6,
+        "unitid": 190150001,
+        "count": 48
+      }
+    ],
+    "all": [
+      {
+        "rank": 1,
+        "unitid": 215062001,
+        "count": 641
+      },
+      {
+        "rank": 2,
+        "unitid": 182670001,
+        "count": 444
+      },
+      {
+        "rank": 3,
+        "unitid": 190415001,
+        "count": 437
+      },
+      {
+        "rank": 4,
+        "unitid": 190150001,
+        "count": 296
+      },
+      {
+        "rank": 5,
+        "unitid": 217156001,
+        "count": 255
+      },
+      {
+        "rank": 6,
+        "unitid": 186131001,
+        "count": 252
+      },
+      {
+        "rank": 7,
+        "unitid": 166027001,
+        "count": 234
+      },
+      {
+        "rank": 8,
         "unitid": 130794001,
-        "name": "Yale University",
-        "short": "Yale",
-        "count": 201,
-        "pct": 7.28,
-        "fte": 12386,
-        "rate": 162.28,
-        "isMainCampus": true
+        "count": 201
       }
     ],
     "aggravated_assault": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 166027001,
-        "name": "Harvard University",
-        "short": "Harvard",
-        "count": 23,
-        "pct": 37.1,
-        "fte": 24077,
-        "rate": 9.55,
-        "isMainCampus": true
+        "count": 23
       },
       {
         "rank": 2,
-        "rankByRate": 2,
         "unitid": 215062001,
-        "name": "University of Pennsylvania",
-        "short": "Penn",
-        "count": 18,
-        "pct": 29.03,
-        "fte": 22713,
-        "rate": 7.92,
-        "isMainCampus": true
+        "count": 18
       },
       {
         "rank": 3,
-        "rankByRate": 5,
         "unitid": 190415001,
-        "name": "Cornell University",
-        "short": "Cornell",
-        "count": 7,
-        "pct": 11.29,
-        "fte": 22261,
-        "rate": 3.14,
-        "isMainCampus": true
+        "count": 7
       },
       {
-        "rank": 4,
-        "rankByRate": 3,
+        "rank": 3,
         "unitid": 130794001,
-        "name": "Yale University",
-        "short": "Yale",
-        "count": 7,
-        "pct": 11.29,
-        "fte": 12386,
-        "rate": 5.65,
-        "isMainCampus": true
+        "count": 7
       },
       {
         "rank": 5,
-        "rankByRate": 4,
         "unitid": 186131001,
-        "name": "Princeton University",
-        "short": "Princeton",
-        "count": 4,
-        "pct": 6.45,
-        "fte": 8092,
-        "rate": 4.94,
-        "isMainCampus": true
+        "count": 4
       },
       {
         "rank": 6,
-        "rankByRate": 6,
         "unitid": 217156001,
-        "name": "Brown University",
-        "short": "Brown",
-        "count": 2,
-        "pct": 3.23,
-        "fte": 9423,
-        "rate": 2.12,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 7,
-        "rankByRate": 7,
         "unitid": 190150001,
-        "name": "Columbia University in the City of New York",
-        "short": "Columbia",
-        "count": 1,
-        "pct": 1.61,
-        "fte": 26320,
-        "rate": 0.38,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "arson": [
       {
         "rank": 1,
-        "rankByRate": 2,
         "unitid": 190415001,
-        "name": "Cornell University",
-        "short": "Cornell",
-        "count": 3,
-        "pct": 30.0,
-        "fte": 22261,
-        "rate": 1.35,
-        "isMainCampus": true
+        "count": 3
       },
       {
-        "rank": 2,
-        "rankByRate": 1,
+        "rank": 1,
         "unitid": 182670001,
-        "name": "Dartmouth College",
-        "short": "Dartmouth",
-        "count": 3,
-        "pct": 30.0,
-        "fte": 6340,
-        "rate": 4.73,
-        "isMainCampus": true
+        "count": 3
       },
       {
         "rank": 3,
-        "rankByRate": 3,
         "unitid": 215062001,
-        "name": "University of Pennsylvania",
-        "short": "Penn",
-        "count": 2,
-        "pct": 20.0,
-        "fte": 22713,
-        "rate": 0.88,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 4,
-        "rankByRate": 5,
         "unitid": 190150001,
-        "name": "Columbia University in the City of New York",
-        "short": "Columbia",
-        "count": 1,
-        "pct": 10.0,
-        "fte": 26320,
-        "rate": 0.38,
-        "isMainCampus": true
+        "count": 1
       },
       {
-        "rank": 5,
-        "rankByRate": 4,
+        "rank": 4,
         "unitid": 130794001,
-        "name": "Yale University",
-        "short": "Yale",
-        "count": 1,
-        "pct": 10.0,
-        "fte": 12386,
-        "rate": 0.81,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "burglary": [
       {
         "rank": 1,
-        "rankByRate": 4,
         "unitid": 166027001,
-        "name": "Harvard University",
-        "short": "Harvard",
-        "count": 70,
-        "pct": 31.96,
-        "fte": 24077,
-        "rate": 29.07,
-        "isMainCampus": true
+        "count": 70
       },
       {
         "rank": 2,
-        "rankByRate": 2,
         "unitid": 130794001,
-        "name": "Yale University",
-        "short": "Yale",
-        "count": 38,
-        "pct": 17.35,
-        "fte": 12386,
-        "rate": 30.68,
-        "isMainCampus": true
+        "count": 38
       },
       {
         "rank": 3,
-        "rankByRate": 1,
         "unitid": 186131001,
-        "name": "Princeton University",
-        "short": "Princeton",
-        "count": 33,
-        "pct": 15.07,
-        "fte": 8092,
-        "rate": 40.78,
-        "isMainCampus": true
+        "count": 33
       },
       {
         "rank": 4,
-        "rankByRate": 6,
         "unitid": 190415001,
-        "name": "Cornell University",
-        "short": "Cornell",
-        "count": 20,
-        "pct": 9.13,
-        "fte": 22261,
-        "rate": 8.98,
-        "isMainCampus": true
+        "count": 20
       },
       {
         "rank": 5,
-        "rankByRate": 3,
         "unitid": 182670001,
-        "name": "Dartmouth College",
-        "short": "Dartmouth",
-        "count": 19,
-        "pct": 8.68,
-        "fte": 6340,
-        "rate": 29.97,
-        "isMainCampus": true
+        "count": 19
       },
       {
         "rank": 6,
-        "rankByRate": 7,
         "unitid": 190150001,
-        "name": "Columbia University in the City of New York",
-        "short": "Columbia",
-        "count": 18,
-        "pct": 8.22,
-        "fte": 26320,
-        "rate": 6.84,
-        "isMainCampus": true
+        "count": 18
       },
       {
         "rank": 7,
-        "rankByRate": 8,
         "unitid": 215062001,
-        "name": "University of Pennsylvania",
-        "short": "Penn",
-        "count": 11,
-        "pct": 5.02,
-        "fte": 22713,
-        "rate": 4.84,
-        "isMainCampus": true
+        "count": 11
       },
       {
         "rank": 8,
-        "rankByRate": 5,
         "unitid": 217156001,
-        "name": "Brown University",
-        "short": "Brown",
-        "count": 10,
-        "pct": 4.57,
-        "fte": 9423,
-        "rate": 10.61,
-        "isMainCampus": true
+        "count": 10
       }
     ],
     "dating_violence": [
       {
         "rank": 1,
-        "rankByRate": 2,
         "unitid": 166027001,
-        "name": "Harvard University",
-        "short": "Harvard",
-        "count": 26,
-        "pct": 29.21,
-        "fte": 24077,
-        "rate": 10.8,
-        "isMainCampus": true
+        "count": 26
       },
       {
         "rank": 2,
-        "rankByRate": 4,
         "unitid": 215062001,
-        "name": "University of Pennsylvania",
-        "short": "Penn",
-        "count": 17,
-        "pct": 19.1,
-        "fte": 22713,
-        "rate": 7.48,
-        "isMainCampus": true
+        "count": 17
       },
       {
         "rank": 3,
-        "rankByRate": 1,
         "unitid": 130794001,
-        "name": "Yale University",
-        "short": "Yale",
-        "count": 14,
-        "pct": 15.73,
-        "fte": 12386,
-        "rate": 11.3,
-        "isMainCampus": true
+        "count": 14
       },
       {
         "rank": 4,
-        "rankByRate": 6,
         "unitid": 190150001,
-        "name": "Columbia University in the City of New York",
-        "short": "Columbia",
-        "count": 13,
-        "pct": 14.61,
-        "fte": 26320,
-        "rate": 4.94,
-        "isMainCampus": true
+        "count": 13
       },
       {
         "rank": 5,
-        "rankByRate": 5,
         "unitid": 217156001,
-        "name": "Brown University",
-        "short": "Brown",
-        "count": 7,
-        "pct": 7.87,
-        "fte": 9423,
-        "rate": 7.43,
-        "isMainCampus": true
+        "count": 7
       },
       {
         "rank": 6,
-        "rankByRate": 7,
         "unitid": 190415001,
-        "name": "Cornell University",
-        "short": "Cornell",
-        "count": 6,
-        "pct": 6.74,
-        "fte": 22261,
-        "rate": 2.7,
-        "isMainCampus": true
+        "count": 6
       },
       {
         "rank": 7,
-        "rankByRate": 3,
         "unitid": 182670001,
-        "name": "Dartmouth College",
-        "short": "Dartmouth",
-        "count": 5,
-        "pct": 5.62,
-        "fte": 6340,
-        "rate": 7.89,
-        "isMainCampus": true
+        "count": 5
       },
       {
         "rank": 8,
-        "rankByRate": 8,
         "unitid": 186131001,
-        "name": "Princeton University",
-        "short": "Princeton",
-        "count": 1,
-        "pct": 1.12,
-        "fte": 8092,
-        "rate": 1.24,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "domestic_violence": [
       {
         "rank": 1,
-        "rankByRate": 3,
         "unitid": 190415001,
-        "name": "Cornell University",
-        "short": "Cornell",
-        "count": 15,
-        "pct": 25.0,
-        "fte": 22261,
-        "rate": 6.74,
-        "isMainCampus": true
+        "count": 15
       },
       {
         "rank": 2,
-        "rankByRate": 4,
         "unitid": 215062001,
-        "name": "University of Pennsylvania",
-        "short": "Penn",
-        "count": 13,
-        "pct": 21.67,
-        "fte": 22713,
-        "rate": 5.72,
-        "isMainCampus": true
+        "count": 13
       },
       {
         "rank": 3,
-        "rankByRate": 2,
         "unitid": 186131001,
-        "name": "Princeton University",
-        "short": "Princeton",
-        "count": 10,
-        "pct": 16.67,
-        "fte": 8092,
-        "rate": 12.36,
-        "isMainCampus": true
+        "count": 10
       },
       {
         "rank": 4,
-        "rankByRate": 1,
         "unitid": 182670001,
-        "name": "Dartmouth College",
-        "short": "Dartmouth",
-        "count": 8,
-        "pct": 13.33,
-        "fte": 6340,
-        "rate": 12.62,
-        "isMainCampus": true
+        "count": 8
       },
       {
         "rank": 5,
-        "rankByRate": 6,
         "unitid": 190150001,
-        "name": "Columbia University in the City of New York",
-        "short": "Columbia",
-        "count": 7,
-        "pct": 11.67,
-        "fte": 26320,
-        "rate": 2.66,
-        "isMainCampus": true
+        "count": 7
       },
       {
         "rank": 6,
-        "rankByRate": 5,
         "unitid": 130794001,
-        "name": "Yale University",
-        "short": "Yale",
-        "count": 4,
-        "pct": 6.67,
-        "fte": 12386,
-        "rate": 3.23,
-        "isMainCampus": true
+        "count": 4
       },
       {
         "rank": 7,
-        "rankByRate": 8,
         "unitid": 166027001,
-        "name": "Harvard University",
-        "short": "Harvard",
-        "count": 2,
-        "pct": 3.33,
-        "fte": 24077,
-        "rate": 0.83,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 8,
-        "rankByRate": 7,
         "unitid": 217156001,
-        "name": "Brown University",
-        "short": "Brown",
-        "count": 1,
-        "pct": 1.67,
-        "fte": 9423,
-        "rate": 1.06,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "drug_arrest": [
       {
         "rank": 1,
-        "rankByRate": 2,
         "unitid": 130794001,
-        "name": "Yale University",
-        "short": "Yale",
-        "count": 35,
-        "pct": 32.71,
-        "fte": 12386,
-        "rate": 28.26,
-        "isMainCampus": true
+        "count": 35
       },
       {
         "rank": 2,
-        "rankByRate": 1,
         "unitid": 186131001,
-        "name": "Princeton University",
-        "short": "Princeton",
-        "count": 23,
-        "pct": 21.5,
-        "fte": 8092,
-        "rate": 28.42,
-        "isMainCampus": true
+        "count": 23
       },
       {
         "rank": 3,
-        "rankByRate": 4,
         "unitid": 190415001,
-        "name": "Cornell University",
-        "short": "Cornell",
-        "count": 21,
-        "pct": 19.63,
-        "fte": 22261,
-        "rate": 9.43,
-        "isMainCampus": true
+        "count": 21
       },
       {
         "rank": 4,
-        "rankByRate": 5,
         "unitid": 215062001,
-        "name": "University of Pennsylvania",
-        "short": "Penn",
-        "count": 13,
-        "pct": 12.15,
-        "fte": 22713,
-        "rate": 5.72,
-        "isMainCampus": true
+        "count": 13
       },
       {
         "rank": 5,
-        "rankByRate": 3,
         "unitid": 182670001,
-        "name": "Dartmouth College",
-        "short": "Dartmouth",
-        "count": 11,
-        "pct": 10.28,
-        "fte": 6340,
-        "rate": 17.35,
-        "isMainCampus": true
+        "count": 11
       },
       {
         "rank": 6,
-        "rankByRate": 6,
         "unitid": 166027001,
-        "name": "Harvard University",
-        "short": "Harvard",
-        "count": 4,
-        "pct": 3.74,
-        "fte": 24077,
-        "rate": 1.66,
-        "isMainCampus": true
+        "count": 4
       }
     ],
     "drug_discipline": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 190150001,
-        "name": "Columbia University in the City of New York",
-        "short": "Columbia",
-        "count": 139,
-        "pct": 33.57,
-        "fte": 26320,
-        "rate": 52.81,
-        "isMainCampus": true
+        "count": 139
       },
       {
         "rank": 2,
-        "rankByRate": 3,
         "unitid": 215062001,
-        "name": "University of Pennsylvania",
-        "short": "Penn",
-        "count": 90,
-        "pct": 21.74,
-        "fte": 22713,
-        "rate": 39.62,
-        "isMainCampus": true
+        "count": 90
       },
       {
         "rank": 3,
-        "rankByRate": 5,
         "unitid": 190415001,
-        "name": "Cornell University",
-        "short": "Cornell",
-        "count": 75,
-        "pct": 18.12,
-        "fte": 22261,
-        "rate": 33.69,
-        "isMainCampus": true
+        "count": 75
       },
       {
         "rank": 4,
-        "rankByRate": 2,
         "unitid": 186131001,
-        "name": "Princeton University",
-        "short": "Princeton",
-        "count": 39,
-        "pct": 9.42,
-        "fte": 8092,
-        "rate": 48.2,
-        "isMainCampus": true
+        "count": 39
       },
       {
         "rank": 5,
-        "rankByRate": 6,
         "unitid": 217156001,
-        "name": "Brown University",
-        "short": "Brown",
-        "count": 28,
-        "pct": 6.76,
-        "fte": 9423,
-        "rate": 29.71,
-        "isMainCampus": true
+        "count": 28
       },
       {
         "rank": 6,
-        "rankByRate": 4,
         "unitid": 182670001,
-        "name": "Dartmouth College",
-        "short": "Dartmouth",
-        "count": 24,
-        "pct": 5.8,
-        "fte": 6340,
-        "rate": 37.85,
-        "isMainCampus": true
+        "count": 24
       },
       {
         "rank": 7,
-        "rankByRate": 8,
         "unitid": 166027001,
-        "name": "Harvard University",
-        "short": "Harvard",
-        "count": 12,
-        "pct": 2.9,
-        "fte": 24077,
-        "rate": 4.98,
-        "isMainCampus": true
+        "count": 12
       },
       {
         "rank": 8,
-        "rankByRate": 7,
         "unitid": 130794001,
-        "name": "Yale University",
-        "short": "Yale",
-        "count": 7,
-        "pct": 1.69,
-        "fte": 12386,
-        "rate": 5.65,
-        "isMainCampus": true
+        "count": 7
       }
     ],
     "fondling": [
       {
         "rank": 1,
-        "rankByRate": 3,
         "unitid": 166027001,
-        "name": "Harvard University",
-        "short": "Harvard",
-        "count": 16,
-        "pct": 25.0,
-        "fte": 24077,
-        "rate": 6.65,
-        "isMainCampus": true
+        "count": 16
       },
       {
         "rank": 2,
-        "rankByRate": 1,
         "unitid": 182670001,
-        "name": "Dartmouth College",
-        "short": "Dartmouth",
-        "count": 8,
-        "pct": 12.5,
-        "fte": 6340,
-        "rate": 12.62,
-        "isMainCampus": true
+        "count": 8
       },
       {
-        "rank": 3,
-        "rankByRate": 6,
+        "rank": 2,
         "unitid": 215062001,
-        "name": "University of Pennsylvania",
-        "short": "Penn",
-        "count": 8,
-        "pct": 12.5,
-        "fte": 22713,
-        "rate": 3.52,
-        "isMainCampus": true
+        "count": 8
       },
       {
-        "rank": 4,
-        "rankByRate": 4,
+        "rank": 2,
         "unitid": 130794001,
-        "name": "Yale University",
-        "short": "Yale",
-        "count": 8,
-        "pct": 12.5,
-        "fte": 12386,
-        "rate": 6.46,
-        "isMainCampus": true
+        "count": 8
       },
       {
         "rank": 5,
-        "rankByRate": 2,
         "unitid": 217156001,
-        "name": "Brown University",
-        "short": "Brown",
-        "count": 7,
-        "pct": 10.94,
-        "fte": 9423,
-        "rate": 7.43,
-        "isMainCampus": true
+        "count": 7
       },
       {
-        "rank": 6,
-        "rankByRate": 7,
+        "rank": 5,
         "unitid": 190150001,
-        "name": "Columbia University in the City of New York",
-        "short": "Columbia",
-        "count": 7,
-        "pct": 10.94,
-        "fte": 26320,
-        "rate": 2.66,
-        "isMainCampus": true
+        "count": 7
       },
       {
         "rank": 7,
-        "rankByRate": 8,
         "unitid": 190415001,
-        "name": "Cornell University",
-        "short": "Cornell",
-        "count": 5,
-        "pct": 7.81,
-        "fte": 22261,
-        "rate": 2.25,
-        "isMainCampus": true
+        "count": 5
       },
       {
-        "rank": 8,
-        "rankByRate": 5,
+        "rank": 7,
         "unitid": 186131001,
-        "name": "Princeton University",
-        "short": "Princeton",
-        "count": 5,
-        "pct": 7.81,
-        "fte": 8092,
-        "rate": 6.18,
-        "isMainCampus": true
+        "count": 5
       }
     ],
     "liquor_arrest": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 182670001,
-        "name": "Dartmouth College",
-        "short": "Dartmouth",
-        "count": 40,
-        "pct": 45.45,
-        "fte": 6340,
-        "rate": 63.09,
-        "isMainCampus": true
+        "count": 40
       },
       {
         "rank": 2,
-        "rankByRate": 2,
         "unitid": 190415001,
-        "name": "Cornell University",
-        "short": "Cornell",
-        "count": 22,
-        "pct": 25.0,
-        "fte": 22261,
-        "rate": 9.88,
-        "isMainCampus": true
+        "count": 22
       },
       {
         "rank": 3,
-        "rankByRate": 3,
         "unitid": 215062001,
-        "name": "University of Pennsylvania",
-        "short": "Penn",
-        "count": 17,
-        "pct": 19.32,
-        "fte": 22713,
-        "rate": 7.48,
-        "isMainCampus": true
+        "count": 17
       },
       {
         "rank": 4,
-        "rankByRate": 4,
         "unitid": 130794001,
-        "name": "Yale University",
-        "short": "Yale",
-        "count": 6,
-        "pct": 6.82,
-        "fte": 12386,
-        "rate": 4.84,
-        "isMainCampus": true
+        "count": 6
       },
       {
         "rank": 5,
-        "rankByRate": 5,
         "unitid": 186131001,
-        "name": "Princeton University",
-        "short": "Princeton",
-        "count": 2,
-        "pct": 2.27,
-        "fte": 8092,
-        "rate": 2.47,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 6,
-        "rankByRate": 6,
         "unitid": 166027001,
-        "name": "Harvard University",
-        "short": "Harvard",
-        "count": 1,
-        "pct": 1.14,
-        "fte": 24077,
-        "rate": 0.42,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "liquor_discipline": [
       {
         "rank": 1,
-        "rankByRate": 2,
         "unitid": 215062001,
-        "name": "University of Pennsylvania",
-        "short": "Penn",
-        "count": 380,
-        "pct": 30.94,
-        "fte": 22713,
-        "rate": 167.31,
-        "isMainCampus": true
+        "count": 380
       },
       {
         "rank": 2,
-        "rankByRate": 1,
         "unitid": 182670001,
-        "name": "Dartmouth College",
-        "short": "Dartmouth",
-        "count": 293,
-        "pct": 23.86,
-        "fte": 6340,
-        "rate": 462.15,
-        "isMainCampus": true
+        "count": 293
       },
       {
         "rank": 3,
-        "rankByRate": 5,
         "unitid": 190415001,
-        "name": "Cornell University",
-        "short": "Cornell",
-        "count": 219,
-        "pct": 17.83,
-        "fte": 22261,
-        "rate": 98.38,
-        "isMainCampus": true
+        "count": 219
       },
       {
         "rank": 4,
-        "rankByRate": 3,
         "unitid": 217156001,
-        "name": "Brown University",
-        "short": "Brown",
-        "count": 142,
-        "pct": 11.56,
-        "fte": 9423,
-        "rate": 150.7,
-        "isMainCampus": true
+        "count": 142
       },
       {
         "rank": 5,
-        "rankByRate": 4,
         "unitid": 186131001,
-        "name": "Princeton University",
-        "short": "Princeton",
-        "count": 103,
-        "pct": 8.39,
-        "fte": 8092,
-        "rate": 127.29,
-        "isMainCampus": true
+        "count": 103
       },
       {
         "rank": 6,
-        "rankByRate": 6,
         "unitid": 190150001,
-        "name": "Columbia University in the City of New York",
-        "short": "Columbia",
-        "count": 70,
-        "pct": 5.7,
-        "fte": 26320,
-        "rate": 26.6,
-        "isMainCampus": true
+        "count": 70
       },
       {
         "rank": 7,
-        "rankByRate": 7,
         "unitid": 166027001,
-        "name": "Harvard University",
-        "short": "Harvard",
-        "count": 21,
-        "pct": 1.71,
-        "fte": 24077,
-        "rate": 8.72,
-        "isMainCampus": true
+        "count": 21
       }
     ],
     "motor_vehicle_theft": [
       {
         "rank": 1,
-        "rankByRate": 3,
         "unitid": 215062001,
-        "name": "University of Pennsylvania",
-        "short": "Penn",
-        "count": 20,
-        "pct": 32.79,
-        "fte": 22713,
-        "rate": 8.81,
-        "isMainCampus": true
+        "count": 20
       },
       {
         "rank": 2,
-        "rankByRate": 1,
         "unitid": 130794001,
-        "name": "Yale University",
-        "short": "Yale",
-        "count": 17,
-        "pct": 27.87,
-        "fte": 12386,
-        "rate": 13.73,
-        "isMainCampus": true
+        "count": 17
       },
       {
         "rank": 3,
-        "rankByRate": 2,
         "unitid": 186131001,
-        "name": "Princeton University",
-        "short": "Princeton",
-        "count": 9,
-        "pct": 14.75,
-        "fte": 8092,
-        "rate": 11.12,
-        "isMainCampus": true
+        "count": 9
       },
       {
         "rank": 4,
-        "rankByRate": 6,
         "unitid": 166027001,
-        "name": "Harvard University",
-        "short": "Harvard",
-        "count": 7,
-        "pct": 11.48,
-        "fte": 24077,
-        "rate": 2.91,
-        "isMainCampus": true
+        "count": 7
       },
       {
         "rank": 5,
-        "rankByRate": 4,
         "unitid": 217156001,
-        "name": "Brown University",
-        "short": "Brown",
-        "count": 3,
-        "pct": 4.92,
-        "fte": 9423,
-        "rate": 3.18,
-        "isMainCampus": true
+        "count": 3
       },
       {
-        "rank": 6,
-        "rankByRate": 7,
+        "rank": 5,
         "unitid": 190150001,
-        "name": "Columbia University in the City of New York",
-        "short": "Columbia",
-        "count": 3,
-        "pct": 4.92,
-        "fte": 26320,
-        "rate": 1.14,
-        "isMainCampus": true
+        "count": 3
       },
       {
         "rank": 7,
-        "rankByRate": 5,
         "unitid": 182670001,
-        "name": "Dartmouth College",
-        "short": "Dartmouth",
-        "count": 2,
-        "pct": 3.28,
-        "fte": 6340,
-        "rate": 3.15,
-        "isMainCampus": true
+        "count": 2
       }
     ],
     "murder": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 190415001,
-        "name": "Cornell University",
-        "short": "Cornell",
-        "count": 1,
-        "pct": 100.0,
-        "fte": 22261,
-        "rate": 0.45,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "rape": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 217156001,
-        "name": "Brown University",
-        "short": "Brown",
-        "count": 41,
-        "pct": 22.28,
-        "fte": 9423,
-        "rate": 43.51,
-        "isMainCampus": true
+        "count": 41
       },
       {
         "rank": 2,
-        "rankByRate": 5,
         "unitid": 166027001,
-        "name": "Harvard University",
-        "short": "Harvard",
-        "count": 28,
-        "pct": 15.22,
-        "fte": 24077,
-        "rate": 11.63,
-        "isMainCampus": true
+        "count": 28
       },
       {
         "rank": 3,
-        "rankByRate": 2,
         "unitid": 182670001,
-        "name": "Dartmouth College",
-        "short": "Dartmouth",
-        "count": 25,
-        "pct": 13.59,
-        "fte": 6340,
-        "rate": 39.43,
-        "isMainCampus": true
+        "count": 25
       },
       {
-        "rank": 4,
-        "rankByRate": 3,
+        "rank": 3,
         "unitid": 130794001,
-        "name": "Yale University",
-        "short": "Yale",
-        "count": 25,
-        "pct": 13.59,
-        "fte": 12386,
-        "rate": 20.18,
-        "isMainCampus": true
+        "count": 25
       },
       {
         "rank": 5,
-        "rankByRate": 6,
         "unitid": 190415001,
-        "name": "Cornell University",
-        "short": "Cornell",
-        "count": 24,
-        "pct": 13.04,
-        "fte": 22261,
-        "rate": 10.78,
-        "isMainCampus": true
+        "count": 24
       },
       {
         "rank": 6,
-        "rankByRate": 7,
         "unitid": 215062001,
-        "name": "University of Pennsylvania",
-        "short": "Penn",
-        "count": 16,
-        "pct": 8.7,
-        "fte": 22713,
-        "rate": 7.04,
-        "isMainCampus": true
+        "count": 16
       },
       {
         "rank": 7,
-        "rankByRate": 4,
         "unitid": 186131001,
-        "name": "Princeton University",
-        "short": "Princeton",
-        "count": 13,
-        "pct": 7.07,
-        "fte": 8092,
-        "rate": 16.07,
-        "isMainCampus": true
+        "count": 13
       },
       {
         "rank": 8,
-        "rankByRate": 8,
         "unitid": 190150001,
-        "name": "Columbia University in the City of New York",
-        "short": "Columbia",
-        "count": 12,
-        "pct": 6.52,
-        "fte": 26320,
-        "rate": 4.56,
-        "isMainCampus": true
+        "count": 12
       }
     ],
     "robbery": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 215062001,
-        "name": "University of Pennsylvania",
-        "short": "Penn",
-        "count": 29,
-        "pct": 40.85,
-        "fte": 22713,
-        "rate": 12.77,
-        "isMainCampus": true
+        "count": 29
       },
       {
         "rank": 2,
-        "rankByRate": 2,
         "unitid": 130794001,
-        "name": "Yale University",
-        "short": "Yale",
-        "count": 15,
-        "pct": 21.13,
-        "fte": 12386,
-        "rate": 12.11,
-        "isMainCampus": true
+        "count": 15
       },
       {
         "rank": 3,
-        "rankByRate": 5,
         "unitid": 166027001,
-        "name": "Harvard University",
-        "short": "Harvard",
-        "count": 10,
-        "pct": 14.08,
-        "fte": 24077,
-        "rate": 4.15,
-        "isMainCampus": true
+        "count": 10
       },
       {
         "rank": 4,
-        "rankByRate": 6,
         "unitid": 190150001,
-        "name": "Columbia University in the City of New York",
-        "short": "Columbia",
-        "count": 6,
-        "pct": 8.45,
-        "fte": 26320,
-        "rate": 2.28,
-        "isMainCampus": true
+        "count": 6
       },
       {
         "rank": 5,
-        "rankByRate": 3,
         "unitid": 186131001,
-        "name": "Princeton University",
-        "short": "Princeton",
-        "count": 5,
-        "pct": 7.04,
-        "fte": 8092,
-        "rate": 6.18,
-        "isMainCampus": true
+        "count": 5
       },
       {
         "rank": 6,
-        "rankByRate": 4,
         "unitid": 217156001,
-        "name": "Brown University",
-        "short": "Brown",
-        "count": 4,
-        "pct": 5.63,
-        "fte": 9423,
-        "rate": 4.24,
-        "isMainCampus": true
+        "count": 4
       },
       {
         "rank": 7,
-        "rankByRate": 7,
         "unitid": 190415001,
-        "name": "Cornell University",
-        "short": "Cornell",
-        "count": 2,
-        "pct": 2.82,
-        "fte": 22261,
-        "rate": 0.9,
-        "isMainCampus": true
+        "count": 2
       }
     ],
     "stalking": [
       {
         "rank": 1,
-        "rankByRate": 5,
         "unitid": 190150001,
-        "name": "Columbia University in the City of New York",
-        "short": "Columbia",
-        "count": 19,
-        "pct": 23.46,
-        "fte": 26320,
-        "rate": 7.22,
-        "isMainCampus": true
+        "count": 19
       },
       {
         "rank": 2,
-        "rankByRate": 4,
         "unitid": 190415001,
-        "name": "Cornell University",
-        "short": "Cornell",
-        "count": 17,
-        "pct": 20.99,
-        "fte": 22261,
-        "rate": 7.64,
-        "isMainCampus": true
+        "count": 17
       },
       {
         "rank": 3,
-        "rankByRate": 1,
         "unitid": 130794001,
-        "name": "Yale University",
-        "short": "Yale",
-        "count": 14,
-        "pct": 17.28,
-        "fte": 12386,
-        "rate": 11.3,
-        "isMainCampus": true
+        "count": 14
       },
       {
         "rank": 4,
-        "rankByRate": 6,
         "unitid": 166027001,
-        "name": "Harvard University",
-        "short": "Harvard",
-        "count": 13,
-        "pct": 16.05,
-        "fte": 24077,
-        "rate": 5.4,
-        "isMainCampus": true
+        "count": 13
       },
       {
         "rank": 5,
-        "rankByRate": 3,
         "unitid": 217156001,
-        "name": "Brown University",
-        "short": "Brown",
-        "count": 8,
-        "pct": 9.88,
-        "fte": 9423,
-        "rate": 8.49,
-        "isMainCampus": true
+        "count": 8
       },
       {
         "rank": 6,
-        "rankByRate": 2,
         "unitid": 182670001,
-        "name": "Dartmouth College",
-        "short": "Dartmouth",
-        "count": 6,
-        "pct": 7.41,
-        "fte": 6340,
-        "rate": 9.46,
-        "isMainCampus": true
+        "count": 6
       },
       {
         "rank": 7,
-        "rankByRate": 7,
         "unitid": 186131001,
-        "name": "Princeton University",
-        "short": "Princeton",
-        "count": 2,
-        "pct": 2.47,
-        "fte": 8092,
-        "rate": 2.47,
-        "isMainCampus": true
+        "count": 2
       },
       {
-        "rank": 8,
-        "rankByRate": 8,
+        "rank": 7,
         "unitid": 215062001,
-        "name": "University of Pennsylvania",
-        "short": "Penn",
-        "count": 2,
-        "pct": 2.47,
-        "fte": 22713,
-        "rate": 0.88,
-        "isMainCampus": true
+        "count": 2
       }
     ],
     "statutory_rape": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 130794001,
-        "name": "Yale University",
-        "short": "Yale",
-        "count": 2,
-        "pct": 100.0,
-        "fte": 12386,
-        "rate": 1.61,
-        "isMainCampus": true
+        "count": 2
       }
     ],
     "weapons_arrest": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 130794001,
-        "name": "Yale University",
-        "short": "Yale",
-        "count": 8,
-        "pct": 57.14,
-        "fte": 12386,
-        "rate": 6.46,
-        "isMainCampus": true
+        "count": 8
       },
       {
         "rank": 2,
-        "rankByRate": 2,
         "unitid": 215062001,
-        "name": "University of Pennsylvania",
-        "short": "Penn",
-        "count": 5,
-        "pct": 35.71,
-        "fte": 22713,
-        "rate": 2.2,
-        "isMainCampus": true
+        "count": 5
       },
       {
         "rank": 3,
-        "rankByRate": 3,
         "unitid": 186131001,
-        "name": "Princeton University",
-        "short": "Princeton",
-        "count": 1,
-        "pct": 7.14,
-        "fte": 8092,
-        "rate": 1.24,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "weapons_discipline": [
       {
         "rank": 1,
-        "rankByRate": 2,
         "unitid": 217156001,
-        "name": "Brown University",
-        "short": "Brown",
-        "count": 2,
-        "pct": 40.0,
-        "fte": 9423,
-        "rate": 2.12,
-        "isMainCampus": true
+        "count": 2
       },
       {
-        "rank": 2,
-        "rankByRate": 1,
+        "rank": 1,
         "unitid": 186131001,
-        "name": "Princeton University",
-        "short": "Princeton",
-        "count": 2,
-        "pct": 40.0,
-        "fte": 8092,
-        "rate": 2.47,
-        "isMainCampus": true
+        "count": 2
       },
       {
         "rank": 3,
-        "rankByRate": 3,
         "unitid": 166027001,
-        "name": "Harvard University",
-        "short": "Harvard",
-        "count": 1,
-        "pct": 20.0,
-        "fte": 24077,
-        "rate": 0.42,
-        "isMainCampus": true
+        "count": 1
       }
     ]
   },
   "totals": {
+    "criminal": 674,
     "all": 2760,
     "aggravated_assault": 62,
     "arson": 10,
@@ -1465,5 +755,857 @@
     "statutory_rape": 2,
     "weapons_arrest": 14,
     "weapons_discipline": 5
+  },
+  "institutions": {
+    "130794": {
+      "name": "Yale University",
+      "unitid": 130794001,
+      "state": "CT",
+      "fte": 12388,
+      "campuses": 2
+    },
+    "166027": {
+      "name": "Harvard University",
+      "unitid": 166027001,
+      "state": "MA",
+      "fte": 24180,
+      "campuses": 7
+    },
+    "182670": {
+      "name": "Dartmouth College",
+      "unitid": 182670001,
+      "state": "NH",
+      "fte": 6341,
+      "campuses": 1
+    },
+    "186131": {
+      "name": "Princeton University",
+      "unitid": 186131001,
+      "state": "NJ",
+      "fte": 8091,
+      "campuses": 2
+    },
+    "190150": {
+      "name": "Columbia University in the City of New York",
+      "unitid": 190150001,
+      "state": "NY",
+      "fte": 26400,
+      "campuses": 4
+    },
+    "190415": {
+      "name": "Cornell University",
+      "unitid": 190415001,
+      "state": "NY",
+      "fte": 22262,
+      "campuses": 2
+    },
+    "215062": {
+      "name": "University of Pennsylvania",
+      "unitid": 215062001,
+      "state": "PA",
+      "fte": 22748,
+      "campuses": 6
+    },
+    "217156": {
+      "name": "Brown University",
+      "unitid": 217156001,
+      "state": "RI",
+      "fte": 9423,
+      "campuses": 1
+    }
+  },
+  "rateRankings": {
+    "criminal": [
+      {
+        "rank": 1,
+        "id": 130794,
+        "count": 113,
+        "rate": 91.22
+      },
+      {
+        "rank": 2,
+        "id": 182670,
+        "count": 57,
+        "rate": 89.89
+      },
+      {
+        "rank": 3,
+        "id": 186131,
+        "count": 69,
+        "rate": 85.28
+      },
+      {
+        "rank": 4,
+        "id": 217156,
+        "count": 67,
+        "rate": 71.1
+      },
+      {
+        "rank": 5,
+        "id": 166027,
+        "count": 169,
+        "rate": 69.89
+      },
+      {
+        "rank": 6,
+        "id": 215062,
+        "count": 105,
+        "rate": 46.16
+      },
+      {
+        "rank": 7,
+        "id": 190415,
+        "count": 62,
+        "rate": 27.85
+      },
+      {
+        "rank": 8,
+        "id": 190150,
+        "count": 49,
+        "rate": 18.56
+      }
+    ],
+    "all": [
+      {
+        "rank": 1,
+        "id": 182670,
+        "count": 444,
+        "rate": 700.21
+      },
+      {
+        "rank": 2,
+        "id": 186131,
+        "count": 252,
+        "rate": 311.46
+      },
+      {
+        "rank": 3,
+        "id": 215062,
+        "count": 643,
+        "rate": 282.66
+      },
+      {
+        "rank": 4,
+        "id": 217156,
+        "count": 255,
+        "rate": 270.61
+      },
+      {
+        "rank": 5,
+        "id": 190415,
+        "count": 437,
+        "rate": 196.3
+      },
+      {
+        "rank": 6,
+        "id": 130794,
+        "count": 201,
+        "rate": 162.25
+      },
+      {
+        "rank": 7,
+        "id": 190150,
+        "count": 308,
+        "rate": 116.67
+      },
+      {
+        "rank": 8,
+        "id": 166027,
+        "count": 251,
+        "rate": 103.8
+      }
+    ],
+    "aggravated_assault": [
+      {
+        "rank": 1,
+        "id": 166027,
+        "count": 24,
+        "rate": 9.93
+      },
+      {
+        "rank": 2,
+        "id": 215062,
+        "count": 18,
+        "rate": 7.91
+      },
+      {
+        "rank": 3,
+        "id": 130794,
+        "count": 7,
+        "rate": 5.65
+      },
+      {
+        "rank": 4,
+        "id": 186131,
+        "count": 4,
+        "rate": 4.94
+      },
+      {
+        "rank": 5,
+        "id": 190415,
+        "count": 7,
+        "rate": 3.14
+      },
+      {
+        "rank": 6,
+        "id": 217156,
+        "count": 2,
+        "rate": 2.12
+      },
+      {
+        "rank": 7,
+        "id": 190150,
+        "count": 1,
+        "rate": 0.38
+      }
+    ],
+    "arson": [
+      {
+        "rank": 1,
+        "id": 182670,
+        "count": 3,
+        "rate": 4.73
+      },
+      {
+        "rank": 2,
+        "id": 190415,
+        "count": 3,
+        "rate": 1.35
+      },
+      {
+        "rank": 3,
+        "id": 215062,
+        "count": 2,
+        "rate": 0.88
+      },
+      {
+        "rank": 4,
+        "id": 130794,
+        "count": 1,
+        "rate": 0.81
+      },
+      {
+        "rank": 5,
+        "id": 190150,
+        "count": 1,
+        "rate": 0.38
+      }
+    ],
+    "burglary": [
+      {
+        "rank": 1,
+        "id": 186131,
+        "count": 33,
+        "rate": 40.79
+      },
+      {
+        "rank": 2,
+        "id": 166027,
+        "count": 75,
+        "rate": 31.02
+      },
+      {
+        "rank": 3,
+        "id": 130794,
+        "count": 38,
+        "rate": 30.67
+      },
+      {
+        "rank": 4,
+        "id": 182670,
+        "count": 19,
+        "rate": 29.96
+      },
+      {
+        "rank": 5,
+        "id": 217156,
+        "count": 10,
+        "rate": 10.61
+      },
+      {
+        "rank": 6,
+        "id": 190415,
+        "count": 20,
+        "rate": 8.98
+      },
+      {
+        "rank": 7,
+        "id": 190150,
+        "count": 18,
+        "rate": 6.82
+      },
+      {
+        "rank": 8,
+        "id": 215062,
+        "count": 11,
+        "rate": 4.84
+      }
+    ],
+    "dating_violence": [
+      {
+        "rank": 1,
+        "id": 130794,
+        "count": 14,
+        "rate": 11.3
+      },
+      {
+        "rank": 2,
+        "id": 166027,
+        "count": 27,
+        "rate": 11.17
+      },
+      {
+        "rank": 3,
+        "id": 182670,
+        "count": 5,
+        "rate": 7.89
+      },
+      {
+        "rank": 4,
+        "id": 215062,
+        "count": 17,
+        "rate": 7.47
+      },
+      {
+        "rank": 5,
+        "id": 217156,
+        "count": 7,
+        "rate": 7.43
+      },
+      {
+        "rank": 6,
+        "id": 190150,
+        "count": 15,
+        "rate": 5.68
+      },
+      {
+        "rank": 7,
+        "id": 190415,
+        "count": 6,
+        "rate": 2.7
+      },
+      {
+        "rank": 8,
+        "id": 186131,
+        "count": 1,
+        "rate": 1.24
+      }
+    ],
+    "domestic_violence": [
+      {
+        "rank": 1,
+        "id": 182670,
+        "count": 8,
+        "rate": 12.62
+      },
+      {
+        "rank": 2,
+        "id": 186131,
+        "count": 10,
+        "rate": 12.36
+      },
+      {
+        "rank": 3,
+        "id": 190415,
+        "count": 15,
+        "rate": 6.74
+      },
+      {
+        "rank": 4,
+        "id": 215062,
+        "count": 13,
+        "rate": 5.71
+      },
+      {
+        "rank": 5,
+        "id": 190150,
+        "count": 10,
+        "rate": 3.79
+      },
+      {
+        "rank": 6,
+        "id": 130794,
+        "count": 4,
+        "rate": 3.23
+      },
+      {
+        "rank": 7,
+        "id": 217156,
+        "count": 1,
+        "rate": 1.06
+      },
+      {
+        "rank": 8,
+        "id": 166027,
+        "count": 2,
+        "rate": 0.83
+      }
+    ],
+    "drug_arrest": [
+      {
+        "rank": 1,
+        "id": 186131,
+        "count": 23,
+        "rate": 28.43
+      },
+      {
+        "rank": 2,
+        "id": 130794,
+        "count": 35,
+        "rate": 28.25
+      },
+      {
+        "rank": 3,
+        "id": 182670,
+        "count": 11,
+        "rate": 17.35
+      },
+      {
+        "rank": 4,
+        "id": 190415,
+        "count": 21,
+        "rate": 9.43
+      },
+      {
+        "rank": 5,
+        "id": 215062,
+        "count": 13,
+        "rate": 5.71
+      },
+      {
+        "rank": 6,
+        "id": 166027,
+        "count": 5,
+        "rate": 2.07
+      }
+    ],
+    "drug_discipline": [
+      {
+        "rank": 1,
+        "id": 190150,
+        "count": 139,
+        "rate": 52.65
+      },
+      {
+        "rank": 2,
+        "id": 186131,
+        "count": 39,
+        "rate": 48.2
+      },
+      {
+        "rank": 3,
+        "id": 215062,
+        "count": 90,
+        "rate": 39.56
+      },
+      {
+        "rank": 4,
+        "id": 182670,
+        "count": 24,
+        "rate": 37.85
+      },
+      {
+        "rank": 5,
+        "id": 190415,
+        "count": 75,
+        "rate": 33.69
+      },
+      {
+        "rank": 6,
+        "id": 217156,
+        "count": 28,
+        "rate": 29.71
+      },
+      {
+        "rank": 7,
+        "id": 130794,
+        "count": 7,
+        "rate": 5.65
+      },
+      {
+        "rank": 8,
+        "id": 166027,
+        "count": 12,
+        "rate": 4.96
+      }
+    ],
+    "fondling": [
+      {
+        "rank": 1,
+        "id": 182670,
+        "count": 8,
+        "rate": 12.62
+      },
+      {
+        "rank": 2,
+        "id": 217156,
+        "count": 7,
+        "rate": 7.43
+      },
+      {
+        "rank": 3,
+        "id": 166027,
+        "count": 17,
+        "rate": 7.03
+      },
+      {
+        "rank": 4,
+        "id": 130794,
+        "count": 8,
+        "rate": 6.46
+      },
+      {
+        "rank": 5,
+        "id": 186131,
+        "count": 5,
+        "rate": 6.18
+      },
+      {
+        "rank": 6,
+        "id": 215062,
+        "count": 8,
+        "rate": 3.52
+      },
+      {
+        "rank": 7,
+        "id": 190150,
+        "count": 8,
+        "rate": 3.03
+      },
+      {
+        "rank": 8,
+        "id": 190415,
+        "count": 5,
+        "rate": 2.25
+      }
+    ],
+    "incest": [],
+    "liquor_arrest": [
+      {
+        "rank": 1,
+        "id": 182670,
+        "count": 40,
+        "rate": 63.08
+      },
+      {
+        "rank": 2,
+        "id": 190415,
+        "count": 22,
+        "rate": 9.88
+      },
+      {
+        "rank": 3,
+        "id": 215062,
+        "count": 17,
+        "rate": 7.47
+      },
+      {
+        "rank": 4,
+        "id": 130794,
+        "count": 6,
+        "rate": 4.84
+      },
+      {
+        "rank": 5,
+        "id": 186131,
+        "count": 2,
+        "rate": 2.47
+      },
+      {
+        "rank": 6,
+        "id": 166027,
+        "count": 1,
+        "rate": 0.41
+      }
+    ],
+    "liquor_discipline": [
+      {
+        "rank": 1,
+        "id": 182670,
+        "count": 293,
+        "rate": 462.07
+      },
+      {
+        "rank": 2,
+        "id": 215062,
+        "count": 380,
+        "rate": 167.05
+      },
+      {
+        "rank": 3,
+        "id": 217156,
+        "count": 142,
+        "rate": 150.7
+      },
+      {
+        "rank": 4,
+        "id": 186131,
+        "count": 103,
+        "rate": 127.3
+      },
+      {
+        "rank": 5,
+        "id": 190415,
+        "count": 219,
+        "rate": 98.37
+      },
+      {
+        "rank": 6,
+        "id": 190150,
+        "count": 70,
+        "rate": 26.52
+      },
+      {
+        "rank": 7,
+        "id": 166027,
+        "count": 21,
+        "rate": 8.68
+      }
+    ],
+    "motor_vehicle_theft": [
+      {
+        "rank": 1,
+        "id": 130794,
+        "count": 17,
+        "rate": 13.72
+      },
+      {
+        "rank": 2,
+        "id": 186131,
+        "count": 9,
+        "rate": 11.12
+      },
+      {
+        "rank": 3,
+        "id": 215062,
+        "count": 21,
+        "rate": 9.23
+      },
+      {
+        "rank": 4,
+        "id": 166027,
+        "count": 10,
+        "rate": 4.14
+      },
+      {
+        "rank": 5,
+        "id": 217156,
+        "count": 3,
+        "rate": 3.18
+      },
+      {
+        "rank": 6,
+        "id": 182670,
+        "count": 2,
+        "rate": 3.15
+      },
+      {
+        "rank": 7,
+        "id": 190150,
+        "count": 3,
+        "rate": 1.14
+      }
+    ],
+    "murder": [
+      {
+        "rank": 1,
+        "id": 190415,
+        "count": 1,
+        "rate": 0.45
+      }
+    ],
+    "negligent_manslaughter": [],
+    "rape": [
+      {
+        "rank": 1,
+        "id": 217156,
+        "count": 41,
+        "rate": 43.51
+      },
+      {
+        "rank": 2,
+        "id": 182670,
+        "count": 25,
+        "rate": 39.43
+      },
+      {
+        "rank": 3,
+        "id": 130794,
+        "count": 25,
+        "rate": 20.18
+      },
+      {
+        "rank": 4,
+        "id": 186131,
+        "count": 13,
+        "rate": 16.07
+      },
+      {
+        "rank": 5,
+        "id": 166027,
+        "count": 29,
+        "rate": 11.99
+      },
+      {
+        "rank": 6,
+        "id": 190415,
+        "count": 24,
+        "rate": 10.78
+      },
+      {
+        "rank": 7,
+        "id": 215062,
+        "count": 16,
+        "rate": 7.03
+      },
+      {
+        "rank": 8,
+        "id": 190150,
+        "count": 12,
+        "rate": 4.55
+      }
+    ],
+    "robbery": [
+      {
+        "rank": 1,
+        "id": 215062,
+        "count": 29,
+        "rate": 12.75
+      },
+      {
+        "rank": 2,
+        "id": 130794,
+        "count": 15,
+        "rate": 12.11
+      },
+      {
+        "rank": 3,
+        "id": 186131,
+        "count": 5,
+        "rate": 6.18
+      },
+      {
+        "rank": 4,
+        "id": 166027,
+        "count": 14,
+        "rate": 5.79
+      },
+      {
+        "rank": 5,
+        "id": 217156,
+        "count": 4,
+        "rate": 4.24
+      },
+      {
+        "rank": 6,
+        "id": 190150,
+        "count": 6,
+        "rate": 2.27
+      },
+      {
+        "rank": 7,
+        "id": 190415,
+        "count": 2,
+        "rate": 0.9
+      }
+    ],
+    "stalking": [
+      {
+        "rank": 1,
+        "id": 130794,
+        "count": 14,
+        "rate": 11.3
+      },
+      {
+        "rank": 2,
+        "id": 190150,
+        "count": 25,
+        "rate": 9.47
+      },
+      {
+        "rank": 3,
+        "id": 182670,
+        "count": 6,
+        "rate": 9.46
+      },
+      {
+        "rank": 4,
+        "id": 217156,
+        "count": 8,
+        "rate": 8.49
+      },
+      {
+        "rank": 5,
+        "id": 190415,
+        "count": 17,
+        "rate": 7.64
+      },
+      {
+        "rank": 6,
+        "id": 166027,
+        "count": 13,
+        "rate": 5.38
+      },
+      {
+        "rank": 7,
+        "id": 186131,
+        "count": 2,
+        "rate": 2.47
+      },
+      {
+        "rank": 8,
+        "id": 215062,
+        "count": 2,
+        "rate": 0.88
+      }
+    ],
+    "statutory_rape": [
+      {
+        "rank": 1,
+        "id": 130794,
+        "count": 2,
+        "rate": 1.61
+      }
+    ],
+    "weapons_arrest": [
+      {
+        "rank": 1,
+        "id": 130794,
+        "count": 8,
+        "rate": 6.46
+      },
+      {
+        "rank": 2,
+        "id": 215062,
+        "count": 6,
+        "rate": 2.64
+      },
+      {
+        "rank": 3,
+        "id": 186131,
+        "count": 1,
+        "rate": 1.24
+      }
+    ],
+    "weapons_discipline": [
+      {
+        "rank": 1,
+        "id": 186131,
+        "count": 2,
+        "rate": 2.47
+      },
+      {
+        "rank": 2,
+        "id": 217156,
+        "count": 2,
+        "rate": 2.12
+      },
+      {
+        "rank": 3,
+        "id": 166027,
+        "count": 1,
+        "rate": 0.41
+      }
+    ]
   }
 }

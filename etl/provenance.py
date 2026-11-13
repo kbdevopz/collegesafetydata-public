@@ -60,6 +60,8 @@ from pipeline_lock import (  # noqa: F401
 )
 
 ETL_DIR = Path(__file__).resolve().parent
+# Reference data committed with the code (01c_extract_ipeds_official.ps1 writes it, 02b reads it)
+REFERENCE_DIR = ETL_DIR / "reference"
 
 CRIME_MANIFEST = CURATED_DIR / "facts" / "crime_inputs.json"
 EF_MANIFEST = ipeds_files.EF_BUILD_MANIFEST_PATH
@@ -147,6 +149,16 @@ def text_sha256(path: Path) -> str:
 
 
 site_file_sha256 = text_sha256  # site files are JSON text
+
+
+def reference_name(path: Path) -> str:
+    """A reference file's name in records: its path relative to etl/ (e.g. reference/x.csv)."""
+    return path.relative_to(ETL_DIR).as_posix()
+
+
+def reference_sha256(path: Path) -> str:
+    """Checksum of a reference file, as text (a checkout that converts line endings does not change it)."""
+    return text_sha256(path)
 
 
 # Since Python 3.12 an f-string is several tokens (3.14 adds t-strings); before, one STRING token
@@ -423,12 +435,21 @@ def write_crime_manifest(year_sources: dict[int, list[str]], files: list[Path], 
     })
 
 
-def write_ef_manifest(inputs: dict[int, dict], outputs: list[Path]) -> None:
-    """Called by 02b. `inputs` holds each CSV's hash, taken before it was read."""
+def write_ef_manifest(inputs: dict[int, dict], outputs: list[Path], reference: dict[str, str]) -> None:
+    """
+    Called by 02b. `inputs` holds each CSV's hash, `reference` each reference
+    file's (reference_sha256, by reference_name), both taken before reading.
+    """
     _check_csv_inputs("02b", inputs)
+    changed = sorted(name for name, sha in reference.items()
+                     if not (ETL_DIR / name).is_file() or reference_sha256(ETL_DIR / name) != sha)
+    if changed:
+        raise RecordError(f"{', '.join(changed)} changed while step 02b ran. No record was written. "
+                          "Run 02b again.")
     _write(EF_MANIFEST, {
         "built_at": _now(),
         "inputs": {str(year): rec for year, rec in sorted(inputs.items())},
+        "reference": dict(sorted(reference.items())),
         "outputs": _outputs(outputs),
         "code": code_fingerprint("02b"),
     })

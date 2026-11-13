@@ -7,16 +7,17 @@
   "ivyLeague": false,
   "isMainCampus": false,
   "campusType": "Branch Campus",
-  "fte": 442,
+  "fte": 81,
   "fteByYear": {
-    "2015": 1160,
-    "2016": 442
+    "2015": 1156,
+    "2016": 440,
+    "2017": 81
   },
   "summary": {
-    "latestYear": 2016,
-    "totalIncidents": 3,
-    "topOffense": "Fondling",
-    "topOffenseCount": 2
+    "latestYear": 2017,
+    "totalIncidents": 0,
+    "topOffense": null,
+    "topOffenseCount": 0
   },
   "yearlyTotals": [
     {
@@ -26,6 +27,10 @@
     {
       "year": 2016,
       "total": 3
+    },
+    {
+      "year": 2017,
+      "total": 0
     }
   ],
   "trends": [
@@ -48,24 +53,42 @@
       "count": 2
     }
   ],
-  "breakdownByOffense": [
-    {
-      "offense": "Fondling",
-      "count": 2
-    },
-    {
-      "offense": "Aggravated Assault",
-      "count": 1
-    }
+  "breakdownByOffense": [],
+  "breakdownByGeo": [],
+  "notReported": [
+    2018,
+    2019,
+    2020,
+    2021,
+    2022,
+    2023,
+    2024
   ],
-  "breakdownByGeo": [
-    {
-      "geo": "Public property",
-      "count": 2
-    },
-    {
-      "geo": "On-campus",
-      "count": 1
+  "institution": {
+    "id": 189459,
+    "byYear": {
+      "2015": {
+        "campuses": 2,
+        "online": 28,
+        "rateRanked": true
+      },
+      "2016": {
+        "campuses": 2,
+        "online": 28,
+        "rateRanked": false,
+        "counts": {
+          "criminal": 4,
+          "all": 4,
+          "aggravated_assault": 1,
+          "fondling": 2,
+          "motor_vehicle_theft": 1
+        }
+      },
+      "2017": {
+        "campuses": 1,
+        "online": 41,
+        "rateRanked": false
+      }
     }
-  ]
+  }
 }

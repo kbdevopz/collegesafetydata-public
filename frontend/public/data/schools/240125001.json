@@ -7,22 +7,24 @@
   "ivyLeague": false,
   "isMainCampus": true,
   "campusType": "Main Campus",
-  "fte": 3775,
+  "fte": 3922,
   "fteByYear": {
-    "2015": 4201,
-    "2016": 4186,
-    "2017": 4039,
-    "2018": 4134,
-    "2019": 3949,
-    "2020": 3794,
+    "2015": 3777,
+    "2016": 3759,
+    "2017": 3623,
+    "2018": 3698,
+    "2019": 3549,
+    "2020": 3435,
+    "2021": 3468,
     "2022": 3498,
-    "2023": 3775
+    "2023": 3775,
+    "2024": 3922
   },
   "summary": {
-    "latestYear": 2023,
-    "totalIncidents": 2,
-    "topOffense": "Drug Arrest",
-    "topOffenseCount": 1
+    "latestYear": 2024,
+    "totalIncidents": 0,
+    "topOffense": null,
+    "topOffenseCount": 0
   },
   "yearlyTotals": [
     {
@@ -50,12 +52,20 @@
       "total": 3
     },
     {
+      "year": 2021,
+      "total": 0
+    },
+    {
       "year": 2022,
       "total": 1
     },
     {
       "year": 2023,
       "total": 2
+    },
+    {
+      "year": 2024,
+      "total": 0
     }
   ],
   "trends": [
@@ -192,20 +202,88 @@
       "count": 1
     }
   ],
-  "breakdownByOffense": [
-    {
-      "offense": "Drug Arrest",
-      "count": 1
-    },
-    {
-      "offense": "Liquor Arrest",
-      "count": 1
+  "breakdownByOffense": [],
+  "breakdownByGeo": [],
+  "institution": {
+    "id": 240125,
+    "byYear": {
+      "2015": {
+        "campuses": 3,
+        "online": 2,
+        "rateRanked": true,
+        "counts": {
+          "criminal": 1,
+          "all": 17,
+          "burglary": 1,
+          "domestic_violence": 2,
+          "drug_arrest": 2,
+          "drug_discipline": 1,
+          "liquor_arrest": 1,
+          "liquor_discipline": 4,
+          "stalking": 4,
+          "weapons_arrest": 1,
+          "weapons_discipline": 1
+        }
+      },
+      "2016": {
+        "campuses": 3,
+        "online": 2,
+        "rateRanked": true,
+        "counts": {
+          "criminal": 1,
+          "all": 3,
+          "liquor_arrest": 1,
+          "rape": 1,
+          "stalking": 1
+        }
+      },
+      "2017": {
+        "campuses": 3,
+        "online": 1,
+        "rateRanked": true
+      },
+      "2018": {
+        "campuses": 3,
+        "online": 2,
+        "rateRanked": true
+      },
+      "2019": {
+        "campuses": 2,
+        "online": 2,
+        "rateRanked": true
+      },
+      "2020": {
+        "campuses": 2,
+        "online": 2,
+        "rateRanked": true,
+        "onlineYear": 2019
+      },
+      "2021": {
+        "campuses": 2,
+        "online": 2,
+        "rateRanked": true,
+        "onlineYear": 2019,
+        "counts": {
+          "criminal": 1,
+          "all": 1,
+          "burglary": 1
+        }
+      },
+      "2022": {
+        "campuses": 2,
+        "online": 5,
+        "rateRanked": true
+      },
+      "2023": {
+        "campuses": 2,
+        "online": 6,
+        "rateRanked": true
+      },
+      "2024": {
+        "campuses": 2,
+        "online": 6,
+        "rateRanked": true
+      }
     }
-  ],
-  "breakdownByGeo": [
-    {
-      "geo": "On-campus",
-      "count": 2
-    }
-  ]
+  }
 }

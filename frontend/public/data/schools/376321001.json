@@ -7,16 +7,20 @@
   "ivyLeague": false,
   "isMainCampus": true,
   "campusType": "Main Campus",
-  "fte": 1779,
+  "fte": 1204,
   "fteByYear": {
-    "2015": 1012,
-    "2018": 1779
+    "2015": 1010,
+    "2016": 911,
+    "2017": 1946,
+    "2018": 1770,
+    "2019": 1785,
+    "2020": 1204
   },
   "summary": {
-    "latestYear": 2018,
-    "totalIncidents": 1,
-    "topOffense": "Aggravated Assault",
-    "topOffenseCount": 1
+    "latestYear": 2020,
+    "totalIncidents": 0,
+    "topOffense": null,
+    "topOffenseCount": 0
   },
   "yearlyTotals": [
     {
@@ -24,8 +28,24 @@
       "total": 2
     },
     {
+      "year": 2016,
+      "total": 0
+    },
+    {
+      "year": 2017,
+      "total": 0
+    },
+    {
       "year": 2018,
       "total": 1
+    },
+    {
+      "year": 2019,
+      "total": 0
+    },
+    {
+      "year": 2020,
+      "total": 0
     }
   ],
   "trends": [
@@ -48,16 +68,72 @@
       "count": 1
     }
   ],
-  "breakdownByOffense": [
-    {
-      "offense": "Aggravated Assault",
-      "count": 1
-    }
+  "breakdownByOffense": [],
+  "breakdownByGeo": [],
+  "notReported": [
+    2021,
+    2022,
+    2023,
+    2024
   ],
-  "breakdownByGeo": [
-    {
-      "geo": "Public property",
-      "count": 1
+  "institution": {
+    "id": 376321,
+    "byYear": {
+      "2015": {
+        "campuses": 2,
+        "online": 0,
+        "rateRanked": true,
+        "counts": {
+          "criminal": 3,
+          "all": 5,
+          "burglary": 1,
+          "domestic_violence": 1,
+          "motor_vehicle_theft": 1,
+          "robbery": 1,
+          "stalking": 1
+        }
+      },
+      "2016": {
+        "campuses": 2,
+        "online": 0,
+        "rateRanked": false,
+        "counts": {
+          "all": 1,
+          "stalking": 1
+        }
+      },
+      "2017": {
+        "campuses": 2,
+        "online": 0,
+        "rateRanked": true,
+        "counts": {
+          "criminal": 1,
+          "all": 1,
+          "motor_vehicle_theft": 1
+        }
+      },
+      "2018": {
+        "campuses": 3,
+        "online": 0,
+        "rateRanked": true,
+        "counts": {
+          "criminal": 1,
+          "all": 2,
+          "aggravated_assault": 1,
+          "stalking": 1
+        }
+      },
+      "2019": {
+        "campuses": 3,
+        "online": 1,
+        "rateRanked": true
+      },
+      "2020": {
+        "campuses": 3,
+        "online": 1,
+        "rateRanked": true,
+        "onlineYear": 2019
+      }
     }
-  ]
+  }
 }

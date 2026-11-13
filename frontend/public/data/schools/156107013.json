@@ -7,20 +7,30 @@
   "ivyLeague": false,
   "isMainCampus": false,
   "campusType": "Branch Campus",
-  "fte": 2700,
+  "fte": 3356,
   "fteByYear": {
-    "2022": 2700
+    "2022": 2700,
+    "2023": 3052,
+    "2024": 3356
   },
   "summary": {
-    "latestYear": 2022,
-    "totalIncidents": 3,
-    "topOffense": "Rape",
-    "topOffenseCount": 2
+    "latestYear": 2024,
+    "totalIncidents": 0,
+    "topOffense": null,
+    "topOffenseCount": 0
   },
   "yearlyTotals": [
     {
       "year": 2022,
       "total": 3
+    },
+    {
+      "year": 2023,
+      "total": 0
+    },
+    {
+      "year": 2024,
+      "total": 0
     }
   ],
   "trends": [
@@ -37,24 +47,47 @@
       "count": 2
     }
   ],
-  "breakdownByOffense": [
-    {
-      "offense": "Rape",
-      "count": 2
-    },
-    {
-      "offense": "Motor Vehicle Theft",
-      "count": 1
-    }
+  "breakdownByOffense": [],
+  "breakdownByGeo": [],
+  "notReported": [
+    2015,
+    2016,
+    2017,
+    2018,
+    2019,
+    2020,
+    2021
   ],
-  "breakdownByGeo": [
-    {
-      "geo": "Public property",
-      "count": 2
-    },
-    {
-      "geo": "On-campus",
-      "count": 1
+  "institution": {
+    "id": 156107,
+    "byYear": {
+      "2022": {
+        "campuses": 7,
+        "online": 13,
+        "rateRanked": true
+      },
+      "2023": {
+        "campuses": 5,
+        "online": 14,
+        "rateRanked": true,
+        "counts": {
+          "criminal": 3,
+          "all": 3,
+          "motor_vehicle_theft": 3
+        }
+      },
+      "2024": {
+        "campuses": 5,
+        "online": 12,
+        "rateRanked": true,
+        "counts": {
+          "criminal": 1,
+          "all": 3,
+          "aggravated_assault": 1,
+          "domestic_violence": 1,
+          "drug_arrest": 1
+        }
+      }
     }
-  ]
+  }
 }

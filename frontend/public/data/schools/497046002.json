@@ -9,6 +9,8 @@
   "campusType": "Branch Campus",
   "fte": 2823,
   "fteByYear": {
+    "2021": 2006,
+    "2022": 2323,
     "2023": 2477,
     "2024": 2823
   },
@@ -19,6 +21,14 @@
     "topOffenseCount": 1
   },
   "yearlyTotals": [
+    {
+      "year": 2021,
+      "total": 0
+    },
+    {
+      "year": 2022,
+      "total": 0
+    },
     {
       "year": 2023,
       "total": 1
@@ -63,5 +73,51 @@
       "geo": "On-campus",
       "count": 2
     }
-  ]
+  ],
+  "notReported": [
+    2015,
+    2016,
+    2017,
+    2018,
+    2019,
+    2020
+  ],
+  "institution": {
+    "id": 497046,
+    "byYear": {
+      "2021": {
+        "campuses": 2,
+        "online": 63,
+        "rateRanked": false,
+        "onlineYear": 2021
+      },
+      "2022": {
+        "campuses": 2,
+        "online": 55,
+        "rateRanked": false
+      },
+      "2023": {
+        "campuses": 2,
+        "online": 49,
+        "rateRanked": true,
+        "counts": {
+          "criminal": 5,
+          "all": 5,
+          "burglary": 5
+        }
+      },
+      "2024": {
+        "campuses": 2,
+        "online": 50,
+        "rateRanked": false,
+        "counts": {
+          "criminal": 10,
+          "all": 11,
+          "aggravated_assault": 9,
+          "burglary": 1,
+          "weapons_arrest": 1
+        }
+      }
+    }
+  }
 }

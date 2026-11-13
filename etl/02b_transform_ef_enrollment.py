@@ -1,37 +1,34 @@
 """
-Transform IPEDS EF (Fall Enrollment) files to calculate FTE for 2015-2020.
+Fall enrollment for 2015-2020: NCES's official FTE, and the share of students
+enrolled exclusively in distance education.
 
-FTE Calculation uses official IPEDS methodology:
-    FTE = FT_Undergrad + FT_Graduate +
-          (PT_Undergrad x 0.403543) +
-          (PT_Graduate x 0.361702)
+NCES publishes its own full-time-equivalent enrollment (FTE) for every fall,
+but for falls before 2021 only inside the final IPEDS Access databases
+(table DRVEF<year>). 01c_extract_ipeds_official.ps1 reads FTE and PCTDEEXC
+(percent of students enrolled exclusively in distance education) from them
+into etl/reference/ipeds_official_fte.csv, which is committed, so this step
+needs neither Access nor those 430 MB of zips. The sources file next to it
+(ipeds_official_sources.json) records each zip's URL, size and SHA-256.
 
-These factors are derived from NCES IPEDS survey methodology for calculating
-FTE from headcount enrollment by student level. The factors represent the
-average course load of part-time students relative to full-time students.
+From 2021 on, 02a_transform_enrollment.py reads FTE and PCTDEEXC from the
+DRVEF CSVs, which NCES publishes on their own.
 
-EFALEVEL codes used:
-    22 = Full-time undergraduate
-    32 = Full-time graduate (including professional)
-    42 = Part-time undergraduate
-    52 = Part-time graduate (including professional)
-
-For 2021 onward, we use DRVEF files which contain pre-calculated FTE values
-directly from IPEDS. This script processes EF files for years where DRVEF
-is not available (2015-2020).
-
-Each year reads the final revised file (ef{year}a_rv.csv) when NCES has
-published it, otherwise the provisional ef{year}a.csv. The files used are
+The headcounts (enrollment_total, enrollment_ft, enrollment_pt) still come
+from the EF fall enrollment files: EFALEVEL 22 + 32 (full-time undergraduate
+and graduate) and 42 + 52 (part-time). Each year reads the final revised file
+(ef{year}a_rv.csv) when NCES has published it, otherwise the provisional
+ef{year}a.csv. The files used, and the checksums of the reference files, are
 recorded in data/curated/dims/enrollment_ef_inputs.json.
 
-Sources:
-    - IPEDS Survey Components: https://nces.ed.gov/ipeds/survey-components/8
-    - FTE Methodology: https://nces.ed.gov/ipeds/report-your-data/
+Earlier builds estimated 2015-2020 FTE from these headcounts with fixed
+part-time factors (0.403543 and 0.361702). That matched NCES's FTE exactly
+for only about 58% of institutions, so it is no longer used.
 
 Usage:
     python 02b_transform_ef_enrollment.py
 """
 
+import json
 import sys
 import pandas as pd
 from pathlib import Path
@@ -49,180 +46,163 @@ INPUTS: dict[int, dict] = {}
 IPEDS_RAW_DIR = PROJECT_ROOT / "data" / "raw" / "ipeds"
 CURATED_DIR = PROJECT_ROOT / "data" / "curated" / "dims"
 
-# Years to process (years without DRVEF files)
+# Years whose FTE comes from the Access databases (no DRVEF CSV for them)
 EF_YEARS = [2015, 2016, 2017, 2018, 2019, 2020]
 
-# =============================================================================
-# OFFICIAL IPEDS FTE CONVERSION FACTORS
-# =============================================================================
-# These factors convert part-time enrollment to full-time equivalent.
-# They represent the average course load of part-time students relative
-# to full-time students, derived from IPEDS survey methodology.
-#
-# Source: NCES IPEDS methodology for calculating FTE from headcount.
-# The factors are based on the ratio of credit hours taken by part-time
-# students compared to full-time students.
+# The official FTE and PCTDEEXC, and where they came from (01c_extract_ipeds_official.ps1)
+REFERENCE_CSV = provenance.REFERENCE_DIR / "ipeds_official_fte.csv"
+REFERENCE_SOURCES = provenance.REFERENCE_DIR / "ipeds_official_sources.json"
+REFERENCE_COLUMNS = ["year", "unitid", "fte", "pctdeexc"]
+REDO = ("Run etl/01c_extract_ipeds_official.ps1 on Windows to write it again from NCES's Access databases, "
+        "or restore it with git.")
 
-PT_FACTOR_UNDERGRAD = 0.403543  # Part-time undergrad converts at ~40%
-PT_FACTOR_GRADUATE = 0.361702   # Part-time grad converts at ~36%
-
-# =============================================================================
-# EFALEVEL CODES
-# =============================================================================
-# EFALEVEL is the primary classification variable in EF files.
-# It combines attendance status (full-time/part-time) with student level.
-
+# EFALEVEL codes of the EF files (attendance status and student level)
 EFALEVEL_FT_UNDERGRAD = 22  # Full-time undergraduate
 EFALEVEL_FT_GRADUATE = 32   # Full-time graduate (including professional)
 EFALEVEL_PT_UNDERGRAD = 42  # Part-time undergraduate
 EFALEVEL_PT_GRADUATE = 52   # Part-time graduate (including professional)
 
 
-def load_ef_file(year: int) -> pd.DataFrame:
+def load_official() -> pd.DataFrame:
     """
-    Load EF file and calculate FTE using official IPEDS factors.
+    etl/reference/ipeds_official_fte.csv, checked: one row per year of
+    EF_YEARS and institution, the row counts the sources file records, FTE
+    a whole number of at least 0 or blank, PCTDEEXC 0-100 or blank.
+    Returns unitid, year, fte, pctdeexc (both nullable).
+    """
+    for path in (REFERENCE_CSV, REFERENCE_SOURCES):
+        if not path.is_file():
+            raise RuntimeError(f"{path} not found. {REDO}")
+    sources = json.loads(REFERENCE_SOURCES.read_text(encoding="utf-8"))
+    rows_recorded = {int(s["fall_year"]): int(s["rows"]) for s in sources}
+    ref = pd.read_csv(REFERENCE_CSV, dtype=str, keep_default_na=False)
+    if list(ref.columns) != REFERENCE_COLUMNS:
+        raise RuntimeError(f"{REFERENCE_CSV.name} has columns {list(ref.columns)}, not {REFERENCE_COLUMNS}. {REDO}")
 
-    The calculation follows official IPEDS methodology:
-        FTE = FT_Undergrad + FT_Graduate +
-              (PT_Undergrad x 0.403543) +
-              (PT_Graduate x 0.361702)
+    def numbers(column: str) -> pd.Series:
+        text = ref[column].str.strip()
+        values = pd.to_numeric(text.where(text != ""), errors="coerce")
+        bad = ref.loc[(text != "") & (values.isna() | (values % 1 != 0) | (values < 0)), column]
+        if len(bad):
+            raise RuntimeError(f"{REFERENCE_CSV.name}: {column} holds {bad.iloc[0]!r}, which is not a whole "
+                               f"number of at least 0. {REDO}")
+        return values.astype("Int64")
 
-    Args:
-        year: Academic year to process
+    out = pd.DataFrame({name: numbers(name) for name in REFERENCE_COLUMNS})
+    if out["year"].isna().any() or out["unitid"].isna().any():
+        raise RuntimeError(f"{REFERENCE_CSV.name} has a row without a year or UNITID. {REDO}")
+    if out.duplicated(["year", "unitid"]).any():
+        first = out[out.duplicated(["year", "unitid"])].iloc[0]
+        raise RuntimeError(f"{REFERENCE_CSV.name} lists {first['unitid']} twice for {first['year']}. {REDO}")
+    if (out["pctdeexc"] > 100).any():
+        raise RuntimeError(f"{REFERENCE_CSV.name}: a pctdeexc above 100. {REDO}")
+    counts = out.groupby("year").size().to_dict()
+    for year in EF_YEARS:
+        if counts.get(year, 0) != rows_recorded.get(year):
+            raise RuntimeError(f"{REFERENCE_CSV.name} has {counts.get(year, 0):,} rows for {year}; "
+                               f"{REFERENCE_SOURCES.name} says DRVEF{year} has {rows_recorded.get(year)}. {REDO}")
+    extra = sorted(set(counts) - set(EF_YEARS))
+    if extra:
+        raise RuntimeError(f"{REFERENCE_CSV.name} has rows for {extra}, which this step does not build. {REDO}")
+    out = out.astype({"year": "int16", "unitid": "int32"})
+    out["fte"] = out["fte"].astype("Int32")
+    out["pctdeexc"] = out["pctdeexc"].astype("Int16")
+    return out
 
-    Returns:
-        DataFrame with columns: unitid, year, fte, enrollment_total,
-        enrollment_ft, enrollment_pt
+
+def load_ef_headcounts(year: int) -> pd.DataFrame:
+    """
+    Headcounts from the EF file of one fall year: unitid, enrollment_total,
+    enrollment_ft, enrollment_pt (an institution without a level counts 0
+    there).
     """
     # Final revised file (ef{year}a_rv.csv) when NCES has published it
     file_path = ipeds_files.pipeline_csv(year, f"ef{year}a")
-
     if file_path is None:
-        print(f"  Warning: ef{year}a.csv not found")
-        return pd.DataFrame()
+        raise RuntimeError(f"No ef{year}a.csv in {IPEDS_RAW_DIR / str(year)}. Run 01b_download_ipeds.py first.")
 
     INPUTS[year] = ipeds_files.input_record(file_path)
     print(f"  Reading {file_path.name} ({'final' if INPUTS[year]['final'] else 'provisional'})")
+    df = pd.read_csv(file_path, usecols=["UNITID", "EFALEVEL", "EFTOTLT"])
 
-    # Read the EF file
-    df = pd.read_csv(file_path)
-
-    # Extract enrollment by level using EFALEVEL codes
-    ft_ug = df[df['EFALEVEL'] == EFALEVEL_FT_UNDERGRAD][['UNITID', 'EFTOTLT']].copy()
-    ft_ug = ft_ug.rename(columns={'EFTOTLT': 'ft_undergrad'})
-
-    ft_gr = df[df['EFALEVEL'] == EFALEVEL_FT_GRADUATE][['UNITID', 'EFTOTLT']].copy()
-    ft_gr = ft_gr.rename(columns={'EFTOTLT': 'ft_graduate'})
-
-    pt_ug = df[df['EFALEVEL'] == EFALEVEL_PT_UNDERGRAD][['UNITID', 'EFTOTLT']].copy()
-    pt_ug = pt_ug.rename(columns={'EFTOTLT': 'pt_undergrad'})
-
-    pt_gr = df[df['EFALEVEL'] == EFALEVEL_PT_GRADUATE][['UNITID', 'EFTOTLT']].copy()
-    pt_gr = pt_gr.rename(columns={'EFTOTLT': 'pt_graduate'})
-
-    # Merge all components (outer join to include all institutions)
-    merged = ft_ug.merge(ft_gr, on='UNITID', how='outer')
-    merged = merged.merge(pt_ug, on='UNITID', how='outer')
-    merged = merged.merge(pt_gr, on='UNITID', how='outer')
-
-    # Fill missing values with 0 (some schools may not have all student types)
-    for col in ['ft_undergrad', 'ft_graduate', 'pt_undergrad', 'pt_graduate']:
-        merged[col] = merged[col].fillna(0)
-
-    # Calculate FTE using official IPEDS factors
-    merged['fte'] = (
-        merged['ft_undergrad'] +
-        merged['ft_graduate'] +
-        (merged['pt_undergrad'] * PT_FACTOR_UNDERGRAD) +
-        (merged['pt_graduate'] * PT_FACTOR_GRADUATE)
-    )
-
-    # Calculate totals for reporting and backwards compatibility
-    merged['enrollment_ft'] = merged['ft_undergrad'] + merged['ft_graduate']
-    merged['enrollment_pt'] = merged['pt_undergrad'] + merged['pt_graduate']
-    merged['enrollment_total'] = merged['enrollment_ft'] + merged['enrollment_pt']
-
-    # Add year column
-    merged['year'] = year
-
-    # Rename and reorder columns to match DRVEF output schema
-    merged = merged.rename(columns={'UNITID': 'unitid'})
-
-    # Convert to appropriate types
-    merged['unitid'] = merged['unitid'].astype('int32')
-    merged['year'] = merged['year'].astype('int16')
-    merged['fte'] = merged['fte'].round().astype('int32')
-    merged['enrollment_total'] = merged['enrollment_total'].astype('int32')
-    merged['enrollment_ft'] = merged['enrollment_ft'].astype('int32')
-    merged['enrollment_pt'] = merged['enrollment_pt'].astype('int32')
-
-    # Return only the columns needed for the enrollment dimension
-    return merged[['unitid', 'year', 'fte', 'enrollment_total', 'enrollment_ft', 'enrollment_pt']]
+    levels = {"ft_undergrad": EFALEVEL_FT_UNDERGRAD, "ft_graduate": EFALEVEL_FT_GRADUATE,
+              "pt_undergrad": EFALEVEL_PT_UNDERGRAD, "pt_graduate": EFALEVEL_PT_GRADUATE}
+    merged = None
+    for column, level in levels.items():
+        part = df[df["EFALEVEL"] == level][["UNITID", "EFTOTLT"]].rename(columns={"EFTOTLT": column})
+        merged = part if merged is None else merged.merge(part, on="UNITID", how="outer")
+    merged = merged.fillna(0)
+    merged["enrollment_ft"] = merged["ft_undergrad"] + merged["ft_graduate"]
+    merged["enrollment_pt"] = merged["pt_undergrad"] + merged["pt_graduate"]
+    merged["enrollment_total"] = merged["enrollment_ft"] + merged["enrollment_pt"]
+    merged = merged.rename(columns={"UNITID": "unitid"})
+    merged = merged.astype({"unitid": "int32", "enrollment_total": "int32", "enrollment_ft": "int32",
+                            "enrollment_pt": "int32"})
+    return merged[["unitid", "enrollment_total", "enrollment_ft", "enrollment_pt"]]
 
 
 def main():
     ipeds_files.EF_BUILD_MANIFEST_PATH.unlink(missing_ok=True)  # old record; rewritten only if this run completes
     print("=" * 60)
-    print("IPEDS EF Enrollment Transform (Historical FTE)")
+    print("IPEDS fall enrollment 2015-2020 (NCES's official FTE)")
     print("=" * 60)
-    print(f"Years: {min(EF_YEARS)}-{max(EF_YEARS)}")
-    print()
-    print("FTE Calculation (Official IPEDS Methodology):")
-    print(f"  FTE = FT_Undergrad + FT_Graduate +")
-    print(f"        (PT_Undergrad x {PT_FACTOR_UNDERGRAD}) +")
-    print(f"        (PT_Graduate x {PT_FACTOR_GRADUATE})")
 
-    # Load all EF files
+    # The reference files' checksums, taken before they are read
+    reference = {provenance.reference_name(p): provenance.reference_sha256(p)
+                 for p in (REFERENCE_CSV, REFERENCE_SOURCES) if p.is_file()}
+    official = load_official()
+    print(f"Official FTE and PCTDEEXC: {REFERENCE_CSV.name} ({len(official):,} rows)")
+
     all_data = []
-
     for year in EF_YEARS:
         print(f"\n{year}:")
-        df = load_ef_file(year)
-        if len(df) > 0:
-            print(f"  Loaded {len(df):,} institutions")
-            print(f"  FTE range: {df['fte'].min():,} - {df['fte'].max():,}")
-            all_data.append(df)
-        else:
-            print(f"  No data")
+        heads = load_ef_headcounts(year)
+        drvef = official[official["year"] == year]
+        no_fte = drvef[drvef["fte"].isna()]
+        with_fte = drvef[drvef["fte"].notna()]
+        merged = with_fte.merge(heads, on="unitid", how="left", indicator=True)
+        no_heads = int((merged["_merge"] == "left_only").sum())
+        not_in_drvef = int((~heads["unitid"].isin(drvef["unitid"])).sum())
+        merged = merged.drop(columns="_merge")
+        for column in ("enrollment_total", "enrollment_ft", "enrollment_pt"):
+            merged[column] = merged[column].fillna(0).astype("int32")
+        print(f"  DRVEF{year}: {len(drvef):,} institutions, {len(with_fte):,} with an FTE "
+              f"(range {int(with_fte['fte'].min()):,} - {int(with_fte['fte'].max()):,})")
+        if len(no_fte):
+            print(f"  Left out, no rate that year: {len(no_fte):,} institutions whose FTE NCES left blank "
+                  f"({', '.join(str(u) for u in no_fte['unitid'].head(5))}{', ...' if len(no_fte) > 5 else ''})")
+        if no_heads:
+            print(f"  {no_heads:,} institutions with an FTE are not in the EF file; their headcounts are 0")
+        if not_in_drvef:
+            print(f"  {not_in_drvef:,} institutions of the EF file are not in DRVEF{year}; they have no FTE "
+                  "that year (no rate)")
+        online = merged["pctdeexc"]
+        print(f"  Exclusively online (PCTDEEXC): 50% or more at {int((online >= 50).sum()):,} institutions, "
+              f"blank for {int(online.isna().sum()):,}")
+        all_data.append(merged)
 
-    if not all_data:
-        print("\nError: No EF enrollment data found!")
-        return 1
-
-    # Combine all years
     combined = pd.concat(all_data, ignore_index=True)
+    combined = combined[["unitid", "year", "fte", "enrollment_total", "enrollment_ft", "enrollment_pt",
+                         "pctdeexc"]]
+    combined["fte"] = combined["fte"].astype("int32")
 
     print("\n" + "=" * 60)
     print("Summary")
     print("=" * 60)
     print(f"Total records: {len(combined):,}")
     print(f"Unique institutions: {combined['unitid'].nunique():,}")
-    print(f"Years covered: {sorted(combined['year'].unique())}")
-    print(f"FTE range: {combined['fte'].min():,} - {combined['fte'].max():,}")
-
-    # Spot check Yale (130794) - should match expected values
-    yale = combined[combined['unitid'] == 130794]
-    if len(yale) > 0:
-        print("\nSpot check - Yale (130794):")
-        print(yale.to_string(index=False))
-
-    # Spot check Harvard (166027)
-    harvard = combined[combined['unitid'] == 166027]
-    if len(harvard) > 0:
-        print("\nSpot check - Harvard (166027):")
-        print(harvard.to_string(index=False))
-
-    # Spot check UPenn (215293)
-    upenn = combined[combined['unitid'] == 215293]
-    if len(upenn) > 0:
-        print("\nSpot check - UPenn (215293):")
-        print(upenn.to_string(index=False))
+    print(f"Years covered: {sorted(combined['year'].unique().tolist())}")
+    for unitid, name in ((130794, "Yale"), (166027, "Harvard"), (215062, "UPenn")):
+        spot = combined[combined["unitid"] == unitid]
+        if len(spot):
+            print(f"\nSpot check - {name} ({unitid}):")
+            print(spot.to_string(index=False))
 
     # Save to parquet
     CURATED_DIR.mkdir(parents=True, exist_ok=True)
     output_path = CURATED_DIR / "dim_enrollment_ef.parquet"
     combined.to_parquet(output_path, index=False)
-    provenance.write_ef_manifest(INPUTS, outputs=[output_path])
+    provenance.write_ef_manifest(INPUTS, outputs=[output_path], reference=reference)
 
     print(f"\nSaved to: {output_path}")
     print(f"File size: {output_path.stat().st_size / 1024:.1f} KB")

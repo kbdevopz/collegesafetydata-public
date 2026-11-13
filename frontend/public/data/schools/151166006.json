@@ -7,20 +7,25 @@
   "ivyLeague": false,
   "isMainCampus": false,
   "campusType": "Branch Campus",
-  "fte": 2421,
+  "fte": 2158,
   "fteByYear": {
-    "2015": 2421
+    "2015": 2410,
+    "2016": 2158
   },
   "summary": {
-    "latestYear": 2015,
-    "totalIncidents": 4,
-    "topOffense": "Motor Vehicle Theft",
-    "topOffenseCount": 2
+    "latestYear": 2016,
+    "totalIncidents": 0,
+    "topOffense": null,
+    "topOffenseCount": 0
   },
   "yearlyTotals": [
     {
       "year": 2015,
       "total": 4
+    },
+    {
+      "year": 2016,
+      "total": 0
     }
   ],
   "trends": [
@@ -43,24 +48,51 @@
       "count": 2
     }
   ],
-  "breakdownByOffense": [
-    {
-      "offense": "Motor Vehicle Theft",
-      "count": 2
-    },
-    {
-      "offense": "Domestic Violence",
-      "count": 1
-    },
-    {
-      "offense": "Liquor Arrest",
-      "count": 1
-    }
+  "breakdownByOffense": [],
+  "breakdownByGeo": [],
+  "notReported": [
+    2017,
+    2018,
+    2019,
+    2020,
+    2021,
+    2022,
+    2023,
+    2024
   ],
-  "breakdownByGeo": [
-    {
-      "geo": "On-campus",
-      "count": 4
+  "institution": {
+    "id": 151166,
+    "byYear": {
+      "2015": {
+        "campuses": 10,
+        "online": 46,
+        "rateRanked": true,
+        "counts": {
+          "criminal": 4,
+          "all": 9,
+          "arson": 1,
+          "domestic_violence": 1,
+          "drug_arrest": 2,
+          "liquor_arrest": 1,
+          "liquor_discipline": 1,
+          "motor_vehicle_theft": 3
+        }
+      },
+      "2016": {
+        "campuses": 10,
+        "online": 35,
+        "rateRanked": true,
+        "counts": {
+          "criminal": 1,
+          "all": 14,
+          "burglary": 1,
+          "dating_violence": 4,
+          "domestic_violence": 4,
+          "drug_arrest": 1,
+          "stalking": 1,
+          "weapons_arrest": 3
+        }
+      }
     }
-  ]
+  }
 }

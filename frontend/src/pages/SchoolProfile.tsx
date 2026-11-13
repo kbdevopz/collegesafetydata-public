@@ -16,8 +16,8 @@ import {
   Cell,
 } from 'recharts'
 import { ArrowLeft, MapPin, AlertCircle, Loader2, TrendingUp, TrendingDown, Calendar, AlertTriangle, Users, Info } from 'lucide-react'
-import { fetchSchoolProfile } from '../lib/api'
-import type { SchoolProfile as SchoolProfileType, OffenseBreakdown } from '../lib/types'
+import { fetchSchoolProfile, getMetadata } from '../lib/api'
+import type { SchoolProfile as SchoolProfileType, OffenseBreakdown, RateRules } from '../lib/types'
 import {
   cn,
   formatNumber,
@@ -28,7 +28,8 @@ import {
   calculateYoYChange,
   isSmallSample,
 } from '../lib/utils'
-import { fteFor, rateFor, latestFte } from '../lib/rates'
+import { fteFor, latestFte, institutionRate, rateNote, campusesPhrase } from '../lib/rates'
+import { ALL, CRIMINAL, SUMMARY_LABELS, inSelection, isSummary, selectionLabel } from '../lib/selection'
 import { useTheme } from '../hooks/useTheme'
 
 // "on-campus", "on-campus and public property", "a, b and c"
@@ -44,8 +45,17 @@ export default function SchoolProfile() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [selectedYear, setSelectedYear] = useState<number | null>(null)
-  const [selectedOffense, setSelectedOffense] = useState<string>('all')
+  // 'criminal' (default), 'all' (every category) or one offense name
+  const [selectedOffense, setSelectedOffense] = useState<string>(CRIMINAL)
   const [showRate, setShowRate] = useState(false)
+  // Who rate rankings list (metadata.json), for the note on a left-out rate
+  const [rateRules, setRateRules] = useState<RateRules | null>(null)
+
+  useEffect(() => {
+    getMetadata()
+      .then((m) => setRateRules(m.rateRules))
+      .catch(() => setRateRules(null))
+  }, [])
 
   useEffect(() => {
     if (!unitid) return
@@ -63,11 +73,22 @@ export default function SchoolProfile() {
       .finally(() => setLoading(false))
   }, [unitid])
 
-  // Get available years from data (newest first)
+  // The years the campus reported, newest first (0 included for a year
+  // without an incident); a year it did not report has no figures at all
   const availableYears = useMemo(() => {
     if (!profile) return []
     return profile.yearlyTotals.map(yt => yt.year).sort((a, b) => b - a)
   }, [profile])
+  const notReportedYears = useMemo(() => profile?.notReported ?? [], [profile])
+
+  // Chart years: from the first to the last reported year, a year it did
+  // not report in between included (shown as a gap, not as 0)
+  const chartYears = useMemo(() => {
+    if (availableYears.length === 0) return []
+    const first = availableYears[availableYears.length - 1]
+    const last = availableYears[0]
+    return Array.from({ length: last - first + 1 }, (_, i) => first + i)
+  }, [availableYears])
 
   // Get unique offense types from trends
   const availableOffenses = useMemo(() => {
@@ -77,23 +98,15 @@ export default function SchoolProfile() {
     return Array.from(offenses).sort()
   }, [profile])
 
-  // Get years that have data for the selected offense
-  const yearsWithDataForOffense = useMemo(() => {
-    if (!profile || selectedOffense === 'all') {
-      return new Set(availableYears)
-    }
-    const years = new Set<number>()
-    profile.trends
-      .filter(t => t.offense === selectedOffense && t.count > 0)
-      .forEach(t => years.add(t.year))
-    return years
-  }, [profile, selectedOffense, availableYears])
-
-  // Check if current selection has data
-  const hasDataForSelection = useMemo(() => {
-    if (selectedOffense === 'all') return true
-    return yearsWithDataForOffense.has(selectedYear || 0)
-  }, [selectedOffense, yearsWithDataForOffense, selectedYear])
+  // The selection's count in one year: the sum of its trend rows (0 when it
+  // has none; a reported year without the selection had 0)
+  const countIn = useMemo(() => {
+    const byYear = new Map<number, number>()
+    profile?.trends
+      .filter(t => inSelection(t, selectedOffense))
+      .forEach(t => byYear.set(t.year, (byYear.get(t.year) ?? 0) + t.count))
+    return (year: number) => byYear.get(year) ?? 0
+  }, [profile, selectedOffense])
 
   // Compute offense breakdown for selected year from trends
   const selectedYearOffenseBreakdown = useMemo((): OffenseBreakdown[] => {
@@ -107,20 +120,11 @@ export default function SchoolProfile() {
     return breakdown
   }, [profile, selectedYear])
 
-  // Get total incidents for selected year (and optionally filtered by offense)
+  // Count of the selection (a summary or one offense) in the selected year
   const selectedYearTotal = useMemo(() => {
     if (!profile || !selectedYear) return 0
-
-    if (selectedOffense === 'all') {
-      const yearData = profile.yearlyTotals.find(yt => yt.year === selectedYear)
-      return yearData?.total || 0
-    } else {
-      const offenseData = profile.trends.find(
-        t => t.year === selectedYear && t.offense === selectedOffense
-      )
-      return offenseData?.count || 0
-    }
-  }, [profile, selectedYear, selectedOffense])
+    return countIn(selectedYear)
+  }, [profile, selectedYear, countIn])
 
   // FTE for the selected year only (null when that year has no FTE)
   const selectedYearFte = useMemo(() => fteFor(profile, selectedYear), [profile, selectedYear])
@@ -128,11 +132,22 @@ export default function SchoolProfile() {
   // Newest FTE and the year it belongs to (for the header)
   const headerFte = useMemo(() => latestFte(profile), [profile])
 
-  // Calculate rate per 10k students for selected year (that year's FTE only)
-  const selectedYearRate = useMemo(
-    () => rateFor(profile, selectedYear, selectedYearTotal),
-    [profile, selectedYear, selectedYearTotal]
+  // The rate per 10k students in the selected year (that year's FTE only).
+  // It is the institution's: the incidents of all its campuses per its FTE,
+  // as NCES publishes FTE per institution.
+  const selectedYearInstitution = useMemo(
+    () => institutionRate(profile, selectedYear, selectedOffense, selectedYearTotal),
+    [profile, selectedYear, selectedOffense, selectedYearTotal]
   )
+  const selectedYearRate = selectedYearInstitution?.rate ?? null
+  const selectedYearRateCount = selectedYearInstitution?.count ?? selectedYearTotal
+  const selectedYearCampuses = campusesPhrase(selectedYearInstitution?.campuses ?? 1)
+  const selectedYearRateNote = rateNote(selectedYearInstitution, rateRules)
+
+  // Number of campuses of the institution in the header FTE's year
+  const headerCampuses = headerFte
+    ? profile?.institution?.byYear[String(headerFte.year)]?.campuses ?? 1
+    : 1
 
   // Get top offense for selected year
   const selectedYearTopOffense = useMemo(() => {
@@ -158,51 +173,39 @@ export default function SchoolProfile() {
     return Array.from(byHost.values())
   }, [profile, selectedYear])
 
-  // Calculate YoY change for selected year
+  // YoY change for the selected year: both years must have been reported
   const selectedYearYoYChange = useMemo(() => {
     if (!profile || !selectedYear) return null
+    const years = new Set(profile.yearlyTotals.map(yt => yt.year))
+    if (!years.has(selectedYear) || !years.has(selectedYear - 1)) return null
+    return calculateYoYChange(countIn(selectedYear), countIn(selectedYear - 1))
+  }, [profile, selectedYear, countIn])
 
-    if (selectedOffense === 'all') {
-      const currentYearData = profile.yearlyTotals.find(yt => yt.year === selectedYear)
-      const prevYearData = profile.yearlyTotals.find(yt => yt.year === selectedYear - 1)
-      if (!currentYearData || !prevYearData) return null
-      return calculateYoYChange(currentYearData.total, prevYearData.total)
-    } else {
-      const currentData = profile.trends.find(
-        t => t.year === selectedYear && t.offense === selectedOffense
-      )
-      const prevData = profile.trends.find(
-        t => t.year === selectedYear - 1 && t.offense === selectedOffense
-      )
-      if (!currentData || !prevData) return null
-      return calculateYoYChange(currentData.count, prevData.count)
-    }
-  }, [profile, selectedYear, selectedOffense])
+  // Prepare chart data: the top offenses of the selected summary
+  const selectionTrends = useMemo(
+    () => (profile ? profile.trends.filter(t => inSelection(t, selectedOffense)) : []),
+    [profile, selectedOffense]
+  )
 
-  // Prepare chart data
-  const topOffenses = useMemo(() => {
-    if (!profile) return []
-    return getTopOffenses(profile.trends, 5)
-  }, [profile])
+  const topOffenses = useMemo(() => getTopOffenses(selectionTrends, 5), [selectionTrends])
 
   const trendChartData = useMemo(() => {
-    if (!profile || topOffenses.length === 0) return []
-    return transformTrendsForChart(profile.trends, topOffenses)
-  }, [profile, topOffenses])
+    if (topOffenses.length === 0) return []
+    return transformTrendsForChart(selectionTrends, topOffenses, chartYears, new Set(availableYears))
+  }, [selectionTrends, topOffenses, chartYears, availableYears])
 
+  // The selection's count in each chart year: 0 for a reported year without
+  // it, null (a gap) for a year the campus did not report
   const yearlyChartData = useMemo(() => {
-    if (!profile) return []
-    return profile.yearlyTotals.sort((a, b) => a.year - b.year)
-  }, [profile])
+    const reported = new Set(availableYears)
+    return chartYears.map(year => ({ year, count: reported.has(year) ? countIn(year) : null }))
+  }, [chartYears, availableYears, countIn])
 
-  // Single offense trend data for when filtering by specific offense
-  const singleOffenseTrendData = useMemo(() => {
-    if (!profile || selectedOffense === 'all') return []
-    return profile.trends
-      .filter(t => t.offense === selectedOffense)
-      .sort((a, b) => a.year - b.year)
-      .map(t => ({ year: t.year, count: t.count }))
-  }, [profile, selectedOffense])
+  // Not reported years between the first and last reported one (chart gaps)
+  const chartGaps = useMemo(
+    () => notReportedYears.filter(year => chartYears.includes(year)),
+    [notReportedYears, chartYears]
+  )
 
   const chartColors = getChartColors()
 
@@ -289,9 +292,13 @@ export default function SchoolProfile() {
               {profile.city}, {profile.state}
             </span>
             {headerFte && (
-              <span className="flex items-center gap-1.5" title="Enrollment for latest available year">
+              <span
+                className="flex items-center gap-1.5"
+                title="Enrollment (FTE) of the whole institution for the latest available year; NCES counts enrollment per institution, not per campus"
+              >
                 <Users className="w-4 h-4" />
                 {formatNumber(headerFte.fte)} students
+                {headerCampuses > 1 && <> at all {headerCampuses} campuses</>}
                 <span className="text-xs text-gray-400 dark:text-gray-500">({headerFte.year})</span>
               </span>
             )}
@@ -316,23 +323,13 @@ export default function SchoolProfile() {
                 id="year-select"
                 value={selectedYear || ''}
                 onChange={(e) => setSelectedYear(parseInt(e.target.value))}
-                className={cn(
-                  "text-sm font-medium bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1.5 cursor-pointer focus:ring-2 focus:ring-primary-500 focus:border-primary-500",
-                  selectedOffense === 'all' ? 'w-24' : 'w-36'
-                )}
+                className="w-24 text-sm font-medium bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1.5 cursor-pointer focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               >
-                {availableYears.map((year) => {
-                  const hasData = yearsWithDataForOffense.has(year)
-                  return (
-                    <option
-                      key={year}
-                      value={year}
-                      style={!hasData && selectedOffense !== 'all' ? { color: '#9ca3af' } : undefined}
-                    >
-                      {year}{!hasData && selectedOffense !== 'all' ? ' (no data)' : ''}
-                    </option>
-                  )
-                })}
+                {availableYears.map((year) => (
+                  <option key={year} value={year}>
+                    {year}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -346,9 +343,10 @@ export default function SchoolProfile() {
                 id="offense-select"
                 value={selectedOffense}
                 onChange={(e) => setSelectedOffense(e.target.value)}
-                className="w-44 text-sm font-medium bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1.5 cursor-pointer focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                className="w-56 max-w-full text-sm font-medium bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1.5 cursor-pointer focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               >
-                <option value="all">All Offenses</option>
+                <option value={CRIMINAL}>{SUMMARY_LABELS[CRIMINAL]}</option>
+                <option value={ALL}>{SUMMARY_LABELS[ALL]}</option>
                 {availableOffenses.map((offense) => (
                   <option key={offense} value={offense}>
                     {offense}
@@ -358,10 +356,10 @@ export default function SchoolProfile() {
             </div>
 
             {/* Filter indicator */}
-            {selectedOffense !== 'all' && (
+            {!isSummary(selectedOffense) && (
               <button
                 type="button"
-                onClick={() => setSelectedOffense('all')}
+                onClick={() => setSelectedOffense(CRIMINAL)}
                 className="text-xs text-primary-600 dark:text-primary-400 hover:underline"
               >
                 Clear filter
@@ -411,7 +409,7 @@ export default function SchoolProfile() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 p-6 transition-all duration-300">
             <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">
-              {selectedOffense === 'all' ? 'Total Incidents' : selectedOffense} ({selectedYear})
+              {selectionLabel(selectedOffense)} ({selectedYear})
               {showRate && ' - Rate'}
             </div>
             <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">
@@ -422,7 +420,7 @@ export default function SchoolProfile() {
                     <span className="text-lg font-normal text-gray-500 dark:text-gray-400 ml-1">
                       per 10k
                     </span>
-                    {isSmallSample(selectedYearFte, selectedYearTotal) && (
+                    {isSmallSample(selectedYearFte, selectedYearRateCount) && (
                       <span className="text-amber-500 ml-1" title="Small sample size">*</span>
                     )}
                   </>
@@ -433,7 +431,12 @@ export default function SchoolProfile() {
                 formatNumber(selectedYearTotal)
               )}
             </div>
-            {!showRate && selectedYearYoYChange && (
+            {!showRate && selectedYearYoYChange && selectedYearYoYChange.absolute === 0 && (
+              <div className="text-sm mt-1 text-gray-500 dark:text-gray-400">
+                No change from {selectedYear && selectedYear - 1}
+              </div>
+            )}
+            {!showRate && selectedYearYoYChange && selectedYearYoYChange.absolute !== 0 && (
               <div
                 className={cn(
                   'flex items-center gap-1 text-sm mt-1',
@@ -451,7 +454,15 @@ export default function SchoolProfile() {
             )}
             {showRate && selectedYearFte && (
               <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                Based on {formatNumber(selectedYearFte)} FTE
+                {selectedYearCampuses ? (
+                  // The institution's rate: all its campuses' incidents per its FTE
+                  <>
+                    Institution rate ({selectedYearCampuses}):{' '}
+                    {formatNumber(selectedYearRateCount)} per {formatNumber(selectedYearFte)} FTE
+                  </>
+                ) : (
+                  <>Based on {formatNumber(selectedYearFte)} FTE</>
+                )}
               </div>
             )}
           </div>
@@ -459,23 +470,30 @@ export default function SchoolProfile() {
           <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 p-6 transition-all duration-300">
             <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">Most Common Offense</div>
             <div className="text-xl font-bold text-gray-900 dark:text-gray-100">
-              {selectedYearTopOffense.offense || 'N/A'}
+              {selectedYearTopOffense.offense || 'None'}
             </div>
             <div className="text-sm text-gray-600 dark:text-gray-400">
-              {formatNumber(selectedYearTopOffense.count)} incidents
+              {selectedYearTopOffense.offense
+                ? `${formatNumber(selectedYearTopOffense.count)} incidents`
+                : `No incidents in ${selectedYear}`}
             </div>
           </div>
 
           <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 p-6 transition-all duration-300">
             <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">Data Coverage</div>
             <div className="text-xl font-bold text-gray-900 dark:text-gray-100">
-              {yearlyChartData.length > 0
-                ? `${yearlyChartData[0].year}-${yearlyChartData[yearlyChartData.length - 1].year}`
+              {chartYears.length > 0
+                ? `${chartYears[0]}-${chartYears[chartYears.length - 1]}`
                 : 'N/A'}
             </div>
             <div className="text-sm text-gray-600 dark:text-gray-400">
-              {yearlyChartData.length} years of data
+              {availableYears.length} {availableYears.length === 1 ? 'year' : 'years'} reported
             </div>
+            {notReportedYears.length > 0 && (
+              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                Not reported: {notReportedYears.join(', ')}
+              </div>
+            )}
           </div>
 
           <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 p-6 transition-all duration-300">
@@ -521,29 +539,23 @@ export default function SchoolProfile() {
               <Users className="w-4 h-4 flex-shrink-0" />
               <span>
                 <strong>Rate view:</strong> Incidents per 10,000 full-time equivalent (FTE) students.
-                {isSmallSample(selectedYearFte, selectedYearTotal) && (
+                {selectedYearCampuses && (
+                  <span className="ml-1">
+                    NCES counts enrollment per institution, not per campus, so this is the institution's rate:
+                    the incidents of {selectedYearCampuses} per its FTE.
+                  </span>
+                )}
+                {isSmallSample(selectedYearFte, selectedYearRateCount) && (
                   <span className="ml-1">* indicates small sample size (FTE &lt; 1,000 or incidents &lt; 10).</span>
                 )}
               </span>
             </div>
-          </div>
-        )}
-
-        {/* No Data Message */}
-        {!hasDataForSelection && selectedOffense !== 'all' && (
-          <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-6 mb-8">
-            <div className="flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-amber-500 dark:text-amber-400 flex-shrink-0 mt-0.5" />
-              <div>
-                <h3 className="font-medium text-amber-800 dark:text-amber-300">
-                  No data available
-                </h3>
-                <p className="text-sm text-amber-700 dark:text-amber-400 mt-1">
-                  No {selectedOffense} incidents were reported in {selectedYear}.
-                  Try selecting a different year or view all offenses.
-                </p>
-              </div>
-            </div>
+            {selectedYearRateNote && (
+              <p role="note" className="flex items-start gap-2 mt-2 text-sm text-blue-700 dark:text-blue-300">
+                <Info className="w-4 h-4 flex-shrink-0 mt-0.5" aria-hidden="true" />
+                <span>In {selectedYear}: {selectedYearRateNote}</span>
+              </p>
+            )}
           </div>
         )}
 
@@ -552,10 +564,10 @@ export default function SchoolProfile() {
           {/* Yearly Trend Chart - changes based on offense filter */}
           <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 p-6 transition-colors duration-200">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-              {selectedOffense === 'all' ? 'Total Incidents Over Time' : `${selectedOffense} Over Time`}
+              {selectionLabel(selectedOffense)} Over Time
             </h2>
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={selectedOffense === 'all' ? yearlyChartData : singleOffenseTrendData}>
+              <BarChart data={yearlyChartData}>
                 <CartesianGrid strokeDasharray="3 3" stroke={chartGridColor} />
                 <XAxis
                   dataKey="year"
@@ -576,10 +588,14 @@ export default function SchoolProfile() {
                   itemStyle={{ color: chartTextColor }}
                 />
                 <Bar
-                  dataKey={selectedOffense === 'all' ? 'total' : 'count'}
+                  dataKey="count"
+                  name={selectionLabel(selectedOffense)}
                   radius={[4, 4, 0, 0]}
+                  // A reported 0 gets a thin bar so it differs from a year not
+                  // reported (null), which gets none
+                  minPointSize={(value: number | null | undefined) => (value == null ? 0 : 3)}
                 >
-                  {(selectedOffense === 'all' ? yearlyChartData : singleOffenseTrendData).map((entry) => (
+                  {yearlyChartData.map((entry) => (
                     <Cell
                       key={entry.year}
                       fill={entry.year === selectedYear ? '#f59e0b' : barFillColor}
@@ -590,16 +606,24 @@ export default function SchoolProfile() {
               </BarChart>
             </ResponsiveContainer>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-3 text-center">
-              Selected year highlighted in amber
+              Selected year highlighted in amber · A thin bar is 0
+              {chartGaps.length > 0 && (
+                <> · No bar for {chartGaps.join(', ')}: not reported (no figures, not 0)</>
+              )}
             </p>
           </div>
 
-          {/* Top Offenses Trend - only show when viewing all offenses */}
-          {selectedOffense === 'all' ? (
+          {/* Top Offenses Trend - only show when viewing a summary */}
+          {isSummary(selectedOffense) ? (
             <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 p-6 transition-colors duration-200">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-                Top {Math.min(topOffenses.length, 5)} Offenses Over Time
+                {topOffenses.length > 0 ? `Top ${Math.min(topOffenses.length, 5)} Offenses Over Time` : 'Offenses Over Time'}
               </h2>
+              {topOffenses.length === 0 ? (
+                <div className="h-[300px] flex items-center justify-center text-center text-gray-500 dark:text-gray-400">
+                  0 in every year this campus reported ({selectionLabel(selectedOffense).toLowerCase()})
+                </div>
+              ) : (
               <ResponsiveContainer width="100%" height={300}>
                 <LineChart data={trendChartData}>
                   <CartesianGrid strokeDasharray="3 3" stroke={chartGridColor} />
@@ -635,6 +659,7 @@ export default function SchoolProfile() {
                   ))}
                 </LineChart>
               </ResponsiveContainer>
+              )}
             </div>
           ) : (
             <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 p-6 transition-colors duration-200">
@@ -642,7 +667,7 @@ export default function SchoolProfile() {
                 {selectedOffense} Trend
               </h2>
               <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={singleOffenseTrendData}>
+                <LineChart data={yearlyChartData}>
                   <CartesianGrid strokeDasharray="3 3" stroke={chartGridColor} />
                   <XAxis
                     dataKey="year"
@@ -689,7 +714,8 @@ export default function SchoolProfile() {
             </h2>
             {selectedYearOffenseBreakdown.length === 0 ? (
               <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                No incident data for {selectedYear}
+                {/* Only reported years can be selected, so this is a 0, not missing data */}
+                No incidents in {selectedYear} (every figure reported was 0)
               </div>
             ) : (
               <div className="space-y-3">
@@ -702,7 +728,7 @@ export default function SchoolProfile() {
                     <button
                       key={item.offense}
                       type="button"
-                      onClick={() => setSelectedOffense(item.offense === selectedOffense ? 'all' : item.offense)}
+                      onClick={() => setSelectedOffense(item.offense === selectedOffense ? CRIMINAL : item.offense)}
                       className={cn(
                         'w-full flex items-center gap-4 p-2 -mx-2 rounded-lg transition-colors',
                         isSelected
@@ -748,11 +774,17 @@ export default function SchoolProfile() {
               <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                 By Location
                 <span className="ml-2 text-sm font-normal text-amber-600 dark:text-amber-400">
-                  ({profile.summary.latestYear} data only)
+                  ({profile.summary.latestYear}, all categories)
                 </span>
               </h2>
             </div>
 
+            {geoRows.length === 0 ? (
+              // A reported year in which every figure was 0
+              <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                No incidents in {profile.summary.latestYear} (every figure reported was 0)
+              </div>
+            ) : (
             <div className="flex flex-col lg:flex-row items-center gap-6">
               {/* Pie Chart */}
               <div className="w-48 h-48 flex-shrink-0">
@@ -816,6 +848,7 @@ export default function SchoolProfile() {
                 })}
               </div>
             </div>
+            )}
 
             <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
               <div className="flex items-start gap-2 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">

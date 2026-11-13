@@ -34,6 +34,29 @@ is recorded in `data/curated/dims/campus_year_sources.parquet` and, per year,
 in the crime build record (`build record/crime_inputs.json`,
 `campus_year_sources`).
 
+#### Zero Versus Not Reported
+
+A campus reported a year when it is in `campus_year_sources.parquet` for that
+year: its release row has at least one count cell that is not blank. A
+reported year without any incident is a 0, not missing data:
+
+- its school page shows 0 for that year, and its charts show 0 there;
+- it is ranked with 0 for every category it had none of, after the campuses
+  with incidents, all sharing the next rank and listed by name, then UNITID
+  (the tie rule below); its institution is ranked with rate 0 when the rate
+  rules below allow it;
+- a campus that reported but never had an incident has a school page too.
+
+A reported zero can reflect how an institution classifies or reports
+incidents, not only how safe it is; the rate rankings say so where their
+zero rows begin.
+
+A year a campus did not report has no figures at all. Its school page lists
+it as not reported, its charts leave a gap there rather than a 0, and it is
+in no ranking for that year. A campus-year whose every figure is counted
+under another campus (see Figures Reported by More Than One Campus) is not
+ranked, with 0 or otherwise.
+
 #### Known Errors in DOE Files
 
 Two files of the 2021-2023 release (`Crime2024SAS.zip`, suffix `212223`) are
@@ -103,54 +126,31 @@ shadow; the older releases' figures the last two rules compare are in
 - **Source:** IPEDS (Integrated Postsecondary Education Data System)
 - **URL:** https://nces.ed.gov/ipeds/
 - **Files Used:**
-  - DRVEF (Derived Fall Enrollment) for 2021-2024: Pre-calculated FTE (fall 2024 is provisional release data)
-  - EF (Fall Enrollment) for 2015-2020: Calculated FTE from component data
+  - 2021-2024: DRVEF (Derived Fall Enrollment) files, with NCES's FTE and the percent of students enrolled exclusively in distance education (fall 2024 is provisional release data)
+  - 2015-2020: the DRVEF tables of NCES's final IPEDS Access databases, copied into `etl/reference/ipeds_official_fte.csv` (see below); the EF (Fall Enrollment) files only for headcounts
 
-## FTE (Full-Time Equivalent) Enrollment Calculation
+## FTE (Full-Time Equivalent) Enrollment
 
-FTE is used as the denominator for calculating per-student crime rates, enabling fair comparisons between institutions of different sizes.
+FTE is the denominator of the per-student rates: full-time students count fully, part-time students in part. The site uses the FTE that NCES (the National Center for Education Statistics) publishes for each institution and fall, for every year. It does not calculate FTE.
 
-### 2021-2024: Official IPEDS FTE
-For these years, we use the pre-calculated FTE values directly from IPEDS DRVEF files. These are the official values computed by NCES.
+| Years | Source of NCES's FTE |
+|-------|----------------------|
+| 2021-2024 | The year's DRVEF file (`drvef<year>_rv.csv` when NCES has published the final revised file, otherwise `drvef<year>.csv`) |
+| 2015-2020 | Table `DRVEF<year>` in NCES's final IPEDS database of the collection year (`IPEDS_2015-16_Final.zip` to `IPEDS_2020-21_Final.zip`, Microsoft Access) |
 
-### 2015-2020: Calculated FTE Using Official IPEDS Factors
-For years where pre-calculated FTE is not available in DRVEF files, we calculate FTE from Fall Enrollment (EF) component data using the official IPEDS methodology:
+NCES publishes FTE for falls before 2021 only inside those databases (60 to 77 MB each). `etl/01c_extract_ipeds_official.ps1` (Windows only: it needs Microsoft's 64-bit Access ODBC driver) downloads them, checks each zip's size and SHA-256 against `etl/reference/ipeds_official_sources.json`, and writes FTE and PCTDEEXC (percent of students enrolled exclusively in distance education) of every institution to `etl/reference/ipeds_official_fte.csv`. Both files are committed, so the build (`02b_transform_ef_enrollment.py`) does not need Access or the downloads. `00_check_for_updates.py` checks on every run that NCES still publishes each database at the recorded size; a different size means it may have been re-issued, and the script compares its SHA-256.
+
+An institution-year whose FTE NCES left blank has no rate that year (23 institutions in 2019).
+
+### Earlier estimate for 2015-2020 (no longer used)
+
+Earlier builds estimated 2015-2020 FTE from the EF headcounts with one formula for every institution:
 
 ```
-FTE = FT_Undergrad + FT_Graduate +
-      (PT_Undergrad × 0.403543) +
-      (PT_Graduate × 0.361702)
+FTE = FT_Undergrad + FT_Graduate + (PT_Undergrad × 0.403543) + (PT_Graduate × 0.361702)
 ```
 
-#### Official IPEDS Conversion Factors
-| Student Type | Factor | Source |
-|--------------|--------|--------|
-| Full-time Undergraduate | 1.0 | Counts as 1.0 FTE |
-| Full-time Graduate | 1.0 | Counts as 1.0 FTE |
-| Part-time Undergraduate | 0.403543 | IPEDS official factor |
-| Part-time Graduate | 0.361702 | IPEDS official factor |
-
-**Source:** NCES IPEDS Survey Methodology. These factors represent the average course load of part-time students relative to full-time students, as defined by the National Center for Education Statistics.
-
-See: https://nces.ed.gov/ipeds/survey-components/8
-
-#### EFALEVEL Codes Used
-| Code | Description |
-|------|-------------|
-| 22 | Full-time undergraduate |
-| 32 | Full-time graduate (including professional) |
-| 42 | Part-time undergraduate |
-| 52 | Part-time graduate (including professional) |
-
-#### Implementation Reference
-The FTE calculation for 2015-2020 is implemented in:
-- **Script:** `etl/02b_transform_ef_enrollment.py`
-- **Constants:** `PT_FACTOR_UNDERGRAD = 0.403543`, `PT_FACTOR_GRADUATE = 0.361702`
-
-### Why Different Methods for Different Years?
-IPEDS DRVEF (Derived Fall Enrollment) files, which contain pre-calculated FTE, are only available starting from 2021. For earlier years, we calculate FTE from the component enrollment data in EF files using the official IPEDS methodology.
-
-This ensures our FTE calculations are directly comparable to Department of Education Campus Safety calculations and align with federal standards.
+That matched NCES's FTE exactly for only 58% of institution-years (46% of those with crime data) and was off by more than 5% for about 830 institutions a year (4,978 institution-years in 2015-2020), so it was replaced by NCES's own figures.
 
 ## Crime Rate Calculation
 
@@ -160,9 +160,53 @@ Crime rates are expressed as incidents per 10,000 FTE students:
 Rate = (Incident Count / FTE) × 10,000
 ```
 
-### Rate Display Thresholds
-- Rates are only displayed for institutions with FTE ≥ 1,000 to avoid misleading statistics from small sample sizes
-- Institutions with FTE < 1,000 or fewer than 10 incidents are marked with an asterisk (*) to indicate statistical caution
+### Rates are per institution
+NCES publishes FTE for each institution, not for each campus: every campus
+of an institution (all campuses whose UNITID starts with the same six
+digits, the base UNITID) carries the institution's FTE. A rate therefore
+divides the incidents of all the institution's campuses that year by the
+institution's FTE (`04_create_aggregates.py`, `create_institution_tables`):
+
+- A campus counts for its institution in a year when it reported that year
+  (`campus_year_sources`) and its figures are not all shadow blocks.
+- The incidents are counted as in rankings: the sum of on-campus, non-campus
+  and public property (residence halls are part of on-campus), shadow blocks
+  left out, campuses in any state.
+- Rate rankings list institutions, one row each, under the institution's
+  name. The row links to the main campus (UNITID ending in 001) when that
+  campus counts that year, otherwise to the institution's campus with the
+  most incidents that year (ties: the lowest UNITID), and is listed in that
+  campus's state. Rankings by count still list each campus.
+- School pages and Compare show the institution's rate and, for an
+  institution of more than one campus, label it "all N campuses combined".
+
+### Who rate rankings leave out
+Rate rankings list an institution only when that year (both in `config.py`,
+`MIN_FTE_FOR_RATE` and `ONLINE_EXCLUSION_PCT`):
+- it has at least 1,000 FTE students, so a few incidents do not swing its
+  rate; and
+- fewer than 50% of its students are enrolled exclusively in distance
+  education (NCES's PCTDEEXC, in the same DRVEF/EF tables as the FTE). Clery
+  figures cover the campus, which most students of a mostly online
+  institution never attend, so its rate is not comparable. An institution
+  without that figure is not left out (none of the institutions that
+  reported and have an FTE lacks it in 2015-2024).
+
+For 2020 and 2021 the test uses each institution's fall 2019 share
+(`ONLINE_SHARE_YEAR` in `config.py`), because temporary remote teaching
+during the pandemic does not make a school an online-only school. When NCES
+has no 2019 figure for an institution, that year's own share is used (66
+institutions in 2020 and 102 in 2021, of which 1 and 2 have 1,000+ FTE).
+Judged by their own 2020 shares, 676 of the 2,264 institutions with 1,000+
+FTE in 2020 would have been left out, 582 of them under 50% in 2019. Of the
+institutions that reported Clery figures and have 1,000+ FTE, the online
+test leaves out 103 of 2,320 in 2019, 96 of 2,264 in 2020, 94 of 2,261 in
+2021, 204 of 2,237 in 2022, 188 of 2,243 in 2023 and 191 of 2,268 in 2024.
+School pages for 2020 and 2021 say which fall's share they used.
+
+School pages still show these institutions' rates, with a note saying why
+they are not ranked. Rates with fewer than 10 incidents, or under 1,000 FTE,
+are marked with an asterisk (*) to indicate statistical caution.
 
 ## Geographic Classifications
 
@@ -207,7 +251,13 @@ campuses report identically count once, under the host campus.
 - Drug Law (Arrests and Disciplinary Actions)
 - Liquor Law (Arrests and Disciplinary Actions)
 
-**Note:** The "All Offenses" category sums criminal offenses, VAWA offenses, AND arrests/disciplinary referrals. High counts in this category may reflect drug/alcohol enforcement rather than violent crime.
+### Totals shown on the site
+- **All criminal offenses** (the default view of rankings, school pages and comparisons): the 11 criminal offenses above, added up.
+- **All categories (crimes, arrests, referrals)**: every category added up, criminal offenses, VAWA offenses, arrests and disciplinary referrals. These are different kinds of counts. Arrests and disciplinary referrals count people (each person arrested or referred), not incidents, and an incident of dating violence, domestic violence or stalking can also be counted as a criminal offense such as aggravated assault. So this total is not a number of incidents, and high totals often reflect drug and alcohol enforcement rather than violent crime. It is still available (`?offense=all` on the rankings page).
+
+## Rankings
+
+Each ranking lists schools by their count, largest first. Schools with the same count share a rank (standard competition ranking: 1, 2, 2, 4, so the rank after a tie skips the places the tie takes) and are listed by name, then by UNITID. Rate rankings rank institutions' rates the same way, ties by institution name, then base UNITID. Every campus that reported the year is in its rankings: those with none of a category are the last tie, with 0 (see Zero Versus Not Reported).
 
 ## Data Limitations
 
@@ -235,6 +285,9 @@ Our data pipeline includes validation steps to ensure accuracy:
 3. Comparison of calculated FTE against official DRVEF values where available
 4. Spot checks against known institutions (Ivy League, major state universities)
 5. An audit (`07_comprehensive_audit.py`, check 8) that finds the shared blocks again from the fact table and the older releases' figures, and verifies that every ranking entry counts the school's figures without its shadow blocks
+6. The same audit (check 5) verifies that every ranking is listed in ranking order and that every rank is 1 + the number of schools with a larger count (or rate)
+7. The same audit (check 10) recomputes every institution's campuses, counts, link campus, FTE and online share from the fact table and NCES's enrollment, without the pipeline's code, and verifies that every rate ranking lists exactly the institutions the rules above allow, with rate = count / FTE × 10,000, and that every rankings file lists exactly the campuses that reported its year (those with 0 included)
+8. The same audit (checks 1 and 2) verifies that every campus that reported a year has a school page and is in the site search, and that each page has exactly the years the campus reported, 0 included, and lists the others as not reported
 
 ## Source Code
 

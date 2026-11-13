@@ -1,98 +1,172 @@
 {
   "preset": "VI",
   "year": 2024,
+  "campuses": {
+    "153603005": {
+      "name": "Iowa State University",
+      "short": null,
+      "state": "VI",
+      "main": false,
+      "fte": 28601,
+      "campuses": 5
+    },
+    "243665001": {
+      "name": "University of the Virgin Islands",
+      "short": null,
+      "state": "VI",
+      "main": true,
+      "fte": 1399,
+      "campuses": 2
+    },
+    "243665002": {
+      "name": "University of the Virgin Islands",
+      "short": null,
+      "state": "VI",
+      "main": false,
+      "fte": 1399,
+      "campuses": 2
+    }
+  },
   "rankings": {
+    "criminal": [
+      {
+        "rank": 1,
+        "unitid": 243665001,
+        "count": 5
+      }
+    ],
     "all": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 243665001,
-        "name": "University of the Virgin Islands",
-        "short": null,
-        "count": 10,
-        "pct": 100.0,
-        "fte": 1399,
-        "rate": 71.48,
-        "isMainCampus": true
+        "count": 10
       }
     ],
     "drug_discipline": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 243665001,
-        "name": "University of the Virgin Islands",
-        "short": null,
-        "count": 5,
-        "pct": 100.0,
-        "fte": 1399,
-        "rate": 35.74,
-        "isMainCampus": true
+        "count": 5
       }
     ],
     "fondling": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 243665001,
-        "name": "University of the Virgin Islands",
-        "short": null,
-        "count": 1,
-        "pct": 100.0,
-        "fte": 1399,
-        "rate": 7.15,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "motor_vehicle_theft": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 243665001,
-        "name": "University of the Virgin Islands",
-        "short": null,
-        "count": 1,
-        "pct": 100.0,
-        "fte": 1399,
-        "rate": 7.15,
-        "isMainCampus": true
+        "count": 1
       }
     ],
     "murder": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 243665001,
-        "name": "University of the Virgin Islands",
-        "short": null,
-        "count": 2,
-        "pct": 100.0,
-        "fte": 1399,
-        "rate": 14.3,
-        "isMainCampus": true
+        "count": 2
       }
     ],
     "robbery": [
       {
         "rank": 1,
-        "rankByRate": 1,
         "unitid": 243665001,
-        "name": "University of the Virgin Islands",
-        "short": null,
-        "count": 1,
-        "pct": 100.0,
-        "fte": 1399,
-        "rate": 7.15,
-        "isMainCampus": true
+        "count": 1
       }
     ]
   },
   "totals": {
+    "criminal": 5,
     "all": 10,
     "drug_discipline": 5,
     "fondling": 1,
     "motor_vehicle_theft": 1,
     "murder": 2,
     "robbery": 1
+  },
+  "institutions": {
+    "243665": {
+      "name": "University of the Virgin Islands",
+      "unitid": 243665001,
+      "state": "VI",
+      "fte": 1399,
+      "campuses": 2
+    }
+  },
+  "rateRankings": {
+    "criminal": [
+      {
+        "rank": 1,
+        "id": 243665,
+        "count": 5,
+        "rate": 35.74
+      }
+    ],
+    "all": [
+      {
+        "rank": 1,
+        "id": 243665,
+        "count": 10,
+        "rate": 71.48
+      }
+    ],
+    "aggravated_assault": [],
+    "arson": [],
+    "burglary": [],
+    "dating_violence": [],
+    "domestic_violence": [],
+    "drug_arrest": [],
+    "drug_discipline": [
+      {
+        "rank": 1,
+        "id": 243665,
+        "count": 5,
+        "rate": 35.74
+      }
+    ],
+    "fondling": [
+      {
+        "rank": 1,
+        "id": 243665,
+        "count": 1,
+        "rate": 7.15
+      }
+    ],
+    "incest": [],
+    "liquor_arrest": [],
+    "liquor_discipline": [],
+    "motor_vehicle_theft": [
+      {
+        "rank": 1,
+        "id": 243665,
+        "count": 1,
+        "rate": 7.15
+      }
+    ],
+    "murder": [
+      {
+        "rank": 1,
+        "id": 243665,
+        "count": 2,
+        "rate": 14.3
+      }
+    ],
+    "negligent_manslaughter": [],
+    "rape": [],
+    "robbery": [
+      {
+        "rank": 1,
+        "id": 243665,
+        "count": 1,
+        "rate": 7.15
+      }
+    ],
+    "stalking": [],
+    "statutory_rape": [],
+    "weapons_arrest": [],
+    "weapons_discipline": []
   }
 }

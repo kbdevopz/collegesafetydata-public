@@ -7,18 +7,25 @@
   "ivyLeague": false,
   "isMainCampus": false,
   "campusType": "Branch Campus",
-  "fte": 157,
+  "fte": 34,
   "fteByYear": {
-    "2016": 169,
-    "2017": 157
+    "2015": 223,
+    "2016": 173,
+    "2017": 161,
+    "2018": 62,
+    "2019": 34
   },
   "summary": {
-    "latestYear": 2017,
-    "totalIncidents": 13,
-    "topOffense": "Robbery",
-    "topOffenseCount": 5
+    "latestYear": 2019,
+    "totalIncidents": 0,
+    "topOffense": null,
+    "topOffenseCount": 0
   },
   "yearlyTotals": [
+    {
+      "year": 2015,
+      "total": 0
+    },
     {
       "year": 2016,
       "total": 8
@@ -26,6 +33,14 @@
     {
       "year": 2017,
       "total": 13
+    },
+    {
+      "year": 2018,
+      "total": 0
+    },
+    {
+      "year": 2019,
+      "total": 0
     }
   ],
   "trends": [
@@ -84,32 +99,85 @@
       "count": 1
     }
   ],
-  "breakdownByOffense": [
-    {
-      "offense": "Robbery",
-      "count": 5
-    },
-    {
-      "offense": "Aggravated Assault",
-      "count": 3
-    },
-    {
-      "offense": "Motor Vehicle Theft",
-      "count": 3
-    },
-    {
-      "offense": "Rape",
-      "count": 1
-    },
-    {
-      "offense": "Weapons Arrest",
-      "count": 1
-    }
+  "breakdownByOffense": [],
+  "breakdownByGeo": [],
+  "notReported": [
+    2020,
+    2021,
+    2022,
+    2023,
+    2024
   ],
-  "breakdownByGeo": [
-    {
-      "geo": "Public property",
-      "count": 13
+  "institution": {
+    "id": 231068,
+    "byYear": {
+      "2015": {
+        "campuses": 2,
+        "online": 43,
+        "rateRanked": false,
+        "counts": {
+          "criminal": 32,
+          "all": 34,
+          "aggravated_assault": 2,
+          "burglary": 13,
+          "domestic_violence": 2,
+          "fondling": 2,
+          "rape": 7,
+          "robbery": 8
+        }
+      },
+      "2016": {
+        "campuses": 2,
+        "online": 49,
+        "rateRanked": false,
+        "counts": {
+          "criminal": 8,
+          "all": 12,
+          "dating_violence": 1,
+          "drug_arrest": 2,
+          "fondling": 1,
+          "motor_vehicle_theft": 2,
+          "robbery": 5,
+          "weapons_arrest": 1
+        }
+      },
+      "2017": {
+        "campuses": 2,
+        "online": 43,
+        "rateRanked": false,
+        "counts": {
+          "criminal": 15,
+          "all": 17,
+          "aggravated_assault": 3,
+          "burglary": 1,
+          "fondling": 1,
+          "motor_vehicle_theft": 3,
+          "rape": 1,
+          "robbery": 6,
+          "stalking": 1,
+          "weapons_arrest": 1
+        }
+      },
+      "2018": {
+        "campuses": 2,
+        "online": 75,
+        "rateRanked": false,
+        "counts": {
+          "criminal": 3,
+          "all": 3,
+          "burglary": 3
+        }
+      },
+      "2019": {
+        "campuses": 2,
+        "online": 79,
+        "rateRanked": false,
+        "counts": {
+          "criminal": 1,
+          "all": 1,
+          "burglary": 1
+        }
+      }
     }
-  ]
+  }
 }

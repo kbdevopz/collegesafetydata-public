@@ -7,20 +7,30 @@
   "ivyLeague": false,
   "isMainCampus": false,
   "campusType": "Branch Campus",
-  "fte": 528,
+  "fte": 560,
   "fteByYear": {
-    "2022": 528
+    "2022": 528,
+    "2023": 492,
+    "2024": 560
   },
   "summary": {
-    "latestYear": 2022,
-    "totalIncidents": 10,
-    "topOffense": "Aggravated Assault",
-    "topOffenseCount": 8
+    "latestYear": 2024,
+    "totalIncidents": 0,
+    "topOffense": null,
+    "topOffenseCount": 0
   },
   "yearlyTotals": [
     {
       "year": 2022,
       "total": 10
+    },
+    {
+      "year": 2023,
+      "total": 0
+    },
+    {
+      "year": 2024,
+      "total": 0
     }
   ],
   "trends": [
@@ -43,24 +53,47 @@
       "count": 1
     }
   ],
-  "breakdownByOffense": [
-    {
-      "offense": "Aggravated Assault",
-      "count": 8
-    },
-    {
-      "offense": "Motor Vehicle Theft",
-      "count": 1
-    },
-    {
-      "offense": "Robbery",
-      "count": 1
-    }
+  "breakdownByOffense": [],
+  "breakdownByGeo": [],
+  "notReported": [
+    2015,
+    2016,
+    2017,
+    2018,
+    2019,
+    2020,
+    2021
   ],
-  "breakdownByGeo": [
-    {
-      "geo": "Public property",
-      "count": 10
+  "institution": {
+    "id": 444088,
+    "byYear": {
+      "2022": {
+        "campuses": 2,
+        "online": 0,
+        "rateRanked": false,
+        "counts": {
+          "criminal": 42,
+          "all": 42,
+          "aggravated_assault": 24,
+          "motor_vehicle_theft": 12,
+          "robbery": 6
+        }
+      },
+      "2023": {
+        "campuses": 2,
+        "online": 0,
+        "rateRanked": false,
+        "counts": {
+          "criminal": 1,
+          "all": 1,
+          "aggravated_assault": 1
+        }
+      },
+      "2024": {
+        "campuses": 2,
+        "online": 0,
+        "rateRanked": false
+      }
     }
-  ]
+  }
 }

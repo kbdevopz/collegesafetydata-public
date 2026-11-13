@@ -7,18 +7,25 @@
   "ivyLeague": false,
   "isMainCampus": false,
   "campusType": "Branch Campus",
-  "fte": 1405,
+  "fte": 1476,
   "fteByYear": {
+    "2020": 1611,
     "2021": 1517,
-    "2022": 1405
+    "2022": 1405,
+    "2023": 1347,
+    "2024": 1476
   },
   "summary": {
-    "latestYear": 2022,
-    "totalIncidents": 1,
-    "topOffense": "Arson",
-    "topOffenseCount": 1
+    "latestYear": 2024,
+    "totalIncidents": 0,
+    "topOffense": null,
+    "topOffenseCount": 0
   },
   "yearlyTotals": [
+    {
+      "year": 2020,
+      "total": 0
+    },
     {
       "year": 2021,
       "total": 1
@@ -26,6 +33,14 @@
     {
       "year": 2022,
       "total": 1
+    },
+    {
+      "year": 2023,
+      "total": 0
+    },
+    {
+      "year": 2024,
+      "total": 0
     }
   ],
   "trends": [
@@ -42,20 +57,78 @@
       "count": 1
     }
   ],
-  "breakdownByOffense": [
-    {
-      "offense": "Arson",
-      "count": 1
-    }
+  "breakdownByOffense": [],
+  "breakdownByGeo": [],
+  "notReported": [
+    2015,
+    2016,
+    2017,
+    2018,
+    2019
   ],
-  "breakdownByGeo": [
-    {
-      "geo": "On-campus",
-      "count": 1
-    },
-    {
-      "geo": "Residence halls",
-      "count": 1
+  "institution": {
+    "id": 166692,
+    "byYear": {
+      "2020": {
+        "campuses": 2,
+        "online": 0,
+        "rateRanked": true,
+        "onlineYear": 2019,
+        "counts": {
+          "all": 15,
+          "liquor_discipline": 14,
+          "stalking": 1
+        }
+      },
+      "2021": {
+        "campuses": 2,
+        "online": 0,
+        "rateRanked": true,
+        "onlineYear": 2019,
+        "counts": {
+          "criminal": 4,
+          "all": 21,
+          "aggravated_assault": 1,
+          "fondling": 2,
+          "liquor_discipline": 17,
+          "rape": 1
+        }
+      },
+      "2022": {
+        "campuses": 2,
+        "online": 7,
+        "rateRanked": true,
+        "counts": {
+          "criminal": 2,
+          "all": 12,
+          "arson": 1,
+          "dating_violence": 2,
+          "liquor_discipline": 5,
+          "rape": 1,
+          "stalking": 3
+        }
+      },
+      "2023": {
+        "campuses": 2,
+        "online": 7,
+        "rateRanked": true,
+        "counts": {
+          "criminal": 3,
+          "all": 9,
+          "fondling": 1,
+          "liquor_discipline": 6,
+          "rape": 2
+        }
+      },
+      "2024": {
+        "campuses": 2,
+        "online": 6,
+        "rateRanked": true,
+        "counts": {
+          "all": 2,
+          "liquor_discipline": 2
+        }
+      }
     }
-  ]
+  }
 }

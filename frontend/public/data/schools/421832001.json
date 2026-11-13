@@ -7,20 +7,27 @@
   "ivyLeague": false,
   "isMainCampus": true,
   "campusType": "Main Campus",
-  "fte": 233,
+  "fte": 191,
   "fteByYear": {
+    "2015": 362,
     "2016": 284,
     "2017": 219,
     "2018": 243,
-    "2019": 233
+    "2019": 233,
+    "2020": 158,
+    "2021": 191
   },
   "summary": {
-    "latestYear": 2019,
-    "totalIncidents": 1,
-    "topOffense": "Drug Arrest",
-    "topOffenseCount": 1
+    "latestYear": 2021,
+    "totalIncidents": 0,
+    "topOffense": null,
+    "topOffenseCount": 0
   },
   "yearlyTotals": [
+    {
+      "year": 2015,
+      "total": 0
+    },
     {
       "year": 2016,
       "total": 13
@@ -36,6 +43,14 @@
     {
       "year": 2019,
       "total": 1
+    },
+    {
+      "year": 2020,
+      "total": 0
+    },
+    {
+      "year": 2021,
+      "total": 0
     }
   ],
   "trends": [
@@ -94,16 +109,67 @@
       "count": 1
     }
   ],
-  "breakdownByOffense": [
-    {
-      "offense": "Drug Arrest",
-      "count": 1
-    }
+  "breakdownByOffense": [],
+  "breakdownByGeo": [],
+  "notReported": [
+    2022,
+    2023,
+    2024
   ],
-  "breakdownByGeo": [
-    {
-      "geo": "On-campus",
-      "count": 1
+  "institution": {
+    "id": 421832,
+    "byYear": {
+      "2015": {
+        "campuses": 1,
+        "online": 0,
+        "rateRanked": false
+      },
+      "2016": {
+        "campuses": 1,
+        "online": 0,
+        "rateRanked": false
+      },
+      "2017": {
+        "campuses": 2,
+        "online": 0,
+        "rateRanked": false,
+        "counts": {
+          "all": 9,
+          "drug_arrest": 8,
+          "liquor_arrest": 1
+        }
+      },
+      "2018": {
+        "campuses": 2,
+        "online": 0,
+        "rateRanked": false
+      },
+      "2019": {
+        "campuses": 2,
+        "online": 0,
+        "rateRanked": false,
+        "counts": {
+          "all": 5,
+          "drug_arrest": 5
+        }
+      },
+      "2020": {
+        "campuses": 2,
+        "online": 0,
+        "rateRanked": false,
+        "onlineYear": 2019,
+        "counts": {
+          "criminal": 2,
+          "all": 2,
+          "burglary": 2
+        }
+      },
+      "2021": {
+        "campuses": 2,
+        "online": 0,
+        "rateRanked": false,
+        "onlineYear": 2019
+      }
     }
-  ]
+  }
 }

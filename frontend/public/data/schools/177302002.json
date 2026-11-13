@@ -7,16 +7,18 @@
   "ivyLeague": false,
   "isMainCampus": false,
   "campusType": "Branch Campus",
-  "fte": 508,
+  "fte": 390,
   "fteByYear": {
     "2018": 221,
-    "2020": 508
+    "2019": 356,
+    "2020": 508,
+    "2021": 390
   },
   "summary": {
-    "latestYear": 2020,
-    "totalIncidents": 3,
-    "topOffense": "Robbery",
-    "topOffenseCount": 3
+    "latestYear": 2021,
+    "totalIncidents": 0,
+    "topOffense": null,
+    "topOffenseCount": 0
   },
   "yearlyTotals": [
     {
@@ -24,8 +26,16 @@
       "total": 1
     },
     {
+      "year": 2019,
+      "total": 0
+    },
+    {
       "year": 2020,
       "total": 3
+    },
+    {
+      "year": 2021,
+      "total": 0
     }
   ],
   "trends": [
@@ -42,16 +52,46 @@
       "count": 3
     }
   ],
-  "breakdownByOffense": [
-    {
-      "offense": "Robbery",
-      "count": 3
-    }
+  "breakdownByOffense": [],
+  "breakdownByGeo": [],
+  "notReported": [
+    2015,
+    2016,
+    2017,
+    2022,
+    2023,
+    2024
   ],
-  "breakdownByGeo": [
-    {
-      "geo": "Public property",
-      "count": 3
+  "institution": {
+    "id": 177302,
+    "byYear": {
+      "2018": {
+        "campuses": 2,
+        "online": 57,
+        "rateRanked": false
+      },
+      "2019": {
+        "campuses": 2,
+        "online": 0,
+        "rateRanked": false
+      },
+      "2020": {
+        "campuses": 2,
+        "online": 0,
+        "rateRanked": false,
+        "onlineYear": 2019
+      },
+      "2021": {
+        "campuses": 2,
+        "online": 0,
+        "rateRanked": false,
+        "onlineYear": 2019,
+        "counts": {
+          "criminal": 1,
+          "all": 1,
+          "motor_vehicle_theft": 1
+        }
+      }
     }
-  ]
+  }
 }

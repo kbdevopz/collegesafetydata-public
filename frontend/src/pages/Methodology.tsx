@@ -95,6 +95,12 @@ export default function Methodology() {
                         </span>
                       </div>
                       <div className="flex items-start gap-2">
+                        <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+                        <span className="text-gray-600 dark:text-gray-400">
+                          <strong className="text-gray-900 dark:text-gray-200">Zero is not the same as not reported:</strong> A campus reported a year when its row in that release has at least one figure that is not blank. A reported year without incidents shows as 0 on the school page and in its charts, and the campus is ranked with 0 (rate 0 when its institution is in the rate rankings), after the campuses with incidents, sharing one rank, by name. A year a campus did not report has no figures at all: its page lists it as not reported and its charts leave a gap there, not a 0. Campuses that reported but never had an incident have school pages too.
+                        </span>
+                      </div>
+                      <div className="flex items-start gap-2">
                         <Info className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
                         <span className="text-gray-600 dark:text-gray-400">
                           <strong className="text-gray-900 dark:text-gray-200">Known errors in DOE files:</strong> In the 2021-2023 release (Crime2024SAS.zip), the residence-hall disciplinary file repeats the on-campus figures for 2022 and 2023, and the residence-hall arrest file has no 2022 liquor-law column. For campuses whose 2022 or 2023 figures come from that release, 2022 residence-hall disciplinary actions and liquor-law arrests come from the 2020-2022 release, and 2023 residence-hall disciplinary actions are left blank.
@@ -137,13 +143,13 @@ export default function Methodology() {
                       <div className="flex items-start gap-2">
                         <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
                         <span className="text-gray-600 dark:text-gray-400">
-                          <strong className="text-gray-900 dark:text-gray-200">2021 onward:</strong> IPEDS provides pre-calculated FTE values directly — we use the official published numbers.
+                          <strong className="text-gray-900 dark:text-gray-200">2021 onward:</strong> NCES's own FTE from its published DRVEF (Derived Fall Enrollment) files.
                         </span>
                       </div>
                       <div className="flex items-start gap-2">
                         <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
                         <span className="text-gray-600 dark:text-gray-400">
-                          <strong className="text-gray-900 dark:text-gray-200">2015-2020:</strong> Pre-calculated FTE isn't available, so we calculate it ourselves from raw enrollment data (full-time and part-time students) using the official IPEDS formula — the same method the government uses.
+                          <strong className="text-gray-900 dark:text-gray-200">2015-2020:</strong> NCES's own FTE as well, from the DRVEF tables of its final IPEDS databases for those years (NCES publishes them only inside those databases). We do not calculate FTE ourselves.
                         </span>
                       </div>
                       <div className="flex items-start gap-2">
@@ -175,64 +181,37 @@ export default function Methodology() {
                 <Calculator className="w-5 h-5 text-primary-600 dark:text-primary-400" />
               </div>
               <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                FTE (Full-Time Equivalent) Calculation
+                FTE (Full-Time Equivalent) Enrollment
               </h2>
             </div>
 
             <p className="text-gray-600 dark:text-gray-400 mb-6">
-              FTE is used as the denominator for calculating per-student crime rates, enabling fair comparisons between institutions of different sizes.
+              FTE is the denominator of the per-student rates: full-time students count fully and part-time students count in part, so schools of different sizes and mixes can be compared. We use the FTE that NCES publishes for each institution and fall, for every year; we do not calculate it.
             </p>
 
-            {/* Formula Box */}
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 rounded-xl p-6 border border-blue-100 dark:border-blue-900/50 mb-6">
-              <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">Official IPEDS Formula (2015-2020)</h4>
-              <code className="block bg-white dark:bg-gray-900 rounded-lg p-4 text-sm text-gray-800 dark:text-gray-200 font-mono">
-                FTE = FT_Undergrad + FT_Graduate<br />
-                &nbsp;&nbsp;&nbsp;&nbsp;+ (PT_Undergrad × 0.403543)<br />
-                &nbsp;&nbsp;&nbsp;&nbsp;+ (PT_Graduate × 0.361702)
-              </code>
-            </div>
-
-            {/* Conversion Factors Table */}
             <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden mb-6">
               <table className="w-full text-sm">
                 <thead className="bg-gray-50 dark:bg-gray-800">
                   <tr>
-                    <th className="px-4 py-3 text-left font-semibold text-gray-900 dark:text-gray-100">Student Type</th>
-                    <th className="px-4 py-3 text-left font-semibold text-gray-900 dark:text-gray-100">Factor</th>
-                    <th className="px-4 py-3 text-left font-semibold text-gray-900 dark:text-gray-100">Interpretation</th>
+                    <th className="px-4 py-3 text-left font-semibold text-gray-900 dark:text-gray-100">Years</th>
+                    <th className="px-4 py-3 text-left font-semibold text-gray-900 dark:text-gray-100">Where NCES's FTE comes from</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
                   <tr>
-                    <td className="px-4 py-3 text-gray-700 dark:text-gray-300">Full-time Undergraduate</td>
-                    <td className="px-4 py-3 font-mono text-gray-900 dark:text-gray-100">1.0</td>
-                    <td className="px-4 py-3 text-gray-600 dark:text-gray-400">Counts as 1.0 FTE</td>
+                    <td className="px-4 py-3 text-gray-700 dark:text-gray-300 whitespace-nowrap">2021-2024</td>
+                    <td className="px-4 py-3 text-gray-600 dark:text-gray-400">The DRVEF (Derived Fall Enrollment) data file of each year, the final revised version once NCES publishes it</td>
                   </tr>
                   <tr>
-                    <td className="px-4 py-3 text-gray-700 dark:text-gray-300">Full-time Graduate</td>
-                    <td className="px-4 py-3 font-mono text-gray-900 dark:text-gray-100">1.0</td>
-                    <td className="px-4 py-3 text-gray-600 dark:text-gray-400">Counts as 1.0 FTE</td>
-                  </tr>
-                  <tr className="bg-primary-50 dark:bg-primary-900/20">
-                    <td className="px-4 py-3 text-gray-700 dark:text-gray-300">Part-time Undergraduate</td>
-                    <td className="px-4 py-3 font-mono text-primary-700 dark:text-primary-300 font-semibold">0.403543</td>
-                    <td className="px-4 py-3 text-gray-600 dark:text-gray-400">~40% of full-time load</td>
-                  </tr>
-                  <tr className="bg-primary-50 dark:bg-primary-900/20">
-                    <td className="px-4 py-3 text-gray-700 dark:text-gray-300">Part-time Graduate</td>
-                    <td className="px-4 py-3 font-mono text-primary-700 dark:text-primary-300 font-semibold">0.361702</td>
-                    <td className="px-4 py-3 text-gray-600 dark:text-gray-400">~36% of full-time load</td>
+                    <td className="px-4 py-3 text-gray-700 dark:text-gray-300 whitespace-nowrap">2015-2020</td>
+                    <td className="px-4 py-3 text-gray-600 dark:text-gray-400">The DRVEF table inside NCES's final IPEDS database of each collection year (IPEDS_2015-16_Final.zip to IPEDS_2020-21_Final.zip). NCES publishes these years' FTE only there, so we copied it, with each database's checksum, into the open-source pipeline</td>
                   </tr>
                 </tbody>
               </table>
             </div>
 
-            <p className="text-xs text-gray-500 dark:text-gray-500">
-              <strong>Source:</strong> NCES IPEDS Survey Methodology —{' '}
-              <a href="https://nces.ed.gov/ipeds/survey-components/8" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-700 dark:hover:text-gray-300">
-                nces.ed.gov/ipeds/survey-components/8
-              </a>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              Earlier versions of this site estimated 2015-2020 FTE with one formula for every school (part-time undergraduates × 0.403543, part-time graduate students × 0.361702). That matched NCES's figure exactly for only about 58% of institutions, and was off by more than 5% for about 830 institutions a year, so it is no longer used.
             </p>
           </section>
 
@@ -258,6 +237,19 @@ export default function Methodology() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4 sm:col-span-2">
+                <h5 className="font-medium text-gray-900 dark:text-gray-100 text-sm mb-2">Rates Are Per Institution</h5>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  NCES publishes enrollment (FTE) for each institution, not for each campus, and every campus of an
+                  institution (all campuses whose UNITID starts with the same six digits) carries the same FTE. So a
+                  rate divides the incidents of all the institution's campuses that year by the institution's FTE.
+                  Rate rankings list institutions, one row each, under the institution's name and linked to its main
+                  campus (or, when the main campus did not report, its campus with the most incidents that year);
+                  school pages and Compare label such a rate "all N campuses combined". Rankings by count still list
+                  each campus. The incidents are counted as in rankings: residence halls are not added (they are part
+                  of on-campus), and figures also reported by another campus count once.
+                </p>
+              </div>
               <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
                 <h5 className="font-medium text-gray-900 dark:text-gray-100 text-sm mb-2">Total Counts</h5>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -266,9 +258,24 @@ export default function Methodology() {
                 </p>
               </div>
               <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
-                <h5 className="font-medium text-gray-900 dark:text-gray-100 text-sm mb-2">Rate Display Threshold</h5>
+                <h5 className="font-medium text-gray-900 dark:text-gray-100 text-sm mb-2">Who Rate Rankings Leave Out</h5>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Rates only displayed for institutions with FTE ≥ 1,000 to avoid misleading statistics
+                  Institutions with fewer than 1,000 FTE students that year, where a few incidents swing the rate.
+                  And institutions where at least 50% of students study exclusively online (NCES's share of students
+                  enrolled exclusively in distance education): Clery figures cover the campus, which most of their
+                  students never attend, so their rate is not comparable. School pages still show these rates, with a
+                  note. An institution without NCES's online figure is not left out. For 2020 and 2021 the test uses
+                  each institution's fall 2019 share (its own year's only when NCES has no 2019 figure), because
+                  temporary remote teaching during the pandemic does not make a school an online-only school.
+                </p>
+              </div>
+              <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4 sm:col-span-2">
+                <h5 className="font-medium text-gray-900 dark:text-gray-100 text-sm mb-2">Ties in Rankings</h5>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Schools with the same count (or the same rate) share a rank, and the next rank skips the places
+                  the tie takes: 1, 2, 2, 4. Tied schools are listed by name. Campuses that reported the year but
+                  had none of the selected category come last, with 0, sharing one rank. A reported zero can reflect how
+                  an institution classifies or reports incidents, not only how safe it is.
                 </p>
               </div>
             </div>
@@ -371,6 +378,24 @@ export default function Methodology() {
                 <p className="text-xs text-gray-500 dark:text-gray-500 mt-3">
                   Note: High counts in these categories may reflect enforcement practices rather than safety levels.
                 </p>
+              </div>
+
+              <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-5">
+                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">Totals on This Site</h4>
+                <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                  <p>
+                    <strong className="text-gray-900 dark:text-gray-100">All criminal offenses</strong> (the
+                    default view): the 11 criminal offenses above, added up.
+                  </p>
+                  <p>
+                    <strong className="text-gray-900 dark:text-gray-100">All categories (crimes, arrests,
+                    referrals)</strong>: every category added up. These are different kinds of counts: arrests
+                    and disciplinary referrals count people (each person arrested or referred), not incidents,
+                    and an incident of dating violence, domestic violence or stalking can also be counted as a
+                    criminal offense such as aggravated assault. So this total is not a number of incidents,
+                    and high totals often reflect drug and alcohol enforcement rather than violent crime.
+                  </p>
+                </div>
               </div>
             </div>
           </section>
@@ -489,14 +514,16 @@ export default function Methodology() {
               <h5 className="font-medium text-gray-900 dark:text-gray-100 text-sm mb-3">Audit Checks Performed:</h5>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
                 {[
-                  "School completeness (every school has a published file)",
-                  "Incident total accuracy (each school file's yearly totals match the aggregate table)",
+                  "School completeness (every campus that reported a year, zeros included, has a published file and is in the search)",
+                  "Incident total accuracy (each school file has exactly the years the campus reported, and its yearly totals match the aggregate table)",
                   "FTE coverage by year",
                   "Rate calculation verification",
-                  "Ranking order validation",
-                  "Percentage sum validation",
+                  "Ranking order validation (ties share a rank: 1, 2, 2, 4)",
+                  "Ranking totals (each ranking's total and tables agree with its entries)",
                   "Aggregate consistency (the school-year aggregate table matches the fact table it is built from)",
                   "Shared figures (figures two campuses report identically are counted once in totals and rankings)",
+                  "Enrollment matches NCES (every FTE is NCES's own published figure)",
+                  "Institution rates (recomputed from the facts: all campuses' incidents per institution FTE, and exactly the institutions rate rankings may list)",
                 ].map((check, i) => (
                   <div key={i} className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
                     <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
@@ -528,7 +555,8 @@ export default function Methodology() {
                 <div>etl/01_download_raw_data.py — Download DOE crime data</div>
                 <div>etl/01b_download_ipeds.py — Download IPEDS enrollment</div>
                 <div>etl/02_transform_to_parquet.py — Transform crime data</div>
-                <div>etl/02b_transform_ef_enrollment.py — Calculate FTE from EF (2015-2020)</div>
+                <div>etl/01c_extract_ipeds_official.ps1 — Copy NCES's 2015-2020 FTE from its IPEDS databases (Windows)</div>
+                <div>etl/02b_transform_ef_enrollment.py — NCES's FTE for 2015-2020</div>
                 <div>etl/02a_transform_enrollment.py — Process DRVEF FTE (2021 onward)</div>
                 <div>etl/03_build_dimensions.py — Build school and offense tables</div>
                 <div>etl/04_create_aggregates.py — Create aggregated tables</div>

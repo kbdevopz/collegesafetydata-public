@@ -7,18 +7,24 @@
   "ivyLeague": false,
   "isMainCampus": false,
   "campusType": "Branch Campus",
-  "fte": 1012,
+  "fte": 923,
   "fteByYear": {
+    "2021": 645,
     "2022": 995,
-    "2023": 1012
+    "2023": 1012,
+    "2024": 923
   },
   "summary": {
-    "latestYear": 2023,
-    "totalIncidents": 1,
-    "topOffense": "Drug Arrest",
-    "topOffenseCount": 1
+    "latestYear": 2024,
+    "totalIncidents": 0,
+    "topOffense": null,
+    "topOffenseCount": 0
   },
   "yearlyTotals": [
+    {
+      "year": 2021,
+      "total": 0
+    },
     {
       "year": 2022,
       "total": 3
@@ -26,6 +32,10 @@
     {
       "year": 2023,
       "total": 1
+    },
+    {
+      "year": 2024,
+      "total": 0
     }
   ],
   "trends": [
@@ -48,16 +58,61 @@
       "count": 1
     }
   ],
-  "breakdownByOffense": [
-    {
-      "offense": "Drug Arrest",
-      "count": 1
-    }
+  "breakdownByOffense": [],
+  "breakdownByGeo": [],
+  "notReported": [
+    2015,
+    2016,
+    2017,
+    2018,
+    2019,
+    2020
   ],
-  "breakdownByGeo": [
-    {
-      "geo": "Public property",
-      "count": 1
+  "institution": {
+    "id": 451149,
+    "byYear": {
+      "2021": {
+        "campuses": 3,
+        "online": 0,
+        "rateRanked": false,
+        "onlineYear": 2019,
+        "counts": {
+          "criminal": 2,
+          "all": 2,
+          "burglary": 1,
+          "robbery": 1
+        }
+      },
+      "2022": {
+        "campuses": 3,
+        "online": 0,
+        "rateRanked": false,
+        "counts": {
+          "criminal": 4,
+          "all": 4,
+          "aggravated_assault": 1,
+          "motor_vehicle_theft": 2,
+          "robbery": 1
+        }
+      },
+      "2023": {
+        "campuses": 3,
+        "online": 0,
+        "rateRanked": true,
+        "counts": {
+          "criminal": 4,
+          "all": 5,
+          "aggravated_assault": 1,
+          "drug_arrest": 1,
+          "motor_vehicle_theft": 1,
+          "robbery": 2
+        }
+      },
+      "2024": {
+        "campuses": 3,
+        "online": 0,
+        "rateRanked": false
+      }
     }
-  ]
+  }
 }
