@@ -449,9 +449,10 @@ export default function Methodology() {
             </h3>
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
               Every rule that rates and rate rankings follow, with its threshold. None of them changes a count or a
-              ranking by count, and school pages show every rate an institution has, with a note when a rule leaves
-              it out of rate rankings. The numbers cover 2015-2024; an institution-year is one institution in one
-              year.
+              ranking by count. School pages and Compare show the rate of an institution under the floor of rule 2
+              or with fewer than 20 incidents, with a note; for an institution-year left out by rule 3, 8 or 9 they
+              show the counts and a note saying why, and no rate. The numbers cover 2015-2024; an institution-year
+              is one institution in one year.
             </p>
             <ol className="list-decimal pl-5 space-y-4 text-sm text-gray-600 dark:text-gray-400">
               <li>

@@ -185,8 +185,10 @@ institution's on-campus FTE (`04_create_aggregates.py`,
 Every rule rates and rate rankings follow (constants in `config.py`, rules
 in `04_create_aggregates.py`, checked again without that code by
 `07_comprehensive_audit.py` checks 10 and 12). None changes a count or a
-ranking by count. School pages show every rate an institution has, with a
-note when a rule leaves it out of rate rankings. Numbers are for 2015-2024
+ranking by count. School pages and Compare show the rate of an institution
+under the floor (rule 2) or with fewer than 20 incidents, with a note; an
+institution-year left out by rule 3, 8 or 9 gets no rate there, only its
+counts and the note (`rateExcludedReason`). Numbers are for 2015-2024
 ("institution-years": one institution in one year).
 
 1. **On-campus FTE** (`MIN_FTE_FOR_RATE`, `ONLINE_SHARE_YEAR`). On-campus

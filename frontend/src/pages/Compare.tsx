@@ -625,7 +625,10 @@ export default function Compare() {
           <Info className="w-4 h-4 text-gray-500 flex-shrink-0 mt-0.5" />
           <p className="text-sm text-gray-600 dark:text-gray-400">
             {showRate ? (
-              <>Per 10,000 students. <span className="text-amber-600 dark:text-amber-400">*</span> = small sample.</>
+              <>
+                Per 10,000 on-campus FTE students of the whole institution, with 95% intervals. Rankings rank only
+                rates on at least {rateRules?.minCount ?? 20} incidents; a smaller count gives a wide interval.
+              </>
             ) : (
               <>Comparing counts of {selectionLabel(selectedOffense).toLowerCase()}. Toggle "Rate" for per-student comparison.</>
             )}
@@ -766,7 +769,15 @@ export default function Compare() {
                                 )}
                               </div>
                             ) : (
-                              <span className="text-xl text-gray-400 dark:text-gray-500">N/A</span>
+                              <div>
+                                <span className="text-xl text-gray-400 dark:text-gray-500">N/A</span>
+                                {/* Why a rate rule leaves this institution-year without a rate */}
+                                {metrics?.note && (
+                                  <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 max-w-xs mx-auto">
+                                    {metrics.note}
+                                  </div>
+                                )}
+                              </div>
                             )
                           ) : (
                             metrics?.totalIncidents !== null && metrics?.totalIncidents !== undefined ? (
@@ -909,7 +920,14 @@ export default function Compare() {
                               )}
                             </div>
                           ) : (
-                            <div className="text-xl text-gray-400 dark:text-gray-500">N/A</div>
+                            <div>
+                              <div className="text-xl text-gray-400 dark:text-gray-500">N/A</div>
+                              {metrics?.note && (
+                                <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                  {metrics.note}
+                                </div>
+                              )}
+                            </div>
                           )
                         ) : (
                           metrics?.totalIncidents !== null && metrics?.totalIncidents !== undefined ? (
