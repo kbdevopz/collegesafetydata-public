@@ -334,8 +334,8 @@ export default function Compare() {
       const label = year === null ? latestFte(profile) : (yearFte !== null ? { year, fte: yearFte } : null)
       if (!label) return
       const campuses = profile.institution?.byYear[String(label.year)]?.campuses ?? 1
-      const where = campuses > 1 ? ` at all ${campuses} campuses` : ''
-      labels.set(profile.unitid, `${formatNumber(label.fte)} students${where} (${label.year})`)
+      const where = campuses > 1 ? `, all ${campuses} campuses` : ''
+      labels.set(profile.unitid, `Institution FTE ${formatNumber(label.fte)} (${label.year}${where})`)
     })
     return labels
   }, [profiles, selectedYear])

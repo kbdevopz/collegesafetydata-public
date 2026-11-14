@@ -22,7 +22,110 @@ import { summarizeEnrollmentStatus, describeEnrollmentStatus } from '../lib/enro
 import { summarizeDataYears } from '../lib/coverage'
 import SourceLink from '../components/SourceLink'
 import { SERIES_NOTES, SERIES_CONTEXT } from '../data/seriesNotes'
-import { useLocation } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
+
+// The Limitations section, in reading order
+const LIMITATIONS: { title: string; body: React.ReactNode }[] = [
+  {
+    title: 'Reports, not how often crimes happen',
+    body: (
+      <>
+        Clery figures count crimes reported to campus security authorities or police, not victimization. Many
+        crimes are never reported: in the Bureau of Justice Statistics' analysis of the National Crime
+        Victimization Survey, 80% of rape and sexual assault victimizations of female college students aged 18-24
+        (1995-2013) were not reported to police (
+        <SourceLink source={SOURCES.bjsCollege2014}>BJS, NCJ 248471</SourceLink>). That survey does not measure
+        reports to campus officials, which Clery figures include, so the share is not a Clery figure. A higher count
+        can mean more crime, more reporting, or both; a lower count does not show that a campus is safer.
+      </>
+    ),
+  },
+  {
+    title: 'Counted by the year reported',
+    body: (
+      <>
+        A year's figure is the crimes reported that year, including some that happened earlier. Many reports of
+        past abuse at one institution can make one year jump (see{' '}
+        <a href="#year-reported" className="underline">How Institutions Count</a>).
+      </>
+    ),
+  },
+  {
+    title: 'Institutions classify, count and map differently',
+    body: (
+      <>
+        Each institution decides which incidents fit which category, who its campus security authorities are,
+        and which buildings and streets are its campus, noncampus and public property. ED's 2020 Appendix says ED
+        will accept an institution's reasonable interpretation of terms and applies no measurable distance to a
+        campus's "reasonably contiguous geographic area". Two institutions with the same incidents can report
+        different figures, and public property next to a city campus is not comparable with a rural one.
+      </>
+    ),
+  },
+  {
+    title: 'Rates are per enrolled student, not per person on campus',
+    body: (
+      <>
+        Rates divide by the institution's fall FTE enrollment from NCES. They do not count residents who are not
+        students, employees, visitors or patients, or how many students live on campus, and FTE is per
+        institution, not per campus. Where an institution's Clery geography includes places used mostly by people
+        who are not its students, such as a hospital or clinic, the rate per student says little about risk to a
+        student.
+      </>
+    ),
+  },
+  {
+    title: 'Small numbers swing',
+    body: (
+      <>
+        Rates built on few incidents or a small enrollment are marked with an asterisk (*; the thresholds are
+        under <a href="#rates" className="underline">Crime Rate Calculation</a>). One or two incidents more or less can move such an institution many places in a ranking, and a small institution's
+        rate can change several-fold from one year to the next. Treat close ranks as ties.
+      </>
+    ),
+  },
+  {
+    title: 'A rate of 0 is a reported zero',
+    body: (
+      <>
+        An institution ranked with rate 0 reported no incident of that category that year. That can reflect
+        how it classifies or reports incidents, not only how safe it is, and a small institution can have 0 by
+        chance. A year a campus did not report is not 0: it has no figures and is not ranked.
+      </>
+    ),
+  },
+  {
+    title: 'Totals add unlike crimes',
+    body: (
+      <>
+        "All criminal offenses" adds the 11 offenses with equal weight: a murder and a motor vehicle theft each
+        count 1. In this data, motor vehicle theft was about 15% of the national total in 2015 and about 37% in
+        2024, so much of the recent rise in that total is vehicle theft. Look at single offenses before drawing
+        conclusions from a total.
+      </>
+    ),
+  },
+  {
+    title: 'Reported by institutions, not audited here',
+    body: (
+      <>
+        The figures are what institutions submitted to ED's survey, as ED publishes them. This site does not check
+        them against institutions' records or Annual Security Reports. Its audit checks that the published files
+        are consistent with the pipeline's tables built from DOE's and NCES's files; it does not verify what
+        institutions reported.
+      </>
+    ),
+  },
+  {
+    title: 'Not every Clery category is shown',
+    body: (
+      <>
+        Hate crimes, unfounded reports and fire statistics are not shown (see{' '}
+        <a href="#not-shown" className="underline">What This Site Does Not Show</a>).
+      </>
+    ),
+  },
+]
 
 // Campuses whose figures for `year` come from a release with a known DOE
 // file error (metadata.json "knownDefects"), or null when not published
@@ -271,7 +374,7 @@ export default function Methodology() {
           </section>
 
           {/* Crime Rate Calculation */}
-          <section>
+          <section id="rates" className="scroll-mt-20">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/50 rounded-xl flex items-center justify-center">
                 <BarChart3 className="w-5 h-5 text-primary-600 dark:text-primary-400" />
@@ -287,7 +390,8 @@ export default function Methodology() {
                 Rate = (Incident Count / FTE) × 10,000
               </code>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                This rate standardization allows for fair comparison between institutions of different sizes.
+                A size-adjusted figure: it removes the effect of enrollment size on counts, not the other
+                differences between institutions listed under Limitations.
               </p>
             </div>
 
@@ -313,9 +417,13 @@ export default function Methodology() {
                 </p>
               </div>
               <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
-                <h5 className="font-medium text-gray-900 dark:text-gray-100 text-sm mb-2">Who Rate Rankings Leave Out</h5>
+                <h5 className="font-medium text-gray-900 dark:text-gray-100 text-sm mb-2">Current Rate Rules</h5>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                  A rate with fewer than 10 incidents, or an FTE under 1,000, is marked with an asterisk (*).
+                </p>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Institutions with fewer than 1,000 FTE students that year, where a few incidents swing the rate.
+                  Rate rankings leave out institutions with fewer than 1,000 FTE students that year, where a few
+                  incidents swing the rate.
                   And institutions where at least 50% of students study exclusively online (NCES's share of students
                   enrolled exclusively in distance education): Clery figures cover the campus, which most of their
                   students never attend, so their rate is not comparable. School pages still show these rates, with a
@@ -566,62 +674,68 @@ export default function Methodology() {
           </section>
 
           {/* Data Limitations */}
-          <section>
+          <section id="limitations" className="scroll-mt-20">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 bg-amber-100 dark:bg-amber-900/50 rounded-xl flex items-center justify-center">
                 <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400" />
               </div>
               <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                Data Limitations
+                Limitations
               </h2>
             </div>
 
             <p className="text-gray-600 dark:text-gray-400 mb-6">
-              Understanding these limitations is essential for interpreting the data correctly.
+              What these figures can and cannot support. Read these before comparing schools or years.
             </p>
 
-            {/* Key Insight */}
-            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
-              <div className="flex items-start gap-3">
-                <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-sm font-medium text-blue-800 dark:text-blue-200">
-                    Key insight: Higher reported numbers ≠ more dangerous
-                  </p>
-                  <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
-                    Schools with robust reporting systems, campus police, and survivor support services often have
-                    higher reported numbers—which can indicate a healthier reporting culture, not more crime.
-                  </p>
+            <div className="space-y-4">
+              {LIMITATIONS.map((item) => (
+                <div key={item.title} className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
+                  <h3 className="font-medium text-gray-900 dark:text-gray-100 text-sm mb-1">{item.title}</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">{item.body}</p>
                 </div>
-              </div>
+              ))}
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
-                <h4 className="font-medium text-gray-900 dark:text-gray-100 text-sm mb-2">Underreporting</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  ~80% of campus crimes are never reported. Only 20% of sexual assaults are reported (RAINN).
-                </p>
-              </div>
-              <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
-                <h4 className="font-medium text-gray-900 dark:text-gray-100 text-sm mb-2">Reporting Lag</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  DOE releases data ~1 year late. Current data contains {coverageText ? `${coverageText} statistics` : 'statistics for the years listed above'}.
-                </p>
-              </div>
-              <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
-                <h4 className="font-medium text-gray-900 dark:text-gray-100 text-sm mb-2">Institutional Variation</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Reporting practices, police staffing, and definitions may vary by institution.
-                </p>
-              </div>
-              <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
-                <h4 className="font-medium text-gray-900 dark:text-gray-100 text-sm mb-2">Definition Changes</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  FBI rape definition changed in 2013; VAWA offenses added in 2014.
-                </p>
-              </div>
-            </div>
+            <h3 id="corrections" className="scroll-mt-20 text-lg font-semibold text-gray-900 dark:text-gray-100 mt-8 mb-3">
+              What this site corrects, and what it does not
+            </h3>
+            <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400 list-disc ml-5">
+              <li>
+                <strong className="text-gray-900 dark:text-gray-200">One DOE release per campus-year.</strong> Each
+                campus-year comes from the newest DOE release that reports it, with all of its figures from that
+                release, so a campus missing from the latest release keeps the years an earlier release published.
+              </li>
+              <li>
+                <strong className="text-gray-900 dark:text-gray-200">Figures reported by two campuses count once.</strong>{' '}
+                When campuses in the same state report exactly the same figures for a location (or a whole year),
+                totals and rankings count them once, under one host campus. School pages still show each campus's
+                figures as DOE publishes them.
+              </li>
+              <li>
+                <strong className="text-gray-900 dark:text-gray-200">Known errors in DOE's 2021-2023 release.</strong>{' '}
+                Its residence-hall disciplinary file repeats the on-campus figures for 2022 and 2023, and its
+                residence-hall arrest file has no 2022 liquor-law column. For campuses whose figures come from that
+                release, 2022 values are taken from the 2020-2022 release and 2023 residence-hall disciplinary
+                referrals are left out (see <a href="#known-defects" className="underline">Comparing Years</a>).
+              </li>
+              <li>
+                <strong className="text-gray-900 dark:text-gray-200">DOE's 2015 and 2016 files are read correctly.</strong>{' '}
+                Those SAS files are read with a reader that returns every row; an earlier reader lost 13 Alabama
+                campuses' 2015 and 2016 figures.
+              </li>
+              <li>
+                <strong className="text-gray-900 dark:text-gray-200">Enrollment is NCES's own FTE</strong> for every
+                year, never an estimate.
+              </li>
+              <li>
+                <strong className="text-gray-900 dark:text-gray-200">Not corrected:</strong> the figures themselves.
+                This site does not audit institutions or change what they reported; it publishes DOE's figures with
+                the rules above. An implausible figure here is an institution's report as DOE publishes it: ask the
+                institution, or check its Annual Security Report. See also the{' '}
+                <Link to="/changes" className="underline">list of corrections to this site's data</Link>.
+              </li>
+            </ul>
           </section>
 
           {/* Data Audit Download */}
@@ -636,8 +750,9 @@ export default function Methodology() {
             </div>
 
             <p className="text-gray-600 dark:text-gray-400 mb-6">
-              We maintain a comprehensive data quality audit that validates all {schoolCount !== undefined ? `${formatNumber(schoolCount)} ` : ''}schools in our dataset.
-              The audit checks for data completeness, accuracy, and consistency.
+              Each build runs an audit of internal consistency over {schoolCount !== undefined ? `all ${formatNumber(schoolCount)} ` : 'every '}campus
+              pages: the published files must agree with each other and with the pipeline's tables. It does not show
+              that institutions' figures are accurate; they are published as reported to the Department of Education.
             </p>
 
             <p className="text-gray-600 dark:text-gray-400 mb-6">
@@ -655,8 +770,8 @@ export default function Methodology() {
                     Download Full Audit Report
                   </h4>
                   <p className="text-sm text-primary-700 dark:text-primary-300 mb-4">
-                    Machine-readable JSON file containing validation results for all schools,
-                    including coverage statistics, rate calculation accuracy, and ranking order validation.
+                    JSON file with the result of each check below, coverage counts by year, and the checksum
+                    of the build it audited.
                   </p>
                   <div className="flex flex-wrap gap-4 text-sm text-primary-700 dark:text-primary-300">
                     <span>Format: <strong>JSON</strong></span>

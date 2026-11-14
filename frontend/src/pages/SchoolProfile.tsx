@@ -160,14 +160,14 @@ export default function SchoolProfile() {
     ? profile?.institution?.byYear[String(headerFte.year)]?.campuses ?? 1
     : 1
 
-  // Get top offense for selected year
+  // Most common criminal offense in the selected year (arrests, referrals
+  // and VAWA offenses are other kinds of counts, so they are not compared)
   const selectedYearTopOffense = useMemo(() => {
-    if (selectedYearOffenseBreakdown.length === 0) return { offense: null, count: 0 }
-    return {
-      offense: selectedYearOffenseBreakdown[0].offense,
-      count: selectedYearOffenseBreakdown[0].count
-    }
-  }, [selectedYearOffenseBreakdown])
+    const top = (profile?.trends ?? [])
+      .filter(t => t.year === selectedYear && inSelection(t, CRIMINAL) && t.count > 0)
+      .sort((a, b) => b.count - a.count)[0]
+    return top ? { offense: top.offense, count: top.count } : { offense: null, count: 0 }
+  }, [profile, selectedYear])
 
   // Figures for the selected year that DOE also publishes, identically, for
   // another campus; one entry per host, with the locations it shares.
@@ -332,8 +332,8 @@ export default function SchoolProfile() {
                 title="Enrollment (FTE) of the whole institution for the latest available year; NCES counts enrollment per institution, not per campus"
               >
                 <Users className="w-4 h-4" />
-                {formatNumber(headerFte.fte)} students
-                {headerCampuses > 1 && <> at all {headerCampuses} campuses</>}
+                Institution FTE: {formatNumber(headerFte.fte)}
+                {headerCampuses > 1 && <> (all {headerCampuses} campuses)</>}
                 <span className="text-xs text-gray-400 dark:text-gray-500">({headerFte.year})</span>
               </span>
             )}
@@ -468,15 +468,13 @@ export default function SchoolProfile() {
             </div>
             {!showRate && selectedYearYoYChange && selectedYearYoYChange.absolute === 0 && (
               <div className="text-sm mt-1 text-gray-500 dark:text-gray-400">
-                No change from {selectedYear && selectedYear - 1}
+                Same number reported as in {selectedYear && selectedYear - 1}
               </div>
             )}
             {!showRate && selectedYearYoYChange && selectedYearYoYChange.absolute !== 0 && (
               <div
-                className={cn(
-                  'flex items-center gap-1 text-sm mt-1',
-                  selectedYearYoYChange.absolute > 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'
-                )}
+                className="flex items-center gap-1 text-sm mt-1 text-gray-600 dark:text-gray-400"
+                title="A change in reported counts can reflect changes in reporting, not only in crime"
               >
                 {selectedYearYoYChange.absolute > 0 ? (
                   <TrendingUp className="w-4 h-4" />
@@ -484,7 +482,7 @@ export default function SchoolProfile() {
                   <TrendingDown className="w-4 h-4" />
                 )}
                 {selectedYearYoYChange.absolute > 0 ? '+' : ''}
-                {formatNumber(selectedYearYoYChange.absolute)} from {selectedYear && selectedYear - 1}
+                {formatNumber(selectedYearYoYChange.absolute)} reported vs {selectedYear && selectedYear - 1}
               </div>
             )}
             {showRate && selectedYearFte && (
@@ -503,14 +501,14 @@ export default function SchoolProfile() {
           </div>
 
           <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 p-6 transition-all duration-300">
-            <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">Most Common Offense</div>
+            <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">Most Common Criminal Offense</div>
             <div className="text-xl font-bold text-gray-900 dark:text-gray-100">
               {selectedYearTopOffense.offense || 'None'}
             </div>
             <div className="text-sm text-gray-600 dark:text-gray-400">
               {selectedYearTopOffense.offense
-                ? `${formatNumber(selectedYearTopOffense.count)} incidents`
-                : `No incidents in ${selectedYear}`}
+                ? `${formatNumber(selectedYearTopOffense.count)} reported ${selectedYearTopOffense.count === 1 ? 'offense' : 'offenses'}`
+                : `No criminal offenses reported in ${selectedYear}`}
             </div>
           </div>
 
@@ -532,11 +530,11 @@ export default function SchoolProfile() {
           </div>
 
           <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 p-6 transition-all duration-300">
-            <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">Offense Types ({selectedYear})</div>
+            <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">Categories ({selectedYear})</div>
             <div className="text-xl font-bold text-gray-900 dark:text-gray-100">
               {selectedYearOffenseBreakdown.length}
             </div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">Categories with incidents</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">Categories above 0 (crimes, arrests, referrals)</div>
           </div>
         </div>
 
@@ -760,7 +758,7 @@ export default function SchoolProfile() {
           {/* By Offense Type */}
           <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 p-6 transition-colors duration-200">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-              By Offense Type ({selectedYear})
+              By Category ({selectedYear})
             </h2>
             {selectedYearOffenseBreakdown.length === 0 ? (
               <div className="text-center py-8 text-gray-500 dark:text-gray-400">

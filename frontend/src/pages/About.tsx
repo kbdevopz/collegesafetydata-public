@@ -340,25 +340,22 @@ export default function About() {
               </h2>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
               <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-5">
                 <div className="text-3xl font-bold text-primary-600 dark:text-primary-400 mb-2">
                   {typeof schoolCount === 'number' && schoolCount > 0 ? formatNumber(schoolCount) : '—'}
                 </div>
-                <div className="text-sm font-medium text-gray-900 dark:text-gray-100">Schools Covered</div>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">All U.S. colleges reporting Clery data</p>
+                <div className="text-sm font-medium text-gray-900 dark:text-gray-100">Campuses</div>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  Every campus that reported to DOE in at least one year{dataYears.span ? ` of ${dataYears.span}` : ''}; each has a school page
+                </p>
               </div>
               <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-5">
                 <div className="text-3xl font-bold text-primary-600 dark:text-primary-400 mb-2">{dataYears.count ?? '—'}</div>
                 <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{dataYears.count === 1 ? 'Year' : 'Years'} of Data</div>
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  {dataYears.span ? `${dataYears.span} for consistency` : 'Every year in the published data'}
+                  {dataYears.span ? `Calendar years ${dataYears.span}` : 'Every year in the published data'}
                 </p>
-              </div>
-              <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-5">
-                <div className="text-3xl font-bold text-primary-600 dark:text-primary-400 mb-2">1,000+</div>
-                <div className="text-sm font-medium text-gray-900 dark:text-gray-100">FTE Minimum</div>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">For rate-based rankings</p>
               </div>
             </div>
 
@@ -381,9 +378,9 @@ export default function About() {
                 <div>
                   <h4 className="font-medium text-gray-900 dark:text-gray-100 text-sm">Per 10k Rates</h4>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Incidents per 10,000 FTE students — enables fair comparison between schools of different sizes.
-                    Rates are per institution (all its campuses), because NCES counts enrollment per institution, and
-                    rate rankings leave out institutions where at least half of the students study exclusively online.
+                    Incidents per 10,000 FTE students of the whole institution: a size-adjusted figure, not a measure
+                    of risk. Which institutions rate rankings list is described on the{' '}
+                    <Link to="/methodology#rates" className="text-primary-600 dark:text-primary-400 underline">Methodology page</Link>.
                   </p>
                 </div>
               </div>
@@ -394,7 +391,7 @@ export default function About() {
                 <div>
                   <h4 className="font-medium text-gray-900 dark:text-gray-100 text-sm">Percentages</h4>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Each school's share of total incidents within the selected filter group (state, region, etc.)
+                    Each school's share of the total for the selected ranking (national, a state or the Ivy League)
                   </p>
                 </div>
               </div>
@@ -413,7 +410,9 @@ export default function About() {
             </div>
 
             <p className="text-gray-600 dark:text-gray-400 mb-6">
-              Understanding these limitations is essential for interpreting the data correctly.
+              A short version; the{' '}
+              <Link to="/methodology#limitations" className="text-primary-600 dark:text-primary-400 underline">Methodology page</Link>{' '}
+              has the full list and sources.
             </p>
 
             {/* Key Insight Callout */}
@@ -422,11 +421,11 @@ export default function About() {
                 <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
                 <div>
                   <p className="text-sm font-medium text-blue-800 dark:text-blue-200">
-                    Key insight: Higher reported numbers ≠ more dangerous
+                    Higher reported numbers do not by themselves mean more danger
                   </p>
                   <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
-                    Schools with robust reporting systems, campus police, and survivor support services often have
-                    higher reported numbers—which can indicate a healthier reporting culture, not more crime.
+                    Clery figures count reports. A higher count can reflect more crime, more reporting, or both, and a
+                    lower count does not show that a campus is safer.
                   </p>
                 </div>
               </div>
@@ -439,39 +438,43 @@ export default function About() {
                 description={describeReportingLag(dataYears.latest)}
               />
               <LimitationCard
-                icon={Users}
-                title="Reporting Varies by School"
-                description="Higher numbers may indicate better reporting, not more crime. Lower numbers ≠ safer."
+                icon={Clock}
+                title="Counted by Year Reported"
+                description="Each year counts crimes reported that year, including some that happened earlier. Many reports of past abuse at one school can make one year jump."
               />
-              {/* Expanded Underreporting Section with Statistics */}
+              {/* Underreporting, with its source */}
               <div className="col-span-1 sm:col-span-2 bg-amber-50 dark:bg-amber-900/20 rounded-lg p-4 border border-amber-200 dark:border-amber-800">
                 <div className="flex items-start gap-3">
                   <div className="w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center flex-shrink-0">
                     <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                   </div>
                   <div>
-                    <h4 className="font-medium text-gray-900 dark:text-gray-100 text-sm">Significant Underreporting</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 mb-3">
-                      Clery data represents only <strong className="text-gray-900 dark:text-gray-200">reported</strong> incidents.
-                      Research indicates most campus crimes go unreported:
+                    <h4 className="font-medium text-gray-900 dark:text-gray-100 text-sm">Many Crimes Are Never Reported</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                      Clery data counts only <strong className="text-gray-900 dark:text-gray-200">reported</strong> incidents.
+                      In the Bureau of Justice Statistics' analysis of the National Crime Victimization Survey, 80% of
+                      rape and sexual assault victimizations of female college students aged 18-24 (1995-2013) were not
+                      reported to police. That survey does not measure reports to campus officials, which Clery figures
+                      also include.
                     </p>
-                    <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1.5 ml-4 list-disc">
-                      <li><strong className="text-gray-900 dark:text-gray-200">~80%</strong> of campus crimes are never reported to authorities (DOJ NCVS)</li>
-                      <li><strong className="text-gray-900 dark:text-gray-200">Only 20%</strong> of college sexual assaults are reported (RAINN)</li>
-                      <li><strong className="text-gray-900 dark:text-gray-200">Higher numbers may indicate better reporting culture</strong>, not more crime</li>
-                    </ul>
                     <div className="mt-3 text-xs text-gray-500 dark:text-gray-500">
-                      Sources:{' '}
-                      <a href="https://www.rainn.org/statistics/campus-sexual-violence" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-700 dark:hover:text-gray-300">RAINN</a>,{' '}
-                      <a href="https://bjs.ojp.gov/library/publications/rape-and-sexual-assault-victimization-among-college-age-females-1995-2013" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-700 dark:hover:text-gray-300">DOJ Bureau of Justice Statistics</a>
+                      Source:{' '}
+                      <a href={SOURCES.bjsCollege2014.url} target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-700 dark:hover:text-gray-300">
+                        BJS, Rape and Sexual Assault Victimization Among College-Age Females, 1995-2013 (2014)
+                      </a>
                     </div>
                   </div>
                 </div>
               </div>
               <LimitationCard
+                icon={Users}
+                title="Reporting Varies by School"
+                description="Each institution classifies incidents, designates who receives reports and maps its own campus, so the same incidents can be reported differently."
+              />
+              <LimitationCard
                 icon={FileText}
-                title="Definition Changes"
-                description="FBI rape definition changed in 2013; VAWA added in 2014. Pre-2015 data differs."
+                title="Definitions"
+                description="The current categories took effect with ED's VAWA rule on July 1, 2015. This site starts in 2015; do not join its figures with earlier years."
               />
               <LimitationCard
                 icon={Calculator}
@@ -481,17 +484,17 @@ export default function About() {
               <LimitationCard
                 icon={Info}
                 title="What is FTE?"
-                description="Full-Time Equivalent: full-time = 1.0, part-time ≈ 0.33. Standardized enrollment measure."
+                description="Full-time equivalent fall enrollment from NCES: full-time students plus part-time students weighted by factors that depend on the type of institution and student. It counts enrolled students only, for the whole institution."
               />
               <LimitationCard
                 icon={BarChart3}
-                title="Small School Volatility"
-                description="Rates for <1,000 students or <10 incidents can be misleading. Look for * markers."
+                title="Small Numbers Swing"
+                description="Rates built on few incidents or a small enrollment are marked * (thresholds on the Methodology page). One incident more or less can move such a school many places."
               />
               <LimitationCard
                 icon={MapPin}
                 title="Geographic Context"
-                description="Urban vs rural campuses have different contexts. NYC 'public property' ≠ rural Vermont."
+                description="Urban and rural campuses differ: public property next to a city campus is not comparable with a rural one."
               />
             </div>
           </section>

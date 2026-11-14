@@ -360,21 +360,55 @@ Each ranking lists schools by their count, largest first. Schools with the same 
 
 ## Data Limitations
 
-### Underreporting
-Clery data represents only reported incidents. Research indicates significant underreporting:
-- ~80% of campus crimes are never reported to authorities (DOJ NCVS)
-- Only ~20% of college sexual assaults are reported (RAINN)
-- Higher reported numbers may indicate better reporting culture, not more crime
+The site's Limitations section (Methodology page) has the same points.
 
-### Institutional Variation
-Reporting practices, police staffing, and definitions may vary by institution. Cross-institution comparisons should be made with caution.
+### Reports, not victimization
+Clery data counts crimes reported to campus security authorities or local
+police. Many are never reported: in the Bureau of Justice Statistics'
+analysis of the National Crime Victimization Survey (Sinozich and Langton,
+NCJ 248471, 2014, https://bjs.ojp.gov/content/pub/pdf/rsavcaf9513.pdf), 80%
+of rape and sexual assault victimizations of female college students aged
+18-24 in 1995-2013 were not reported to police. The NCVS does not measure
+reports to campus officials, which Clery counts include, so this is not a
+Clery figure. A higher count can mean more crime, more reporting, or both.
 
-### Temporal Lag
-There is approximately a 1-year lag between when incidents occur and when data is published by the Department of Education.
+### Year of report
+Counts are by the calendar year a crime was reported, not the year it
+occurred (see Year of report above).
 
-### Definition Changes
-- 2013: FBI updated rape definition to be gender-neutral
-- 2014: VAWA offenses (domestic violence, dating violence, stalking) added to Clery requirements
+### Institutional variation
+Institutions classify incidents, designate campus security authorities and
+map their own Clery geography; ED's 2020 Appendix accepts an institution's
+reasonable interpretation of terms and applies no measurable distance to
+"reasonably contiguous". The same incidents can be reported differently.
+
+### Rates are per enrolled student
+FTE is NCES's fall full-time-equivalent enrollment of the whole institution.
+It does not count residents who are not students, employees, visitors or
+patients. Where Clery geography includes places used mostly by others (a
+hospital, for example), a rate per student says little about risk to a
+student.
+
+### Small numbers, zeros and unweighted totals
+Rates with fewer than 10 incidents or under 1,000 FTE are marked *; a few
+incidents move such an institution many places. A rate of 0 is a reported
+zero, which can reflect classification or chance. "All criminal offenses"
+adds unlike crimes with equal weight; motor vehicle theft was about 15% of
+the national criminal total in 2015 and about 37% in 2024.
+
+### Institution-reported, not audited
+The figures are what institutions submitted to ED's survey. This project
+does not check them against institutions' records; its audit checks that the
+published files agree with the pipeline's tables built from DOE's and NCES's
+files.
+
+### Reporting lag
+DOE's release for collection year R holds calendar years R-3 to R-1, so the
+newest year is about a year old when it is published.
+
+### Definition changes
+See Comparing Years: the categories in use since the VAWA final rule took
+effect on July 1, 2015 apply to every year shown.
 
 ## Validation
 
@@ -390,12 +424,20 @@ Our data pipeline includes validation steps to ensure accuracy:
 
 ## Source Code
 
-The complete ETL (Extract, Transform, Load) pipeline is open source and available for inspection:
-- Data download: `01a_download_doe.py`, `01b_download_ipeds.py`
-- Enrollment processing: `02a_transform_enrollment.py`, `02b_transform_ef_enrollment.py`
-- Crime data processing: `03_transform_crimes.py`
-- Aggregation: `04_create_aggregates.py`
-- JSON generation: `05_generate_json.py`
+The complete ETL (Extract, Transform, Load) pipeline is open source. Run the
+steps in this order (README, "Full ETL Pipeline"):
+- `00_check_for_updates.py`: check DOE and NCES for newer files and the local build against its records
+- `01_download_raw_data.py`: download and extract the DOE crime releases
+- `01b_download_ipeds.py`: download the IPEDS enrollment files
+- `01c_extract_ipeds_official.ps1` (Windows, optional): re-extract NCES's 2015-2020 FTE from its Access databases into `etl/reference`
+- `02_transform_to_parquet.py`: DOE files to the fact table, one release per campus-year
+- `02b_transform_ef_enrollment.py`: NCES's 2015-2020 FTE (from `etl/reference`) and EF headcounts
+- `02a_transform_enrollment.py`: DRVEF FTE for 2021 onward
+- `03_build_dimensions.py`: campus and offense tables
+- `04_create_aggregates.py`: shared figures, institution tables, rankings tables
+- `05_generate_json.py`: site JSON and the CSV downloads
+- `06_validate.py`: checks of the generated files
+- `07_comprehensive_audit.py`: the audit published as `audit.json`
 
 ## Contact
 
@@ -403,7 +445,15 @@ For questions about methodology or to report data issues, please open an issue o
 
 ## References
 
-1. U.S. Department of Education. Campus Safety and Security Data Analysis Cutting Tool. https://ope.ed.gov/campussafety/
-2. National Center for Education Statistics. IPEDS Survey Components. https://nces.ed.gov/ipeds/survey-components/
-3. Clery Center. Summary of the Jeanne Clery Act. https://clerycenter.org/policy/the-clery-act/
-4. RAINN. Campus Sexual Violence: Statistics. https://www.rainn.org/statistics/campus-sexual-violence
+1. U.S. Department of Education. Campus Safety and Security. https://ope.ed.gov/campussafety/
+2. U.S. Department of Education. Campus Security. https://www.ed.gov/teaching-and-administration/safe-learning-environments/school-safety-and-security/campus-security
+3. 34 CFR 668.46, Institutional security policies and crime statistics. https://www.ecfr.gov/current/title-34/subtitle-B/chapter-VI/part-668/subpart-D/section-668.46
+4. Appendix A to Subpart D of Part 668, Crime Definitions. https://www.ecfr.gov/current/title-34/subtitle-B/chapter-VI/part-668/appendix-Appendix%20A%20to%20Subpart%20D%20of%20Part%20668
+5. U.S. Department of Education. The Handbook for Campus Safety and Security Reporting, 2016 Edition (rescinded 2020; kept for historical purposes). https://www.ed.gov/sites/ed/files/admins/lead/safety/handbookfsa.pdf
+6. U.S. Department of Education. Clery Act Appendix for FSA Handbook (October 2020). https://www.ed.gov/sites/ed/files/admins/lead/safety/cleryappendixfinal.pdf
+7. Federal Student Aid. Rescission of and Replacement for the 2016 Handbook (October 9, 2020; updated January 19, 2021). https://fsapartners.ed.gov/knowledge-center/library/electronic-announcements/2020-10-09/rescission-and-replacement-2016-handbook-campus-safety-and-security-reporting-updated-jan-19-2021
+8. Violence Against Women Act final rule, 79 FR 62752 (October 20, 2014). https://www.govinfo.gov/content/pkg/FR-2014-10-20/pdf/2014-24284.pdf
+9. Federal Student Aid. Additional regulatory flexibilities related to Coronavirus (COVID-19) (July 10, 2020). https://fsapartners.ed.gov/knowledge-center/library/electronic-announcements/2020-07-10/additional-regulatory-flexibilities-related-coronavirus-covid-19
+10. National Center for Education Statistics. IPEDS. https://nces.ed.gov/ipeds/ ; DRVEF 2023 data dictionary (FTE, PCTDEEXC). https://nces.ed.gov/ipeds/datacenter/data/DRVEF2023_Dict.zip
+11. National Center for Education Statistics. Fast Facts: Distance learning. https://nces.ed.gov/fastfacts/display.asp?id=80
+12. Bureau of Justice Statistics. Rape and Sexual Assault Victimization Among College-Age Females, 1995-2013 (NCJ 248471, 2014). https://bjs.ojp.gov/content/pub/pdf/rsavcaf9513.pdf

@@ -314,7 +314,11 @@ export default function Rankings() {
           size: 100,
         }),
         columnHelper.accessor('fte', {
-          header: 'Enrollment',
+          header: () => (
+            <span title="NCES full-time equivalent enrollment of the whole institution (all its campuses), not of this campus">
+              Institution FTE
+            </span>
+          ),
           cell: (info) => {
             const fte = info.getValue()
             return (
@@ -327,7 +331,11 @@ export default function Rankings() {
         }),
       ] : [
         columnHelper.accessor('fte', {
-          header: 'Enrollment',
+          header: () => (
+            <span title="NCES full-time equivalent enrollment of the whole institution (all its campuses), not of this campus">
+              Institution FTE
+            </span>
+          ),
           cell: (info) => {
             const fte = info.getValue()
             return (
@@ -896,7 +904,7 @@ export default function Rankings() {
                                 <>
                                   <span className="text-gray-400">&middot;</span>
                                   <span className="text-gray-500 dark:text-gray-500 tabular-nums text-xs">
-                                    {formatNumber(item.fte)} students
+                                    {formatNumber(item.fte)} FTE (institution)
                                   </span>
                                 </>
                               )}

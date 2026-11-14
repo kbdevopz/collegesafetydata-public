@@ -4,14 +4,14 @@
 
 **Live Site:** [collegesafetydata.org](https://collegesafetydata.org)
 
-This project provides free, public access to campus safety data for over 8,100 U.S. colleges and universities, covering 10 years of crime statistics (2015-2024). Data is sourced from the U.S. Department of Education and processed using an open, reproducible methodology.
+This project provides free, public access to the campus crime statistics that U.S. colleges and universities report to the U.S. Department of Education under the Clery Act, for calendar years 2015-2024, with enrollment from NCES IPEDS. The pipeline that builds the site is open source and reproducible.
 
 ## Overview
 
-- **8,100+ Schools** — All U.S. institutions reporting Clery Act data
-- **10 Years of Data** — 2015-2024 for consistent comparisons
+- **Every reporting campus** — each campus that reported to DOE in at least one year has a school page (14,081 campuses of 7,380 institutions in the November 2026 build; the site shows the count from `metadata.json`)
+- **10 Years of Data** — calendar years 2015-2024
 - **Transparent Methodology** — Full ETL pipeline is open source
-- **Rate-Based Rankings** — Per 10,000 FTE students for fair comparisons
+- **Rates** — per 10,000 FTE students of the whole institution, a size-adjusted figure (see the Methodology page for which institutions rate rankings list)
 
 ## Features
 
@@ -196,10 +196,13 @@ Download the latest audit: [audit.json](https://collegesafetydata.org/audit.json
 
 ## Data Limitations
 
-- **Underreporting**: ~80% of campus crimes are never reported (DOJ NCVS)
-- **Reporting Lag**: DOE releases data ~1 year after collection
-- **Institutional Variation**: Reporting practices vary by school
-- **Higher Numbers ≠ More Crime**: Often indicates better reporting culture
+See the Methodology page (Limitations) and [etl/METHODOLOGY.md](etl/METHODOLOGY.md) for the full list. In short:
+
+- **Reports, not victimization**: Clery figures count crimes reported to campus security authorities or police. In the Bureau of Justice Statistics' NCVS analysis (NCJ 248471, 2014), 80% of rape and sexual assault victimizations of female college students aged 18-24 in 1995-2013 were not reported to police.
+- **Year reported**: counts are by the calendar year a crime was reported, not when it occurred.
+- **Institutional variation**: institutions classify incidents and map their Clery geography themselves.
+- **Rates per enrolled student**: FTE counts enrolled students of the whole institution, not people on campus.
+- **Institution-reported**: the figures are what institutions reported to ED; this project does not audit them.
 
 ## Development
 
