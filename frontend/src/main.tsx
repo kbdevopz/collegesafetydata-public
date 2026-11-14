@@ -2,6 +2,8 @@ import React, { lazy, type ComponentType } from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import { AppRoutes, pageFor, pageLoaders, type PageComponents, type PageKey } from './routes'
+import { getMetadata } from './lib/api'
+import { fetchBuildInfo } from './lib/build'
 import './index.css'
 
 // Each page is its own chunk, loaded when first shown. A page whose chunk has
@@ -52,4 +54,11 @@ function render() {
   )
 }
 
-loadable[pageFor(window.location.pathname)].preload().then(render, render)
+// The first render waits for the page's code and for metadata.json and the
+// build info (both cached for the pages), which the prerendered HTML already
+// shows: drawn without them, the page would replace them with a loading text.
+Promise.all([
+  loadable[pageFor(window.location.pathname)].preload(),
+  getMetadata().catch(() => null),
+  fetchBuildInfo(),
+]).then(render, render)

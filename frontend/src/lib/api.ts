@@ -49,6 +49,20 @@ async function fetchJson<T>(path: string): Promise<ApiResult<T>> {
 
 let metadataCache: Metadata | null = null
 
+/**
+ * The prerenderer (src/entry-server.tsx) hands the build's metadata.json to
+ * the pages this way, so the static HTML shows its coverage, dates and
+ * counts instead of a loading text.
+ */
+export function seedMetadata(metadata: Metadata | null): void {
+  metadataCache = metadata
+}
+
+/** metadata.json when it is already loaded (or seeded), else null. */
+export function cachedMetadata(): Metadata | null {
+  return metadataCache
+}
+
 export async function fetchMetadata(): Promise<Metadata> {
   if (metadataCache) {
     return metadataCache

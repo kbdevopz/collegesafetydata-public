@@ -15,7 +15,7 @@ import {
   Users,
   Calendar,
 } from 'lucide-react'
-import { getMetadata } from '../lib/api'
+import { cachedMetadata, getMetadata } from '../lib/api'
 import type { Metadata } from '../lib/types'
 import { formatDate, formatNumber } from '../lib/utils'
 import { summarizeEnrollmentStatus, describeEnrollmentStatus } from '../lib/enrollment'
@@ -149,7 +149,7 @@ import {
 } from '../data/sources'
 
 export default function Methodology() {
-  const [metadata, setMetadata] = React.useState<Metadata | null>(null)
+  const [metadata, setMetadata] = React.useState<Metadata | null>(cachedMetadata)
   const build = useBuildInfo()
 
   React.useEffect(() => {

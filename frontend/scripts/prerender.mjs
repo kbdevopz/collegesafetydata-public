@@ -41,13 +41,19 @@ if (fresh) writeFileSync(shellCopy, built)
 const shell = fresh ? built : readFileSync(shellCopy, 'utf-8')
 const homeDescription = shellDescription(shell)
 
+// The build's metadata and audit, rendered into the pages that show them
+// (coverage, dates, counts, the citation's year and build identifier)
+const siteMetadata = JSON.parse(readFileSync(join(dist, 'data', 'metadata.json'), 'utf-8'))
+const auditFile = join(dist, 'audit.json')
+const siteAudit = existsSync(auditFile) ? JSON.parse(readFileSync(auditFile, 'utf-8')) : null
+
 // 1. Fixed-URL pages
 for (const page of STATIC_PAGES) {
-  writeFileSync(join(dist, page.file), renderPage(shell, staticPageHead(page, homeDescription), render(page.path)))
+  writeFileSync(join(dist, page.file), renderPage(shell, staticPageHead(page, homeDescription), render(page.path, siteMetadata, siteAudit)))
 }
 
 // 2. Not-found page
-writeFileSync(join(dist, '404.html'), renderPage(shell, NOT_FOUND_HEAD, render('/__not_found__')))
+writeFileSync(join(dist, '404.html'), renderPage(shell, NOT_FOUND_HEAD, render('/__not_found__', siteMetadata, siteAudit)))
 
 // 3. School pages
 const schoolsDir = join(dist, 'data', 'schools')
@@ -87,7 +93,7 @@ if (mode === 'static') {
 }
 
 // 4. sitemap.xml and robots.txt (canonical host only)
-const metadata = JSON.parse(readFileSync(join(dist, 'data', 'metadata.json'), 'utf-8'))
+const metadata = siteMetadata
 const lastmod = /^\d{4}-\d{2}-\d{2}/.test(String(metadata.lastUpdated ?? '')) ? String(metadata.lastUpdated).slice(0, 10) : null
 const entry = (path, priority) =>
   `  <url><loc>${SITE_ORIGIN}${path}</loc>${lastmod ? `<lastmod>${lastmod}</lastmod>` : ''}<priority>${priority.toFixed(1)}</priority></url>`

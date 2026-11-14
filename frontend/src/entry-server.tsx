@@ -16,6 +16,9 @@ import Privacy from './pages/Privacy'
 import Terms from './pages/Terms'
 import Changes from './pages/Changes'
 import NotFound from './pages/NotFound'
+import { seedMetadata } from './lib/api'
+import { buildInfoFromAudit, seedBuildInfo } from './lib/build'
+import type { Metadata } from './lib/types'
 
 const pages: PageComponents = {
   rankings: Rankings,
@@ -30,7 +33,14 @@ const pages: PageComponents = {
   notFound: NotFound,
 }
 
-export function render(url: string): string {
+/**
+ * The page at `url` as HTML. `metadata` (the build's metadata.json) and
+ * `audit` (its audit.json) are given to the pages first, so the HTML shows
+ * the coverage, dates, counts and build identifier they hold.
+ */
+export function render(url: string, metadata: Metadata | null = null, audit: unknown = null): string {
+  seedMetadata(metadata)
+  seedBuildInfo(buildInfoFromAudit(audit))
   return renderToString(
     <React.StrictMode>
       <StaticRouter location={url}>

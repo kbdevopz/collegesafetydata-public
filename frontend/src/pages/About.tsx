@@ -17,7 +17,7 @@ import {
   Github,
   Mail,
 } from 'lucide-react'
-import { getMetadata } from '../lib/api'
+import { cachedMetadata, getMetadata } from '../lib/api'
 import type { Metadata } from '../lib/types'
 import { formatDate, formatNumber, cn } from '../lib/utils'
 import { summarizeEnrollmentStatus, describeFteAvailability } from '../lib/enrollment'
@@ -110,7 +110,7 @@ function LimitationCard({
 }
 
 export default function About() {
-  const [metadata, setMetadata] = useState<Metadata | null>(null)
+  const [metadata, setMetadata] = useState<Metadata | null>(cachedMetadata)
 
   useEffect(() => {
     getMetadata().then(setMetadata).catch(console.error)
