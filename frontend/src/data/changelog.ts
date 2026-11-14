@@ -24,6 +24,19 @@ export const CHANGES: ChangeEntry[] = [
   {
     date: '2026-11-14',
     kind: 'method',
+    title: 'Rates per on-campus student, with intervals; violent and property crimes',
+    body: [
+      'Rates now divide by on-campus FTE: the FTE without NCES\'s share of students enrolled only in distance education. The 50% online cut-off is gone, and rate rankings list institutions with at least 1,000 on-campus FTE. Grand Canyon University (79% exclusively online in fall 2024), for example, is now listed.',
+      'Rate rankings leave out institutions with a hospital (IPEDS), special-focus medical schools and research institutions (Carnegie), and Gallaudet University, whose campus also holds two schools for deaf children: 1,227 institution-years, among them Ohio State, Michigan and UCLA in 2024. They also leave out 243 institution-years in which DOE reports a campus\'s figures under two institutions and their students cannot be matched exactly, such as Purdue and Texas A&M in 2024; 44 more are rated with both institutions\' FTE.',
+      'Only rates built on at least 20 incidents get a rank; the others are listed as too few to rank by rate, with their rate. Every rate shows a 95% interval and every rank the range of ranks the intervals allow. Murder, negligent manslaughter, incest, statutory rape and arson are ranked by count only.',
+      'New categories: "Violent crimes" and "Property crimes", the offenses of the FBI\'s violent and property crime (without larceny-theft, which Clery does not collect). Rankings open on violent crimes. A year more than 3 times an institution\'s usual count is marked as unusually high and stays ranked.',
+      'In 2024 rate rankings list 1,874 institutions (2,077 before). Of the previous top 25 by all criminal offenses, 13 are still in it and 11 are now left out, most of them medical institutions or institutions with a hospital. No count changed.',
+    ],
+    methodology: 'rate-rules',
+  },
+  {
+    date: '2026-11-14',
+    kind: 'method',
     title: 'Fewer merger years left out of rate rankings',
     body: [
       'Rate rankings left out 295 institution-years (97 with at least 1,000 FTE) in which a merger or renumbering might have put a campus\'s incidents and its students under different institutions. They now leave out only the years where a campus with at least one incident has its incidents under one institution and its students under another, or where it cannot be told which institution\'s FTE holds them: 91 institution-years (29 with at least 1,000 FTE). Tufts 2015, the University of Arizona 2020 and Northeastern 2023, for example, have rates again.',

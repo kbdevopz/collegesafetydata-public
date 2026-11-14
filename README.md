@@ -11,7 +11,7 @@ This project provides free, public access to the campus crime statistics that U.
 - **Every reporting campus** — each campus that reported to DOE in at least one year has a school page (14,081 campuses of 7,380 institutions in the November 2026 build; the site shows the count from `metadata.json`)
 - **10 Years of Data** — calendar years 2015-2024
 - **Transparent Methodology** — Full ETL pipeline is open source
-- **Rates** — per 10,000 FTE students of the whole institution, a size-adjusted figure (see the Methodology page for which institutions rate rankings list)
+- **Rates** — per 10,000 on-campus FTE students of the whole institution, with a 95% interval, a size-adjusted figure (see the Methodology page, Rate Rules, for which institutions rate rankings list and rank)
 
 ## Features
 
@@ -37,7 +37,7 @@ Our data processing pipeline is fully documented. See [etl/METHODOLOGY.md](etl/M
 - Enrollment (FTE): NCES's own figures for every year
 - Totals: criminal offenses by default; "all categories" mixes crimes, arrests and disciplinary referrals
 - Ranking ties: equal counts share a rank (1, 2, 2, 4), listed by name
-- Rates are per institution (all its campuses' incidents per the institution's FTE, as NCES publishes FTE per institution); rate rankings list institutions with at least 1,000 FTE and under 50% of students exclusively online (for 2020 and 2021, by their fall 2019 share, so pandemic remote teaching does not count)
+- Rates are per institution (all its campuses' incidents per the institution's on-campus FTE: NCES's FTE without its share of students enrolled exclusively online, for 2020 and 2021 the fall 2019 share, as NCES publishes FTE per institution); rate rankings list institutions with at least 1,000 on-campus FTE, leave out institutions with a hospital, special-focus medical and research institutions, and years whose figures or students cannot be matched (mergers, shared campuses), rank only rates on at least 20 incidents, and give each rate a 95% interval and rank range (etl/METHODOLOGY.md, "Rate rules")
 - Crime rate formulas
 - Geographic classifications
 - Data limitations
@@ -190,7 +190,8 @@ Every data run ends with an audit of internal consistency: the published files m
 - Rate calculation verification
 - Ranking order validation
 - Shared statistics: figures two campuses report identically (in the data used, or in the older release a campus-year is taken from) are found again from the fact table and the older releases' figures, and every ranking entry must count them once, under the host campus
-- Institution rates: each institution's campuses, counts, link campus, FTE and online share are recomputed from the facts and NCES's enrollment, and every rate ranking must list exactly the institutions the rate rules allow
+- Institution rates: each institution's campuses, counts, link campus, FTE, online share and on-campus FTE are recomputed from the facts and NCES's enrollment, the rate rules from the IPEDS HD files and the reference list, and every rate ranking must list exactly the institutions the rate rules allow
+- Rate rules: every rate's 95% interval is found again through the regularized incomplete gamma function, with the rank ranges, the 20-incident rule, the counts-only offenses and the unusually high years
 
 Download the latest audit: [audit.json](https://collegesafetydata.org/audit.json). It names the site data it audited (`audited_build`: the SHA-256 of that build's `build_inputs.json`) and when it ran, in UTC.
 
@@ -201,7 +202,7 @@ See the Methodology page (Limitations) and [etl/METHODOLOGY.md](etl/METHODOLOGY.
 - **Reports, not victimization**: Clery figures count crimes reported to campus security authorities or police. In the Bureau of Justice Statistics' NCVS analysis (NCJ 248471, 2014), 80% of rape and sexual assault victimizations of female college students aged 18-24 in 1995-2013 were not reported to police.
 - **Year reported**: counts are by the calendar year a crime was reported, not when it occurred.
 - **Institutional variation**: institutions classify incidents and map their Clery geography themselves.
-- **Rates per enrolled student**: FTE counts enrolled students of the whole institution, not people on campus.
+- **Rates per enrolled student**: on-campus FTE estimates enrolled students of the whole institution who are not exclusively online, not people on campus.
 - **Institution-reported**: the figures are what institutions reported to ED; this project does not audit them.
 
 ## Development
@@ -260,7 +261,7 @@ The build identifier is the SHA-256 of `frontend/public/data/build_inputs.json`,
 
 `05_generate_json.py` writes flat CSV files (UTF-8, comma-separated, header row) to `frontend/public/data/downloads/`, served at `https://collegesafetydata.org/data/downloads/`:
 
-- `campus-years.csv`: one row per campus and year shown on the site (each year a campus reported to DOE, zeros included). Columns: `year`, `unitid` (DOE campus ID), `base_unitid` (the IPEDS institution, the first six digits), `campus_name` (the campus's own DOE name, or the institution's when DOE gives none), `institution_name`, `city`, `state`, `main_campus`, `doe_release` (the DOE file suffix the year's figures come from, e.g. `222324` for the 2022-2024 release), `counts_in_rankings` (false when every figure the campus reported that year is counted under another campus), `institution_fte` (NCES FTE of the whole institution), `institution_online_pct` (NCES's percent of students enrolled exclusively in distance education) and `online_pct_fall` (the fall that share is from).
+- `campus-years.csv`: one row per campus and year shown on the site (each year a campus reported to DOE, zeros included). Columns: `year`, `unitid` (DOE campus ID), `base_unitid` (the IPEDS institution, the first six digits), `campus_name` (the campus's own DOE name, or the institution's when DOE gives none), `institution_name`, `city`, `state`, `main_campus`, `doe_release` (the DOE file suffix the year's figures come from, e.g. `222324` for the 2022-2024 release), `counts_in_rankings` (false when every figure the campus reported that year is counted under another campus), `institution_fte` (NCES FTE of the whole institution), `institution_online_pct` (NCES's percent of students enrolled exclusively in distance education), `online_pct_fall` (the fall that share is from), `institution_rate_fte` (the denominator of the institution's rates: on-campus FTE, with any FTE pooled under the merger and shared-campus rules) and `institution_rate_rule` (the rule that leaves the institution out of rate rankings that year: `hospital`, `medical`, `listed`, `merger`, `family` or `shared`; empty when none).
 - `counts-YYYY.csv`, one per year: every nonzero count, by campus, location and offense, as the campus reported it. Columns: `year`, `unitid`, `geo` (`On-campus`, `Residence halls`, `Non-campus`, `Public property`), `offense`, `count`, `counted_under_unitid` (set when the same figures for that location were also reported by another campus, or by the same campus under its new DOE ID; totals and rankings count them under that campus).
 
 To reproduce the site's state and national totals from `counts-YYYY.csv`: leave out `Residence halls` (they are part of on-campus), keep rows where `counted_under_unitid` is empty, and keep campuses whose `state` in `campus-years.csv` is one of the 50 states, DC, PR or VI.

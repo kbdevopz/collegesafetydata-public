@@ -15,18 +15,23 @@ This script performs thorough validation of all schools:
 9. Enrollment Sources - FTE and the share of exclusively online students are
    NCES's own (official FTE for every year, none estimated)
 10. Institution Rates - Rates are per institution (all its campuses, its
-   FTE), and rate rankings list exactly the institutions config.py allows
-   (enough FTE, not mostly online)
+   on-campus FTE), and rate rankings list and rank exactly the institutions
+   config.py allows (on-campus FTE floor, the population, merger and
+   shared-campus rules, the minimum count, the counts-only offenses)
 11. Campus Identity - etl/reference/campus_id_changes.csv lists exactly the
    campus ID changes found again in the DOE names (with the same evidence),
    every "link" pair meets the rules, both school files link to each other,
    no figures move between the IDs, and every school file is in the search
    index under its DOE campus name
+12. Rate Rules - Each rate's 95% interval (an exact Poisson interval found
+   again with the incomplete gamma function), the rank ranges, the spike
+   flags, the list of counts-only offenses and metadata.json's rateRules
 
 Each check's details say in "what_it_checks" exactly what it verifies. Checks
 1-8, 10 and 11 compare the pipeline's own files with each other; check 9 re-reads
-NCES's enrollment figures (the DRVEF CSVs and etl/reference). None re-reads
-the DOE downloads.
+NCES's enrollment figures (the DRVEF CSVs and etl/reference), and checks 10
+and 12 the IPEDS HD files (hospital and Carnegie fields). None re-reads the
+DOE downloads.
 
 Usage:
     python 07_comprehensive_audit.py
@@ -44,11 +49,17 @@ Output:
 """
 
 import os
+import io
+import csv
 import sys
 import json
+import math
 import bisect
 import itertools
 import argparse
+import statistics
+from decimal import Decimal, ROUND_HALF_UP
+import numpy as np
 import pandas as pd
 import duckdb
 from pathlib import Path
@@ -59,7 +70,9 @@ from typing import Optional
 sys.path.insert(0, str(Path(__file__).parent))
 from config import (CURATED_DIR, QA_DIR, JSON_DIR, DATA_YEARS, PROJECT_ROOT, GEO_CODES, GEO_FOR_ALL,
                     OFFENSE_ORDER, SHARED_MIN_NONZERO, US_STATES, IVY_LEAGUE, IVY_BASE_UNITIDS,
-                    SUMMARY_FAMILIES, MIN_FTE_FOR_RATE, ONLINE_EXCLUSION_PCT, ONLINE_SHARE_YEAR)
+                    SUMMARY_FAMILIES, MIN_FTE_FOR_RATE, ONLINE_SHARE_YEAR, MIN_COUNT_FOR_RATE_RANK,
+                    RATE_RANK_MIN_NATIONAL, RATE_COUNTS_ONLY, RATE_CI_LEVEL, HOSPITAL_CODE, MEDICAL_CARNEGIE,
+                    SPIKE_MIN_COUNT, SPIKE_FACTOR, SPIKE_MIN_OTHER_YEARS)
 import provenance
 import campus_identity
 
@@ -471,7 +484,8 @@ def audit_rate_calculations(verbose: bool = False) -> AuditResult:
     """
     CHECK 4: Verify rate calculations are mathematically correct.
     rate = (count / FTE) * 10,000, rounded to 2 decimals, for every entry of
-    every rate ranking, with the FTE of the entry's institution.
+    every rate ranking and of every list of institutions with too few
+    incidents to rank (rateUnranked), with the FTE of the entry's institution.
     """
     result = AuditResult("Rate Calculation Accuracy")
     print("\nCHECK 4: Rate Calculation Accuracy")
@@ -483,7 +497,8 @@ def audit_rate_calculations(verbose: bool = False) -> AuditResult:
 
         for ranking_file, data in files:
             table = data.get("institutions") or {}
-            for code, entries in (data.get("rateRankings") or {}).items():
+            lists = list((data.get("rateRankings") or {}).items()) + list((data.get("rateUnranked") or {}).items())
+            for code, entries in lists:
                 for entry in entries:
                     inst = table.get(str(entry.get("id")))
                     fte = (inst or {}).get("fte")
@@ -499,7 +514,7 @@ def audit_rate_calculations(verbose: bool = False) -> AuditResult:
                                            f"{(count or 0) / fte * 10000:.4f}")
 
         result.details["what_it_checks"] = (
-            "For every entry of every rateRankings list of rankings/*.json, rate equals count / fte x 10,000 to "
+            "For every entry of every rateRankings and rateUnranked list of rankings/*.json, rate equals count / fte x 10,000 to "
             "2 decimals (within 0.005), with the FTE of the entry's institution in the file's institutions "
             "table, which must be above 0. Check 10 compares the counts and FTE with the facts and NCES's "
             "enrollment.")
@@ -581,6 +596,8 @@ def audit_ranking_order(verbose: bool = False) -> AuditResult:
                      for code, entries in (data.get("rankings") or {}).items()]
             lists += [("rateRankings", code, entries, "rate", "id", institutions)
                       for code, entries in (data.get("rateRankings") or {}).items()]
+            lists += [("rateUnranked", code, entries, "rate", "id", institutions)
+                      for code, entries in (data.get("rateUnranked") or {}).items()]
             for kind, code, entries, value, ident, table in lists:
                 if not entries:
                     continue
@@ -599,6 +616,11 @@ def audit_ranking_order(verbose: bool = False) -> AuditResult:
                         violation(f"entry {i + 1} ({current.get(ident)}, {value} {current.get(value)}) is "
                                   f"listed before {next_entry.get(ident)} ({value} {next_entry.get(value)})")
                         break
+                # Too few incidents to rank: listed by rate, without ranks
+                if kind == "rateUnranked":
+                    if any("rank" in e for e in entries):
+                        violation("an entry with too few incidents to rank has a rank")
+                    continue
                 for text in competition_rank_problems(entries, value)[:1]:
                     violation(text)
 
@@ -607,7 +629,9 @@ def audit_ranking_order(verbose: bool = False) -> AuditResult:
             "entries are listed by count, largest first, ties by name (the file's campuses table), then UNITID, "
             "and each rank is 1 + the number of entries with a larger count, so tied counts share a rank "
             "(1, 2, 2, 4). Every rate ranking (rateRankings) likewise by rate, ties by institution name, then base "
-            "UNITID. It checks the order of each file's own counts and rates; check 4 checks the rates' arithmetic.")
+            "UNITID, and every list of institutions with too few incidents to rank (rateUnranked) in the same "
+            "order, without ranks. It checks the order of each file's own counts and rates; check 4 checks the "
+            "rates' arithmetic.")
         result.details["groups_validated"] = groups_validated
         result.details["entries_checked"] = entries_checked
         result.details["order_violations"] = len(order_violations)
@@ -946,7 +970,8 @@ def audit_shared_statistics(verbose: bool = False) -> AuditResult:
             "nonzero cells: the older release's campus-year is a shadow (renumbered). Hosts are chosen by 04's order. "
             "aggs/shared_blocks.parquet must hold exactly those shadows, hosts and rules. Every "
             "rankings/*.json entry must count the school's facts without its shadow blocks (for \"criminal\" "
-            "summed over the Criminal family, for \"all\" over every offense), the state and "
+            "summed over the Criminal family, for \"violent\" and \"property\" over their offenses, for \"all\" "
+            "over every offense), the state and "
             "national files must rank exactly the schools with such a count, and each school file's "
             "sharedFigures must list exactly its shadow blocks and their host.")
 
@@ -1148,20 +1173,20 @@ def audit_shared_statistics(verbose: bool = False) -> AuditResult:
             by_rule[rule] = (n + 1, c + sum(cells.get(k, blank)))
 
         # What totals and rankings count: the facts without the shadow blocks,
-        # per offense and summed for the summary codes ("criminal": the
-        # Criminal family; "all": every offense)
+        # per offense and summed for the summary codes (config.py
+        # SUMMARY_FAMILIES: "criminal" the Criminal family, "violent" and
+        # "property" their offenses, "all" every offense)
         counted = {}
         for (y, g, u), v in cells.items():
             if (y, g, u) in shadows:
                 continue
             for o, c in zip(OFFENSE_ORDER, v):
                 if c:
-                    summaries = ("all", "criminal") if family_of.get(o) == "Criminal" else ("all",)
-                    for key in (o,) + summaries:
+                    for key in [o] + summary_of(o, family_of.get(o), SUMMARY_FAMILIES):
                         counted[(y, u, key)] = counted.get((y, u, key), 0) + c
         code_of = {o: o.lower().replace(" ", "_") for o in OFFENSE_ORDER}
-        code_of["all"] = "all"
-        code_of["criminal"] = "criminal"
+        for code in SUMMARY_FAMILIES:
+            code_of[code] = code
         ranked = {}  # (year, code) -> {unitid: count}, the schools a ranking of that offense must hold
         for (y, u, o), c in counted.items():
             ranked.setdefault((y, code_of[o]), {})[u] = c
@@ -1659,16 +1684,77 @@ def audit_enrollment_sources(verbose: bool = False) -> AuditResult:
     return result
 
 
-def expected_institutions() -> tuple[dict, dict]:
+def summary_of(offense: str, family: str, summaries: dict) -> list[str]:
+    """The summary codes of config.py SUMMARY_FAMILIES (a family, a tuple of offenses, or every offense) an offense is in."""
+    out = []
+    for code, group in summaries.items():
+        if group is None or (isinstance(group, str) and group == family) or \
+                (isinstance(group, tuple) and offense in group):
+            out.append(code)
+    return out
+
+
+def half_up(numerator: int, denominator: int) -> int:
+    """numerator / denominator rounded half up, with Decimal arithmetic."""
+    return int((Decimal(numerator) / Decimal(denominator)).quantize(Decimal(1), rounding=ROUND_HALF_UP))
+
+
+def hd_classes() -> dict:
+    """
+    From the raw IPEDS HD files (not 03's table): {(year, UNITID): (rule, reason
+    text start)} for the institution-years the population rule leaves out:
+    HOSPITAL = HOSPITAL_CODE; else the newest Carnegie basic field the file
+    has (C21BASIC, C18BASIC, C15BASIC) in MEDICAL_CARNEGIE; else listed in
+    etl/reference/rate_population_exclusions.csv.
+    """
+    out = {}
+    for y in DATA_YEARS:
+        path = PROJECT_ROOT / "data" / "raw" / "ipeds" / str(y) / f"hd{y}.csv"
+        if not path.is_file():
+            continue
+        raw = path.read_bytes()
+        try:
+            text = raw.decode("utf-8-sig")
+        except UnicodeDecodeError:
+            text = raw.decode("cp1252")
+        rows = csv.DictReader(io.StringIO(text))
+        rows.fieldnames = [f.strip().upper() for f in rows.fieldnames]
+        field = next(f for f in ("C21BASIC", "C18BASIC", "C15BASIC") if f in rows.fieldnames)
+        for r in rows:
+            try:
+                u = int(r["UNITID"])
+            except ValueError:
+                continue
+            hosp, basic = r["HOSPITAL"].strip(), r[field].strip()
+            if hosp.lstrip("-").isdigit() and int(hosp) == HOSPITAL_CODE:
+                out[(y, u)] = "hospital"
+            elif basic.lstrip("-").isdigit() and int(basic) in MEDICAL_CARNEGIE[field]:
+                out[(y, u)] = "medical"
+    listed = PROJECT_ROOT / "etl" / "reference" / "rate_population_exclusions.csv"
+    with open(listed, encoding="utf-8", newline="") as f:
+        for r in csv.DictReader(f):
+            for y in range(int(r["first_year"]), int(r["last_year"]) + 1):
+                if y in DATA_YEARS:
+                    out.setdefault((y, int(r["unitid"])), "listed")
+    return out
+
+
+_EXPECTED_INSTITUTIONS = None
+
+
+def expected_institutions() -> tuple[dict, dict, dict]:
     """
     Without 04's or 05's code, the institution-years rates are calculated for
     (config.py, "SUMMARY CODES AND RATES"), from the fact table, the shadow
     blocks of aggs/shared_blocks.parquet (check 8 finds them again), the
-    reported campus-years, dim_institution and dim_enrollment:
+    reported campus-years, dim_institution, dim_enrollment and the raw IPEDS
+    HD files (hd_classes):
 
-    returns ({(year, base): {name, link, state, campuses, fte, online, online_year}},
+    returns ({(year, base): {name, link, state, campuses, fte, online,
+              online_year, oncampus, rules, rate_excluded, pooled, rate_fte}},
              {(year, base, code): count above 0},
              {(year, unitid): {name, state}} of every counting campus-year).
+    Computed once per run (checks 10 and 12 use it).
 
     A campus-year counts (in rankings, with 0 when it had no incident, and
     for its institution, the base UNITID) when the campus reported that year
@@ -1679,7 +1765,16 @@ def expected_institutions() -> tuple[dict, dict]:
     001) when that counts that year and has a school file, otherwise the
     counting campus with a school file and the most incidents (ties: lowest
     UNITID).
+
+    The rate rules, each independently of 04: on-campus FTE = FTE x (100 -
+    the online share) / 100, rounded half up (Decimal); left out of rate
+    rankings: the population rule (hd_classes), the merger rules (a campus
+    under two IDs, a merger family) and the shared-campus rule; the rate's
+    denominator adds the on-campus FTE of the institutions pooled with it.
     """
+    global _EXPECTED_INSTITUTIONS
+    if _EXPECTED_INSTITUTIONS is not None:
+        return _EXPECTED_INSTITUTIONS
     facts = pd.read_parquet(get_facts_path(), columns=["year", "unitid", "offense", "offense_family", "geo", "count"])
     facts = facts[facts["geo"].isin(GEO_FOR_ALL)]
     shared = read_curated("aggs/shared_blocks.parquet", "04_create_aggregates.py")
@@ -1703,7 +1798,7 @@ def expected_institutions() -> tuple[dict, dict]:
         if (y, g, u) in shadows or c == 0:
             continue
         campus_total[(u, y)] = campus_total.get((u, y), 0) + c
-        codes = [o.lower().replace(" ", "_")] + [code for code, f in summaries.items() if f is None or f == fam]
+        codes = [o.lower().replace(" ", "_")] + summary_of(o, fam, summaries)
         for code in codes:
             key = (y, u // 1000, code)
             counts[key] = counts.get(key, 0) + c
@@ -1744,6 +1839,7 @@ def expected_institutions() -> tuple[dict, dict]:
              if o // 1000 != n // 1000]
     with_fte = {k for k, (f, _p) in fte.items() if f is not None}
     rate_excluded = set()
+    rules_of = {}  # (year, base) -> the rules that leave it out
     add_to = {}  # (year, students' base) -> bases whose rate would add its FTE
     for y in sorted({yy for ys in reported_by.values() for yy in ys}):
         active = [(o, n) for o, n in cross if y in reported_by.get(o, ()) and y in reported_by.get(n, ())]
@@ -1781,6 +1877,8 @@ def expected_institutions() -> tuple[dict, dict]:
             rate_excluded |= {(y, t) for t in targets}
         else:
             pooled.setdefault((y, min(targets)), set()).add(s)
+    for key in rate_excluded:
+        rules_of.setdefault(key, set()).add("merger")
     institutions = {}
     for (y, b), campuses in by_inst.items():
         with_file = [u for u in campuses if u in name]
@@ -1830,25 +1928,65 @@ def expected_institutions() -> tuple[dict, dict]:
         if unmatched:
             for b in bases:
                 institutions[(y, b)]["rate_excluded"] = True
-    # The rate's denominator: the FTE, plus that of the institutions pooled with it
+                rules_of.setdefault((y, b), set()).add("family")
+    # A shared campus: a shadow block whose host campus has another base
+    # UNITID and is not a linked ID of the same campus. Per year and shadow
+    # institution: when it counts no campus and has one host institution,
+    # its FTE (if any) is added to that one's rate; otherwise it (when listed)
+    # and every host institution are left out
+    link_pairs = {frozenset((int(o), int(n))) for o, n in zip(id_links["old_unitid"], id_links["new_unitid"])}
+    host_bases = {}
+    for y, u, h, role in zip(shared["year"].tolist(), shared["unitid"].tolist(), shared["host_unitid"].tolist(),
+                             shared["role"].tolist()):
+        y, u, h = int(y), int(u), int(h)
+        if role == "shadow" and u // 1000 != h // 1000 and frozenset((u, h)) not in link_pairs:
+            host_bases.setdefault((y, u // 1000), set()).add(h // 1000)
+    for (y, a), hosts in host_bases.items():
+        if (y, a) not in institutions and len(hosts) == 1:
+            if (a, y) in with_fte:
+                pooled.setdefault((y, min(hosts)), set()).add(a)
+            continue
+        for t in {a} | hosts:
+            if (y, t) in institutions:
+                institutions[(y, t)]["rate_excluded"] = True
+                rules_of.setdefault((y, t), set()).add("shared")
+    # The population rule: a hospital, a special-focus medical school, or listed
+    for key, rule in hd_classes().items():
+        if key in institutions:
+            institutions[key]["rate_excluded"] = True
+            rules_of.setdefault(key, set()).add(rule)
+
+    # On-campus FTE: FTE x (100 - the online share the rules use) / 100,
+    # rounded half up; the FTE itself without a share
+    def oncampus(b, y):
+        f, own_share = fte.get((b, y), (None, None))
+        if f is None:
+            return None
+        p = fte.get((b, ONLINE_SHARE_YEAR.get(y, y)), (None, None))[1]
+        p = own_share if p is None else p
+        return f if p is None else half_up(f * (100 - p), 100)
+
+    # The rate's denominator: the on-campus FTE, plus that of the institutions pooled with it
     for (y, b), rec in institutions.items():
-        adds = sorted(pooled.get((y, b), ())) if not rec["rate_excluded"] else []
+        rec["oncampus"] = oncampus(b, y)
+        rec["rules"] = sorted(rules_of.get((y, b), ()))
+        adds = sorted(pooled.get((y, b), ())) if not rec["rate_excluded"] and rec["fte"] is not None else []
         rec["pooled"] = adds
-        rec["rate_fte"] = None if rec["fte"] is None else rec["fte"] + sum(fte[(s, y)][0] for s in adds)
+        rec["pooled_fte"] = {s: oncampus(s, y) for s in adds}
+        rec["rate_fte"] = None if rec["oncampus"] is None else rec["oncampus"] + sum(rec["pooled_fte"].values())
     campus_years = {}
     for u, y in counting:
         if u not in name:
             raise RuntimeError(f"Campus {u} reported {y} but is not in dim_institution")
         s = state.get(u)
         campus_years[(y, u)] = {"name": name[u], "state": None if pd.isna(s) else s}
-    return institutions, counts, campus_years
+    _EXPECTED_INSTITUTIONS = (institutions, counts, campus_years)
+    return _EXPECTED_INSTITUTIONS
 
 
 def rate_ranked(rec: dict) -> bool:
-    """Whether an institution-year is in rate rankings (config.py)."""
-    return (rec["rate_fte"] is not None and rec["rate_fte"] >= MIN_FTE_FOR_RATE
-            and (rec["online"] is None or rec["online"] < ONLINE_EXCLUSION_PCT)
-            and not rec.get("rate_excluded"))
+    """Whether an institution-year is in rate rankings (config.py): on-campus FTE (pooled included) and no rule."""
+    return rec["rate_fte"] is not None and rec["rate_fte"] >= MIN_FTE_FOR_RATE and not rec.get("rate_excluded")
 
 
 def audit_institution_rates(verbose: bool = False) -> AuditResult:
@@ -1859,15 +1997,19 @@ def audit_institution_rates(verbose: bool = False) -> AuditResult:
     From expected_institutions (computed without 04's or 05's code), every
     rankings/*.json file must list in "institutions" exactly the
     institution-years of its preset (national: state in US_STATES; a state:
-    the link campus's state; Ivy League: the Ivy institutions) that have at
-    least MIN_FTE_FOR_RATE FTE and fewer than ONLINE_EXCLUSION_PCT percent
-    exclusively online students (or no such figure), with their link campus,
-    name, state, FTE and number of campuses; and per code, "rateRankings"
-    exactly those with a count above 0, with that count and rate = count /
-    FTE x 10,000 to 2 decimals (within 0.005). Every school file's
-    "institution" years must hold the same campuses, online share,
-    rateRanked and counts (counts left out only when they equal the school's
-    own counts).
+    the link campus's state; Ivy League: the Ivy institutions) whose rate's
+    denominator (on-campus FTE, pooled institutions' included) is at least
+    MIN_FTE_FOR_RATE and that no rate rule leaves out, with their link
+    campus, name, state, that denominator, pooled institutions and number of
+    campuses; and per code not in RATE_COUNTS_ONLY, "rateRankings" exactly
+    those with at least MIN_COUNT_FOR_RATE_RANK incidents and "rateUnranked"
+    those with 1 to MIN_COUNT_FOR_RATE_RANK - 1, each with that count and
+    rate = count / denominator x 10,000 to 2 decimals (within 0.005); a code
+    of RATE_COUNTS_ONLY has neither. Every school file's "institution" years
+    must hold the same campuses, online share, rateRanked, rateFte,
+    pooledWith and counts (counts left out only when they equal the school's
+    own counts), and a rateExcludedReason exactly when a rule leaves the
+    institution out. Check 12 checks the intervals, rank ranges and spikes.
     """
     result = AuditResult("Institution Rates")
     print("\nCHECK 10: Institution Rates")
@@ -1875,18 +2017,22 @@ def audit_institution_rates(verbose: bool = False) -> AuditResult:
     try:
         result.details["what_it_checks"] = (
             "Without 04's or 05's code, from the facts without shadow blocks, the reported campus-years, "
-            "dim_institution and dim_enrollment: the campus-years that count (reported, not all shadow blocks; "
-            "incidents or not), the institutions (base UNITIDs) each year with such a campus, counts over all "
-            "those campuses (residence halls and shadow blocks left out), link campus (the 001 campus, else the "
-            "campus with the most incidents), FTE and share of exclusively online students (in "
-            f"{', '.join(str(y) for y in sorted(ONLINE_SHARE_YEAR))}, the share of the fall config.py "
-            "ONLINE_SHARE_YEAR names when NCES has one, else the year's own). Every "
-            "rankings/*.json file must list in campuses exactly its preset's counting campus-years, with their "
-            "name, state, institution FTE and number of campuses (the site ranks those without an entry with 0); "
-            f"in institutions exactly its preset's institutions with at least {MIN_FTE_FOR_RATE:,} FTE and under "
-            f"{ONLINE_EXCLUSION_PCT}% exclusively online students (or no such figure); and in rateRankings per "
-            "code exactly those with a count above 0, each with that count and rate = count / FTE x 10,000 "
-            "(within 0.005). Every school file's institution years must match too.")
+            "dim_institution, dim_enrollment and the raw IPEDS HD files: the campus-years that count (reported, "
+            "not all shadow blocks; incidents or not), the institutions (base UNITIDs) each year with such a "
+            "campus, counts over all those campuses (residence halls and shadow blocks left out), link campus "
+            "(the 001 campus, else the campus with the most incidents), FTE, share of exclusively online students "
+            f"(in {', '.join(str(y) for y in sorted(ONLINE_SHARE_YEAR))}, the share of the fall config.py "
+            "ONLINE_SHARE_YEAR names when NCES has one, else the year's own) and on-campus FTE = FTE x (100 - "
+            "share) / 100 rounded half up; the rate rules that leave an institution-year out (HD HOSPITAL = "
+            f"{HOSPITAL_CODE}, a Carnegie special-focus medical code, the reference list, a campus under two IDs, "
+            "a merger family, a shared campus) and the institutions pooled with it. Every rankings/*.json file "
+            "must list in campuses exactly its preset's counting campus-years, with their name, state, institution "
+            "FTE and number of campuses (the site ranks those without an entry with 0); in institutions exactly "
+            f"its preset's institutions with a denominator of at least {MIN_FTE_FOR_RATE:,} on-campus FTE and no "
+            f"rule; per code, rateRankings exactly those with at least {MIN_COUNT_FOR_RATE_RANK} incidents and "
+            f"rateUnranked those with 1 to {MIN_COUNT_FOR_RATE_RANK - 1}, each with that count and rate = count / "
+            "denominator x 10,000 (within 0.005), and neither for an offense of RATE_COUNTS_ONLY. Every school "
+            "file's institution years must match too.")
         institutions, counts, campus_years = expected_institutions()
         problems = []
 
@@ -1947,26 +2093,34 @@ def audit_institution_rates(verbose: bool = False) -> AuditResult:
                     problem(f"{ranking_file.name}: institution {b} is {g}, expected {expect}")
                     break
             rate_rankings = data.get("rateRankings") or {}
-            for code in sorted(set(codes) | set(rate_rankings)):
-                entries = rate_rankings.get(code, [])
-                should = {b for b in want if counts.get((year, b, code), 0) > 0}
-                have = {e.get("id") for e in entries}
-                if have != should:
-                    diff = sorted(should ^ have, key=str)
-                    problem(f"{ranking_file.name}/{code}: rate-ranks {len(have)} institutions, expected "
-                            f"{len(should)} (first difference: {diff[0]})")
-                for e in entries:
-                    entries_checked += 1
-                    b = e.get("id")
-                    if b not in want:
-                        continue
-                    c = counts.get((year, b, code), 0)
-                    rate = e.get("rate")
-                    if e.get("count") != c or not isinstance(rate, (int, float)) or \
-                            abs(rate - c / want[b]["rate_fte"] * 10000) > RATE_TOLERANCE:
-                        problem(f"{ranking_file.name}/{code}: institution {b} count {e.get('count')} rate {rate}, "
-                                f"expected {c} and {c / want[b]['rate_fte'] * 10000:.4f}")
-                        break
+            unranked_lists = data.get("rateUnranked") or {}
+            counts_only = {o.lower().replace(" ", "_") for o in RATE_COUNTS_ONLY}
+            for code in sorted(set(codes) | set(rate_rankings) | set(unranked_lists)):
+                for kind, entries in (("rateRankings", rate_rankings.get(code, [])),
+                                      ("rateUnranked", unranked_lists.get(code, []))):
+                    if code in counts_only:
+                        should = set()
+                    elif kind == "rateRankings":
+                        should = {b for b in want if counts.get((year, b, code), 0) >= MIN_COUNT_FOR_RATE_RANK}
+                    else:
+                        should = {b for b in want if 0 < counts.get((year, b, code), 0) < MIN_COUNT_FOR_RATE_RANK}
+                    have = {e.get("id") for e in entries}
+                    if have != should:
+                        diff = sorted(should ^ have, key=str)
+                        problem(f"{ranking_file.name}/{kind}/{code}: lists {len(have)} institutions, expected "
+                                f"{len(should)} (first difference: {diff[0]})")
+                    for e in entries:
+                        entries_checked += 1
+                        b = e.get("id")
+                        if b not in want:
+                            continue
+                        c = counts.get((year, b, code), 0)
+                        rate = e.get("rate")
+                        if e.get("count") != c or not isinstance(rate, (int, float)) or \
+                                abs(rate - c / want[b]["rate_fte"] * 10000) > RATE_TOLERANCE:
+                            problem(f"{ranking_file.name}/{kind}/{code}: institution {b} count {e.get('count')} "
+                                    f"rate {rate}, expected {c} and {c / want[b]['rate_fte'] * 10000:.4f}")
+                            break
 
         # School files
         profiles_checked = 0
@@ -1982,7 +2136,7 @@ def audit_institution_rates(verbose: bool = False) -> AuditResult:
             for t in school.get("trends", []):
                 code = t["offense"].lower().replace(" ", "_")
                 fam = t.get("offenseFamily")
-                for k in [code] + [s for s, f in SUMMARY_FAMILIES.items() if f is None or f == fam]:
+                for k in [code] + summary_of(t["offense"], fam, SUMMARY_FAMILIES):
                     own.setdefault(int(t["year"]), {})
                     own[int(t["year"])][k] = own[int(t["year"])].get(k, 0) + int(t["count"])
             b = unitid // 1000
@@ -1996,9 +2150,10 @@ def audit_institution_rates(verbose: bool = False) -> AuditResult:
                                 "counts": c}
                 if y in ONLINE_SHARE_YEAR and rec["online"] is not None:
                     want[str(y)]["onlineYear"] = rec["online_year"]
-                if rec["pooled"]:
+                if rec["rate_fte"] is not None:
                     want[str(y)]["rateFte"] = rec["rate_fte"]
-                    want[str(y)]["pooledWith"] = rec["pooled"]
+                if rec["pooled"]:
+                    want[str(y)]["pooledWith"] = [[s, rec["pooled_fte"][s]] for s in rec["pooled"]]
             got = (school.get("institution") or {}).get("byYear") or {}
             if want and (school.get("institution") or {}).get("id") != b:
                 problem(f"schools/{unitid}.json: institution id {(school.get('institution') or {}).get('id')}, "
@@ -2013,8 +2168,9 @@ def audit_institution_rates(verbose: bool = False) -> AuditResult:
                             f"{'present' if 'rateExcludedReason' in g else 'missing'}, expected the opposite")
                     break
                 g.pop("rateExcludedReason", None)
+                g.pop("spikes", None)  # check 12
                 if "pooledWith" in g:
-                    g["pooledWith"] = sorted(p.get("id") for p in g["pooledWith"])
+                    g["pooledWith"] = sorted([p.get("id"), p.get("fte")] for p in g["pooledWith"])
                 if "counts" not in g:
                     g["counts"] = {k: v for k, v in own.get(int(y), {}).items() if v > 0}
                 if g != w:
@@ -2022,34 +2178,33 @@ def audit_institution_rates(verbose: bool = False) -> AuditResult:
                     break
             profiles_checked += 1
 
-        online_left_out = {}
-        small_left_out = {}
-        for (y, b), rec in institutions.items():
-            if rec["online"] is not None and rec["online"] >= ONLINE_EXCLUSION_PCT:
-                online_left_out[y] = online_left_out.get(y, 0) + 1
-            elif rec["fte"] is None or rec["fte"] < MIN_FTE_FOR_RATE:
-                small_left_out[y] = small_left_out.get(y, 0) + 1
+        rule_names = ("hospital", "medical", "listed", "merger", "family", "shared")
         by_year = []
         for y in sorted({y for (y, _b) in institutions}):
             listed = [rec for (yy, _b), rec in institutions.items() if yy == y]
-            by_year.append({
+            row = {
                 "year": y,
                 "institutions": len(listed),
                 "with_more_than_one_campus": sum(1 for r in listed if r["campuses"] > 1),
                 "rate_ranked": sum(1 for r in listed if rate_ranked(r)),
-                "left_out_online": online_left_out.get(y, 0),
-                "left_out_fte": small_left_out.get(y, 0),
+                # Under the floor of on-campus FTE (no rule), or without an FTE
+                "left_out_fte": sum(1 for r in listed if not r["rate_excluded"]
+                                    and (r["rate_fte"] is None or r["rate_fte"] < MIN_FTE_FOR_RATE)),
                 "no_online_figure": sum(1 for r in listed if r["online"] is None and r["fte"] is not None),
                 # ONLINE_SHARE_YEAR years without that other fall's share: their own year's was used
                 "online_share_own_year_used": (sum(1 for r in listed if r["online_year"] == y)
                                                if y in ONLINE_SHARE_YEAR else None),
-                "online_share_own_year_used_1000_fte": (
-                    sum(1 for r in listed if r["online_year"] == y and (r["fte"] or 0) >= MIN_FTE_FOR_RATE)
-                    if y in ONLINE_SHARE_YEAR else None),
-                "left_out_online_1000_fte": sum(1 for r in listed if (r["fte"] or 0) >= MIN_FTE_FOR_RATE
-                                                and r["online"] is not None and r["online"] >= ONLINE_EXCLUSION_PCT),
                 "with_1000_fte": sum(1 for r in listed if (r["fte"] or 0) >= MIN_FTE_FOR_RATE),
-            })
+                "with_1000_oncampus_fte": sum(1 for r in listed if (r["oncampus"] or 0) >= MIN_FTE_FOR_RATE),
+                "pooled": sum(1 for r in listed if r["pooled"]),
+            }
+            # Per rule: the institution-years it leaves out (one can have several rules), and of
+            # those with an on-campus FTE of at least MIN_FTE_FOR_RATE
+            for rule in rule_names:
+                hit = [r for r in listed if rule in r["rules"]]
+                row[f"rule_{rule}"] = len(hit)
+                row[f"rule_{rule}_1000"] = sum(1 for r in hit if (r["oncampus"] or 0) >= MIN_FTE_FOR_RATE)
+            by_year.append(row)
         result.details["by_year"] = by_year
         result.details["ranking_files_checked"] = files_checked
         result.details["campus_rows_with_0_all_files"] = zero_campus_rows
@@ -2057,16 +2212,13 @@ def audit_institution_rates(verbose: bool = False) -> AuditResult:
         result.details["school_files_checked"] = profiles_checked
         result.details["problems"] = len(problems)
 
-        print(f"    {'Year':<6}{'Inst.':>7}{'Multi':>7}{'Ranked':>8}{'Online':>8}{'<FTE':>7}{'NoPct':>7}"
-              f"{'1000+':>7}{'Online1000+':>13}{'OwnYearPct':>12}")
+        # Rules: institution-years each rule leaves out (with 1,000+ on-campus FTE)
+        print(f"    {'Year':<6}{'Inst.':>7}{'Ranked':>8}{'<FTE':>7}{'NoPct':>7}{'1000+on':>9}{'Pooled':>8}"
+              + "".join(f"{name[:8]:>13}" for name in rule_names))
         for r in by_year:
-            # OwnYearPct: in an ONLINE_SHARE_YEAR year, how many used their own year's share (with 1,000+ FTE)
-            own_used = r["online_share_own_year_used"]
-            own_text = "" if own_used is None else f"{own_used:,} ({r['online_share_own_year_used_1000_fte']:,})"
-            print(f"    {r['year']:<6}{r['institutions']:>7,}{r['with_more_than_one_campus']:>7,}"
-                  f"{r['rate_ranked']:>8,}{r['left_out_online']:>8,}{r['left_out_fte']:>7,}"
-                  f"{r['no_online_figure']:>7,}{r['with_1000_fte']:>7,}{r['left_out_online_1000_fte']:>13,}"
-                  f"{own_text:>12}")
+            print(f"    {r['year']:<6}{r['institutions']:>7,}{r['rate_ranked']:>8,}{r['left_out_fte']:>7,}"
+                  f"{r['no_online_figure']:>7,}{r['with_1000_oncampus_fte']:>9,}{r['pooled']:>8,}"
+                  + "".join("{:>13}".format(f"{r['rule_' + n]:,} ({r['rule_' + n + '_1000']:,})") for n in rule_names))
         print(f"  Ranking files: {files_checked:,}; rate entries: {entries_checked:,}; school files: "
               f"{profiles_checked:,}")
         print(f"  Problems: {len(problems)}")
@@ -2088,6 +2240,241 @@ def audit_institution_rates(verbose: bool = False) -> AuditResult:
         result.failed(str(e))
         print(f"  ERROR: {e}")
 
+    return result
+
+
+def gamma_p(a: float, x: float) -> float:
+    """
+    The regularized lower incomplete gamma function P(a, x): its series for
+    x < a + 1, else 1 - the continued fraction of Q(a, x) (modified Lentz).
+    """
+    if x <= 0:
+        return 0.0
+    log_front = -x + a * math.log(x) - math.lgamma(a)
+    if x < a + 1:
+        term = total = 1.0 / a
+        ap = a
+        for _ in range(100000):
+            ap += 1
+            term *= x / ap
+            total += term
+            if abs(term) < abs(total) * 1e-16:
+                break
+        return min(1.0, total * math.exp(log_front))
+    tiny = 1e-300
+    b = x + 1 - a
+    c, d = 1 / tiny, 1 / b
+    h = d
+    for i in range(1, 100000):
+        an = -i * (i - a)
+        b += 2
+        d = an * d + b
+        d = tiny if abs(d) < tiny else d
+        c = b + an / c
+        c = tiny if abs(c) < tiny else c
+        d = 1 / d
+        step = d * c
+        h *= step
+        if abs(step - 1) < 1e-16:
+            break
+    return max(0.0, 1.0 - math.exp(log_front) * h)
+
+
+def exact_poisson_interval(n: int, level: float) -> tuple[float, float]:
+    """
+    The exact (Garwood) interval of a Poisson count n, through the gamma
+    function: P(X >= n | m) = P(n, m) and P(X <= n | m) = 1 - P(n + 1, m), so
+    lower solves P(n, m) = (1 - level) / 2 (0 for n = 0) and upper solves
+    P(n + 1, m) = 1 - (1 - level) / 2, each by bisection of the increasing P.
+    """
+    alpha = 1 - level
+
+    def root(a, target):
+        lo, hi = 0.0, a + 20 * math.sqrt(a) + 20
+        for _ in range(300):
+            mid = (lo + hi) / 2
+            lo, hi = (mid, hi) if gamma_p(a, mid) < target else (lo, mid)
+            if hi - lo <= 1e-13 * max(1.0, hi):
+                break
+        return (lo + hi) / 2
+
+    return (0.0 if n == 0 else root(n, alpha / 2)), root(n + 1, 1 - alpha / 2)
+
+
+def audit_rate_rules(verbose: bool = False) -> AuditResult:
+    """
+    CHECK 12: The rate rules' statistics, without 05's code.
+
+    For every entry of every rateRankings and rateUnranked list: lo and hi
+    are the exact Poisson interval of the count at RATE_CI_LEVEL
+    (exact_poisson_interval, a different method from 05's) per 10,000 of the
+    institution's denominator, to 2 decimals. For every rate ranking: each
+    rankLo is 1 + the number of ranked entries whose lo is above its hi, each
+    rankHi the number of ranked entries minus those whose hi is below its lo
+    (from the published bounds), and rankLo <= rank <= rankHi. spike marks
+    exactly the counts of at least SPIKE_MIN_COUNT that are more than
+    SPIKE_FACTOR times the median of the institution's counts in its other
+    listed years (0 for a year without one), with at least
+    SPIKE_MIN_OTHER_YEARS of them, in rate rankings and in school files'
+    institution years. RATE_COUNTS_ONLY holds exactly the offenses that
+    average fewer than RATE_RANK_MIN_NATIONAL counted incidents a year over
+    DATA_YEARS. metadata.json's rateRules hold config.py's values.
+    """
+    result = AuditResult("Rate Rules")
+    print("\nCHECK 12: Rate Rules")
+    try:
+        result.details["what_it_checks"] = (
+            f"Each rate's {RATE_CI_LEVEL:.0%} interval in rateRankings and rateUnranked equals the exact Poisson "
+            "(Garwood) interval of its count, found again through the regularized incomplete gamma function, per "
+            "10,000 of the institution's denominator, to 2 decimals (within 0.005); each rank range is 1 + the "
+            "ranked entries whose lower bound is above the entry's upper bound, to the ranked entries minus those "
+            "whose upper bound is below its lower bound, and holds the rank; spike flags (rate rankings and school "
+            f"files) mark exactly the counts of at least {SPIKE_MIN_COUNT} above {SPIKE_FACTOR} times the median "
+            f"of the institution's other listed years (at least {SPIKE_MIN_OTHER_YEARS}); the counts-only offenses "
+            f"are exactly those averaging under {RATE_RANK_MIN_NATIONAL:,} counted incidents a year; and "
+            "metadata.json's rateRules hold config.py's values.")
+        institutions, counts, _campus_years = expected_institutions()
+        problems = []
+        listed_years = {}
+        for (y, b) in institutions:
+            listed_years.setdefault(b, []).append(y)
+        codes_of = {}  # (year, base) -> its codes with a count above 0
+        for (y, b, code) in counts:
+            codes_of.setdefault((y, b), set()).add(code)
+
+        def spike(code, y, b):
+            c = counts.get((y, b, code), 0)
+            others = [counts.get((yy, b, code), 0) for yy in listed_years.get(b, []) if yy != y]
+            return (c >= SPIKE_MIN_COUNT and len(others) >= SPIKE_MIN_OTHER_YEARS
+                    and c > SPIKE_FACTOR * statistics.median(others))
+
+        intervals = {}
+
+        def interval(n):
+            if n not in intervals:
+                intervals[n] = exact_poisson_interval(n, RATE_CI_LEVEL)
+            return intervals[n]
+
+        bounds_checked = ranges_checked = spikes_seen = 0
+        national = {}
+        for ranking_file in sorted((JSON_DIR / "rankings").glob("*.json")):
+            data = json.loads(ranking_file.read_text(encoding="utf-8"))
+            year, table = data.get("year"), data.get("institutions") or {}
+            for kind in ("rateRankings", "rateUnranked"):
+                for code, entries in (data.get(kind) or {}).items():
+                    for e in entries:
+                        fte = (table.get(str(e.get("id"))) or {}).get("fte")
+                        if not isinstance(fte, int) or fte <= 0 or not isinstance(e.get("count"), int):
+                            problems.append(f"{ranking_file.name}/{kind}/{code}: {e.get('id')} has no count or FTE")
+                            continue
+                        lower, upper = interval(e["count"])
+                        for name, exact in (("lo", lower / fte * 10000), ("hi", upper / fte * 10000)):
+                            got = e.get(name)
+                            if not isinstance(got, (int, float)) or abs(got - exact) > RATE_TOLERANCE + 1e-7:
+                                problems.append(f"{ranking_file.name}/{kind}/{code}: {e.get('id')} {name} {got}, "
+                                                f"expected {exact:.4f} (count {e['count']}, FTE {fte})")
+                        bounds_checked += 1
+                        want_spike = kind == "rateRankings" and spike(code, year, e.get("id"))
+                        if bool(e.get("spike")) != want_spike:
+                            problems.append(f"{ranking_file.name}/{kind}/{code}: {e.get('id')} spike "
+                                            f"{bool(e.get('spike'))}, expected {want_spike}")
+                        spikes_seen += bool(e.get("spike"))
+                    if kind != "rateRankings" or not entries:
+                        continue
+                    lo = np.array([float(e.get("lo", 0)) for e in entries])
+                    hi = np.array([float(e.get("hi", 0)) for e in entries])
+                    n = len(entries)
+                    above = (lo[None, :] > hi[:, None]).sum(axis=1)  # entries whose lo is above this hi
+                    below = (hi[None, :] < lo[:, None]).sum(axis=1)  # entries whose hi is below this lo
+                    for i, e in enumerate(entries):
+                        ranges_checked += 1
+                        want = (1 + int(above[i]), n - int(below[i]))
+                        if (e.get("rankLo"), e.get("rankHi")) != want or not (want[0] <= e.get("rank", 0) <= want[1]):
+                            problems.append(f"{ranking_file.name}/{code}: {e.get('id')} rank {e.get('rank')} range "
+                                            f"{e.get('rankLo')}-{e.get('rankHi')}, expected {want[0]}-{want[1]}")
+                            break
+                    if data.get("preset") == "national" and code in ("criminal", "violent", "property"):
+                        national.setdefault(str(year), {})[code] = {
+                            "ranked": n,
+                            "too_few_to_rank": len((data.get("rateUnranked") or {}).get(code, [])),
+                            "spikes": sum(1 for e in entries if e.get("spike")),
+                            "median_rank_range_width": float(np.median([e["rankHi"] - e["rankLo"] + 1
+                                                                        for e in entries])),
+                        }
+
+        # School files: spikes per institution year
+        profiles_checked = 0
+        for school_file in sorted((JSON_DIR / "schools").glob("*.json")):
+            try:
+                unitid = int(school_file.stem)
+            except ValueError:
+                continue
+            school = json.loads(school_file.read_text(encoding="utf-8"))
+            b = unitid // 1000
+            for y, entry in ((school.get("institution") or {}).get("byYear") or {}).items():
+                y = int(y)
+                want = sorted(code for code in codes_of.get((y, b), ()) if spike(code, y, b))
+                if sorted(entry.get("spikes") or []) != want:
+                    problems.append(f"schools/{unitid}.json: institution {y} spikes {entry.get('spikes')}, "
+                                    f"expected {want}")
+            profiles_checked += 1
+
+        # The counts-only offenses: those averaging under RATE_RANK_MIN_NATIONAL a year
+        totals = {}
+        for (y, _b, code), c in counts.items():
+            if code not in SUMMARY_FAMILIES and y in DATA_YEARS:
+                totals[code] = totals.get(code, 0) + c
+        averages = {code: total / len(DATA_YEARS) for code, total in totals.items()}
+        rare = {code for code, avg in averages.items() if avg < RATE_RANK_MIN_NATIONAL}
+        listed_rare = {o.lower().replace(" ", "_") for o in RATE_COUNTS_ONLY}
+        if rare != listed_rare:
+            problems.append(f"RATE_COUNTS_ONLY is {sorted(listed_rare)}, but the offenses averaging under "
+                            f"{RATE_RANK_MIN_NATIONAL:,} a year are {sorted(rare)}")
+        result.details["national_average_per_year"] = {code: round(avg, 1) for code, avg in
+                                                       sorted(averages.items(), key=lambda kv: kv[1])}
+
+        # metadata.json's rateRules
+        meta = json.loads((JSON_DIR / "metadata.json").read_text(encoding="utf-8"))
+        rules = meta.get("rateRules") or {}
+        want_rules = {
+            "minFte": MIN_FTE_FOR_RATE, "minCount": MIN_COUNT_FOR_RATE_RANK,
+            "countsOnly": sorted(listed_rare), "ciLevel": RATE_CI_LEVEL,
+            "spike": {"minCount": SPIKE_MIN_COUNT, "factor": SPIKE_FACTOR, "minOtherYears": SPIKE_MIN_OTHER_YEARS},
+            "onlineShareYear": {str(k): v for k, v in ONLINE_SHARE_YEAR.items()},
+        }
+        got_rules = {**rules, "countsOnly": sorted(rules.get("countsOnly") or [])}
+        if got_rules != want_rules:
+            problems.append(f"metadata.json rateRules is {rules}, expected {want_rules}")
+
+        result.details["intervals_checked"] = bounds_checked
+        result.details["rank_ranges_checked"] = ranges_checked
+        result.details["spike_flags_in_rate_rankings"] = spikes_seen
+        result.details["school_files_checked"] = profiles_checked
+        result.details["national"] = national
+        result.details["problems"] = len(problems)
+        print(f"  Intervals checked: {bounds_checked:,}; rank ranges: {ranges_checked:,}; spike flags in rate "
+              f"rankings: {spikes_seen:,}; school files: {profiles_checked:,}")
+        print(f"  Counts-only offenses (average a year under {RATE_RANK_MIN_NATIONAL:,}): "
+              + ", ".join(f"{code} {averages.get(code, 0):,.1f}" for code in sorted(rare, key=lambda c: averages[c])))
+        for y, row in sorted(national.items()):
+            print(f"    {y} national: " + "; ".join(
+                f"{code} ranked {r['ranked']:,}, too few {r['too_few_to_rank']:,}, spikes {r['spikes']:,}, "
+                f"median range width {r['median_rank_range_width']:g}" for code, r in row.items()))
+        print(f"  Problems: {len(problems)}")
+        if problems:
+            result.failed(f"{len(problems)} problems with the rate rules (first: {problems[0]}). "
+                          "Run 05_generate_json.py, then 07 again.")
+            if verbose:
+                for p in problems[:5]:
+                    print(f"    {p}")
+        elif bounds_checked == 0:
+            result.failed("No rate entries to check. Run 04_create_aggregates.py and 05_generate_json.py.")
+        else:
+            result.passed()
+        print(f"  {result.status}")
+    except Exception as e:
+        result.failed(str(e))
+        print(f"  ERROR: {e}")
     return result
 
 
@@ -2200,6 +2587,7 @@ def main():
         audit_enrollment_sources,
         audit_institution_rates,
         audit_campus_identity,
+        audit_rate_rules,
     ]
 
     for check_fn in checks:

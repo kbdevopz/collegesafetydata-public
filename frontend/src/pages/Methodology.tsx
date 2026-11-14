@@ -68,11 +68,13 @@ const LIMITATIONS: { title: string; body: React.ReactNode }[] = [
     title: 'Rates are per enrolled student, not per person on campus',
     body: (
       <>
-        Rates divide by the institution's fall FTE enrollment from NCES. They do not count residents who are not
-        students, employees, visitors or patients, or how many students live on campus, and FTE is per
-        institution, not per campus. Where an institution's Clery geography includes places used mostly by people
-        who are not its students, such as a hospital or clinic, the rate per student says little about risk to a
-        student.
+        Rates divide by the institution's on-campus FTE, estimated from NCES's FTE and its share of students
+        enrolled exclusively online. They do not count residents who are not students, employees, visitors or
+        patients, or how many students live on campus, and FTE is per institution, not per campus. Rate rankings
+        leave out institutions with a hospital and special-focus medical and research institutions for this
+        reason (see <a href="#rate-rules" className="underline">Rate Rules</a>), but other institutions' Clery
+        geography can also include places used mostly by people who are not their students, such as a clinic,
+        and there the rate per student says little about risk to a student.
       </>
     ),
   },
@@ -80,9 +82,11 @@ const LIMITATIONS: { title: string; body: React.ReactNode }[] = [
     title: 'Small numbers swing',
     body: (
       <>
-        Rates built on few incidents or a small enrollment are marked with an asterisk (*; the thresholds are
-        under <a href="#rates" className="underline">Crime Rate Calculation</a>). One or two incidents more or less can move such an institution many places in a ranking, and a small institution's
-        rate can change several-fold from one year to the next. Treat close ranks as ties.
+        Rate rankings rank only rates built on at least 20 incidents, and show each rate's 95% interval and the
+        range of ranks it allows (see <a href="#rate-rules" className="underline">Rate Rules</a>). A rate on fewer
+        incidents is shown but not ranked: one or two incidents more or less change it a lot, and a small
+        institution's rate can change several-fold from one year to the next. Treat ranks inside one range as
+        ties.
       </>
     ),
   },
@@ -102,8 +106,8 @@ const LIMITATIONS: { title: string; body: React.ReactNode }[] = [
       <>
         "All criminal offenses" adds the 11 offenses with equal weight: a murder and a motor vehicle theft each
         count 1. In this data, motor vehicle theft was about 15% of the national total in 2015 and about 37% in
-        2024, so much of the recent rise in that total is vehicle theft. Look at single offenses before drawing
-        conclusions from a total.
+        2024, so much of the recent rise in that total is vehicle theft. For this reason rankings open on violent
+        crimes. Look at single offenses before drawing conclusions from a total.
       </>
     ),
   },
@@ -346,8 +350,8 @@ export default function Methodology() {
                 <dt className="font-medium text-gray-900 dark:text-gray-100">PCTDEEXC ("Percent of students enrolled exclusively in distance education courses")</dt>
                 <dd>
                   Students enrolled only in distance education courses, divided by all students enrolled, as of the
-                  institution's official fall reporting date or October 15. Rate rankings use it to leave out mostly
-                  online institutions (see below).
+                  institution's official fall reporting date or October 15. Rates use it to estimate on-campus FTE
+                  (see <a href="#rate-rules" className="underline">Rate Rules</a>).
                 </dd>
               </div>
               <div>
@@ -394,13 +398,14 @@ export default function Methodology() {
             </div>
 
             <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 rounded-xl p-6 border border-green-100 dark:border-green-900/50 mb-6">
-              <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">Per 10,000 Students</h4>
+              <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">Per 10,000 Students on Campus</h4>
               <code className="block bg-white dark:bg-gray-900 rounded-lg p-4 text-sm text-gray-800 dark:text-gray-200 font-mono mb-3">
-                Rate = (Incident Count / FTE) × 10,000
+                Rate = (Incident Count / On-campus FTE) × 10,000
               </code>
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 A size-adjusted figure: it removes the effect of enrollment size on counts, not the other
-                differences between institutions listed under Limitations.
+                differences between institutions listed under Limitations. On-campus FTE and every other rule rates
+                follow are under <a href="#rate-rules" className="underline">Rate Rules</a> below.
               </p>
             </div>
 
@@ -410,12 +415,13 @@ export default function Methodology() {
                 <p className="text-sm text-gray-600 dark:text-gray-400">
                   NCES publishes enrollment (FTE) for each institution, not for each campus, and every campus of an
                   institution (all campuses whose UNITID starts with the same six digits) carries the same FTE. So a
-                  rate divides the incidents of all the institution's campuses that year by the institution's FTE.
-                  Rate rankings list institutions, one row each, under the institution's name and linked to its main
-                  campus (or, when the main campus did not report, its campus with the most incidents that year);
-                  school pages and Compare label such a rate "all N campuses combined". Rankings by count still list
-                  each campus. The incidents are counted as in rankings: residence halls are not added (they are part
-                  of on-campus), and figures also reported by another campus count once.
+                  rate divides the incidents of all the institution's campuses that year by the institution's
+                  on-campus FTE. Rate rankings list institutions, one row each, under the institution's name and
+                  linked to its main campus (or, when the main campus did not report, its campus with the most
+                  incidents that year); school pages and Compare label such a rate "all N campuses combined".
+                  Rankings by count still list each campus. The incidents are counted as in rankings: residence
+                  halls are not added (they are part of on-campus), and figures also reported by another campus
+                  count once.
                 </p>
               </div>
               <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
@@ -426,49 +432,157 @@ export default function Methodology() {
                 </p>
               </div>
               <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
-                <h5 className="font-medium text-gray-900 dark:text-gray-100 text-sm mb-2">Current Rate Rules</h5>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                  A rate with fewer than 10 incidents, or an FTE under 1,000, is marked with an asterisk (*).
-                </p>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Rate rankings leave out institutions with fewer than 1,000 FTE students that year, where a few
-                  incidents swing the rate.
-                  And institutions where at least 50% of students study exclusively online (NCES's share of students
-                  enrolled exclusively in distance education): Clery figures cover the campus, which most of their
-                  students never attend, so their rate is not comparable. School pages still show these rates, with a
-                  note. An institution without NCES's online figure is not left out. For 2020 and 2021 the test uses
-                  each institution's fall 2019 share (its own year's only when NCES has no 2019 figure), because
-                  temporary remote teaching during the pandemic does not make a school an online-only school.
-                </p>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-                  Mergers and renumbered campuses: in a year DOE reported a campus under two institutions (its old
-                  and its new ID, from different releases), the institution whose NCES FTE holds the campus's
-                  students is the only one of the two with an FTE or, when both have one, the one whose every
-                  campus that year is such a linked campus. When the other institution counts the campus and the
-                  students' institution counts no campus of its own that year, the other's rate adds the students'
-                  institution's FTE (both institutions' students over both institutions' incidents). An institution
-                  gets no rate that year, and is left out of rate rankings with a note on its school page, only when
-                  a campus with at least one incident that year has its incidents counted under one institution and
-                  its students under another, when it cannot be told which FTE holds the students, or when those
-                  students' FTE would be split among several institutions. In a year a merged institution's campuses
-                  count under several institutions and one of them has no NCES FTE while counting a campus with
-                  incidents that no institution with an FTE also counts, every institution of the group is left out.
-                  A campus with no incident that year needs none of this: whichever FTE holds its students, every
-                  rate is the same. In all, 91 institution-years are left out by these rules (29 with at least 1,000
-                  FTE; before this rule was narrowed, 295 and 97), and 31 are rated with another institution's FTE
-                  added.
-                </p>
-              </div>
-              <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4 sm:col-span-2">
                 <h5 className="font-medium text-gray-900 dark:text-gray-100 text-sm mb-2">Ties in Rankings</h5>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
                   Schools with the same count (or the same rate) share a rank, and the next rank skips the places
-                  the tie takes: 1, 2, 2, 4. Tied schools are listed by name. Campuses that reported the year but
-                  had none of the selected category come last, with 0, sharing one rank. A reported zero can reflect how
-                  an institution classifies or reports incidents, not only how safe it is.
+                  the tie takes: 1, 2, 2, 4. Tied schools are listed by name. By count, campuses that reported the
+                  year but had none of the selected category come last, with 0, sharing one rank. By rate, only
+                  institutions with at least 20 incidents are ranked (rule 4 below); those with fewer follow, then
+                  those with none. A reported zero can reflect how an institution classifies or reports incidents,
+                  not only how safe it is.
                 </p>
               </div>
             </div>
+
+            <h3 id="rate-rules" className="scroll-mt-20 text-lg font-semibold text-gray-900 dark:text-gray-100 mt-8 mb-3">
+              Rate Rules
+            </h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+              Every rule that rates and rate rankings follow, with its threshold. None of them changes a count or a
+              ranking by count, and school pages show every rate an institution has, with a note when a rule leaves
+              it out of rate rankings. The numbers cover 2015-2024; an institution-year is one institution in one
+              year.
+            </p>
+            <ol className="list-decimal pl-5 space-y-4 text-sm text-gray-600 dark:text-gray-400">
+              <li>
+                <strong className="text-gray-900 dark:text-gray-100">Denominator: on-campus FTE.</strong>{' '}
+                On-campus FTE = FTE × (1 − PCTDEEXC / 100), rounded to a whole number: the institution's FTE without
+                NCES's share of students enrolled exclusively in distance education, because Clery figures cover
+                the campus. It is an approximation: PCTDEEXC is a share of fall headcount, not of FTE, and a student
+                who takes some courses online counts as on campus. For 2020 and 2021, when many institutions taught
+                remotely for the pandemic, it uses the institution's fall 2019 share, so those years divide by the
+                same kind of enrollment as the others (the year's own share when NCES has no 2019 figure: 66
+                institutions in 2020, 102 in 2021). Every institution with an NCES FTE in these years has a PCTDEEXC.
+                This replaces a cut-off that left out institutions with 50% or more of students exclusively online
+                and divided by their whole FTE below it.
+              </li>
+              <li>
+                <strong className="text-gray-900 dark:text-gray-100">At least 1,000 on-campus FTE.</strong>{' '}
+                Rate rankings list an institution only in a year its on-campus FTE (with any FTE added under rules 8
+                and 9) is at least 1,000, because with fewer students a few incidents move the rate far. In 2024,
+                1,987 institutions reach it.
+              </li>
+              <li>
+                <strong className="text-gray-900 dark:text-gray-100">Campuses whose population is not mostly students.</strong>{' '}
+                A rate per student says little where many people on campus are not in FTE. Rate rankings leave out
+                an institution in a year IPEDS reports that it has a hospital (HD variable HOSPITAL = 1: patients,
+                visitors and hospital staff; 882 institution-years, 701 of them with at least 1,000 on-campus FTE,
+                71 in 2024); else one whose Carnegie basic classification in IPEDS is "Special Focus Four-Year:
+                Medical Schools &amp; Centers" (code 25 of C15BASIC, C18BASIC and C21BASIC) or the 2021 category
+                "Special Focus Research Institution" (C21BASIC 27; 20 of its 22 institutions in 2024 were medical
+                schools and centers in the 2018 classification): 335 institution-years, 205 with at least 1,000
+                on-campus FTE, 21 in 2024; and the institutions of a reviewed list with a sourced reason, now only
+                Gallaudet University for 2015-2024, whose campus also holds the Clerc Center's Kendall Demonstration
+                Elementary School and Model Secondary School for the Deaf, whose pupils are not in its FTE (
+                <SourceLink source={SOURCES.clercCenter}>Laurent Clerc National Deaf Education Center</SourceLink>; 10
+                institution-years). In 2024 the median rate of all criminal offenses per 10,000 on-campus FTE was
+                80.2 at research universities with very high research activity (Carnegie R1) with a hospital and
+                34.6 at those without one. Sources:{' '}
+                <SourceLink source={SOURCES.ipedsHdDictionary}>IPEDS HD data dictionary</SourceLink>,{' '}
+                <SourceLink source={SOURCES.carnegie2021}>Carnegie Classification, 2021 Basic Classification</SourceLink>.
+              </li>
+              <li>
+                <strong className="text-gray-900 dark:text-gray-100">At least 20 incidents for a rank.</strong>{' '}
+                A rate gets a rank only when it is built on at least 20 incidents. Taking a year's count as a Poisson
+                count, its relative standard error is 1/√count: 22.4% at 20, 31.6% at 10, 50% at 4. CDC WONDER flags
+                rates based on fewer than 20 deaths as unreliable for the same reason (a relative standard error of
+                23% or more;{' '}
+                <SourceLink source={SOURCES.cdcWonderUnreliable}>CDC WONDER</SourceLink>). Institutions with 1 to 19
+                incidents follow the ranked ones as "too few incidents to rank by rate", in order of rate, with the
+                rate and its interval shown. In the 2024 national rate rankings (1,872 institutions), 310 are ranked
+                for all criminal offenses, 84 for violent crimes and 158 for property crimes.
+              </li>
+              <li>
+                <strong className="text-gray-900 dark:text-gray-100">Counts only for rare offenses.</strong>{' '}
+                An offense with fewer than 1,000 incidents a year on average across all campuses has rankings by
+                count only: incest (2.5 a year), negligent manslaughter (6.2), murder (48.8), statutory rape (78.7)
+                and arson (654.9). Across 2015-2024 only 7 institution-years in rate rankings reached 20 incidents
+                of any of them (statutory rape 3, arson 4), so a rate ranking would rank almost no one. The next
+                rarest offense, robbery, averages about 2,200 a year.
+              </li>
+              <li>
+                <strong className="text-gray-900 dark:text-gray-100">95% intervals and rank ranges.</strong>{' '}
+                Each rate is shown with a 95% interval: the exact Poisson interval of its count (
+                <SourceLink source={SOURCES.garwood1936}>Garwood, 1936</SourceLink>), divided by the on-campus FTE and
+                multiplied by 10,000. For a count of 20 the interval of the count is 12.2 to 30.9, for a count of 0
+                it is 0 to 3.7. It shows how much a count varies by chance from year to year; it does not cover differences in
+                reporting or classification. A ranked institution's rank range runs from 1 plus the number of ranked
+                institutions whose interval lies entirely above its own, to the number of ranked institutions minus
+                the number whose interval lies entirely below it. Ranks inside one range are not clearly different.
+                In 2024 the median ranked institution could hold any of 48 ranks (of 84) for violent crimes and 155
+                (of 310) for all criminal offenses.
+              </li>
+              <li>
+                <strong className="text-gray-900 dark:text-gray-100">Violent and property crimes.</strong>{' '}
+                "Violent crimes" adds murder (non-negligent manslaughter included), rape, robbery and aggravated
+                assault, the four offenses of the FBI's violent crime (
+                <SourceLink source={SOURCES.fbiViolent2019}>FBI, Crime in the United States 2019: Violent Crime</SourceLink>).
+                "Property crimes" adds burglary, motor vehicle theft and arson, the FBI's property crime offenses
+                without larceny-theft, which Clery does not collect (
+                <SourceLink source={SOURCES.fbiProperty2019}>FBI, Property Crime</SourceLink>). Fondling, incest,
+                statutory rape and negligent manslaughter are in neither; all 11 offenses are in "All criminal
+                offenses", which is still offered. Rankings open on violent crimes because motor vehicle theft was
+                37% of all criminal offenses in 2024 (15% in 2015) and so decides much of that total's order.
+              </li>
+              <li>
+                <strong className="text-gray-900 dark:text-gray-100">Mergers and renumbered campuses.</strong>{' '}
+                In a year DOE reported a campus under two institutions (its old and its new ID, from different
+                releases), the institution whose NCES FTE holds the campus's students is the only one of the two
+                with an FTE or, when both have one, the one whose every campus that year is such a linked campus.
+                When the other institution counts the campus and the students' institution counts no campus of its
+                own that year, the other's rate adds the students' institution's on-campus FTE (both institutions'
+                students over both institutions' incidents). An institution gets no rate that year, and is left out
+                of rate rankings with a note on its school page, only when a campus with at least one incident that
+                year has its incidents counted under one institution and its students under another, when it cannot
+                be told which FTE holds the students, or when those students' FTE would be split among several
+                institutions. In a year a merged institution's campuses count under several institutions and one of
+                them has no NCES FTE while counting a campus with incidents that no institution with an FTE also
+                counts, every institution of the group is left out. A campus with no incident that year needs none
+                of this: whichever FTE holds its students, every rate is the same. In all, 91 institution-years are
+                left out by these rules (27 with at least 1,000 on-campus FTE; before this rule was narrowed, 295,
+                97 of them with at least 1,000 FTE), and 31 are rated with another institution's FTE added.
+              </li>
+              <li>
+                <strong className="text-gray-900 dark:text-gray-100">Shared campuses.</strong>{' '}
+                When DOE publishes the same figures for campuses of two institutions in a year, they count once,
+                under the host campus, while each institution's students are in its own FTE. When the other
+                institution counts no campus of its own that year and its figures count under one host institution,
+                the host's rate adds the other's on-campus FTE (44 institution-years). Otherwise neither rate can be
+                made exact: adding the other institution's FTE would add its students at its other campuses, and
+                not adding it would leave its students on the shared campus out. Then the host institutions and the
+                other institution are left out of rate rankings that year, with a note: 243 institution-years, 209
+                with at least 1,000 on-campus FTE, 21 in 2024, among them Texas A&amp;M University, Purdue
+                University, Indiana University Bloomington and the University of Maryland, College Park. Most are a
+                program of one institution on another's campus, such as the Indiana University School of Medicine
+                at Bloomington or the University of Maryland Global Campus at College Park.
+              </li>
+              <li>
+                <strong className="text-gray-900 dark:text-gray-100">Unusually high years.</strong>{' '}
+                A rate is marked "Unusually high for this institution; DOE counts crimes in the year reported" when
+                its count is at least 20 and more than 3 times the median of the institution's counts of that
+                category in its other years (a year without one counts as 0), with at least 3 other years. It stays
+                ranked: a year's figure is the crimes reported that year, and one report of many past incidents can
+                raise one year (see <a href="#year-reported" className="underline">How Institutions Count</a>). In
+                the 2024 national rate rankings 21 institutions are marked for all criminal offenses, 10 for violent
+                crimes and 33 for property crimes.
+              </li>
+            </ol>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mt-4">
+              Rules 3, 8 and 9 leave out 1,546 institution-years (1,139 with at least 1,000 on-campus FTE). Rate
+              rankings, state and national, list 2,153 institutions in 2015, 2,106 in 2016, 2,092 in 2017, 2,057 in
+              2018, 2,025 in 2019, 1,973 in 2020, 1,945 in 2021, 1,822 in 2022, 1,834 in 2023 and 1,874 in 2024
+              (2,077 in 2024 under the earlier rules).
+            </p>
           </section>
 
           {/* Definitions */}
@@ -830,8 +944,9 @@ export default function Methodology() {
                   "Aggregate consistency (the school-year aggregate table matches the fact table it is built from)",
                   "Shared figures (figures two campuses, or one campus under its old and new DOE ID, report identically are counted once in totals and rankings)",
                   "Enrollment matches NCES (every FTE is NCES's own published figure)",
-                  "Institution rates (recomputed from the facts: all campuses' incidents per institution FTE, and exactly the institutions rate rankings may list)",
-                  "Campus identity (the reviewed list of renumbered campuses matches the DOE files, linked pages name each other, every school is in the search with its campus name, and merger years have no rate)",
+                  "Institution rates (recomputed from the facts: all campuses' incidents per on-campus FTE, and exactly the institutions each rate rule leaves out and rate rankings may list)",
+                  "Campus identity (the reviewed list of renumbered campuses matches the DOE files, linked pages name each other, every school is in the search with its campus name, and merger years follow the merger rate rule)",
+                  "Rate rules (each 95% interval recomputed another way, rank ranges, the 20-incident rule, the counts-only offenses, and unusually high years)",
                 ].map((check, i) => (
                   <div key={i} className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
                     <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
@@ -888,7 +1003,12 @@ export default function Methodology() {
                   222324 for the 2022-2024 release), <code>counts_in_rankings</code> (false when every figure the
                   campus reported that year is counted under another campus), <code>institution_fte</code> (NCES FTE
                   of the whole institution), <code>institution_online_pct</code> (percent of students enrolled
-                  exclusively in distance education) and <code>online_pct_fall</code> (the fall that share is from).
+                  exclusively in distance education), <code>online_pct_fall</code> (the fall that share is from),{' '}
+                  <code>institution_rate_fte</code> (the denominator of the institution's rates: its on-campus FTE,
+                  with any FTE added under Rate Rules 8 and 9) and <code>institution_rate_rule</code> (the rule that
+                  leaves the institution out of rate rankings that year: <code>hospital</code>, <code>medical</code>{' '}
+                  or <code>listed</code> for rule 3, <code>merger</code> or <code>family</code> for rule 8,{' '}
+                  <code>shared</code> for rule 9; empty when none).
                 </dd>
               </div>
               <div>

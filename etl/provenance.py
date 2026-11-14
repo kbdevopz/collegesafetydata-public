@@ -103,6 +103,7 @@ CURATED_WRITERS = {
     "dims/dim_institution.parquet": "03",
     "dims/dim_offense.parquet": "03",
     "dims/campus_id_links.parquet": "03",
+    "dims/dim_institution_class.parquet": "03",
 }
 
 # Records each step reads, and where 04's record keeps the ones it used

@@ -39,6 +39,12 @@ SOURCES_PATH = CURATED_DIR / "dims" / "campus_year_sources.parquet"
 NAMES_PATH = CURATED_DIR / "dims" / "campus_names.parquet"
 # The campus ID changes cross-linked on the site (build_id_links)
 LINKS_PATH = CURATED_DIR / "dims" / "campus_id_links.parquet"
+# IPEDS hospital and Carnegie fields per institution-year, and the reviewed
+# list of other institutions whose campus population students do not
+# measure (build_institution_classes; 04's rate rules read it)
+CLASS_PATH = CURATED_DIR / "dims" / "dim_institution_class.parquet"
+POPULATION_LIST_PATH = Path(__file__).parent / "reference" / "rate_population_exclusions.csv"
+CARNEGIE_FIELDS = ("C21BASIC", "C18BASIC", "C15BASIC")  # newest classification first
 
 
 def find_stray_facts() -> list:
@@ -423,6 +429,80 @@ def build_dim_offense() -> pd.DataFrame:
     return dim_offense
 
 
+def build_institution_classes() -> pd.DataFrame:
+    """
+    dim_institution_class.parquet, one row per IPEDS HD row of DATA_YEARS
+    (UNITID = the base UNITID of the DOE campuses): unitid, year, hospital
+    (HD HOSPITAL: 1 yes, 2 no, negative not applicable or not reported),
+    carnegie_field and carnegie_basic (the newest Carnegie basic
+    classification field that year's HD file has: C21BASIC, C18BASIC or
+    C15BASIC), and listed_reason and listed_source for the institution-years
+    of etl/reference/rate_population_exclusions.csv (a row is added for one
+    the HD file lacks).
+    """
+    print("\nBuilding institution classes (IPEDS HD hospital and Carnegie fields)...")
+    frames = []
+    for year in DATA_YEARS:
+        path = IPEDS_RAW_DIR / str(year) / f"hd{year}.csv"
+        if not path.is_file():
+            print(f"  {year}: no {path.name}, no classes")
+            continue
+        try:
+            path.read_bytes().decode("utf-8-sig")
+            encoding = "utf-8-sig"
+        except UnicodeDecodeError:
+            encoding = "cp1252"
+        df = pd.read_csv(path, dtype=str, encoding=encoding, keep_default_na=False)
+        df.columns = [c.strip().upper() for c in df.columns]
+        field = next((f for f in CARNEGIE_FIELDS if f in df.columns), None)
+        if "HOSPITAL" not in df.columns or field is None:
+            raise RuntimeError(f"{path} has no HOSPITAL or Carnegie basic field ({', '.join(CARNEGIE_FIELDS)}). "
+                               "Check the IPEDS HD file layout.")
+        frames.append(pd.DataFrame({
+            "unitid": pd.to_numeric(df["UNITID"], errors="coerce"),
+            "year": year,
+            "hospital": pd.to_numeric(df["HOSPITAL"], errors="coerce"),
+            "carnegie_field": field,
+            "carnegie_basic": pd.to_numeric(df[field], errors="coerce"),
+        }))
+        print(f"  {year}: {len(df):,} institutions, Carnegie field {field}, "
+              f"HOSPITAL = 1: {int((pd.to_numeric(df['HOSPITAL'], errors='coerce') == 1).sum()):,}")
+    out = pd.concat(frames, ignore_index=True).dropna(subset=["unitid"])
+    out["listed_reason"] = None
+    out["listed_source"] = None
+    listed = pd.read_csv(POPULATION_LIST_PATH, dtype=str, keep_default_na=False)
+    need = {"unitid", "first_year", "last_year", "reason", "source"}
+    if set(listed.columns) != need:
+        raise RuntimeError(f"{POPULATION_LIST_PATH} must have the columns {sorted(need)}")
+    extra = []
+    for row in listed.to_dict("records"):
+        unitid = int(row["unitid"])
+        if not row["reason"].strip() or not row["source"].strip():
+            raise RuntimeError(f"{POPULATION_LIST_PATH}: {unitid} needs a reason and a source")
+        for year in range(int(row["first_year"]), int(row["last_year"]) + 1):
+            if year not in DATA_YEARS:
+                continue
+            hit = (out["unitid"] == unitid) & (out["year"] == year)
+            if hit.any():
+                out.loc[hit, "listed_reason"] = row["reason"].strip()
+                out.loc[hit, "listed_source"] = row["source"].strip()
+            else:
+                extra.append({"unitid": unitid, "year": year, "hospital": None, "carnegie_field": None,
+                              "carnegie_basic": None, "listed_reason": row["reason"].strip(),
+                              "listed_source": row["source"].strip()})
+    if extra:
+        out = pd.concat([out, pd.DataFrame(extra)], ignore_index=True)
+    out = out.astype({"unitid": "int32", "year": "int16", "hospital": "Int16", "carnegie_basic": "Int16",
+                      "carnegie_field": "string", "listed_reason": "string", "listed_source": "string"})
+    out = out.sort_values(["year", "unitid"]).reset_index(drop=True)
+    if out.duplicated(["unitid", "year"]).any():
+        raise RuntimeError("An IPEDS HD file lists one UNITID twice. Check the HD files.")
+    out.to_parquet(CLASS_PATH, index=False)
+    print(f"  Listed in {POPULATION_LIST_PATH.name}: {int(out['listed_reason'].notna().sum()):,} institution-years")
+    print(f"  Saved to: {CLASS_PATH}")
+    return out
+
+
 def main():
     print("=" * 60)
     print("Building Dimension Tables")
@@ -434,15 +514,18 @@ def main():
                                                NAMES_PATH])
     # The other files it reads: the IPEDS directory files and the reviewed ID changes
     _hd, hd_files = campus_identity.ipeds_directory(IPEDS_RAW_DIR, DATA_YEARS)
-    other_inputs = provenance.other_input_records(hd_files + [campus_identity.ID_CHANGES_PATH])
+    other_inputs = provenance.other_input_records(hd_files + [campus_identity.ID_CHANGES_PATH,
+                                                              POPULATION_LIST_PATH])
     provenance.invalidate(provenance.INSTITUTION_MANIFEST)
     dim_institution = build_dim_institution()
     links = build_id_links(dim_institution)
     links.to_parquet(LINKS_PATH, index=False)
     print(f"  Saved to: {LINKS_PATH}")
     dim_offense = build_dim_offense()
+    build_institution_classes()
     provenance.write_institution_manifest(
-        inputs_before, outputs=[dims / "dim_institution.parquet", dims / "dim_offense.parquet", LINKS_PATH],
+        inputs_before, outputs=[dims / "dim_institution.parquet", dims / "dim_offense.parquet", LINKS_PATH,
+                                CLASS_PATH],
         other_inputs=other_inputs)
 
     print("\n" + "=" * 60)

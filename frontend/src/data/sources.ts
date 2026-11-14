@@ -80,6 +80,41 @@ export const SOURCES = {
     url: 'https://nces.ed.gov/fastfacts/display.asp?id=80',
     publisher: 'National Center for Education Statistics',
   },
+  ipedsHdDictionary: {
+    label: 'IPEDS HD (Directory Information) data dictionary, 2024 (HOSPITAL, C21BASIC)',
+    url: 'https://nces.ed.gov/ipeds/datacenter/data/HD2024_Dict.zip',
+    publisher: 'National Center for Education Statistics',
+  },
+  carnegie2021: {
+    label: '2021 Basic Classification',
+    url: 'https://carnegieclassifications.acenet.edu/2021-basic-classification',
+    publisher: 'Carnegie Classification of Institutions of Higher Education',
+  },
+  clercCenter: {
+    label: 'Laurent Clerc National Deaf Education Center',
+    url: 'https://clerccenter.gallaudet.edu/',
+    publisher: 'Gallaudet University',
+  },
+  cdcWonderUnreliable: {
+    label: 'CDC WONDER, Underlying Cause of Death help: unreliable rates',
+    url: 'https://wonder.cdc.gov/wonder/help/ucd.html',
+    publisher: 'Centers for Disease Control and Prevention',
+  },
+  garwood1936: {
+    label: 'Garwood, F. (1936). Fiducial limits for the Poisson distribution. Biometrika 28(3/4), 437-442',
+    url: 'https://doi.org/10.1093/biomet/28.3-4.437',
+    publisher: 'Biometrika',
+  },
+  fbiViolent2019: {
+    label: 'Crime in the United States, 2019: Violent Crime',
+    url: 'https://ucr.fbi.gov/crime-in-the-u.s/2019/crime-in-the-u.s.-2019/topic-pages/violent-crime',
+    publisher: 'Federal Bureau of Investigation, Uniform Crime Reporting Program',
+  },
+  fbiProperty2019: {
+    label: 'Crime in the United States, 2019: Property Crime',
+    url: 'https://ucr.fbi.gov/crime-in-the-u.s/2019/crime-in-the-u.s.-2019/topic-pages/property-crime',
+    publisher: 'Federal Bureau of Investigation, Uniform Crime Reporting Program',
+  },
   bjsCollege2014: {
     label: 'Rape and Sexual Assault Victimization Among College-Age Females, 1995-2013 (NCJ 248471, December 2014)',
     url: 'https://bjs.ojp.gov/content/pub/pdf/rsavcaf9513.pdf',

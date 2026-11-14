@@ -11,8 +11,9 @@ import {
 import { ChevronUp, ChevronDown, ExternalLink, AlertCircle, Loader2, MapPin, Calendar, AlertTriangle, Plus, Check, GitCompare, X, ChevronRight, Info } from 'lucide-react'
 import { fetchRankings, getMetadata } from '../lib/api'
 import type { RankingsData, Metadata, Offense } from '../lib/types'
-import { cn, formatNumber, formatPercent, groupOffensesByFamily, isSmallSample } from '../lib/utils'
-import { CRIMINAL, compareText, countHeader, countPhrase, noneOfPhrase } from '../lib/selection'
+import { cn, formatNumber, formatPercent, groupOffensesByFamily } from '../lib/utils'
+import { VIOLENT, compareText, countHeader, countPhrase, noneOfPhrase } from '../lib/selection'
+import { intervalText, rateInterval, SPIKE_NOTE } from '../lib/rates'
 import SchoolSearch from '../components/SchoolSearch'
 import OffensePopover from '../components/OffensePopover'
 import SeriesNotes from '../components/SeriesNotes'
@@ -21,7 +22,10 @@ import SeriesNotes from '../components/SeriesNotes'
 // campuses together (rate view, as NCES publishes FTE per institution)
 interface Row {
   key: number // campus UNITID, or base UNITID of an institution
-  rank: number // the rank in the file (ties share a rank: 1, 2, 2, 4)
+  // count view: 'count'; rate view: 'ranked' (at least rateRules.minCount
+  // incidents), 'few' (1 to minCount - 1: shown, not ranked by rate) or 'zero'
+  tier: 'count' | 'ranked' | 'few' | 'zero'
+  rank: number // the rank in the file (ties share a rank: 1, 2, 2, 4); after the ranked ones for few and zero
   unitid: number // the school page the row links to
   name: string
   branch: boolean // count view: not the main campus
@@ -31,7 +35,19 @@ interface Row {
   pct: number // count view: share of the file's total
   fte: number | null
   rate: number | null
+  // rate view: the rate's 95% interval, the ranks it allows ('ranked'), and
+  // whether the count is unusually high for the institution
+  lo: number | null
+  hi: number | null
+  rankLo: number | null
+  rankHi: number | null
+  spike: boolean
 }
+
+const RANK_RANGE_TITLE =
+  'The ranks this institution could hold given the 95% intervals: from 1 plus the number of institutions whose ' +
+  'interval lies entirely above its own, to the number of ranked institutions minus those whose interval lies ' +
+  'entirely below it.'
 
 export default function Rankings() {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -77,8 +93,10 @@ export default function Rankings() {
   const latestYear = metadata?.years?.length ? metadata.years[metadata.years.length - 1] : 2024
   const selectedPreset = searchParams.get('preset') || 'national'
   const selectedYear = parseInt(searchParams.get('year') || '') || latestYear
-  // Criminal offenses by default; ?offense=all (every category) still works
-  const selectedOffense = searchParams.get('offense') || CRIMINAL
+  // Violent crimes by default: motor vehicle theft, a large share of all
+  // criminal offenses (37% in 2024), would otherwise decide most of the
+  // order. ?offense=criminal and ?offense=all still work
+  const selectedOffense = searchParams.get('offense') || VIOLENT
 
   // Load More state - show 25 initially, +25 per click
   const [displayCount, setDisplayCount] = useState(25)
@@ -123,11 +141,15 @@ export default function Rankings() {
   // The rate view is always offered; a year without NCES enrollment has no rate rankings
   const canShowRate = true
 
-  // Who rate rankings list (etl/config.py, written to metadata.json)
+  // Who rate rankings list and rank (etl/config.py, written to metadata.json)
   const rules = metadata?.rateRules
   const rateRulesText = rules
-    ? `${formatNumber(rules.minFte)}+ FTE, under ${rules.onlineExclusionPct}% online`
+    ? `${formatNumber(rules.minFte)}+ on-campus FTE, ranked at ${rules.minCount}+ incidents, ${Math.round(rules.ciLevel * 100)}% intervals`
     : ''
+  // An offense too rare nationally for a rate ranking: counts only
+  const countsOnly = !!rules?.countsOnly?.includes(selectedOffense)
+  const rateView = sortByRate && !countsOnly
+  const level = rules?.ciLevel ?? 0.95
 
   // The rows of the selected view, in the file's order and with its ranks:
   // campuses by count, or institutions by rate
@@ -136,13 +158,21 @@ export default function Rankings() {
   // listed by name, then UNITID (the pipeline's tie rule)
   const sortedRankings = useMemo((): Row[] => {
     if (!data) return []
-    if (sortByRate) {
+    if (rateView) {
+      // Ranked by rate (at least minCount incidents), then too few to rank
+      // (by rate, as the file lists them), then none
       const entries = data.rateRankings[selectedOffense] || []
-      const rows: Row[] = entries.map((e) => {
+      const few = data.rateUnranked?.[selectedOffense] || []
+      const after = entries.length + 1
+      const rows: Row[] = [
+        ...entries.map((e) => ({ e, tier: 'ranked' as const, rank: e.rank, rankLo: e.rankLo, rankHi: e.rankHi, spike: !!e.spike })),
+        ...few.map((e) => ({ e, tier: 'few' as const, rank: after, rankLo: null, rankHi: null, spike: false })),
+      ].map(({ e, tier, rank, rankLo, rankHi, spike }) => {
         const inst = data.institutions[String(e.id)]
         return {
           key: e.id,
-          rank: e.rank,
+          tier,
+          rank,
           unitid: inst?.unitid ?? e.id * 1000 + 1,
           name: inst?.name ?? `Institution ${e.id}`,
           branch: false,
@@ -152,26 +182,40 @@ export default function Rankings() {
           pct: 0,
           fte: inst?.fte ?? null,
           rate: e.rate,
+          lo: e.lo,
+          hi: e.hi,
+          rankLo,
+          rankHi,
+          spike,
         }
       })
-      const listed = new Set(entries.map((e) => e.id))
+      const listed = new Set([...entries.map((e) => e.id), ...few.map((e) => e.id)])
       const zeros = Object.entries(data.institutions)
         .map(([id, inst]) => ({ id: Number(id), inst }))
         .filter(({ id }) => !listed.has(id))
         .sort((a, b) => compareText(a.inst.name, b.inst.name) || a.id - b.id)
-      zeros.forEach(({ id, inst }) => rows.push({
-        key: id,
-        rank: entries.length + 1,
-        unitid: inst.unitid,
-        name: inst.name,
-        branch: false,
-        campus: null,
-        campuses: inst.campuses,
-        count: 0,
-        pct: 0,
-        fte: inst.fte,
-        rate: 0,
-      }))
+      zeros.forEach(({ id, inst }) => {
+        const interval = rateInterval(0, inst.fte, level)
+        rows.push({
+          key: id,
+          tier: 'zero',
+          rank: after,
+          unitid: inst.unitid,
+          name: inst.name,
+          branch: false,
+          campus: null,
+          campuses: inst.campuses,
+          count: 0,
+          pct: 0,
+          fte: inst.fte,
+          rate: 0,
+          lo: interval.lo,
+          hi: interval.hi,
+          rankLo: null,
+          rankHi: null,
+          spike: false,
+        })
+      })
       return rows
     }
     const total = data.totals[selectedOffense] || 0
@@ -180,6 +224,7 @@ export default function Rankings() {
       const campus = data.campuses[String(e.unitid)]
       return {
         key: e.unitid,
+        tier: 'count' as const,
         rank: e.rank,
         unitid: e.unitid,
         name: campus?.name ?? `School ${e.unitid}`,
@@ -190,6 +235,11 @@ export default function Rankings() {
         pct: total > 0 ? (e.count / total) * 100 : 0,
         fte: campus?.fte ?? null,
         rate: null,
+        lo: null,
+        hi: null,
+        rankLo: null,
+        rankHi: null,
+        spike: false,
       }
     })
     const listed = new Set(entries.map((e) => e.unitid))
@@ -199,6 +249,7 @@ export default function Rankings() {
       .sort((a, b) => compareText(a.campus.name, b.campus.name) || a.id - b.id)
     zeros.forEach(({ id, campus }) => rows.push({
       key: id,
+      tier: 'count',
       rank: entries.length + 1,
       unitid: id,
       name: campus.name,
@@ -209,9 +260,14 @@ export default function Rankings() {
       pct: 0,
       fte: campus.fte,
       rate: null,
+      lo: null,
+      hi: null,
+      rankLo: null,
+      rankHi: null,
+      spike: false,
     }))
     return rows
-  }, [data, selectedOffense, sortByRate])
+  }, [data, selectedOffense, rateView, level])
 
   const displayedRankings = useMemo(() => {
     return sortedRankings.slice(0, displayCount)
@@ -223,7 +279,7 @@ export default function Rankings() {
   }, [data])
 
   // What the rows are
-  const rowUnit = sortByRate ? 'institutions' : 'campuses'
+  const rowUnit = rateView ? 'institutions' : 'campuses'
 
   const hasMoreToLoad = displayCount < sortedRankings.length
   const remainingCount = sortedRankings.length - displayCount
@@ -252,18 +308,31 @@ export default function Rankings() {
   const columns = useMemo(
     () => [
       columnHelper.accessor('rank', {
-        header: 'Rank',
-        cell: (info) => (
-          // The published rank, by count or by rate
-          <span className="font-medium text-gray-500 dark:text-gray-400">
-            #{info.getValue()}
-          </span>
-        ),
-        size: 70,
+        header: rateView ? () => <span title={RANK_RANGE_TITLE}>Rank (range)</span> : 'Rank',
+        cell: (info) => {
+          // The published rank, by count or by rate, and in the rate view the
+          // ranks the intervals allow; no rank below minCount incidents
+          const row = info.row.original
+          if (row.tier === 'few' || row.tier === 'zero') {
+            return <span className="text-gray-400 dark:text-gray-500" title="Not ranked by rate">—</span>
+          }
+          return (
+            <span className="flex flex-col">
+              <span className="font-medium text-gray-500 dark:text-gray-400">#{info.getValue()}</span>
+              {row.tier === 'ranked' && row.rankLo !== null && row.rankHi !== null && (
+                <span className="text-xs text-gray-400 dark:text-gray-500 tabular-nums whitespace-nowrap" title={RANK_RANGE_TITLE}>
+                  {row.rankLo === row.rankHi ? row.rankLo : `${row.rankLo}–${row.rankHi}`}
+                </span>
+              )}
+            </span>
+          )
+        },
+        size: 80,
       }),
       columnHelper.accessor('name', {
-        header: sortByRate ? 'Institution' : 'School',
+        header: rateView ? 'Institution' : 'School',
         cell: (info) => (
+          <div>
           <Link
             to={`/school/${info.row.original.unitid}`}
             className="group flex items-center gap-2 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 font-medium"
@@ -277,7 +346,7 @@ export default function Rankings() {
             {info.row.original.branch && !info.row.original.campus && (
               <span className="text-xs font-normal text-gray-500 dark:text-gray-400">(Branch)</span>
             )}
-            {sortByRate && info.row.original.campuses > 1 && (
+            {rateView && info.row.original.campuses > 1 && (
               <span
                 className="text-xs font-normal text-gray-500 dark:text-gray-400"
                 title="The rate counts the incidents of all the institution's campuses"
@@ -287,6 +356,10 @@ export default function Rankings() {
             )}
             <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
           </Link>
+          {info.row.original.spike && (
+            <span className="block text-xs text-amber-700 dark:text-amber-400 mt-0.5">{SPIKE_NOTE}</span>
+          )}
+          </div>
         ),
       }),
       columnHelper.accessor('count', {
@@ -298,35 +371,35 @@ export default function Rankings() {
         ),
         size: 100,
       }),
-      ...(sortByRate ? [
+      ...(rateView ? [
         columnHelper.accessor('rate', {
-          header: 'Rate',
+          header: () => (
+            <span title={`Per 10,000 on-campus FTE students, with the rate's exact ${Math.round(level * 100)}% Poisson interval below it`}>
+              Rate ({Math.round(level * 100)}% interval)
+            </span>
+          ),
           cell: (info) => {
             const rate = info.getValue()
-            const { fte, count } = info.row.original
-            const needsAsterisk = isSmallSample(fte, count)
+            const { lo, hi } = info.row.original
             return (
-              <span className="font-semibold tabular-nums text-primary-600 dark:text-primary-400">
-                {rate !== null ? (
-                  <>
-                    {rate.toFixed(1)}
-                    {needsAsterisk && (
-                      <span
-                        className="text-amber-600 dark:text-amber-400 cursor-help"
-                        title="Small sample: under 1,000 students or fewer than 10 incidents. Interpret with caution."
-                      >*</span>
-                    )}
-                  </>
-                ) : '—'}
+              <span className="flex flex-col">
+                <span className="font-semibold tabular-nums text-primary-600 dark:text-primary-400">
+                  {rate !== null ? rate.toFixed(1) : '—'}
+                </span>
+                {lo !== null && hi !== null && (
+                  <span className="text-xs text-gray-500 dark:text-gray-400 tabular-nums whitespace-nowrap">
+                    {intervalText(lo, hi)}
+                  </span>
+                )}
               </span>
             )
           },
-          size: 100,
+          size: 110,
         }),
         columnHelper.accessor('fte', {
           header: () => (
-            <span title="NCES full-time equivalent enrollment of the whole institution (all its campuses), not of this campus">
-              Institution FTE
+            <span title="The rate's denominator: NCES full-time equivalent enrollment of the whole institution (all its campuses) less its share of students enrolled exclusively online">
+              On-campus FTE
             </span>
           ),
           cell: (info) => {
@@ -405,7 +478,7 @@ export default function Rankings() {
         size: 50,
       }),
     ],
-    [columnHelper, compareSchools, sortByRate, countLabel]
+    [columnHelper, compareSchools, rateView, countLabel, level]
   )
 
   // The table gets the full list so a column sort orders every campus, not
@@ -419,27 +492,43 @@ export default function Rankings() {
     getSortedRowModel: getSortedRowModel(),
   })
 
-  // Rate view: the institutions ranked with rate 0 (they reported none of
-  // the selection that year) and the note shown where their rows begin
-  const zeroRateCount = useMemo(
-    () => (sortByRate ? sortedRankings.filter((r) => r.count === 0).length : 0),
-    [sortByRate, sortedRankings]
-  )
-  const zeroRateNote = zeroRateCount > 0
-    ? `${formatNumber(zeroRateCount)} ${zeroRateCount === 1 ? 'institution' : 'institutions'} reported no ` +
-      `${noneOfPhrase(selectedOffense, currentOffense)} for ${selectedYear}. A reported zero can reflect how an ` +
-      'institution classifies or reports incidents, not only how safe it is.'
-    : null
-  // Desktop: the note goes before the first rate-0 row of the table's order
-  // when those rows are together (the default order, or sorted by rank,
-  // count or rate); when a column sort mixes them in, above the first row
+  // Rate view: the notes shown where the institutions with too few incidents
+  // to rank by rate, and those with none of the selection, begin
+  const tierNotes = useMemo((): Partial<Record<Row['tier'], string>> => {
+    if (!rateView || !rules) return {}
+    const few = sortedRankings.filter((r) => r.tier === 'few').length
+    const zero = sortedRankings.filter((r) => r.tier === 'zero').length
+    const what = noneOfPhrase(selectedOffense, currentOffense)
+    const notes: Partial<Record<Row['tier'], string>> = {}
+    if (few > 0) {
+      notes.few = `${formatNumber(few)} ${few === 1 ? 'institution' : 'institutions'} had 1 to ${rules.minCount - 1} ` +
+        `${what} in ${selectedYear}: too few incidents to rank by rate. Their rates are shown with their ` +
+        `${Math.round(rules.ciLevel * 100)}% intervals, which are wide, and are listed by rate without a rank.`
+    }
+    if (zero > 0) {
+      notes.zero = `${formatNumber(zero)} ${zero === 1 ? 'institution' : 'institutions'} reported no ${what} for ` +
+        `${selectedYear}. A reported zero can reflect how an institution classifies or reports incidents, not only ` +
+        'how safe it is.'
+    }
+    return notes
+  }, [rateView, rules, sortedRankings, selectedOffense, currentOffense, selectedYear])
+  // Desktop: each note goes before the first row of its kind in the table's
+  // order when those rows are together (the default order, or sorted by
+  // rank, count or rate); when a column sort mixes them in, above the first row
   const tableRows = table.getRowModel().rows
-  let zeroNoteBefore = -1
-  if (zeroRateNote) {
-    const zeroIdx = tableRows.flatMap((row, i) => (row.original.count === 0 ? [i] : []))
-    const together = zeroIdx.length > 0 && zeroIdx[zeroIdx.length - 1] - zeroIdx[0] === zeroIdx.length - 1
-    zeroNoteBefore = together ? zeroIdx[0] : 0
+  const notesBefore = new Map<number, string[]>()
+  for (const tier of ['few', 'zero'] as const) {
+    const note = tierNotes[tier]
+    if (!note) continue
+    const idx = tableRows.flatMap((row, i) => (row.original.tier === tier ? [i] : []))
+    const together = idx.length > 0 && idx[idx.length - 1] - idx[0] === idx.length - 1
+    const at = together ? idx[0] : 0
+    notesBefore.set(at, [...(notesBefore.get(at) ?? []), note])
   }
+  const countsOnlyNote = countsOnly
+    ? `${currentOffense?.display ?? selectedOffense} is too rare nationally for rates to be compared, so it has ` +
+      'rankings by count only.'
+    : null
 
   // Group offenses by family for dropdown
   const offenseGroups = useMemo(() => {
@@ -607,7 +696,7 @@ export default function Rankings() {
                       onClick={() => setSortByRate(false)}
                       className={cn(
                         'px-2.5 py-1 text-xs font-medium rounded-md transition-colors',
-                        !sortByRate
+                        !rateView
                           ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm border border-gray-200 dark:border-gray-600'
                           : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
                       )}
@@ -617,22 +706,22 @@ export default function Rankings() {
                     <button
                       type="button"
                       onClick={() => canShowRate && setSortByRate(true)}
-                      disabled={!canShowRate}
-                      title={!canShowRate ? 'Rate data requires enrollment data' : undefined}
+                      disabled={!canShowRate || countsOnly}
+                      title={countsOnly ? 'Counts only: too rare nationally for a rate ranking' : undefined}
                       className={cn(
                         'px-2.5 py-1 text-xs font-medium rounded-md transition-colors',
-                        sortByRate
+                        rateView
                           ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm border border-gray-200 dark:border-gray-600'
                           : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300',
-                        !canShowRate && 'opacity-50 cursor-not-allowed'
+                        (!canShowRate || countsOnly) && 'opacity-50 cursor-not-allowed'
                       )}
                     >
                       Rate
                     </button>
                   </div>
-                  {sortByRate && (
+                  {rateView && (
                     <span className="text-xs text-gray-500 dark:text-gray-400">
-                      per 10k FTE, whole institutions · {rateRulesText} · <span className="text-amber-600 dark:text-amber-400">*small sample</span>
+                      per 10k on-campus FTE, whole institutions · {rateRulesText}
                     </span>
                   )}
                 </div>
@@ -722,7 +811,7 @@ export default function Rankings() {
                       onClick={() => setSortByRate(false)}
                       className={cn(
                         'px-2 py-1 text-xs font-medium rounded-md transition-colors',
-                        !sortByRate
+                        !rateView
                           ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm border border-gray-200 dark:border-gray-600'
                           : 'text-gray-500 dark:text-gray-400'
                       )}
@@ -732,14 +821,14 @@ export default function Rankings() {
                     <button
                       type="button"
                       onClick={() => canShowRate && setSortByRate(true)}
-                      disabled={!canShowRate}
-                      title={!canShowRate ? 'Rate data requires enrollment data' : undefined}
+                      disabled={!canShowRate || countsOnly}
+                      title={countsOnly ? 'Counts only: too rare nationally for a rate ranking' : undefined}
                       className={cn(
                         'px-2 py-1 text-xs font-medium rounded-md transition-colors',
-                        sortByRate
+                        rateView
                           ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm border border-gray-200 dark:border-gray-600'
                           : 'text-gray-500 dark:text-gray-400',
-                        !canShowRate && 'opacity-50 cursor-not-allowed'
+                        (!canShowRate || countsOnly) && 'opacity-50 cursor-not-allowed'
                       )}
                     >
                       Rate
@@ -747,10 +836,10 @@ export default function Rankings() {
                   </div>
                 )}
               </div>
-              {/* Mobile asterisk legend */}
-              {sortByRate && hasRateData && (
+              {/* Mobile rate legend */}
+              {rateView && hasRateData && (
                 <div className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                  per 10k FTE, whole institutions · {rateRulesText} · <span className="text-amber-600 dark:text-amber-400">*small sample</span>
+                  per 10k on-campus FTE, whole institutions · {rateRulesText}
                 </div>
               )}
             </div>
@@ -768,9 +857,9 @@ export default function Rankings() {
                   <span className="text-gray-500 dark:text-gray-400">{countLabel === 'Total' ? 'Total' : `Total ${countLabel.toLowerCase()}`}: </span>
                   <span className="font-medium text-gray-900 dark:text-gray-100">{formatNumber(currentTotal)}</span>
                 </div>
-                {sortByRate && (
+                {rateView && (
                   <div className="text-xs text-amber-600 dark:text-amber-400">
-                    Institutions with {rateRulesText} only
+                    Institutions with {rateRulesText}
                   </div>
                 )}
               </div>
@@ -779,29 +868,30 @@ export default function Rankings() {
         </div>
 
         {/* Size-bias warning banner (shown when viewing by Total) */}
-        {!sortByRate && (
+        {!rateView && (
           <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3 mb-4 flex items-center gap-2">
             <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 flex-shrink-0" />
             <p className="text-sm text-amber-700 dark:text-amber-300">
-              Larger schools report more incidents due to size{hasRateData && <> — use "Rate" for size-adjusted comparison</>}. Lower numbers may reflect reporting differences, not safety.
-              {' '}<Link to="/about" className="underline hover:text-amber-800 dark:hover:text-amber-200">Learn more</Link>
+              {countsOnlyNote ? <>{countsOnlyNote} </> : null}
+              Larger schools report more incidents due to size{hasRateData && !countsOnly && <> — use "Rate" for size-adjusted comparison</>}. Lower numbers may reflect reporting differences, not safety.
+              {' '}<Link to={countsOnly ? '/methodology#rates' : '/about'} className="underline hover:text-amber-800 dark:hover:text-amber-200">Learn more</Link>
             </p>
           </div>
         )}
 
         {/* Rate view context banner */}
-        {sortByRate && (
+        {rateView && (
           <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 mb-4 flex items-center gap-2">
             <Info className="w-4 h-4 text-blue-500 flex-shrink-0" />
             <p className="text-sm text-blue-700 dark:text-blue-300">
-              Rates are per institution: the incidents of all its campuses per 10,000 FTE students, because NCES counts enrollment per institution, not per campus.
+              Rates are per institution: the incidents of all its campuses per 10,000 on-campus FTE students (NCES's FTE less the share of students enrolled exclusively online), because NCES counts enrollment per institution, not per campus.
               {rules && (
                 <>
-                  {' '}Institutions with fewer than {formatNumber(rules.minFte)} FTE students, or where at least {rules.onlineExclusionPct}% of students study exclusively online, are left out.
+                  {' '}Institutions with under {formatNumber(rules.minFte)} on-campus FTE, and hospitals and medical schools, are left out. Institutions with at least {rules.minCount} incidents are ranked; each rate has a {Math.round(rules.ciLevel * 100)}% interval, and the rank range is the set of ranks those intervals allow, so ranks inside one range are not clearly different.
                 </>
               )}
               {' '}Lower numbers may reflect reporting differences.
-              {' '}<Link to="/methodology" className="underline hover:text-blue-800 dark:hover:text-blue-200">Learn more</Link>
+              {' '}<Link to="/methodology#rates" className="underline hover:text-blue-800 dark:hover:text-blue-200">Learn more</Link>
             </p>
           </div>
         )}
@@ -843,11 +933,11 @@ export default function Rankings() {
                 <div className="divide-y divide-gray-100 dark:divide-gray-800">
                 {displayedRankings.map((item, i) => (
                   <Fragment key={item.key}>
-                  {/* The rate-0 institutions come last: the note goes before the first */}
-                  {zeroRateNote && item.count === 0 && (i === 0 || displayedRankings[i - 1].count !== 0) && (
+                  {/* Too few to rank, then none, come last: each note goes before the first of its kind */}
+                  {tierNotes[item.tier] && (i === 0 || displayedRankings[i - 1].tier !== item.tier) && (
                     <p className="flex items-start gap-2 px-4 py-3 text-sm bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-300">
                       <Info className="w-4 h-4 flex-shrink-0 mt-0.5" aria-hidden="true" />
-                      <span>{zeroRateNote}</span>
+                      <span>{tierNotes[item.tier]}</span>
                     </p>
                   )}
                   <div className="flex items-stretch">
@@ -858,7 +948,7 @@ export default function Rankings() {
                       <div className="flex items-start justify-between gap-3 mb-2">
                         <div className="flex items-center gap-3 min-w-0">
                           <span className="flex-shrink-0 w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300 text-sm font-bold flex items-center justify-center">
-                            {item.rank}
+                            {item.tier === 'few' || item.tier === 'zero' ? '–' : item.rank}
                           </span>
                           <span className="font-medium text-gray-900 dark:text-gray-100">
                             {item.campus ?? item.name}
@@ -868,32 +958,34 @@ export default function Rankings() {
                             {item.campus && (
                               <span className="block text-xs font-normal text-gray-500 dark:text-gray-400">{item.name}</span>
                             )}
-                            {sortByRate && item.campuses > 1 && (
+                            {rateView && item.campuses > 1 && (
                               <span className="ml-1.5 text-xs font-normal text-gray-500 dark:text-gray-400">
                                 ({item.campuses} campuses)
                               </span>
+                            )}
+                            {item.spike && (
+                              <span className="block text-xs font-normal text-amber-700 dark:text-amber-400">{SPIKE_NOTE}</span>
                             )}
                           </span>
                         </div>
                         <ExternalLink className="w-4 h-4 text-gray-400 flex-shrink-0 mt-1" />
                       </div>
                       <div className="ml-11">
-                        {sortByRate ? (
+                        {rateView ? (
                           <div className="flex items-center flex-wrap gap-x-3 gap-y-1 text-sm">
                             <span className="font-semibold text-primary-600 dark:text-primary-400 tabular-nums">
-                              {item.rate !== null ? (
-                                <>
-                                  {item.rate.toFixed(1)}
-                                  {isSmallSample(item.fte, item.count) && (
-                                    <span
-                                      className="text-amber-600 dark:text-amber-400"
-                                      title="Small sample: under 1,000 students or fewer than 10 incidents. Interpret with caution."
-                                    >*</span>
-                                  )}
-                                  {' per 10k'}
-                                </>
-                              ) : '—'}
+                              {item.rate !== null ? `${item.rate.toFixed(1)} per 10k` : '—'}
                             </span>
+                            {item.lo !== null && item.hi !== null && (
+                              <span className="text-gray-500 dark:text-gray-400 tabular-nums text-xs">
+                                {Math.round(level * 100)}% interval {intervalText(item.lo, item.hi)}
+                              </span>
+                            )}
+                            {item.tier === 'ranked' && item.rankLo !== null && item.rankHi !== null && (
+                              <span className="text-gray-500 dark:text-gray-400 tabular-nums text-xs" title={RANK_RANGE_TITLE}>
+                                ranks {item.rankLo === item.rankHi ? item.rankLo : `${item.rankLo}–${item.rankHi}`}
+                              </span>
+                            )}
                             <span className="text-gray-400">&middot;</span>
                             <span className="text-gray-600 dark:text-gray-400 tabular-nums">
                               {countPhrase(item.count, currentOffense, formatNumber(item.count))}
@@ -902,7 +994,7 @@ export default function Rankings() {
                               <>
                                 <span className="text-gray-400">&middot;</span>
                                 <span className="text-gray-500 dark:text-gray-500 tabular-nums text-xs">
-                                  {formatNumber(item.fte)} FTE
+                                  {formatNumber(item.fte)} on-campus FTE
                                 </span>
                               </>
                             )}
@@ -1008,16 +1100,16 @@ export default function Rankings() {
                   <tbody>
                     {tableRows.slice(0, displayCount).map((row, i) => (
                       <Fragment key={row.id}>
-                        {i === zeroNoteBefore && zeroRateNote && (
-                          <tr>
+                        {(notesBefore.get(i) ?? []).map((note) => (
+                          <tr key={note}>
                             <td colSpan={row.getVisibleCells().length} className="!py-3 bg-amber-50 dark:bg-amber-900/20">
                               <p className="flex items-start gap-2 text-sm text-amber-800 dark:text-amber-300">
                                 <Info className="w-4 h-4 flex-shrink-0 mt-0.5" aria-hidden="true" />
-                                <span>{zeroRateNote}</span>
+                                <span>{note}</span>
                               </p>
                             </td>
                           </tr>
-                        )}
+                        ))}
                         <tr className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
                           {row.getVisibleCells().map((cell) => (
                             <td key={cell.id}>

@@ -378,9 +378,10 @@ export default function About() {
                 <div>
                   <h4 className="font-medium text-gray-900 dark:text-gray-100 text-sm">Per 10k Rates</h4>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Incidents per 10,000 FTE students of the whole institution: a size-adjusted figure, not a measure
-                    of risk. Which institutions rate rankings list is described on the{' '}
-                    <Link to="/methodology#rates" className="text-primary-600 dark:text-primary-400 underline">Methodology page</Link>.
+                    Incidents per 10,000 on-campus FTE students (FTE without students enrolled only online) of the
+                    whole institution: a size-adjusted figure, not a measure of risk. Which institutions rate rankings
+                    list and rank is described on the{' '}
+                    <Link to="/methodology#rate-rules" className="text-primary-600 dark:text-primary-400 underline">Methodology page</Link>.
                   </p>
                 </div>
               </div>
@@ -489,7 +490,7 @@ export default function About() {
               <LimitationCard
                 icon={BarChart3}
                 title="Small Numbers Swing"
-                description="Rates built on few incidents or a small enrollment are marked * (thresholds on the Methodology page). One incident more or less can move such a school many places."
+                description="Rates on fewer than 20 incidents are shown but not ranked, and every rate has a 95% interval (Methodology page). One incident more or less can move a small school's rate a lot."
               />
               <LimitationCard
                 icon={MapPin}

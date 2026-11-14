@@ -140,14 +140,6 @@ export function calculateYoYChange(
   return { absolute, percent }
 }
 
-/**
- * Check if rate is based on small sample size
- * Returns true if FTE < 1000 or incidents < 10
- */
-export function isSmallSample(fte: number | null, incidents: number): boolean {
-  return (fte !== null && fte < 1000) || incidents < 10
-}
-
 // =============================================================================
 // Offense Utilities
 // =============================================================================
