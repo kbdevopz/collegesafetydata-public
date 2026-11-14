@@ -24,6 +24,22 @@ export interface Metadata {
   // minFte FTE students and fewer than onlineExclusionPct percent of their
   // students enrolled exclusively online
   rateRules: RateRules
+  // Known errors in DOE's files that the build worked around, with the
+  // campuses whose figures for that year come from the defective release.
+  // Absent in data built before 05 wrote it.
+  knownDefects?: KnownDefect[]
+}
+
+export interface KnownDefect {
+  year: number
+  release: string // DOE file suffix, e.g. "212223" (2021-2023 release)
+  file: string
+  geo: string // "residencehall", ...
+  category: string // "discipline", "arrest", ...
+  columns: string[]
+  problem: string
+  takenFrom: string | null // release the cells come from, or null (left blank)
+  unitids: number[]
 }
 
 export interface RateRules {

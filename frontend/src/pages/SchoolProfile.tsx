@@ -10,6 +10,7 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
+  ReferenceArea,
   ResponsiveContainer,
   PieChart,
   Pie,
@@ -31,6 +32,9 @@ import {
 import { fteFor, latestFte, institutionRate, rateNote, campusesPhrase } from '../lib/rates'
 import { ALL, CRIMINAL, SUMMARY_LABELS, inSelection, isSummary, selectionLabel } from '../lib/selection'
 import { useTheme } from '../hooks/useTheme'
+import SeriesNotes, { ReportYearNote } from '../components/SeriesNotes'
+import { SERIES_NOTES } from '../data/seriesNotes'
+import type { Metadata } from '../lib/types'
 
 // "on-campus", "on-campus and public property", "a, b and c"
 function joinWithAnd(items: string[]): string {
@@ -51,9 +55,16 @@ export default function SchoolProfile() {
   // Who rate rankings list (metadata.json), for the note on a left-out rate
   const [rateRules, setRateRules] = useState<RateRules | null>(null)
 
+  // Known DOE file errors (metadata.json "knownDefects"), for the note on
+  // residence-hall figures they touch
+  const [knownDefects, setKnownDefects] = useState<Metadata['knownDefects']>(undefined)
+
   useEffect(() => {
     getMetadata()
-      .then((m) => setRateRules(m.rateRules))
+      .then((m) => {
+        setRateRules(m.rateRules)
+        setKnownDefects(m.knownDefects)
+      })
       .catch(() => setRateRules(null))
   }, [])
 
@@ -223,12 +234,36 @@ export default function SchoolProfile() {
     : []
   const geoPieRows = geoRows.filter((item) => item.geo !== 'Residence halls')
 
+  // Known DOE file errors that touch this campus's residence-hall figures
+  // in the By Location year (its figures come from the defective release)
+  const geoYearDefects = useMemo(() => {
+    if (!profile || !knownDefects) return []
+    const year = profile.summary.latestYear
+    return knownDefects.filter(
+      (d) => d.year === year && d.geo === 'residencehall' && d.unitids.includes(profile.unitid)
+    )
+  }, [profile, knownDefects])
+  const releaseLabel = (suffix: string) => `20${suffix.slice(0, 2)}-20${suffix.slice(4, 6)}`
+  const categoryLabel = (category: string) =>
+    category === 'discipline' ? 'disciplinary referrals' : category === 'arrest' ? 'liquor-law arrests' : category
+
+  // Chart years with a sourced comparability note (data/seriesNotes.ts),
+  // shaded on the trend charts
+  const noteBands = useMemo(
+    () =>
+      SERIES_NOTES.map((n) => n.years.filter((y) => chartYears.includes(y)))
+        .filter((ys) => ys.length > 0)
+        .map((ys) => ({ x1: Math.min(...ys), x2: Math.max(...ys) })),
+    [chartYears]
+  )
+
   // Theme-aware chart styling
   const chartGridColor = resolvedTheme === 'dark' ? '#374151' : '#e5e7eb'
   const chartTextColor = resolvedTheme === 'dark' ? '#9ca3af' : '#6b7280'
   const chartBgColor = resolvedTheme === 'dark' ? '#111827' : 'white'
   const chartBorderColor = resolvedTheme === 'dark' ? '#374151' : '#e5e7eb'
   const barFillColor = resolvedTheme === 'dark' ? '#60a5fa' : '#3b82f6'
+  const noteBandColor = resolvedTheme === 'dark' ? '#fbbf24' : '#d97706'
 
   if (loading) {
     return (
@@ -505,6 +540,9 @@ export default function SchoolProfile() {
           </div>
         </div>
 
+        {/* Comparability note for the selected year (data/seriesNotes.ts) */}
+        {selectedYear !== null && <SeriesNotes years={[selectedYear]} className="-mt-4 mb-6" />}
+
         {/* Figures shared with another campus (counted once, under the host) */}
         {selectedYearShared.length > 0 && (
           <div role="note" className="-mt-4 mb-6 space-y-1">
@@ -569,6 +607,9 @@ export default function SchoolProfile() {
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={yearlyChartData}>
                 <CartesianGrid strokeDasharray="3 3" stroke={chartGridColor} />
+                {noteBands.map((b) => (
+                  <ReferenceArea key={b.x1} x1={b.x1} x2={b.x2} fill={noteBandColor} fillOpacity={0.12} ifOverflow="extendDomain" />
+                ))}
                 <XAxis
                   dataKey="year"
                   tick={{ fill: chartTextColor, fontSize: 12 }}
@@ -610,7 +651,10 @@ export default function SchoolProfile() {
               {chartGaps.length > 0 && (
                 <> · No bar for {chartGaps.join(', ')}: not reported (no figures, not 0)</>
               )}
+              {noteBands.length > 0 && <> · Shaded years have a note below</>}
             </p>
+            <SeriesNotes years={chartYears} className="mt-2" />
+            <ReportYearNote className="mt-1" />
           </div>
 
           {/* Top Offenses Trend - only show when viewing a summary */}
@@ -627,6 +671,9 @@ export default function SchoolProfile() {
               <ResponsiveContainer width="100%" height={300}>
                 <LineChart data={trendChartData}>
                   <CartesianGrid strokeDasharray="3 3" stroke={chartGridColor} />
+                {noteBands.map((b) => (
+                  <ReferenceArea key={b.x1} x1={b.x1} x2={b.x2} fill={noteBandColor} fillOpacity={0.12} ifOverflow="extendDomain" />
+                ))}
                   <XAxis
                     dataKey="year"
                     tick={{ fill: chartTextColor, fontSize: 12 }}
@@ -669,6 +716,9 @@ export default function SchoolProfile() {
               <ResponsiveContainer width="100%" height={300}>
                 <LineChart data={yearlyChartData}>
                   <CartesianGrid strokeDasharray="3 3" stroke={chartGridColor} />
+                {noteBands.map((b) => (
+                  <ReferenceArea key={b.x1} x1={b.x1} x2={b.x2} fill={noteBandColor} fillOpacity={0.12} ifOverflow="extendDomain" />
+                ))}
                   <XAxis
                     dataKey="year"
                     tick={{ fill: chartTextColor, fontSize: 12 }}
@@ -848,6 +898,22 @@ export default function SchoolProfile() {
                 })}
               </div>
             </div>
+            )}
+
+            {geoYearDefects.length > 0 && (
+              <div role="note" className="mt-4 space-y-1">
+                {geoYearDefects.map((d) => (
+                  <p key={d.file} className="flex items-start gap-1.5 text-xs text-gray-600 dark:text-gray-400">
+                    <Info className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" aria-hidden="true" />
+                    <span>
+                      {d.takenFrom
+                        ? <>{d.year} residence-hall {categoryLabel(d.category)} come from DOE's {releaseLabel(d.takenFrom)} release, because that file of the {releaseLabel(d.release)} release, which this campus's {d.year} figures come from, is wrong.</>
+                        : <>{d.year} residence-hall {categoryLabel(d.category)} are not included: that file of DOE's {releaseLabel(d.release)} release, which this campus's {d.year} figures come from, is wrong, and no other release has them.</>}{' '}
+                      <Link to="/methodology#known-defects" className="text-primary-600 dark:text-primary-400 underline">Details</Link>
+                    </span>
+                  </p>
+                ))}
+              </div>
             )}
 
             <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">

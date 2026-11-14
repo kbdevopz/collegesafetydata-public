@@ -311,6 +311,49 @@ figures the institutions reported; this site does not mark or remove them.
 - **All criminal offenses** (the default view of rankings, school pages and comparisons): the 11 criminal offenses above, added up.
 - **All categories (crimes, arrests, referrals)**: every category added up, criminal offenses, VAWA offenses, arrests and disciplinary referrals. These are different kinds of counts. Arrests and disciplinary referrals count people (each person arrested or referred), not incidents, and an incident of dating violence, domestic violence or stalking can also be counted as a criminal offense such as aggravated assault. So this total is not a number of incidents, and high totals often reflect drug and alcohol enforcement rather than violent crime. It is still available (`?offense=all` on the rankings page).
 
+## Comparing Years (2015-2024)
+
+Sourced changes that affect comparisons over time. The notes the site shows
+next to charts and rankings are in `frontend/src/data/seriesNotes.ts`
+(`SERIES_NOTES`, by year; `SERIES_CONTEXT`, every year); add a note there.
+
+- **2020-2021, COVID-19 pandemic.** Many campuses closed or taught remotely.
+  NCES (Fast Facts: Distance learning, https://nces.ed.gov/fastfacts/display.asp?id=80):
+  15% of undergraduates took only distance education courses in fall 2019,
+  44% in fall 2020 and 28% in fall 2021. ED changed only deadlines (Electronic
+  Announcement of July 10, 2020: Annual Security Reports by December 31, 2020;
+  survey open November 18, 2020 to January 14, 2021), not what is counted.
+  School pages and Compare shade 2020-2021 on trend charts and add a note;
+  rankings for 2020 or 2021 show the note too.
+- **2022-2023, residence-hall figures from DOE's 2021-2023 release.** See
+  Known Errors in DOE Files. `metadata.json` (`knownDefects`) lists, for each
+  error, the campuses whose figures for that year come from that release, and
+  their school pages say which residence-hall figures are replaced or left
+  out.
+- **Every year: counts are by the year reported** (see Year of report).
+- **VAWA final rule** (79 FR 62752, October 20, 2014; effective July 1, 2015):
+  added dating violence, domestic violence and stalking, and replaced forcible
+  and nonforcible sex offenses with rape, fondling, incest and statutory rape.
+  ED did not require institutions to revise 2013 or 2014 statistics. The site
+  starts at 2015; do not join its series with earlier figures.
+- **October 2020: the 2016 Handbook was rescinded** and replaced by the Clery
+  Act Appendix for the FSA Handbook, "effective for the reporting year
+  following publication". ED said no statutory or regulatory requirement
+  changed. The Appendix applies no measurable distance to "reasonably
+  contiguous" and accepts an institution's reasonable interpretation of terms.
+  No effect on the figures has been shown; listed as context only.
+- **January 2021: the FBI retired the SRS.** The Clery regulation still
+  defines the crimes by the SRS manual (668.46(c)(9), Appendix A), so the
+  definitions did not change.
+
+Checked and not listed as breaks: hate-crime categories (not shown); the 2024
+Title IX rule (it amends 34 CFR part 106, not the Clery statistics); the Stop
+Campus Hazing Act of December 23, 2024 (its statistics start after 2024); a
+change to motor vehicle theft or any other definition (none found: eCFR's
+version history of 668.46 and Appendix A, which begins in December 2016, has
+no substantive amendment); an item the survey stopped collecting (none found
+for the categories shown).
+
 ## Rankings
 
 Each ranking lists schools by their count, largest first. Schools with the same count share a rank (standard competition ranking: 1, 2, 2, 4, so the rank after a tie skips the places the tie takes) and are listed by name, then by UNITID. Rate rankings rank institutions' rates the same way, ties by institution name, then base UNITID. Every campus that reported the year is in its rankings: those with none of a category are the last tie, with 0 (see Zero Versus Not Reported).

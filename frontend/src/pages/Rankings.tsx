@@ -15,6 +15,7 @@ import { cn, formatNumber, formatPercent, groupOffensesByFamily, isSmallSample }
 import { CRIMINAL, compareText, countHeader, countPhrase, noneOfPhrase } from '../lib/selection'
 import SchoolSearch from '../components/SchoolSearch'
 import OffensePopover from '../components/OffensePopover'
+import SeriesNotes from '../components/SeriesNotes'
 
 // One row of the table: a campus (count view) or an institution, all its
 // campuses together (rate view, as NCES publishes FTE per institution)
@@ -786,6 +787,9 @@ export default function Rankings() {
             </p>
           </div>
         )}
+
+        {/* Comparability note for the selected year (data/seriesNotes.ts) */}
+        <SeriesNotes years={[selectedYear]} className="mb-4" />
 
         {/* Rankings Table (Desktop) / Cards (Mobile) */}
         <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden transition-colors duration-200">

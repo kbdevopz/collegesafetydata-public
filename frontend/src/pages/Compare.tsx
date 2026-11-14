@@ -8,6 +8,7 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
+  ReferenceArea,
   ResponsiveContainer,
   BarChart,
   Bar,
@@ -32,6 +33,8 @@ import { cn, formatNumber, calculateYoYChange, isSmallSample } from '../lib/util
 import { fteFor, latestFte, institutionRate, rateNote, campusesPhrase } from '../lib/rates'
 import { ALL, CRIMINAL, SUMMARY_LABELS, inSelection, isSummary, selectionLabel } from '../lib/selection'
 import { useTheme } from '../hooks/useTheme'
+import SeriesNotes, { ReportYearNote } from '../components/SeriesNotes'
+import { SERIES_NOTES } from '../data/seriesNotes'
 
 // School colors for comparison
 const SCHOOL_COLORS = ['#3b82f6', '#10b981'] // Blue, Emerald
@@ -362,6 +365,11 @@ export default function Compare() {
 
   // Theme-aware chart styling
   const chartGridColor = resolvedTheme === 'dark' ? '#374151' : '#e5e7eb'
+  const noteBandColor = resolvedTheme === 'dark' ? '#fbbf24' : '#d97706'
+  // Years with a sourced comparability note (data/seriesNotes.ts), shaded on the trend chart
+  const noteBands = SERIES_NOTES.map((n) => n.years.filter((y) => availableYears.includes(y)))
+    .filter((ys) => ys.length > 0)
+    .map((ys) => ({ x1: Math.min(...ys), x2: Math.max(...ys) }))
   const chartTextColor = resolvedTheme === 'dark' ? '#9ca3af' : '#6b7280'
   const chartBgColor = resolvedTheme === 'dark' ? '#111827' : 'white'
   const chartBorderColor = resolvedTheme === 'dark' ? '#374151' : '#e5e7eb'
@@ -583,6 +591,11 @@ export default function Compare() {
             )}
           </div>
         </div>
+      )}
+
+      {/* Comparability note for the selected year (data/seriesNotes.ts) */}
+      {profiles.length === 2 && selectedYear !== 'all' && (
+        <SeriesNotes years={[parseInt(selectedYear)]} className="mb-4" />
       )}
 
       {/* Comparison Context Banner */}
@@ -948,6 +961,9 @@ export default function Compare() {
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={trendChartData}>
                 <CartesianGrid strokeDasharray="3 3" stroke={chartGridColor} />
+                {noteBands.map((b) => (
+                  <ReferenceArea key={b.x1} x1={b.x1} x2={b.x2} fill={noteBandColor} fillOpacity={0.12} ifOverflow="extendDomain" />
+                ))}
                 <XAxis
                   dataKey="year"
                   tick={{ fill: chartTextColor, fontSize: 12 }}
@@ -980,6 +996,8 @@ export default function Compare() {
                 ))}
               </LineChart>
             </ResponsiveContainer>
+            <SeriesNotes years={availableYears} className="mt-3" />
+            <ReportYearNote className="mt-1" />
           </div>
 
           {/* Offense Breakdown */}

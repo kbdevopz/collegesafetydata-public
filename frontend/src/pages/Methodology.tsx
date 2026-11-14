@@ -13,6 +13,7 @@ import {
   AlertTriangle,
   Info,
   Users,
+  Calendar,
 } from 'lucide-react'
 import { getMetadata } from '../lib/api'
 import type { Metadata } from '../lib/types'
@@ -20,6 +21,16 @@ import { formatDate, formatNumber } from '../lib/utils'
 import { summarizeEnrollmentStatus, describeEnrollmentStatus } from '../lib/enrollment'
 import { summarizeDataYears } from '../lib/coverage'
 import SourceLink from '../components/SourceLink'
+import { SERIES_NOTES, SERIES_CONTEXT } from '../data/seriesNotes'
+import { useLocation } from 'react-router-dom'
+
+// Campuses whose figures for `year` come from a release with a known DOE
+// file error (metadata.json "knownDefects"), or null when not published
+function defectCampuses(metadata: Metadata | null, year: number): number | null {
+  const ds = metadata?.knownDefects?.filter((d) => d.year === year)
+  if (!ds || ds.length === 0) return null
+  return new Set(ds.flatMap((d) => d.unitids)).size
+}
 import {
   SOURCES,
   CRIMINAL_DEFINITIONS,
@@ -34,6 +45,16 @@ export default function Methodology() {
   React.useEffect(() => {
     getMetadata().then(setMetadata).catch(console.error)
   }, [])
+
+  // Links such as /methodology#series-breaks: scroll to the section once
+  // the page is drawn (after the app's scroll to the top on navigation)
+  const { hash } = useLocation()
+  React.useEffect(() => {
+    if (!hash) return
+    const id = decodeURIComponent(hash.slice(1))
+    const t = window.setTimeout(() => document.getElementById(id)?.scrollIntoView(), 50)
+    return () => window.clearTimeout(t)
+  }, [hash])
 
   // Which falls have final, provisional or no enrollment yet, from
   // metadata.json "enrollmentStatus" (neutral wording when it is absent)
@@ -461,6 +482,86 @@ export default function Methodology() {
                 criminal offense such as aggravated assault. So this total is not a number of incidents,
                 and high totals often reflect drug and alcohol enforcement rather than violent crime.
               </p>
+            </div>
+          </section>
+
+          {/* Series breaks and context */}
+          <section id="series-breaks" className="scroll-mt-20">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/50 rounded-xl flex items-center justify-center">
+                <Calendar className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                Comparing Years
+              </h2>
+            </div>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
+              Changes in definitions, reporting or circumstances between 2015 and 2024 that affect comparisons
+              over time. Notes marked with years also appear next to charts and rankings that show those years.
+            </p>
+            <div className="space-y-4">
+              {SERIES_NOTES.map((n) => (
+                <div key={n.id} id={n.id} className="scroll-mt-20 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-5">
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                    <span className="inline-block mr-2 px-2 py-0.5 rounded bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 text-xs font-semibold align-middle">
+                      {n.label}
+                    </span>
+                    {n.title}
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{n.detail}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Sources:{' '}
+                    {n.sources.map((s, i) => (
+                      <span key={s.url}>
+                        {i > 0 && '; '}
+                        <SourceLink source={s} />
+                      </span>
+                    ))}
+                  </p>
+                </div>
+              ))}
+
+              <div id="known-defects" className="scroll-mt-20 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-5">
+                <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                  <span className="inline-block mr-2 px-2 py-0.5 rounded bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 text-xs font-semibold align-middle">
+                    2022-2023
+                  </span>
+                  Residence-hall figures from DOE's 2021-2023 release
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  For campuses whose 2022 or 2023 figures come from DOE's 2021-2023 release (Crime2024SAS.zip;
+                  campuses missing from the 2022-2024 release), two of that release's residence-hall files are
+                  wrong (see Known Errors in DOE Files above). Their 2022 residence-hall disciplinary referrals and
+                  liquor-law arrests come from the 2020-2022 release instead, and their 2023 residence-hall
+                  disciplinary referrals are left out
+                  {defectCampuses(metadata, 2023) !== null && (
+                    <> ({formatNumber(defectCampuses(metadata, 2023)!)} campuses in 2023)</>
+                  )}
+                  . Residence halls are not part of totals, so only residence-hall figures are affected; the school
+                  page of each such campus says so.
+                </p>
+              </div>
+            </div>
+
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mt-8 mb-3">
+              Context for every year
+            </h3>
+            <div className="space-y-4">
+              {SERIES_CONTEXT.map((n) => (
+                <div key={n.id} id={n.id === 'year-reported' ? undefined : n.id} className="scroll-mt-20">
+                  <h4 className="font-medium text-gray-900 dark:text-gray-100 text-sm mb-1">{n.title}</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">{n.detail}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Sources:{' '}
+                    {n.sources.map((s, i) => (
+                      <span key={s.url}>
+                        {i > 0 && '; '}
+                        <SourceLink source={s} />
+                      </span>
+                    ))}
+                  </p>
+                </div>
+              ))}
             </div>
           </section>
 
