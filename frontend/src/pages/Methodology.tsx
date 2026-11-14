@@ -244,7 +244,13 @@ export default function Methodology() {
                       <div className="flex items-start gap-2">
                         <Info className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
                         <span className="text-gray-600 dark:text-gray-400">
-                          <strong className="text-gray-900 dark:text-gray-200">Figures reported by more than one campus:</strong> Some campuses report exactly the same 20 figures for a location (on-campus, non-campus or public property) as another campus in the same state and year, at least six of them nonzero, usually because a branch repeats its parent's statistics. When a campus's whole year (all three locations, at least six figures nonzero) matches another campus's, all of its locations count as copies. For a campus-year taken from an older release, a match with another campus in that same release counts too, even if that campus has since corrected its figures. School pages show the figures as DOE publishes them; state and national totals and rankings count them once, under one host campus, which the school page names. The host is the campus whose figures come from the newest release for that year, then the main campus, then the one with more students (FTE), then the larger total, then the lower IPEDS ID.
+                          <strong className="text-gray-900 dark:text-gray-200">Figures reported by more than one campus:</strong> Some campuses report exactly the same 20 figures for a location (on-campus, non-campus or public property) as another campus in the same state and year, at least six of them nonzero, usually because a branch repeats its parent's statistics. When a campus's whole year (all three locations, at least six figures nonzero) matches another campus's, all of its locations count as copies. For a campus-year taken from an older release, a match with another campus in that same release counts too, even if that campus has since corrected its figures. School pages show the figures as DOE publishes them; state and national totals and rankings count them once, under one host campus, which the school page names. The host is the campus whose figures come from the newest release for that year, then the main campus, then the one with more students (FTE), then the larger total, then the lower IPEDS ID. One more case: when DOE reported a campus under a new ID (see below) and both IDs have the same whole year (every figure, at least one nonzero) from different releases, the older release's copy counts under the newer ID, whatever the number of nonzero figures.
+                        </span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <Info className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
+                        <span className="text-gray-600 dark:text-gray-400">
+                          <strong className="text-gray-900 dark:text-gray-200">Campus names and IDs:</strong> A campus that is not an institution's main campus is titled with its own DOE campus name (the BRANCH field), with its institution's name under it. Search matches campus names, institution names, cities and the names DOE and IPEDS have used for a campus before (IPEDS IALIAS and former DOE names). When a campus was renumbered or moved to another institution (a merger), DOE lists it under a new ID and its years are split across two pages. We link the two pages when the IDs never appear in the same DOE release, one follows the other, and they are in the same city with the same address or the same campus name; each pair was reviewed by hand and is listed with its evidence in etl/reference/campus_id_changes.csv in the open-source pipeline. The pages are linked, not merged: each keeps the years DOE reported under its own ID.
                         </span>
                       </div>
                     </div>
@@ -433,6 +439,13 @@ export default function Methodology() {
                   note. An institution without NCES's online figure is not left out. For 2020 and 2021 the test uses
                   each institution's fall 2019 share (its own year's only when NCES has no 2019 figure), because
                   temporary remote teaching during the pandemic does not make a school an online-only school.
+                </p>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+                  Mergers and renumbered campuses: in a year DOE reported a campus under two institutions (its old
+                  and its new ID, from different releases), and in a year a merged institution's campuses count
+                  under several institutions while NCES has enrollment for only some of them, the incidents and the
+                  FTE may not cover the same campuses. Both institutions get no rate that year and are left out of
+                  rate rankings; their school pages say why.
                 </p>
               </div>
               <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4 sm:col-span-2">
@@ -804,9 +817,10 @@ export default function Methodology() {
                   "Ranking order validation (ties share a rank: 1, 2, 2, 4)",
                   "Ranking totals (each ranking's total and tables agree with its entries)",
                   "Aggregate consistency (the school-year aggregate table matches the fact table it is built from)",
-                  "Shared figures (figures two campuses report identically are counted once in totals and rankings)",
+                  "Shared figures (figures two campuses, or one campus under its old and new DOE ID, report identically are counted once in totals and rankings)",
                   "Enrollment matches NCES (every FTE is NCES's own published figure)",
                   "Institution rates (recomputed from the facts: all campuses' incidents per institution FTE, and exactly the institutions rate rankings may list)",
+                  "Campus identity (the reviewed list of renumbered campuses matches the DOE files, linked pages name each other, every school is in the search with its campus name, and merger years have no rate)",
                 ].map((check, i) => (
                   <div key={i} className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
                     <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
@@ -857,7 +871,8 @@ export default function Methodology() {
                 <dd>
                   One row per campus and year the site shows (each year a campus reported to DOE, zeros included):{' '}
                   <code>year</code>, <code>unitid</code> (DOE campus ID), <code>base_unitid</code> (the IPEDS
-                  institution: the first six digits), <code>campus_name</code>, <code>city</code>, <code>state</code>,{' '}
+                  institution: the first six digits), <code>campus_name</code> (the campus's own DOE name, or the
+                  institution's when DOE gives none), <code>institution_name</code>, <code>city</code>, <code>state</code>,{' '}
                   <code>main_campus</code>, <code>doe_release</code> (the DOE file suffix the figures come from, e.g.
                   222324 for the 2022-2024 release), <code>counts_in_rankings</code> (false when every figure the
                   campus reported that year is counted under another campus), <code>institution_fte</code> (NCES FTE
@@ -870,8 +885,8 @@ export default function Methodology() {
                 <dd>
                   Every nonzero count, by campus, location and offense, as the campus reported it: <code>year</code>,{' '}
                   <code>unitid</code>, <code>geo</code> (On-campus, Residence halls, Non-campus, Public property),{' '}
-                  <code>offense</code>, <code>count</code>, <code>counted_under_unitid</code> (set when another campus
-                  reported the same figures for that location; totals and rankings count them under that campus).
+                  <code>offense</code>, <code>count</code>, <code>counted_under_unitid</code> (set when another campus,
+                  or the same campus under its new DOE ID, reported the same figures for that location; totals and rankings count them under that campus).
                   <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1">
                     {(metadata?.years ?? []).map((y) => (
                       <a key={y} href={`/data/downloads/counts-${y}.csv`} className="underline font-mono">{y}</a>

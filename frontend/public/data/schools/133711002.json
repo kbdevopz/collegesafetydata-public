@@ -4,6 +4,7 @@
   "shortName": null,
   "city": "TALLAHASSEE",
   "state": "FL",
+  "campus": "Flagler College-Tallahassee",
   "ivyLeague": false,
   "isMainCampus": false,
   "campusType": "Branch Campus",
@@ -250,13 +251,27 @@
     2017,
     2024
   ],
+  "idChanges": [
+    {
+      "unitid": 444990001,
+      "relation": "earlier",
+      "years": [
+        2015,
+        2016,
+        2017,
+        2018
+      ],
+      "name": "Flagler College-Tallahassee"
+    }
+  ],
   "institution": {
     "id": 133711,
     "byYear": {
       "2018": {
         "campuses": 2,
         "online": 0,
-        "rateRanked": true,
+        "rateRanked": false,
+        "rateExcludedReason": "DOE reported campus 133711002 of this institution also under ID 444990001 of another institution in 2018 (a merger or renumbering), so that year's incidents and enrollment may not cover the same campuses. No rate is shown for it.",
         "counts": {
           "criminal": 19,
           "all": 154,

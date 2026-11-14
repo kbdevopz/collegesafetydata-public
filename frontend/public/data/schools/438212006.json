@@ -4,6 +4,7 @@
   "shortName": null,
   "city": "Carlisle",
   "state": "PA",
+  "campus": "Carlisle",
   "ivyLeague": false,
   "isMainCampus": false,
   "campusType": "Branch Campus",
@@ -37,13 +38,26 @@
     2023,
     2024
   ],
+  "idChanges": [
+    {
+      "unitid": 458450002,
+      "relation": "later",
+      "years": [
+        2015,
+        2016
+      ],
+      "name": "McCann School of Business & Technology",
+      "campus": "Carlisle"
+    }
+  ],
   "institution": {
     "id": 438212,
     "byYear": {
       "2015": {
         "campuses": 7,
         "online": 0,
-        "rateRanked": true,
+        "rateRanked": false,
+        "rateExcludedReason": "DOE reported campus 438212002 of this institution also under ID 213871002 of another institution in 2015 (a merger or renumbering), so that year's incidents and enrollment may not cover the same campuses. No rate is shown for it.",
         "counts": {
           "all": 7,
           "domestic_violence": 6,

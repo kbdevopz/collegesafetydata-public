@@ -106,6 +106,27 @@
     2023,
     2024
   ],
+  "idChanges": [
+    {
+      "unitid": 129367008,
+      "relation": "later",
+      "years": [
+        2022,
+        2023,
+        2024
+      ],
+      "name": "Connecticut State Community College",
+      "campus": "CT State Community College Middlesex Campus"
+    }
+  ],
+  "sharedFigures": [
+    {
+      "year": 2022,
+      "geo": "On-campus",
+      "hostUnitid": 129367008,
+      "hostName": "Connecticut State Community College"
+    }
+  ],
   "institution": {
     "id": 129756,
     "byYear": {
@@ -157,9 +178,11 @@
         }
       },
       "2022": {
-        "campuses": 2,
+        "campuses": 1,
         "online": 25,
-        "rateRanked": true
+        "rateRanked": false,
+        "rateExcludedReason": "DOE reported campus 129756001 of this institution also under ID 129367008 of another institution in 2022 (a merger or renumbering), so that year's incidents and enrollment may not cover the same campuses. No rate is shown for it.",
+        "counts": {}
       }
     }
   }

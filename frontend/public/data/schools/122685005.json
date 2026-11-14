@@ -4,6 +4,7 @@
   "shortName": null,
   "city": "Rancho Cordova",
   "state": "CA",
+  "campus": "Rancho Cordova Campus",
   "ivyLeague": false,
   "isMainCampus": false,
   "campusType": "Branch Campus",
@@ -72,6 +73,22 @@
     2023,
     2024
   ],
+  "idChanges": [
+    {
+      "unitid": 448372002,
+      "relation": "later",
+      "years": [
+        2019,
+        2020,
+        2021,
+        2022,
+        2023,
+        2024
+      ],
+      "name": "San Joaquin Valley College-Rancho Cordova",
+      "campus": "Rancho Cordova Campus"
+    }
+  ],
   "institution": {
     "id": 122685,
     "byYear": {
@@ -128,21 +145,14 @@
         }
       },
       "2019": {
-        "campuses": 14,
+        "campuses": 9,
         "online": 13,
-        "rateRanked": true,
+        "rateRanked": false,
+        "rateExcludedReason": "DOE reported campus 122685002 of this institution also under ID 262457002 of another institution in 2019 (a merger or renumbering), so that year's incidents and enrollment may not cover the same campuses. No rate is shown for it.",
         "counts": {
-          "criminal": 13,
-          "all": 18,
-          "arson": 1,
-          "burglary": 3,
-          "domestic_violence": 1,
-          "drug_arrest": 2,
-          "liquor_arrest": 1,
-          "motor_vehicle_theft": 7,
-          "rape": 1,
-          "robbery": 1,
-          "weapons_arrest": 1
+          "criminal": 1,
+          "all": 1,
+          "motor_vehicle_theft": 1
         }
       }
     }

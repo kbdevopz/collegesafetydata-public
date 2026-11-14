@@ -49,13 +49,28 @@
     2023,
     2024
   ],
+  "idChanges": [
+    {
+      "unitid": 489779008,
+      "relation": "later",
+      "years": [
+        2018,
+        2019,
+        2020,
+        2021
+      ],
+      "name": "Purdue University Global",
+      "campus": "Purdue University Global-Augusta"
+    }
+  ],
   "institution": {
     "id": 480064,
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 17,
-        "rateRanked": false
+        "rateRanked": false,
+        "rateExcludedReason": "In 2015 DOE reported campuses of this institution and of related institutions (a merger or renumbering) under separate IDs, while IPEDS has no enrollment for 489779, 489788, so that year's incidents and enrollment may not cover the same campuses. No rate is shown for it."
       },
       "2016": {
         "campuses": 1,
@@ -70,7 +85,8 @@
       "2018": {
         "campuses": 1,
         "online": 75,
-        "rateRanked": false
+        "rateRanked": false,
+        "rateExcludedReason": "DOE reported campus 480064001 of this institution also under ID 489779008 of another institution in 2018 (a merger or renumbering), so that year's incidents and enrollment may not cover the same campuses. No rate is shown for it."
       }
     }
   }

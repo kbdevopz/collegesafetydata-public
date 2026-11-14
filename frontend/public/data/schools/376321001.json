@@ -76,6 +76,18 @@
     2023,
     2024
   ],
+  "idChanges": [
+    {
+      "unitid": 241304002,
+      "relation": "later",
+      "years": [
+        2020,
+        2021
+      ],
+      "name": "Columbia Central University-Caguas",
+      "campus": "EDIC College Caguas Campus"
+    }
+  ],
   "institution": {
     "id": 376321,
     "byYear": {
@@ -131,8 +143,9 @@
       "2020": {
         "campuses": 3,
         "online": 1,
-        "rateRanked": true,
-        "onlineYear": 2019
+        "rateRanked": false,
+        "onlineYear": 2019,
+        "rateExcludedReason": "DOE reported campus 376321001 of this institution also under ID 241304002 of another institution in 2020 (a merger or renumbering), so that year's incidents and enrollment may not cover the same campuses. No rate is shown for it."
       }
     }
   }

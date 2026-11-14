@@ -72,20 +72,48 @@
     2023,
     2024
   ],
+  "idChanges": [
+    {
+      "unitid": 130907003,
+      "relation": "later",
+      "years": [
+        2015,
+        2016,
+        2017,
+        2018,
+        2019,
+        2020,
+        2021,
+        2022,
+        2023,
+        2024
+      ],
+      "name": "Delaware Technical Community College-Terry",
+      "campus": "Stanton Campus"
+    }
+  ],
+  "sharedFigures": [
+    {
+      "year": 2015,
+      "geo": "On-campus",
+      "hostUnitid": 130907003,
+      "hostName": "Delaware Technical Community College-Terry"
+    }
+  ],
   "institution": {
     "id": 130916,
     "byYear": {
       "2015": {
-        "campuses": 2,
+        "campuses": 1,
         "online": null,
         "rateRanked": false,
+        "rateExcludedReason": "DOE reported campus 130916001 of this institution also under ID 130907003 of another institution in 2015 (a merger or renumbering), so that year's incidents and enrollment may not cover the same campuses. No rate is shown for it.",
         "counts": {
-          "criminal": 3,
-          "all": 6,
+          "criminal": 2,
+          "all": 3,
           "aggravated_assault": 1,
-          "arson": 2,
-          "domestic_violence": 2,
-          "stalking": 1
+          "arson": 1,
+          "domestic_violence": 1
         }
       }
     }

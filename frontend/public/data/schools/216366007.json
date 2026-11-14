@@ -4,6 +4,7 @@
   "shortName": null,
   "city": "Voorhees",
   "state": "NJ",
+  "campus": "Voorhees Campus",
   "ivyLeague": false,
   "isMainCampus": false,
   "campusType": "Branch Campus",
@@ -130,13 +131,25 @@
   "notReported": [
     2015
   ],
+  "idChanges": [
+    {
+      "unitid": 215099003,
+      "relation": "earlier",
+      "years": [
+        2016
+      ],
+      "name": "Philadelphia University",
+      "campus": "Atlantic City Campus"
+    }
+  ],
   "institution": {
     "id": 216366,
     "byYear": {
       "2016": {
         "campuses": 5,
         "online": 18,
-        "rateRanked": true,
+        "rateRanked": false,
+        "rateExcludedReason": "DOE reported campus 216366006 of this institution also under ID 215099002 of another institution in 2016 (a merger or renumbering), so that year's incidents and enrollment may not cover the same campuses. No rate is shown for it.",
         "counts": {
           "criminal": 25,
           "all": 200,

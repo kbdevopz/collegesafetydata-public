@@ -29,7 +29,7 @@ import {
 } from 'lucide-react'
 import { fetchSchoolProfile, fetchSchoolIndex, fetchPresets, getMetadata } from '../lib/api'
 import type { SchoolProfile, School, PresetDetail, SchoolIndex, RateRules } from '../lib/types'
-import { cn, formatNumber, calculateYoYChange, isSmallSample } from '../lib/utils'
+import { cn, formatNumber, calculateYoYChange, isSmallSample, displayName as titleOf } from '../lib/utils'
 import { fteFor, latestFte, institutionRate, rateNote, campusesPhrase } from '../lib/rates'
 import { ALL, CRIMINAL, SUMMARY_LABELS, inSelection, isSummary, selectionLabel } from '../lib/selection'
 import { useTheme } from '../hooks/useTheme'
@@ -203,6 +203,7 @@ export default function Compare() {
     return available
       .filter((s) =>
         s.name.toLowerCase().includes(query) ||
+        (s.campus && s.campus.toLowerCase().includes(query)) ||
         (s.city && s.city.toLowerCase().includes(query)) ||
         (s.state && s.state.toLowerCase().includes(query))
       )
@@ -390,7 +391,7 @@ export default function Compare() {
           {selectedIds.map((id, index) => {
             const school = schools.find((s) => s.unitid === id)
             const profile = profiles.find((p) => p.unitid === id)
-            const displayName = school?.short || profile?.shortName || school?.name || 'Unknown'
+            const displayName = school?.short || profile?.shortName || (school ? titleOf(school) : null) || 'Unknown'
             if (!school && !profile) return null
             return (
               <div
@@ -467,8 +468,8 @@ export default function Compare() {
                           className="w-full text-left px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                         >
                           <div className="font-medium text-gray-900 dark:text-gray-100 text-sm">
-                            {school.name}
-                            {school.isMainCampus === false && (
+                            {titleOf(school)}
+                            {school.isMainCampus === false && !school.campus && (
                               <span className="ml-1.5 text-xs font-normal text-gray-500 dark:text-gray-400">(Branch)</span>
                             )}
                           </div>

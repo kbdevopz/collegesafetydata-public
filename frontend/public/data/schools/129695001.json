@@ -150,6 +150,19 @@
     2023,
     2024
   ],
+  "idChanges": [
+    {
+      "unitid": 129367004,
+      "relation": "later",
+      "years": [
+        2022,
+        2023,
+        2024
+      ],
+      "name": "Connecticut State Community College",
+      "campus": "CT State Community College Manchester Campus"
+    }
+  ],
   "institution": {
     "id": 129695,
     "byYear": {
@@ -193,7 +206,8 @@
       "2022": {
         "campuses": 1,
         "online": 25,
-        "rateRanked": true
+        "rateRanked": false,
+        "rateExcludedReason": "DOE reported campus 129695001 of this institution also under ID 129367004 of another institution in 2022 (a merger or renumbering), so that year's incidents and enrollment may not cover the same campuses. No rate is shown for it."
       }
     }
   }

@@ -305,3 +305,37 @@ export function getRelativeTime(isoString: string): string {
   if (diffDays < 365) return `${Math.floor(diffDays / 30)} months ago`
   return `${Math.floor(diffDays / 365)} years ago`
 }
+
+/** A school's title: its own DOE campus name when it has one, else its institution name. */
+export function displayName(x: { name: string; campus?: string | null }): string {
+  return x.campus ?? x.name
+}
+
+/** Years as compact ranges: [2015, 2016, 2017, 2019] -> "2015–2017, 2019". */
+export function compactYears(years: number[]): string {
+  const sorted = [...years].sort((a, b) => a - b)
+  const parts: string[] = []
+  let start = sorted[0]
+  let prev = sorted[0]
+  for (const y of sorted.slice(1).concat([NaN])) {
+    if (y === prev + 1) {
+      prev = y
+      continue
+    }
+    if (start !== undefined) parts.push(start === prev ? `${start}` : `${start}–${prev}`)
+    start = y
+    prev = y
+  }
+  return parts.join(', ')
+}
+
+/** Text for matching: lower case, accents dropped, "&" read as "and", punctuation as spaces. */
+export function searchText(s: string | null | undefined): string {
+  return (s ?? '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/&/g, ' and ')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim()
+}

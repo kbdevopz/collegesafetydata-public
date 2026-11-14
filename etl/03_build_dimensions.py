@@ -12,6 +12,7 @@ Usage:
 """
 
 import os
+import re
 import sys
 import pandas as pd
 import duckdb
@@ -22,9 +23,11 @@ sys.path.insert(0, str(Path(__file__).parent))
 from config import (
     CURATED_DIR, IVY_LEAGUE, IVY_BASE_UNITIDS, OFFENSE_ORDER_MAP,
     OFFENSE_DESCRIPTIONS, OFFENSE_FAMILIES, US_STATES, VALID_STATE_CODES,
-    PROCESS_ALL_SCHOOLS
+    PROCESS_ALL_SCHOOLS, DATA_YEARS, GEO_FOR_ALL
 )
+import campus_identity
 import provenance
+from ipeds_files import IPEDS_RAW_DIR
 
 # The one fact table that 02_transform_to_parquet.py writes
 FACTS_PATH = CURATED_DIR / "facts" / "incidents.parquet"
@@ -32,6 +35,10 @@ FACTS_PATH = CURATED_DIR / "facts" / "incidents.parquet"
 # is reported when its release row has at least one count cell that is not
 # blank, so a campus that reported only zeros is in it but not in the facts
 SOURCES_PATH = CURATED_DIR / "dims" / "campus_year_sources.parquet"
+# Every release's names and addresses of each campus (02_transform_to_parquet.py)
+NAMES_PATH = CURATED_DIR / "dims" / "campus_names.parquet"
+# The campus ID changes cross-linked on the site (build_id_links)
+LINKS_PATH = CURATED_DIR / "dims" / "campus_id_links.parquet"
 
 
 def find_stray_facts() -> list:
@@ -74,6 +81,84 @@ def facts_read_error(err: Exception) -> RuntimeError:
         f"If another program (sync, backup or antivirus) has the file open, close it and "
         f"run this step again. Otherwise run 02_transform_to_parquet.py again."
     )
+
+
+def add_campus_identity(dim: pd.DataFrame) -> pd.DataFrame:
+    """
+    The campus identity columns (campus_identity.campus_identities, from
+    every DOE release's names and the IPEDS directory files):
+        campus_name: string          # the campus's own DOE name (BRANCH) when it says
+                                     # more than the institution name, else null
+        doe_branch: string           # BRANCH as DOE's newest release spells it
+        aliases: list<string>        # other names to search by (former DOE names, IPEDS IALIAS)
+    A city that is no place name in raw_institutions (a stray value such as
+    "2: No") is replaced with the campus's city in another release.
+    """
+    names = pd.read_parquet(NAMES_PATH)
+    hd, _files = campus_identity.ipeds_directory(IPEDS_RAW_DIR, DATA_YEARS)
+    ids, repaired = campus_identity.campus_identities(names, hd)
+    missing = sorted(set(dim["unitid"].astype(int)) - set(ids["unitid"]))
+    if missing:
+        raise RuntimeError(f"{len(missing)} reporting campuses are not in {NAMES_PATH.name} (UNITIDs "
+                           f"{missing[:10]}). Run 02_transform_to_parquet.py again, then this step.")
+    ids = ids.set_index("unitid")
+    out = dim.copy()
+    out["campus_name"] = [ids.at[u, "campus_name"] for u in out["unitid"]]
+    out["doe_branch"] = [ids.at[u, "doe_branch"] or None for u in out["unitid"]]
+    out["aliases"] = [list(ids.at[u, "aliases"]) for u in out["unitid"]]
+    bad_city = [u for u, c in zip(out["unitid"], out["city"])
+                if c is None or pd.isna(c) or not re.search(r"[A-Za-z]", str(c)) or re.search(r"\d|:", str(c))]
+    for u in bad_city:
+        if ids.at[u, "city"]:
+            out.loc[out["unitid"] == u, "city"] = ids.at[u, "city"]
+    print(f"  Campus names: {out['campus_name'].notna().sum():,} campuses have their own DOE campus name "
+          f"({(out['campus_name'].notna() & ~out['is_main_campus']).sum():,} of them not main campuses); "
+          f"{sum(len(a) for a in out['aliases']):,} search aliases; IPEDS directory files read: {len(_files)}")
+    print(f"  Repaired text: {', '.join(f'{k} {len(v)}' for k, v in repaired.items())}; "
+          f"cities replaced: {len(bad_city)}")
+    return out
+
+
+def build_id_links(dim: pd.DataFrame) -> pd.DataFrame:
+    """
+    The campus ID changes (campus_identity.detect_id_changes), checked
+    against the reviewed list etl/reference/campus_id_changes.csv, and the
+    "link" pairs as one row per campus and linked campus:
+        unitid: int32, other_unitid: int32
+        other_years: string          # the years DOE reported the campus under other_unitid
+        relation: string             # "earlier" (other_unitid was used first) or "later"
+    The two pages are cross-linked; no figures move between the IDs.
+    """
+    found = campus_identity.candidates_from_curated(CURATED_DIR, DATA_YEARS, GEO_FOR_ALL)
+    if not campus_identity.ID_CHANGES_PATH.is_file():
+        raise RuntimeError(f"{campus_identity.ID_CHANGES_PATH} is missing. Restore it from git.")
+    reviewed = campus_identity.read_id_changes()
+    key = ["old_unitid", "new_unitid"]
+    diff = campus_identity.compare_with_review(found, campus_identity.evidence_text(reviewed))
+    if any(diff.values()):
+        raise RuntimeError(
+            f"{campus_identity.ID_CHANGES_PATH.name} no longer matches the DOE files: {len(diff['new'])} new "
+            f"candidate pairs, {len(diff['gone'])} pairs no longer found, {len(diff['changed'])} with changed "
+            f"evidence (first: {(diff['new'] + diff['gone'] + diff['changed'])[:3]}). Review them: run "
+            "`python campus_identity.py` (it keeps the decisions of unchanged pairs and proposes one for the "
+            "others), check those rows' decisions, then run this step again.")
+    bad = reviewed[~reviewed["decision"].isin(["link", "reject"]) | reviewed["reason"].str.startswith("proposed:")]
+    if len(bad):
+        raise RuntimeError(f"{campus_identity.ID_CHANGES_PATH.name}: {len(bad)} rows are not reviewed (decision "
+                           f"must be link or reject, reason not 'proposed: ...'; first {bad[key].values.tolist()[:3]})")
+    links = reviewed[reviewed["decision"] == "link"]
+    known = set(dim["unitid"].astype(int))
+    rows = []
+    for o, n, oy, ny in zip(links["old_unitid"], links["new_unitid"], links["old_years"], links["new_years"]):
+        if o not in known or n not in known:
+            raise RuntimeError(f"Linked campus {o if o not in known else n} reported no year of DATA_YEARS.")
+        rows.append((o, n, ny, "later"))
+        rows.append((n, o, oy, "earlier"))
+    out = pd.DataFrame(rows, columns=["unitid", "other_unitid", "other_years", "relation"])
+    out = out.astype({"unitid": "int32", "other_unitid": "int32"}).sort_values(["unitid", "other_unitid"])
+    print(f"  Campus ID changes: {len(reviewed)} reviewed candidate pairs, {len(links)} linked, "
+          f"{len(reviewed) - len(links)} rejected")
+    return out.reset_index(drop=True)
 
 
 def build_dim_institution() -> pd.DataFrame:
@@ -207,6 +292,7 @@ def build_dim_institution() -> pd.DataFrame:
         records.append(record)
 
     dim_institution = pd.DataFrame(records)
+    dim_institution = add_campus_identity(dim_institution)
 
     # A school without a name would drop out of the "All" totals in step 04
     missing = dim_institution.loc[dim_institution["institution_name"].isna(), "unitid"].tolist()
@@ -344,12 +430,20 @@ def main():
 
     # The files this step reads, checked against 02's record before reading
     dims = CURATED_DIR / "dims"
-    inputs_before = provenance.Snapshot("03", [FACTS_PATH, dims / "raw_institutions.parquet", SOURCES_PATH])
+    inputs_before = provenance.Snapshot("03", [FACTS_PATH, dims / "raw_institutions.parquet", SOURCES_PATH,
+                                               NAMES_PATH])
+    # The other files it reads: the IPEDS directory files and the reviewed ID changes
+    _hd, hd_files = campus_identity.ipeds_directory(IPEDS_RAW_DIR, DATA_YEARS)
+    other_inputs = provenance.other_input_records(hd_files + [campus_identity.ID_CHANGES_PATH])
     provenance.invalidate(provenance.INSTITUTION_MANIFEST)
     dim_institution = build_dim_institution()
+    links = build_id_links(dim_institution)
+    links.to_parquet(LINKS_PATH, index=False)
+    print(f"  Saved to: {LINKS_PATH}")
     dim_offense = build_dim_offense()
     provenance.write_institution_manifest(
-        inputs_before, outputs=[dims / "dim_institution.parquet", dims / "dim_offense.parquet"])
+        inputs_before, outputs=[dims / "dim_institution.parquet", dims / "dim_offense.parquet", LINKS_PATH],
+        other_inputs=other_inputs)
 
     print("\n" + "=" * 60)
     print("Summary")

@@ -4,6 +4,7 @@
   "shortName": null,
   "city": "Lewiston",
   "state": "ME",
+  "campus": "Purdue University Global-Lewiston",
   "ivyLeague": false,
   "isMainCampus": false,
   "campusType": "Branch Campus",
@@ -49,13 +50,26 @@
     2023,
     2024
   ],
+  "idChanges": [
+    {
+      "unitid": 489779005,
+      "relation": "later",
+      "years": [
+        2018,
+        2019
+      ],
+      "name": "Kaplan University-Indianapolis",
+      "campus": "Purdue University Global-Lewiston"
+    }
+  ],
   "institution": {
     "id": 160940,
     "byYear": {
       "2015": {
         "campuses": 2,
         "online": 20,
-        "rateRanked": false
+        "rateRanked": false,
+        "rateExcludedReason": "In 2015 DOE reported campuses of this institution and of related institutions (a merger or renumbering) under separate IDs, while IPEDS has no enrollment for 489779, 489788, so that year's incidents and enrollment may not cover the same campuses. No rate is shown for it."
       },
       "2016": {
         "campuses": 2,
@@ -70,7 +84,8 @@
       "2018": {
         "campuses": 1,
         "online": 100,
-        "rateRanked": false
+        "rateRanked": false,
+        "rateExcludedReason": "DOE reported campus 160940002 of this institution also under ID 489779005 of another institution in 2018 (a merger or renumbering), so that year's incidents and enrollment may not cover the same campuses. No rate is shown for it."
       }
     }
   }

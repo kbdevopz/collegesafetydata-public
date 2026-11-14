@@ -4,6 +4,7 @@
   "shortName": null,
   "city": "Aurora",
   "state": "CO",
+  "campus": "Denver South Campus",
   "ivyLeague": false,
   "isMainCampus": false,
   "campusType": "Branch Campus",
@@ -90,13 +91,24 @@
   ],
   "breakdownByOffense": [],
   "breakdownByGeo": [],
+  "idChanges": [
+    {
+      "unitid": 430087001,
+      "relation": "earlier",
+      "years": [
+        2015
+      ],
+      "name": "Colorado Technical University-Greenwood Village"
+    }
+  ],
   "institution": {
     "id": 126827,
     "byYear": {
       "2015": {
         "campuses": 2,
         "online": 31,
-        "rateRanked": true,
+        "rateRanked": false,
+        "rateExcludedReason": "DOE reported campus 126827003 of this institution also under ID 430087001 of another institution in 2015 (a merger or renumbering), so that year's incidents and enrollment may not cover the same campuses. No rate is shown for it.",
         "counts": {
           "criminal": 1,
           "all": 1,

@@ -4,6 +4,7 @@
   "shortName": null,
   "city": "Bainbridge",
   "state": "GA",
+  "campus": "Midtown Campus",
   "ivyLeague": false,
   "isMainCampus": false,
   "campusType": "Branch Campus",
@@ -62,13 +63,27 @@
     2023,
     2024
   ],
+  "idChanges": [
+    {
+      "unitid": 139010002,
+      "relation": "earlier",
+      "years": [
+        2015,
+        2016,
+        2017
+      ],
+      "name": "Bainbridge State College",
+      "campus": "Midtown Campus"
+    }
+  ],
   "institution": {
     "id": 138558,
     "byYear": {
       "2017": {
         "campuses": 5,
         "online": 3,
-        "rateRanked": true,
+        "rateRanked": false,
+        "rateExcludedReason": "DOE reported campus 138558004 of this institution also under ID 139010002 of another institution in 2017 (a merger or renumbering), so that year's incidents and enrollment may not cover the same campuses. No rate is shown for it.",
         "counts": {
           "criminal": 1,
           "all": 148,

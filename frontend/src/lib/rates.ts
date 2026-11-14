@@ -85,7 +85,8 @@ export interface InstitutionRate extends Omit<InstitutionYear, 'counts'> {
  * an offense name) in `year`: the count of all the institution's campuses
  * (institution.byYear counts, or `ownCount`, the school's own count, when
  * the file leaves them out because they are the same) per 10,000 of its
- * FTE. Null when the institution is not listed that year.
+ * FTE. Null when the institution is not listed that year; the rate is null
+ * in a year the pipeline leaves out (rateExcludedReason).
  */
 export function institutionRate(
   profile: Pick<SchoolProfile, 'fteByYear' | 'institution'> | null | undefined,
@@ -103,9 +104,11 @@ export function institutionRate(
     online: entry.online,
     onlineYear: entry.onlineYear,
     rateRanked: entry.rateRanked,
+    rateExcludedReason: entry.rateExcludedReason,
     count,
     fte: fteFor(profile, year),
-    rate: rateFor(profile, year, count),
+    // No rate for a year whose incidents and FTE may not cover the same campuses
+    rate: entry.rateExcludedReason ? null : rateFor(profile, year, count),
   }
 }
 
@@ -114,7 +117,10 @@ export function institutionRate(
  * null when it is listed (or `rules` are not loaded yet).
  */
 export function rateNote(inst: InstitutionRate | null, rules: RateRules | null | undefined): string | null {
-  if (!inst || inst.rateRanked || !rules) return null
+  if (!inst || inst.rateRanked) return null
+  // A reason the pipeline gives (such as a merger year) comes first
+  if (inst.rateExcludedReason) return inst.rateExcludedReason
+  if (!rules) return null
   if (inst.online !== null && inst.online >= rules.onlineExclusionPct) {
     const leftOut = 'so its rate is not comparable and it is left out of rate rankings.'
     // A pandemic year (rules.onlineShareYear) is judged by another fall's

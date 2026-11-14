@@ -23,6 +23,18 @@ export interface ChangeEntry {
 export const CHANGES: ChangeEntry[] = [
   {
     date: '2026-11-14',
+    kind: 'correction',
+    title: 'Campus names, renumbered campuses and mergers',
+    body: [
+      'Branch campuses are now titled with their own DOE campus name, with the institution under it (6,705 school pages). Search also finds campuses by city and by names DOE and IPEDS used for them before.',
+      'When DOE moved a campus to a new ID (a renumbering or a merger), its years were split across two pages. 313 such pairs, each reviewed, now link to each other; each page keeps the years DOE reported under its own ID.',
+      'Where both IDs reported the same full year from different DOE releases, those figures were counted twice in state and national totals. They now count once, under the newer ID: 86 campus-years, 661 incidents across 2015-2023. No campus\'s own figures changed.',
+      'In a year a campus was reported under two institutions, or a merged institution\'s enrollment covered campuses counted elsewhere, incidents and enrollment may not cover the same campuses. Those institution-years have no rate and are left out of rate rankings; 78 of them were in the rate rankings before (for example Vermont State 2022, the Connecticut State colleges 2022, and Penn State 2019 and 2021).',
+    ],
+    methodology: 'rates',
+  },
+  {
+    date: '2026-11-14',
     kind: 'site',
     title: 'Definitions, limitations, citation and downloads',
     body: [

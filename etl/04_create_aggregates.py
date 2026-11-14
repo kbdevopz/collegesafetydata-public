@@ -20,6 +20,7 @@ Usage:
     python 04_create_aggregates.py --ivy-only
 """
 
+from collections import defaultdict
 import os
 import sys
 import argparse
@@ -37,6 +38,8 @@ import provenance
 FACTS_PATH = CURATED_DIR / "facts" / "incidents.parquet"
 # The DOE release each campus-year was taken from (02_transform_to_parquet.py)
 SOURCES_PATH = CURATED_DIR / "dims" / "campus_year_sources.parquet"
+# The pairs of DOE IDs of one campus (03_build_dimensions.py, from etl/reference/campus_id_changes.csv)
+LINKS_PATH = CURATED_DIR / "dims" / "campus_id_links.parquet"
 # Every campus's counts in the older releases campus-years are taken from (02)
 OLDER_PATH = CURATED_DIR / "dims" / "older_release_counts.parquet"
 # Statistics reported identically by two or more campuses (find_shared_blocks)
@@ -57,7 +60,7 @@ SHARED_PATH = CURATED_DIR / "aggs" / "shared_blocks.parquet"
 # between campuses in the same state, and need at least SHARED_MIN_NONZERO
 # (config.py) cells that are not 0: fewer match by chance too often to call
 # a copy. find_shared_blocks lists the rules (SHARED_RULES).
-SHARED_RULES = ("same_block", "whole_year", "whole_year_older_release", "block_older_release")
+SHARED_RULES = ("same_block", "whole_year", "whole_year_older_release", "block_older_release", "renumbered")
 
 
 def find_stray_facts() -> list:
@@ -285,6 +288,84 @@ def load_campus_year_sources() -> pd.DataFrame:
     return pd.read_parquet(SOURCES_PATH)
 
 
+def load_id_links() -> list[tuple[int, int]]:
+    """The (old, new) UNITID pairs DOE used for one campus (03's campus_id_links, relation "later")."""
+    links = pd.read_parquet(LINKS_PATH)
+    later = links[links["relation"] == "later"]
+    return [(int(u), int(o)) for u, o in zip(later["unitid"].tolist(), later["other_unitid"].tolist())]
+
+
+def rate_exclusions(sources: pd.DataFrame) -> dict[tuple[int, int], str]:
+    """
+    {(year, base_unitid): reason} for the institution-years left out of rate
+    rankings because DOE reported one campus under this institution and under
+    another institution in that year (a "link" pair of different base
+    UNITIDs, both reporting the year: a merger or renumbering, where DOE's
+    newest release re-reports a predecessor's campus under the successor
+    while the predecessor's own rows remain). The incidents and the IPEDS
+    FTE of such a year may not cover the same campuses, so no rate is shown.
+    """
+    reported = defaultdict(set)
+    for u, y in zip(sources["unitid"].tolist(), sources["year"].tolist()):
+        reported[int(u)].add(int(y))
+    out: dict[tuple[int, int], str] = {}
+    for o, n in load_id_links():
+        if o // 1000 == n // 1000:
+            continue
+        for y in sorted(reported[o] & reported[n]):
+            for here, there in ((o, n), (n, o)):
+                key = (y, here // 1000)
+                text = (f"DOE reported campus {here} of this institution also under ID {there} of another "
+                        f"institution in {y} (a merger or renumbering), so that year's incidents and "
+                        "enrollment may not cover the same campuses. No rate is shown for it.")
+                out.setdefault(key, text)
+    return out
+
+
+def merger_families() -> dict[int, int]:
+    """
+    {base UNITID: family} for the institutions joined by "link" pairs of
+    different base UNITIDs (mergers and renumberings), family = the lowest
+    base UNITID of the connected group.
+    """
+    parent: dict[int, int] = {}
+
+    def root(b: int) -> int:
+        while parent.setdefault(b, b) != b:
+            b = parent[b]
+        return b
+
+    for o, n in load_id_links():
+        if o // 1000 != n // 1000:
+            a, b = root(o // 1000), root(n // 1000)
+            parent[max(a, b)] = min(a, b)
+    return {b: root(b) for b in list(parent)}
+
+
+def split_family_exclusions(inst_year: pd.DataFrame) -> dict[tuple[int, int], str]:
+    """
+    {(year, base_unitid): reason} for the other case where the incidents and
+    the FTE may not cover the same campuses: in a year when a merger family's
+    campuses count under two or more institutions and one of those has no
+    IPEDS FTE (IPEDS reports its students under another UNITID of the
+    family), every institution of the family is left out of rate rankings
+    that year.
+    """
+    family = merger_families()
+    rows = inst_year[inst_year["base_unitid"].isin(family)]
+    out: dict[tuple[int, int], str] = {}
+    for (fam, y), g in rows.groupby([rows["base_unitid"].map(family), "year"]):
+        if len(g) < 2 or not g["fte"].isna().any():
+            continue
+        without = ", ".join(str(int(b)) for b in sorted(g.loc[g["fte"].isna(), "base_unitid"]))
+        for b in g["base_unitid"]:
+            out[(int(y), int(b))] = (
+                f"In {int(y)} DOE reported campuses of this institution and of related institutions (a merger "
+                f"or renumbering) under separate IDs, while IPEDS has no enrollment for {without}, so that "
+                "year's incidents and enrollment may not cover the same campuses. No rate is shown for it.")
+    return out
+
+
 def load_older_release_counts() -> pd.DataFrame:
     if not OLDER_PATH.is_file():
         raise RuntimeError(f"{OLDER_PATH} not found. Run 02_transform_to_parquet.py first.")
@@ -312,7 +393,8 @@ def nonzero(cells: tuple) -> int:
 
 
 def find_shared_blocks(base: pd.DataFrame, dim_inst: pd.DataFrame, enrollment: pd.DataFrame,
-                       sources: pd.DataFrame, older: pd.DataFrame) -> pd.DataFrame:
+                       sources: pd.DataFrame, older: pd.DataFrame,
+                       links: list[tuple[int, int]] = ()) -> pd.DataFrame:
     """
     The blocks counted under another campus (shadows), and the campuses they
     are counted under (hosts). Copies are looked for only between campuses
@@ -335,6 +417,13 @@ def find_shared_blocks(base: pd.DataFrame, dim_inst: pd.DataFrame, enrollment: p
         year now come from a newer release. Every block of it is a shadow of
         that campus (the first by the order below if there are several).
       block_older_release: the same for one block of such a campus-year.
+      renumbered: one campus that DOE lists under two IDs (`links`: the
+        "link" pairs of etl/reference/campus_id_changes.csv, from 03's
+        campus_id_links), both reporting the same year with equal whole
+        figures (60 cells; any number of nonzero cells, at least one): the
+        campus-year taken from the older release is a shadow of the other.
+        The two IDs are never in the same release, so no rule above can
+        compare them.
 
     The first campus by this order is the host:
       1. its campus-year is taken from the newest DOE release that covers
@@ -460,6 +549,23 @@ def find_shared_blocks(base: pd.DataFrame, dim_inst: pd.DataFrame, enrollment: p
             if copied:
                 shadows[block] = (first(copied, y), "block_older_release")
 
+    # renumbered (the selected figures of the two IDs of one campus)
+    years_of = defaultdict(set)
+    for (y, u, _g) in selected:
+        years_of[u].add(y)
+    for o, n in sorted(links):
+        for y in sorted(years_of[o] & years_of[n]):
+            if not (ranked(o) and ranked(n)) or state[o] != state[n]:
+                continue
+            vector = whole(selected, y, o)
+            if vector != whole(selected, y, n) or nonzero(vector) < 1:
+                continue
+            ro, rn = int(release_of[(o, y)]), int(release_of[(n, y)])
+            if ro == rn:
+                continue
+            older_id, newer_id = (o, n) if ro < rn else (n, o)
+            shadow_campus_year(y, older_id, newer_id, "renumbered")
+
     # A host whose own block is a shadow passes its shadows on to its host
     def final_host(year: int, geo: str, host: int, unitid: int) -> int:
         seen = {unitid}
@@ -496,7 +602,8 @@ def find_shared_blocks(base: pd.DataFrame, dim_inst: pd.DataFrame, enrollment: p
 def create_shared_blocks(base: pd.DataFrame, dim_inst: pd.DataFrame, enrollment: pd.DataFrame) -> pd.DataFrame:
     """Find the shared blocks (find_shared_blocks), save them and print what they take out of the rankings."""
     print("\nFinding statistics reported identically by two or more campuses...")
-    shared = find_shared_blocks(base, dim_inst, enrollment, load_campus_year_sources(), load_older_release_counts())
+    shared = find_shared_blocks(base, dim_inst, enrollment, load_campus_year_sources(), load_older_release_counts(),
+                                load_id_links())
     shared.to_parquet(SHARED_PATH, index=False)
     shadows = shared[shared["role"] == "shadow"]
     print(f"  Hosts' groups: {shared['group'].nunique():,}; shadow blocks (counted once, under the host): "
@@ -1051,6 +1158,14 @@ def create_institution_tables(ranked_agg: pd.DataFrame, shared: pd.DataFrame, di
               f"no {src} share, own year's used: {int(own_used.sum()):,} ({int((own_used & big).sum()):,} with "
               f"{MIN_FTE_FOR_RATE:,}+ FTE); no share at all: {int((in_year & inst_year['online_pct'].isna()).sum()):,}")
     inst_year = inst_year.drop(columns=["online_src", "src_pct"])
+    # Left out of rate rankings: a campus reported under this and another institution (rate_exclusions)
+    excluded = rate_exclusions(sources)
+    for key, text in split_family_exclusions(inst_year).items():
+        excluded.setdefault(key, text)
+    inst_year["rate_excluded"] = [excluded.get((int(y), int(b))) for y, b in
+                                  zip(inst_year["year"].tolist(), inst_year["base_unitid"].tolist())]
+    print(f"  Left out of rate rankings (a campus reported under two institutions that year): "
+          f"{int(inst_year['rate_excluded'].notna().sum()):,} institution-years")
     inst_year = inst_year.astype({"year": "int16", "base_unitid": "int32", "link_unitid": "int32",
                                   "campuses": "int16", "fte": "Int32", "pctdeexc": "Int16",
                                   "online_pct": "Int16", "online_year": "Int16"})
@@ -1125,7 +1240,7 @@ def main():
     dims = CURATED_DIR / "dims"
     inputs_before = provenance.Snapshot(
         "04", [FACTS_PATH, dims / "dim_institution.parquet", dims / "dim_enrollment.parquet", SOURCES_PATH,
-               OLDER_PATH])
+               OLDER_PATH, LINKS_PATH])
 
     # The old build record no longer describes the files about to be written
     provenance.invalidate(provenance.AGGS_MANIFEST)

@@ -4,6 +4,7 @@
   "shortName": null,
   "city": "Waukesha",
   "state": "WI",
+  "campus": "University of Wisconsin-Waukesha",
   "ivyLeague": false,
   "isMainCampus": false,
   "campusType": "Branch Campus",
@@ -90,13 +91,27 @@
     2015,
     2016
   ],
+  "idChanges": [
+    {
+      "unitid": 240055014,
+      "relation": "earlier",
+      "years": [
+        2015,
+        2016,
+        2017
+      ],
+      "name": "University of Wisconsin Colleges",
+      "campus": "University of Wisconsin-Waukesha"
+    }
+  ],
   "institution": {
     "id": 240453,
     "byYear": {
       "2017": {
         "campuses": 5,
         "online": 7,
-        "rateRanked": true,
+        "rateRanked": false,
+        "rateExcludedReason": "DOE reported campus 240453004 of this institution also under ID 240055013 of another institution in 2017 (a merger or renumbering), so that year's incidents and enrollment may not cover the same campuses. No rate is shown for it.",
         "counts": {
           "criminal": 48,
           "all": 765,

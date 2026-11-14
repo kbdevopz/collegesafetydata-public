@@ -17,9 +17,14 @@ This script performs thorough validation of all schools:
 10. Institution Rates - Rates are per institution (all its campuses, its
    FTE), and rate rankings list exactly the institutions config.py allows
    (enough FTE, not mostly online)
+11. Campus Identity - etl/reference/campus_id_changes.csv lists exactly the
+   campus ID changes found again in the DOE names (with the same evidence),
+   every "link" pair meets the rules, both school files link to each other,
+   no figures move between the IDs, and every school file is in the search
+   index under its DOE campus name
 
 Each check's details say in "what_it_checks" exactly what it verifies. Checks
-1-8 and 10 compare the pipeline's own files with each other; check 9 re-reads
+1-8, 10 and 11 compare the pipeline's own files with each other; check 9 re-reads
 NCES's enrollment figures (the DRVEF CSVs and etl/reference). None re-reads
 the DOE downloads.
 
@@ -42,6 +47,7 @@ import os
 import sys
 import json
 import bisect
+import itertools
 import argparse
 import pandas as pd
 import duckdb
@@ -55,11 +61,13 @@ from config import (CURATED_DIR, QA_DIR, JSON_DIR, DATA_YEARS, PROJECT_ROOT, GEO
                     OFFENSE_ORDER, SHARED_MIN_NONZERO, US_STATES, IVY_LEAGUE, IVY_BASE_UNITIDS,
                     SUMMARY_FAMILIES, MIN_FTE_FOR_RATE, ONLINE_EXCLUSION_PCT, ONLINE_SHARE_YEAR)
 import provenance
+import campus_identity
 
 # Curated files the checks read (relative to data/curated)
 CURATED_READ = ("facts/incidents.parquet", "aggs/agg_school_year_offense.parquet", "dims/dim_enrollment.parquet",
                 "dims/dim_institution.parquet", "dims/campus_year_sources.parquet",
-                "dims/older_release_counts.parquet", "aggs/shared_blocks.parquet")
+                "dims/older_release_counts.parquet", "aggs/shared_blocks.parquet",
+                "dims/campus_names.parquet", "dims/campus_id_links.parquet")
 # FTE coverage: share of the schools with crime data in a year that have an FTE for that year
 FTE_COVERAGE_FAIL = 95.0  # below this in any year with enrollment, the check fails
 FTE_COVERAGE_WARN = 99.0  # below this, a warning (2015-2024 are 99.4-100% today)
@@ -899,6 +907,10 @@ def audit_shared_statistics(verbose: bool = False) -> AuditResult:
          taken from an older release whose whole figures (3) or one block (4)
          equal, in that release, those of a campus whose figures for the year
          now come from a newer release: a shadow of the first such campus.
+      5. renumbered: the two DOE IDs of one campus (the link rows of
+         etl/reference/campus_id_changes.csv) with equal whole figures in a
+         year both report (no nonzero minimum): the campus-year from the
+         older release is a shadow of the other.
     A host whose own block is a shadow passes its shadows to its host.
     aggs/shared_blocks.parquet must hold exactly those shadows with those
     hosts and rules, and a host row for each host block in the facts. Then:
@@ -929,7 +941,9 @@ def audit_shared_statistics(verbose: bool = False) -> AuditResult:
             "rules in order: equal blocks (same_block); equal whole campus-years, every block of the copy "
             "(whole_year); and, for a campus-year taken from an older release, whole figures or a block "
             "equal in that release to a campus whose figures now come from a newer release "
-            "(whole_year_older_release, block_older_release). Hosts are chosen by 04's order. "
+            "(whole_year_older_release, block_older_release); and the two DOE IDs of one campus (link rows of "
+            "etl/reference/campus_id_changes.csv) with equal whole figures in a year both report, any number of "
+            "nonzero cells: the older release's campus-year is a shadow (renumbered). Hosts are chosen by 04's order. "
             "aggs/shared_blocks.parquet must hold exactly those shadows, hosts and rules. Every "
             "rankings/*.json entry must count the school's facts without its shadow blocks (for \"criminal\" "
             "summed over the Criminal family, for \"all\" over every offense), the state and "
@@ -1058,6 +1072,25 @@ def audit_shared_statistics(verbose: bool = False) -> AuditResult:
                 copied = newer_block.get((r, y, g, state[u], v), set())
                 if copied:
                     expected[key] = (min(copied, key=lambda m: host_order(m, y)), "block_older_release")
+
+        # 5. renumbered: the two DOE IDs of one campus ("link" rows of
+        # etl/reference/campus_id_changes.csv) with equal whole figures in a
+        # year both report (at least one nonzero cell): the campus-year from
+        # the older release is a shadow of the other
+        id_links = campus_identity.read_id_changes()
+        id_links = id_links[id_links["decision"] == "link"]
+        years_with_cells = {}
+        for (y, _g, u) in cells:
+            years_with_cells.setdefault(u, set()).add(y)
+        for o, n in zip(id_links["old_unitid"].astype(int), id_links["new_unitid"].astype(int)):
+            for y in sorted(years_with_cells.get(o, set()) & years_with_cells.get(n, set())):
+                v = full_year(cells, y, o)
+                if (not (in_ranked_state(o) and in_ranked_state(n)) or state[o] != state[n]
+                        or v != full_year(cells, y, n) or not any(v)):
+                    continue
+                ro, rn = int(release[(o, y)]), int(release[(n, y)])
+                if ro != rn:
+                    shadow_all(y, o if ro < rn else n, n if ro < rn else o, "renumbered")
 
         # Hosts passed on, and the host rows
         want_shadow = {}
@@ -1254,6 +1287,194 @@ def audit_shared_statistics(verbose: bool = False) -> AuditResult:
         result.failed(str(e))
         print(f"  ERROR: {e}")
 
+    return result
+
+
+def audit_campus_identity(verbose: bool = False) -> AuditResult:
+    """
+    CHECK 11: Campus names, search and the campuses DOE renumbered.
+
+    The ID-change candidates are found again from the curated DOE names
+    (campus_identity.candidates_from_curated) and must be exactly the rows
+    of etl/reference/campus_id_changes.csv, with the same evidence. Every
+    row is reviewed (link or reject). A link pair's IDs never appear in the
+    same DOE release, one follows the other, and they share an address or a
+    campus name. Each linked school file names the other ID with that ID's
+    reported years (and no other school file has idChanges); each keeps only
+    its own years (no figures move). Every school file is in the search
+    index, with the campus name of dim_institution for a campus that is not
+    a main campus.
+    """
+    print("\n" + "=" * 60)
+    print("CHECK 11: Campus Identity")
+    print("=" * 60)
+    result = AuditResult("Campus Identity")
+    result.details["what_it_checks"] = (
+        "etl/reference/campus_id_changes.csv equals the campus ID-change candidates found again in "
+        "data/curated/dims/campus_names.parquet (every DOE release's INSTNM, BRANCH, address and city per "
+        "UNITID_P), campus_year_sources and the facts, evidence included; every row is reviewed (link or "
+        "reject); each link pair is never listed in the same release, one ID is listed in the release after "
+        "the other's, and they share an address or a campus name; both school files link to each other with "
+        "the other ID's reported years and keep only their own years (no figures moved, no rankings changed); "
+        "no other school file has idChanges; every school file is in school-index.json, titled by its DOE "
+        "campus name (dim_institution campus_name) when it is not a main campus.")
+    try:
+        reviewed = campus_identity.read_id_changes()
+    except (OSError, ValueError) as e:
+        result.failed(f"Cannot read {campus_identity.ID_CHANGES_PATH.name}: {e}")
+        return result
+    found = campus_identity.candidates_from_curated(CURATED_DIR, DATA_YEARS, GEO_FOR_ALL)
+    diff = campus_identity.compare_with_review(found, campus_identity.evidence_text(reviewed))
+    for kind, pairs in diff.items():
+        if pairs:
+            result.failed(f"{len(pairs)} candidate pairs are {kind} compared with the CSV (first {pairs[:3]}); "
+                          "run campus_identity.py and review them")
+    unreviewed = reviewed[~reviewed["decision"].isin(["link", "reject"]) | reviewed["reason"].str.startswith("proposed:")]
+    if len(unreviewed):
+        result.failed(f"{len(unreviewed)} rows are not reviewed")
+    links = reviewed[reviewed["decision"] == "link"]
+    for r in links.to_dict("records"):
+        pair = f"{r['old_unitid']}-{r['new_unitid']}"
+        if set(r["old_releases"].split()) & set(r["new_releases"].split()):
+            result.failed(f"{pair}: both IDs are listed in one release")
+        if not r["transitions"]:
+            result.failed(f"{pair}: neither ID is listed in the release after the other's")
+        if r["address_match"] != "yes" and r["campus_name_match"] != "yes":
+            result.failed(f"{pair}: linked without the same address or campus name")
+    for col, rel in (("old_unitid", "later"), ("new_unitid", "earlier")):
+        twice = links[col].value_counts()
+        if (twice > 1).any():
+            result.failed(f"{int((twice > 1).sum())} IDs have more than one {rel} link (first {twice[twice > 1].index[0]})")
+
+    reported = {u: sorted(ys) for u, ys in reported_years().items()}
+    expected = {}
+    for r in links.to_dict("records"):
+        o, n = int(r["old_unitid"]), int(r["new_unitid"])
+        expected.setdefault(o, {})[n] = ("later", reported.get(n, []))
+        expected.setdefault(n, {})[o] = ("earlier", reported.get(o, []))
+    dim = read_curated("dims/dim_institution.parquet", "03_build_dimensions.py",
+                       ["unitid", "is_main_campus", "campus_name"])
+    campus = {int(u): (None if m else (c if isinstance(c, str) else None))
+              for u, m, c in zip(dim["unitid"], dim["is_main_campus"], dim["campus_name"])}
+    index_path = JSON_DIR / "school-index.json"
+    index = {int(s["unitid"]): s for s in json.loads(index_path.read_text(encoding="utf-8"))["schools"]}
+    files = sorted((JSON_DIR / "schools").glob("*.json"))
+    linked_pages = titled = missing_from_index = 0
+    for path in files:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        u = int(data["unitid"])
+        got = {int(c["unitid"]): (c["relation"], c["years"]) for c in data.get("idChanges", [])}
+        want = expected.get(u, {})
+        if got != want:
+            result.failed(f"{path.name}: idChanges {got} differ from the CSV links {want}")
+        if got:
+            linked_pages += 1
+        own = [int(y["year"]) for y in data["yearlyTotals"]]
+        if own != reported.get(u, []):
+            result.failed(f"{path.name}: its years {own} are not the years DOE reported under {u}")
+        if data.get("campus") != campus.get(u):
+            result.failed(f"{path.name}: campus {data.get('campus')!r}, dim_institution has {campus.get(u)!r}")
+        titled += data.get("campus") is not None
+        entry = index.get(u)
+        if entry is None:
+            missing_from_index += 1
+            result.failed(f"{path.name} is not in school-index.json")
+        elif entry.get("campus") != data.get("campus") or sorted(entry.get("idChanges", [])) != sorted(got):
+            result.failed(f"school-index.json entry {u} has another campus name or idChanges than {path.name}")
+    if len(index) != len(files):
+        result.failed(f"school-index.json lists {len(index)} schools, the site has {len(files)} school files")
+
+    # Not changed by the links: years both IDs report, when neither is a shadow of the other
+    shared = read_curated("aggs/shared_blocks.parquet", "04_create_aggregates.py", ["unitid", "year", "role"])
+    shadow = set(zip(shared.loc[shared["role"] == "shadow", "unitid"].astype(int),
+                     shared.loc[shared["role"] == "shadow", "year"].astype(int)))
+    both_counted = []
+    for r in links.to_dict("records"):
+        for part in r["overlap_totals"].split():
+            y, counts = part.split(":")
+            a, b = (int(x) for x in counts.split("/"))
+            o, n = int(r["old_unitid"]), int(r["new_unitid"])
+            if a and b and (o, int(y)) not in shadow and (n, int(y)) not in shadow:
+                both_counted.append(f"{o}/{n} {y} ({a}/{b})")
+    # (a) Mergers: link pairs whose IDs belong to different institutions (base
+    # UNITIDs). Each year both report must be out of rate rankings (check 10
+    # holds the school files to it); a year both count with differing figures
+    # is listed, since its incidents are in two institutions' totals.
+    cross = links[links["old_unitid"].astype(int) // 1000 != links["new_unitid"].astype(int) // 1000]
+    excluded_years = set()
+    for r in cross.to_dict("records"):
+        o, n = int(r["old_unitid"]), int(r["new_unitid"])
+        for y in set(reported.get(o, [])) & set(reported.get(n, [])):
+            excluded_years |= {(y, o // 1000), (y, n // 1000)}
+    cross_keys = {(int(o), int(n)) for o, n in zip(cross["old_unitid"], cross["new_unitid"])}
+    both_counted_cross = [s for s in both_counted if tuple(int(x) for x in s.split()[0].split("/")) in cross_keys]
+
+    # (b) Identical whole-year figures (every geography) of two campuses in
+    # one city, from different releases, neither a shadow: those a link
+    # explains are counted once (rule "renumbered"); the rest are listed only.
+    facts = pd.read_parquet(get_facts_path(), columns=["year", "unitid", "offense", "geo", "count"])
+    facts = facts[facts["count"] > 0]
+    vec = (facts.sort_values(["offense", "geo"])
+           .assign(cell=lambda f: f["offense"] + "|" + f["geo"] + "|" + f["count"].astype(str))
+           .groupby(["unitid", "year"])["cell"].agg(";".join))
+    src = read_curated("dims/campus_year_sources.parquet", "02_transform_to_parquet.py", ["unitid", "year", "release"])
+    release = {(int(u), int(y)): r for u, y, r in zip(src["unitid"], src["year"], src["release"])}
+    place = read_curated("dims/dim_institution.parquet", "03_build_dimensions.py", ["unitid", "state", "city"])
+    city = {int(u): (s, str(c).strip().lower()) for u, s, c in zip(place["unitid"], place["state"], place["city"])}
+    linked_any = {frozenset((int(o), int(n))) for o, n in zip(links["old_unitid"], links["new_unitid"])}
+    groups = {}
+    for (u, y), v in vec.items():
+        u, y = int(u), int(y)
+        if (u, y) in shadow or u not in city:
+            continue
+        groups.setdefault((y, city[u], v), []).append(u)
+    unlinked_groups = unlinked_incidents = 0
+    unlinked_examples = []
+    for (y, _c, v), us in groups.items():
+        if len(us) < 2 or len({release.get((u, y)) for u in us}) < 2:
+            continue
+        if any(frozenset(p) in linked_any for p in itertools.combinations(us, 2)):
+            result.failed(f"{y}: linked campuses {us} have identical figures but are both counted")
+            continue
+        unlinked_groups += 1
+        dup = sum(int(c.rsplit("|", 1)[1]) for c in v.split(";")) * (len(us) - 1)
+        unlinked_incidents += dup
+        if len(unlinked_examples) < 20:
+            unlinked_examples.append(f"{y} {'/'.join(map(str, sorted(us)))} ({dup})")
+
+    result.details.update({
+        "merger_link_pairs": len(cross),
+        "merger_institution_years_both_ids_report": len(excluded_years),
+        "merger_years_counted_under_both_institutions": len(both_counted_cross),
+        "merger_years_counted_under_both_institutions_list": "; ".join(both_counted_cross),
+        "identical_city_year_groups_without_link": unlinked_groups,
+        "identical_city_year_incidents_without_link": unlinked_incidents,
+        "identical_city_year_groups_without_link_note": (
+            "Campus-years of one city with identical figures in every geography, from different DOE releases, "
+            "where no reviewed link ties the IDs: left counted under each ID (no evidence they are one campus). "
+            "First 20: " + "; ".join(unlinked_examples)),
+    })
+    print(f"  Links between different base UNITIDs (mergers, renumberings): {len(cross)}; institution-years where both IDs report (no rate, check 10): {len(excluded_years)}; "
+          f"merger years still counted under both: {len(both_counted_cross)}")
+    print(f"  Identical same-city figures without a link (left alone): {unlinked_groups} groups, "
+          f"{unlinked_incidents:,} incidents")
+    result.details.update({
+        "candidate_pairs": len(reviewed),
+        "linked_pairs": len(links),
+        "rejected_pairs": int((reviewed["decision"] == "reject").sum()),
+        "merged_pairs": 0,
+        "school_files_with_id_links": linked_pages,
+        "school_files_titled_by_campus_name": titled,
+        "school_files_missing_from_search_index": missing_from_index,
+        "linked_years_counted_under_both_ids": len(both_counted),
+        "linked_years_counted_under_both_ids_note": (
+            "Years both IDs of a linked pair report with incidents, where neither is counted under the other "
+            "(shared_blocks): the links do not change how they count. First 20: " + "; ".join(both_counted[:20])),
+    })
+    print(f"  Candidate pairs: {len(reviewed)} ({len(links)} linked, {len(reviewed) - len(links)} rejected); "
+          f"school files with ID links: {linked_pages}; titled by campus name: {titled:,}")
+    print(f"  Linked years counted under both IDs (unchanged by this check): {len(both_counted)}")
+    result.passed()
     return result
 
 
@@ -1493,6 +1714,20 @@ def expected_institutions() -> tuple[dict, dict]:
            for u, y, f, p in zip(enrollment["unitid"].tolist(), enrollment["year"].tolist(),
                                  enrollment["fte"].tolist(), enrollment["pctdeexc"].tolist())}
 
+    # Institution-years left out of rate rankings: a campus DOE reported under
+    # this and another institution that year (the link rows of
+    # etl/reference/campus_id_changes.csv whose IDs have different base UNITIDs)
+    reported_by = {}
+    for u, y in zip(sources["unitid"].tolist(), sources["year"].tolist()):
+        reported_by.setdefault(int(u), set()).add(int(y))
+    id_links = campus_identity.read_id_changes()
+    id_links = id_links[id_links["decision"] == "link"]
+    rate_excluded = set()
+    for o, n in zip(id_links["old_unitid"].astype(int), id_links["new_unitid"].astype(int)):
+        if o // 1000 != n // 1000:
+            for y in reported_by.get(o, set()) & reported_by.get(n, set()):
+                rate_excluded |= {(y, o // 1000), (y, n // 1000)}
+
     by_inst = {}
     for u, y in counting:
         by_inst.setdefault((y, u // 1000), []).append(u)
@@ -1514,7 +1749,24 @@ def expected_institutions() -> tuple[dict, dict]:
         s = state.get(link)
         institutions[(y, b)] = {"name": name[link], "link": link, "state": None if pd.isna(s) else s,
                                 "campuses": len(campuses), "fte": f, "online": online,
-                                "online_year": online_year}
+                                "online_year": online_year, "rate_excluded": (y, b) in rate_excluded}
+    # And every institution of a merger family (bases joined by those links)
+    # in a year its campuses count under two or more institutions and one of
+    # them has no IPEDS FTE
+    family_of = {}
+    for o, n in zip(id_links["old_unitid"].astype(int), id_links["new_unitid"].astype(int)):
+        if o // 1000 != n // 1000:
+            merged = family_of.get(o // 1000, {o // 1000}) | family_of.get(n // 1000, {n // 1000})
+            for b in merged:
+                family_of[b] = merged
+    family_years = {}
+    for (y, b), rec in institutions.items():
+        if b in family_of:
+            family_years.setdefault((y, min(family_of[b])), []).append(b)
+    for (y, _f), bases in family_years.items():
+        if len(bases) >= 2 and any(institutions[(y, b)]["fte"] is None for b in bases):
+            for b in bases:
+                institutions[(y, b)]["rate_excluded"] = True
     campus_years = {}
     for u, y in counting:
         if u not in name:
@@ -1527,7 +1779,8 @@ def expected_institutions() -> tuple[dict, dict]:
 def rate_ranked(rec: dict) -> bool:
     """Whether an institution-year is in rate rankings (config.py)."""
     return (rec["fte"] is not None and rec["fte"] >= MIN_FTE_FOR_RATE
-            and (rec["online"] is None or rec["online"] < ONLINE_EXCLUSION_PCT))
+            and (rec["online"] is None or rec["online"] < ONLINE_EXCLUSION_PCT)
+            and not rec.get("rate_excluded"))
 
 
 def audit_institution_rates(verbose: bool = False) -> AuditResult:
@@ -1683,6 +1936,11 @@ def audit_institution_rates(verbose: bool = False) -> AuditResult:
                 continue
             for y, w in want.items():
                 g = dict(got[y])
+                if ("rateExcludedReason" in g) != institutions[(int(y), b)]["rate_excluded"]:
+                    problem(f"schools/{unitid}.json: institution {y} rateExcludedReason "
+                            f"{'present' if 'rateExcludedReason' in g else 'missing'}, expected the opposite")
+                    break
+                g.pop("rateExcludedReason", None)
                 if "counts" not in g:
                     g["counts"] = {k: v for k, v in own.get(int(y), {}).items() if v > 0}
                 if g != w:
@@ -1867,6 +2125,7 @@ def main():
         audit_shared_statistics,
         audit_enrollment_sources,
         audit_institution_rates,
+        audit_campus_identity,
     ]
 
     for check_fn in checks:

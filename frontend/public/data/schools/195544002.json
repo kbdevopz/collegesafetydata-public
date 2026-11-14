@@ -4,6 +4,7 @@
   "shortName": null,
   "city": "Patchogue",
   "state": "NY",
+  "campus": "Long Island Campus Suffolk",
   "ivyLeague": false,
   "isMainCampus": false,
   "campusType": "Branch Campus",
@@ -58,6 +59,28 @@
     2023,
     2024
   ],
+  "idChanges": [
+    {
+      "unitid": 195562002,
+      "relation": "later",
+      "years": [
+        2016,
+        2017,
+        2018,
+        2019
+      ],
+      "name": "St. Joseph's College-Long Island",
+      "campus": "Long Island Campus Suffolk"
+    }
+  ],
+  "sharedFigures": [
+    {
+      "year": 2016,
+      "geo": "Public property",
+      "hostUnitid": 195562002,
+      "hostName": "St. Joseph's College-Long Island"
+    }
+  ],
   "institution": {
     "id": 195544,
     "byYear": {
@@ -75,13 +98,14 @@
         }
       },
       "2016": {
-        "campuses": 2,
+        "campuses": 1,
         "online": 8,
-        "rateRanked": true,
+        "rateRanked": false,
+        "rateExcludedReason": "DOE reported campus 195544002 of this institution also under ID 195562002 of another institution in 2016 (a merger or renumbering), so that year's incidents and enrollment may not cover the same campuses. No rate is shown for it.",
         "counts": {
           "criminal": 1,
-          "all": 8,
-          "drug_arrest": 4,
+          "all": 6,
+          "drug_arrest": 2,
           "liquor_discipline": 1,
           "motor_vehicle_theft": 1,
           "weapons_arrest": 2

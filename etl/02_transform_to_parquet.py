@@ -34,7 +34,12 @@ older release that some campus-year of that year is taken from, every
 campus's nonzero counts in that release (On-campus, Non-campus and Public
 property), so 04_create_aggregates.py can tell whether a campus-year taken
 from an older release copied another campus there (release, year, unitid,
-offense, geo, count).
+offense, geo, count); and data/curated/dims/campus_names.parquet: every
+distinct spelling of each campus's DOE identity columns (INSTNM, BRANCH,
+Address, City, State, ZIP, OPEID) in each release read (unitid, release,
+instnm, branch, address, city, state, zip, opeid, files: how many of the
+release's files spell it that way), which 03_build_dimensions.py uses for
+campus names, search aliases and campuses DOE renumbered.
 
 Usage:
     python 02_transform_to_parquet.py
@@ -333,6 +338,24 @@ READ_BEFORE: dict = {}  # CRC-32 and size of each used file, taken before readin
 CAMPUS_YEAR_SOURCES: List[pd.DataFrame] = []  # one table: unitid, year, release, restored
 DEFECTS_APPLIED: List[dict] = []  # how many campus-years each KNOWN_DEFECTS rule applied to
 OLDER_RELEASE_COUNTS: List[pd.DataFrame] = []  # one table: see older_release_counts.parquet above
+CAMPUS_NAMES: List[pd.DataFrame] = []  # one table: see campus_names.parquet above
+
+# The identity columns of a DOE file (any letter case), as campus_names.parquet names them
+IDENTITY_COLUMNS = {"UNITID_P": "unitid", "INSTNM": "instnm", "BRANCH": "branch", "ADDRESS": "address",
+                    "CITY": "city", "STATE": "state", "ZIP": "zip", "OPEID": "opeid"}
+
+
+def identity_rows(df: pd.DataFrame, ids: pd.Series, suffix: str) -> pd.DataFrame:
+    """Each campus's identity columns in one file, as text (blank when the file has no such column)."""
+    upper = {c.upper(): c for c in df.columns}
+    out = pd.DataFrame({"unitid": ids.astype("int64").to_numpy(), "release": suffix})
+    for col, name in IDENTITY_COLUMNS.items():
+        if col == "UNITID_P":
+            continue
+        values = df[upper[col]] if col in upper else pd.Series([""] * len(df), index=df.index)
+        out[name] = values.map(lambda v: "" if v is None or (isinstance(v, float) and np.isnan(v))
+                               else str(v).strip()).to_numpy()
+    return out
 
 
 def parse_filename(filename: str) -> Optional[Tuple[str, str, List[int]]]:
@@ -717,6 +740,7 @@ def process_all_files(
 
     all_records = []
     all_institutions = []
+    all_identity = []
 
     files_to_process, year_sources = select_files(target_years)
     print(f"Releases that cover each year, newest first: {year_sources}")
@@ -801,6 +825,9 @@ def process_all_files(
             inst_cols = [c for c in ["UNITID_P", "INSTNM", "City", "State", "ZIP"] if c in df.columns]
             if inst_cols:
                 all_institutions.append(df[inst_cols].drop_duplicates())
+            # Every release's names and addresses of each campus, for 03's
+            # campus names, search aliases and ID changes
+            all_identity.append(identity_rows(df, ids, suffix))
 
             # Offense counts of the campus-years taken from this release,
             # except the cells KNOWN_DEFECTS names for this file and year
@@ -886,6 +913,15 @@ def process_all_files(
                            "nothing was written.")
     OLDER_RELEASE_COUNTS[:] = [older]
 
+    # Each distinct identity of each campus in each release, with the number
+    # of the release's files that spell it that way
+    identity = pd.concat(all_identity, ignore_index=True)
+    names_cols = ["unitid", "release"] + [n for c, n in IDENTITY_COLUMNS.items() if c != "UNITID_P"]
+    identity = (identity.groupby(names_cols, as_index=False).size().rename(columns={"size": "files"})
+                .sort_values(names_cols).reset_index(drop=True))
+    identity["files"] = identity["files"].astype("int16")
+    CAMPUS_NAMES[:] = [identity]
+
     # Create institutions DataFrame - keep first occurrence per school
     # (newest release first, so current names/addresses win)
     if all_institutions:
@@ -905,10 +941,12 @@ def process_all_files(
 SOURCES_PATH = CURATED_DIR / "dims" / "campus_year_sources.parquet"
 # Every campus's counts in the older releases campus-years are taken from (see the module docstring)
 OLDER_PATH = CURATED_DIR / "dims" / "older_release_counts.parquet"
+# Every release's names and addresses of each campus (see the module docstring)
+NAMES_PATH = CURATED_DIR / "dims" / "campus_names.parquet"
 
 
 def save_parquet(facts: pd.DataFrame, institutions: pd.DataFrame, sources: pd.DataFrame,
-                 older: pd.DataFrame) -> None:
+                 older: pd.DataFrame, names: pd.DataFrame) -> None:
     """Save DataFrames to Parquet files."""
     facts_dir = CURATED_DIR / "facts"
     facts_dir.mkdir(parents=True, exist_ok=True)
@@ -931,6 +969,8 @@ def save_parquet(facts: pd.DataFrame, institutions: pd.DataFrame, sources: pd.Da
     print(f"Campus-year sources saved to: {SOURCES_PATH}")
     older.to_parquet(OLDER_PATH, index=False)
     print(f"Older release counts ({len(older):,} rows) saved to: {OLDER_PATH}")
+    names.to_parquet(NAMES_PATH, index=False)
+    print(f"Campus names by release ({len(names):,} rows) saved to: {NAMES_PATH}")
 
 
 def sources_by_year(sources: pd.DataFrame) -> dict:
@@ -1034,7 +1074,7 @@ def main():
 
     # Save to parquet
     sources = CAMPUS_YEAR_SOURCES[0]
-    save_parquet(facts, institutions, sources, OLDER_RELEASE_COUNTS[0])
+    save_parquet(facts, institutions, sources, OLDER_RELEASE_COUNTS[0], CAMPUS_NAMES[0])
 
     # Record which releases and which SAS files each year came from, how many
     # campus-years each release supplied, the known defects applied, and the
@@ -1042,7 +1082,7 @@ def main():
     written = [CURATED_DIR / "facts" / "incidents.parquet"]
     if not institutions.empty:
         written.append(CURATED_DIR / "dims" / "raw_institutions.parquet")
-    written += [SOURCES_PATH, OLDER_PATH]
+    written += [SOURCES_PATH, OLDER_PATH, NAMES_PATH]
     provenance.write_crime_manifest(YEAR_SOURCES, USED_FILES, all_schools=not ivy_only,
                                     read_before=READ_BEFORE, outputs=written,
                                     campus_years=sources_by_year(sources), defects=DEFECTS_APPLIED)

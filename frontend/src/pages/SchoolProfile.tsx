@@ -28,6 +28,8 @@ import {
   getTopOffenses,
   calculateYoYChange,
   isSmallSample,
+  displayName,
+  compactYears,
 } from '../lib/utils'
 import { fteFor, latestFte, institutionRate, rateNote, campusesPhrase } from '../lib/rates'
 import { ALL, CRIMINAL, SUMMARY_LABELS, inSelection, isSummary, selectionLabel } from '../lib/selection'
@@ -315,13 +317,16 @@ export default function SchoolProfile() {
         {/* School Header */}
         <div className="mb-4">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-            {profile.name}
-            {profile.campusType && profile.isMainCampus === false && (
+            {displayName(profile)}
+            {!profile.campus && profile.campusType && profile.isMainCampus === false && (
               <span className="ml-3 text-lg font-normal text-gray-500 dark:text-gray-400">
                 (Branch Campus)
               </span>
             )}
           </h1>
+          {profile.campus && (
+            <p className="text-base text-gray-600 dark:text-gray-400 mb-2">Campus of {profile.name}</p>
+          )}
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-gray-600 dark:text-gray-400">
             <span className="flex items-center gap-1.5">
               <MapPin className="w-4 h-4" />
@@ -342,6 +347,30 @@ export default function SchoolProfile() {
               <span className="badge badge-success">Ivy League</span>
             )}
           </div>
+          {profile.idChanges && profile.idChanges.length > 0 && (
+            <div className="mt-4 rounded-lg border-2 border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20 px-4 py-3 text-sm text-gray-800 dark:text-gray-200">
+              <p className="font-semibold mb-1 flex items-center gap-1.5">
+                <Info className="w-4 h-4 flex-shrink-0" />
+                This campus has more than one DOE ID
+              </p>
+              <ul className="space-y-1">
+                {profile.idChanges.map((link) => (
+                  <li key={link.unitid}>
+                    DOE reported this campus under ID {link.unitid} in {compactYears(link.years)}. Those years are on
+                    a separate page:{' '}
+                    <Link
+                      to={`/school/${link.unitid}`}
+                      className="font-medium text-primary-700 hover:text-primary-800 dark:text-primary-400 dark:hover:text-primary-300 underline"
+                    >
+                      {displayName(link)}
+                    </Link>
+                    .
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-1">This page shows only the years DOE reported under ID {profile.unitid}.</p>
+            </div>
+          )}
         </div>
       </div>
 
@@ -927,7 +956,7 @@ export default function SchoolProfile() {
           </div>
         </div>
 
-        <CiteThisData school={{ unitid: profile.unitid, name: profile.name }} className="mt-6" />
+        <CiteThisData school={{ unitid: profile.unitid, name: profile.campus ? `${profile.campus} (${profile.name})` : profile.name }} className="mt-6" />
       </div>
     </div>
   )
