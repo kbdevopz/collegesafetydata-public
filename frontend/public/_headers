@@ -1,0 +1,31 @@
+# Response headers for Cloudflare Pages (collegesafetydata.org).
+# vercel.json sets the same headers for Vercel (collegesafetydata.com);
+# scripts/check-headers.mjs fails the build if the two differ.
+#
+# Content-Security-Policy origins:
+#   fonts.googleapis.com / fonts.gstatic.com  Google Fonts (Inter) stylesheet and font files
+#   static.cloudflareinsights.com             Cloudflare Web Analytics beacon script (.org)
+#   cloudflareinsights.com                    Cloudflare Web Analytics beacon reports (.org)
+# Everything else (scripts, styles, data JSON, favicon) is served from this site.
+
+/*
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://static.cloudflareinsights.com; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://cloudflareinsights.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: accelerometer=(), autoplay=(), browsing-topics=(), camera=(), display-capture=(), encrypted-media=(), fullscreen=(), geolocation=(), gyroscope=(), hid=(), magnetometer=(), microphone=(), midi=(), payment=(), picture-in-picture=(), publickey-credentials-get=(), screen-wake-lock=(), serial=(), usb=(), xr-spatial-tracking=()
+  Cross-Origin-Opener-Policy: same-origin
+
+# Vite puts a content hash in every file name under /assets, so a changed file
+# always has a new URL and these can be cached for a year.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Site data: browsers must revalidate on every use, so a data release shows
+# as soon as it is deployed.
+/data/*
+  Cache-Control: public, max-age=0, must-revalidate
+
+/audit.json
+  Cache-Control: public, max-age=0, must-revalidate
