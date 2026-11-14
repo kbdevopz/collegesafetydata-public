@@ -100,6 +100,22 @@ export default defineConfig(({ mode }) => {
     build: {
       outDir: 'dist',
       sourcemap: false,
+      rollupOptions: {
+        output: {
+          // Charts are used only by the school and compare pages; icons by
+          // every page, in one file rather than one small file per icon.
+          // (Not for the build-time SSR bundle, whose dependencies are external.)
+          manualChunks(id: string) {
+            if (!id.includes('node_modules')) return undefined
+            if (/[\\/]node_modules[\\/](recharts|recharts-scale|victory-vendor|d3-[^\\/]+|internmap|decimal\.js-light|eventemitter3|lodash|react-smooth|fast-equals|tiny-invariant)[\\/]/.test(id)) return 'charts'
+            if (/[\\/]node_modules[\\/]lucide-react[\\/]/.test(id)) return 'icons'
+            // Every other package in one file: without a chunk of their own, Rollup
+            // would put the ones recharts shares with the app (React, clsx) into
+            // the charts file and every page would load it.
+            return 'vendor'
+          },
+        },
+      },
     },
     server: {
       port: 5173,
