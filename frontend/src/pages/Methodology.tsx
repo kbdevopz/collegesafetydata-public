@@ -488,7 +488,10 @@ export default function Methodology() {
                 <SourceLink source={SOURCES.clercCenter}>Laurent Clerc National Deaf Education Center</SourceLink>; 10
                 institution-years). In 2024 the median rate of all criminal offenses per 10,000 on-campus FTE was
                 80.2 at research universities with very high research activity (Carnegie R1) with a hospital and
-                34.6 at those without one. Sources:{' '}
+                34.6 at those without one. Limitation: IPEDS reports HOSPITAL = 1 only when the institution itself
+                runs the hospital. A university whose medical center is a separate legal entity (for example Johns
+                Hopkins University) is not caught by this rule and stays ranked, so its rate may also include
+                incidents involving hospital patients, visitors and staff. Sources:{' '}
                 <SourceLink source={SOURCES.ipedsHdDictionary}>IPEDS HD data dictionary</SourceLink>,{' '}
                 <SourceLink source={SOURCES.carnegie2021}>Carnegie Classification, 2021 Basic Classification</SourceLink>.
               </li>

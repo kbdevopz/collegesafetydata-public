@@ -225,7 +225,10 @@ counts and the note (`rateExcludedReason`). Numbers are for 2015-2024
    campuses hold many people who are not in FTE (patients, visitors,
    clinical and research staff, pupils). In 2024 the median criminal-offense
    rate per 10,000 on-campus FTE of Carnegie R1 universities was 80.2 with a
-   hospital and 34.6 without.
+   hospital and 34.6 without. Limitation: HOSPITAL = 1 only when the
+   institution itself runs the hospital; a university whose medical center is
+   a separate legal entity (for example Johns Hopkins University) is not caught
+   and stays ranked.
 4. **Minimum count** (`MIN_COUNT_FOR_RATE_RANK` = 20). Only a rate on at
    least 20 incidents is ranked. A Poisson count n has a relative standard
    error of 1/sqrt(n): 22.4% at 20, 31.6% at 10; CDC WONDER flags death
