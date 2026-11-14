@@ -141,8 +141,18 @@ export interface RateInstitution {
   name: string
   unitid: number
   state: string | null
+  // The rate's denominator: its FTE, plus that of `pooled`
   fte: number
   campuses: number
+  // Institutions whose FTE the rate adds (their campus figures count here)
+  pooled?: PooledInstitution[]
+}
+
+// An institution whose FTE another's rate adds: `id` its base UNITID
+export interface PooledInstitution {
+  id: number
+  name: string | null
+  fte: number
 }
 
 // One institution of a rate ranking: `id` is its base UNITID (a key of
@@ -234,6 +244,11 @@ export interface InstitutionYear {
   rateRanked: boolean
   // Why the rate is left out that year, when the pipeline says so
   rateExcludedReason?: string
+  // When the rate also counts other institutions' FTE (DOE reported their
+  // campus figures under this institution that year: a merger or
+  // renumbering): the rate's denominator and those institutions
+  rateFte?: number
+  pooledWith?: PooledInstitution[]
   // Counts of all its campuses per code (shadow blocks left out); absent
   // when equal to the school's own counts that year
   counts?: Record<string, number>

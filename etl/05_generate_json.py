@@ -523,18 +523,41 @@ class Institutions:
         self._count_of = {code: {(int(y), int(b)): int(c) for y, b, c in
                                  zip(df["year"].tolist(), df["base_unitid"].tolist(), df["count"].tolist())}
                           for code, df in self.counts.items()}
+        # The name of an institution whose FTE another's rate adds (04's
+        # pooled_with): its 001 campus's, else its lowest campus's
+        dim_inst = pd.read_parquet(CURATED_DIR / "dims" / "dim_institution.parquet",
+                                   columns=["unitid", "institution_name"])
+        self._base_name = {}
+        for u, name in sorted(zip(dim_inst["unitid"].astype(int).tolist(), dim_inst["institution_name"].tolist())):
+            if u % 1000 == 1 or u // 1000 not in self._base_name:
+                self._base_name[u // 1000] = name
+        enrollment = pd.read_parquet(CURATED_DIR / "dims" / "dim_enrollment.parquet", columns=["unitid", "year", "fte"])
+        self._fte_of = {(int(u), int(y)): int(f) for u, y, f in
+                        zip(enrollment["unitid"].tolist(), enrollment["year"].tolist(), enrollment["fte"].tolist())
+                        if pd.notna(f)}
 
     @staticmethod
     def rate_ranked(rec: dict) -> bool:
         """
         Whether an institution-year is in rate rankings (config.py,
         MIN_FTE_FOR_RATE, ONLINE_EXCLUSION_PCT), by the online share 04 chose
-        for the rules (online_pct: ONLINE_SHARE_YEAR).
+        for the rules (online_pct: ONLINE_SHARE_YEAR) and its rate's
+        denominator (rate_fte: its FTE plus that of institutions 04 pools
+        with it).
         """
-        fte, online = rec.get("fte"), rec.get("online_pct")
+        fte, online = rec.get("rate_fte"), rec.get("online_pct")
         return (pd.notna(fte) and int(fte) >= MIN_FTE_FOR_RATE
                 and (pd.isna(online) or int(online) < ONLINE_EXCLUSION_PCT)
                 and opt(rec.get("rate_excluded")) is None)
+
+    def pooled(self, rec: dict) -> list[dict] | None:
+        """[{id, name, fte}] of the institutions whose FTE the rate adds (04's pooled_with), or None."""
+        text = opt(rec.get("pooled_with"))
+        if text is None:
+            return None
+        year = int(rec["year"])
+        return [{"id": int(b), "name": self._base_name.get(int(b)), "fte": self._fte_of[(int(b), year)]}
+                for b in str(text).split()]
 
     def count(self, code: str, year: int, base_unitid: int) -> int:
         return self._count_of.get(code, {}).get((int(year), int(base_unitid)), 0)
@@ -569,9 +592,14 @@ class Institutions:
             # (that other year, or the year itself when NCES has none for it)
             if int(year) in ONLINE_SHARE_YEAR and entry["online"] is not None:
                 entry["onlineYear"] = int(rec["online_year"])
-            # Left out of rate rankings after a merger or renumbering (04's rate_exclusions)
+            # Left out of rate rankings after a merger or renumbering (04's merger_rate_rules)
             if opt(rec.get("rate_excluded")) is not None:
                 entry["rateExcludedReason"] = rec["rate_excluded"]
+            # Rated with other institutions' FTE added (04's pooled_with): the denominator and who
+            pooled = self.pooled(rec)
+            if pooled:
+                entry["rateFte"] = int(rec["rate_fte"])
+                entry["pooledWith"] = pooled
             if counts != own[year]:
                 entry["counts"] = counts
             out[str(year)] = entry
@@ -595,13 +623,16 @@ def rate_rankings(institutions: Institutions, year: int, in_preset) -> tuple[dic
             "name": r["institution_name"],
             "unitid": int(r["link_unitid"]),
             "state": opt(r["state"]),
-            "fte": int(r["fte"]),
+            "fte": int(r["rate_fte"]),
             "campuses": int(r["campuses"]),
         }
+        pooled = institutions.pooled(r)
+        if pooled:
+            table[str(int(r["base_unitid"]))]["pooled"] = pooled
     frame = pd.DataFrame({
         "unitid": [int(r["base_unitid"]) for r in recs],
         "institution_name": [r["institution_name"] for r in recs],
-        "fte": [int(r["fte"]) for r in recs],
+        "fte": [int(r["rate_fte"]) for r in recs],
     })
     entries = {}
     for code in institutions.codes():

@@ -442,10 +442,21 @@ export default function Methodology() {
                 </p>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
                   Mergers and renumbered campuses: in a year DOE reported a campus under two institutions (its old
-                  and its new ID, from different releases), and in a year a merged institution's campuses count
-                  under several institutions while NCES has enrollment for only some of them, the incidents and the
-                  FTE may not cover the same campuses. Both institutions get no rate that year and are left out of
-                  rate rankings; their school pages say why.
+                  and its new ID, from different releases), the institution whose NCES FTE holds the campus's
+                  students is the only one of the two with an FTE or, when both have one, the one whose every
+                  campus that year is such a linked campus. When the other institution counts the campus and the
+                  students' institution counts no campus of its own that year, the other's rate adds the students'
+                  institution's FTE (both institutions' students over both institutions' incidents). An institution
+                  gets no rate that year, and is left out of rate rankings with a note on its school page, only when
+                  a campus with at least one incident that year has its incidents counted under one institution and
+                  its students under another, when it cannot be told which FTE holds the students, or when those
+                  students' FTE would be split among several institutions. In a year a merged institution's campuses
+                  count under several institutions and one of them has no NCES FTE while counting a campus with
+                  incidents that no institution with an FTE also counts, every institution of the group is left out.
+                  A campus with no incident that year needs none of this: whichever FTE holds its students, every
+                  rate is the same. In all, 91 institution-years are left out by these rules (29 with at least 1,000
+                  FTE; before this rule was narrowed, 295 and 97), and 31 are rated with another institution's FTE
+                  added.
                 </p>
               </div>
               <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4 sm:col-span-2">

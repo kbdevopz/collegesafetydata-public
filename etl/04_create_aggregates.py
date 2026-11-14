@@ -295,31 +295,117 @@ def load_id_links() -> list[tuple[int, int]]:
     return [(int(u), int(o)) for u, o in zip(later["unitid"].tolist(), later["other_unitid"].tolist())]
 
 
-def rate_exclusions(sources: pd.DataFrame) -> dict[tuple[int, int], str]:
+def merger_rate_rules(sources: pd.DataFrame, counting: set[tuple[int, int]], fte_of: dict[tuple[int, int], int],
+                      active: set[tuple[int, int]]
+                      ) -> tuple[dict[tuple[int, int], str], dict[tuple[int, int], set[int]]]:
     """
-    {(year, base_unitid): reason} for the institution-years left out of rate
-    rankings because DOE reported one campus under this institution and under
-    another institution in that year (a "link" pair of different base
-    UNITIDs, both reporting the year: a merger or renumbering, where DOE's
-    newest release re-reports a predecessor's campus under the successor
-    while the predecessor's own rows remain). The incidents and the IPEDS
-    FTE of such a year may not cover the same campuses, so no rate is shown.
+    The rate rules for a campus DOE reported under two institutions in one
+    year (a "link" pair of different base UNITIDs that both report the year:
+    a merger or renumbering, where DOE's newest release re-reports a
+    predecessor's campus under the successor while the predecessor's own rows
+    remain). Returns ({(year, base): reason} left out of rate rankings,
+    {(year, base): {bases whose FTE its rate adds}}).
+
+    `counting` holds the (unitid, year) campus-years that count (not all
+    shadow blocks), `fte_of` the IPEDS FTE per (base, year), `active` the
+    campus-years DOE published at least one incident for (any category,
+    shadow blocks included).
+
+    For each such pair and year, the institution whose IPEDS FTE holds the
+    campus's students ("students' institution") is:
+      - the only one of the two with an FTE that year;
+      - when both have one: the one that reported that year only campuses
+        linked to campuses of the other (its FTE is those campuses'
+        students); when neither or both did, it cannot be told.
+    Neither with an FTE: no rate for either, nothing to decide.
+
+    Then:
+      - students' institution unknown: both are left out that year;
+      - the other institution counts the campus's figures (its copy is not a
+        shadow): when the students' institution counts no campus at all that
+        year (all its figures count under the other) and the other has an FTE,
+        the other's rate adds the students' institution's FTE (both
+        institutions' students over both institutions' incidents); otherwise
+        the other is left out (incidents without their students);
+      - the students' institution does not count the campus (its copy is a
+        shadow) but counts other campuses: it is left out (students without
+        their incidents).
+    A students' institution whose FTE would be added to two or more
+    institutions is split: those are left out instead. Anything else (the
+    students' institution counts the campus, the other does not) needs no rule,
+    and neither does a campus with no incident under either ID that year: no
+    numerator holds an incident of it, so every rate is the same whichever
+    FTE holds its students.
     """
+    years_of = defaultdict(set)
     reported = defaultdict(set)
     for u, y in zip(sources["unitid"].tolist(), sources["year"].tolist()):
-        reported[int(u)].add(int(y))
-    out: dict[tuple[int, int], str] = {}
+        years_of[int(u)].add(int(y))
+        reported[(int(u) // 1000, int(y))].add(int(u))
+    listed = {(u // 1000, y) for u, y in counting}
+    pairs_by_year = defaultdict(list)
     for o, n in load_id_links():
-        if o // 1000 == n // 1000:
+        if o // 1000 != n // 1000:
+            for y in sorted(years_of[o] & years_of[n]):
+                pairs_by_year[y].append((o, n))
+
+    excluded: dict[tuple[int, int], str] = {}
+    adds: dict[tuple[int, int], set[int]] = defaultdict(set)  # (year, students' base) -> bases it is added to
+    for y, pairs in sorted(pairs_by_year.items()):
+        linked = defaultdict(set)  # (base, other base) -> its campuses linked to a campus of the other
+        for o, n in pairs:
+            linked[(o // 1000, n // 1000)].add(o)
+            linked[(n // 1000, o // 1000)].add(n)
+        for o, n in pairs:
+            bo, bn = o // 1000, n // 1000
+            has = {bo: (bo, y) in fte_of, bn: (bn, y) in fte_of}
+            if not has[bo] and not has[bn]:
+                continue
+            # No incident under either ID: no numerator holds one of the campus
+            quiet = (o, y) not in active and (n, y) not in active
+            if has[bo] != has[bn]:
+                s = bo if has[bo] else bn
+            else:
+                mirrored = [b for b, other in ((bo, bn), (bn, bo)) if reported[(b, y)] <= linked[(b, other)]]
+                s = mirrored[0] if len(mirrored) == 1 else None
+            if s is None:
+                if quiet:
+                    continue
+                for here, there in ((o, n), (n, o)):
+                    excluded.setdefault((y, here // 1000), (
+                        f"In {y} DOE reported campus {here} of this institution also under ID {there} of "
+                        "another institution (a merger or renumbering), and IPEDS has an FTE for both "
+                        "institutions, so it cannot be told which FTE holds that campus's students. No rate is "
+                        "shown for that year."))
+                continue
+            t = bn if s == bo else bo
+            s_copy, t_copy = (o, n) if s == bo else (n, o)
+            s_counts, t_counts = (s_copy, y) in counting, (t_copy, y) in counting
+            if t_counts:
+                if not s_counts and (s, y) not in listed and has[t]:
+                    adds[(y, s)].add(t)
+                elif has[t] and not quiet:
+                    excluded.setdefault((y, t), (
+                        f"In {y} the figures of campus {t_copy} count for this institution, but IPEDS counts "
+                        f"that campus's students under institution {s} (DOE also reported it as {s_copy}: a "
+                        "merger or renumbering), which counts other campuses of its own that year. No rate is "
+                        "shown for that year."))
+            if not s_counts and (s, y) in listed and not quiet:
+                excluded.setdefault((y, s), (
+                    f"In {y} DOE counted the figures of campus {s_copy} of this institution under ID {t_copy} of "
+                    "another institution (a merger or renumbering), while IPEDS counts that campus's students in "
+                    "this institution's FTE. No rate is shown for that year."))
+    pooled: dict[tuple[int, int], set[int]] = defaultdict(set)
+    for (y, s), targets in sorted(adds.items()):
+        if len(targets) == 1:
+            pooled[(y, next(iter(targets)))].add(s)
             continue
-        for y in sorted(reported[o] & reported[n]):
-            for here, there in ((o, n), (n, o)):
-                key = (y, here // 1000)
-                text = (f"DOE reported campus {here} of this institution also under ID {there} of another "
-                        f"institution in {y} (a merger or renumbering), so that year's incidents and "
-                        "enrollment may not cover the same campuses. No rate is shown for it.")
-                out.setdefault(key, text)
-    return out
+        for t in sorted(targets):
+            excluded.setdefault((y, t), (
+                f"In {y} DOE reported the campuses of institution {s} under this institution and under others "
+                "(a merger or renumbering), so its students cannot be divided among them. No rate is shown for "
+                "that year."))
+    return excluded, {k: v for k, v in pooled.items() if k not in excluded}
 
 
 def merger_families() -> dict[int, int]:
@@ -342,20 +428,44 @@ def merger_families() -> dict[int, int]:
     return {b: root(b) for b in list(parent)}
 
 
-def split_family_exclusions(inst_year: pd.DataFrame) -> dict[tuple[int, int], str]:
+def split_family_exclusions(inst_year: pd.DataFrame, sources: pd.DataFrame, counting: set[tuple[int, int]],
+                            active: set[tuple[int, int]]) -> dict[tuple[int, int], str]:
     """
     {(year, base_unitid): reason} for the other case where the incidents and
     the FTE may not cover the same campuses: in a year when a merger family's
     campuses count under two or more institutions and one of those has no
     IPEDS FTE (IPEDS reports its students under another UNITID of the
-    family), every institution of the family is left out of rate rankings
-    that year.
+    family) while it counts a campus with at least one incident that year
+    (`active`) whose figures are not also counted, under a linked ID
+    reporting that year, by a member with an FTE, every institution of the
+    family is left out of rate rankings that year. (A campus counted under
+    both IDs is in the numerator of the member whose FTE holds its students,
+    and a campus without incidents adds nothing to any numerator, so neither
+    needs the rule.)
     """
     family = merger_families()
+    years_of = defaultdict(set)
+    for u, y in zip(sources["unitid"].tolist(), sources["year"].tolist()):
+        years_of[int(u)].add(int(y))
+    partners = defaultdict(set)  # (campus, year) -> its linked IDs of another base reporting that year
+    for o, n in load_id_links():
+        if o // 1000 != n // 1000:
+            for y in years_of[o] & years_of[n]:
+                partners[(o, y)].add(n)
+                partners[(n, y)].add(o)
+    by_base = defaultdict(set)
+    for u, y in counting:
+        by_base[(u // 1000, y)].add(u)
     rows = inst_year[inst_year["base_unitid"].isin(family)]
     out: dict[tuple[int, int], str] = {}
     for (fam, y), g in rows.groupby([rows["base_unitid"].map(family), "year"]):
         if len(g) < 2 or not g["fte"].isna().any():
+            continue
+        with_fte = set(g.loc[g["fte"].notna(), "base_unitid"].astype(int).tolist())
+        loose = [c for b in g.loc[g["fte"].isna(), "base_unitid"].astype(int).tolist() for c in by_base[(b, int(y))]
+                 if (c, int(y)) in active
+                 and not any(p // 1000 in with_fte and (p, int(y)) in counting for p in partners[(c, int(y))])]
+        if not loose:
             continue
         without = ", ".join(str(int(b)) for b in sorted(g.loc[g["fte"].isna(), "base_unitid"]))
         for b in g["base_unitid"]:
@@ -1044,7 +1154,8 @@ def load_institution_enrollment() -> pd.DataFrame:
 
 
 def create_institution_tables(ranked_agg: pd.DataFrame, shared: pd.DataFrame, dim_inst: pd.DataFrame,
-                              enrollment: pd.DataFrame, sources: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
+                              enrollment: pd.DataFrame, sources: pd.DataFrame, school_agg: pd.DataFrame
+                              ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """
     The campus-years that count in rankings and the institutions that rates
     are calculated for (config.py, "SUMMARY CODES AND RATES"): an
@@ -1074,7 +1185,11 @@ def create_institution_tables(ranked_agg: pd.DataFrame, shared: pd.DataFrame, di
         link_unitid, state, campuses (that count that year), fte, pctdeexc
         (that year's share of exclusively online students), online_pct and
         online_year (the share the rate rules use and the fall it is from:
-        ONLINE_SHARE_YEAR)
+        ONLINE_SHARE_YEAR), rate_excluded (why it is left out of rate
+        rankings, merger_rate_rules and split_family_exclusions, or none),
+        pooled_with (the base UNITIDs whose FTE its rate adds, space
+        separated, or none) and rate_fte (the rate's denominator: fte plus
+        those institutions' FTE)
       agg_institution_year_offense.parquet: year, base_unitid, offense,
         offense_family, count (above 0 only)
     """
@@ -1158,17 +1273,36 @@ def create_institution_tables(ranked_agg: pd.DataFrame, shared: pd.DataFrame, di
               f"no {src} share, own year's used: {int(own_used.sum()):,} ({int((own_used & big).sum()):,} with "
               f"{MIN_FTE_FOR_RATE:,}+ FTE); no share at all: {int((in_year & inst_year['online_pct'].isna()).sum()):,}")
     inst_year = inst_year.drop(columns=["online_src", "src_pct"])
-    # Left out of rate rankings: a campus reported under this and another institution (rate_exclusions)
-    excluded = rate_exclusions(sources)
-    for key, text in split_family_exclusions(inst_year).items():
+    # A campus reported under this and another institution that year (merger_rate_rules): left out
+    # of rate rankings, or rated with the other institution's FTE added
+    counting = set(zip(campus_years["unitid"].astype(int).tolist(), campus_years["year"].astype(int).tolist()))
+    fte_of = {(int(b), int(y)): int(f) for b, y, f in
+              zip(enroll["base_unitid"].tolist(), enroll["year"].tolist(), enroll["fte"].tolist()) if pd.notna(f)}
+    keys = list(zip(inst_year["year"].astype(int).tolist(), inst_year["base_unitid"].astype(int).tolist()))
+    # Campus-years with at least one incident in DOE's figures (shadow blocks included)
+    published = school_agg[(school_agg["geo"] == "All") & (school_agg["count"] > 0)]
+    active = set(zip(published["unitid"].astype(int).tolist(), published["year"].astype(int).tolist()))
+    excluded, pooled = merger_rate_rules(sources, counting, fte_of, active)
+    merger_count = len(set(excluded) & set(keys))
+    for key, text in split_family_exclusions(inst_year, sources, counting, active).items():
         excluded.setdefault(key, text)
-    inst_year["rate_excluded"] = [excluded.get((int(y), int(b))) for y, b in
-                                  zip(inst_year["year"].tolist(), inst_year["base_unitid"].tolist())]
-    print(f"  Left out of rate rankings (a campus reported under two institutions that year): "
-          f"{int(inst_year['rate_excluded'].notna().sum()):,} institution-years")
+    pooled = {k: v for k, v in pooled.items() if k not in excluded}
+    inst_year["rate_excluded"] = [excluded.get(k) for k in keys]
+    inst_year["pooled_with"] = [" ".join(str(b) for b in sorted(pooled[k])) if k in pooled else None for k in keys]
+    inst_year["rate_fte"] = [None if (b, y) not in fte_of else
+                             fte_of[(b, y)] + sum(fte_of[(s, y)] for s in pooled.get((y, b), ()))
+                             for y, b in keys]
+    big = inst_year["fte"].fillna(0) >= MIN_FTE_FOR_RATE
+    left_out = inst_year["rate_excluded"].notna()
+    print(f"  Left out of rate rankings (a campus reported under two institutions that year, or a merger "
+          f"family member without an FTE): {int(left_out.sum()):,} institution-years "
+          f"({int((left_out & big).sum()):,} with {MIN_FTE_FOR_RATE:,}+ FTE; by the campus rule alone: "
+          f"{merger_count:,})")
+    print(f"  Rated with the FTE of the institution whose campus figures they count (merger or renumbering): "
+          f"{len(pooled):,} institution-years")
     inst_year = inst_year.astype({"year": "int16", "base_unitid": "int32", "link_unitid": "int32",
                                   "campuses": "int16", "fte": "Int32", "pctdeexc": "Int16",
-                                  "online_pct": "Int16", "online_year": "Int16"})
+                                  "online_pct": "Int16", "online_year": "Int16", "rate_fte": "Int32"})
     inst_year = inst_year.sort_values(["year", "base_unitid"]).reset_index(drop=True)
 
     # The counts of every campus of the institution
@@ -1265,7 +1399,7 @@ def main():
 
     # Rates are per institution: all its campuses' counts per its FTE
     inst_year, _inst_offense = create_institution_tables(
-        ranked_agg, shared, dim_inst, load_institution_enrollment(), load_campus_year_sources())
+        ranked_agg, shared, dim_inst, load_institution_enrollment(), load_campus_year_sources(), school_agg)
 
     aggs = CURATED_DIR / "aggs"
     written = [aggs / "agg_school_year_offense.parquet", SHARED_PATH, aggs / "agg_ivy_rankings.parquet",

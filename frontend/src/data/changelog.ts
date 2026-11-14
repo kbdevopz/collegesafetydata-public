@@ -23,6 +23,16 @@ export interface ChangeEntry {
 export const CHANGES: ChangeEntry[] = [
   {
     date: '2026-11-14',
+    kind: 'method',
+    title: 'Fewer merger years left out of rate rankings',
+    body: [
+      'Rate rankings left out 295 institution-years (97 with at least 1,000 FTE) in which a merger or renumbering might have put a campus\'s incidents and its students under different institutions. They now leave out only the years where a campus with at least one incident has its incidents under one institution and its students under another, or where it cannot be told which institution\'s FTE holds them: 91 institution-years (29 with at least 1,000 FTE). Tufts 2015, the University of Arizona 2020 and Northeastern 2023, for example, have rates again.',
+      '31 institution-years are now rated with the FTE of an institution whose campus figures DOE reported under them, such as Tufts 2015 with the School of the Museum of Fine Arts. No count changed.',
+    ],
+    methodology: 'rates',
+  },
+  {
+    date: '2026-11-14',
     kind: 'correction',
     title: 'Campus names, renumbered campuses and mergers',
     body: [

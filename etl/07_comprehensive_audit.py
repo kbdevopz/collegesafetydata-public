@@ -1397,9 +1397,9 @@ def audit_campus_identity(verbose: bool = False) -> AuditResult:
             if a and b and (o, int(y)) not in shadow and (n, int(y)) not in shadow:
                 both_counted.append(f"{o}/{n} {y} ({a}/{b})")
     # (a) Mergers: link pairs whose IDs belong to different institutions (base
-    # UNITIDs). Each year both report must be out of rate rankings (check 10
-    # holds the school files to it); a year both count with differing figures
-    # is listed, since its incidents are in two institutions' totals.
+    # UNITIDs). The years both report are held to the merger rate rule by
+    # check 10; a year both count with differing figures is listed, since its
+    # incidents are in two institutions' totals.
     cross = links[links["old_unitid"].astype(int) // 1000 != links["new_unitid"].astype(int) // 1000]
     excluded_years = set()
     for r in cross.to_dict("records"):
@@ -1454,7 +1454,7 @@ def audit_campus_identity(verbose: bool = False) -> AuditResult:
             "where no reviewed link ties the IDs: left counted under each ID (no evidence they are one campus). "
             "First 20: " + "; ".join(unlinked_examples)),
     })
-    print(f"  Links between different base UNITIDs (mergers, renumberings): {len(cross)}; institution-years where both IDs report (no rate, check 10): {len(excluded_years)}; "
+    print(f"  Links between different base UNITIDs (mergers, renumberings): {len(cross)}; institution-years where both IDs report (merger rate rule, check 10): {len(excluded_years)}; "
           f"merger years still counted under both: {len(both_counted_cross)}")
     print(f"  Identical same-city figures without a link (left alone): {unlinked_groups} groups, "
           f"{unlinked_incidents:,} incidents")
@@ -1694,9 +1694,12 @@ def expected_institutions() -> tuple[dict, dict]:
     summaries = {code: family for code, family in SUMMARY_FAMILIES.items()}
     counts = {}  # (year, base, code) -> count
     campus_total = {}  # (unitid, year) -> count without shadow blocks
+    published = set()  # (unitid, year) with an incident in DOE's figures, shadow blocks included
     for y, u, o, fam, g, c in zip(facts["year"].tolist(), facts["unitid"].tolist(), facts["offense"].tolist(),
                                   facts["offense_family"].tolist(), facts["geo"].tolist(), facts["count"].tolist()):
         y, u, c = int(y), int(u), int(c)
+        if c > 0:
+            published.add((u, y))
         if (y, g, u) in shadows or c == 0:
             continue
         campus_total[(u, y)] = campus_total.get((u, y), 0) + c
@@ -1714,23 +1717,70 @@ def expected_institutions() -> tuple[dict, dict]:
            for u, y, f, p in zip(enrollment["unitid"].tolist(), enrollment["year"].tolist(),
                                  enrollment["fte"].tolist(), enrollment["pctdeexc"].tolist())}
 
-    # Institution-years left out of rate rankings: a campus DOE reported under
-    # this and another institution that year (the link rows of
-    # etl/reference/campus_id_changes.csv whose IDs have different base UNITIDs)
-    reported_by = {}
-    for u, y in zip(sources["unitid"].tolist(), sources["year"].tolist()):
-        reported_by.setdefault(int(u), set()).add(int(y))
-    id_links = campus_identity.read_id_changes()
-    id_links = id_links[id_links["decision"] == "link"]
-    rate_excluded = set()
-    for o, n in zip(id_links["old_unitid"].astype(int), id_links["new_unitid"].astype(int)):
-        if o // 1000 != n // 1000:
-            for y in reported_by.get(o, set()) & reported_by.get(n, set()):
-                rate_excluded |= {(y, o // 1000), (y, n // 1000)}
-
     by_inst = {}
     for u, y in counting:
         by_inst.setdefault((y, u // 1000), []).append(u)
+
+    # A campus DOE reported under two institutions in one year (the link rows
+    # of etl/reference/campus_id_changes.csv whose IDs have different base
+    # UNITIDs, both reporting the year): the institution whose IPEDS FTE holds
+    # its students is the only one of the two with an FTE, or, with both, the
+    # one whose every reported campus that year is linked to a campus of the
+    # other (exactly one). Unknown: both left out. The other counts the
+    # campus: its rate adds the students' institution's FTE when that one
+    # counts no campus that year and is added to no other institution,
+    # otherwise it is left out. The students' institution does not count the
+    # campus but counts others: left out. None of these exclusions for a
+    # campus without an incident under either ID that year.
+    reported_by = {}
+    campuses_of = {}
+    for u, y in zip(sources["unitid"].tolist(), sources["year"].tolist()):
+        reported_by.setdefault(int(u), set()).add(int(y))
+        campuses_of.setdefault((int(y), int(u) // 1000), set()).add(int(u))
+    counting_set = set(counting)
+    id_links = campus_identity.read_id_changes()
+    id_links = id_links[id_links["decision"] == "link"]
+    cross = [(o, n) for o, n in zip(id_links["old_unitid"].astype(int), id_links["new_unitid"].astype(int))
+             if o // 1000 != n // 1000]
+    with_fte = {k for k, (f, _p) in fte.items() if f is not None}
+    rate_excluded = set()
+    add_to = {}  # (year, students' base) -> bases whose rate would add its FTE
+    for y in sorted({yy for ys in reported_by.values() for yy in ys}):
+        active = [(o, n) for o, n in cross if y in reported_by.get(o, ()) and y in reported_by.get(n, ())]
+        partner = {}
+        for o, n in active:
+            partner.setdefault((o // 1000, n // 1000), set()).add(o)
+            partner.setdefault((n // 1000, o // 1000), set()).add(n)
+        for o, n in active:
+            a, b = o // 1000, n // 1000
+            fa, fb = (a, y) in with_fte, (b, y) in with_fte
+            if not (fa or fb):
+                continue
+            silent = not ({(o, y), (n, y)} & published)
+            if fa and fb:
+                full = [x for x, z in ((a, b), (b, a)) if campuses_of[(y, x)] == partner[(x, z)]]
+                students = full[0] if len(full) == 1 else None
+            else:
+                students = a if fa else b
+            if students is None:
+                if not silent:
+                    rate_excluded |= {(y, a), (y, b)}
+                continue
+            other = b if students == a else a
+            own_copy, other_copy = (o, n) if students == a else (n, o)
+            if (other_copy, y) in counting_set:
+                if (own_copy, y) not in counting_set and (y, students) not in by_inst and (other, y) in with_fte:
+                    add_to.setdefault((y, students), set()).add(other)
+                elif (other, y) in with_fte and not silent:
+                    rate_excluded.add((y, other))
+            if (own_copy, y) not in counting_set and (y, students) in by_inst and not silent:
+                rate_excluded.add((y, students))
+    pooled = {}
+    for (y, s), targets in add_to.items():
+        if len(targets) > 1:
+            rate_excluded |= {(y, t) for t in targets}
+        else:
+            pooled.setdefault((y, min(targets)), set()).add(s)
     institutions = {}
     for (y, b), campuses in by_inst.items():
         with_file = [u for u in campuses if u in name]
@@ -1763,10 +1813,28 @@ def expected_institutions() -> tuple[dict, dict]:
     for (y, b), rec in institutions.items():
         if b in family_of:
             family_years.setdefault((y, min(family_of[b])), []).append(b)
+    # ... when a member without an FTE counts a campus with an incident that
+    # year whose figures no member with an FTE also counts under a linked ID
+    linked_to = {}
+    for o, n in cross:
+        for y in reported_by.get(o, set()) & reported_by.get(n, set()):
+            linked_to.setdefault((o, y), set()).add(n)
+            linked_to.setdefault((n, y), set()).add(o)
     for (y, _f), bases in family_years.items():
-        if len(bases) >= 2 and any(institutions[(y, b)]["fte"] is None for b in bases):
+        if len(bases) < 2 or not any(institutions[(y, b)]["fte"] is None for b in bases):
+            continue
+        fte_bases = {b for b in bases if institutions[(y, b)]["fte"] is not None}
+        unmatched = [c for b in bases if institutions[(y, b)]["fte"] is None for c in by_inst[(y, b)]
+                     if (c, y) in published
+                     and not any(p // 1000 in fte_bases and (p, y) in counting_set for p in linked_to.get((c, y), ()))]
+        if unmatched:
             for b in bases:
                 institutions[(y, b)]["rate_excluded"] = True
+    # The rate's denominator: the FTE, plus that of the institutions pooled with it
+    for (y, b), rec in institutions.items():
+        adds = sorted(pooled.get((y, b), ())) if not rec["rate_excluded"] else []
+        rec["pooled"] = adds
+        rec["rate_fte"] = None if rec["fte"] is None else rec["fte"] + sum(fte[(s, y)][0] for s in adds)
     campus_years = {}
     for u, y in counting:
         if u not in name:
@@ -1778,7 +1846,7 @@ def expected_institutions() -> tuple[dict, dict]:
 
 def rate_ranked(rec: dict) -> bool:
     """Whether an institution-year is in rate rankings (config.py)."""
-    return (rec["fte"] is not None and rec["fte"] >= MIN_FTE_FOR_RATE
+    return (rec["rate_fte"] is not None and rec["rate_fte"] >= MIN_FTE_FOR_RATE
             and (rec["online"] is None or rec["online"] < ONLINE_EXCLUSION_PCT)
             and not rec.get("rate_excluded"))
 
@@ -1872,9 +1940,10 @@ def audit_institution_rates(verbose: bool = False) -> AuditResult:
                         f"(first difference: {diff[0]})")
             for b in sorted(set(got) & set(want)):
                 rec, g = want[b], got[b]
-                expect = {"name": rec["name"], "unitid": rec["link"], "state": rec["state"], "fte": rec["fte"],
+                expect = {"name": rec["name"], "unitid": rec["link"], "state": rec["state"], "fte": rec["rate_fte"],
                           "campuses": rec["campuses"]}
-                if {k: g.get(k) for k in expect} != expect:
+                got_pooled = sorted(p.get("id") for p in g.get("pooled") or [])
+                if {k: g.get(k) for k in expect} != expect or got_pooled != rec["pooled"]:
                     problem(f"{ranking_file.name}: institution {b} is {g}, expected {expect}")
                     break
             rate_rankings = data.get("rateRankings") or {}
@@ -1894,9 +1963,9 @@ def audit_institution_rates(verbose: bool = False) -> AuditResult:
                     c = counts.get((year, b, code), 0)
                     rate = e.get("rate")
                     if e.get("count") != c or not isinstance(rate, (int, float)) or \
-                            abs(rate - c / want[b]["fte"] * 10000) > RATE_TOLERANCE:
+                            abs(rate - c / want[b]["rate_fte"] * 10000) > RATE_TOLERANCE:
                         problem(f"{ranking_file.name}/{code}: institution {b} count {e.get('count')} rate {rate}, "
-                                f"expected {c} and {c / want[b]['fte'] * 10000:.4f}")
+                                f"expected {c} and {c / want[b]['rate_fte'] * 10000:.4f}")
                         break
 
         # School files
@@ -1927,6 +1996,9 @@ def audit_institution_rates(verbose: bool = False) -> AuditResult:
                                 "counts": c}
                 if y in ONLINE_SHARE_YEAR and rec["online"] is not None:
                     want[str(y)]["onlineYear"] = rec["online_year"]
+                if rec["pooled"]:
+                    want[str(y)]["rateFte"] = rec["rate_fte"]
+                    want[str(y)]["pooledWith"] = rec["pooled"]
             got = (school.get("institution") or {}).get("byYear") or {}
             if want and (school.get("institution") or {}).get("id") != b:
                 problem(f"schools/{unitid}.json: institution id {(school.get('institution') or {}).get('id')}, "
@@ -1941,6 +2013,8 @@ def audit_institution_rates(verbose: bool = False) -> AuditResult:
                             f"{'present' if 'rateExcludedReason' in g else 'missing'}, expected the opposite")
                     break
                 g.pop("rateExcludedReason", None)
+                if "pooledWith" in g:
+                    g["pooledWith"] = sorted(p.get("id") for p in g["pooledWith"])
                 if "counts" not in g:
                     g["counts"] = {k: v for k, v in own.get(int(y), {}).items() if v > 0}
                 if g != w:

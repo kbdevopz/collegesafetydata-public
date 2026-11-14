@@ -31,7 +31,7 @@ import {
   displayName,
   compactYears,
 } from '../lib/utils'
-import { fteFor, latestFte, institutionRate, rateNote, campusesPhrase } from '../lib/rates'
+import { fteFor, latestFte, institutionRate, rateNote, pooledNote, campusesPhrase } from '../lib/rates'
 import { ALL, CRIMINAL, SUMMARY_LABELS, inSelection, isSummary, selectionLabel } from '../lib/selection'
 import { useTheme } from '../hooks/useTheme'
 import SeriesNotes, { ReportYearNote } from '../components/SeriesNotes'
@@ -157,6 +157,7 @@ export default function SchoolProfile() {
   const selectedYearRateCount = selectedYearInstitution?.count ?? selectedYearTotal
   const selectedYearCampuses = campusesPhrase(selectedYearInstitution?.campuses ?? 1)
   const selectedYearRateNote = rateNote(selectedYearInstitution, rateRules)
+  const selectedYearPooledNote = pooledNote(selectedYearInstitution)
 
   // Number of campuses of the institution in the header FTE's year
   const headerCampuses = headerFte
@@ -521,7 +522,7 @@ export default function SchoolProfile() {
                   // The institution's rate: all its campuses' incidents per its FTE
                   <>
                     Institution rate ({selectedYearCampuses}):{' '}
-                    {formatNumber(selectedYearRateCount)} per {formatNumber(selectedYearFte)} FTE
+                    {formatNumber(selectedYearRateCount)} per {formatNumber(selectedYearInstitution?.fte ?? selectedYearFte)} FTE
                   </>
                 ) : (
                   <>Based on {formatNumber(selectedYearFte)} FTE</>
@@ -620,6 +621,12 @@ export default function SchoolProfile() {
               <p role="note" className="flex items-start gap-2 mt-2 text-sm text-blue-700 dark:text-blue-300">
                 <Info className="w-4 h-4 flex-shrink-0 mt-0.5" aria-hidden="true" />
                 <span>In {selectedYear}: {selectedYearRateNote}</span>
+              </p>
+            )}
+            {selectedYearPooledNote && (
+              <p role="note" className="flex items-start gap-2 mt-2 text-sm text-blue-700 dark:text-blue-300">
+                <Info className="w-4 h-4 flex-shrink-0 mt-0.5" aria-hidden="true" />
+                <span>{selectedYearPooledNote}</span>
               </p>
             )}
           </div>

@@ -98,6 +98,9 @@ export function institutionRate(
   const entry = profile.institution?.byYear[String(year)]
   if (!entry) return null
   const count = entry.counts ? entry.counts[selectionCode(selection)] ?? 0 : ownCount
+  // The rate's denominator: the FTE of the year, plus that of the
+  // institutions whose campus figures DOE reported here (rateFte)
+  const fte = entry.rateFte ?? fteFor(profile, year)
   return {
     year,
     campuses: entry.campuses,
@@ -105,11 +108,28 @@ export function institutionRate(
     onlineYear: entry.onlineYear,
     rateRanked: entry.rateRanked,
     rateExcludedReason: entry.rateExcludedReason,
+    rateFte: entry.rateFte,
+    pooledWith: entry.pooledWith,
     count,
-    fte: fteFor(profile, year),
+    fte,
     // No rate for a year whose incidents and FTE may not cover the same campuses
-    rate: entry.rateExcludedReason ? null : rateFor(profile, year, count),
+    rate: entry.rateExcludedReason || fte === null ? null : round2((count / fte) * 10000),
   }
+}
+
+/**
+ * "It also counts the 457 FTE of School of the Museum of Fine Arts at
+ * Tufts, whose campus figures DOE reported under this institution in 2015
+ * (a merger or renumbering)." for a rate with other institutions' FTE
+ * added, else null.
+ */
+export function pooledNote(inst: InstitutionRate | null): string | null {
+  if (!inst || !inst.pooledWith || inst.pooledWith.length === 0) return null
+  const parts = inst.pooledWith.map(
+    (p) => `the ${p.fte.toLocaleString()} FTE of ${p.name ?? `institution ${p.id}`}`
+  )
+  const list = parts.length > 1 ? `${parts.slice(0, -1).join(', ')} and ${parts[parts.length - 1]}` : parts[0]
+  return `Its ${inst.year} rate also counts ${list}, whose campus figures DOE reported under this institution that year (a merger or renumbering).`
 }
 
 /**
