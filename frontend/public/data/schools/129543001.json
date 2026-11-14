@@ -162,6 +162,19 @@
     2023,
     2024
   ],
+  "idChanges": [
+    {
+      "unitid": 129367003,
+      "relation": "later",
+      "years": [
+        2022,
+        2023,
+        2024
+      ],
+      "name": "Connecticut State Community College",
+      "campus": "CT State Community College Housatonic Campus"
+    }
+  ],
   "institution": {
     "id": 129543,
     "byYear": {
@@ -205,7 +218,8 @@
       "2022": {
         "campuses": 1,
         "online": 27,
-        "rateRanked": true
+        "rateRanked": false,
+        "rateExcludedReason": "DOE reported campus 129543001 of this institution also under ID 129367003 of another institution in 2022 (a merger or renumbering), so that year's incidents and enrollment may not cover the same campuses. No rate is shown for it."
       }
     }
   }

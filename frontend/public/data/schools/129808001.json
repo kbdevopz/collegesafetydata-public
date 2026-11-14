@@ -102,6 +102,19 @@
     2023,
     2024
   ],
+  "idChanges": [
+    {
+      "unitid": 129367012,
+      "relation": "later",
+      "years": [
+        2022,
+        2023,
+        2024
+      ],
+      "name": "Connecticut State Community College",
+      "campus": "CT State Community College Three Rivers Campus"
+    }
+  ],
   "institution": {
     "id": 129808,
     "byYear": {
@@ -145,7 +158,8 @@
       "2022": {
         "campuses": 1,
         "online": 21,
-        "rateRanked": true
+        "rateRanked": false,
+        "rateExcludedReason": "DOE reported campus 129808001 of this institution also under ID 129367012 of another institution in 2022 (a merger or renumbering), so that year's incidents and enrollment may not cover the same campuses. No rate is shown for it."
       }
     }
   }

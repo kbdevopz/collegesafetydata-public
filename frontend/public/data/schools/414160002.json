@@ -4,6 +4,7 @@
   "shortName": null,
   "city": "Coldwater",
   "state": "MI",
+  "campus": "Baker College of Coldwater",
   "ivyLeague": false,
   "isMainCampus": false,
   "campusType": "Branch Campus",
@@ -35,19 +36,28 @@
     2023,
     2024
   ],
+  "idChanges": [
+    {
+      "unitid": 168847017,
+      "relation": "later",
+      "years": [
+        2015,
+        2016,
+        2017,
+        2018
+      ],
+      "name": "Baker College",
+      "campus": "Baker College of Coldwater"
+    }
+  ],
   "institution": {
     "id": 414160,
     "byYear": {
       "2015": {
-        "campuses": 2,
+        "campuses": 1,
         "online": null,
         "rateRanked": false,
-        "counts": {
-          "all": 3,
-          "dating_violence": 1,
-          "domestic_violence": 1,
-          "weapons_discipline": 1
-        }
+        "rateExcludedReason": "DOE reported campus 414160001 of this institution also under ID 168847015 of another institution in 2015 (a merger or renumbering), so that year's incidents and enrollment may not cover the same campuses. No rate is shown for it."
       }
     }
   }

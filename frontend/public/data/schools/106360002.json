@@ -4,6 +4,7 @@
   "shortName": null,
   "city": "Jonesboro",
   "state": "AR",
+  "campus": "Arthur's Beauty College Inc-Jonesboro",
   "ivyLeague": false,
   "isMainCampus": false,
   "campusType": "Branch Campus",
@@ -54,13 +55,43 @@
     2023,
     2024
   ],
+  "idChanges": [
+    {
+      "unitid": 489830002,
+      "relation": "later",
+      "years": [
+        2015,
+        2016,
+        2017,
+        2018,
+        2019,
+        2020,
+        2021,
+        2022,
+        2023,
+        2024
+      ],
+      "name": "Arthur's Beauty College",
+      "campus": "Arthur's Beauty College Inc-Jonesboro"
+    }
+  ],
+  "sharedFigures": [
+    {
+      "year": 2015,
+      "geo": "Public property",
+      "hostUnitid": 489830002,
+      "hostName": "Arthur's Beauty College"
+    }
+  ],
   "institution": {
     "id": 106360,
     "byYear": {
       "2015": {
-        "campuses": 2,
+        "campuses": 1,
         "online": 0,
-        "rateRanked": false
+        "rateRanked": false,
+        "rateExcludedReason": "DOE reported campus 106360002 of this institution also under ID 489830002 of another institution in 2015 (a merger or renumbering), so that year's incidents and enrollment may not cover the same campuses. No rate is shown for it.",
+        "counts": {}
       }
     }
   }

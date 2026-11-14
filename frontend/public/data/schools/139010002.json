@@ -4,6 +4,7 @@
   "shortName": null,
   "city": "Bainbridge",
   "state": "GA",
+  "campus": "Midtown Campus",
   "ivyLeague": false,
   "isMainCampus": false,
   "campusType": "Branch Campus",
@@ -72,6 +73,28 @@
     2023,
     2024
   ],
+  "idChanges": [
+    {
+      "unitid": 138558004,
+      "relation": "later",
+      "years": [
+        2017,
+        2018,
+        2019,
+        2020
+      ],
+      "name": "Abraham Baldwin Agricultural College",
+      "campus": "Midtown Campus"
+    }
+  ],
+  "sharedFigures": [
+    {
+      "year": 2017,
+      "geo": "On-campus",
+      "hostUnitid": 138558004,
+      "hostName": "Abraham Baldwin Agricultural College"
+    }
+  ],
   "institution": {
     "id": 139010,
     "byYear": {
@@ -92,15 +115,14 @@
         }
       },
       "2017": {
-        "campuses": 3,
+        "campuses": 2,
         "online": 20,
         "rateRanked": false,
+        "rateExcludedReason": "DOE reported campus 139010002 of this institution also under ID 138558004 of another institution in 2017 (a merger or renumbering), so that year's incidents and enrollment may not cover the same campuses. No rate is shown for it.",
         "counts": {
           "criminal": 1,
-          "all": 3,
-          "burglary": 1,
-          "stalking": 1,
-          "weapons_arrest": 1
+          "all": 1,
+          "burglary": 1
         }
       }
     }

@@ -4,6 +4,7 @@
   "shortName": null,
   "city": "Clearlake",
   "state": "CA",
+  "campus": "Clear Lake Center",
   "ivyLeague": false,
   "isMainCampus": false,
   "campusType": "Branch Campus",
@@ -102,6 +103,39 @@
     2023,
     2024
   ],
+  "idChanges": [
+    {
+      "unitid": 455512003,
+      "relation": "later",
+      "years": [
+        2016,
+        2017,
+        2018,
+        2019,
+        2020,
+        2021,
+        2022,
+        2023,
+        2024
+      ],
+      "name": "Woodland Community College",
+      "campus": "Clear Lake Center"
+    }
+  ],
+  "sharedFigures": [
+    {
+      "year": 2016,
+      "geo": "On-campus",
+      "hostUnitid": 455512003,
+      "hostName": "Woodland Community College"
+    },
+    {
+      "year": 2016,
+      "geo": "Public property",
+      "hostUnitid": 455512003,
+      "hostName": "Woodland Community College"
+    }
+  ],
   "institution": {
     "id": 126119,
     "byYear": {
@@ -120,18 +154,18 @@
         }
       },
       "2016": {
-        "campuses": 2,
+        "campuses": 1,
         "online": 15,
-        "rateRanked": true,
+        "rateRanked": false,
+        "rateExcludedReason": "DOE reported campus 126119003 of this institution also under ID 455512003 of another institution in 2016 (a merger or renumbering), so that year's incidents and enrollment may not cover the same campuses. No rate is shown for it.",
         "counts": {
-          "criminal": 11,
-          "all": 17,
-          "burglary": 8,
+          "criminal": 7,
+          "all": 11,
+          "burglary": 6,
           "drug_arrest": 2,
-          "liquor_arrest": 2,
-          "motor_vehicle_theft": 2,
-          "rape": 1,
-          "weapons_arrest": 2
+          "liquor_arrest": 1,
+          "motor_vehicle_theft": 1,
+          "weapons_arrest": 1
         }
       }
     }

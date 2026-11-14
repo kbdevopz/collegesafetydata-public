@@ -4,6 +4,7 @@
   "shortName": null,
   "city": "OAKLAND",
   "state": "CA",
+  "campus": "Oakland Campus",
   "ivyLeague": false,
   "isMainCampus": false,
   "campusType": "Branch Campus",
@@ -146,13 +147,27 @@
     2021,
     2022
   ],
+  "idChanges": [
+    {
+      "unitid": 167358010,
+      "relation": "earlier",
+      "years": [
+        2021,
+        2022,
+        2023
+      ],
+      "name": "Northeastern University",
+      "campus": "Oakland Campus"
+    }
+  ],
   "institution": {
     "id": 118888,
     "byYear": {
       "2023": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": false
+        "rateRanked": false,
+        "rateExcludedReason": "DOE reported campus 118888002 of this institution also under ID 167358010 of another institution in 2023 (a merger or renumbering), so that year's incidents and enrollment may not cover the same campuses. No rate is shown for it."
       },
       "2024": {
         "campuses": 1,

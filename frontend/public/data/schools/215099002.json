@@ -4,6 +4,7 @@
   "shortName": null,
   "city": "Trevose",
   "state": "PA",
+  "campus": "Bucks Campuses",
   "ivyLeague": false,
   "isMainCampus": false,
   "campusType": "Branch Campus",
@@ -41,6 +42,24 @@
     2023,
     2024
   ],
+  "idChanges": [
+    {
+      "unitid": 216366006,
+      "relation": "later",
+      "years": [
+        2016,
+        2017,
+        2018,
+        2019,
+        2020,
+        2021,
+        2022,
+        2023
+      ],
+      "name": "Thomas Jefferson University",
+      "campus": "Bucks Campus"
+    }
+  ],
   "institution": {
     "id": 215099,
     "byYear": {
@@ -64,18 +83,10 @@
         }
       },
       "2016": {
-        "campuses": 2,
+        "campuses": 1,
         "online": 10,
-        "rateRanked": true,
-        "counts": {
-          "criminal": 2,
-          "all": 9,
-          "aggravated_assault": 1,
-          "domestic_violence": 2,
-          "drug_arrest": 4,
-          "robbery": 1,
-          "weapons_discipline": 1
-        }
+        "rateRanked": false,
+        "rateExcludedReason": "DOE reported campus 215099002 of this institution also under ID 216366006 of another institution in 2016 (a merger or renumbering), so that year's incidents and enrollment may not cover the same campuses. No rate is shown for it."
       }
     }
   }

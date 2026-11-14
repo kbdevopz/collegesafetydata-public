@@ -460,6 +460,19 @@
     2023,
     2024
   ],
+  "idChanges": [
+    {
+      "unitid": 231165003,
+      "relation": "later",
+      "years": [
+        2022,
+        2023,
+        2024
+      ],
+      "name": "Vermont State University",
+      "campus": "Vermont State University-Johnson Campus"
+    }
+  ],
   "sharedFigures": [
     {
       "year": 2022,
@@ -484,7 +497,8 @@
       "2017": {
         "campuses": 2,
         "online": 0,
-        "rateRanked": true,
+        "rateRanked": false,
+        "rateExcludedReason": "DOE reported campus 230913002 of this institution also under ID 230931001 of another institution in 2017 (a merger or renumbering), so that year's incidents and enrollment may not cover the same campuses. No rate is shown for it.",
         "counts": {
           "criminal": 18,
           "all": 144,
@@ -573,16 +587,6 @@
           "liquor_discipline": 11,
           "rape": 2,
           "stalking": 5
-        }
-      },
-      "2022": {
-        "campuses": 1,
-        "online": 24,
-        "rateRanked": true,
-        "counts": {
-          "all": 26,
-          "dating_violence": 7,
-          "liquor_discipline": 19
         }
       }
     }

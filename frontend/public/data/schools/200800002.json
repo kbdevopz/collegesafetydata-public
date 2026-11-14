@@ -4,6 +4,7 @@
   "shortName": null,
   "city": "Medina",
   "state": "OH",
+  "campus": "Medina County University Center",
   "ivyLeague": false,
   "isMainCampus": false,
   "campusType": "Branch Campus",
@@ -41,6 +42,25 @@
     2023,
     2024
   ],
+  "idChanges": [
+    {
+      "unitid": 200846002,
+      "relation": "later",
+      "years": [
+        2016,
+        2017,
+        2018,
+        2019,
+        2020,
+        2021,
+        2022,
+        2023,
+        2024
+      ],
+      "name": "University of Akron Wayne College",
+      "campus": "Medina County University Center"
+    }
+  ],
   "institution": {
     "id": 200800,
     "byYear": {
@@ -70,7 +90,8 @@
       "2016": {
         "campuses": 2,
         "online": 3,
-        "rateRanked": true,
+        "rateRanked": false,
+        "rateExcludedReason": "DOE reported campus 200800002 of this institution also under ID 200846002 of another institution in 2016 (a merger or renumbering), so that year's incidents and enrollment may not cover the same campuses. No rate is shown for it.",
         "counts": {
           "criminal": 38,
           "all": 353,

@@ -4,6 +4,7 @@
   "shortName": null,
   "city": "LYNDONVILLE",
   "state": "VT",
+  "campus": "Vermont State University - Lyndon",
   "ivyLeague": false,
   "isMainCampus": false,
   "campusType": "Branch Campus",
@@ -226,13 +227,45 @@
     2023,
     2024
   ],
+  "idChanges": [
+    {
+      "unitid": 230931001,
+      "relation": "earlier",
+      "years": [
+        2015,
+        2016,
+        2017
+      ],
+      "name": "Lyndon State College"
+    },
+    {
+      "unitid": 231165004,
+      "relation": "later",
+      "years": [
+        2022,
+        2023,
+        2024
+      ],
+      "name": "Vermont State University",
+      "campus": "Vermont State University - Lyndon"
+    }
+  ],
+  "sharedFigures": [
+    {
+      "year": 2022,
+      "geo": "On-campus",
+      "hostUnitid": 231165004,
+      "hostName": "Vermont State University"
+    }
+  ],
   "institution": {
     "id": 230913,
     "byYear": {
       "2017": {
         "campuses": 2,
         "online": 0,
-        "rateRanked": true,
+        "rateRanked": false,
+        "rateExcludedReason": "DOE reported campus 230913002 of this institution also under ID 230931001 of another institution in 2017 (a merger or renumbering), so that year's incidents and enrollment may not cover the same campuses. No rate is shown for it.",
         "counts": {
           "criminal": 18,
           "all": 144,
@@ -322,11 +355,6 @@
           "rape": 2,
           "stalking": 5
         }
-      },
-      "2022": {
-        "campuses": 1,
-        "online": 24,
-        "rateRanked": true
       }
     }
   }

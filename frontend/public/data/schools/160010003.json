@@ -4,6 +4,7 @@
   "shortName": null,
   "city": "Natchitoches",
   "state": "LA",
+  "campus": "Natchitoches",
   "ivyLeague": false,
   "isMainCampus": false,
   "campusType": "Branch Campus",
@@ -41,6 +42,21 @@
     2023,
     2024
   ],
+  "idChanges": [
+    {
+      "unitid": 158088010,
+      "relation": "later",
+      "years": [
+        2016,
+        2017,
+        2018,
+        2019,
+        2020
+      ],
+      "name": "Central Louisiana Technical Community College",
+      "campus": "Natchitoches Campus"
+    }
+  ],
   "institution": {
     "id": 160010,
     "byYear": {
@@ -57,7 +73,8 @@
       "2016": {
         "campuses": 5,
         "online": 0,
-        "rateRanked": true
+        "rateRanked": false,
+        "rateExcludedReason": "DOE reported campus 160010003 of this institution also under ID 158088010 of another institution in 2016 (a merger or renumbering), so that year's incidents and enrollment may not cover the same campuses. No rate is shown for it."
       }
     }
   }
