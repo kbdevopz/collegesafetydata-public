@@ -15,6 +15,7 @@ import { cn, formatNumber, formatPercent, groupOffensesByFamily, isSmallSample }
 import { CRIMINAL, compareText, countHeader, countPhrase, noneOfPhrase } from '../lib/selection'
 import SchoolSearch from '../components/SchoolSearch'
 import OffensePopover from '../components/OffensePopover'
+import SeriesNotes from '../components/SeriesNotes'
 
 // One row of the table: a campus (count view) or an institution, all its
 // campuses together (rate view, as NCES publishes FTE per institution)
@@ -313,7 +314,11 @@ export default function Rankings() {
           size: 100,
         }),
         columnHelper.accessor('fte', {
-          header: 'Enrollment',
+          header: () => (
+            <span title="NCES full-time equivalent enrollment of the whole institution (all its campuses), not of this campus">
+              Institution FTE
+            </span>
+          ),
           cell: (info) => {
             const fte = info.getValue()
             return (
@@ -326,7 +331,11 @@ export default function Rankings() {
         }),
       ] : [
         columnHelper.accessor('fte', {
-          header: 'Enrollment',
+          header: () => (
+            <span title="NCES full-time equivalent enrollment of the whole institution (all its campuses), not of this campus">
+              Institution FTE
+            </span>
+          ),
           cell: (info) => {
             const fte = info.getValue()
             return (
@@ -787,6 +796,9 @@ export default function Rankings() {
           </div>
         )}
 
+        {/* Comparability note for the selected year (data/seriesNotes.ts) */}
+        <SeriesNotes years={[selectedYear]} className="mb-4" />
+
         {/* Rankings Table (Desktop) / Cards (Mobile) */}
         <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden transition-colors duration-200">
           {loading ? (
@@ -892,7 +904,7 @@ export default function Rankings() {
                                 <>
                                   <span className="text-gray-400">&middot;</span>
                                   <span className="text-gray-500 dark:text-gray-500 tabular-nums text-xs">
-                                    {formatNumber(item.fte)} students
+                                    {formatNumber(item.fte)} FTE (institution)
                                   </span>
                                 </>
                               )}

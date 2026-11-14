@@ -4,11 +4,13 @@ import { BarChart3, GitCompare, Info, Shield, Sun, Moon, Monitor, Menu, X, Coffe
 import { cn } from './lib/utils'
 import { useTheme } from './hooks/useTheme'
 import ErrorBoundary from './components/ErrorBoundary'
+import { useBuildInfo } from './lib/build'
 
 export default function App() {
   const location = useLocation()
   const { theme, setTheme, resolvedTheme } = useTheme()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const build = useBuildInfo()
 
   // Close mobile menu and scroll to top on route change
   useEffect(() => {
@@ -284,6 +286,20 @@ export default function App() {
           <p className="mt-4 text-xs text-gray-500 dark:text-gray-400 text-center sm:text-left">
             Reported incidents only. Lower numbers may reflect reporting differences, not greater safety.
             Data from the U.S. Department of Education. Not an official government website.
+          </p>
+          <p className="mt-2 text-xs text-gray-500 dark:text-gray-400 text-center sm:text-left">
+            {build ? (
+              <>
+                Data build{' '}
+                <Link to="/methodology#data" className="font-mono hover:underline" title={`SHA-256 of /data/build_inputs.json: ${build.sha256}`}>
+                  {build.id}
+                </Link>
+                <span className="mx-2">&middot;</span>
+              </>
+            ) : null}
+            <Link to="/methodology#cite" className="hover:underline">How to cite</Link>
+            <span className="mx-2">&middot;</span>
+            <Link to="/changes" className="hover:underline">Changes and corrections</Link>
           </p>
         </div>
       </footer>

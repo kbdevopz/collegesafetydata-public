@@ -19,6 +19,7 @@ export const pageLoaders = {
   contact: () => import('./pages/Contact'),
   privacy: () => import('./pages/Privacy'),
   terms: () => import('./pages/Terms'),
+  changes: () => import('./pages/Changes'),
   notFound: () => import('./pages/NotFound'),
 }
 
@@ -34,6 +35,7 @@ const PATHS: [string, PageKey][] = [
   ['/contact', 'contact'],
   ['/privacy', 'privacy'],
   ['/terms', 'terms'],
+  ['/changes', 'changes'],
 ]
 
 /** The page a URL path shows (notFound when no route matches). */

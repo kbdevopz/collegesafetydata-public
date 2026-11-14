@@ -11,6 +11,7 @@ Usage:
     python 05_generate_json.py
 """
 
+import re
 import sys
 import json
 import pandas as pd
@@ -37,6 +38,8 @@ class SiteDataError(Exception):
 # written by provenance after the rest).
 ROOT_FILES = {"metadata.json", "presets.json", "school-index.json"}
 OWNED_DIRS = ("rankings", "schools")
+# downloads/ belongs to 05 as well: its CSV files (generate_downloads)
+DOWNLOADS_DIR = "downloads"
 
 # Paths (relative to JSON_DIR, "/" separated) written by this run
 _written: set[str] = set()
@@ -50,7 +53,8 @@ def owns(rel: str) -> bool:
     """
     top = rel.split("/")[0]
     return rel in ROOT_FILES or (
-        top in OWNED_DIRS and rel.count("/") == 1 and PurePosixPath(rel).suffix == ".json")
+        top in OWNED_DIRS and rel.count("/") == 1 and PurePosixPath(rel).suffix == ".json") or (
+        top == DOWNLOADS_DIR and rel.count("/") == 1 and PurePosixPath(rel).suffix == ".csv")
 
 
 def required_inputs() -> list[Path]:
@@ -158,6 +162,51 @@ def enrollment_status(years, aggs_record: dict) -> dict[str, str]:
     return status
 
 
+def known_defects(aggs_record: dict, years) -> list[dict]:
+    """
+    The known DOE file errors the build worked around (KNOWN_DEFECTS in 02,
+    as recorded in the crime record inside 04's record), each with the
+    campuses whose figures for that year come from the defective release
+    (campus_year_sources.parquet), so their school pages can say so.
+
+    Only describes the data; no figure is changed here.
+    """
+    crime = ((aggs_record or {}).get("inputs") or {}).get("crime") or {}
+    sources = pd.read_parquet(CURATED_DIR / "dims" / "campus_year_sources.parquet",
+                              columns=["unitid", "year", "release"])
+    out = []
+    for rec in crime.get("known_defects") or []:
+        name = str(rec.get("file") or "")
+        m = re.fullmatch(r"(oncampus|residencehall|noncampus|publicproperty)"
+                         r"(crime|vawa|arrest|discipline)(\d{6})\.sas7bdat", name)
+        year = rec.get("year")
+        if not m or year not in years:
+            raise SiteDataError(f"known defect {name!r} ({year}) in 04's record is not a DOE count file "
+                                "of a data year. Fix known_defects in 05.")
+        geo, category, release = m.groups()
+        taken = str(rec.get("taken_from") or "")
+        t = re.fullmatch(r"[a-z]+(\d{6})\.sas7bdat", taken) if taken else None
+        if taken and not t:
+            raise SiteDataError(f"known defect {name!r}: replacement {taken!r} is not a DOE count file.")
+        unitids = sorted(int(u) for u in sources.loc[(sources["year"] == year)
+                                                     & (sources["release"] == release), "unitid"])
+        if len(unitids) != int(rec.get("campus_years") or 0):
+            raise SiteDataError(f"known defect {name!r} ({year}): 02 recorded {rec.get('campus_years')} "
+                                f"campus-years, campus_year_sources.parquet has {len(unitids)}.")
+        out.append({
+            "year": int(year),
+            "release": release,            # DOE file suffix, e.g. "212223" (2021-2023)
+            "file": name,
+            "geo": geo,                    # "residencehall", ...
+            "category": category,          # "discipline", "arrest", ...
+            "columns": list(rec.get("columns") or []),
+            "problem": str(rec.get("problem") or ""),
+            "takenFrom": t.group(1) if t else None,   # release the cells come from, or None (left blank)
+            "unitids": unitids,
+        })
+    return out
+
+
 def generate_metadata(aggs_record: dict) -> dict:
     """
     Generate metadata.json with available options.
@@ -243,7 +292,9 @@ def generate_metadata(aggs_record: dict) -> dict:
         presets.append({
             "id": "national",
             "name": "All Schools",
-            "description": f"All {total_schools:,} schools nationwide",
+            # Every campus that reported a year (each has a school page),
+            # including the few outside the states that national rankings cover
+            "description": f"All {total_schools:,} campuses with a school page",
             "schoolCount": total_schools
         })
 
@@ -282,6 +333,9 @@ def generate_metadata(aggs_record: dict) -> dict:
         "rateRules": {"minFte": MIN_FTE_FOR_RATE, "onlineExclusionPct": ONLINE_EXCLUSION_PCT,
                       "onlineShareYear": {str(y): src for y, src in sorted(ONLINE_SHARE_YEAR.items())}},
         "offenses": offenses,
+        # Known DOE file errors and the campuses whose figures they touch
+        # (residence-hall figures of campus-years from DOE's 2021-2023 release)
+        "knownDefects": known_defects(aggs_record, years),
         "geographies": ["All", "On-campus", "Non-campus", "Public property", "Residence halls"],
         "presets": presets,
         "lastUpdated": datetime.now().isoformat(),
@@ -968,6 +1022,84 @@ def generate_school_profiles() -> None:
     print(f"  Saved to: {schools_dir}/")
 
 
+def write_csv(path: Path, df: pd.DataFrame) -> None:
+    """Write one site download as UTF-8 CSV with LF line endings."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(path, index=False, encoding="utf-8", lineterminator="\n")
+    _written.add(path.relative_to(JSON_DIR).as_posix())
+
+
+def generate_downloads() -> None:
+    """
+    Flat downloads of the published figures (downloads/ in the site data):
+
+    - campus-years.csv: every campus-year the site shows (each year a campus
+      reported to DOE, zeros included), with the DOE release its figures come
+      from, whether it counts in rankings, and its institution's NCES FTE and
+      online share as the rate rules use them.
+    - counts-YYYY.csv: every nonzero count of that year, by campus, location
+      and offense, as DOE publishes it (school pages show the same figures),
+      and for a location also reported identically by another campus, the
+      campus it is counted under in totals and rankings.
+
+    Read from the same tables as the rest of the site; no figure is changed.
+    """
+    print("Generating downloads...")
+    out_dir = JSON_DIR / "downloads"
+    dim_inst = pd.read_parquet(CURATED_DIR / "dims" / "dim_institution.parquet")
+    sources = pd.read_parquet(CURATED_DIR / "dims" / "campus_year_sources.parquet",
+                              columns=["unitid", "year", "release"])
+    sources = sources[sources["year"].isin(DATA_YEARS)]
+    counted = pd.read_parquet(CURATED_DIR / "aggs" / "agg_campus_year.parquet", columns=["year", "unitid"])
+    inst = pd.read_parquet(CURATED_DIR / "aggs" / "agg_institution_year.parquet",
+                           columns=["year", "base_unitid", "fte", "online_pct", "online_year"])
+    agg = pd.read_parquet(CURATED_DIR / "aggs" / "agg_school_year_offense.parquet",
+                          columns=["year", "unitid", "offense", "geo", "count"])
+    shared = pd.read_parquet(CURATED_DIR / "aggs" / "shared_blocks.parquet",
+                             columns=["year", "unitid", "geo", "role", "host_unitid"])
+
+    cy = sources.merge(dim_inst[["unitid", "base_unitid", "institution_name", "city", "state"]],
+                       on="unitid", how="left", validate="many_to_one")
+    if cy["base_unitid"].isna().any():
+        raise SiteDataError("campus_year_sources.parquet has campuses that are not in dim_institution.parquet. "
+                            "Re-run 03 and 04, then 05.")
+    key = counted.assign(counts_in_rankings=True)
+    cy = cy.merge(key, on=["year", "unitid"], how="left", validate="one_to_one")
+    cy["counts_in_rankings"] = cy["counts_in_rankings"].eq(True)
+    cy = cy.merge(inst.rename(columns={"fte": "institution_fte", "online_pct": "institution_online_pct",
+                                       "online_year": "online_pct_fall"}),
+                  on=["year", "base_unitid"], how="left", validate="many_to_one")
+    cy = cy.rename(columns={"institution_name": "campus_name", "release": "doe_release"})
+    cy["main_campus"] = cy["unitid"].astype("int64") % 1000 == 1
+    cy = cy[["year", "unitid", "base_unitid", "campus_name", "city", "state", "main_campus", "doe_release",
+             "counts_in_rankings", "institution_fte", "institution_online_pct", "online_pct_fall"]]
+    cy = cy.sort_values(["year", "unitid"]).reset_index(drop=True)
+    for col in ("institution_fte", "online_pct_fall"):
+        cy[col] = cy[col].astype("Int64")
+    write_csv(out_dir / "campus-years.csv", cy)
+
+    facts = agg[(agg["geo"] != "All") & agg["year"].isin(DATA_YEARS)].copy()
+    shadows = shared[shared["role"] == "shadow"][["year", "unitid", "geo", "host_unitid"]]
+    facts = facts.merge(shadows.rename(columns={"host_unitid": "counted_under_unitid"}),
+                        on=["year", "unitid", "geo"], how="left", validate="many_to_one")
+    facts["counted_under_unitid"] = facts["counted_under_unitid"].astype("Int64")
+    missing = facts.merge(sources, on=["year", "unitid"], how="left", indicator=True)
+    if (missing["_merge"] != "both").any():
+        raise SiteDataError("agg_school_year_offense.parquet has campus-years that are not in "
+                            "campus_year_sources.parquet. Re-run 02 to 04, then 05.")
+    rows = 0
+    for year, part in facts.groupby("year"):
+        part = part[["year", "unitid", "geo", "offense", "count", "counted_under_unitid"]]
+        part = part.sort_values(["unitid", "geo", "offense"]).reset_index(drop=True)
+        write_csv(out_dir / f"counts-{int(year)}.csv", part)
+        back = pd.read_csv(out_dir / f"counts-{int(year)}.csv")
+        if len(back) != len(part) or int(back["count"].sum()) != int(part["count"].sum()):
+            raise SiteDataError(f"downloads/counts-{int(year)}.csv does not read back as written.")
+        rows += len(part)
+    print(f"  campus-years.csv: {len(cy):,} campus-years; counts-YYYY.csv: {rows:,} rows "
+          f"in {facts['year'].nunique()} files")
+
+
 def shared_figures(dim_inst: pd.DataFrame) -> dict[int, list[dict]]:
     """
     For each campus with shadow blocks (04_create_aggregates.py,
@@ -1081,6 +1213,7 @@ def main() -> int:
         presets = generate_presets()
         generate_rankings_json()
         generate_school_profiles()
+        generate_downloads()
 
         # Generate search index for nationwide mode
         if PROCESS_ALL_SCHOOLS:

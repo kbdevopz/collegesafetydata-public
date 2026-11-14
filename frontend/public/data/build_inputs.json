@@ -1,7 +1,7 @@
 {
   "aggregates": {
     "all_schools": true,
-    "built_at": "2026-11-13T01:31:58+00:00",
+    "built_at": "2026-11-14T04:14:33+00:00",
     "code": {
       "04_create_aggregates.py": "adccf808646b77bb64406a26b89de7c4dee2fb6189e23c4fd9d4f71aa9be0d59",
       "config.py": "3c35011eda6fcc8d7e882c916a16975179aef200bdc88384228892b75b3c9bfb",
@@ -10,7 +10,7 @@
     "inputs": {
       "crime": {
         "all_schools": true,
-        "built_at": "2026-11-13T01:30:26+00:00",
+        "built_at": "2026-11-14T04:12:11+00:00",
         "campus_year_sources": {
           "2015": {
             "131415": 530,
@@ -800,7 +800,7 @@
         }
       },
       "enrollment": {
-        "built_at": "2026-11-13T01:30:29+00:00",
+        "built_at": "2026-11-14T04:12:14+00:00",
         "code": {
           "02a_transform_enrollment.py": "8532e89af00869bdbe2aab7508239f5ad7dbb76335fefe74e7a99908e9a52e90",
           "config.py": "3c35011eda6fcc8d7e882c916a16975179aef200bdc88384228892b75b3c9bfb",
@@ -808,7 +808,7 @@
           "provenance.py": "bcae0eb683bbbcdf4af5e4c72fe328a1e0008e167820059ec6ae84cfa1025c56"
         },
         "ef": {
-          "built_at": "2026-11-13T01:30:28+00:00",
+          "built_at": "2026-11-14T04:12:13+00:00",
           "code": {
             "02b_transform_ef_enrollment.py": "5a56eaa6bc92a226bca461489d91975e5c6dbb8e074e83e9d76f465e1a9ff669",
             "config.py": "3c35011eda6fcc8d7e882c916a16975179aef200bdc88384228892b75b3c9bfb",
@@ -915,7 +915,7 @@
         }
       },
       "institutions": {
-        "built_at": "2026-11-13T01:30:32+00:00",
+        "built_at": "2026-11-14T04:12:17+00:00",
         "code": {
           "03_build_dimensions.py": "81bb2a3037fd8f65fa68208baabe83711e5d2c64ef8a3ca2bf794c538bfaaced",
           "config.py": "3c35011eda6fcc8d7e882c916a16975179aef200bdc88384228892b75b3c9bfb",
@@ -923,7 +923,7 @@
         },
         "crime": {
           "all_schools": true,
-          "built_at": "2026-11-13T01:30:26+00:00",
+          "built_at": "2026-11-14T04:12:11+00:00",
           "campus_year_sources": {
             "2015": {
               "131415": 530,
@@ -1743,13 +1743,24 @@
   },
   "all_schools": true,
   "code": {
-    "05_generate_json.py": "07a6ce3aad2be29c01820d7e97f8ccad6ba5bd826f21c431d5ae8e78bc552d5d",
+    "05_generate_json.py": "290476e076539ea1e7c89ae35c4db060f678e46318bea2a88715153b200e84a2",
     "config.py": "3c35011eda6fcc8d7e882c916a16975179aef200bdc88384228892b75b3c9bfb",
     "provenance.py": "bcae0eb683bbbcdf4af5e4c72fe328a1e0008e167820059ec6ae84cfa1025c56"
   },
-  "generated_at": "2026-11-13T01:36:20+00:00",
+  "generated_at": "2026-11-14T10:22:14+00:00",
   "outputs": {
-    "metadata.json": "ae281fa6c619b83d613ddb2ba4b2684bd832e1cadd562a182ea296d2ef807759",
+    "downloads/campus-years.csv": "0e0088c80065dcd0344773b0cd8aab529fa2f34736d6a19f47059f953be28d72",
+    "downloads/counts-2015.csv": "23d89464da9308602bb41705f60ac14456fd403a39027595032a5069b066f7ee",
+    "downloads/counts-2016.csv": "7132d93789aa8cb4dbd0eb9f35460245128c0aa59ea6113a347e0a4844d13339",
+    "downloads/counts-2017.csv": "afa66fc60d11957efa46f40ae69bc8dafccb0465b571d377863aa6d62eb4102f",
+    "downloads/counts-2018.csv": "403862bd1e2d6228855b2c2ba8fdb52d594406a39ec1848b8d704daf6719ac26",
+    "downloads/counts-2019.csv": "8ec7fd1611b1bd0e9fafc0d2f924d9c52fb4f331c4c499817988902bdeb29f55",
+    "downloads/counts-2020.csv": "74b2303e211091ffff288706e95770cab87b20c5b5df60c9b4ec08780e022cbe",
+    "downloads/counts-2021.csv": "bc8a9562da6d93719b0614f8e772a973d5310b3c5191b9bcd39492e94f104c80",
+    "downloads/counts-2022.csv": "a9a179ae84ff065daf991e15e1416ce1b5e96f9438b2fe337701b03044292a04",
+    "downloads/counts-2023.csv": "4e91a6c447bd7ae20b594eec068fb44c71d8476d4ae255bd37175bfb5e98be7f",
+    "downloads/counts-2024.csv": "844da09de28a90da0d4254aea37aa6f4d15d84cc593dae296f3bf2e71b7dc63a",
+    "metadata.json": "56548100e8f54f7c4560716f7973d260d1b7193b434c1f4f5f0c997ac11ae19b",
     "presets.json": "c60962eda06fb6fd6b2421314bcb00b992cd52c9e362ea6fd1e54b0c1db7192f",
     "rankings/AK-2015-all.json": "b2b24e1f7c1321f91be447070b49c1b3dc9be909323cd289f6f3407b18940319",
     "rankings/AK-2016-all.json": "388ef03f8439c0d048d84b599013e0780016faafb3dccf8f704de1916eb30b55",

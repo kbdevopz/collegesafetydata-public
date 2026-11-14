@@ -14,6 +14,7 @@ import Methodology from './pages/Methodology'
 import Contact from './pages/Contact'
 import Privacy from './pages/Privacy'
 import Terms from './pages/Terms'
+import Changes from './pages/Changes'
 import NotFound from './pages/NotFound'
 
 const pages: PageComponents = {
@@ -25,6 +26,7 @@ const pages: PageComponents = {
   contact: Contact,
   privacy: Privacy,
   terms: Terms,
+  changes: Changes,
   notFound: NotFound,
 }
 

@@ -13,19 +13,154 @@ import {
   AlertTriangle,
   Info,
   Users,
+  Calendar,
 } from 'lucide-react'
 import { getMetadata } from '../lib/api'
 import type { Metadata } from '../lib/types'
 import { formatDate, formatNumber } from '../lib/utils'
 import { summarizeEnrollmentStatus, describeEnrollmentStatus } from '../lib/enrollment'
 import { summarizeDataYears } from '../lib/coverage'
+import SourceLink from '../components/SourceLink'
+import CiteThisData from '../components/CiteThisData'
+import { useBuildInfo } from '../lib/build'
+import { SERIES_NOTES, SERIES_CONTEXT } from '../data/seriesNotes'
+import { Link, useLocation } from 'react-router-dom'
+
+// The Limitations section, in reading order
+const LIMITATIONS: { title: string; body: React.ReactNode }[] = [
+  {
+    title: 'Reports, not how often crimes happen',
+    body: (
+      <>
+        Clery figures count crimes reported to campus security authorities or police, not victimization. Many
+        crimes are never reported: in the Bureau of Justice Statistics' analysis of the National Crime
+        Victimization Survey, 80% of rape and sexual assault victimizations of female college students aged 18-24
+        (1995-2013) were not reported to police (
+        <SourceLink source={SOURCES.bjsCollege2014}>BJS, NCJ 248471</SourceLink>). That survey does not measure
+        reports to campus officials, which Clery figures include, so the share is not a Clery figure. A higher count
+        can mean more crime, more reporting, or both; a lower count does not show that a campus is safer.
+      </>
+    ),
+  },
+  {
+    title: 'Counted by the year reported',
+    body: (
+      <>
+        A year's figure is the crimes reported that year, including some that happened earlier. Many reports of
+        past abuse at one institution can make one year jump (see{' '}
+        <a href="#year-reported" className="underline">How Institutions Count</a>).
+      </>
+    ),
+  },
+  {
+    title: 'Institutions classify, count and map differently',
+    body: (
+      <>
+        Each institution decides which incidents fit which category, who its campus security authorities are,
+        and which buildings and streets are its campus, noncampus and public property. ED's 2020 Appendix says ED
+        will accept an institution's reasonable interpretation of terms and applies no measurable distance to a
+        campus's "reasonably contiguous geographic area". Two institutions with the same incidents can report
+        different figures, and public property next to a city campus is not comparable with a rural one.
+      </>
+    ),
+  },
+  {
+    title: 'Rates are per enrolled student, not per person on campus',
+    body: (
+      <>
+        Rates divide by the institution's fall FTE enrollment from NCES. They do not count residents who are not
+        students, employees, visitors or patients, or how many students live on campus, and FTE is per
+        institution, not per campus. Where an institution's Clery geography includes places used mostly by people
+        who are not its students, such as a hospital or clinic, the rate per student says little about risk to a
+        student.
+      </>
+    ),
+  },
+  {
+    title: 'Small numbers swing',
+    body: (
+      <>
+        Rates built on few incidents or a small enrollment are marked with an asterisk (*; the thresholds are
+        under <a href="#rates" className="underline">Crime Rate Calculation</a>). One or two incidents more or less can move such an institution many places in a ranking, and a small institution's
+        rate can change several-fold from one year to the next. Treat close ranks as ties.
+      </>
+    ),
+  },
+  {
+    title: 'A rate of 0 is a reported zero',
+    body: (
+      <>
+        An institution ranked with rate 0 reported no incident of that category that year. That can reflect
+        how it classifies or reports incidents, not only how safe it is, and a small institution can have 0 by
+        chance. A year a campus did not report is not 0: it has no figures and is not ranked.
+      </>
+    ),
+  },
+  {
+    title: 'Totals add unlike crimes',
+    body: (
+      <>
+        "All criminal offenses" adds the 11 offenses with equal weight: a murder and a motor vehicle theft each
+        count 1. In this data, motor vehicle theft was about 15% of the national total in 2015 and about 37% in
+        2024, so much of the recent rise in that total is vehicle theft. Look at single offenses before drawing
+        conclusions from a total.
+      </>
+    ),
+  },
+  {
+    title: 'Reported by institutions, not audited here',
+    body: (
+      <>
+        The figures are what institutions submitted to ED's survey, as ED publishes them. This site does not check
+        them against institutions' records or Annual Security Reports. Its audit checks that the published files
+        are consistent with the pipeline's tables built from DOE's and NCES's files; it does not verify what
+        institutions reported.
+      </>
+    ),
+  },
+  {
+    title: 'Not every Clery category is shown',
+    body: (
+      <>
+        Hate crimes, unfounded reports and fire statistics are not shown (see{' '}
+        <a href="#not-shown" className="underline">What This Site Does Not Show</a>).
+      </>
+    ),
+  },
+]
+
+// Campuses whose figures for `year` come from a release with a known DOE
+// file error (metadata.json "knownDefects"), or null when not published
+function defectCampuses(metadata: Metadata | null, year: number): number | null {
+  const ds = metadata?.knownDefects?.filter((d) => d.year === year)
+  if (!ds || ds.length === 0) return null
+  return new Set(ds.flatMap((d) => d.unitids)).size
+}
+import {
+  SOURCES,
+  CRIMINAL_DEFINITIONS,
+  VAWA_DEFINITIONS,
+  LAW_VIOLATION_DEFINITIONS,
+  GEOGRAPHY_DEFINITIONS,
+} from '../data/sources'
 
 export default function Methodology() {
   const [metadata, setMetadata] = React.useState<Metadata | null>(null)
+  const build = useBuildInfo()
 
   React.useEffect(() => {
     getMetadata().then(setMetadata).catch(console.error)
   }, [])
+
+  // Links such as /methodology#series-breaks: scroll to the section once
+  // the page is drawn (after the app's scroll to the top on navigation)
+  const { hash } = useLocation()
+  React.useEffect(() => {
+    if (!hash) return
+    const id = decodeURIComponent(hash.slice(1))
+    const t = window.setTimeout(() => document.getElementById(id)?.scrollIntoView(), 50)
+    return () => window.clearTimeout(t)
+  }, [hash])
 
   // Which falls have final, provisional or no enrollment yet, from
   // metadata.json "enrollmentStatus" (neutral wording when it is absent)
@@ -175,7 +310,7 @@ export default function Methodology() {
           </section>
 
           {/* FTE Calculation */}
-          <section>
+          <section id="fte" className="scroll-mt-20">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/50 rounded-xl flex items-center justify-center">
                 <Calculator className="w-5 h-5 text-primary-600 dark:text-primary-400" />
@@ -188,6 +323,32 @@ export default function Methodology() {
             <p className="text-gray-600 dark:text-gray-400 mb-6">
               FTE is the denominator of the per-student rates: full-time students count fully and part-time students count in part, so schools of different sizes and mixes can be compared. We use the FTE that NCES publishes for each institution and fall, for every year; we do not calculate it.
             </p>
+
+            <dl className="space-y-3 text-sm text-gray-600 dark:text-gray-400 mb-6">
+              <div>
+                <dt className="font-medium text-gray-900 dark:text-gray-100">FTE (DRVEF variable FTE, "Full-time equivalent fall enrollment")</dt>
+                <dd>
+                  NCES adds the institution's full-time fall enrollment to an estimate of the full-time equivalent of
+                  its part-time enrollment: part-time students multiplied by factors that depend on the institution's
+                  control and level and the student's level (for example 0.403543 for part-time undergraduates at
+                  public 4-year institutions, 0.335737 at public 2-year institutions). It counts students enrolled
+                  for credit in the fall, not over the whole year, and it is published for each institution, not
+                  each campus.
+                </dd>
+              </div>
+              <div>
+                <dt className="font-medium text-gray-900 dark:text-gray-100">PCTDEEXC ("Percent of students enrolled exclusively in distance education courses")</dt>
+                <dd>
+                  Students enrolled only in distance education courses, divided by all students enrolled, as of the
+                  institution's official fall reporting date or October 15. Rate rankings use it to leave out mostly
+                  online institutions (see below).
+                </dd>
+              </div>
+              <div>
+                Source: <SourceLink source={SOURCES.drvefDictionary}>NCES, DRVEF data dictionary for 2023</SourceLink>; see also the{' '}
+                <SourceLink source={SOURCES.ipedsGlossary}>IPEDS Glossary</SourceLink>.
+              </div>
+            </dl>
 
             <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden mb-6">
               <table className="w-full text-sm">
@@ -216,7 +377,7 @@ export default function Methodology() {
           </section>
 
           {/* Crime Rate Calculation */}
-          <section>
+          <section id="rates" className="scroll-mt-20">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/50 rounded-xl flex items-center justify-center">
                 <BarChart3 className="w-5 h-5 text-primary-600 dark:text-primary-400" />
@@ -232,7 +393,8 @@ export default function Methodology() {
                 Rate = (Incident Count / FTE) × 10,000
               </code>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                This rate standardization allows for fair comparison between institutions of different sizes.
+                A size-adjusted figure: it removes the effect of enrollment size on counts, not the other
+                differences between institutions listed under Limitations.
               </p>
             </div>
 
@@ -258,9 +420,13 @@ export default function Methodology() {
                 </p>
               </div>
               <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
-                <h5 className="font-medium text-gray-900 dark:text-gray-100 text-sm mb-2">Who Rate Rankings Leave Out</h5>
+                <h5 className="font-medium text-gray-900 dark:text-gray-100 text-sm mb-2">Current Rate Rules</h5>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                  A rate with fewer than 10 incidents, or an FTE under 1,000, is marked with an asterisk (*).
+                </p>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Institutions with fewer than 1,000 FTE students that year, where a few incidents swing the rate.
+                  Rate rankings leave out institutions with fewer than 1,000 FTE students that year, where a few
+                  incidents swing the rate.
                   And institutions where at least 50% of students study exclusively online (NCES's share of students
                   enrolled exclusively in distance education): Clery figures cover the campus, which most of their
                   students never attend, so their rate is not comparable. School pages still show these rates, with a
@@ -281,182 +447,298 @@ export default function Methodology() {
             </div>
           </section>
 
-          {/* Geographic Classifications */}
-          <section>
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/50 rounded-xl flex items-center justify-center">
-                <MapPin className="w-5 h-5 text-primary-600 dark:text-primary-400" />
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                Geographic Classifications
-              </h2>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-              {[
-                { title: "On-Campus", desc: "All property owned or controlled by the institution" },
-                { title: "Residence Halls", desc: "Student housing (subset of on-campus)" },
-                { title: "Non-Campus", desc: "Property owned but not contiguous to campus" },
-                { title: "Public Property", desc: "Public areas adjacent to campus" },
-              ].map((item, i) => (
-                <div
-                  key={i}
-                  className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4"
-                >
-                  <h4 className="font-semibold text-gray-900 dark:text-gray-100 text-sm mb-1">
-                    {item.title}
-                  </h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">{item.desc}</p>
-                </div>
-              ))}
-            </div>
-
-            <div className="flex items-start gap-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
-              <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
-              <p className="text-sm text-amber-800 dark:text-amber-300">
-                <strong>Important:</strong> Residence hall incidents are a <em>subset</em> of on-campus incidents.
-                Our calculations exclude residence halls when summing totals to avoid double-counting.
-              </p>
-            </div>
-          </section>
-
-          {/* Offense Categories */}
-          <section>
+          {/* Definitions */}
+          <section id="definitions" className="scroll-mt-20">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/50 rounded-xl flex items-center justify-center">
                 <Shield className="w-5 h-5 text-primary-600 dark:text-primary-400" />
               </div>
               <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                Offense Categories
+                Definitions
               </h2>
             </div>
 
+            <p className="text-gray-600 dark:text-gray-400 mb-4">
+              Every category on this site is a Clery Act category, counted by each institution and reported to the
+              U.S. Department of Education (ED) in its yearly Campus Safety and Security survey. The definitions below
+              are the regulation's, shortened: the crimes in{' '}
+              <SourceLink source={SOURCES.regAppendixA}>Appendix A to Subpart D of Part 668</SourceLink>{' '}
+              (taken from the FBI's Uniform Crime Reporting manuals), and the VAWA offenses and locations in{' '}
+              <SourceLink source={SOURCES.reg66846}>34 CFR 668.46</SourceLink>. Where the DOE data uses another
+              name, it is given in brackets.
+            </p>
+
             <div className="space-y-4">
-              <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-5">
-                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">Criminal Offenses (11)</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                  Traditional serious crimes reported under the Clery Act:
-                </p>
-                <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm text-gray-700 dark:text-gray-300">
-                  <span>• Murder/Non-negligent Manslaughter</span>
-                  <span>• Rape</span>
-                  <span>• Manslaughter by Negligence</span>
-                  <span>• Fondling</span>
-                  <span>• Robbery</span>
-                  <span>• Incest</span>
-                  <span>• Aggravated Assault</span>
-                  <span>• Statutory Rape</span>
-                  <span>• Burglary</span>
-                  <span>• Motor Vehicle Theft</span>
-                  <span></span>
-                  <span>• Arson</span>
+              {[
+                { title: 'Criminal offenses (11)', note: 'Crimes reported to campus security authorities or local police that occurred on the institution\'s Clery geography.', items: CRIMINAL_DEFINITIONS },
+                { title: 'VAWA offenses (3)', note: 'Added to the Clery Act by the Violence Against Women Reauthorization Act of 2013.', items: VAWA_DEFINITIONS },
+                { title: 'Arrests and disciplinary referrals (3 violations each)', note: 'Counts of people arrested, and of people referred for campus disciplinary action, for violating these laws.', items: LAW_VIOLATION_DEFINITIONS },
+              ].map((group) => (
+                <div key={group.title} className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-5">
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">{group.title}</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">{group.note}</p>
+                  <dl className="space-y-2 text-sm">
+                    {group.items.map((d) => (
+                      <div key={d.name}>
+                        <dt className="inline font-medium text-gray-900 dark:text-gray-100">
+                          {d.name}
+                          {d.doeName && <span className="font-normal text-gray-500 dark:text-gray-400"> [{d.doeName}]</span>}:
+                        </dt>{' '}
+                        <dd className="inline text-gray-600 dark:text-gray-400">{d.text}</dd>
+                      </div>
+                    ))}
+                  </dl>
                 </div>
-              </div>
+              ))}
+            </div>
 
-              <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-5">
-                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">VAWA Offenses (3)</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                  Added in 2014 under the Violence Against Women Act:
-                </p>
-                <div className="space-y-1 text-sm text-gray-700 dark:text-gray-300">
-                  <span>• Domestic Violence</span>
-                  <span>• Dating Violence</span>
-                  <span>• Stalking</span>
+            <h3 id="geography" className="scroll-mt-20 text-lg font-semibold text-gray-900 dark:text-gray-100 mt-8 mb-3">
+              <MapPin className="w-4 h-4 inline mr-2 text-primary-600 dark:text-primary-400" aria-hidden="true" />
+              Locations (Clery geography)
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+              {GEOGRAPHY_DEFINITIONS.map((d) => (
+                <div key={d.name} className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
+                  <h4 className="font-semibold text-gray-900 dark:text-gray-100 text-sm mb-1">
+                    {d.name}
+                    {d.doeName && <span className="font-normal text-gray-500 dark:text-gray-400"> [{d.doeName}]</span>}
+                  </h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">{d.text}</p>
                 </div>
-              </div>
+              ))}
+            </div>
+            <div className="flex items-start gap-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
+              <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-amber-800 dark:text-amber-300">
+                <strong>Residence halls are not added to totals.</strong> The regulation asks for the number of
+                on-campus crimes that took place in student housing, so every residence-hall incident is already
+                in the on-campus count. Totals on this site are on-campus + non-campus + public property; adding
+                residence halls would count those incidents twice.
+              </p>
+            </div>
 
-              <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-5">
-                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">Arrests & Disciplinary Actions (3)</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                  Includes both arrests and campus disciplinary referrals:
-                </p>
-                <div className="space-y-1 text-sm text-gray-700 dark:text-gray-300">
-                  <span>• Weapons Violations</span>
-                  <span>• Drug Law Violations</span>
-                  <span>• Liquor Law Violations</span>
-                </div>
-                <p className="text-xs text-gray-500 dark:text-gray-500 mt-3">
-                  Note: High counts in these categories may reflect enforcement practices rather than safety levels.
-                </p>
-              </div>
+            <h3 id="counting" className="scroll-mt-20 text-lg font-semibold text-gray-900 dark:text-gray-100 mt-8 mb-3">
+              How institutions count
+            </h3>
+            <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400 list-disc ml-5">
+              <li>
+                <strong className="text-gray-900 dark:text-gray-200">Reports, not convictions.</strong> A crime is
+                counted when it is reported to a campus security authority or to local police and occurred on the
+                institution's Clery geography (34 CFR 668.46(c)(1)). Only sworn or commissioned law enforcement
+                personnel may determine a report false or baseless ("unfounded"); unfounded reports are left out of
+                the counts and reported separately (668.46(c)(2)(iii)). This site does not show unfounded reports.
+              </li>
+              <li id="year-reported" className="scroll-mt-20">
+                <strong className="text-gray-900 dark:text-gray-200">By the year reported, not the year it happened.</strong>{' '}
+                Statistics are disclosed by "the year in which the crimes were reported" (2016 Handbook, chapter
+                2). A crime reported in 2019 counts in 2019 even if it happened years earlier, so a year's figure
+                can jump when many people report past abuse at one institution. For example, the national number
+                one campus by count of criminal offenses was Ohio State University in 2018, 2019 and 2021 (mostly
+                fondling) and the University of Michigan in 2020 (fondling and rape), and Michigan State
+                University's 1,012 rapes in 2018 are about 12% of that year's national total. These are the
+                figures the institutions reported; this site does not mark or remove them.
+              </li>
+              <li>
+                <strong className="text-gray-900 dark:text-gray-200">One offense per incident, with exceptions.</strong>{' '}
+                When several criminal offenses happen in one incident, only the most serious is counted (the FBI's
+                Hierarchy Rule, 668.46(c)(9)(v)). Arson is always counted, and a rape, fondling, incest or statutory
+                rape in the same incident as a murder is counted along with the murder (668.46(c)(9)(vi)-(vii)). The
+                Hierarchy Rule does not apply to VAWA offenses, so an incident can be counted both as, say, an
+                aggravated assault and as dating violence (2016 Handbook, chapter 3).
+              </li>
+              <li>
+                <strong className="text-gray-900 dark:text-gray-200">Arrests and referrals count people.</strong> The
+                arrest figures count people arrested (the 2016 Handbook defines an arrest as a person processed by
+                arrest, citation or summons). The disciplinary figures count people "not included" in the arrest
+                count who were referred for campus disciplinary action (668.46(c)(1)(ii)), so a person both arrested
+                and referred for the same violation is counted once, as an arrest. A referral counts only for a
+                violation of the law: breaking a campus rule alone (for example, a student of legal drinking age on
+                a dry campus) is not counted (2016 Handbook, chapter 3). These counts are not subject to the
+                Hierarchy Rule and are counted in addition to any criminal offense in the same incident.
+              </li>
+              <li>
+                <strong className="text-gray-900 dark:text-gray-200">Stalking is counted per year.</strong> Stalking
+                that continues into another calendar year is counted in each year in which the course of conduct
+                was reported (668.46(c)(6)).
+              </li>
+            </ul>
 
-              <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-5">
-                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">Totals on This Site</h4>
-                <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                  <p>
-                    <strong className="text-gray-900 dark:text-gray-100">All criminal offenses</strong> (the
-                    default view): the 11 criminal offenses above, added up.
+            <h3 id="not-shown" className="scroll-mt-20 text-lg font-semibold text-gray-900 dark:text-gray-100 mt-8 mb-3">
+              What this site does not show
+            </h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              DOE also publishes hate crimes, unfounded crime reports and fire statistics; this site does not read
+              or show them. Hate crimes are a breakdown rather than a separate total: the criminal offenses above
+              that were hate crimes (already in those counts, so adding them would count them twice), plus four
+              crimes counted only when they are hate crimes: larceny-theft, simple assault, intimidation and
+              destruction/damage/vandalism of property (668.46(c)(1)(iii)). The site has not added that breakdown;
+              use{' '}
+              <SourceLink source={SOURCES.cssData}>DOE's data tool</SourceLink> for it. Unfounded reports are
+              the reports withheld from the counts.
+            </p>
+
+            <h3 id="totals" className="scroll-mt-20 text-lg font-semibold text-gray-900 dark:text-gray-100 mt-8 mb-3">
+              Totals on this site
+            </h3>
+            <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+              <p>
+                <strong className="text-gray-900 dark:text-gray-100">All criminal offenses</strong> (the
+                default view): the 11 criminal offenses above, added up.
+              </p>
+              <p>
+                <strong className="text-gray-900 dark:text-gray-100">All categories (crimes, arrests,
+                referrals)</strong>: every category added up. These are different kinds of counts: arrests
+                and disciplinary referrals count people (each person arrested or referred), not incidents,
+                and an incident of dating violence, domestic violence or stalking can also be counted as a
+                criminal offense such as aggravated assault. So this total is not a number of incidents,
+                and high totals often reflect drug and alcohol enforcement rather than violent crime.
+              </p>
+            </div>
+          </section>
+
+          {/* Series breaks and context */}
+          <section id="series-breaks" className="scroll-mt-20">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/50 rounded-xl flex items-center justify-center">
+                <Calendar className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                Comparing Years
+              </h2>
+            </div>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
+              Changes in definitions, reporting or circumstances between 2015 and 2024 that affect comparisons
+              over time. Notes marked with years also appear next to charts and rankings that show those years.
+            </p>
+            <div className="space-y-4">
+              {SERIES_NOTES.map((n) => (
+                <div key={n.id} id={n.id} className="scroll-mt-20 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-5">
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                    <span className="inline-block mr-2 px-2 py-0.5 rounded bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 text-xs font-semibold align-middle">
+                      {n.label}
+                    </span>
+                    {n.title}
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{n.detail}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Sources:{' '}
+                    {n.sources.map((s, i) => (
+                      <span key={s.url}>
+                        {i > 0 && '; '}
+                        <SourceLink source={s} />
+                      </span>
+                    ))}
                   </p>
-                  <p>
-                    <strong className="text-gray-900 dark:text-gray-100">All categories (crimes, arrests,
-                    referrals)</strong>: every category added up. These are different kinds of counts: arrests
-                    and disciplinary referrals count people (each person arrested or referred), not incidents,
-                    and an incident of dating violence, domestic violence or stalking can also be counted as a
-                    criminal offense such as aggravated assault. So this total is not a number of incidents,
-                    and high totals often reflect drug and alcohol enforcement rather than violent crime.
+                </div>
+              ))}
+
+              <div id="known-defects" className="scroll-mt-20 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-5">
+                <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                  <span className="inline-block mr-2 px-2 py-0.5 rounded bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 text-xs font-semibold align-middle">
+                    2022-2023
+                  </span>
+                  Residence-hall figures from DOE's 2021-2023 release
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  For campuses whose 2022 or 2023 figures come from DOE's 2021-2023 release (Crime2024SAS.zip;
+                  campuses missing from the 2022-2024 release), two of that release's residence-hall files are
+                  wrong (see Known Errors in DOE Files above). Their 2022 residence-hall disciplinary referrals and
+                  liquor-law arrests come from the 2020-2022 release instead, and their 2023 residence-hall
+                  disciplinary referrals are left out
+                  {defectCampuses(metadata, 2023) !== null && (
+                    <> ({formatNumber(defectCampuses(metadata, 2023)!)} campuses in 2023)</>
+                  )}
+                  . Residence halls are not part of totals, so only residence-hall figures are affected; the school
+                  page of each such campus says so.
+                </p>
+              </div>
+            </div>
+
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mt-8 mb-3">
+              Context for every year
+            </h3>
+            <div className="space-y-4">
+              {SERIES_CONTEXT.map((n) => (
+                <div key={n.id} id={n.id === 'year-reported' ? undefined : n.id} className="scroll-mt-20">
+                  <h4 className="font-medium text-gray-900 dark:text-gray-100 text-sm mb-1">{n.title}</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">{n.detail}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Sources:{' '}
+                    {n.sources.map((s, i) => (
+                      <span key={s.url}>
+                        {i > 0 && '; '}
+                        <SourceLink source={s} />
+                      </span>
+                    ))}
                   </p>
                 </div>
-              </div>
+              ))}
             </div>
           </section>
 
           {/* Data Limitations */}
-          <section>
+          <section id="limitations" className="scroll-mt-20">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 bg-amber-100 dark:bg-amber-900/50 rounded-xl flex items-center justify-center">
                 <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400" />
               </div>
               <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                Data Limitations
+                Limitations
               </h2>
             </div>
 
             <p className="text-gray-600 dark:text-gray-400 mb-6">
-              Understanding these limitations is essential for interpreting the data correctly.
+              What these figures can and cannot support. Read these before comparing schools or years.
             </p>
 
-            {/* Key Insight */}
-            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
-              <div className="flex items-start gap-3">
-                <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-sm font-medium text-blue-800 dark:text-blue-200">
-                    Key insight: Higher reported numbers ≠ more dangerous
-                  </p>
-                  <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
-                    Schools with robust reporting systems, campus police, and survivor support services often have
-                    higher reported numbers—which can indicate a healthier reporting culture, not more crime.
-                  </p>
+            <div className="space-y-4">
+              {LIMITATIONS.map((item) => (
+                <div key={item.title} className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
+                  <h3 className="font-medium text-gray-900 dark:text-gray-100 text-sm mb-1">{item.title}</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">{item.body}</p>
                 </div>
-              </div>
+              ))}
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
-                <h4 className="font-medium text-gray-900 dark:text-gray-100 text-sm mb-2">Underreporting</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  ~80% of campus crimes are never reported. Only 20% of sexual assaults are reported (RAINN).
-                </p>
-              </div>
-              <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
-                <h4 className="font-medium text-gray-900 dark:text-gray-100 text-sm mb-2">Reporting Lag</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  DOE releases data ~1 year late. Current data contains {coverageText ? `${coverageText} statistics` : 'statistics for the years listed above'}.
-                </p>
-              </div>
-              <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
-                <h4 className="font-medium text-gray-900 dark:text-gray-100 text-sm mb-2">Institutional Variation</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Reporting practices, police staffing, and definitions may vary by institution.
-                </p>
-              </div>
-              <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
-                <h4 className="font-medium text-gray-900 dark:text-gray-100 text-sm mb-2">Definition Changes</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  FBI rape definition changed in 2013; VAWA offenses added in 2014.
-                </p>
-              </div>
-            </div>
+            <h3 id="corrections" className="scroll-mt-20 text-lg font-semibold text-gray-900 dark:text-gray-100 mt-8 mb-3">
+              What this site corrects, and what it does not
+            </h3>
+            <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400 list-disc ml-5">
+              <li>
+                <strong className="text-gray-900 dark:text-gray-200">One DOE release per campus-year.</strong> Each
+                campus-year comes from the newest DOE release that reports it, with all of its figures from that
+                release, so a campus missing from the latest release keeps the years an earlier release published.
+              </li>
+              <li>
+                <strong className="text-gray-900 dark:text-gray-200">Figures reported by two campuses count once.</strong>{' '}
+                When campuses in the same state report exactly the same figures for a location (or a whole year),
+                totals and rankings count them once, under one host campus. School pages still show each campus's
+                figures as DOE publishes them.
+              </li>
+              <li>
+                <strong className="text-gray-900 dark:text-gray-200">Known errors in DOE's 2021-2023 release.</strong>{' '}
+                Its residence-hall disciplinary file repeats the on-campus figures for 2022 and 2023, and its
+                residence-hall arrest file has no 2022 liquor-law column. For campuses whose figures come from that
+                release, 2022 values are taken from the 2020-2022 release and 2023 residence-hall disciplinary
+                referrals are left out (see <a href="#known-defects" className="underline">Comparing Years</a>).
+              </li>
+              <li>
+                <strong className="text-gray-900 dark:text-gray-200">DOE's 2015 and 2016 files are read correctly.</strong>{' '}
+                Those SAS files are read with a reader that returns every row; an earlier reader lost 13 Alabama
+                campuses' 2015 and 2016 figures.
+              </li>
+              <li>
+                <strong className="text-gray-900 dark:text-gray-200">Enrollment is NCES's own FTE</strong> for every
+                year, never an estimate.
+              </li>
+              <li>
+                <strong className="text-gray-900 dark:text-gray-200">Not corrected:</strong> the figures themselves.
+                This site does not audit institutions or change what they reported; it publishes DOE's figures with
+                the rules above. An implausible figure here is an institution's report as DOE publishes it: ask the
+                institution, or check its Annual Security Report. See also the{' '}
+                <Link to="/changes" className="underline">list of corrections to this site's data</Link>.
+              </li>
+            </ul>
           </section>
 
           {/* Data Audit Download */}
@@ -471,8 +753,9 @@ export default function Methodology() {
             </div>
 
             <p className="text-gray-600 dark:text-gray-400 mb-6">
-              We maintain a comprehensive data quality audit that validates all {schoolCount !== undefined ? `${formatNumber(schoolCount)} ` : ''}schools in our dataset.
-              The audit checks for data completeness, accuracy, and consistency.
+              Each build runs an audit of internal consistency over {schoolCount !== undefined ? `all ${formatNumber(schoolCount)} ` : 'every '}campus
+              pages: the published files must agree with each other and with the pipeline's tables. It does not show
+              that institutions' figures are accurate; they are published as reported to the Department of Education.
             </p>
 
             <p className="text-gray-600 dark:text-gray-400 mb-6">
@@ -490,8 +773,8 @@ export default function Methodology() {
                     Download Full Audit Report
                   </h4>
                   <p className="text-sm text-primary-700 dark:text-primary-300 mb-4">
-                    Machine-readable JSON file containing validation results for all schools,
-                    including coverage statistics, rate calculation accuracy, and ranking order validation.
+                    JSON file with the result of each check below, coverage counts by year, and the checksum
+                    of the build it audited.
                   </p>
                   <div className="flex flex-wrap gap-4 text-sm text-primary-700 dark:text-primary-300">
                     <span>Format: <strong>JSON</strong></span>
@@ -532,6 +815,132 @@ export default function Methodology() {
                 ))}
               </div>
             </div>
+          </section>
+
+          {/* Data and downloads */}
+          <section id="data" className="scroll-mt-20">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/50 rounded-xl flex items-center justify-center">
+                <Download className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                Data and Downloads
+              </h2>
+            </div>
+
+            <dl className="space-y-4 text-sm text-gray-600 dark:text-gray-400 mb-6">
+              <div>
+                <dt className="font-medium text-gray-900 dark:text-gray-100">Build identifier</dt>
+                <dd>
+                  {build ? (
+                    <>This build is <code className="font-mono text-gray-800 dark:text-gray-200 break-all">{build.sha256}</code>{metadata ? `, built ${formatDate(metadata.lastUpdated)}` : ''}. </>
+                  ) : null}
+                  The identifier is the SHA-256 of the{' '}
+                  <a href="/data/build_inputs.json" className="underline">build record</a>, which lists a checksum of
+                  every source file the build read and every data file it published; the footer shows its first 12
+                  characters. Rebuilding from the same source files gives the same figures, but the build date is
+                  part of the record, so every run has a new identifier. Cite it with the date you accessed the data.
+                </dd>
+              </div>
+              <div>
+                <dt className="font-medium text-gray-900 dark:text-gray-100"><a href="/audit.json" className="underline">audit.json</a></dt>
+                <dd>
+                  The result of the build's audit (below): <code>overall_status</code>, each check with its details,
+                  coverage counts by year, and <code>audited_build.site_record_sha256</code>, the identifier of the
+                  build it checked.
+                </dd>
+              </div>
+              <div>
+                <dt className="font-medium text-gray-900 dark:text-gray-100">
+                  <a href="/data/downloads/campus-years.csv" className="underline">campus-years.csv</a>
+                </dt>
+                <dd>
+                  One row per campus and year the site shows (each year a campus reported to DOE, zeros included):{' '}
+                  <code>year</code>, <code>unitid</code> (DOE campus ID), <code>base_unitid</code> (the IPEDS
+                  institution: the first six digits), <code>campus_name</code>, <code>city</code>, <code>state</code>,{' '}
+                  <code>main_campus</code>, <code>doe_release</code> (the DOE file suffix the figures come from, e.g.
+                  222324 for the 2022-2024 release), <code>counts_in_rankings</code> (false when every figure the
+                  campus reported that year is counted under another campus), <code>institution_fte</code> (NCES FTE
+                  of the whole institution), <code>institution_online_pct</code> (percent of students enrolled
+                  exclusively in distance education) and <code>online_pct_fall</code> (the fall that share is from).
+                </dd>
+              </div>
+              <div>
+                <dt className="font-medium text-gray-900 dark:text-gray-100">counts-YYYY.csv, one per year</dt>
+                <dd>
+                  Every nonzero count, by campus, location and offense, as the campus reported it: <code>year</code>,{' '}
+                  <code>unitid</code>, <code>geo</code> (On-campus, Residence halls, Non-campus, Public property),{' '}
+                  <code>offense</code>, <code>count</code>, <code>counted_under_unitid</code> (set when another campus
+                  reported the same figures for that location; totals and rankings count them under that campus).
+                  <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1">
+                    {(metadata?.years ?? []).map((y) => (
+                      <a key={y} href={`/data/downloads/counts-${y}.csv`} className="underline font-mono">{y}</a>
+                    ))}
+                  </div>
+                </dd>
+              </div>
+              <div>
+                <dt className="font-medium text-gray-900 dark:text-gray-100">Reproducing the site's totals</dt>
+                <dd>
+                  From <code>counts-YYYY.csv</code>: leave out Residence halls (part of on-campus), keep rows with an
+                  empty <code>counted_under_unitid</code>, and, for national totals, keep campuses whose state in{' '}
+                  <code>campus-years.csv</code> is one of the 50 states, DC, PR or VI. The site's JSON files (school
+                  pages, rankings) are under <code>/data/</code> and listed in the build record.
+                </dd>
+              </div>
+              <div>
+                <dt className="font-medium text-gray-900 dark:text-gray-100">Rebuilding from DOE's and NCES's files</dt>
+                <dd>
+                  The pipeline downloads the source files and builds every file above. With Python 3.11 or later, in{' '}
+                  <code>etl/</code> of the{' '}
+                  <a href="https://github.com/kbdevopz/collegesafetydata-public" target="_blank" rel="noopener noreferrer" className="underline">repository</a>:
+                  <pre className="mt-2 bg-gray-50 dark:bg-gray-800/60 rounded-lg p-3 text-xs text-gray-800 dark:text-gray-200 overflow-x-auto whitespace-pre">{`python -m venv venv
+venv\\Scripts\\activate        # macOS/Linux: source venv/bin/activate
+pip install -r requirements.txt
+python 01_download_raw_data.py
+python 01b_download_ipeds.py
+python 02_transform_to_parquet.py
+python 02b_transform_ef_enrollment.py
+python 02a_transform_enrollment.py
+python 03_build_dimensions.py
+python 04_create_aggregates.py
+python 05_generate_json.py
+python 06_validate.py
+python 07_comprehensive_audit.py`}</pre>
+                  The README has the details, including the optional step that re-extracts NCES's 2015-2020 FTE.
+                </dd>
+              </div>
+            </dl>
+          </section>
+
+          <CiteThisData />
+
+          {/* Official sources */}
+          <section id="sources" className="scroll-mt-20">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/50 rounded-xl flex items-center justify-center">
+                <BookOpen className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                Official Sources
+              </h2>
+            </div>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+              The 2016 Handbook was rescinded in October 2020 and replaced by the Clery Act Appendix for the FSA
+              Handbook; ED keeps the Handbook online for historical purposes. ED said at the time that no statutory
+              or regulatory requirement for Clery Act reporting had changed. The definitions above are the
+              regulation's, set by the VAWA final rule that took effect on July 1, 2015; eCFR's version history of
+              34 CFR 668.46 and its Appendix A, which begins in December 2016, shows no substantive amendment
+              since. The Handbook is cited only where it explains how to count.
+            </p>
+            <ul className="space-y-2 text-sm">
+              {Object.values(SOURCES).map((s) => (
+                <li key={s.url} className="text-gray-600 dark:text-gray-400">
+                  {s.publisher}.{' '}
+                  <SourceLink source={s} />
+                </li>
+              ))}
+            </ul>
           </section>
 
           {/* Source Code Reference */}
