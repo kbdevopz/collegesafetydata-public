@@ -122,6 +122,8 @@ export async function fetchRankings(
 // =============================================================================
 
 const schoolCache = new Map<number, SchoolProfile>()
+// Requests in progress, so the page and its head tags share one fetch
+const schoolRequests = new Map<number, Promise<SchoolProfile>>()
 
 export async function fetchSchoolProfile(
   unitid: number
@@ -129,15 +131,20 @@ export async function fetchSchoolProfile(
   if (schoolCache.has(unitid)) {
     return schoolCache.get(unitid)!
   }
+  const pending = schoolRequests.get(unitid)
+  if (pending) return pending
 
-  const result = await fetchJson<SchoolProfile>(`/schools/${unitid}.json`)
-
-  if (!result.success) {
-    throw new Error(result.error.message)
-  }
-
-  schoolCache.set(unitid, result.data)
-  return result.data
+  const request = fetchJson<SchoolProfile>(`/schools/${unitid}.json`)
+    .then((result) => {
+      if (!result.success) {
+        throw new Error(result.error.message)
+      }
+      schoolCache.set(unitid, result.data)
+      return result.data
+    })
+    .finally(() => schoolRequests.delete(unitid))
+  schoolRequests.set(unitid, request)
+  return request
 }
 
 // =============================================================================

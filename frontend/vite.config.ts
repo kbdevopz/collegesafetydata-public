@@ -78,14 +78,32 @@ function dataDescriptionPlugin(): Plugin {
 }
 
 // https://vitejs.dev/config/
-export default defineConfig({
-  plugins: [react(), dataDescriptionPlugin()],
-  build: {
-    outDir: 'dist',
-    sourcemap: false
-  },
-  server: {
-    port: 5173,
-    open: true
+// `vite build`: the site. `vite build --ssr src/entry-server.tsx`: the
+// build-time page renderer (scripts/prerender.mjs). `vite build --mode
+// worker`: the Cloudflare Pages worker for school pages (src/edge/worker.ts).
+export default defineConfig(({ mode }) => {
+  if (mode === 'worker') {
+    return {
+      build: {
+        ssr: 'src/edge/worker.ts',
+        outDir: '.prerender/worker',
+        emptyOutDir: true,
+        minify: false,
+        target: 'es2022',
+        rollupOptions: { output: { format: 'es', entryFileNames: 'worker.js' } },
+      },
+      ssr: { target: 'webworker', noExternal: true },
+    }
+  }
+  return {
+    plugins: [react(), dataDescriptionPlugin()],
+    build: {
+      outDir: 'dist',
+      sourcemap: false,
+    },
+    server: {
+      port: 5173,
+      open: true,
+    },
   }
 })
