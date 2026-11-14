@@ -1,32 +1,55 @@
-import React from 'react'
+import React, { lazy, type ComponentType } from 'react'
 import ReactDOM from 'react-dom/client'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import App from './App'
-import Rankings from './pages/Rankings'
-import SchoolProfile from './pages/SchoolProfile'
-import Compare from './pages/Compare'
-import About from './pages/About'
-import Methodology from './pages/Methodology'
-import Contact from './pages/Contact'
-import Privacy from './pages/Privacy'
-import Terms from './pages/Terms'
+import { BrowserRouter } from 'react-router-dom'
+import { AppRoutes, pageFor, pageLoaders, type PageComponents, type PageKey } from './routes'
 import './index.css'
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<App />}>
-          <Route index element={<Rankings />} />
-          <Route path="school/:unitid" element={<SchoolProfile />} />
-          <Route path="compare" element={<Compare />} />
-          <Route path="about" element={<About />} />
-          <Route path="methodology" element={<Methodology />} />
-          <Route path="contact" element={<Contact />} />
-          <Route path="privacy" element={<Privacy />} />
-          <Route path="terms" element={<Terms />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
-  </React.StrictMode>
-)
+// Each page is its own chunk, loaded when first shown. A page whose chunk has
+// already loaded renders directly, so the first page (loaded before the app
+// renders, below) never shows an empty Suspense fallback over the prerendered
+// HTML.
+type PageModule = { default: ComponentType }
+
+function loadablePage(load: () => Promise<PageModule>) {
+  let loaded: PageModule | null = null
+  const preload = () =>
+    load().then((m) => {
+      loaded = m
+      return m
+    })
+  // A loaded module is handed to lazy() through a thenable that resolves
+  // synchronously, which React renders at once instead of suspending.
+  const Lazy = lazy(() =>
+    loaded
+      ? ({ then: (resolve: (m: PageModule) => void) => resolve(loaded!) } as unknown as Promise<PageModule>)
+      : preload()
+  )
+  function Page() {
+    return (
+      <React.Suspense fallback={<div className="min-h-[60vh]" />}>
+        <Lazy />
+      </React.Suspense>
+    )
+  }
+  return { Page, preload }
+}
+
+const loadable = Object.fromEntries(
+  Object.entries(pageLoaders).map(([key, load]) => [key, loadablePage(load)])
+) as unknown as Record<PageKey, ReturnType<typeof loadablePage>>
+
+const pages = Object.fromEntries(
+  Object.entries(loadable).map(([key, { Page }]) => [key, Page])
+) as unknown as PageComponents
+
+function render() {
+  ReactDOM.createRoot(document.getElementById('root')!).render(
+    <React.StrictMode>
+      <BrowserRouter>
+        <AppRoutes pages={pages} />
+      </BrowserRouter>
+    </React.StrictMode>
+  )
+}
+
+loadable[pageFor(window.location.pathname)].preload().then(render, render)
