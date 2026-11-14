@@ -183,7 +183,7 @@ See [etl/METHODOLOGY.md](etl/METHODOLOGY.md) for complete documentation.
 
 ## Data Quality
 
-Every data run includes a comprehensive audit validating:
+Every data run ends with an audit of internal consistency: the published files must agree with each other and with the pipeline's tables. It does not check institutions' figures against their records. It checks:
 - School completeness (every campus that reported a year, zeros included, has a JSON file and is in the search index)
 - Incident total accuracy (each file has exactly the years the campus reported, and its sums match the aggregates)
 - FTE coverage by year: of the schools with crime data in a year, the share that have FTE that year (a year whose enrollment NCES has not published is expected to have none)
@@ -247,7 +247,20 @@ To report a security issue, see [SECURITY.md](SECURITY.md). Please do not open a
 
 ## Data Citation
 
-If you use this data in research or reporting, please cite both sources:
+The Methodology page (https://collegesafetydata.org/methodology#cite) and every school page give an APA and a BibTeX citation with the build identifier and date. Cite the original sources as well:
 
-1. U.S. Department of Education. Campus Safety and Security Data Analysis Cutting Tool. https://ope.ed.gov/campussafety/
-2. National Center for Education Statistics. IPEDS. https://nces.ed.gov/ipeds/
+1. U.S. Department of Education, Office of Postsecondary Education. Campus Safety and Security Survey. https://ope.ed.gov/campussafety/
+2. National Center for Education Statistics. Integrated Postsecondary Education Data System (IPEDS). https://nces.ed.gov/ipeds/
+
+### Build identifier
+
+The build identifier is the SHA-256 of `frontend/public/data/build_inputs.json`, the build record, which lists the checksum of every source file the build read and every data file it published. `audit.json` names it as `audited_build.site_record_sha256`; the site footer shows its first 12 characters. Rebuilding from the same source files gives the same data files, but `metadata.json` (`lastUpdated`) and the build record carry the time of the run, so each run has a new identifier. To check that two builds hold the same figures, compare the `published` checksums in their build records other than `metadata.json`.
+
+## Downloads
+
+`05_generate_json.py` writes flat CSV files (UTF-8, comma-separated, header row) to `frontend/public/data/downloads/`, served at `https://collegesafetydata.org/data/downloads/`:
+
+- `campus-years.csv`: one row per campus and year shown on the site (each year a campus reported to DOE, zeros included). Columns: `year`, `unitid` (DOE campus ID), `base_unitid` (the IPEDS institution, the first six digits), `campus_name`, `city`, `state`, `main_campus`, `doe_release` (the DOE file suffix the year's figures come from, e.g. `222324` for the 2022-2024 release), `counts_in_rankings` (false when every figure the campus reported that year is counted under another campus), `institution_fte` (NCES FTE of the whole institution), `institution_online_pct` (NCES's percent of students enrolled exclusively in distance education) and `online_pct_fall` (the fall that share is from).
+- `counts-YYYY.csv`, one per year: every nonzero count, by campus, location and offense, as the campus reported it. Columns: `year`, `unitid`, `geo` (`On-campus`, `Residence halls`, `Non-campus`, `Public property`), `offense`, `count`, `counted_under_unitid` (set when the same figures for that location were also reported by another campus; totals and rankings count them under that campus).
+
+To reproduce the site's state and national totals from `counts-YYYY.csv`: leave out `Residence halls` (they are part of on-campus), keep rows where `counted_under_unitid` is empty, and keep campuses whose `state` in `campus-years.csv` is one of the 50 states, DC, PR or VI.

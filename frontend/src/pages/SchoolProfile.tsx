@@ -33,6 +33,7 @@ import { fteFor, latestFte, institutionRate, rateNote, campusesPhrase } from '..
 import { ALL, CRIMINAL, SUMMARY_LABELS, inSelection, isSummary, selectionLabel } from '../lib/selection'
 import { useTheme } from '../hooks/useTheme'
 import SeriesNotes, { ReportYearNote } from '../components/SeriesNotes'
+import CiteThisData from '../components/CiteThisData'
 import { SERIES_NOTES } from '../data/seriesNotes'
 import type { Metadata } from '../lib/types'
 
@@ -925,6 +926,8 @@ export default function SchoolProfile() {
             </div>
           </div>
         </div>
+
+        <CiteThisData school={{ unitid: profile.unitid, name: profile.name }} className="mt-6" />
       </div>
     </div>
   )

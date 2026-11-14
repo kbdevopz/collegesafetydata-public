@@ -412,15 +412,27 @@ effect on July 1, 2015 apply to every year shown.
 
 ## Validation
 
-Our data pipeline includes validation steps to ensure accuracy:
-1. Cross-reference of UNITID (institution ID) with IPEDS directory
-2. Verification that offense counts sum correctly
-3. Comparison of calculated FTE against official DRVEF values where available
-4. Spot checks against known institutions (Ivy League, major state universities)
-5. An audit (`07_comprehensive_audit.py`, check 8) that finds the shared blocks again from the fact table and the older releases' figures, and verifies that every ranking entry counts the school's figures without its shadow blocks
+These checks test internal consistency: that the published files agree with
+each other and with the pipeline's tables built from DOE's and NCES's files.
+They do not test institutions' figures against institutions' records.
+1. `06_validate.py` checks row counts per year, that no count is negative, that every Ivy League campus is present, offense coverage and that the JSON files parse
+2. The audit (`07_comprehensive_audit.py`, check 7) verifies that the aggregates hold exactly the fact table's counts
+3. The same audit (check 9) verifies that every FTE and online share is NCES's own published figure
+4. The same audit (check 4) recomputes every published rate from its count and FTE
+5. The same audit (`07_comprehensive_audit.py`, check 8) that finds the shared blocks again from the fact table and the older releases' figures, and verifies that every ranking entry counts the school's figures without its shadow blocks
 6. The same audit (check 5) verifies that every ranking is listed in ranking order and that every rank is 1 + the number of schools with a larger count (or rate)
 7. The same audit (check 10) recomputes every institution's campuses, counts, link campus, FTE and online share from the fact table and NCES's enrollment, without the pipeline's code, and verifies that every rate ranking lists exactly the institutions the rules above allow, with rate = count / FTE × 10,000, and that every rankings file lists exactly the campuses that reported its year (those with 0 included)
 8. The same audit (checks 1 and 2) verifies that every campus that reported a year has a school page and is in the site search, and that each page has exactly the years the campus reported, 0 included, and lists the others as not reported
+
+## Downloads and build identifier
+
+`05_generate_json.py` also writes `downloads/campus-years.csv` and one
+`downloads/counts-YYYY.csv` per year under `frontend/public/data/`, from the
+same tables as the site's JSON. The README ("Downloads") describes their
+columns and how to reproduce the site's totals from them. The build
+identifier is the SHA-256 of `build_inputs.json`, which `audit.json` names
+as `audited_build.site_record_sha256`; it changes with every run, because the
+build record and `metadata.json` carry the time of the run.
 
 ## Source Code
 

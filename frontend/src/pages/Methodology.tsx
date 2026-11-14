@@ -21,6 +21,8 @@ import { formatDate, formatNumber } from '../lib/utils'
 import { summarizeEnrollmentStatus, describeEnrollmentStatus } from '../lib/enrollment'
 import { summarizeDataYears } from '../lib/coverage'
 import SourceLink from '../components/SourceLink'
+import CiteThisData from '../components/CiteThisData'
+import { useBuildInfo } from '../lib/build'
 import { SERIES_NOTES, SERIES_CONTEXT } from '../data/seriesNotes'
 import { Link, useLocation } from 'react-router-dom'
 
@@ -144,6 +146,7 @@ import {
 
 export default function Methodology() {
   const [metadata, setMetadata] = React.useState<Metadata | null>(null)
+  const build = useBuildInfo()
 
   React.useEffect(() => {
     getMetadata().then(setMetadata).catch(console.error)
@@ -307,7 +310,7 @@ export default function Methodology() {
           </section>
 
           {/* FTE Calculation */}
-          <section>
+          <section id="fte" className="scroll-mt-20">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/50 rounded-xl flex items-center justify-center">
                 <Calculator className="w-5 h-5 text-primary-600 dark:text-primary-400" />
@@ -813,6 +816,104 @@ export default function Methodology() {
               </div>
             </div>
           </section>
+
+          {/* Data and downloads */}
+          <section id="data" className="scroll-mt-20">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/50 rounded-xl flex items-center justify-center">
+                <Download className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                Data and Downloads
+              </h2>
+            </div>
+
+            <dl className="space-y-4 text-sm text-gray-600 dark:text-gray-400 mb-6">
+              <div>
+                <dt className="font-medium text-gray-900 dark:text-gray-100">Build identifier</dt>
+                <dd>
+                  {build ? (
+                    <>This build is <code className="font-mono text-gray-800 dark:text-gray-200 break-all">{build.sha256}</code>{metadata ? `, built ${formatDate(metadata.lastUpdated)}` : ''}. </>
+                  ) : null}
+                  The identifier is the SHA-256 of the{' '}
+                  <a href="/data/build_inputs.json" className="underline">build record</a>, which lists a checksum of
+                  every source file the build read and every data file it published; the footer shows its first 12
+                  characters. Rebuilding from the same source files gives the same figures, but the build date is
+                  part of the record, so every run has a new identifier. Cite it with the date you accessed the data.
+                </dd>
+              </div>
+              <div>
+                <dt className="font-medium text-gray-900 dark:text-gray-100"><a href="/audit.json" className="underline">audit.json</a></dt>
+                <dd>
+                  The result of the build's audit (below): <code>overall_status</code>, each check with its details,
+                  coverage counts by year, and <code>audited_build.site_record_sha256</code>, the identifier of the
+                  build it checked.
+                </dd>
+              </div>
+              <div>
+                <dt className="font-medium text-gray-900 dark:text-gray-100">
+                  <a href="/data/downloads/campus-years.csv" className="underline">campus-years.csv</a>
+                </dt>
+                <dd>
+                  One row per campus and year the site shows (each year a campus reported to DOE, zeros included):{' '}
+                  <code>year</code>, <code>unitid</code> (DOE campus ID), <code>base_unitid</code> (the IPEDS
+                  institution: the first six digits), <code>campus_name</code>, <code>city</code>, <code>state</code>,{' '}
+                  <code>main_campus</code>, <code>doe_release</code> (the DOE file suffix the figures come from, e.g.
+                  222324 for the 2022-2024 release), <code>counts_in_rankings</code> (false when every figure the
+                  campus reported that year is counted under another campus), <code>institution_fte</code> (NCES FTE
+                  of the whole institution), <code>institution_online_pct</code> (percent of students enrolled
+                  exclusively in distance education) and <code>online_pct_fall</code> (the fall that share is from).
+                </dd>
+              </div>
+              <div>
+                <dt className="font-medium text-gray-900 dark:text-gray-100">counts-YYYY.csv, one per year</dt>
+                <dd>
+                  Every nonzero count, by campus, location and offense, as the campus reported it: <code>year</code>,{' '}
+                  <code>unitid</code>, <code>geo</code> (On-campus, Residence halls, Non-campus, Public property),{' '}
+                  <code>offense</code>, <code>count</code>, <code>counted_under_unitid</code> (set when another campus
+                  reported the same figures for that location; totals and rankings count them under that campus).
+                  <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1">
+                    {(metadata?.years ?? []).map((y) => (
+                      <a key={y} href={`/data/downloads/counts-${y}.csv`} className="underline font-mono">{y}</a>
+                    ))}
+                  </div>
+                </dd>
+              </div>
+              <div>
+                <dt className="font-medium text-gray-900 dark:text-gray-100">Reproducing the site's totals</dt>
+                <dd>
+                  From <code>counts-YYYY.csv</code>: leave out Residence halls (part of on-campus), keep rows with an
+                  empty <code>counted_under_unitid</code>, and, for national totals, keep campuses whose state in{' '}
+                  <code>campus-years.csv</code> is one of the 50 states, DC, PR or VI. The site's JSON files (school
+                  pages, rankings) are under <code>/data/</code> and listed in the build record.
+                </dd>
+              </div>
+              <div>
+                <dt className="font-medium text-gray-900 dark:text-gray-100">Rebuilding from DOE's and NCES's files</dt>
+                <dd>
+                  The pipeline downloads the source files and builds every file above. With Python 3.11 or later, in{' '}
+                  <code>etl/</code> of the{' '}
+                  <a href="https://github.com/kbdevopz/collegesafetydata-public" target="_blank" rel="noopener noreferrer" className="underline">repository</a>:
+                  <pre className="mt-2 bg-gray-50 dark:bg-gray-800/60 rounded-lg p-3 text-xs text-gray-800 dark:text-gray-200 overflow-x-auto whitespace-pre">{`python -m venv venv
+venv\\Scripts\\activate        # macOS/Linux: source venv/bin/activate
+pip install -r requirements.txt
+python 01_download_raw_data.py
+python 01b_download_ipeds.py
+python 02_transform_to_parquet.py
+python 02b_transform_ef_enrollment.py
+python 02a_transform_enrollment.py
+python 03_build_dimensions.py
+python 04_create_aggregates.py
+python 05_generate_json.py
+python 06_validate.py
+python 07_comprehensive_audit.py`}</pre>
+                  The README has the details, including the optional step that re-extracts NCES's 2015-2020 FTE.
+                </dd>
+              </div>
+            </dl>
+          </section>
+
+          <CiteThisData />
 
           {/* Official sources */}
           <section id="sources" className="scroll-mt-20">
