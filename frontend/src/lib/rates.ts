@@ -103,6 +103,7 @@ export function institutionRate(
     online: entry.online,
     onlineYear: entry.onlineYear,
     rateRanked: entry.rateRanked,
+    rateExcludedReason: entry.rateExcludedReason,
     count,
     fte: fteFor(profile, year),
     rate: rateFor(profile, year, count),
@@ -114,7 +115,10 @@ export function institutionRate(
  * null when it is listed (or `rules` are not loaded yet).
  */
 export function rateNote(inst: InstitutionRate | null, rules: RateRules | null | undefined): string | null {
-  if (!inst || inst.rateRanked || !rules) return null
+  if (!inst || inst.rateRanked) return null
+  // A reason the pipeline gives (such as a merger year) comes first
+  if (inst.rateExcludedReason) return inst.rateExcludedReason
+  if (!rules) return null
   if (inst.online !== null && inst.online >= rules.onlineExclusionPct) {
     const leftOut = 'so its rate is not comparable and it is left out of rate rankings.'
     // A pandemic year (rules.onlineShareYear) is judged by another fall's

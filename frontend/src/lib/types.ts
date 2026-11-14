@@ -82,6 +82,15 @@ export interface School {
   state: string | null
   isMainCampus?: boolean
   baseUnitid?: number
+  // The campus's own DOE name (BRANCH), shown as its title; absent for a
+  // main campus and for a campus DOE gives only a generic label
+  campus?: string
+  // First and last year the campus reported
+  years?: [number, number]
+  // Other names to search by: former DOE names, IPEDS aliases
+  aliases?: string[]
+  // Other DOE IDs of the same campus (each has its own page)
+  idChanges?: number[]
 }
 
 export interface SchoolIndex {
@@ -110,6 +119,8 @@ export interface RankedCampus {
   short: string | null
   state: string | null
   main: boolean
+  // The campus's own DOE name, for a campus that is not a main campus
+  campus?: string
   // Its institution's FTE (NCES publishes FTE per institution, not campus)
   fte: number | null
   // Its institution's number of campuses that year
@@ -161,9 +172,22 @@ export interface RankingsData {
 // School Profile Types
 // =============================================================================
 
+// The same campus reported by DOE under another ID, which has its own page
+export interface IdChange {
+  unitid: number
+  relation: 'earlier' | 'later'
+  years: number[]
+  name: string
+  campus?: string
+}
+
 export interface SchoolProfile {
   unitid: number
   name: string
+  // The campus's own DOE name, shown as the title (name is its institution)
+  campus?: string
+  // The same campus under other DOE IDs (absent when there are none)
+  idChanges?: IdChange[]
   shortName: string
   city: string
   state: string
@@ -208,6 +232,8 @@ export interface InstitutionYear {
   onlineYear?: number
   // Whether rate rankings list it that year (Metadata.rateRules)
   rateRanked: boolean
+  // Why the rate is left out that year, when the pipeline says so
+  rateExcludedReason?: string
   // Counts of all its campuses per code (shadow blocks left out); absent
   // when equal to the school's own counts that year
   counts?: Record<string, number>

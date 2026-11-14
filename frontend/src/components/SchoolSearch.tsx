@@ -3,7 +3,67 @@ import { useNavigate } from 'react-router-dom'
 import { Search, X, Loader2, GitCompare, Check } from 'lucide-react'
 import { fetchSchoolIndex } from '../lib/api'
 import type { School } from '../lib/types'
-import { cn } from '../lib/utils'
+import { cn, displayName, searchText } from '../lib/utils'
+
+// A school prepared for matching: its names as search text
+interface Searchable {
+  school: School
+  title: string
+  names: string[] // title, institution name, short name (search text)
+  aliases: { text: string; alias: string }[]
+  all: string // every searchable word, city and state included
+}
+
+interface Match {
+  school: School
+  alias: string | null // the alias that matched, when no shown name did
+  score: number
+}
+
+function prepare(school: School): Searchable {
+  const title = displayName(school)
+  const names = [title, school.name, school.short ?? ''].map(searchText).filter(Boolean)
+  const aliases = (school.aliases ?? []).map((alias) => ({ text: searchText(alias), alias }))
+  const all = [...names, ...aliases.map((a) => a.text), searchText(school.city), searchText(school.state)].join(' | ')
+  return { school, title, names, aliases, all }
+}
+
+// Every word of the query must be in the school's search text. Exact name
+// matches first, then names that start with the query, then main campuses,
+// shorter titles and alphabetical order.
+function findSchools(items: Searchable[], query: string, limit: number): Match[] {
+  const q = searchText(query)
+  if (!q) return []
+  const words = q.split(' ')
+  const id = /^\d{6,9}$/.test(query.trim()) ? Number(query.trim()) : null
+  const matches: (Match & { title: string })[] = []
+  for (const item of items) {
+    if (id !== null && item.school.unitid === id) {
+      matches.push({ school: item.school, alias: null, score: -1, title: item.title })
+      continue
+    }
+    if (!words.every((w) => item.all.includes(w))) continue
+    const nameHit = item.names.some((n) => words.every((w) => n.includes(w)))
+    const alias = nameHit ? null : item.aliases.find((a) => words.every((w) => a.text.includes(w)))?.alias ?? null
+    const texts = [...item.names, ...item.aliases.map((a) => a.text)]
+    const score = texts.some((n) => n === q) ? 0 : texts.some((n) => n.startsWith(q)) ? 1 : nameHit || alias ? 2 : 3
+    matches.push({ school: item.school, alias, score, title: item.title })
+  }
+  matches.sort((a, b) =>
+    a.score - b.score ||
+    Number(a.school.isMainCampus === false) - Number(b.school.isMainCampus === false) ||
+    a.title.length - b.title.length ||
+    a.title.localeCompare(b.title) ||
+    a.school.unitid - b.school.unitid)
+  return matches.slice(0, limit)
+}
+
+// "Institution · City, ST · 2015–2024"
+function detailLine(school: School): string {
+  const place = school.city && school.state ? `${school.city}, ${school.state}` : school.city || school.state || ''
+  const years = school.years ? (school.years[0] === school.years[1] ? `${school.years[0]}` : `${school.years[0]}–${school.years[1]}`) : ''
+  return [school.campus ? school.name : '', place, years].filter(Boolean).join(' · ')
+}
 
 interface SchoolSearchProps {
   className?: string
@@ -91,19 +151,9 @@ export default function SchoolSearch({ className, variant = 'header', compareSch
   }, [isOpen, isHero, isFocused])
 
   // Filter schools based on query
-  const filteredSchools = useMemo(() => {
-    if (!query.trim()) return []
-
-    const q = query.toLowerCase()
-    return schools
-      .filter(
-        (s) =>
-          s.name.toLowerCase().includes(q) ||
-          (s.city && s.city.toLowerCase().includes(q)) ||
-          (s.state && s.state.toLowerCase().includes(q))
-      )
-      .slice(0, 8) // Limit results
-  }, [schools, query])
+  const searchable = useMemo(() => schools.map(prepare), [schools])
+  const matches = useMemo(() => findSchools(searchable, query, 8), [searchable, query])
+  const filteredSchools = useMemo(() => matches.map((m) => m.school), [matches])
 
   // Reset selected index when results change
   useEffect(() => {
@@ -210,13 +260,13 @@ export default function SchoolSearch({ className, variant = 'header', compareSch
                 </p>
                 {!loading && query.length < 3 && (
                   <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                    Try searching by school name, city, or state
+                    Try a school or campus name, a former name, an abbreviation, a city, or a state
                   </p>
                 )}
               </div>
             ) : (
               <ul className="py-1" role="listbox">
-                {filteredSchools.map((school, index) => {
+                {matches.map(({ school, alias }, index) => {
                   const isComparing = compareSchools?.includes(school.unitid)
                   return (
                     <li
@@ -237,23 +287,24 @@ export default function SchoolSearch({ className, variant = 'header', compareSch
                         className="flex-1 text-left px-4 py-2.5"
                       >
                         <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                          {school.name}
-                          {school.isMainCampus === false && (
+                          {displayName(school)}
+                          {school.isMainCampus === false && !school.campus && (
                             <span className="ml-2 text-xs font-normal text-gray-500 dark:text-gray-400">(Branch)</span>
                           )}
                         </div>
                         <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                          {school.city && school.state
-                            ? `${school.city}, ${school.state}`
-                            : school.state || ''}
+                          {detailLine(school)}
                         </div>
+                        {alias && (
+                          <div className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">also: {alias}</div>
+                        )}
                       </button>
                       {onToggleCompare && (
                         <button
                           type="button"
                           onClick={(e) => {
                             e.stopPropagation()
-                            onToggleCompare(school.unitid, school.name)
+                            onToggleCompare(school.unitid, displayName(school))
                           }}
                           className={cn(
                             'mr-3 p-1.5 rounded-md transition-colors',
@@ -352,7 +403,7 @@ export default function SchoolSearch({ className, variant = 'header', compareSch
             </div>
           ) : (
             <ul className="py-1" role="listbox">
-              {filteredSchools.map((school, index) => (
+              {matches.map(({ school, alias }, index) => (
                 <li key={school.unitid} role="option" aria-selected={index === selectedIndex}>
                   <button
                     type="button"
@@ -366,16 +417,17 @@ export default function SchoolSearch({ className, variant = 'header', compareSch
                     )}
                   >
                     <div className="font-medium text-gray-900 dark:text-gray-100 text-sm">
-                      {school.name}
-                      {school.isMainCampus === false && (
+                      {displayName(school)}
+                      {school.isMainCampus === false && !school.campus && (
                         <span className="ml-1.5 text-xs font-normal text-gray-500 dark:text-gray-400">(Branch)</span>
                       )}
                     </div>
                     <div className="text-xs text-gray-500 dark:text-gray-400">
-                      {school.city && school.state
-                        ? `${school.city}, ${school.state}`
-                        : school.state || ''}
+                      {detailLine(school)}
                     </div>
+                    {alias && (
+                      <div className="text-xs text-gray-400 dark:text-gray-500">also: {alias}</div>
+                    )}
                   </button>
                 </li>
               ))}

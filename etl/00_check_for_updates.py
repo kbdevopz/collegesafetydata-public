@@ -1169,6 +1169,16 @@ def local_problems(rec: dict, crime_now: dict, enrollment_now: dict) -> list[tup
     if institutions:
         problems += (code_problems("03", institutions) + output_problems("03", institutions)
                      + read_problems("03", institutions, {"02": crime}))
+        # The IPEDS directory files and etl/reference/campus_id_changes.csv 03 read
+        others = institutions.get("other_inputs") if new_format(institutions) else {}
+        if new_format(institutions) and not isinstance(others, dict):
+            problems.append(("03", "step 03's record lists no IPEDS directory or reference files read"))
+        else:
+            changed = sorted(name for name, sha in (others or {}).items()
+                             if not (PROJECT_ROOT / name).is_file()
+                             or provenance.file_sha256(PROJECT_ROOT / name) != sha)
+            if changed:
+                problems.append(("03", f"{short(changed)} changed after step 03 read it"))
     return problems
 
 

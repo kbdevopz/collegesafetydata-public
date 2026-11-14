@@ -51,7 +51,7 @@ import warnings
 from datetime import datetime, timezone
 from pathlib import Path
 
-from config import CURATED_DIR, JSON_DIR
+from config import CURATED_DIR, JSON_DIR, PROJECT_ROOT
 import ipeds_files
 # The pipeline lock is kept out of the code fingerprint; the stages and the
 # checker use these names from here.
@@ -86,7 +86,7 @@ STAGE_CODE = {
     "02": ("02_transform_to_parquet.py", "config.py", "provenance.py"),
     "02b": ("02b_transform_ef_enrollment.py", "config.py", "ipeds_files.py", "provenance.py"),
     "02a": ("02a_transform_enrollment.py", "config.py", "ipeds_files.py", "provenance.py"),
-    "03": ("03_build_dimensions.py", "config.py", "provenance.py"),
+    "03": ("03_build_dimensions.py", "campus_identity.py", "config.py", "ipeds_files.py", "provenance.py"),
     "04": ("04_create_aggregates.py", "config.py", "provenance.py"),
     "05": ("05_generate_json.py", "config.py", "provenance.py"),
 }
@@ -97,10 +97,12 @@ CURATED_WRITERS = {
     "dims/raw_institutions.parquet": "02",
     "dims/campus_year_sources.parquet": "02",
     "dims/older_release_counts.parquet": "02",
+    "dims/campus_names.parquet": "02",
     "dims/dim_enrollment_ef.parquet": "02b",
     "dims/dim_enrollment.parquet": "02a",
     "dims/dim_institution.parquet": "03",
     "dims/dim_offense.parquet": "03",
+    "dims/campus_id_links.parquet": "03",
 }
 
 # Records each step reads, and where 04's record keeps the ones it used
@@ -477,13 +479,29 @@ def write_enrollment_manifest(drvef_inputs: dict[int, dict], built_years: set[in
     })
 
 
-def write_institution_manifest(snapshot: Snapshot, outputs: list[Path]) -> None:
-    """Called by 03 after building its tables from the files in `snapshot`."""
+def other_input_records(paths: list[Path]) -> dict[str, str]:
+    """SHA-256 of input files outside data/curated (raw downloads, etl/reference), by project-relative path."""
+    return {p.resolve().relative_to(PROJECT_ROOT).as_posix(): _input_sha256(p) for p in sorted(paths)}
+
+
+def write_institution_manifest(snapshot: Snapshot, outputs: list[Path],
+                               other_inputs: dict[str, str] | None = None) -> None:
+    """
+    Called by 03 after building its tables from the files in `snapshot` and
+    `other_inputs` (other_input_records, taken before reading them).
+    """
     snapshot.verify()
+    other_inputs = other_inputs or {}
+    changed = sorted(name for name, sha in other_inputs.items()
+                     if not (PROJECT_ROOT / name).is_file() or _input_sha256(PROJECT_ROOT / name) != sha)
+    if changed:
+        raise RecordError(f"{', '.join(changed)} changed while step 03 ran. No record was written. "
+                          "Run 03 again.")
     _write(INSTITUTION_MANIFEST, {
         "built_at": _now(),
         "crime": snapshot.records["02"],
         "read": snapshot.files,
+        "other_inputs": dict(sorted(other_inputs.items())),
         "outputs": _outputs(outputs),
         "code": code_fingerprint("03"),
     })

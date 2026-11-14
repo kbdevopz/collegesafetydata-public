@@ -70,6 +70,7 @@ def required_inputs() -> list[Path]:
         CURATED_DIR / "dims" / "dim_offense.parquet",
         CURATED_DIR / "dims" / "dim_enrollment.parquet",
         CURATED_DIR / "dims" / "campus_year_sources.parquet",
+        CURATED_DIR / "dims" / "campus_id_links.parquet",
     ]
     if PROCESS_ALL_SCHOOLS:
         paths += [
@@ -82,6 +83,35 @@ def required_inputs() -> list[Path]:
 def opt(value):
     """None for a missing value (None, NaN, NA), otherwise the value."""
     return None if value is None or pd.isna(value) else value
+
+
+def campus_of(row) -> str | None:
+    """
+    The campus's own DOE name (dim_institution campus_name: BRANCH, when it
+    says more than the institution name) for a campus that is not its
+    institution's main campus; the site shows it as the title and the
+    institution name under it. None for a main campus (titled by the
+    institution name) and for a campus DOE gives only a generic label.
+    """
+    if bool(row.get("is_main_campus", False)):
+        return None
+    return opt(row.get("campus_name"))
+
+
+def id_links() -> dict[int, list[dict]]:
+    """
+    {unitid: [{unitid, relation, years}]} from 03's campus_id_links: the
+    other ID DOE reported the same campus under (etl/reference/
+    campus_id_changes.csv, decision "link"), "earlier" or "later", and the
+    years reported under it. The pages link to each other; no figures move.
+    """
+    links = pd.read_parquet(CURATED_DIR / "dims" / "campus_id_links.parquet")
+    out: dict[int, list[dict]] = {}
+    for u, o, years, rel in zip(links["unitid"].tolist(), links["other_unitid"].tolist(),
+                                links["other_years"].tolist(), links["relation"].tolist()):
+        out.setdefault(int(u), []).append({"unitid": int(o), "relation": rel,
+                                           "years": [int(y) for y in str(years).split()]})
+    return out
 
 
 def write_json(path: Path, obj) -> None:
@@ -503,7 +533,8 @@ class Institutions:
         """
         fte, online = rec.get("fte"), rec.get("online_pct")
         return (pd.notna(fte) and int(fte) >= MIN_FTE_FOR_RATE
-                and (pd.isna(online) or int(online) < ONLINE_EXCLUSION_PCT))
+                and (pd.isna(online) or int(online) < ONLINE_EXCLUSION_PCT)
+                and opt(rec.get("rate_excluded")) is None)
 
     def count(self, code: str, year: int, base_unitid: int) -> int:
         return self._count_of.get(code, {}).get((int(year), int(base_unitid)), 0)
@@ -538,6 +569,9 @@ class Institutions:
             # (that other year, or the year itself when NCES has none for it)
             if int(year) in ONLINE_SHARE_YEAR and entry["online"] is not None:
                 entry["onlineYear"] = int(rec["online_year"])
+            # Left out of rate rankings after a merger or renumbering (04's rate_exclusions)
+            if opt(rec.get("rate_excluded")) is not None:
+                entry["rateExcludedReason"] = rec["rate_excluded"]
             if counts != own[year]:
                 entry["counts"] = counts
             out[str(year)] = entry
@@ -627,6 +661,9 @@ def rankings_output(year_data: pd.DataFrame, preset: str, year: int, institution
             "fte": int(inst["fte"]) if pd.notna(inst.get("fte")) else None,
             "campuses": int(inst["campuses"]),
         }
+        campus = campus_of({"is_main_campus": is_main_campus(unitid), "campus_name": row.get("campus_name")})
+        if campus:
+            output["campuses"][str(unitid)]["campus"] = campus
     ranked_ids = {str(int(u)) for u in all_geo["unitid"].unique()}
     if ranked_ids - set(output["campuses"]):
         raise SiteDataError(f"{preset}-{year}: {len(ranked_ids - set(output['campuses']))} ranked campuses are not "
@@ -661,7 +698,7 @@ def campus_year_rows() -> pd.DataFrame:
     rows = pd.read_parquet(CURATED_DIR / "aggs" / "agg_campus_year.parquet")
     rows = rows[rows["year"].isin(DATA_YEARS)]
     dim_inst = pd.read_parquet(CURATED_DIR / "dims" / "dim_institution.parquet")
-    names = dim_inst[["unitid", "institution_name", "short_name"]]
+    names = dim_inst[["unitid", "institution_name", "short_name", "campus_name"]]
     out = rows.merge(names, on="unitid", how="left", validate="many_to_one")
     if out["institution_name"].isna().any():
         first = out[out["institution_name"].isna()].iloc[0]
@@ -832,6 +869,12 @@ def generate_school_profiles() -> None:
     dim_inst = pd.read_parquet(CURATED_DIR / "dims" / "dim_institution.parquet")
     shared = shared_figures(dim_inst)
     shared_written = 0
+    links = id_links()
+    titles = {int(r["unitid"]): (IVY_LEAGUE[int(r["unitid"])]["name"] if int(r["unitid"]) in IVY_LEAGUE
+                                 else opt(r["institution_name"]), campus_of(r))
+              for r in dim_inst.to_dict("records")}
+    linked_written = 0
+    campus_titles = 0
 
     # Determine which schools to process
     if PROCESS_ALL_SCHOOLS:
@@ -958,6 +1001,7 @@ def generate_school_profiles() -> None:
             "shortName": short_name,
             "city": city,
             "state": state,
+            "campus": campus_of(inst_row),
             "ivyLeague": is_ivy,
             "isMainCampus": is_main_campus,
             "campusType": campus_type,
@@ -976,6 +1020,18 @@ def generate_school_profiles() -> None:
         }
         if not_reported:
             output["notReported"] = not_reported
+        if output["campus"] is None:
+            del output["campus"]
+        else:
+            campus_titles += 1
+        # The same campus under another DOE ID (campus_id_links): both pages link to each other
+        if unitid in links:
+            output["idChanges"] = [{**link, "name": titles[link["unitid"]][0], "campus": titles[link["unitid"]][1]}
+                                   for link in links[unitid]]
+            for link in output["idChanges"]:
+                if link["campus"] is None:
+                    del link["campus"]
+            linked_written += 1
         # The school's figures stay as DOE reports them; these blocks are
         # counted under another campus in totals and rankings
         if unitid in shared:
@@ -1018,6 +1074,8 @@ def generate_school_profiles() -> None:
         print(f"    Other schools: {state_count}")
     print(f"    With figures counted under another campus (sharedFigures): {shared_written}")
     print(f"    That reported but never had an incident: {zero_profiles}")
+    print(f"    Titled by their own DOE campus name (campus): {campus_titles:,}")
+    print(f"    Linked to the same campus under another DOE ID (idChanges): {linked_written:,}")
     print(f"    Reported years without an incident (shown as 0): {zero_years:,}")
     print(f"  Saved to: {schools_dir}/")
 
@@ -1136,7 +1194,14 @@ def generate_school_index() -> None:
 
     Files: school-index.json
     Schema:
-        schools: [{unitid, name, short, city, state}]
+        schools: [{unitid, name, campus?, short, city, state, isMainCampus, baseUnitid,
+                   years: [first, last], aliases?, idChanges?: [unitid]}]
+            name is the institution name; campus the campus's own DOE name
+            (campus_of), which the site shows as the title; years the first and
+            last year the campus reported; aliases other names to search by
+            (dim_institution aliases: former DOE names and the IPEDS IALIAS
+            values); idChanges the other DOE IDs of the same campus
+            (campus_id_links)
 
     It lists every school that has a school file: every campus in
     dim_institution (every campus that reported a year, including those that
@@ -1145,11 +1210,16 @@ def generate_school_index() -> None:
     print("\nGenerating school search index...")
 
     dim_inst = pd.read_parquet(CURATED_DIR / "dims" / "dim_institution.parquet")
+    sources = pd.read_parquet(CURATED_DIR / "dims" / "campus_year_sources.parquet", columns=["unitid", "year"])
+    sources = sources[sources["year"].isin(DATA_YEARS)]
+    span = {int(u): [int(g["year"].min()), int(g["year"].max())] for u, g in sources.groupby("unitid")}
+    links = id_links()
 
     # Sort by state, then name for better UX; unitid fixes the order of same-name campuses
     dim_inst = dim_inst.sort_values(["state", "institution_name", "unitid"])
 
     schools = []
+    aliases_written = 0
     for _, row in dim_inst.iterrows():
         unitid = int(row["unitid"])
         is_ivy = unitid in IVY_LEAGUE
@@ -1160,7 +1230,7 @@ def generate_school_index() -> None:
 
         if is_ivy:
             ivy_info = IVY_LEAGUE[unitid]
-            schools.append({
+            entry = {
                 "unitid": unitid,
                 "name": ivy_info["name"],
                 "short": ivy_info["short"],
@@ -1168,9 +1238,9 @@ def generate_school_index() -> None:
                 "state": ivy_info["state"],
                 "isMainCampus": is_main_campus,
                 "baseUnitid": base_unitid
-            })
+            }
         else:
-            schools.append({
+            entry = {
                 "unitid": unitid,
                 "name": opt(row.get("institution_name")) or f"School {unitid}",
                 "short": row.get("short_name") if pd.notna(row.get("short_name")) else None,
@@ -1178,13 +1248,27 @@ def generate_school_index() -> None:
                 "state": row.get("state") if pd.notna(row.get("state")) else None,
                 "isMainCampus": is_main_campus,
                 "baseUnitid": base_unitid
-            })
+            }
+        campus = campus_of(row)
+        if campus:
+            entry["campus"] = campus
+        entry["years"] = span[unitid]
+        shown = {str(entry["name"]).lower(), str(campus or "").lower()}
+        aliases = [a for a in (row.get("aliases") if row.get("aliases") is not None else [])
+                   if str(a).lower() not in shown]
+        if aliases:
+            entry["aliases"] = [str(a) for a in aliases]
+            aliases_written += len(aliases)
+        if unitid in links:
+            entry["idChanges"] = [link["unitid"] for link in links[unitid]]
+        schools.append(entry)
 
     output = {"schools": schools}
 
     write_json(JSON_DIR / "school-index.json", output)
 
-    print(f"  Indexed {len(schools)} schools")
+    print(f"  Indexed {len(schools)} schools ({sum('campus' in s for s in schools):,} with a campus name, "
+          f"{aliases_written:,} aliases, {sum('idChanges' in s for s in schools):,} with another DOE ID)")
     print(f"  Saved to: {JSON_DIR / 'school-index.json'}")
 
 

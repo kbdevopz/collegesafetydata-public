@@ -25,6 +25,7 @@ interface Row {
   unitid: number // the school page the row links to
   name: string
   branch: boolean // count view: not the main campus
+  campus: string | null // count view: the campus's own DOE name (shown as the title; name stays the sort key)
   campuses: number // the institution's campuses that year
   count: number
   pct: number // count view: share of the file's total
@@ -145,6 +146,7 @@ export default function Rankings() {
           unitid: inst?.unitid ?? e.id * 1000 + 1,
           name: inst?.name ?? `Institution ${e.id}`,
           branch: false,
+          campus: null,
           campuses: inst?.campuses ?? 1,
           count: e.count,
           pct: 0,
@@ -163,6 +165,7 @@ export default function Rankings() {
         unitid: inst.unitid,
         name: inst.name,
         branch: false,
+        campus: null,
         campuses: inst.campuses,
         count: 0,
         pct: 0,
@@ -181,6 +184,7 @@ export default function Rankings() {
         unitid: e.unitid,
         name: campus?.name ?? `School ${e.unitid}`,
         branch: campus ? !campus.main : false,
+        campus: campus?.campus ?? null,
         campuses: campus?.campuses ?? 1,
         count: e.count,
         pct: total > 0 ? (e.count / total) * 100 : 0,
@@ -199,6 +203,7 @@ export default function Rankings() {
       unitid: id,
       name: campus.name,
       branch: !campus.main,
+      campus: campus.campus ?? null,
       campuses: campus.campuses,
       count: 0,
       pct: 0,
@@ -263,8 +268,13 @@ export default function Rankings() {
             to={`/school/${info.row.original.unitid}`}
             className="group flex items-center gap-2 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 font-medium"
           >
-            {info.getValue()}
-            {info.row.original.branch && (
+            <span className="flex flex-col">
+              <span>{info.row.original.campus ?? info.getValue()}</span>
+              {info.row.original.campus && (
+                <span className="text-xs font-normal text-gray-500 dark:text-gray-400">{info.getValue()}</span>
+              )}
+            </span>
+            {info.row.original.branch && !info.row.original.campus && (
               <span className="text-xs font-normal text-gray-500 dark:text-gray-400">(Branch)</span>
             )}
             {sortByRate && info.row.original.campuses > 1 && (
@@ -375,7 +385,7 @@ export default function Rankings() {
         cell: (info) => (
           <button
             type="button"
-            onClick={(e) => toggleCompare(info.row.original.unitid, info.row.original.name, e)}
+            onClick={(e) => toggleCompare(info.row.original.unitid, info.row.original.campus ?? info.row.original.name, e)}
             className={cn(
               'p-1.5 rounded-md transition-colors',
               isInCompare(info.row.original.unitid)
@@ -851,9 +861,12 @@ export default function Rankings() {
                             {item.rank}
                           </span>
                           <span className="font-medium text-gray-900 dark:text-gray-100">
-                            {item.name}
-                            {item.branch && (
+                            {item.campus ?? item.name}
+                            {item.branch && !item.campus && (
                               <span className="ml-1.5 text-xs font-normal text-gray-500 dark:text-gray-400">(Branch)</span>
+                            )}
+                            {item.campus && (
+                              <span className="block text-xs font-normal text-gray-500 dark:text-gray-400">{item.name}</span>
                             )}
                             {sortByRate && item.campuses > 1 && (
                               <span className="ml-1.5 text-xs font-normal text-gray-500 dark:text-gray-400">
@@ -925,7 +938,7 @@ export default function Rankings() {
                     </Link>
                     <button
                       type="button"
-                      onClick={(e) => toggleCompare(item.unitid, item.name, e)}
+                      onClick={(e) => toggleCompare(item.unitid, item.campus ?? item.name, e)}
                       className={cn(
                         'flex items-center justify-center w-12 border-l transition-colors',
                         isInCompare(item.unitid)
