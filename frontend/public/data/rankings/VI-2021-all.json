@@ -28,6 +28,14 @@
         "count": 1
       }
     ],
+    "violent": [
+      {
+        "rank": 1,
+        "unitid": 243665002,
+        "count": 1
+      }
+    ],
+    "property": [],
     "all": [
       {
         "rank": 1,
@@ -64,6 +72,8 @@
   },
   "totals": {
     "criminal": 1,
+    "violent": 1,
+    "property": 0,
     "all": 4,
     "domestic_violence": 1,
     "liquor_discipline": 2,
@@ -74,66 +84,97 @@
       "name": "University of the Virgin Islands",
       "unitid": 243665001,
       "state": "VI",
-      "fte": 1212,
+      "fte": 1103,
       "campuses": 2
     }
   },
   "rateRankings": {
+    "criminal": [],
+    "violent": [],
+    "property": [],
+    "all": [],
+    "aggravated_assault": [],
+    "burglary": [],
+    "dating_violence": [],
+    "domestic_violence": [],
+    "drug_arrest": [],
+    "drug_discipline": [],
+    "fondling": [],
+    "liquor_arrest": [],
+    "liquor_discipline": [],
+    "motor_vehicle_theft": [],
+    "rape": [],
+    "robbery": [],
+    "stalking": [],
+    "weapons_arrest": [],
+    "weapons_discipline": []
+  },
+  "rateUnranked": {
     "criminal": [
       {
-        "rank": 1,
         "id": 243665,
         "count": 1,
-        "rate": 8.25
+        "rate": 9.07,
+        "lo": 0.23,
+        "hi": 50.51
       }
     ],
+    "violent": [
+      {
+        "id": 243665,
+        "count": 1,
+        "rate": 9.07,
+        "lo": 0.23,
+        "hi": 50.51
+      }
+    ],
+    "property": [],
     "all": [
       {
-        "rank": 1,
         "id": 243665,
         "count": 4,
-        "rate": 33.0
+        "rate": 36.26,
+        "lo": 9.88,
+        "hi": 92.85
       }
     ],
     "aggravated_assault": [],
-    "arson": [],
     "burglary": [],
     "dating_violence": [],
     "domestic_violence": [
       {
-        "rank": 1,
         "id": 243665,
         "count": 1,
-        "rate": 8.25
+        "rate": 9.07,
+        "lo": 0.23,
+        "hi": 50.51
       }
     ],
     "drug_arrest": [],
     "drug_discipline": [],
     "fondling": [],
-    "incest": [],
     "liquor_arrest": [],
     "liquor_discipline": [
       {
-        "rank": 1,
         "id": 243665,
         "count": 2,
-        "rate": 16.5
+        "rate": 18.13,
+        "lo": 2.2,
+        "hi": 65.5
       }
     ],
     "motor_vehicle_theft": [],
-    "murder": [],
-    "negligent_manslaughter": [],
     "rape": [
       {
-        "rank": 1,
         "id": 243665,
         "count": 1,
-        "rate": 8.25
+        "rate": 9.07,
+        "lo": 0.23,
+        "hi": 50.51
       }
     ],
     "robbery": [],
     "stalking": [],
-    "statutory_rape": [],
     "weapons_arrest": [],
     "weapons_discipline": []
   }

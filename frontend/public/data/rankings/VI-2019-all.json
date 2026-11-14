@@ -33,6 +33,20 @@
         "count": 1
       }
     ],
+    "violent": [
+      {
+        "rank": 1,
+        "unitid": 243665001,
+        "count": 5
+      }
+    ],
+    "property": [
+      {
+        "rank": 1,
+        "unitid": 243665002,
+        "count": 1
+      }
+    ],
     "all": [
       {
         "rank": 1,
@@ -69,6 +83,8 @@
   },
   "totals": {
     "criminal": 6,
+    "violent": 5,
+    "property": 1,
     "all": 9,
     "aggravated_assault": 5,
     "burglary": 1,
@@ -79,42 +95,84 @@
       "name": "University of the Virgin Islands",
       "unitid": 243665001,
       "state": "VI",
-      "fte": 1612,
+      "fte": 1467,
       "campuses": 2
     }
   },
   "rateRankings": {
+    "criminal": [],
+    "violent": [],
+    "property": [],
+    "all": [],
+    "aggravated_assault": [],
+    "burglary": [],
+    "dating_violence": [],
+    "domestic_violence": [],
+    "drug_arrest": [],
+    "drug_discipline": [],
+    "fondling": [],
+    "liquor_arrest": [],
+    "liquor_discipline": [],
+    "motor_vehicle_theft": [],
+    "rape": [],
+    "robbery": [],
+    "stalking": [],
+    "weapons_arrest": [],
+    "weapons_discipline": []
+  },
+  "rateUnranked": {
     "criminal": [
       {
-        "rank": 1,
         "id": 243665,
         "count": 6,
-        "rate": 37.22
+        "rate": 40.9,
+        "lo": 15.01,
+        "hi": 89.02
+      }
+    ],
+    "violent": [
+      {
+        "id": 243665,
+        "count": 5,
+        "rate": 34.08,
+        "lo": 11.07,
+        "hi": 79.54
+      }
+    ],
+    "property": [
+      {
+        "id": 243665,
+        "count": 1,
+        "rate": 6.82,
+        "lo": 0.17,
+        "hi": 37.98
       }
     ],
     "all": [
       {
-        "rank": 1,
         "id": 243665,
         "count": 9,
-        "rate": 55.83
+        "rate": 61.35,
+        "lo": 28.05,
+        "hi": 116.46
       }
     ],
     "aggravated_assault": [
       {
-        "rank": 1,
         "id": 243665,
         "count": 5,
-        "rate": 31.02
+        "rate": 34.08,
+        "lo": 11.07,
+        "hi": 79.54
       }
     ],
-    "arson": [],
     "burglary": [
       {
-        "rank": 1,
         "id": 243665,
         "count": 1,
-        "rate": 6.2
+        "rate": 6.82,
+        "lo": 0.17,
+        "hi": 37.98
       }
     ],
     "dating_violence": [],
@@ -122,23 +180,20 @@
     "drug_arrest": [],
     "drug_discipline": [
       {
-        "rank": 1,
         "id": 243665,
         "count": 3,
-        "rate": 18.61
+        "rate": 20.45,
+        "lo": 4.22,
+        "hi": 59.76
       }
     ],
     "fondling": [],
-    "incest": [],
     "liquor_arrest": [],
     "liquor_discipline": [],
     "motor_vehicle_theft": [],
-    "murder": [],
-    "negligent_manslaughter": [],
     "rape": [],
     "robbery": [],
     "stalking": [],
-    "statutory_rape": [],
     "weapons_arrest": [],
     "weapons_discipline": []
   }

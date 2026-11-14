@@ -136,10 +136,27 @@
       "2016": {
         "campuses": 5,
         "online": 54,
-        "rateRanked": false,
-        "rateExcludedReason": "DOE reported campus 242972002 of this institution also under ID 242981001 of another institution in 2016 (a merger or renumbering), so that year's incidents and enrollment may not cover the same campuses. No rate is shown for it.",
+        "rateRanked": true,
+        "rateFte": 4476,
+        "pooledWith": [
+          {
+            "id": 242981,
+            "name": "National University College-Arecibo",
+            "fte": 1133
+          },
+          {
+            "id": 444042,
+            "name": "National University College-Rio Grande",
+            "fte": 1176
+          }
+        ],
+        "spikes": [
+          "all"
+        ],
         "counts": {
           "criminal": 14,
+          "violent": 9,
+          "property": 5,
           "all": 29,
           "aggravated_assault": 2,
           "burglary": 4,
@@ -154,8 +171,11 @@
         "campuses": 5,
         "online": 28,
         "rateRanked": true,
+        "rateFte": 6527,
         "counts": {
           "criminal": 7,
+          "violent": 5,
+          "property": 1,
           "all": 19,
           "aggravated_assault": 2,
           "burglary": 1,
@@ -170,8 +190,10 @@
         "campuses": 6,
         "online": 30,
         "rateRanked": true,
+        "rateFte": 5694,
         "counts": {
           "criminal": 3,
+          "violent": 2,
           "all": 5,
           "domestic_violence": 1,
           "fondling": 1,
@@ -183,9 +205,12 @@
         "campuses": 14,
         "online": 37,
         "rateRanked": false,
-        "rateExcludedReason": "DOE reported campus 242972007 of this institution also under ID 134112001 of another institution in 2019 (a merger or renumbering), so that year's incidents and enrollment may not cover the same campuses. No rate is shown for it.",
+        "rateExcludedReason": "In 2019 the figures of campus 242972010 count for this institution, but IPEDS counts that campus's students under institution 134112 (DOE also reported it as 134112004: a merger or renumbering), which counts other campuses of its own that year. No rate is shown for that year.",
+        "rateFte": 4881,
         "counts": {
           "criminal": 5,
+          "violent": 3,
+          "property": 2,
           "all": 9,
           "aggravated_assault": 3,
           "drug_discipline": 1,
@@ -198,8 +223,10 @@
         "online": 37,
         "rateRanked": true,
         "onlineYear": 2019,
+        "rateFte": 8006,
         "counts": {
           "criminal": 1,
+          "violent": 1,
           "all": 1,
           "robbery": 1
         }
@@ -209,8 +236,10 @@
         "online": 37,
         "rateRanked": true,
         "onlineYear": 2019,
+        "rateFte": 12486,
         "counts": {
           "criminal": 1,
+          "property": 1,
           "all": 2,
           "burglary": 1,
           "liquor_discipline": 1
@@ -220,8 +249,10 @@
         "campuses": 27,
         "online": 20,
         "rateRanked": true,
+        "rateFte": 17218,
         "counts": {
           "criminal": 2,
+          "property": 1,
           "all": 2,
           "burglary": 1,
           "fondling": 1
@@ -231,8 +262,10 @@
         "campuses": 27,
         "online": 11,
         "rateRanked": true,
+        "rateFte": 25323,
         "counts": {
           "criminal": 4,
+          "property": 4,
           "all": 6,
           "burglary": 1,
           "domestic_violence": 1,
@@ -244,8 +277,10 @@
         "campuses": 27,
         "online": 29,
         "rateRanked": true,
+        "rateFte": 18973,
         "counts": {
           "criminal": 1,
+          "violent": 1,
           "all": 4,
           "domestic_violence": 1,
           "drug_arrest": 1,

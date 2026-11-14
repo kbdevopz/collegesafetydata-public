@@ -28,6 +28,14 @@
         "count": 1
       }
     ],
+    "violent": [],
+    "property": [
+      {
+        "rank": 1,
+        "unitid": 243665002,
+        "count": 1
+      }
+    ],
     "all": [
       {
         "rank": 1,
@@ -45,6 +53,8 @@
   },
   "totals": {
     "criminal": 1,
+    "violent": 0,
+    "property": 1,
     "all": 1,
     "burglary": 1
   },
@@ -53,35 +63,68 @@
       "name": "University of the Virgin Islands",
       "unitid": 243665001,
       "state": "VI",
-      "fte": 1392,
+      "fte": 1267,
       "campuses": 2
     }
   },
   "rateRankings": {
+    "criminal": [],
+    "violent": [],
+    "property": [],
+    "all": [],
+    "aggravated_assault": [],
+    "burglary": [],
+    "dating_violence": [],
+    "domestic_violence": [],
+    "drug_arrest": [],
+    "drug_discipline": [],
+    "fondling": [],
+    "liquor_arrest": [],
+    "liquor_discipline": [],
+    "motor_vehicle_theft": [],
+    "rape": [],
+    "robbery": [],
+    "stalking": [],
+    "weapons_arrest": [],
+    "weapons_discipline": []
+  },
+  "rateUnranked": {
     "criminal": [
       {
-        "rank": 1,
         "id": 243665,
         "count": 1,
-        "rate": 7.18
+        "rate": 7.89,
+        "lo": 0.2,
+        "hi": 43.98
+      }
+    ],
+    "violent": [],
+    "property": [
+      {
+        "id": 243665,
+        "count": 1,
+        "rate": 7.89,
+        "lo": 0.2,
+        "hi": 43.98
       }
     ],
     "all": [
       {
-        "rank": 1,
         "id": 243665,
         "count": 1,
-        "rate": 7.18
+        "rate": 7.89,
+        "lo": 0.2,
+        "hi": 43.98
       }
     ],
     "aggravated_assault": [],
-    "arson": [],
     "burglary": [
       {
-        "rank": 1,
         "id": 243665,
         "count": 1,
-        "rate": 7.18
+        "rate": 7.89,
+        "lo": 0.2,
+        "hi": 43.98
       }
     ],
     "dating_violence": [],
@@ -89,16 +132,12 @@
     "drug_arrest": [],
     "drug_discipline": [],
     "fondling": [],
-    "incest": [],
     "liquor_arrest": [],
     "liquor_discipline": [],
     "motor_vehicle_theft": [],
-    "murder": [],
-    "negligent_manslaughter": [],
     "rape": [],
     "robbery": [],
     "stalking": [],
-    "statutory_rape": [],
     "weapons_arrest": [],
     "weapons_discipline": []
   }

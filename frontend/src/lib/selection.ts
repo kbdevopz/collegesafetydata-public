@@ -1,8 +1,12 @@
 /**
- * What a page counts: one offense, or one of the two summary codes the
- * pipeline writes (etl/05_generate_json.py).
+ * What a page counts: one offense, or one of the summary codes the
+ * pipeline writes (etl/05_generate_json.py, config.py SUMMARY_FAMILIES).
  *
- *   'criminal'  the 11 criminal offenses added up (the default view)
+ *   'criminal'  the 11 criminal offenses added up
+ *   'violent'   the FBI's violent crime: murder, rape, robbery and
+ *               aggravated assault (the default view)
+ *   'property'  the FBI's property crime without larceny-theft, which Clery
+ *               does not collect: burglary, motor vehicle theft and arson
  *   'all'       every category added up: criminal offenses, VAWA offenses,
  *               arrests and disciplinary referrals. These are different
  *               kinds of counts (arrests and referrals count people, and a
@@ -16,11 +20,21 @@
 import type { Offense, TrendPoint } from './types'
 
 export const CRIMINAL = 'criminal'
+export const VIOLENT = 'violent'
+export const PROPERTY = 'property'
 export const ALL = 'all'
 
 export const SUMMARY_LABELS: Record<string, string> = {
   [CRIMINAL]: 'All criminal offenses',
+  [VIOLENT]: 'Violent crimes',
+  [PROPERTY]: 'Property crimes',
   [ALL]: 'All categories (crimes, arrests, referrals)',
+}
+
+// The offenses 'violent' and 'property' add up (etl/config.py)
+const SUMMARY_OFFENSES: Record<string, string[]> = {
+  [VIOLENT]: ['Murder', 'Rape', 'Robbery', 'Aggravated Assault'],
+  [PROPERTY]: ['Burglary', 'Motor Vehicle Theft', 'Arson'],
 }
 
 // The offense family whose offenses 'criminal' adds up
@@ -29,7 +43,7 @@ const CRIMINAL_FAMILY = 'Criminal'
 /** What one counted unit is called, by offense family (or summary code). */
 function unitOf(code: string, family: string | undefined): 'offense' | 'arrest' | 'referral' | 'mixed' {
   if (code === ALL) return 'mixed'
-  if (code === CRIMINAL) return 'offense'
+  if (code === CRIMINAL || code === VIOLENT || code === PROPERTY) return 'offense'
   if (family === 'Arrest') return 'arrest'
   if (family === 'Disciplinary') return 'referral'
   return 'offense'
@@ -57,6 +71,8 @@ export function countPhrase(n: number, offense: Pick<Offense, 'code' | 'family'>
  */
 export function noneOfPhrase(code: string, offense: Pick<Offense, 'display' | 'family'> | undefined): string {
   if (code === CRIMINAL) return 'criminal offenses'
+  if (code === VIOLENT) return 'violent crimes'
+  if (code === PROPERTY) return 'property crimes'
   if (code === ALL) return 'crimes, arrests or referrals'
   const name = (offense?.display ?? code.split('_').join(' ')).toLowerCase()
   if (offense?.family === 'Arrest') return `${name}s`
@@ -90,6 +106,7 @@ export function competitionRanks<T>(sorted: T[], value: (item: T) => number): nu
 export function inSelection(point: Pick<TrendPoint, 'offense' | 'offenseFamily'>, selection: string): boolean {
   if (selection === ALL) return true
   if (selection === CRIMINAL) return point.offenseFamily === CRIMINAL_FAMILY
+  if (selection in SUMMARY_OFFENSES) return SUMMARY_OFFENSES[selection].includes(point.offense)
   return point.offense === selection
 }
 
@@ -100,7 +117,7 @@ export function selectionLabel(selection: string): string {
 
 /** Whether `selection` is one of the summary codes rather than one offense. */
 export function isSummary(selection: string): boolean {
-  return selection === ALL || selection === CRIMINAL
+  return selection in SUMMARY_LABELS
 }
 
 /**

@@ -20,9 +20,8 @@ export interface Metadata {
   // {"2023": "final", "2024": "provisional"}. Absent in data built before
   // 05 wrote it.
   enrollmentStatus?: Record<string, EnrollmentStatus>
-  // Who rate rankings list (etl/config.py): institutions with at least
-  // minFte FTE students and fewer than onlineExclusionPct percent of their
-  // students enrolled exclusively online
+  // The rate rules (etl/config.py): who rate rankings list and rank, the
+  // interval and the spike flag
   rateRules: RateRules
   // Known errors in DOE's files that the build worked around, with the
   // campuses whose figures for that year come from the defective release.
@@ -43,10 +42,19 @@ export interface KnownDefect {
 }
 
 export interface RateRules {
+  // Rate rankings list institutions with at least this on-campus FTE
   minFte: number
-  onlineExclusionPct: number
-  // Years judged by another fall's online share, e.g. {"2020": 2019}: the
-  // pandemic's remote teaching does not make a school an online one
+  // ... and rank by rate those with at least this many incidents
+  minCount: number
+  // Offense codes too rare nationally for a rate ranking (counts only)
+  countsOnly: string[]
+  // The level of each rate's exact Poisson interval (0.95)
+  ciLevel: number
+  // An unusually high count: at least minCount and more than factor times
+  // the median of the institution's other listed years (minOtherYears+)
+  spike: { minCount: number; factor: number; minOtherYears: number }
+  // Years whose online share is another fall's, e.g. {"2020": 2019}: the
+  // pandemic's remote teaching did not take students off campus for good
   onlineShareYear?: Record<string, number>
 }
 
@@ -141,17 +149,43 @@ export interface RateInstitution {
   name: string
   unitid: number
   state: string | null
+  // The rate's denominator: its on-campus FTE, plus that of `pooled`
   fte: number
   campuses: number
+  // Institutions whose FTE the rate adds (their campus figures count here)
+  pooled?: PooledInstitution[]
+}
+
+// An institution whose FTE another's rate adds: `id` its base UNITID
+export interface PooledInstitution {
+  id: number
+  name: string | null
+  fte: number
 }
 
 // One institution of a rate ranking: `id` is its base UNITID (a key of
-// RankingsData.institutions), `count` the incidents of all its campuses
+// RankingsData.institutions), `count` the incidents of all its campuses,
+// lo-hi the rate's 95% interval, rankLo-rankHi the ranks that interval
+// allows, spike an unusually high count for it
 export interface RateEntry {
   rank: number
   id: number
   count: number
   rate: number
+  lo: number
+  hi: number
+  rankLo: number
+  rankHi: number
+  spike?: boolean
+}
+
+// An institution with too few incidents to rank by rate (1 to minCount - 1)
+export interface RateUnrankedEntry {
+  id: number
+  count: number
+  rate: number
+  lo: number
+  hi: number
 }
 
 export interface RankingsData {
@@ -162,10 +196,13 @@ export interface RankingsData {
   // (every other campus of `campuses` had 0)
   rankings: Record<string, CountEntry[]>
   totals: Record<string, number>
-  // Rate rankings per code, by institution (rate per 10,000 FTE): those
-  // with a count above 0 (every other institution of `institutions` had 0)
+  // Rate rankings per code, by institution (rate per 10,000 on-campus FTE):
+  // those with at least minCount incidents, then those with fewer
+  // (rateUnranked); every other institution of `institutions` had 0. A code
+  // of RateRules.countsOnly has neither
   institutions: Record<string, RateInstitution>
   rateRankings: Record<string, RateEntry[]>
+  rateUnranked: Record<string, RateUnrankedEntry[]>
 }
 
 // =============================================================================
@@ -234,6 +271,13 @@ export interface InstitutionYear {
   rateRanked: boolean
   // Why the rate is left out that year, when the pipeline says so
   rateExcludedReason?: string
+  // The rate's denominator: on-campus FTE, with the on-campus FTE of
+  // pooledWith added (institutions whose campus figures count here that
+  // year: a merger, renumbering or shared campus); absent without an FTE
+  rateFte?: number
+  pooledWith?: PooledInstitution[]
+  // Codes whose count is unusually high for the institution that year
+  spikes?: string[]
   // Counts of all its campuses per code (shadow blocks left out); absent
   // when equal to the school's own counts that year
   counts?: Record<string, number>

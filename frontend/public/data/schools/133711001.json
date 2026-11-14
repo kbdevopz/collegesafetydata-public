@@ -616,25 +616,37 @@
       "2015": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true
+        "rateRanked": true,
+        "rateFte": 2642
       },
       "2016": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true
+        "rateRanked": true,
+        "rateFte": 2571
       },
       "2017": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true
+        "rateRanked": true,
+        "rateFte": 2632
       },
       "2018": {
         "campuses": 2,
         "online": 0,
-        "rateRanked": false,
-        "rateExcludedReason": "DOE reported campus 133711002 of this institution also under ID 444990001 of another institution in 2018 (a merger or renumbering), so that year's incidents and enrollment may not cover the same campuses. No rate is shown for it.",
+        "rateRanked": true,
+        "rateFte": 2953,
+        "pooledWith": [
+          {
+            "id": 444990,
+            "name": "Flagler College-Tallahassee",
+            "fte": 377
+          }
+        ],
         "counts": {
           "criminal": 19,
+          "violent": 6,
+          "property": 13,
           "all": 154,
           "aggravated_assault": 3,
           "burglary": 9,
@@ -651,8 +663,11 @@
         "campuses": 2,
         "online": 0,
         "rateRanked": true,
+        "rateFte": 2853,
         "counts": {
           "criminal": 5,
+          "violent": 2,
+          "property": 3,
           "all": 59,
           "burglary": 1,
           "drug_discipline": 14,
@@ -667,8 +682,11 @@
         "online": 0,
         "rateRanked": true,
         "onlineYear": 2019,
+        "rateFte": 2631,
         "counts": {
           "criminal": 12,
+          "violent": 10,
+          "property": 2,
           "all": 93,
           "aggravated_assault": 9,
           "burglary": 1,
@@ -685,8 +703,11 @@
         "online": 0,
         "rateRanked": true,
         "onlineYear": 2019,
+        "rateFte": 2587,
         "counts": {
           "criminal": 14,
+          "violent": 7,
+          "property": 7,
           "all": 185,
           "aggravated_assault": 2,
           "burglary": 2,
@@ -704,8 +725,11 @@
         "campuses": 2,
         "online": 0,
         "rateRanked": true,
+        "rateFte": 2571,
         "counts": {
           "criminal": 18,
+          "violent": 13,
+          "property": 5,
           "all": 145,
           "aggravated_assault": 9,
           "burglary": 3,
@@ -723,8 +747,14 @@
         "campuses": 2,
         "online": 1,
         "rateRanked": true,
+        "rateFte": 2373,
+        "spikes": [
+          "drug_discipline"
+        ],
         "counts": {
           "criminal": 22,
+          "violent": 8,
+          "property": 14,
           "all": 202,
           "aggravated_assault": 4,
           "arson": 1,
@@ -742,7 +772,8 @@
       "2024": {
         "campuses": 1,
         "online": 1,
-        "rateRanked": true
+        "rateRanked": true,
+        "rateFte": 2370
       }
     }
   }

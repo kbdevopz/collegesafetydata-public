@@ -106,6 +106,10 @@ export default defineConfig(({ mode }) => {
           // every page, in one file rather than one small file per icon.
           // (Not for the build-time SSR bundle, whose dependencies are external.)
           manualChunks(id: string) {
+            // Rollup's CommonJS helpers go with React, which needs them:
+            // left to Rollup they can land in the charts file, which then
+            // must load (and initialize, in a cycle with vendor) on every page
+            if (id.includes('commonjsHelpers')) return 'vendor'
             if (!id.includes('node_modules')) return undefined
             if (/[\\/]node_modules[\\/](recharts|recharts-scale|victory-vendor|d3-[^\\/]+|internmap|decimal\.js-light|eventemitter3|lodash|react-smooth|fast-equals|tiny-invariant)[\\/]/.test(id)) return 'charts'
             if (/[\\/]node_modules[\\/]lucide-react[\\/]/.test(id)) return 'icons'

@@ -27,12 +27,14 @@ import {
   transformTrendsForChart,
   getTopOffenses,
   calculateYoYChange,
-  isSmallSample,
   displayName,
   compactYears,
 } from '../lib/utils'
-import { fteFor, latestFte, institutionRate, rateNote, campusesPhrase } from '../lib/rates'
-import { ALL, CRIMINAL, SUMMARY_LABELS, inSelection, isSummary, selectionLabel } from '../lib/selection'
+import {
+  fteFor, latestFte, institutionRate, rateNote, pooledNote, onlineNote, campusesPhrase, rateInterval, intervalText,
+  rateTier, SPIKE_NOTE,
+} from '../lib/rates'
+import { ALL, CRIMINAL, PROPERTY, SUMMARY_LABELS, VIOLENT, inSelection, isSummary, selectionCode, selectionLabel } from '../lib/selection'
 import { useTheme } from '../hooks/useTheme'
 import SeriesNotes, { ReportYearNote } from '../components/SeriesNotes'
 import CiteThisData from '../components/CiteThisData'
@@ -157,6 +159,24 @@ export default function SchoolProfile() {
   const selectedYearRateCount = selectedYearInstitution?.count ?? selectedYearTotal
   const selectedYearCampuses = campusesPhrase(selectedYearInstitution?.campuses ?? 1)
   const selectedYearRateNote = rateNote(selectedYearInstitution, rateRules)
+  const selectedYearPooledNote = pooledNote(selectedYearInstitution)
+  const selectedYearOnlineNote = onlineNote(selectedYearInstitution, rateRules)
+  // The rate's denominator (on-campus FTE), its 95% interval, and where it
+  // stands under the rate rules: ranked, too few incidents, or counts only
+  const selectedYearRateFte = selectedYearInstitution?.fte ?? null
+  const selectedYearInterval = selectedYearRate !== null && selectedYearRateFte !== null
+    ? rateInterval(selectedYearRateCount, selectedYearRateFte, rateRules?.ciLevel ?? 0.95)
+    : null
+  const selectedCode = selectionCode(selectedOffense)
+  const selectedYearTier = rateTier(selectedCode, selectedYearRateCount, rateRules)
+  const selectedYearSpike = !!selectedYearInstitution?.spikes?.includes(selectedCode)
+  const selectedYearTierNote = selectedYearRate === null || !rateRules
+    ? null
+    : selectedYearTier === 'countsOnly'
+      ? `${selectionLabel(selectedOffense)} is too rare nationally for rates to be compared, so rate rankings leave it out (counts only).`
+      : selectedYearTier === 'few' && selectedYearInstitution?.rateRanked
+        ? `${formatNumber(selectedYearRateCount)} ${selectedYearRateCount === 1 ? 'incident is' : 'incidents are'} too few to rank by rate (rate rankings rank institutions with at least ${rateRules.minCount}); the rate is shown with its interval.`
+        : null
 
   // Number of campuses of the institution in the header FTE's year
   const headerCampuses = headerFte
@@ -411,6 +431,8 @@ export default function SchoolProfile() {
                 className="w-56 max-w-full text-sm font-medium bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1.5 cursor-pointer focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               >
                 <option value={CRIMINAL}>{SUMMARY_LABELS[CRIMINAL]}</option>
+                <option value={VIOLENT}>{SUMMARY_LABELS[VIOLENT]}</option>
+                <option value={PROPERTY}>{SUMMARY_LABELS[PROPERTY]}</option>
                 <option value={ALL}>{SUMMARY_LABELS[ALL]}</option>
                 {availableOffenses.map((offense) => (
                   <option key={offense} value={offense}>
@@ -451,7 +473,7 @@ export default function SchoolProfile() {
                   type="button"
                   onClick={() => setShowRate(true)}
                   disabled={!selectedYearFte}
-                  title={!selectedYearFte ? `FTE data not available for ${selectedYear ?? 'this year'}` : 'Show rate per 10,000 students'}
+                  title={!selectedYearFte ? `FTE data not available for ${selectedYear ?? 'this year'}` : 'Show rate per 10,000 on-campus students'}
                   className={cn(
                     'px-3 py-1 text-sm font-medium rounded-md transition-colors',
                     showRate
@@ -485,9 +507,6 @@ export default function SchoolProfile() {
                     <span className="text-lg font-normal text-gray-500 dark:text-gray-400 ml-1">
                       per 10k
                     </span>
-                    {isSmallSample(selectedYearFte, selectedYearRateCount) && (
-                      <span className="text-amber-500 ml-1" title="Small sample size">*</span>
-                    )}
                   </>
                 ) : (
                   <span className="text-gray-400">N/A</span>
@@ -515,18 +534,26 @@ export default function SchoolProfile() {
                 {formatNumber(selectedYearYoYChange.absolute)} reported vs {selectedYear && selectedYear - 1}
               </div>
             )}
-            {showRate && selectedYearFte && (
+            {showRate && selectedYearInterval && (
+              <div className="text-sm text-gray-600 dark:text-gray-400 mt-1 tabular-nums">
+                {Math.round((rateRules?.ciLevel ?? 0.95) * 100)}% interval {intervalText(selectedYearInterval.lo, selectedYearInterval.hi)}
+              </div>
+            )}
+            {showRate && selectedYearRateFte !== null && (
               <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                 {selectedYearCampuses ? (
-                  // The institution's rate: all its campuses' incidents per its FTE
+                  // The institution's rate: all its campuses' incidents per its on-campus FTE
                   <>
                     Institution rate ({selectedYearCampuses}):{' '}
-                    {formatNumber(selectedYearRateCount)} per {formatNumber(selectedYearFte)} FTE
+                    {formatNumber(selectedYearRateCount)} per {formatNumber(selectedYearRateFte)} on-campus FTE
                   </>
                 ) : (
-                  <>Based on {formatNumber(selectedYearFte)} FTE</>
+                  <>{formatNumber(selectedYearRateCount)} per {formatNumber(selectedYearRateFte)} on-campus FTE</>
                 )}
               </div>
+            )}
+            {showRate && selectedYearSpike && (
+              <div className="text-sm text-amber-700 dark:text-amber-400 mt-1">{SPIKE_NOTE}</div>
             )}
           </div>
 
@@ -604,22 +631,49 @@ export default function SchoolProfile() {
             <div className="flex items-center gap-2 text-sm text-blue-700 dark:text-blue-300">
               <Users className="w-4 h-4 flex-shrink-0" />
               <span>
-                <strong>Rate view:</strong> Incidents per 10,000 full-time equivalent (FTE) students.
+                <strong>Rate view:</strong> Incidents per 10,000 on-campus full-time equivalent (FTE) students:
+                NCES's FTE less the share of students enrolled exclusively online (an approximation, as that share
+                counts students, not FTE). The interval is the rate's exact 95% Poisson interval.
                 {selectedYearCampuses && (
                   <span className="ml-1">
                     NCES counts enrollment per institution, not per campus, so this is the institution's rate:
-                    the incidents of {selectedYearCampuses} per its FTE.
+                    the incidents of {selectedYearCampuses} per its on-campus FTE.
                   </span>
-                )}
-                {isSmallSample(selectedYearFte, selectedYearRateCount) && (
-                  <span className="ml-1">* indicates small sample size (FTE &lt; 1,000 or incidents &lt; 10).</span>
                 )}
               </span>
             </div>
+            {selectedYearOnlineNote && (
+              <p role="note" className="flex items-start gap-2 mt-2 text-sm text-blue-700 dark:text-blue-300">
+                <Info className="w-4 h-4 flex-shrink-0 mt-0.5" aria-hidden="true" />
+                <span>In {selectedYear}: {selectedYearOnlineNote}</span>
+              </p>
+            )}
+            {selectedYearTierNote && (
+              <p role="note" className="flex items-start gap-2 mt-2 text-sm text-blue-700 dark:text-blue-300">
+                <Info className="w-4 h-4 flex-shrink-0 mt-0.5" aria-hidden="true" />
+                <span>In {selectedYear}: {selectedYearTierNote}</span>
+              </p>
+            )}
+            {selectedYearSpike && (
+              <p role="note" className="flex items-start gap-2 mt-2 text-sm text-amber-700 dark:text-amber-400">
+                <Info className="w-4 h-4 flex-shrink-0 mt-0.5" aria-hidden="true" />
+                <span>
+                  In {selectedYear}: {SPIKE_NOTE} The count is at least {rateRules?.spike.minCount ?? 20} and more
+                  than {rateRules?.spike.factor ?? 3} times the median of the institution's other years; it stays
+                  in rate rankings.
+                </span>
+              </p>
+            )}
             {selectedYearRateNote && (
               <p role="note" className="flex items-start gap-2 mt-2 text-sm text-blue-700 dark:text-blue-300">
                 <Info className="w-4 h-4 flex-shrink-0 mt-0.5" aria-hidden="true" />
                 <span>In {selectedYear}: {selectedYearRateNote}</span>
+              </p>
+            )}
+            {selectedYearPooledNote && (
+              <p role="note" className="flex items-start gap-2 mt-2 text-sm text-blue-700 dark:text-blue-300">
+                <Info className="w-4 h-4 flex-shrink-0 mt-0.5" aria-hidden="true" />
+                <span>{selectedYearPooledNote}</span>
               </p>
             )}
           </div>

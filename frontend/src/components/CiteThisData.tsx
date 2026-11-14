@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Check, Copy, Quote } from 'lucide-react'
-import { getMetadata } from '../lib/api'
+import { cachedMetadata, getMetadata } from '../lib/api'
 import { useBuildInfo } from '../lib/build'
 import type { Metadata } from '../lib/types'
 
@@ -61,7 +61,7 @@ function CopyButton({ text, label }: { text: string; label: string }) {
 }
 
 export default function CiteThisData({ school, className }: Props) {
-  const [metadata, setMetadata] = useState<Metadata | null>(null)
+  const [metadata, setMetadata] = useState<Metadata | null>(cachedMetadata)
   const build = useBuildInfo()
 
   // The access date is set in the browser, not when the page is prerendered

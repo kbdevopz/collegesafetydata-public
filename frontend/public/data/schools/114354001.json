@@ -234,25 +234,48 @@
       "2015": {
         "campuses": 1,
         "online": 5,
-        "rateRanked": true
+        "rateRanked": true,
+        "rateFte": 2507
       },
       "2016": {
         "campuses": 1,
         "online": 4,
-        "rateRanked": true
+        "rateRanked": true,
+        "rateFte": 2359
       },
       "2017": {
         "campuses": 1,
         "online": 4,
-        "rateRanked": true
+        "rateRanked": true,
+        "rateFte": 2141,
+        "spikes": [
+          "all"
+        ]
       },
       "2018": {
         "campuses": 3,
         "online": 4,
-        "rateRanked": false,
-        "rateExcludedReason": "DOE reported campus 114354002 of this institution also under ID 114415001 of another institution in 2018 (a merger or renumbering), so that year's incidents and enrollment may not cover the same campuses. No rate is shown for it.",
+        "rateRanked": true,
+        "rateFte": 2131,
+        "pooledWith": [
+          {
+            "id": 114415,
+            "name": "FIDM-Fashion Institute of Design & Merchandising-Orange County",
+            "fte": 61
+          },
+          {
+            "id": 248846,
+            "name": "FIDM-Fashion Institute of Design & Merchandising-San Diego",
+            "fte": 63
+          }
+        ],
+        "spikes": [
+          "all"
+        ],
         "counts": {
           "criminal": 5,
+          "violent": 3,
+          "property": 2,
           "all": 35,
           "aggravated_assault": 3,
           "drug_discipline": 15,
@@ -263,29 +286,34 @@
       "2019": {
         "campuses": 3,
         "online": 4,
-        "rateRanked": true
+        "rateRanked": true,
+        "rateFte": 2014
       },
       "2020": {
         "campuses": 3,
         "online": 4,
         "rateRanked": true,
-        "onlineYear": 2019
+        "onlineYear": 2019,
+        "rateFte": 1645
       },
       "2021": {
         "campuses": 1,
         "online": 4,
         "rateRanked": true,
-        "onlineYear": 2019
+        "onlineYear": 2019,
+        "rateFte": 1548
       },
       "2022": {
         "campuses": 1,
         "online": 2,
-        "rateRanked": false
+        "rateRanked": false,
+        "rateFte": 747
       },
       "2023": {
         "campuses": 1,
         "online": 1,
-        "rateRanked": true
+        "rateRanked": true,
+        "rateFte": 1116
       }
     }
   }

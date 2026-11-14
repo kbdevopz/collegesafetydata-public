@@ -58,8 +58,8 @@ export default function App() {
                 <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-primary-100 text-primary-700 dark:bg-primary-900/50 dark:text-primary-300 border border-primary-200 dark:border-primary-700">
                   BETA
                 </span>
-                <span className="hidden sm:block w-px h-5 bg-gray-300 dark:bg-gray-700" />
-                <span className="hidden sm:block text-sm text-gray-500 dark:text-gray-400 font-medium">
+                <span className="hidden xl:block w-px h-5 bg-gray-300 dark:bg-gray-700" />
+                <span className="hidden xl:block text-sm text-gray-500 dark:text-gray-400 font-medium">
                   Campus Crime Statistics
                 </span>
               </div>
@@ -67,7 +67,7 @@ export default function App() {
 
             {/* Desktop Navigation */}
             <div className="flex items-center gap-2">
-              <nav className="hidden md:flex items-center gap-1">
+              <nav className="hidden lg:flex items-center gap-1">
                 {navLinks.map(({ path, label, icon: Icon }) => (
                 <Link
                   key={path}
@@ -106,7 +106,7 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="md:hidden p-2 rounded-lg text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-100 dark:hover:bg-gray-800 transition-colors"
+                className="lg:hidden p-2 rounded-lg text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-100 dark:hover:bg-gray-800 transition-colors"
                 aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
                 aria-expanded={isMobileMenuOpen}
               >
@@ -121,7 +121,7 @@ export default function App() {
 
           {/* Mobile Menu Dropdown */}
           {isMobileMenuOpen && (
-            <div className="md:hidden border-t dark:border-gray-800 py-4 space-y-1">
+            <div className="lg:hidden border-t dark:border-gray-800 py-4 space-y-1">
               {navLinks.map(({ path, label, icon: Icon }) => (
                 <Link
                   key={path}

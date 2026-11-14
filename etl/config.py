@@ -320,30 +320,92 @@ DATA_YEARS = list(range(2015, 2025))  # 2015-2024 (crime from DOE 2025 release; 
 # =============================================================================
 
 # Summary codes of the rankings and school pages, each the sum of a group of
-# offenses: "criminal" the Criminal family (the site's default view), "all"
-# every offense (None). "all" mixes kinds of counts (arrests and referrals
-# count people, and a VAWA offense can also be counted as a criminal
-# offense), so the site labels it as a mix of categories.
-SUMMARY_FAMILIES = {"criminal": "Criminal", "all": None}
+# offenses: a family name (all its offenses), a tuple of offenses, or None
+# (every offense). "violent" is the FBI's violent crime (murder and
+# nonnegligent manslaughter, rape, robbery, aggravated assault) and
+# "property" the FBI's property crime without larceny-theft, which Clery does
+# not collect (burglary, motor vehicle theft, arson): FBI, Crime in the United
+# States, offense definitions. "violent" is the site's default view. "all"
+# mixes kinds of counts (arrests and referrals count people, and a VAWA
+# offense can also be counted as a criminal offense), so the site labels it
+# as a mix of categories.
+VIOLENT_OFFENSES = ("Murder", "Rape", "Robbery", "Aggravated Assault")
+PROPERTY_OFFENSES = ("Burglary", "Motor Vehicle Theft", "Arson")
+SUMMARY_FAMILIES = {"criminal": "Criminal", "violent": VIOLENT_OFFENSES, "property": PROPERTY_OFFENSES,
+                    "all": None}
+
+
+def summary_codes(offense: str, family: str) -> list[str]:
+    """The summary codes (SUMMARY_FAMILIES) an offense of `family` counts in."""
+    return [code for code, group in SUMMARY_FAMILIES.items()
+            if group is None or group == family or (isinstance(group, tuple) and offense in group)]
+
 
 # Rates are institution rates: the incidents of all of an institution's
 # campuses (the base UNITID, the first six digits) per 10,000 of the
-# institution's FTE, because NCES publishes FTE per institution, not per
-# campus. Rate rankings list an institution only when that year it has at
-# least MIN_FTE_FOR_RATE FTE students, and fewer than ONLINE_EXCLUSION_PCT
-# percent of its students enrolled exclusively in distance education (NCES
-# PCTDEEXC; an institution without that figure is not left out): campus
-# crime statistics cover the campus, so the rate of a mostly online
-# institution is not comparable.
+# institution's on-campus FTE, because NCES publishes FTE per institution,
+# not per campus. On-campus FTE = FTE x (1 - PCTDEEXC / 100), rounded half
+# up to a whole number: NCES's share of students enrolled exclusively in
+# distance education (a fall headcount share, applied to the 12-month FTE,
+# so it is an approximation) is taken out, because campus crime statistics
+# cover the campus. An institution without PCTDEEXC keeps its full FTE.
+# Rate rankings list an institution only when that year its on-campus FTE
+# (with any FTE 04 pools with it) is at least MIN_FTE_FOR_RATE.
 MIN_FTE_FOR_RATE = 1000
-ONLINE_EXCLUSION_PCT = 50
 
-# The years whose "mostly online" test uses another year's PCTDEEXC: in fall
-# 2020 and 2021 many institutions taught remotely for the pandemic, which
-# does not make them online-only schools, so those years use the
+# The years whose online share is another year's PCTDEEXC: in fall 2020 and
+# 2021 many institutions taught remotely for the pandemic, which does not
+# take their students off campus for good, so those years use the
 # institution's fall 2019 share. When NCES has no 2019 figure for it, the
 # year's own share is used (the build reports how many).
 ONLINE_SHARE_YEAR = {2020: 2019, 2021: 2019}
+
+# Rate rankings rank by rate only an institution with at least
+# MIN_COUNT_FOR_RATE_RANK incidents of the code: a count n has a Poisson
+# relative standard error of 1/sqrt(n), 22.4% at 20, and CDC WONDER flags
+# death rates on fewer than 20 deaths as unreliable (relative standard error
+# 23% or more; https://wonder.cdc.gov/wonder/help/ucd.html). Below it the institution is listed
+# as too few incidents to rank by rate, with its rate.
+MIN_COUNT_FOR_RATE_RANK = 20
+
+# Offenses too rare nationally for a rate ranking (counts only): on average
+# fewer than RATE_RANK_MIN_NATIONAL incidents a year over DATA_YEARS (all
+# institutions). 07 checks that this list is exactly those offenses.
+RATE_RANK_MIN_NATIONAL = 1000
+RATE_COUNTS_ONLY = ("Murder", "Negligent Manslaughter", "Incest", "Statutory Rape", "Arson")
+
+# Each rate's 95% interval: the exact Poisson (Garwood) interval of the count,
+# divided by the denominator.
+RATE_CI_LEVEL = 0.95
+
+# Institutions whose campus population students do not measure: left out of
+# rate rankings (counts only) in a year when IPEDS HD says they have a
+# hospital (HOSPITAL = 1: patients, visitors and hospital staff are on
+# campus and not in FTE), or the Carnegie basic classification is a
+# special-focus medical school or center (C15BASIC and C18BASIC 25, "Special
+# Focus Four-Year: Medical Schools & Centers"; C21BASIC 25, the same, and 27,
+# the "Special Focus Research Institution" category new in 2021, special-focus
+# institutions that meet the research-university criteria: 20 of its 22
+# institutions in HD2024 were 25 in C18BASIC, 2021 Basic Classification,
+# https://carnegieclassifications.acenet.edu/2021-basic-classification), or
+# they are listed in etl/reference/rate_population_exclusions.csv with a
+# sourced reason.
+HOSPITAL_CODE = 1
+MEDICAL_CARNEGIE = {"C15BASIC": (25,), "C18BASIC": (25,), "C21BASIC": (25, 27)}
+MEDICAL_CARNEGIE_LABELS = {("C15BASIC", 25): "Special Focus Four-Year: Medical Schools & Centers",
+                           ("C18BASIC", 25): "Special Focus Four-Year: Medical Schools & Centers",
+                           ("C21BASIC", 25): "Special Focus Four-Year: Medical Schools & Centers",
+                           ("C21BASIC", 27): "Special Focus Research Institution"}
+
+# An institution-year is flagged as unusually high for a code when its count
+# is at least SPIKE_MIN_COUNT and more than SPIKE_FACTOR times the median of
+# its counts of that code in its other listed years (0 for a year without
+# one), with at least SPIKE_MIN_OTHER_YEARS other listed years. It stays
+# ranked: DOE counts crimes in the year they are reported, so one report of
+# many past incidents raises one year.
+SPIKE_MIN_COUNT = 20
+SPIKE_FACTOR = 3
+SPIKE_MIN_OTHER_YEARS = 3
 
 # =============================================================================
 # DOE DATA SOURCE URLS

@@ -150,10 +150,19 @@
       "2022": {
         "campuses": 2,
         "online": 29,
-        "rateRanked": false,
-        "rateExcludedReason": "DOE reported campus 122728002 of this institution also under ID 209287001 of another institution in 2022 (a merger or renumbering), so that year's incidents and enrollment may not cover the same campuses. No rate is shown for it.",
+        "rateRanked": true,
+        "rateFte": 1303,
+        "pooledWith": [
+          {
+            "id": 209287,
+            "name": "Multnomah University",
+            "fte": 393
+          }
+        ],
         "counts": {
           "criminal": 17,
+          "violent": 5,
+          "property": 12,
           "all": 18,
           "aggravated_assault": 2,
           "motor_vehicle_theft": 12,
@@ -165,8 +174,11 @@
         "campuses": 2,
         "online": 20,
         "rateRanked": true,
+        "rateFte": 1058,
         "counts": {
           "criminal": 14,
+          "violent": 4,
+          "property": 10,
           "all": 18,
           "aggravated_assault": 1,
           "domestic_violence": 1,
@@ -180,8 +192,11 @@
         "campuses": 2,
         "online": 23,
         "rateRanked": true,
+        "rateFte": 1286,
         "counts": {
           "criminal": 10,
+          "violent": 4,
+          "property": 6,
           "all": 10,
           "aggravated_assault": 3,
           "arson": 3,

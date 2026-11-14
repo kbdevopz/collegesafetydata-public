@@ -326,47 +326,63 @@
       "2015": {
         "campuses": 1,
         "online": 1,
-        "rateRanked": true
+        "rateRanked": true,
+        "rateFte": 1008
       },
       "2016": {
         "campuses": 1,
         "online": 4,
-        "rateRanked": true
+        "rateRanked": true,
+        "rateFte": 1126
       },
       "2017": {
         "campuses": 1,
         "online": 5,
-        "rateRanked": true
+        "rateRanked": true,
+        "rateFte": 1264
       },
       "2018": {
         "campuses": 1,
         "online": 5,
-        "rateRanked": true
+        "rateRanked": true,
+        "rateFte": 1428
       },
       "2019": {
         "campuses": 1,
         "online": 8,
-        "rateRanked": true
+        "rateRanked": true,
+        "rateFte": 1450
       },
       "2020": {
         "campuses": 1,
         "online": 8,
         "rateRanked": true,
-        "onlineYear": 2019
+        "onlineYear": 2019,
+        "rateFte": 1524
       },
       "2021": {
         "campuses": 1,
         "online": 8,
         "rateRanked": true,
-        "onlineYear": 2019
+        "onlineYear": 2019,
+        "rateFte": 1330
       },
       "2022": {
         "campuses": 2,
         "online": 29,
-        "rateRanked": false,
-        "rateExcludedReason": "DOE reported campus 122728002 of this institution also under ID 209287001 of another institution in 2022 (a merger or renumbering), so that year's incidents and enrollment may not cover the same campuses. No rate is shown for it.",
+        "rateRanked": true,
+        "rateFte": 1303,
+        "pooledWith": [
+          {
+            "id": 209287,
+            "name": "Multnomah University",
+            "fte": 393
+          }
+        ],
         "counts": {
           "criminal": 17,
+          "violent": 5,
+          "property": 12,
           "all": 18,
           "aggravated_assault": 2,
           "motor_vehicle_theft": 12,
@@ -378,8 +394,11 @@
         "campuses": 2,
         "online": 20,
         "rateRanked": true,
+        "rateFte": 1058,
         "counts": {
           "criminal": 14,
+          "violent": 4,
+          "property": 10,
           "all": 18,
           "aggravated_assault": 1,
           "domestic_violence": 1,
@@ -393,8 +412,11 @@
         "campuses": 2,
         "online": 23,
         "rateRanked": true,
+        "rateFte": 1286,
         "counts": {
           "criminal": 10,
+          "violent": 4,
+          "property": 6,
           "all": 10,
           "aggravated_assault": 3,
           "arson": 3,

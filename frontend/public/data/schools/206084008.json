@@ -93,9 +93,13 @@
       "2015": {
         "campuses": 7,
         "online": 9,
-        "rateRanked": true,
+        "rateRanked": false,
+        "rateExcludedReason": "IPEDS reports that this institution has a hospital (institutional characteristics, 2015). Patients, visitors and hospital staff are on its campus but not in its FTE, so a rate per student would not measure its campus population. It is left out of rate rankings; its counts are shown.",
+        "rateFte": 15960,
         "counts": {
           "criminal": 13,
+          "violent": 3,
+          "property": 10,
           "all": 325,
           "arson": 1,
           "burglary": 6,
@@ -114,9 +118,16 @@
       "2016": {
         "campuses": 8,
         "online": 9,
-        "rateRanked": true,
+        "rateRanked": false,
+        "rateExcludedReason": "IPEDS reports that this institution has a hospital (institutional characteristics, 2016). Patients, visitors and hospital staff are on its campus but not in its FTE, so a rate per student would not measure its campus population. It is left out of rate rankings; its counts are shown.",
+        "rateFte": 16222,
+        "spikes": [
+          "liquor_arrest"
+        ],
         "counts": {
           "criminal": 24,
+          "violent": 7,
+          "property": 13,
           "all": 419,
           "arson": 2,
           "burglary": 10,

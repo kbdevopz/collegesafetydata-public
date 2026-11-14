@@ -934,20 +934,34 @@
       "2015": {
         "campuses": 1,
         "online": 9,
-        "rateRanked": true
+        "rateRanked": true,
+        "rateFte": 16632
       },
       "2016": {
         "campuses": 1,
         "online": 10,
-        "rateRanked": true
+        "rateRanked": true,
+        "rateFte": 16642,
+        "spikes": [
+          "liquor_arrest"
+        ]
       },
       "2017": {
         "campuses": 2,
         "online": 10,
-        "rateRanked": false,
-        "rateExcludedReason": "DOE reported campus 139931002 of this institution also under ID 138789001 of another institution in 2017 (a merger or renumbering), so that year's incidents and enrollment may not cover the same campuses. No rate is shown for it.",
+        "rateRanked": true,
+        "rateFte": 21723,
+        "pooledWith": [
+          {
+            "id": 138789,
+            "name": "Armstrong State University",
+            "fte": 5308
+          }
+        ],
         "counts": {
           "criminal": 47,
+          "violent": 19,
+          "property": 18,
           "all": 702,
           "aggravated_assault": 1,
           "burglary": 16,
@@ -970,8 +984,11 @@
         "campuses": 3,
         "online": 10,
         "rateRanked": true,
+        "rateFte": 20707,
         "counts": {
           "criminal": 24,
+          "violent": 15,
+          "property": 5,
           "all": 425,
           "aggravated_assault": 4,
           "burglary": 4,
@@ -993,8 +1010,11 @@
         "campuses": 3,
         "online": 10,
         "rateRanked": true,
+        "rateFte": 20409,
         "counts": {
           "criminal": 30,
+          "violent": 21,
+          "property": 9,
           "all": 484,
           "aggravated_assault": 5,
           "arson": 4,
@@ -1016,8 +1036,11 @@
         "online": 10,
         "rateRanked": true,
         "onlineYear": 2019,
+        "rateFte": 20903,
         "counts": {
           "criminal": 26,
+          "violent": 15,
+          "property": 10,
           "all": 342,
           "aggravated_assault": 7,
           "burglary": 7,
@@ -1038,8 +1061,11 @@
         "online": 10,
         "rateRanked": true,
         "onlineYear": 2019,
+        "rateFte": 20883,
         "counts": {
           "criminal": 35,
+          "violent": 20,
+          "property": 11,
           "all": 399,
           "aggravated_assault": 7,
           "arson": 1,
@@ -1060,9 +1086,13 @@
       "2022": {
         "campuses": 3,
         "online": 16,
-        "rateRanked": true,
+        "rateRanked": false,
+        "rateExcludedReason": "In 2022 figures this institution reports for a campus are also reported, identically, by campus 139621004 of another institution (a shared campus) and count here, while that institution's students are in its own FTE. No rate is shown for that year.",
+        "rateFte": 18296,
         "counts": {
           "criminal": 41,
+          "violent": 26,
+          "property": 12,
           "all": 370,
           "aggravated_assault": 3,
           "burglary": 11,
@@ -1084,9 +1114,13 @@
       "2023": {
         "campuses": 3,
         "online": 20,
-        "rateRanked": true,
+        "rateRanked": false,
+        "rateExcludedReason": "In 2023 figures this institution reports for a campus are also reported, identically, by campus 139621003 of another institution (a shared campus) and count here, while that institution's students are in its own FTE. No rate is shown for that year.",
+        "rateFte": 17797,
         "counts": {
           "criminal": 38,
+          "violent": 13,
+          "property": 12,
           "all": 332,
           "aggravated_assault": 4,
           "burglary": 7,
@@ -1107,9 +1141,13 @@
       "2024": {
         "campuses": 3,
         "online": 22,
-        "rateRanked": true,
+        "rateRanked": false,
+        "rateExcludedReason": "In 2024 figures this institution reports for a campus are also reported, identically, by campus 139621003 of another institution (a shared campus) and count here, while that institution's students are in its own FTE. No rate is shown for that year.",
+        "rateFte": 18120,
         "counts": {
           "criminal": 23,
+          "violent": 13,
+          "property": 7,
           "all": 377,
           "aggravated_assault": 5,
           "burglary": 5,
