@@ -22,6 +22,13 @@ import type { Metadata } from '../lib/types'
 import { formatDate, formatNumber, cn } from '../lib/utils'
 import { summarizeEnrollmentStatus, describeFteAvailability } from '../lib/enrollment'
 import { summarizeDataYears, describeReportingLag } from '../lib/coverage'
+import {
+  SOURCES,
+  CRIMINAL_DEFINITIONS,
+  VAWA_DEFINITIONS,
+  LAW_VIOLATION_DEFINITIONS,
+  GEOGRAPHY_DEFINITIONS,
+} from '../data/sources'
 
 // Collapsible section component
 function CollapsibleSection({
@@ -231,46 +238,44 @@ export default function About() {
             </div>
 
             <p className="text-gray-600 dark:text-gray-400 mb-6">
-              The Clery Act requires reporting of specific crime categories.
-              Click each section to view definitions.
+              The Clery Act regulation (34 CFR 668.46) lists the categories institutions must count and defines
+              them. Open a section for the definitions in plain words; the{' '}
+              <Link to="/methodology#definitions" className="text-primary-600 dark:text-primary-400 underline">
+                Methodology page
+              </Link>{' '}
+              links to the official text and explains how institutions count.
             </p>
 
             <div className="space-y-3">
               <CollapsibleSection title="Criminal Offenses (11 categories)" defaultOpen>
                 <div className="space-y-1 text-sm">
-                  <CrimeItem name="Murder/Non-negligent Manslaughter" description="Willful killing of one human being by another" />
-                  <CrimeItem name="Manslaughter by Negligence" description="Killing through gross negligence" />
-                  <CrimeItem name="Rape" description="Penetration without consent (FBI definition since 2013)" />
-                  <CrimeItem name="Fondling" description="Touching of private body parts for sexual gratification" />
-                  <CrimeItem name="Incest" description="Sexual intercourse between persons related by law" />
-                  <CrimeItem name="Statutory Rape" description="Sexual intercourse with person under age of consent" />
-                  <CrimeItem name="Robbery" description="Taking something of value by force or threat" />
-                  <CrimeItem name="Aggravated Assault" description="Attack with intent to cause severe injury" />
-                  <CrimeItem name="Burglary" description="Unlawful entry to commit a felony or theft" />
-                  <CrimeItem name="Motor Vehicle Theft" description="Theft or attempted theft of a vehicle" />
-                  <CrimeItem name="Arson" description="Willful burning of property" />
+                  {CRIMINAL_DEFINITIONS.map((d) => (
+                    <CrimeItem key={d.name} name={d.name} description={d.text} />
+                  ))}
                 </div>
               </CollapsibleSection>
 
               <CollapsibleSection title="VAWA Offenses (3 categories)">
                 <div className="space-y-1 text-sm">
-                  <CrimeItem name="Domestic Violence" description="Violence by current/former spouse or partner" />
-                  <CrimeItem name="Dating Violence" description="Violence in romantic/intimate relationships" />
-                  <CrimeItem name="Stalking" description="Course of conduct causing fear for safety" />
+                  {VAWA_DEFINITIONS.map((d) => (
+                    <CrimeItem key={d.name} name={d.name} description={d.text} />
+                  ))}
                 </div>
                 <p className="mt-3 text-xs text-gray-500 dark:text-gray-500">
-                  VAWA = Violence Against Women Act, added to Clery reporting in 2014
+                  Added to the Clery Act by the Violence Against Women Reauthorization Act of 2013; ED's final rule
+                  took effect on July 1, 2015.
                 </p>
               </CollapsibleSection>
 
-              <CollapsibleSection title="Arrests & Disciplinary Actions (3 categories)">
+              <CollapsibleSection title="Arrests & Disciplinary Referrals (3 categories each)">
                 <div className="space-y-1 text-sm">
-                  <CrimeItem name="Weapons Violations" description="Illegal possession, sale, or use of weapons" />
-                  <CrimeItem name="Drug Violations" description="Drug abuse violations (possession, sale, use)" />
-                  <CrimeItem name="Liquor Violations" description="Liquor law violations (not public intoxication)" />
+                  {LAW_VIOLATION_DEFINITIONS.map((d) => (
+                    <CrimeItem key={d.name} name={d.name} description={d.text} />
+                  ))}
                 </div>
                 <p className="mt-3 text-xs text-gray-500 dark:text-gray-500">
-                  Includes both arrests and disciplinary referrals
+                  These count people, not incidents: people arrested, and people referred for campus disciplinary
+                  action who were not arrested. A person both arrested and referred is counted once, as an arrest.
                 </p>
               </CollapsibleSection>
             </div>
@@ -288,44 +293,26 @@ export default function About() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-              {[
-                {
-                  title: "On-Campus",
-                  desc: "Buildings or property owned/controlled by the institution",
-                  highlight: false
-                },
-                {
-                  title: "Residence Halls",
-                  desc: "Student residential facilities (subset of on-campus)",
-                  highlight: true
-                },
-                {
-                  title: "Non-Campus",
-                  desc: "Off-site buildings controlled by institution (satellites, research)",
-                  highlight: false
-                },
-                {
-                  title: "Public Property",
-                  desc: "Adjacent public areas (sidewalks, streets, parks)",
-                  highlight: false
-                },
-              ].map((item, i) => (
-                <div
-                  key={i}
-                  className={cn(
-                    "rounded-lg p-4 border",
-                    item.highlight
-                      ? "bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800"
-                      : "bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800"
-                  )}
-                >
-                  <h4 className="font-semibold text-gray-900 dark:text-gray-100 text-sm mb-1">
-                    {item.title}
-                    {item.highlight && <span className="text-amber-600 dark:text-amber-400 ml-1">*</span>}
-                  </h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">{item.desc}</p>
-                </div>
-              ))}
+              {GEOGRAPHY_DEFINITIONS.map((item) => {
+                const highlight = item.name === 'Residence halls'
+                return (
+                  <div
+                    key={item.name}
+                    className={cn(
+                      "rounded-lg p-4 border",
+                      highlight
+                        ? "bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800"
+                        : "bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800"
+                    )}
+                  >
+                    <h4 className="font-semibold text-gray-900 dark:text-gray-100 text-sm mb-1">
+                      {item.name}
+                      {highlight && <span className="text-amber-600 dark:text-amber-400 ml-1">*</span>}
+                    </h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">{item.text}</p>
+                  </div>
+                )
+              })}
             </div>
 
             <div className="flex items-start gap-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
@@ -571,14 +558,19 @@ export default function About() {
                   desc: "Nonprofit focused on campus safety"
                 },
                 {
-                  href: "https://www2.ed.gov/admins/lead/safety/campus.html",
-                  title: "DOE Campus Safety",
-                  desc: "Official guidance and resources"
+                  href: SOURCES.edCampusSecurity.url,
+                  title: "ED Campus Security",
+                  desc: "Official guidance: the Clery Act Appendix and the 2016 Handbook"
                 },
                 {
-                  href: "https://www.federalregister.gov/documents/2014/10/20/2014-24284/violence-against-women-act",
-                  title: "VAWA Final Rule",
-                  desc: "2014 regulations adding VAWA offenses"
+                  href: SOURCES.reg66846.url,
+                  title: "34 CFR 668.46",
+                  desc: "The Clery Act regulation and its definitions"
+                },
+                {
+                  href: SOURCES.vawaRule2014.url,
+                  title: "VAWA Final Rule (2014)",
+                  desc: "Regulations adding VAWA offenses, effective July 1, 2015"
                 },
                 {
                   href: "https://ucr.fbi.gov/crime-in-the-u.s",

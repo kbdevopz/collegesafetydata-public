@@ -19,6 +19,14 @@ import type { Metadata } from '../lib/types'
 import { formatDate, formatNumber } from '../lib/utils'
 import { summarizeEnrollmentStatus, describeEnrollmentStatus } from '../lib/enrollment'
 import { summarizeDataYears } from '../lib/coverage'
+import SourceLink from '../components/SourceLink'
+import {
+  SOURCES,
+  CRIMINAL_DEFINITIONS,
+  VAWA_DEFINITIONS,
+  LAW_VIOLATION_DEFINITIONS,
+  GEOGRAPHY_DEFINITIONS,
+} from '../data/sources'
 
 export default function Methodology() {
   const [metadata, setMetadata] = React.useState<Metadata | null>(null)
@@ -189,6 +197,32 @@ export default function Methodology() {
               FTE is the denominator of the per-student rates: full-time students count fully and part-time students count in part, so schools of different sizes and mixes can be compared. We use the FTE that NCES publishes for each institution and fall, for every year; we do not calculate it.
             </p>
 
+            <dl className="space-y-3 text-sm text-gray-600 dark:text-gray-400 mb-6">
+              <div>
+                <dt className="font-medium text-gray-900 dark:text-gray-100">FTE (DRVEF variable FTE, "Full-time equivalent fall enrollment")</dt>
+                <dd>
+                  NCES adds the institution's full-time fall enrollment to an estimate of the full-time equivalent of
+                  its part-time enrollment: part-time students multiplied by factors that depend on the institution's
+                  control and level and the student's level (for example 0.403543 for part-time undergraduates at
+                  public 4-year institutions, 0.335737 at public 2-year institutions). It counts students enrolled
+                  for credit in the fall, not over the whole year, and it is published for each institution, not
+                  each campus.
+                </dd>
+              </div>
+              <div>
+                <dt className="font-medium text-gray-900 dark:text-gray-100">PCTDEEXC ("Percent of students enrolled exclusively in distance education courses")</dt>
+                <dd>
+                  Students enrolled only in distance education courses, divided by all students enrolled, as of the
+                  institution's official fall reporting date or October 15. Rate rankings use it to leave out mostly
+                  online institutions (see below).
+                </dd>
+              </div>
+              <div>
+                Source: <SourceLink source={SOURCES.drvefDictionary}>NCES, DRVEF data dictionary for 2023</SourceLink>; see also the{' '}
+                <SourceLink source={SOURCES.ipedsGlossary}>IPEDS Glossary</SourceLink>.
+              </div>
+            </dl>
+
             <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden mb-6">
               <table className="w-full text-sm">
                 <thead className="bg-gray-50 dark:bg-gray-800">
@@ -281,122 +315,152 @@ export default function Methodology() {
             </div>
           </section>
 
-          {/* Geographic Classifications */}
-          <section>
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/50 rounded-xl flex items-center justify-center">
-                <MapPin className="w-5 h-5 text-primary-600 dark:text-primary-400" />
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                Geographic Classifications
-              </h2>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-              {[
-                { title: "On-Campus", desc: "All property owned or controlled by the institution" },
-                { title: "Residence Halls", desc: "Student housing (subset of on-campus)" },
-                { title: "Non-Campus", desc: "Property owned but not contiguous to campus" },
-                { title: "Public Property", desc: "Public areas adjacent to campus" },
-              ].map((item, i) => (
-                <div
-                  key={i}
-                  className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4"
-                >
-                  <h4 className="font-semibold text-gray-900 dark:text-gray-100 text-sm mb-1">
-                    {item.title}
-                  </h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">{item.desc}</p>
-                </div>
-              ))}
-            </div>
-
-            <div className="flex items-start gap-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
-              <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
-              <p className="text-sm text-amber-800 dark:text-amber-300">
-                <strong>Important:</strong> Residence hall incidents are a <em>subset</em> of on-campus incidents.
-                Our calculations exclude residence halls when summing totals to avoid double-counting.
-              </p>
-            </div>
-          </section>
-
-          {/* Offense Categories */}
-          <section>
+          {/* Definitions */}
+          <section id="definitions" className="scroll-mt-20">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/50 rounded-xl flex items-center justify-center">
                 <Shield className="w-5 h-5 text-primary-600 dark:text-primary-400" />
               </div>
               <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                Offense Categories
+                Definitions
               </h2>
             </div>
 
+            <p className="text-gray-600 dark:text-gray-400 mb-4">
+              Every category on this site is a Clery Act category, counted by each institution and reported to the
+              U.S. Department of Education (ED) in its yearly Campus Safety and Security survey. The definitions below
+              are the regulation's, shortened: the crimes in{' '}
+              <SourceLink source={SOURCES.regAppendixA}>Appendix A to Subpart D of Part 668</SourceLink>{' '}
+              (taken from the FBI's Uniform Crime Reporting manuals), and the VAWA offenses and locations in{' '}
+              <SourceLink source={SOURCES.reg66846}>34 CFR 668.46</SourceLink>. Where the DOE data uses another
+              name, it is given in brackets.
+            </p>
+
             <div className="space-y-4">
-              <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-5">
-                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">Criminal Offenses (11)</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                  Traditional serious crimes reported under the Clery Act:
-                </p>
-                <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm text-gray-700 dark:text-gray-300">
-                  <span>• Murder/Non-negligent Manslaughter</span>
-                  <span>• Rape</span>
-                  <span>• Manslaughter by Negligence</span>
-                  <span>• Fondling</span>
-                  <span>• Robbery</span>
-                  <span>• Incest</span>
-                  <span>• Aggravated Assault</span>
-                  <span>• Statutory Rape</span>
-                  <span>• Burglary</span>
-                  <span>• Motor Vehicle Theft</span>
-                  <span></span>
-                  <span>• Arson</span>
+              {[
+                { title: 'Criminal offenses (11)', note: 'Crimes reported to campus security authorities or local police that occurred on the institution\'s Clery geography.', items: CRIMINAL_DEFINITIONS },
+                { title: 'VAWA offenses (3)', note: 'Added to the Clery Act by the Violence Against Women Reauthorization Act of 2013.', items: VAWA_DEFINITIONS },
+                { title: 'Arrests and disciplinary referrals (3 violations each)', note: 'Counts of people arrested, and of people referred for campus disciplinary action, for violating these laws.', items: LAW_VIOLATION_DEFINITIONS },
+              ].map((group) => (
+                <div key={group.title} className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-5">
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">{group.title}</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">{group.note}</p>
+                  <dl className="space-y-2 text-sm">
+                    {group.items.map((d) => (
+                      <div key={d.name}>
+                        <dt className="inline font-medium text-gray-900 dark:text-gray-100">
+                          {d.name}
+                          {d.doeName && <span className="font-normal text-gray-500 dark:text-gray-400"> [{d.doeName}]</span>}:
+                        </dt>{' '}
+                        <dd className="inline text-gray-600 dark:text-gray-400">{d.text}</dd>
+                      </div>
+                    ))}
+                  </dl>
                 </div>
-              </div>
+              ))}
+            </div>
 
-              <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-5">
-                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">VAWA Offenses (3)</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                  Added in 2014 under the Violence Against Women Act:
-                </p>
-                <div className="space-y-1 text-sm text-gray-700 dark:text-gray-300">
-                  <span>• Domestic Violence</span>
-                  <span>• Dating Violence</span>
-                  <span>• Stalking</span>
+            <h3 id="geography" className="scroll-mt-20 text-lg font-semibold text-gray-900 dark:text-gray-100 mt-8 mb-3">
+              <MapPin className="w-4 h-4 inline mr-2 text-primary-600 dark:text-primary-400" aria-hidden="true" />
+              Locations (Clery geography)
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+              {GEOGRAPHY_DEFINITIONS.map((d) => (
+                <div key={d.name} className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
+                  <h4 className="font-semibold text-gray-900 dark:text-gray-100 text-sm mb-1">
+                    {d.name}
+                    {d.doeName && <span className="font-normal text-gray-500 dark:text-gray-400"> [{d.doeName}]</span>}
+                  </h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">{d.text}</p>
                 </div>
-              </div>
+              ))}
+            </div>
+            <div className="flex items-start gap-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
+              <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-amber-800 dark:text-amber-300">
+                <strong>Residence halls are not added to totals.</strong> The regulation asks for the number of
+                on-campus crimes that took place in student housing, so every residence-hall incident is already
+                in the on-campus count. Totals on this site are on-campus + non-campus + public property; adding
+                residence halls would count those incidents twice.
+              </p>
+            </div>
 
-              <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-5">
-                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">Arrests & Disciplinary Actions (3)</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                  Includes both arrests and campus disciplinary referrals:
-                </p>
-                <div className="space-y-1 text-sm text-gray-700 dark:text-gray-300">
-                  <span>• Weapons Violations</span>
-                  <span>• Drug Law Violations</span>
-                  <span>• Liquor Law Violations</span>
-                </div>
-                <p className="text-xs text-gray-500 dark:text-gray-500 mt-3">
-                  Note: High counts in these categories may reflect enforcement practices rather than safety levels.
-                </p>
-              </div>
+            <h3 id="counting" className="scroll-mt-20 text-lg font-semibold text-gray-900 dark:text-gray-100 mt-8 mb-3">
+              How institutions count
+            </h3>
+            <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400 list-disc ml-5">
+              <li>
+                <strong className="text-gray-900 dark:text-gray-200">Reports, not convictions.</strong> A crime is
+                counted when it is reported to a campus security authority or to local police and occurred on the
+                institution's Clery geography (34 CFR 668.46(c)(1)). Only sworn or commissioned law enforcement
+                personnel may determine a report false or baseless ("unfounded"); unfounded reports are left out of
+                the counts and reported separately (668.46(c)(2)(iii)). This site does not show unfounded reports.
+              </li>
+              <li id="year-reported" className="scroll-mt-20">
+                <strong className="text-gray-900 dark:text-gray-200">By the year reported, not the year it happened.</strong>{' '}
+                Statistics are disclosed by "the year in which the crimes were reported" (2016 Handbook, chapter
+                2). A crime reported in 2019 counts in 2019 even if it happened years earlier, so a year's figure
+                can jump when many people report past abuse at one institution. For example, the national number
+                one campus by count of criminal offenses was Ohio State University in 2018, 2019 and 2021 (mostly
+                fondling) and the University of Michigan in 2020 (fondling and rape), and Michigan State
+                University's 1,012 rapes in 2018 are about 12% of that year's national total. These are the
+                figures the institutions reported; this site does not mark or remove them.
+              </li>
+              <li>
+                <strong className="text-gray-900 dark:text-gray-200">One offense per incident, with exceptions.</strong>{' '}
+                When several criminal offenses happen in one incident, only the most serious is counted (the FBI's
+                Hierarchy Rule, 668.46(c)(9)(v)). Arson is always counted, and a rape, fondling, incest or statutory
+                rape in the same incident as a murder is counted along with the murder (668.46(c)(9)(vi)-(vii)). The
+                Hierarchy Rule does not apply to VAWA offenses, so an incident can be counted both as, say, an
+                aggravated assault and as dating violence (2016 Handbook, chapter 3).
+              </li>
+              <li>
+                <strong className="text-gray-900 dark:text-gray-200">Arrests and referrals count people.</strong> The
+                arrest figures count people arrested (the 2016 Handbook defines an arrest as a person processed by
+                arrest, citation or summons). The disciplinary figures count people "not included" in the arrest
+                count who were referred for campus disciplinary action (668.46(c)(1)(ii)), so a person both arrested
+                and referred for the same violation is counted once, as an arrest. A referral counts only for a
+                violation of the law: breaking a campus rule alone (for example, a student of legal drinking age on
+                a dry campus) is not counted (2016 Handbook, chapter 3). These counts are not subject to the
+                Hierarchy Rule and are counted in addition to any criminal offense in the same incident.
+              </li>
+              <li>
+                <strong className="text-gray-900 dark:text-gray-200">Stalking is counted per year.</strong> Stalking
+                that continues into another calendar year is counted in each year in which the course of conduct
+                was reported (668.46(c)(6)).
+              </li>
+            </ul>
 
-              <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-5">
-                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">Totals on This Site</h4>
-                <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                  <p>
-                    <strong className="text-gray-900 dark:text-gray-100">All criminal offenses</strong> (the
-                    default view): the 11 criminal offenses above, added up.
-                  </p>
-                  <p>
-                    <strong className="text-gray-900 dark:text-gray-100">All categories (crimes, arrests,
-                    referrals)</strong>: every category added up. These are different kinds of counts: arrests
-                    and disciplinary referrals count people (each person arrested or referred), not incidents,
-                    and an incident of dating violence, domestic violence or stalking can also be counted as a
-                    criminal offense such as aggravated assault. So this total is not a number of incidents,
-                    and high totals often reflect drug and alcohol enforcement rather than violent crime.
-                  </p>
-                </div>
-              </div>
+            <h3 id="not-shown" className="scroll-mt-20 text-lg font-semibold text-gray-900 dark:text-gray-100 mt-8 mb-3">
+              What this site does not show
+            </h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              DOE also publishes hate crimes, unfounded crime reports and fire statistics; this site does not read
+              or show them. Hate crimes are a breakdown rather than a separate total: the criminal offenses above
+              that were hate crimes (already in those counts, so adding them would count them twice), plus four
+              crimes counted only when they are hate crimes: larceny-theft, simple assault, intimidation and
+              destruction/damage/vandalism of property (668.46(c)(1)(iii)). The site has not added that breakdown;
+              use{' '}
+              <SourceLink source={SOURCES.cssData}>DOE's data tool</SourceLink> for it. Unfounded reports are
+              the reports withheld from the counts.
+            </p>
+
+            <h3 id="totals" className="scroll-mt-20 text-lg font-semibold text-gray-900 dark:text-gray-100 mt-8 mb-3">
+              Totals on this site
+            </h3>
+            <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+              <p>
+                <strong className="text-gray-900 dark:text-gray-100">All criminal offenses</strong> (the
+                default view): the 11 criminal offenses above, added up.
+              </p>
+              <p>
+                <strong className="text-gray-900 dark:text-gray-100">All categories (crimes, arrests,
+                referrals)</strong>: every category added up. These are different kinds of counts: arrests
+                and disciplinary referrals count people (each person arrested or referred), not incidents,
+                and an incident of dating violence, domestic violence or stalking can also be counted as a
+                criminal offense such as aggravated assault. So this total is not a number of incidents,
+                and high totals often reflect drug and alcohol enforcement rather than violent crime.
+              </p>
             </div>
           </section>
 
@@ -532,6 +596,34 @@ export default function Methodology() {
                 ))}
               </div>
             </div>
+          </section>
+
+          {/* Official sources */}
+          <section id="sources" className="scroll-mt-20">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/50 rounded-xl flex items-center justify-center">
+                <BookOpen className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                Official Sources
+              </h2>
+            </div>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+              The 2016 Handbook was rescinded in October 2020 and replaced by the Clery Act Appendix for the FSA
+              Handbook; ED keeps the Handbook online for historical purposes. ED said at the time that no statutory
+              or regulatory requirement for Clery Act reporting had changed. The definitions above are the
+              regulation's, set by the VAWA final rule that took effect on July 1, 2015; eCFR's version history of
+              34 CFR 668.46 and its Appendix A, which begins in December 2016, shows no substantive amendment
+              since. The Handbook is cited only where it explains how to count.
+            </p>
+            <ul className="space-y-2 text-sm">
+              {Object.values(SOURCES).map((s) => (
+                <li key={s.url} className="text-gray-600 dark:text-gray-400">
+                  {s.publisher}.{' '}
+                  <SourceLink source={s} />
+                </li>
+              ))}
+            </ul>
           </section>
 
           {/* Source Code Reference */}

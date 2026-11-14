@@ -228,9 +228,15 @@ campuses report identically count once, under the host campus.
 
 ## Offense Categories
 
+The categories and their definitions are the regulation's: the crimes in
+Appendix A to Subpart D of Part 668 (from the FBI's UCR SRS and NIBRS
+manuals), and dating violence, domestic violence, stalking and the
+locations in 34 CFR 668.46(a). The site shows the plain-language versions
+in `frontend/src/data/sources.ts` (Methodology page, "Definitions").
+
 ### Criminal Offenses (Clery Act)
-- Murder
-- Negligent Manslaughter
+- Murder (DOE: murder and nonnegligent manslaughter)
+- Negligent Manslaughter (DOE: manslaughter by negligence)
 - Rape
 - Fondling
 - Incest
@@ -250,6 +256,56 @@ campuses report identically count once, under the host campus.
 - Weapons (Arrests and Disciplinary Actions)
 - Drug Law (Arrests and Disciplinary Actions)
 - Liquor Law (Arrests and Disciplinary Actions)
+
+### Not shown
+DOE also publishes hate crimes (by bias and offense, including larceny-theft,
+simple assault, intimidation and vandalism, which are reported only when they
+are hate crimes), unfounded crime reports and fire statistics. The pipeline
+does not read them, and the site does not show them. Hate crimes are a
+breakdown, not a separate total: the criminal offenses above that were hate
+crimes (already in those counts, so adding them would count them twice),
+plus four crimes counted only when they are hate crimes (668.46(c)(1)(iii)).
+The site has not added that breakdown. Unfounded reports are reports
+withheld from the counts.
+
+### How institutions count (34 CFR 668.46)
+- A crime is counted when it is reported to a campus security authority or
+  local police and occurred on the institution's Clery geography
+  (668.46(c)(1)). Reports that sworn or commissioned law enforcement
+  personnel determine to be false or baseless are "unfounded" and left out
+  (668.46(c)(2)(iii)).
+- Counts are by the calendar year in which the crime was reported, not the
+  year it occurred (see "Year of report" below).
+- Hierarchy Rule: of several criminal offenses in one incident, only the most
+  serious is counted (668.46(c)(9)(v)); arson is always counted, and a sex
+  offense in the same incident as a murder is counted along with it
+  ((c)(9)(vi)-(vii)). VAWA offenses are not subject to the Hierarchy Rule and
+  are counted in addition (2016 Handbook, chapter 3).
+- Arrests count people arrested (the 2016 Handbook: persons processed by
+  arrest, citation or summons). Disciplinary referrals count persons "not
+  included" in the arrests who were referred for campus disciplinary action
+  (668.46(c)(1)(ii)(B)), so a person both arrested and referred is counted
+  once, as an arrest. A violation of institutional policy alone, with no
+  violation of law, is not counted (2016 Handbook, chapter 3).
+- Stalking that continues across calendar years is counted in each year in
+  which it is reported (668.46(c)(6)).
+- Residence-hall figures are the on-campus crimes that took place in student
+  housing (668.46(c)(5)), so they are part of on-campus and never added to
+  totals.
+
+### Year of report
+Clery statistics are compiled by the calendar year in which a crime was
+reported to campus security authorities or police (the 2016 Handbook,
+chapter 2: statistics are disclosed by "the year in which the crimes were
+reported"). A year's count can
+therefore include incidents that occurred years earlier: when many people
+report past abuse at one institution within a short time, that campus's
+counts for the years of the reports jump. On this site, for example, the
+national number 1 campus by count of all criminal offenses was Ohio State
+University in 2018, 2019 and 2021 (mostly fondling) and the University of
+Michigan in 2020 (fondling and rape), and Michigan State University's 1,012
+rapes in 2018 are about 12% of that year's national total. These are the
+figures the institutions reported; this site does not mark or remove them.
 
 ### Totals shown on the site
 - **All criminal offenses** (the default view of rankings, school pages and comparisons): the 11 criminal offenses above, added up.
