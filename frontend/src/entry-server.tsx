@@ -4,7 +4,7 @@
  */
 import React from 'react'
 import { renderToString } from 'react-dom/server'
-import { StaticRouter } from 'react-router-dom/server'
+import { StaticRouter } from 'react-router-dom'
 import { AppRoutes, type PageComponents } from './routes'
 import Rankings from './pages/Rankings'
 import SchoolProfile from './pages/SchoolProfile'
