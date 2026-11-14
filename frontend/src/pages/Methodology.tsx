@@ -777,8 +777,8 @@ export default function Methodology() {
             </div>
 
             <p className="text-gray-600 dark:text-gray-400 mb-6">
-              Each build runs an audit of internal consistency over {schoolCount !== undefined ? `all ${formatNumber(schoolCount)} ` : 'every '}campus
-              pages: the published files must agree with each other and with the pipeline's tables. It does not show
+              Each build runs an audit of internal consistency over {schoolCount !== undefined ? `all ${formatNumber(schoolCount)} campus pages` : 'every campus page'}:
+              the published files must agree with each other and with the pipeline's tables. It does not show
               that institutions' figures are accurate; they are published as reported to the Department of Education.
             </p>
 
