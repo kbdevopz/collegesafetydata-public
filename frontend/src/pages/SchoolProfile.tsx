@@ -956,7 +956,7 @@ export default function SchoolProfile() {
           </div>
         </div>
 
-        <CiteThisData school={{ unitid: profile.unitid, name: profile.name }} className="mt-6" />
+        <CiteThisData school={{ unitid: profile.unitid, name: profile.campus ? `${profile.campus} (${profile.name})` : profile.name }} className="mt-6" />
       </div>
     </div>
   )

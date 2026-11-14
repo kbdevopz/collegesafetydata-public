@@ -85,7 +85,8 @@ export interface InstitutionRate extends Omit<InstitutionYear, 'counts'> {
  * an offense name) in `year`: the count of all the institution's campuses
  * (institution.byYear counts, or `ownCount`, the school's own count, when
  * the file leaves them out because they are the same) per 10,000 of its
- * FTE. Null when the institution is not listed that year.
+ * FTE. Null when the institution is not listed that year; the rate is null
+ * in a year the pipeline leaves out (rateExcludedReason).
  */
 export function institutionRate(
   profile: Pick<SchoolProfile, 'fteByYear' | 'institution'> | null | undefined,
@@ -106,7 +107,8 @@ export function institutionRate(
     rateExcludedReason: entry.rateExcludedReason,
     count,
     fte: fteFor(profile, year),
-    rate: rateFor(profile, year, count),
+    // No rate for a year whose incidents and FTE may not cover the same campuses
+    rate: entry.rateExcludedReason ? null : rateFor(profile, year, count),
   }
 }
 

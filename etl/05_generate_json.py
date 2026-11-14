@@ -1092,7 +1092,8 @@ def generate_downloads() -> None:
     Flat downloads of the published figures (downloads/ in the site data):
 
     - campus-years.csv: every campus-year the site shows (each year a campus
-      reported to DOE, zeros included), with the DOE release its figures come
+      reported to DOE, zeros included), with the campus's own DOE name and
+      its institution's name, the DOE release its figures come
       from, whether it counts in rankings, and its institution's NCES FTE and
       online share as the rate rules use them.
     - counts-YYYY.csv: every nonzero count of that year, by campus, location
@@ -1116,7 +1117,7 @@ def generate_downloads() -> None:
     shared = pd.read_parquet(CURATED_DIR / "aggs" / "shared_blocks.parquet",
                              columns=["year", "unitid", "geo", "role", "host_unitid"])
 
-    cy = sources.merge(dim_inst[["unitid", "base_unitid", "institution_name", "city", "state"]],
+    cy = sources.merge(dim_inst[["unitid", "base_unitid", "institution_name", "campus_name", "city", "state"]],
                        on="unitid", how="left", validate="many_to_one")
     if cy["base_unitid"].isna().any():
         raise SiteDataError("campus_year_sources.parquet has campuses that are not in dim_institution.parquet. "
@@ -1127,9 +1128,11 @@ def generate_downloads() -> None:
     cy = cy.merge(inst.rename(columns={"fte": "institution_fte", "online_pct": "institution_online_pct",
                                        "online_year": "online_pct_fall"}),
                   on=["year", "base_unitid"], how="left", validate="many_to_one")
-    cy = cy.rename(columns={"institution_name": "campus_name", "release": "doe_release"})
+    # The campus's own DOE name (the institution's name when DOE gives none)
+    cy["campus_name"] = cy["campus_name"].where(cy["campus_name"].notna(), cy["institution_name"])
+    cy = cy.rename(columns={"release": "doe_release"})
     cy["main_campus"] = cy["unitid"].astype("int64") % 1000 == 1
-    cy = cy[["year", "unitid", "base_unitid", "campus_name", "city", "state", "main_campus", "doe_release",
+    cy = cy[["year", "unitid", "base_unitid", "campus_name", "institution_name", "city", "state", "main_campus", "doe_release",
              "counts_in_rankings", "institution_fte", "institution_online_pct", "online_pct_fall"]]
     cy = cy.sort_values(["year", "unitid"]).reset_index(drop=True)
     for col in ("institution_fte", "online_pct_fall"):

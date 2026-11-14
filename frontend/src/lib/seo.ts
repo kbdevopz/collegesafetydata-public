@@ -130,6 +130,11 @@ function place(profile: Pick<SchoolProfile, 'city' | 'state'>): string {
   return [profile.city, profile.state].filter(Boolean).join(', ')
 }
 
+/** The page's title: the campus's own DOE name with its institution, or the institution's name. */
+function schoolTitle(profile: Pick<SchoolProfile, 'name' | 'campus'>): string {
+  return profile.campus ? `${profile.campus} (${profile.name})` : profile.name
+}
+
 function reportedYears(profile: SchoolProfile): number[] {
   return profile.yearlyTotals.map((y) => y.year).sort((a, b) => a - b)
 }
@@ -139,12 +144,12 @@ export function schoolHead(profile: SchoolProfile): Head {
   const years = reportedYears(profile)
   const { latestYear, totalIncidents } = profile.summary
   const description =
-    `Clery Act statistics for ${profile.name}${where ? ` (${where})` : ''}: ` +
+    `Clery Act statistics for ${profile.campus ? `${profile.campus}, a campus of ${profile.name}` : profile.name}${where ? ` (${where})` : ''}: ` +
     `${formatCount(totalIncidents)} crimes, arrests and disciplinary referrals reported for ${latestYear}` +
     (years.length ? `; yearly figures for ${formatYearRanges(years)}` : '') +
     `. Source: ${DOE_SOURCE_NAME}.`
   return {
-    title: `${profile.name}${where ? `, ${where}` : ''} - Campus Crime Statistics - ${SITE_NAME}`,
+    title: `${schoolTitle(profile)}${where ? `, ${where}` : ''} - Campus Crime Statistics - ${SITE_NAME}`,
     description,
     path: schoolPath(profile.unitid),
   }
@@ -182,7 +187,8 @@ export function schoolBodyHtml(profile: SchoolProfile): string {
 
   return (
     `<main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 text-gray-900 dark:text-gray-100">` +
-    `<h1 class="text-3xl font-bold mb-2">${e(profile.name)}</h1>` +
+    `<h1 class="text-3xl font-bold mb-2">${e(profile.campus ?? profile.name)}</h1>` +
+    (profile.campus ? `<p class="text-gray-600 dark:text-gray-400 mb-1">Campus of ${e(profile.name)}</p>` : '') +
     (where ? `<p class="text-gray-600 dark:text-gray-400 mb-6">${e(where)}</p>` : '') +
     `<p class="mb-6">${formatCount(totalIncidents)} crimes, arrests and disciplinary referrals reported for ${latestYear} ` +
     `(on campus, noncampus and public property).</p>` +
