@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, Fragment } from 'react'
+import { useState, useEffect, useMemo, useCallback, Fragment } from 'react'
 import { Link, useSearchParams, useNavigate } from 'react-router-dom'
 import {
   useReactTable,
@@ -81,7 +81,10 @@ export default function Rankings() {
     })
   }
 
-  const isInCompare = (unitid: number) => compareSchools.some((s) => s.unitid === unitid)
+  const isInCompare = useCallback(
+    (unitid: number) => compareSchools.some((s) => s.unitid === unitid),
+    [compareSchools]
+  )
 
   const goToCompare = () => {
     if (compareSchools.length >= 2) {
@@ -478,7 +481,7 @@ export default function Rankings() {
         size: 50,
       }),
     ],
-    [columnHelper, compareSchools, rateView, countLabel, level]
+    [columnHelper, isInCompare, rateView, countLabel, level]
   )
 
   // The table gets the full list so a column sort orders every campus, not

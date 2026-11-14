@@ -34,7 +34,9 @@ jobs:
         working-directory: frontend
         run: npm run typecheck
 
-      # Lint is not run: the repository has no ESLint configuration yet.
+      - name: Lint
+        working-directory: frontend
+        run: npm run lint
 
       - name: Check site data against its build record and audit
         working-directory: frontend
