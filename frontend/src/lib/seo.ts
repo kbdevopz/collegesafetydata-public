@@ -92,6 +92,14 @@ export const STATIC_PAGES: StaticPage[] = [
     description: 'The CollegeSafetyData.org terms of use.',
     priority: 0.2,
   },
+  {
+    path: '/changes',
+    file: 'changes.html',
+    title: `Changes and Corrections - ${SITE_NAME}`,
+    description:
+      'Corrections to the figures CollegeSafetyData.org shows and changes to how it counts, ranks and rates them, newest first.',
+    priority: 0.5,
+  },
 ]
 
 export const NOT_FOUND_HEAD: Head = {

@@ -298,6 +298,8 @@ export default function App() {
               </>
             ) : null}
             <Link to="/methodology#cite" className="hover:underline">How to cite</Link>
+            <span className="mx-2">&middot;</span>
+            <Link to="/changes" className="hover:underline">Changes and corrections</Link>
           </p>
         </div>
       </footer>
