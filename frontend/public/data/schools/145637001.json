@@ -1028,19 +1028,37 @@
       "2015": {
         "campuses": 2,
         "online": 4,
-        "rateRanked": true
+        "rateRanked": true,
+        "rateFte": 41560,
+        "spikes": [
+          "drug_arrest",
+          "drug_discipline",
+          "liquor_arrest"
+        ]
       },
       "2016": {
         "campuses": 2,
         "online": 5,
-        "rateRanked": true
+        "rateRanked": true,
+        "rateFte": 41931,
+        "spikes": [
+          "drug_arrest",
+          "drug_discipline"
+        ]
       },
       "2017": {
         "campuses": 2,
         "online": 7,
         "rateRanked": true,
+        "rateFte": 41708,
+        "spikes": [
+          "drug_arrest",
+          "drug_discipline"
+        ],
         "counts": {
           "criminal": 112,
+          "violent": 63,
+          "property": 34,
           "all": 897,
           "aggravated_assault": 9,
           "arson": 3,
@@ -1062,8 +1080,14 @@
         "campuses": 2,
         "online": 10,
         "rateRanked": true,
+        "rateFte": 41105,
+        "spikes": [
+          "drug_discipline"
+        ],
         "counts": {
           "criminal": 99,
+          "violent": 55,
+          "property": 21,
           "all": 534,
           "aggravated_assault": 12,
           "arson": 4,
@@ -1084,21 +1108,27 @@
       "2019": {
         "campuses": 2,
         "online": 13,
-        "rateRanked": true
+        "rateRanked": false,
+        "rateExcludedReason": "IPEDS reports that this institution has a hospital (institutional characteristics, 2019). Patients, visitors and hospital staff are on its campus but not in its FTE, so a rate per student would not measure its campus population. It is left out of rate rankings; its counts are shown.",
+        "rateFte": 40732
       },
       "2020": {
         "campuses": 2,
         "online": 13,
         "rateRanked": true,
-        "onlineYear": 2019
+        "onlineYear": 2019,
+        "rateFte": 40666
       },
       "2021": {
         "campuses": 2,
         "online": 13,
         "rateRanked": true,
         "onlineYear": 2019,
+        "rateFte": 43738,
         "counts": {
           "criminal": 80,
+          "violent": 42,
+          "property": 24,
           "all": 603,
           "aggravated_assault": 20,
           "arson": 3,
@@ -1119,17 +1149,30 @@
       "2022": {
         "campuses": 2,
         "online": 17,
-        "rateRanked": true
+        "rateRanked": true,
+        "rateFte": 42057,
+        "spikes": [
+          "motor_vehicle_theft"
+        ]
       },
       "2023": {
         "campuses": 2,
         "online": 16,
-        "rateRanked": true
+        "rateRanked": true,
+        "rateFte": 42487,
+        "spikes": [
+          "property",
+          "motor_vehicle_theft"
+        ]
       },
       "2024": {
         "campuses": 2,
         "online": 16,
-        "rateRanked": true
+        "rateRanked": true,
+        "rateFte": 44634,
+        "spikes": [
+          "motor_vehicle_theft"
+        ]
       }
     }
   }

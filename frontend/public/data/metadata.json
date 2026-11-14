@@ -25,7 +25,20 @@
   },
   "rateRules": {
     "minFte": 1000,
-    "onlineExclusionPct": 50,
+    "minCount": 20,
+    "countsOnly": [
+      "murder",
+      "negligent_manslaughter",
+      "incest",
+      "statutory_rape",
+      "arson"
+    ],
+    "ciLevel": 0.95,
+    "spike": {
+      "minCount": 20,
+      "factor": 3,
+      "minOtherYears": 3
+    },
     "onlineShareYear": {
       "2020": 2019,
       "2021": 2019
@@ -38,6 +51,22 @@
       "family": "Summary",
       "familyDisplay": "Totals",
       "description": "The 11 criminal offenses added up: murder, negligent manslaughter, rape, fondling, incest, statutory rape, robbery, aggravated assault, burglary, motor vehicle theft and arson. VAWA offenses, arrests and disciplinary referrals are not included.",
+      "displayOrder": 0
+    },
+    {
+      "code": "violent",
+      "display": "Violent crimes",
+      "family": "Summary",
+      "familyDisplay": "Totals",
+      "description": "Murder and non-negligent manslaughter, rape, robbery and aggravated assault: the offenses the FBI counts as violent crime (Crime in the United States). Fondling, incest and statutory rape are not included.",
+      "displayOrder": 0
+    },
+    {
+      "code": "property",
+      "display": "Property crimes",
+      "family": "Summary",
+      "familyDisplay": "Totals",
+      "description": "Burglary, motor vehicle theft and arson: the offenses the FBI counts as property crime (Crime in the United States), without larceny-theft, which Clery does not collect.",
       "displayOrder": 0
     },
     {
@@ -54,7 +83,7 @@
       "family": "Criminal",
       "familyDisplay": "Criminal Offenses",
       "description": "The willful (non-negligent) killing of one human being by another",
-      "displayOrder": 2
+      "displayOrder": 4
     },
     {
       "code": "negligent_manslaughter",
@@ -62,7 +91,7 @@
       "family": "Criminal",
       "familyDisplay": "Criminal Offenses",
       "description": "The killing of another person through gross negligence",
-      "displayOrder": 3
+      "displayOrder": 5
     },
     {
       "code": "rape",
@@ -70,7 +99,7 @@
       "family": "Criminal",
       "familyDisplay": "Criminal Offenses",
       "description": "Penetration, no matter how slight, of the vagina or anus with any body part or object, or oral penetration by a sex organ of another person, without the consent of the victim",
-      "displayOrder": 4
+      "displayOrder": 6
     },
     {
       "code": "fondling",
@@ -78,7 +107,7 @@
       "family": "Criminal",
       "familyDisplay": "Criminal Offenses",
       "description": "The touching of the private body parts of another person for the purpose of sexual gratification, without the consent of the victim",
-      "displayOrder": 5
+      "displayOrder": 7
     },
     {
       "code": "incest",
@@ -86,7 +115,7 @@
       "family": "Criminal",
       "familyDisplay": "Criminal Offenses",
       "description": "Sexual intercourse between persons who are related to each other within the degrees wherein marriage is prohibited by law",
-      "displayOrder": 6
+      "displayOrder": 8
     },
     {
       "code": "statutory_rape",
@@ -94,7 +123,7 @@
       "family": "Criminal",
       "familyDisplay": "Criminal Offenses",
       "description": "Sexual intercourse with a person who is under the statutory age of consent",
-      "displayOrder": 7
+      "displayOrder": 9
     },
     {
       "code": "robbery",
@@ -102,7 +131,7 @@
       "family": "Criminal",
       "familyDisplay": "Criminal Offenses",
       "description": "The taking or attempting to take anything of value from the care, custody, or control of a person or persons by force or threat of force",
-      "displayOrder": 8
+      "displayOrder": 10
     },
     {
       "code": "aggravated_assault",
@@ -110,7 +139,7 @@
       "family": "Criminal",
       "familyDisplay": "Criminal Offenses",
       "description": "An unlawful attack by one person upon another for the purpose of inflicting severe or aggravated bodily injury",
-      "displayOrder": 9
+      "displayOrder": 11
     },
     {
       "code": "burglary",
@@ -118,7 +147,7 @@
       "family": "Criminal",
       "familyDisplay": "Criminal Offenses",
       "description": "The unlawful entry of a structure to commit a felony or a theft",
-      "displayOrder": 10
+      "displayOrder": 12
     },
     {
       "code": "motor_vehicle_theft",
@@ -126,7 +155,7 @@
       "family": "Criminal",
       "familyDisplay": "Criminal Offenses",
       "description": "The theft or attempted theft of a motor vehicle",
-      "displayOrder": 11
+      "displayOrder": 13
     },
     {
       "code": "arson",
@@ -134,7 +163,7 @@
       "family": "Criminal",
       "familyDisplay": "Criminal Offenses",
       "description": "Any willful or malicious burning or attempt to burn a dwelling house, public building, motor vehicle, or personal property",
-      "displayOrder": 12
+      "displayOrder": 14
     },
     {
       "code": "domestic_violence",
@@ -142,7 +171,7 @@
       "family": "VAWA",
       "familyDisplay": "VAWA Offenses",
       "description": "A felony or misdemeanor crime of violence committed by a current or former spouse or intimate partner",
-      "displayOrder": 13
+      "displayOrder": 15
     },
     {
       "code": "dating_violence",
@@ -150,7 +179,7 @@
       "family": "VAWA",
       "familyDisplay": "VAWA Offenses",
       "description": "Violence committed by a person who is or has been in a social relationship of a romantic or intimate nature with the victim",
-      "displayOrder": 14
+      "displayOrder": 16
     },
     {
       "code": "stalking",
@@ -158,7 +187,7 @@
       "family": "VAWA",
       "familyDisplay": "VAWA Offenses",
       "description": "Engaging in a course of conduct directed at a specific person that would cause a reasonable person to fear for their safety",
-      "displayOrder": 15
+      "displayOrder": 17
     },
     {
       "code": "weapons_arrest",
@@ -166,7 +195,7 @@
       "family": "Arrest",
       "familyDisplay": "Arrests",
       "description": "Arrests for the violation of laws prohibiting the manufacture, sale, or possession of weapons",
-      "displayOrder": 16
+      "displayOrder": 18
     },
     {
       "code": "drug_arrest",
@@ -174,7 +203,7 @@
       "family": "Arrest",
       "familyDisplay": "Arrests",
       "description": "Arrests for violations of laws prohibiting the production, distribution, and/or use of controlled substances",
-      "displayOrder": 17
+      "displayOrder": 19
     },
     {
       "code": "liquor_arrest",
@@ -182,7 +211,7 @@
       "family": "Arrest",
       "familyDisplay": "Arrests",
       "description": "Arrests for the violation of state or local laws prohibiting the manufacture, sale, purchase, transportation, or possession of alcoholic beverages",
-      "displayOrder": 18
+      "displayOrder": 20
     },
     {
       "code": "weapons_discipline",
@@ -190,7 +219,7 @@
       "family": "Disciplinary",
       "familyDisplay": "Disciplinary Actions",
       "description": "Persons referred for disciplinary action for weapons law violations",
-      "displayOrder": 19
+      "displayOrder": 21
     },
     {
       "code": "drug_discipline",
@@ -198,7 +227,7 @@
       "family": "Disciplinary",
       "familyDisplay": "Disciplinary Actions",
       "description": "Persons referred for disciplinary action for drug law violations",
-      "displayOrder": 20
+      "displayOrder": 22
     },
     {
       "code": "liquor_discipline",
@@ -206,7 +235,7 @@
       "family": "Disciplinary",
       "familyDisplay": "Disciplinary Actions",
       "description": "Persons referred for disciplinary action for liquor law violations",
-      "displayOrder": 21
+      "displayOrder": 23
     }
   ],
   "knownDefects": [
@@ -1694,7 +1723,7 @@
       "schoolCount": 20
     }
   ],
-  "lastUpdated": "2026-11-14T06:30:16.855052",
+  "lastUpdated": "2026-11-14T11:24:31.623111",
   "dataSource": "U.S. Department of Education Campus Safety & Security",
   "dataSourceUrl": "https://ope.ed.gov/campussafety/",
   "coverage": "2015-2024",

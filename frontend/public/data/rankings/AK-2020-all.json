@@ -386,6 +386,60 @@
         "count": 2
       }
     ],
+    "violent": [
+      {
+        "rank": 1,
+        "unitid": 102614001,
+        "count": 9
+      },
+      {
+        "rank": 2,
+        "unitid": 102669001,
+        "count": 2
+      },
+      {
+        "rank": 3,
+        "unitid": 102845001,
+        "count": 1
+      },
+      {
+        "rank": 3,
+        "unitid": 102553001,
+        "count": 1
+      }
+    ],
+    "property": [
+      {
+        "rank": 1,
+        "unitid": 102553001,
+        "count": 17
+      },
+      {
+        "rank": 2,
+        "unitid": 102614001,
+        "count": 5
+      },
+      {
+        "rank": 3,
+        "unitid": 102632001,
+        "count": 4
+      },
+      {
+        "rank": 4,
+        "unitid": 102845001,
+        "count": 2
+      },
+      {
+        "rank": 5,
+        "unitid": 102669001,
+        "count": 1
+      },
+      {
+        "rank": 5,
+        "unitid": 102614002,
+        "count": 1
+      }
+    ],
     "all": [
       {
         "rank": 1,
@@ -701,6 +755,8 @@
   },
   "totals": {
     "criminal": 48,
+    "violent": 13,
+    "property": 30,
     "all": 180,
     "aggravated_assault": 5,
     "arson": 3,
@@ -723,324 +779,364 @@
       "name": "University of Alaska Anchorage",
       "unitid": 102553001,
       "state": "AK",
-      "fte": 7709,
+      "fte": 6013,
       "campuses": 7
     },
     "102614": {
       "name": "University of Alaska Fairbanks",
       "unitid": 102614001,
       "state": "AK",
-      "fte": 4385,
+      "fte": 2587,
       "campuses": 10
-    },
-    "102632": {
-      "name": "University of Alaska Southeast",
-      "unitid": 102632001,
-      "state": "AK",
-      "fte": 1184,
-      "campuses": 3
     },
     "102845": {
       "name": "Charter College",
       "unitid": 102845001,
       "state": "AK",
-      "fte": 2120,
+      "fte": 1611,
       "campuses": 14
     }
   },
   "rateRankings": {
-    "criminal": [
-      {
-        "rank": 1,
-        "id": 102614,
-        "count": 19,
-        "rate": 43.33
-      },
-      {
-        "rank": 2,
-        "id": 102632,
-        "count": 4,
-        "rate": 33.78
-      },
-      {
-        "rank": 3,
-        "id": 102553,
-        "count": 19,
-        "rate": 24.65
-      },
-      {
-        "rank": 4,
-        "id": 102845,
-        "count": 5,
-        "rate": 23.58
-      }
-    ],
+    "criminal": [],
+    "violent": [],
+    "property": [],
     "all": [
       {
         "rank": 1,
         "id": 102614,
         "count": 76,
-        "rate": 173.32
+        "rate": 293.78,
+        "lo": 231.46,
+        "hi": 367.71,
+        "rankLo": 1,
+        "rankHi": 1
       },
       {
         "rank": 2,
-        "id": 102632,
-        "count": 16,
-        "rate": 135.14
-      },
-      {
-        "rank": 3,
-        "id": 102845,
-        "count": 13,
-        "rate": 61.32
-      },
-      {
-        "rank": 4,
         "id": 102553,
         "count": 46,
-        "rate": 59.67
+        "rate": 76.5,
+        "lo": 56.01,
+        "hi": 102.04,
+        "rankLo": 2,
+        "rankHi": 2
+      }
+    ],
+    "aggravated_assault": [],
+    "burglary": [],
+    "dating_violence": [],
+    "domestic_violence": [],
+    "drug_arrest": [],
+    "drug_discipline": [],
+    "fondling": [],
+    "liquor_arrest": [],
+    "liquor_discipline": [],
+    "motor_vehicle_theft": [],
+    "rape": [],
+    "robbery": [],
+    "stalking": [],
+    "weapons_arrest": [],
+    "weapons_discipline": []
+  },
+  "rateUnranked": {
+    "criminal": [
+      {
+        "id": 102614,
+        "count": 19,
+        "rate": 73.44,
+        "lo": 44.22,
+        "hi": 114.69
+      },
+      {
+        "id": 102553,
+        "count": 19,
+        "rate": 31.6,
+        "lo": 19.02,
+        "hi": 49.34
+      },
+      {
+        "id": 102845,
+        "count": 5,
+        "rate": 31.04,
+        "lo": 10.08,
+        "hi": 72.43
+      }
+    ],
+    "violent": [
+      {
+        "id": 102614,
+        "count": 9,
+        "rate": 34.79,
+        "lo": 15.91,
+        "hi": 66.04
+      },
+      {
+        "id": 102845,
+        "count": 1,
+        "rate": 6.21,
+        "lo": 0.16,
+        "hi": 34.58
+      },
+      {
+        "id": 102553,
+        "count": 1,
+        "rate": 1.66,
+        "lo": 0.04,
+        "hi": 9.27
+      }
+    ],
+    "property": [
+      {
+        "id": 102553,
+        "count": 17,
+        "rate": 28.27,
+        "lo": 16.47,
+        "hi": 45.27
+      },
+      {
+        "id": 102845,
+        "count": 4,
+        "rate": 24.83,
+        "lo": 6.77,
+        "hi": 63.57
+      },
+      {
+        "id": 102614,
+        "count": 6,
+        "rate": 23.19,
+        "lo": 8.51,
+        "hi": 50.48
+      }
+    ],
+    "all": [
+      {
+        "id": 102845,
+        "count": 13,
+        "rate": 80.7,
+        "lo": 42.97,
+        "hi": 137.99
       }
     ],
     "aggravated_assault": [
       {
-        "rank": 1,
         "id": 102614,
         "count": 3,
-        "rate": 6.84
+        "rate": 11.6,
+        "lo": 2.39,
+        "hi": 33.89
       },
       {
-        "rank": 2,
         "id": 102845,
         "count": 1,
-        "rate": 4.72
-      }
-    ],
-    "arson": [
-      {
-        "rank": 1,
-        "id": 102632,
-        "count": 1,
-        "rate": 8.45
-      },
-      {
-        "rank": 2,
-        "id": 102553,
-        "count": 2,
-        "rate": 2.59
+        "rate": 6.21,
+        "lo": 0.16,
+        "hi": 34.58
       }
     ],
     "burglary": [
       {
-        "rank": 1,
-        "id": 102632,
-        "count": 2,
-        "rate": 16.89
-      },
-      {
-        "rank": 2,
-        "id": 102553,
-        "count": 9,
-        "rate": 11.67
-      },
-      {
-        "rank": 3,
-        "id": 102845,
-        "count": 2,
-        "rate": 9.43
-      },
-      {
-        "rank": 4,
         "id": 102614,
         "count": 4,
-        "rate": 9.12
+        "rate": 15.46,
+        "lo": 4.21,
+        "hi": 39.59
+      },
+      {
+        "id": 102553,
+        "count": 9,
+        "rate": 14.97,
+        "lo": 6.84,
+        "hi": 28.41
+      },
+      {
+        "id": 102845,
+        "count": 2,
+        "rate": 12.41,
+        "lo": 1.5,
+        "hi": 44.85
       }
     ],
     "dating_violence": [],
     "domestic_violence": [
       {
-        "rank": 1,
         "id": 102614,
         "count": 10,
-        "rate": 22.81
+        "rate": 38.65,
+        "lo": 18.54,
+        "hi": 71.09
       },
       {
-        "rank": 2,
         "id": 102553,
         "count": 3,
-        "rate": 3.89
+        "rate": 4.99,
+        "lo": 1.03,
+        "hi": 14.58
       }
     ],
     "drug_arrest": [
       {
-        "rank": 1,
         "id": 102845,
         "count": 4,
-        "rate": 18.87
+        "rate": 24.83,
+        "lo": 6.77,
+        "hi": 63.57
       },
       {
-        "rank": 2,
         "id": 102614,
         "count": 3,
-        "rate": 6.84
+        "rate": 11.6,
+        "lo": 2.39,
+        "hi": 33.89
       },
       {
-        "rank": 3,
         "id": 102553,
         "count": 4,
-        "rate": 5.19
+        "rate": 6.65,
+        "lo": 1.81,
+        "hi": 17.03
       }
     ],
     "drug_discipline": [
       {
-        "rank": 1,
-        "id": 102632,
-        "count": 5,
-        "rate": 42.23
-      },
-      {
-        "rank": 2,
         "id": 102614,
         "count": 4,
-        "rate": 9.12
+        "rate": 15.46,
+        "lo": 4.21,
+        "hi": 39.59
       },
       {
-        "rank": 3,
         "id": 102553,
         "count": 4,
-        "rate": 5.19
+        "rate": 6.65,
+        "lo": 1.81,
+        "hi": 17.03
       },
       {
-        "rank": 4,
         "id": 102845,
         "count": 1,
-        "rate": 4.72
+        "rate": 6.21,
+        "lo": 0.16,
+        "hi": 34.58
       }
     ],
     "fondling": [
       {
-        "rank": 1,
         "id": 102614,
         "count": 4,
-        "rate": 9.12
+        "rate": 15.46,
+        "lo": 4.21,
+        "hi": 39.59
       }
     ],
-    "incest": [],
     "liquor_arrest": [
       {
-        "rank": 1,
         "id": 102614,
         "count": 9,
-        "rate": 20.52
+        "rate": 34.79,
+        "lo": 15.91,
+        "hi": 66.04
       },
       {
-        "rank": 2,
         "id": 102845,
         "count": 2,
-        "rate": 9.43
+        "rate": 12.41,
+        "lo": 1.5,
+        "hi": 44.85
       },
       {
-        "rank": 3,
         "id": 102553,
         "count": 2,
-        "rate": 2.59
+        "rate": 3.33,
+        "lo": 0.4,
+        "hi": 12.02
       }
     ],
     "liquor_discipline": [
       {
-        "rank": 1,
-        "id": 102632,
-        "count": 7,
-        "rate": 59.12
-      },
-      {
-        "rank": 2,
         "id": 102614,
         "count": 15,
-        "rate": 34.21
+        "rate": 57.98,
+        "lo": 32.45,
+        "hi": 95.63
       },
       {
-        "rank": 3,
         "id": 102553,
         "count": 4,
-        "rate": 5.19
+        "rate": 6.65,
+        "lo": 1.81,
+        "hi": 17.03
       },
       {
-        "rank": 4,
         "id": 102845,
         "count": 1,
-        "rate": 4.72
+        "rate": 6.21,
+        "lo": 0.16,
+        "hi": 34.58
       }
     ],
     "motor_vehicle_theft": [
       {
-        "rank": 1,
         "id": 102845,
         "count": 2,
-        "rate": 9.43
+        "rate": 12.41,
+        "lo": 1.5,
+        "hi": 44.85
       },
       {
-        "rank": 2,
-        "id": 102632,
-        "count": 1,
-        "rate": 8.45
-      },
-      {
-        "rank": 3,
         "id": 102553,
         "count": 6,
-        "rate": 7.78
+        "rate": 9.98,
+        "lo": 3.66,
+        "hi": 21.72
       },
       {
-        "rank": 4,
         "id": 102614,
         "count": 2,
-        "rate": 4.56
+        "rate": 7.73,
+        "lo": 0.94,
+        "hi": 27.93
       }
     ],
-    "murder": [],
-    "negligent_manslaughter": [],
     "rape": [
       {
-        "rank": 1,
         "id": 102614,
         "count": 5,
-        "rate": 11.4
+        "rate": 19.33,
+        "lo": 6.28,
+        "hi": 45.1
       }
     ],
     "robbery": [
       {
-        "rank": 1,
         "id": 102614,
         "count": 1,
-        "rate": 2.28
+        "rate": 3.87,
+        "lo": 0.1,
+        "hi": 21.54
       },
       {
-        "rank": 2,
         "id": 102553,
         "count": 1,
-        "rate": 1.3
+        "rate": 1.66,
+        "lo": 0.04,
+        "hi": 9.27
       }
     ],
     "stalking": [
       {
-        "rank": 1,
         "id": 102614,
         "count": 16,
-        "rate": 36.49
+        "rate": 61.85,
+        "lo": 35.35,
+        "hi": 100.44
       },
       {
-        "rank": 2,
         "id": 102553,
         "count": 10,
-        "rate": 12.97
-      }
-    ],
-    "statutory_rape": [
-      {
-        "rank": 1,
-        "id": 102553,
-        "count": 1,
-        "rate": 1.3
+        "rate": 16.63,
+        "lo": 7.98,
+        "hi": 30.58
       }
     ],
     "weapons_arrest": [],

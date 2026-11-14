@@ -80,8 +80,11 @@
         "campuses": 2,
         "online": 1,
         "rateRanked": true,
+        "rateFte": 22716,
         "counts": {
           "criminal": 77,
+          "violent": 19,
+          "property": 49,
           "all": 238,
           "aggravated_assault": 1,
           "arson": 2,
@@ -104,8 +107,11 @@
         "campuses": 2,
         "online": 1,
         "rateRanked": true,
+        "rateFte": 23307,
         "counts": {
           "criminal": 76,
+          "violent": 23,
+          "property": 42,
           "all": 249,
           "aggravated_assault": 9,
           "burglary": 20,
@@ -128,8 +134,11 @@
         "campuses": 2,
         "online": 1,
         "rateRanked": true,
+        "rateFte": 24886,
         "counts": {
           "criminal": 55,
+          "violent": 15,
+          "property": 36,
           "all": 232,
           "aggravated_assault": 1,
           "burglary": 30,
@@ -154,8 +163,11 @@
         "online": 1,
         "rateRanked": true,
         "onlineYear": 2019,
+        "rateFte": 25585,
         "counts": {
           "criminal": 78,
+          "violent": 4,
+          "property": 67,
           "all": 144,
           "arson": 2,
           "burglary": 47,
@@ -175,10 +187,14 @@
       "2021": {
         "campuses": 2,
         "online": 1,
-        "rateRanked": true,
+        "rateRanked": false,
         "onlineYear": 2019,
+        "rateExcludedReason": "IPEDS reports that this institution has a hospital (institutional characteristics, 2021). Patients, visitors and hospital staff are on its campus but not in its FTE, so a rate per student would not measure its campus population. It is left out of rate rankings; its counts are shown.",
+        "rateFte": 25905,
         "counts": {
           "criminal": 65,
+          "violent": 11,
+          "property": 48,
           "all": 153,
           "burglary": 30,
           "dating_violence": 6,
@@ -198,9 +214,16 @@
       "2022": {
         "campuses": 2,
         "online": 1,
-        "rateRanked": true,
+        "rateRanked": false,
+        "rateExcludedReason": "IPEDS reports that this institution has a hospital (institutional characteristics, 2022). Patients, visitors and hospital staff are on its campus but not in its FTE, so a rate per student would not measure its campus population. It is left out of rate rankings; its counts are shown.",
+        "rateFte": 25789,
+        "spikes": [
+          "motor_vehicle_theft"
+        ],
         "counts": {
           "criminal": 175,
+          "violent": 20,
+          "property": 146,
           "all": 335,
           "aggravated_assault": 7,
           "arson": 1,
@@ -222,9 +245,18 @@
       "2023": {
         "campuses": 2,
         "online": 1,
-        "rateRanked": true,
+        "rateRanked": false,
+        "rateExcludedReason": "IPEDS reports that this institution has a hospital (institutional characteristics, 2023). Patients, visitors and hospital staff are on its campus but not in its FTE, so a rate per student would not measure its campus population. It is left out of rate rankings; its counts are shown.",
+        "rateFte": 25574,
+        "spikes": [
+          "criminal",
+          "property",
+          "motor_vehicle_theft"
+        ],
         "counts": {
           "criminal": 243,
+          "violent": 18,
+          "property": 219,
           "all": 467,
           "aggravated_assault": 3,
           "burglary": 34,
@@ -246,9 +278,18 @@
       "2024": {
         "campuses": 2,
         "online": 1,
-        "rateRanked": true,
+        "rateRanked": false,
+        "rateExcludedReason": "IPEDS reports that this institution has a hospital (institutional characteristics, 2024). Patients, visitors and hospital staff are on its campus but not in its FTE, so a rate per student would not measure its campus population. It is left out of rate rankings; its counts are shown.",
+        "rateFte": 25643,
+        "spikes": [
+          "criminal",
+          "property",
+          "motor_vehicle_theft"
+        ],
         "counts": {
           "criminal": 478,
+          "violent": 13,
+          "property": 461,
           "all": 635,
           "aggravated_assault": 6,
           "arson": 3,

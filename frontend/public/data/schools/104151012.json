@@ -329,9 +329,12 @@
         "campuses": 9,
         "online": 1,
         "rateRanked": false,
-        "rateExcludedReason": "DOE reported campus 104151010 of this institution also under ID 407009002 of another institution in 2019 (a merger or renumbering), so that year's incidents and enrollment may not cover the same campuses. No rate is shown for it.",
+        "rateExcludedReason": "In 2019 the figures of campus 104151014 count for this institution, but IPEDS counts that campus's students under institution 448886 (DOE also reported it as 448886002: a merger or renumbering), which counts other campuses of its own that year. No rate is shown for that year.",
+        "rateFte": 49398,
         "counts": {
           "criminal": 125,
+          "violent": 43,
+          "property": 59,
           "all": 1682,
           "aggravated_assault": 9,
           "arson": 3,
@@ -355,8 +358,11 @@
         "online": 1,
         "rateRanked": true,
         "onlineYear": 2019,
+        "rateFte": 68981,
         "counts": {
           "criminal": 79,
+          "violent": 27,
+          "property": 40,
           "all": 1453,
           "aggravated_assault": 9,
           "arson": 1,
@@ -381,8 +387,11 @@
         "online": 1,
         "rateRanked": true,
         "onlineYear": 2019,
+        "rateFte": 71977,
         "counts": {
           "criminal": 111,
+          "violent": 45,
+          "property": 51,
           "all": 1517,
           "aggravated_assault": 12,
           "arson": 2,
@@ -406,8 +415,16 @@
         "campuses": 8,
         "online": 5,
         "rateRanked": true,
+        "rateFte": 70993,
+        "spikes": [
+          "criminal",
+          "property",
+          "motor_vehicle_theft"
+        ],
         "counts": {
           "criminal": 385,
+          "violent": 43,
+          "property": 331,
           "all": 1800,
           "aggravated_assault": 14,
           "arson": 5,
@@ -432,8 +449,15 @@
         "campuses": 9,
         "online": 5,
         "rateRanked": true,
+        "rateFte": 70602,
+        "spikes": [
+          "property",
+          "motor_vehicle_theft"
+        ],
         "counts": {
           "criminal": 311,
+          "violent": 62,
+          "property": 235,
           "all": 1754,
           "aggravated_assault": 30,
           "arson": 7,
@@ -456,8 +480,18 @@
         "campuses": 8,
         "online": 5,
         "rateRanked": true,
+        "rateFte": 71159,
+        "spikes": [
+          "criminal",
+          "property",
+          "aggravated_assault",
+          "motor_vehicle_theft",
+          "robbery"
+        ],
         "counts": {
           "criminal": 416,
+          "violent": 94,
+          "property": 308,
           "all": 1521,
           "aggravated_assault": 46,
           "arson": 3,

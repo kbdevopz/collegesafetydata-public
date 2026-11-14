@@ -131,10 +131,22 @@
       "2019": {
         "campuses": 4,
         "online": 13,
-        "rateRanked": false,
-        "rateExcludedReason": "DOE reported campus 137351007 of this institution also under ID 448840001 of another institution in 2019 (a merger or renumbering), so that year's incidents and enrollment may not cover the same campuses. No rate is shown for it.",
+        "rateRanked": true,
+        "rateFte": 34709,
+        "pooledWith": [
+          {
+            "id": 448840,
+            "name": "University of South Florida-St Petersburg",
+            "fte": 2767
+          }
+        ],
+        "spikes": [
+          "liquor_discipline"
+        ],
         "counts": {
           "criminal": 64,
+          "violent": 24,
+          "property": 26,
           "all": 337,
           "aggravated_assault": 8,
           "burglary": 12,
@@ -158,8 +170,11 @@
         "online": 13,
         "rateRanked": true,
         "onlineYear": 2019,
+        "rateFte": 36508,
         "counts": {
           "criminal": 62,
+          "violent": 31,
+          "property": 24,
           "all": 164,
           "aggravated_assault": 14,
           "arson": 1,
@@ -184,8 +199,11 @@
         "online": 13,
         "rateRanked": true,
         "onlineYear": 2019,
+        "rateFte": 35827,
         "counts": {
           "criminal": 52,
+          "violent": 25,
+          "property": 14,
           "all": 239,
           "aggravated_assault": 12,
           "burglary": 5,
@@ -208,8 +226,11 @@
         "campuses": 4,
         "online": 17,
         "rateRanked": true,
+        "rateFte": 34732,
         "counts": {
           "criminal": 44,
+          "violent": 13,
+          "property": 25,
           "all": 234,
           "aggravated_assault": 6,
           "burglary": 14,
@@ -231,8 +252,15 @@
         "campuses": 4,
         "online": 16,
         "rateRanked": true,
+        "rateFte": 34861,
+        "spikes": [
+          "property",
+          "motor_vehicle_theft"
+        ],
         "counts": {
           "criminal": 133,
+          "violent": 18,
+          "property": 113,
           "all": 346,
           "aggravated_assault": 10,
           "burglary": 3,
@@ -256,8 +284,17 @@
         "campuses": 4,
         "online": 15,
         "rateRanked": true,
+        "rateFte": 36365,
+        "spikes": [
+          "criminal",
+          "property",
+          "motor_vehicle_theft",
+          "weapons_arrest"
+        ],
         "counts": {
           "criminal": 205,
+          "violent": 19,
+          "property": 180,
           "all": 491,
           "aggravated_assault": 6,
           "burglary": 3,

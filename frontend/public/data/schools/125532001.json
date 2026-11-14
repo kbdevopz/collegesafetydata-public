@@ -154,25 +154,41 @@
       "2015": {
         "campuses": 1,
         "online": 16,
-        "rateRanked": true
+        "rateRanked": false,
+        "rateFte": 955
       },
       "2016": {
         "campuses": 1,
         "online": 24,
-        "rateRanked": true
+        "rateRanked": false,
+        "rateFte": 787
       },
       "2017": {
         "campuses": 1,
         "online": 24,
-        "rateRanked": false
+        "rateRanked": false,
+        "rateFte": 748
       },
       "2018": {
         "campuses": 7,
         "online": 0,
-        "rateRanked": false,
-        "rateExcludedReason": "DOE reported campus 125532004 of this institution also under ID 246974001 of another institution in 2018 (a merger or renumbering), so that year's incidents and enrollment may not cover the same campuses. No rate is shown for it.",
+        "rateRanked": true,
+        "rateFte": 1638,
+        "pooledWith": [
+          {
+            "id": 246974,
+            "name": "Carrington College-San Leandro Campus",
+            "fte": 214
+          },
+          {
+            "id": 450696,
+            "name": "Carrington College-Stockton",
+            "fte": 316
+          }
+        ],
         "counts": {
           "criminal": 4,
+          "property": 3,
           "all": 4,
           "fondling": 1,
           "motor_vehicle_theft": 3
@@ -182,8 +198,11 @@
         "campuses": 7,
         "online": 13,
         "rateRanked": true,
+        "rateFte": 2837,
         "counts": {
           "criminal": 2,
+          "violent": 1,
+          "property": 1,
           "all": 4,
           "domestic_violence": 1,
           "motor_vehicle_theft": 1,
@@ -195,15 +214,18 @@
         "campuses": 2,
         "online": 13,
         "rateRanked": true,
-        "onlineYear": 2019
+        "onlineYear": 2019,
+        "rateFte": 1487
       },
       "2021": {
         "campuses": 2,
         "online": 13,
         "rateRanked": true,
         "onlineYear": 2019,
+        "rateFte": 1428,
         "counts": {
           "criminal": 3,
+          "property": 3,
           "all": 3,
           "motor_vehicle_theft": 3
         }
@@ -211,17 +233,20 @@
       "2022": {
         "campuses": 2,
         "online": 46,
-        "rateRanked": true
+        "rateRanked": false,
+        "rateFte": 992
       },
       "2023": {
         "campuses": 2,
         "online": 57,
-        "rateRanked": false
+        "rateRanked": false,
+        "rateFte": 984
       },
       "2024": {
         "campuses": 1,
         "online": 56,
-        "rateRanked": false
+        "rateRanked": false,
+        "rateFte": 971
       }
     }
   }

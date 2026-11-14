@@ -782,29 +782,49 @@
       "2015": {
         "campuses": 3,
         "online": 24,
-        "rateRanked": true
+        "rateRanked": true,
+        "rateFte": 5031,
+        "spikes": [
+          "drug_discipline"
+        ]
       },
       "2016": {
         "campuses": 3,
         "online": 29,
-        "rateRanked": true
+        "rateRanked": true,
+        "rateFte": 5152,
+        "spikes": [
+          "drug_discipline"
+        ]
       },
       "2017": {
         "campuses": 3,
         "online": 29,
-        "rateRanked": true
+        "rateRanked": true,
+        "rateFte": 5267
       },
       "2018": {
         "campuses": 3,
         "online": 30,
-        "rateRanked": true
+        "rateRanked": true,
+        "rateFte": 5112,
+        "spikes": [
+          "drug_arrest"
+        ]
       },
       "2019": {
         "campuses": 3,
         "online": 26,
         "rateRanked": true,
+        "rateFte": 5327,
+        "spikes": [
+          "drug_arrest",
+          "liquor_arrest"
+        ],
         "counts": {
           "criminal": 10,
+          "violent": 5,
+          "property": 5,
           "all": 231,
           "aggravated_assault": 2,
           "burglary": 5,
@@ -820,11 +840,20 @@
       "2020": {
         "campuses": 4,
         "online": 26,
-        "rateRanked": false,
+        "rateRanked": true,
         "onlineYear": 2019,
-        "rateExcludedReason": "DOE reported campus 228802005 of this institution also under ID 485537001 of another institution in 2020 (a merger or renumbering), so that year's incidents and enrollment may not cover the same campuses. No rate is shown for it.",
+        "rateFte": 5449,
+        "pooledWith": [
+          {
+            "id": 485537,
+            "name": "University of Texas Health Science Center at Tyler",
+            "fte": 55
+          }
+        ],
         "counts": {
           "criminal": 11,
+          "violent": 3,
+          "property": 7,
           "all": 98,
           "aggravated_assault": 1,
           "burglary": 5,
@@ -843,10 +872,14 @@
       "2021": {
         "campuses": 4,
         "online": 26,
-        "rateRanked": true,
+        "rateRanked": false,
         "onlineYear": 2019,
+        "rateExcludedReason": "IPEDS reports that this institution has a hospital (institutional characteristics, 2021). Patients, visitors and hospital staff are on its campus but not in its FTE, so a rate per student would not measure its campus population. It is left out of rate rankings; its counts are shown.",
+        "rateFte": 5295,
         "counts": {
           "criminal": 9,
+          "violent": 4,
+          "property": 5,
           "all": 140,
           "aggravated_assault": 1,
           "burglary": 5,
@@ -864,9 +897,13 @@
       "2022": {
         "campuses": 4,
         "online": 29,
-        "rateRanked": true,
+        "rateRanked": false,
+        "rateExcludedReason": "IPEDS reports that this institution has a hospital (institutional characteristics, 2022). Patients, visitors and hospital staff are on its campus but not in its FTE, so a rate per student would not measure its campus population. It is left out of rate rankings; its counts are shown.",
+        "rateFte": 4913,
         "counts": {
           "criminal": 15,
+          "violent": 10,
+          "property": 4,
           "all": 123,
           "aggravated_assault": 5,
           "burglary": 3,
@@ -885,9 +922,13 @@
       "2023": {
         "campuses": 4,
         "online": 29,
-        "rateRanked": true,
+        "rateRanked": false,
+        "rateExcludedReason": "IPEDS reports that this institution has a hospital (institutional characteristics, 2023). Patients, visitors and hospital staff are on its campus but not in its FTE, so a rate per student would not measure its campus population. It is left out of rate rankings; its counts are shown.",
+        "rateFte": 5214,
         "counts": {
           "criminal": 14,
+          "violent": 6,
+          "property": 6,
           "all": 85,
           "aggravated_assault": 3,
           "burglary": 6,
@@ -906,9 +947,13 @@
       "2024": {
         "campuses": 4,
         "online": 28,
-        "rateRanked": true,
+        "rateRanked": false,
+        "rateExcludedReason": "IPEDS reports that this institution has a hospital (institutional characteristics, 2024). Patients, visitors and hospital staff are on its campus but not in its FTE, so a rate per student would not measure its campus population. It is left out of rate rankings; its counts are shown.",
+        "rateFte": 5678,
         "counts": {
           "criminal": 12,
+          "violent": 7,
+          "property": 5,
           "all": 89,
           "aggravated_assault": 1,
           "burglary": 3,

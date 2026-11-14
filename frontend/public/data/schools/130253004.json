@@ -73,8 +73,11 @@
         "campuses": 4,
         "online": 15,
         "rateRanked": true,
+        "rateFte": 5576,
         "counts": {
           "criminal": 6,
+          "violent": 2,
+          "property": 2,
           "all": 731,
           "aggravated_assault": 1,
           "burglary": 1,
@@ -92,8 +95,11 @@
         "campuses": 4,
         "online": 13,
         "rateRanked": true,
+        "rateFte": 6042,
         "counts": {
           "criminal": 9,
+          "violent": 5,
+          "property": 4,
           "all": 712,
           "aggravated_assault": 1,
           "burglary": 4,
@@ -106,10 +112,19 @@
       "2017": {
         "campuses": 5,
         "online": 13,
-        "rateRanked": false,
-        "rateExcludedReason": "DOE reported campus 130253005 of this institution also under ID 130448001 of another institution in 2017 (a merger or renumbering), so that year's incidents and enrollment may not cover the same campuses. No rate is shown for it.",
+        "rateRanked": true,
+        "rateFte": 6273,
+        "pooledWith": [
+          {
+            "id": 130448,
+            "name": "St Vincent's College",
+            "fte": 166
+          }
+        ],
         "counts": {
           "criminal": 27,
+          "violent": 12,
+          "property": 12,
           "all": 718,
           "aggravated_assault": 1,
           "burglary": 9,
@@ -127,8 +142,11 @@
         "campuses": 6,
         "online": 12,
         "rateRanked": true,
+        "rateFte": 6459,
         "counts": {
           "criminal": 18,
+          "violent": 10,
+          "property": 7,
           "all": 660,
           "burglary": 4,
           "dating_violence": 10,
@@ -147,8 +165,11 @@
         "campuses": 6,
         "online": 12,
         "rateRanked": true,
+        "rateFte": 6696,
         "counts": {
           "criminal": 10,
+          "violent": 3,
+          "property": 7,
           "all": 647,
           "aggravated_assault": 1,
           "burglary": 5,
@@ -168,8 +189,11 @@
         "online": 12,
         "rateRanked": true,
         "onlineYear": 2019,
+        "rateFte": 6882,
         "counts": {
           "criminal": 9,
+          "violent": 3,
+          "property": 5,
           "all": 512,
           "aggravated_assault": 1,
           "burglary": 5,
@@ -188,8 +212,11 @@
         "online": 12,
         "rateRanked": true,
         "onlineYear": 2019,
+        "rateFte": 7348,
         "counts": {
           "criminal": 20,
+          "violent": 12,
+          "property": 2,
           "all": 718,
           "aggravated_assault": 3,
           "burglary": 2,
@@ -206,8 +233,11 @@
         "campuses": 5,
         "online": 11,
         "rateRanked": true,
+        "rateFte": 8420,
         "counts": {
           "criminal": 14,
+          "violent": 10,
+          "property": 1,
           "all": 539,
           "aggravated_assault": 1,
           "dating_violence": 3,

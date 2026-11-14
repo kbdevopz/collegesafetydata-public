@@ -494,20 +494,49 @@
       "2015": {
         "campuses": 1,
         "online": 3,
-        "rateRanked": true
+        "rateRanked": true,
+        "rateFte": 5805
       },
       "2016": {
         "campuses": 1,
         "online": 2,
-        "rateRanked": true
+        "rateRanked": true,
+        "rateFte": 5706,
+        "spikes": [
+          "drug_discipline"
+        ]
       },
       "2017": {
         "campuses": 5,
         "online": 1,
-        "rateRanked": false,
-        "rateExcludedReason": "DOE reported campus 192448002 of this institution also under ID 192439001 of another institution in 2017 (a merger or renumbering), so that year's incidents and enrollment may not cover the same campuses. No rate is shown for it.",
+        "rateRanked": true,
+        "rateFte": 11683,
+        "pooledWith": [
+          {
+            "id": 192439,
+            "name": "LIU Brooklyn",
+            "fte": 5845
+          },
+          {
+            "id": 192563,
+            "name": "LIU Brentwood",
+            "fte": 129
+          },
+          {
+            "id": 450766,
+            "name": "LIU Riverhead",
+            "fte": 48
+          }
+        ],
+        "spikes": [
+          "criminal",
+          "all",
+          "drug_discipline"
+        ],
         "counts": {
           "criminal": 33,
+          "violent": 17,
+          "property": 14,
           "all": 229,
           "aggravated_assault": 6,
           "burglary": 14,
@@ -525,8 +554,11 @@
         "campuses": 5,
         "online": 1,
         "rateRanked": true,
+        "rateFte": 10991,
         "counts": {
           "criminal": 18,
+          "violent": 7,
+          "property": 5,
           "all": 187,
           "aggravated_assault": 4,
           "burglary": 4,
@@ -545,8 +577,11 @@
         "campuses": 5,
         "online": 1,
         "rateRanked": true,
+        "rateFte": 10953,
         "counts": {
           "criminal": 18,
+          "violent": 14,
+          "property": 1,
           "all": 129,
           "aggravated_assault": 9,
           "burglary": 1,
@@ -565,8 +600,10 @@
         "online": 1,
         "rateRanked": true,
         "onlineYear": 2019,
+        "rateFte": 10642,
         "counts": {
           "criminal": 11,
+          "violent": 11,
           "all": 41,
           "aggravated_assault": 10,
           "dating_violence": 1,
@@ -582,8 +619,11 @@
         "online": 1,
         "rateRanked": true,
         "onlineYear": 2019,
+        "rateFte": 10681,
         "counts": {
           "criminal": 6,
+          "violent": 4,
+          "property": 1,
           "all": 75,
           "burglary": 1,
           "dating_violence": 2,
@@ -600,8 +640,10 @@
         "campuses": 5,
         "online": 2,
         "rateRanked": true,
+        "rateFte": 10746,
         "counts": {
           "criminal": 1,
+          "property": 1,
           "all": 43,
           "burglary": 1,
           "dating_violence": 1,
@@ -616,8 +658,11 @@
         "campuses": 5,
         "online": 1,
         "rateRanked": true,
+        "rateFte": 11092,
         "counts": {
           "criminal": 6,
+          "violent": 2,
+          "property": 2,
           "all": 56,
           "aggravated_assault": 1,
           "burglary": 2,
@@ -633,8 +678,11 @@
         "campuses": 5,
         "online": 2,
         "rateRanked": true,
+        "rateFte": 11302,
         "counts": {
           "criminal": 6,
+          "violent": 2,
+          "property": 1,
           "all": 45,
           "burglary": 1,
           "dating_violence": 5,

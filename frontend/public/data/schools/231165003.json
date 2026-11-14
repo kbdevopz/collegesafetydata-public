@@ -198,10 +198,28 @@
       "2022": {
         "campuses": 4,
         "online": 16,
-        "rateRanked": false,
-        "rateExcludedReason": "DOE reported campus 231165002 of this institution also under ID 230834001 of another institution in 2022 (a merger or renumbering), so that year's incidents and enrollment may not cover the same campuses. No rate is shown for it.",
+        "rateRanked": true,
+        "rateFte": 3575,
+        "pooledWith": [
+          {
+            "id": 230834,
+            "name": "Castleton University",
+            "fte": 1732
+          },
+          {
+            "id": 230913,
+            "name": "Northern Vermont University",
+            "fte": 991
+          }
+        ],
+        "spikes": [
+          "criminal",
+          "drug_discipline"
+        ],
         "counts": {
           "criminal": 21,
+          "violent": 7,
+          "property": 8,
           "all": 148,
           "aggravated_assault": 1,
           "burglary": 7,
@@ -223,8 +241,11 @@
         "campuses": 4,
         "online": 15,
         "rateRanked": true,
+        "rateFte": 3200,
         "counts": {
           "criminal": 8,
+          "violent": 2,
+          "property": 5,
           "all": 118,
           "burglary": 5,
           "dating_violence": 3,
@@ -243,8 +264,11 @@
         "campuses": 4,
         "online": 17,
         "rateRanked": true,
+        "rateFte": 3136,
         "counts": {
           "criminal": 19,
+          "violent": 2,
+          "property": 14,
           "all": 135,
           "arson": 1,
           "burglary": 12,

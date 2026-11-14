@@ -53,8 +53,11 @@
         "campuses": 3,
         "online": 4,
         "rateRanked": true,
+        "rateFte": 36417,
         "counts": {
           "criminal": 115,
+          "violent": 40,
+          "property": 65,
           "all": 331,
           "aggravated_assault": 19,
           "arson": 1,
@@ -75,8 +78,15 @@
         "campuses": 3,
         "online": 4,
         "rateRanked": true,
+        "rateFte": 36538,
+        "spikes": [
+          "property",
+          "motor_vehicle_theft"
+        ],
         "counts": {
           "criminal": 211,
+          "violent": 42,
+          "property": 154,
           "all": 362,
           "aggravated_assault": 9,
           "arson": 1,
@@ -98,9 +108,19 @@
       "2024": {
         "campuses": 3,
         "online": 4,
-        "rateRanked": true,
+        "rateRanked": false,
+        "rateExcludedReason": "In 2024 figures this institution reports for a campus are also reported, identically, by campus 163204119 of another institution (a shared campus) and count here, while that institution's students are in its own FTE. No rate is shown for that year.",
+        "rateFte": 37446,
+        "spikes": [
+          "criminal",
+          "property",
+          "drug_discipline",
+          "motor_vehicle_theft"
+        ],
         "counts": {
           "criminal": 329,
+          "violent": 21,
+          "property": 299,
           "all": 523,
           "aggravated_assault": 10,
           "burglary": 12,

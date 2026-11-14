@@ -72,10 +72,27 @@
       "2018": {
         "campuses": 3,
         "online": 4,
-        "rateRanked": false,
-        "rateExcludedReason": "DOE reported campus 114354002 of this institution also under ID 114415001 of another institution in 2018 (a merger or renumbering), so that year's incidents and enrollment may not cover the same campuses. No rate is shown for it.",
+        "rateRanked": true,
+        "rateFte": 2131,
+        "pooledWith": [
+          {
+            "id": 114415,
+            "name": "FIDM-Fashion Institute of Design & Merchandising-Orange County",
+            "fte": 61
+          },
+          {
+            "id": 248846,
+            "name": "FIDM-Fashion Institute of Design & Merchandising-San Diego",
+            "fte": 63
+          }
+        ],
+        "spikes": [
+          "all"
+        ],
         "counts": {
           "criminal": 5,
+          "violent": 3,
+          "property": 2,
           "all": 35,
           "aggravated_assault": 3,
           "drug_discipline": 15,
@@ -87,8 +104,10 @@
         "campuses": 3,
         "online": 4,
         "rateRanked": true,
+        "rateFte": 2014,
         "counts": {
           "criminal": 5,
+          "violent": 5,
           "all": 5,
           "aggravated_assault": 3,
           "robbery": 2
@@ -98,7 +117,8 @@
         "campuses": 3,
         "online": 4,
         "rateRanked": true,
-        "onlineYear": 2019
+        "onlineYear": 2019,
+        "rateFte": 1645
       }
     }
   }

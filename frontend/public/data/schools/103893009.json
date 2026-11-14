@@ -129,7 +129,14 @@
         "campuses": 4,
         "online": 0,
         "rateRanked": false,
-        "rateExcludedReason": "DOE reported campus 103893007 of this institution also under ID 103909001 of another institution in 2018 (a merger or renumbering), so that year's incidents and enrollment may not cover the same campuses. No rate is shown for it.",
+        "rateFte": 911,
+        "pooledWith": [
+          {
+            "id": 103909,
+            "name": "Carrington College-Mesa",
+            "fte": 481
+          }
+        ],
         "counts": {
           "criminal": 1,
           "all": 1,
@@ -140,8 +147,13 @@
         "campuses": 4,
         "online": 2,
         "rateRanked": true,
+        "rateFte": 1611,
+        "spikes": [
+          "all"
+        ],
         "counts": {
           "criminal": 16,
+          "violent": 16,
           "all": 21,
           "aggravated_assault": 14,
           "domestic_violence": 2,
@@ -154,18 +166,21 @@
         "campuses": 2,
         "online": 2,
         "rateRanked": false,
-        "onlineYear": 2019
+        "onlineYear": 2019,
+        "rateFte": 966
       },
       "2021": {
         "campuses": 2,
         "online": 2,
         "rateRanked": true,
-        "onlineYear": 2019
+        "onlineYear": 2019,
+        "rateFte": 1255
       },
       "2022": {
         "campuses": 2,
         "online": 19,
-        "rateRanked": true,
+        "rateRanked": false,
+        "rateFte": 849,
         "counts": {
           "all": 2,
           "drug_arrest": 2
@@ -174,7 +189,8 @@
       "2023": {
         "campuses": 2,
         "online": 17,
-        "rateRanked": true,
+        "rateRanked": false,
+        "rateFte": 903,
         "counts": {
           "all": 2,
           "drug_arrest": 2
@@ -183,7 +199,8 @@
       "2024": {
         "campuses": 2,
         "online": 13,
-        "rateRanked": true,
+        "rateRanked": false,
+        "rateFte": 940,
         "counts": {
           "criminal": 2,
           "all": 2,

@@ -138,10 +138,17 @@
       "2015": {
         "campuses": 17,
         "online": 22,
-        "rateRanked": false,
-        "rateExcludedReason": "DOE reported campus 168847006 of this institution also under ID 168838001 of another institution in 2015 (a merger or renumbering), so that year's incidents and enrollment may not cover the same campuses. No rate is shown for it.",
+        "rateRanked": true,
+        "rateFte": 12787,
+        "spikes": [
+          "all",
+          "drug_discipline",
+          "liquor_discipline"
+        ],
         "counts": {
           "criminal": 15,
+          "violent": 9,
+          "property": 5,
           "all": 159,
           "aggravated_assault": 5,
           "arson": 1,
@@ -160,8 +167,14 @@
         "campuses": 17,
         "online": 27,
         "rateRanked": true,
+        "rateFte": 9963,
+        "spikes": [
+          "all",
+          "liquor_discipline"
+        ],
         "counts": {
           "criminal": 8,
+          "violent": 5,
           "all": 97,
           "aggravated_assault": 2,
           "dating_violence": 3,
@@ -180,8 +193,15 @@
         "campuses": 15,
         "online": 37,
         "rateRanked": true,
+        "rateFte": 4673,
+        "spikes": [
+          "all",
+          "liquor_discipline"
+        ],
         "counts": {
           "criminal": 10,
+          "violent": 3,
+          "property": 6,
           "all": 63,
           "aggravated_assault": 1,
           "arson": 3,
@@ -204,8 +224,14 @@
         "campuses": 14,
         "online": 32,
         "rateRanked": true,
+        "rateFte": 4074,
+        "spikes": [
+          "all"
+        ],
         "counts": {
           "criminal": 4,
+          "violent": 2,
+          "property": 2,
           "all": 31,
           "drug_arrest": 2,
           "drug_discipline": 10,
@@ -222,8 +248,10 @@
         "campuses": 9,
         "online": 41,
         "rateRanked": true,
+        "rateFte": 2803,
         "counts": {
           "criminal": 6,
+          "violent": 5,
           "all": 11,
           "aggravated_assault": 4,
           "drug_discipline": 1,
@@ -239,8 +267,10 @@
         "online": 41,
         "rateRanked": true,
         "onlineYear": 2019,
+        "rateFte": 2213,
         "counts": {
           "criminal": 6,
+          "violent": 4,
           "all": 10,
           "aggravated_assault": 2,
           "domestic_violence": 1,
@@ -254,8 +284,10 @@
         "online": 41,
         "rateRanked": true,
         "onlineYear": 2019,
+        "rateFte": 1787,
         "counts": {
           "criminal": 1,
+          "property": 1,
           "all": 8,
           "domestic_violence": 3,
           "drug_arrest": 1,
@@ -268,8 +300,11 @@
         "campuses": 7,
         "online": 63,
         "rateRanked": false,
+        "rateFte": 935,
         "counts": {
           "criminal": 2,
+          "violent": 1,
+          "property": 1,
           "all": 6,
           "burglary": 1,
           "dating_violence": 1,
@@ -283,6 +318,7 @@
         "campuses": 7,
         "online": 61,
         "rateRanked": false,
+        "rateFte": 954,
         "counts": {
           "all": 3,
           "drug_arrest": 1,
@@ -293,8 +329,10 @@
         "campuses": 7,
         "online": 63,
         "rateRanked": false,
+        "rateFte": 929,
         "counts": {
           "criminal": 1,
+          "property": 1,
           "all": 4,
           "burglary": 1,
           "drug_arrest": 1,

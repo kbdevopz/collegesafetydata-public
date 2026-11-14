@@ -554,25 +554,48 @@
       "2015": {
         "campuses": 1,
         "online": 57,
-        "rateRanked": false
+        "rateRanked": true,
+        "rateFte": 1059
       },
       "2016": {
         "campuses": 1,
         "online": 52,
-        "rateRanked": false
+        "rateRanked": true,
+        "rateFte": 1278,
+        "spikes": [
+          "drug_arrest",
+          "drug_discipline"
+        ]
       },
       "2017": {
         "campuses": 1,
         "online": 45,
-        "rateRanked": true
+        "rateRanked": true,
+        "rateFte": 1534,
+        "spikes": [
+          "drug_arrest"
+        ]
       },
       "2018": {
         "campuses": 2,
         "online": 42,
-        "rateRanked": false,
-        "rateExcludedReason": "DOE reported campus 182980003 of this institution also under ID 430810001 of another institution in 2018 (a merger or renumbering), so that year's incidents and enrollment may not cover the same campuses. No rate is shown for it.",
+        "rateRanked": true,
+        "rateFte": 1765,
+        "pooledWith": [
+          {
+            "id": 430810,
+            "name": "New Hampshire Institute of Art",
+            "fte": 324
+          }
+        ],
+        "spikes": [
+          "criminal",
+          "drug_arrest"
+        ],
         "counts": {
           "criminal": 28,
+          "violent": 9,
+          "property": 12,
           "all": 153,
           "aggravated_assault": 1,
           "burglary": 11,
@@ -591,8 +614,14 @@
         "campuses": 2,
         "online": 25,
         "rateRanked": true,
+        "rateFte": 2574,
+        "spikes": [
+          "drug_arrest"
+        ],
         "counts": {
           "criminal": 15,
+          "violent": 9,
+          "property": 4,
           "all": 159,
           "aggravated_assault": 7,
           "burglary": 2,
@@ -614,8 +643,11 @@
         "online": 25,
         "rateRanked": true,
         "onlineYear": 2019,
+        "rateFte": 3185,
         "counts": {
           "criminal": 5,
+          "violent": 2,
+          "property": 1,
           "all": 30,
           "aggravated_assault": 2,
           "burglary": 1,
@@ -632,22 +664,29 @@
         "campuses": 2,
         "online": 25,
         "rateRanked": true,
-        "onlineYear": 2019
+        "onlineYear": 2019,
+        "rateFte": 2708
       },
       "2022": {
         "campuses": 2,
         "online": 17,
-        "rateRanked": true
+        "rateRanked": true,
+        "rateFte": 2287
       },
       "2023": {
         "campuses": 2,
         "online": 20,
-        "rateRanked": true
+        "rateRanked": true,
+        "rateFte": 2207,
+        "spikes": [
+          "drug_discipline"
+        ]
       },
       "2024": {
         "campuses": 2,
         "online": 20,
-        "rateRanked": true
+        "rateRanked": true,
+        "rateFte": 2562
       }
     }
   }

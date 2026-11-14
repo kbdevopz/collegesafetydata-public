@@ -264,10 +264,22 @@
       "2017": {
         "campuses": 2,
         "online": 0,
-        "rateRanked": false,
-        "rateExcludedReason": "DOE reported campus 230913002 of this institution also under ID 230931001 of another institution in 2017 (a merger or renumbering), so that year's incidents and enrollment may not cover the same campuses. No rate is shown for it.",
+        "rateRanked": true,
+        "rateFte": 2122,
+        "pooledWith": [
+          {
+            "id": 230931,
+            "name": "Lyndon State College",
+            "fte": 950
+          }
+        ],
+        "spikes": [
+          "drug_discipline"
+        ],
         "counts": {
           "criminal": 18,
+          "violent": 9,
+          "property": 6,
           "all": 144,
           "aggravated_assault": 1,
           "burglary": 5,
@@ -287,8 +299,11 @@
         "campuses": 2,
         "online": 16,
         "rateRanked": true,
+        "rateFte": 1730,
         "counts": {
           "criminal": 10,
+          "violent": 5,
+          "property": 2,
           "all": 75,
           "aggravated_assault": 3,
           "burglary": 2,
@@ -306,8 +321,11 @@
         "campuses": 2,
         "online": 17,
         "rateRanked": true,
+        "rateFte": 1545,
         "counts": {
           "criminal": 6,
+          "violent": 1,
+          "property": 4,
           "all": 65,
           "burglary": 3,
           "dating_violence": 3,
@@ -326,8 +344,11 @@
         "online": 17,
         "rateRanked": true,
         "onlineYear": 2019,
+        "rateFte": 1266,
         "counts": {
           "criminal": 3,
+          "violent": 1,
+          "property": 1,
           "all": 39,
           "burglary": 1,
           "drug_discipline": 1,
@@ -343,8 +364,11 @@
         "online": 17,
         "rateRanked": true,
         "onlineYear": 2019,
+        "rateFte": 1072,
         "counts": {
           "criminal": 5,
+          "violent": 2,
+          "property": 3,
           "all": 26,
           "arson": 1,
           "burglary": 2,
