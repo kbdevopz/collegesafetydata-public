@@ -64,16 +64,20 @@ export default function CiteThisData({ school, className }: Props) {
   const [metadata, setMetadata] = useState<Metadata | null>(null)
   const build = useBuildInfo()
 
+  // The access date is set in the browser, not when the page is prerendered
+  const [accessed, setAccessed] = useState<Date | null>(null)
+
   useEffect(() => {
+    setAccessed(new Date())
     getMetadata().then(setMetadata).catch(() => undefined)
   }, [])
 
   const built = parseDate(metadata?.lastUpdated)
-  const accessed = new Date()
+  const retrieved = accessed ? `Retrieved ${longDate(accessed)}, from` : 'Retrieved from'
   const years = metadata?.years?.length
     ? `${Math.min(...metadata.years)}-${Math.max(...metadata.years)}`
     : null
-  const buildYear = built ? built.getFullYear() : accessed.getFullYear()
+  const buildYear = built ? built.getFullYear() : accessed ? accessed.getFullYear() : 'n.d.'
   const buildParts = [
     build ? `build ${build.id}` : null,
     built ? `built ${longDate(built)}` : null,
@@ -87,13 +91,13 @@ export default function CiteThisData({ school, className }: Props) {
 
   const apaSite =
     `CollegeSafetyData. (${buildYear}). ${title}${buildNote} [Data set]. ` +
-    `Retrieved ${longDate(accessed)}, from ${url}`
+    `${retrieved} ${url}`
   const apaDoe =
     'U.S. Department of Education, Office of Postsecondary Education. (n.d.). ' +
-    `Campus Safety and Security Survey [Data set]. Retrieved ${longDate(accessed)}, from https://ope.ed.gov/campussafety/`
+    `Campus Safety and Security Survey [Data set]. ${retrieved} https://ope.ed.gov/campussafety/`
   const apaNces =
     'National Center for Education Statistics. (n.d.). Integrated Postsecondary Education Data System (IPEDS), ' +
-    `fall enrollment and derived fall enrollment (DRVEF) [Data set]. Retrieved ${longDate(accessed)}, from https://nces.ed.gov/ipeds/`
+    `fall enrollment and derived fall enrollment (DRVEF) [Data set]. ${retrieved} https://nces.ed.gov/ipeds/`
 
   const key = school ? `collegesafetydata_${school.unitid}_${buildYear}` : `collegesafetydata_${buildYear}`
   const noteParts = [
@@ -107,7 +111,7 @@ export default function CiteThisData({ school, className }: Props) {
     `  title        = {${bibEscape(title)}},`,
     `  year         = {${buildYear}},`,
     `  howpublished = {\\url{${url}}},`,
-    `  note         = {${bibEscape(noteParts.join('. '))}. Accessed ${isoDate(accessed)}},`,
+    `  note         = {${bibEscape(noteParts.join('. '))}${accessed ? `. Accessed ${isoDate(accessed)}` : ''}},`,
     `}`,
   ].join('\n')
 
