@@ -356,13 +356,25 @@ build are named below by the field that holds them, in `metadata.json`
    of these reasons that applies, or none:
    - `shared`: in at least one of the 3 years it is a guest or participant
      at a shared site (rule 18), unless a published figure shows that its
-     students there are few. That needs, for every such site-year, a row of
-     `etl/reference/shared_site_enrollment.csv`: a published count, or a
-     published upper bound such as the enrollment of every location of a
-     program together, for that year's fall term or an academic year that
-     includes it (never an estimate, a lower bound or another year's
-     figure); and the rows' sum must be at most 1/10 of F
-     (`sharedSite.exempt`). The reason is set per window, the same on every
+     students there are few. That needs, for every such site-year, a figure
+     from `etl/reference/shared_site_enrollment.csv`, and the figures' sum
+     must be at most 1/10 of F (`sharedSite.exempt`). A figure is a
+     published count, a published upper bound such as the enrollment of
+     every location of a program together, or an upper bound derived only
+     from published figures by the arithmetic stated in the row's `derived`
+     column (the sum of the published sizes of a program's classes enrolled
+     that fall, or a published cap per class times the number of classes at
+     the site at one time); never an estimate or a lower bound. A site-year
+     takes the figure for its own fall term (or an academic year that
+     includes it); failing that, the largest of the figures whose own year
+     is at most `SHARED_SITE_FIGURE_YEARS` = 3 years before or after it
+     (`rateRules.sharedSiteFigureYears`; on a tie the nearer, then the
+     earlier), and `sharedSite.figures` publishes that figure's own year. A
+     figure counts the students of the programs its source covers: the Texas
+     A&M Irma Lerma Rangel College of Pharmacy rows count PharmD students
+     only (not the college's PhD students, enrolled from spring 2020), and
+     the Indiana University School of Medicine rows count MD students only,
+     so a guest's other students at a site are not in its figure. The reason is set per window, the same on every
      code. The institution's campuses at the site are left out of its N
      (their on-campus incidents are its `sharedOut`), but its FTE is NCES's
      figure for the whole institution and may include its students there,
@@ -429,7 +441,10 @@ build are named below by the field that holds them, in `metadata.json`
    in integer arithmetic; interval bounds half up to 2 decimals; E (rule 7)
    half up to 1 decimal. Verdicts, list membership and ranges use the
    unrounded figures, so they cannot always be recomputed from the rounded
-   ones. The interval reflects how much an institution's counts vary from
+   ones: a bound and the national or peer rate can be equal to 2 decimals
+   with a verdict of above or below, and the pages then say that the two
+   differ beyond the second decimal (`natlN` and `natlF` give the national
+   rate unrounded; the bounds are published to 2 decimals only). The interval reflects how much an institution's counts vary from
    year to year; differences between institutions in how they record and
    report incidents are outside it. `rateRules.testVectors` holds worked
    examples (count intervals, rates, a small list with its critical value)
@@ -687,10 +702,16 @@ build are named below by the field that holds them, in `metadata.json`
     A guest's or participant's campuses at the site are in none of its
     rates: their on-campus incidents are its `sharedOut`, the owner or the
     other participants are its `sharedOutWith`, and `sharedSite` gives the
-    years, its students there by `shared_site_enrollment.csv` (summed over
-    those years; null when a year has no row), whether that figure is an
-    upper bound and whether it is at most `sharedSiteShare` of F
-    (`exempt`). Unless `exempt`, it has the reason `shared` (rule 5) in
+    years, its students there by `shared_site_enrollment.csv` under the
+    figure rule of rule 5 (summed over its site campuses and those years;
+    null when a site-year has no figure), whether any figure is an upper
+    bound, whether the sum is at most `sharedSiteShare` of F (`exempt`),
+    and `figures`: one item per site campus and year, by year, then campus,
+    `{year, unitid, students, figureYear, upperBound, derived}` (`students`
+    and `figureYear` null when that campus-year has no figure; `figureYear`
+    is the year the figure itself describes, and differs from `year` when
+    another year's figure is used; `derived` marks an upper bound computed
+    by the row's stated arithmetic). Unless `exempt`, it has the reason `shared` (rule 5) in
     every code of the window. `rateStats.institutionYears.rules`
     (`shared_pooled`, `shared_campus`) and `pooled.shared` count the
     institution-years.
@@ -1034,6 +1055,12 @@ rates here (rate rules above):
     campuses share a site may have no rate. Large institutions can
     therefore have no comparison, or no rate, in a window (each window
     file's `summary.verdicts.withheld`; `rateStats.institutionYears.rules`).
+    The figures that let a guest be compared count only the students of the
+    programs their sources cover (the Rangel College of Pharmacy rows count
+    PharmD students, not its PhD students; the Indiana University School of
+    Medicine rows count MD students), and a figure may be another year's
+    (up to `SHARED_SITE_FIGURE_YEARS` away) or an upper bound computed from
+    published class sizes or a cap per class (rate rule 5).
 
 ### Institution-reported, not audited
 The figures are what institutions submitted to ED's survey. This project
