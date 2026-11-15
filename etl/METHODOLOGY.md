@@ -88,15 +88,15 @@ arrest and 3 disciplinary categories), a blank counting as 0. A campus-year's
 whole figures are its three blocks (60 counts). Copies are looked for only
 between campuses in the same state (campuses with no state, or outside the
 50 states, DC, Puerto Rico and the U.S. Virgin Islands, are not ranked and
-are not compared), and every test needs at least 6 counts that are not 0:
-fewer match by chance too often to call a copy.
+are not compared), and every test but the last below needs at least 6
+counts that are not 0: fewer match by chance too often to call a copy.
 
 The host of a copy is chosen in this order: its campus-year comes from the
 newest release that covers the year (not from an older one), it is a main
 campus (UNITID ending in 001), it has more students (the FTE used for rates;
 no FTE sorts last), it has the larger total for the campus-year over the
 three geographies, it has the lower UNITID. The copies are shadows of the
-host. Four rules find them, in this order (a block keeps the first rule's
+host. Five rules find them, in this order (a block keeps the first rule's
 answer):
 
 1. **Same block:** two or more campuses' blocks of the same year and
@@ -112,6 +112,20 @@ answer):
    shadow of that campus.
 4. **Block, in an older release:** the same for one block of such a
    campus-year (all 20 counts equal).
+5. **Whole year, same city** (`SHARED_CITY_MIN_TOTAL` = 20; rule
+   `whole_year_city`): campus-years of two or more institutions (different
+   base UNITIDs) in the same state and city (`dim_institution` city,
+   compared without case and extra spaces) have all 60 counts equal, with a
+   total of at least 20, whatever the number of nonzero counts. They are one
+   report filed by each institution (the schools of one hospital,
+   institutions on one shared campus, a program at another institution's
+   campus). Every block of the campus-years other than the host's is a
+   shadow. A shadow institution with no other counting campus that year
+   counts no campus of its own: it has no figures of its own that year for
+   the rates (status `missingYears` for the windows containing it), and its
+   students are added to the host institution's denominator (rule 3, host
+   `coLocated`). A shadow institution with other counting campuses is a
+   guest at the host's site (rule 18).
 
 State and national totals and rankings count a shadow block's figures once,
 under the host; a campus-year whose every block with data is a shadow is not
@@ -301,19 +315,31 @@ build are named below by the field that holds them, in `metadata.json`
    first that applies is recorded, `rate_rule`):
    - `hospital`: the IPEDS HD file says the institution has a hospital
      (HOSPITAL = 1).
-   - `medical`: its Carnegie basic classification is "Special Focus
-     Four-Year: Medical Schools & Centers" (25 in C15BASIC, C18BASIC and
-     C21BASIC) or the 2021 "Special Focus Research Institution" category
+   - `medical`: in every data year, when any edition of its Carnegie basic
+     classification, in the IPEDS HD file of any data year, is "Special
+     Focus Four-Year: Medical Schools & Centers" (25 in C15BASIC, C18BASIC
+     or C21BASIC) or the 2021 "Special Focus Research Institution" category
      (C21BASIC 27; 20 of its 22 institutions in HD2024 were 25 in C18BASIC).
+     An institution an older edition codes as a medical school is medical
+     even in the years whose own newest field no longer does (Loma Linda
+     University: C15BASIC and C18BASIC 25, C21BASIC 16), and one a newer
+     edition codes so is medical in the earlier years too.
    - `listed`: `etl/reference/rate_population_exclusions.csv` names it with
      a sourced reason: Gallaudet University 2015-2024 (its campus also holds
      the Clerc Center's Kendall Demonstration Elementary School and Model
      Secondary School for the Deaf, whose pupils are not in its FTE),
      AdventHealth University 2015-2024 (its main campus's Clery geography
-     includes a hospital that IPEDS does not flag), The University of
-     Tennessee Health Science Center 2015-2017 and Albert Einstein College
-     of Medicine 2019-2020 (the years IPEDS gives them no Carnegie basic
-     classification).
+     includes a hospital that IPEDS does not flag), and six universities
+     whose annual security reports count incidents at a hospital whose
+     patients, visitors and staff are not in their FTE, in the years the
+     reports say so: Vanderbilt University 2015-2024, Yale University
+     2016-2024, the University of North Carolina at Chapel Hill 2017-2024,
+     West Virginia University 2021-2024, the University of
+     Pittsburgh-Pittsburgh Campus 2020-2024 and George Washington University
+     2016-2018. Each row's source names the report, with what it says and
+     its address; the school file's `rateExcludedReason` carries the reason
+     and the source. A year another rule already covers keeps that rule
+     (`rate_rule` records the first).
    - `merger`: in the merger case of rule 3, both institutions when the
      students' institution cannot be told; the other institution when it
      counts the campus but cannot add the students' FTE; the students'
@@ -335,15 +361,20 @@ build are named below by the field that holds them, in `metadata.json`
    The campuses of hospitals and medical schools hold many people who are
    not in FTE (patients, visitors, clinical and research staff, pupils), so
    a rate per student would not describe them. Rule 16 covers medical
-   centers these rules do not catch. `rateStats.institutionYears.rules[rule]`
+   centers these rules do not catch, and rule 19 notes hospitals whose
+   incidents may or may not be in an institution's figures. `rateStats.institutionYears.rules[rule]`
    gives, per rule, the institution-years it is the first rule for
    (`institutionYears`) and those of them in the national scope with a
    denominator of 1,000 or more (`withFte`).
 
    An institution that is not rated in a window has no rate for it. Its
    institution file (`rates/institutions/{base}.json`, when it has one)
-   gives the first status that applies, in this order: `missingYears` (not
-   in DOE's data in each of the 3 years; `years` lists those it is in),
+   gives the first status that applies, in this order: `missingYears` (no
+   figures of its own in each of the 3 years: not in DOE's data, or every
+   figure of that year counts under another institution's campus, as a
+   shadow of copies rule 5 or an older shared block; `years` lists the
+   years it has figures, and the school file's `sharedFigures` names the
+   host of a shadow year),
    `scope` (link campus outside the 50 states, DC, PR and VI), `size`
    (denominator under 1,000, or none, in at least one year; `fteByYear`),
    `excluded` (a population rule in at least one year; `rules` gives each
@@ -426,13 +457,29 @@ build are named below by the field that holds them, in `metadata.json`
    `dispersion.fitted` on their own counts, and `dispersion.other` on the
    single crime offenses together; the codes without a fit of their own
    use `dispersion.other`. Each window file gives its code's c (`c`). For a window total N over its 3 years the
-   variance-to-mean ratio is
+   model's variance-to-mean ratio is
 
    ```
-   phi(N) = 1 + c × g(N/3) × sqrt(N/3)
+   phi0(N) = 1 + c × g(N/3) × sqrt(N/3)
    ```
 
-   and the interval is phi times the gamma interval of the effective count
+   An institution's own yearly counts can vary more than the model allows
+   (one year of many reports between two quiet ones), so the window's ratio
+   is the larger of the model's and the institution's own
+   (`RATE_SPREAD` = "max"; `dispersion.spread`):
+
+   ```
+   phi = max(phi0(N), 3 × s^2 / N)     for N > 0;  phi = phi0(0) = 1 for N = 0
+   ```
+
+   with s^2 the sample variance of the institution's three yearly counts
+   (n - 1 denominator, exact). `phi` is published to 6 decimals and
+   `phiFrom` is `years` when the institution's own term is strictly the
+   larger, else `model`; the institution file's `nByYear` gives the yearly
+   counts. Three counts say little about an institution's own variation, so
+   the model is the floor. `verdictWithoutFlagged` uses N and s^2 of the
+   yearly counts less their flagged excess. The interval is phi times the
+   gamma interval of the effective count
    m = N / phi: lower phi × G(0.025; m) (0 when N = 0), upper
    phi × G(0.975; m + 1), G the gamma quantile (Fay and Feuer 1997;
    Garwood's exact Poisson interval when phi = 1), divided by F and
@@ -442,11 +489,16 @@ build are named below by the field that holds them, in `metadata.json`
    half up to 1 decimal. Verdicts, list membership and ranges use the
    unrounded figures, so they cannot always be recomputed from the rounded
    ones: a bound and the national or peer rate can be equal to 2 decimals
-   with a verdict of above or below, and the pages then say that the two
-   differ beyond the second decimal (`natlN` and `natlF` give the national
-   rate unrounded; the bounds are published to 2 decimals only). The interval reflects how much an institution's counts vary from
-   year to year; differences between institutions in how they record and
-   report incidents are outside it. `rateRules.testVectors` holds worked
+   with a verdict of above or below. The bounds, the national rate and the
+   type rates are therefore also published half up to 4 decimals (`lo4`,
+   `hi4`; `natl4` and `peer[type].rate4` in each window file, `natl4` and
+   `peerRate4` in the institution file), and where the deciding bound and
+   the rate it is compared with are equal to 2 decimals the pages show both
+   to 4 (`natlN` and `natlF` give the national rate unrounded). The interval
+   reflects how much yearly counts vary, as much as is usual for an
+   institution with that many incidents or as much as the institution's own
+   counts varied when that is more; differences between institutions in how
+   they record and report incidents are outside it. `rateRules.testVectors` holds worked
    examples (count intervals, rates, a small list with its critical value)
    that check 12 recomputes.
 7. **National rate** (`natl`, `natlN`, `natlF` in each window file;
@@ -493,19 +545,30 @@ build are named below by the field that holds them, in `metadata.json`
     fewer than 20 deaths as unreliable (relative standard error 23% or
     more; https://wonder.cdc.gov/wonder/help/ucd.html). `list.minFteYears`
     is the smallest F that gives E = 20; divided by 3, it is the number of
-    on-campus students a year an institution needs to be on the list. `list.n` (`rateStats.windows[w][code].listed`) is the
-    number of members.
+    on-campus students a year an institution needs to be on the list. An
+    institution that meets these conditions but has an on-campus flag (rule
+    12) of an offense of the code in a year of the window is not placed
+    (`config.py`, above `LIST_CODES`; `rateRules.lists.notPlaced`): `listed` false and
+    `notPlaced` `unusual_year`, with its rate, interval, verdicts, flags and
+    `verdictWithoutFlagged` published as usual, so that one year's count
+    does not set its place. It is in the national and peer rates like any
+    institution without a reason. `list.n`
+    (`rateStats.windows[w][code].listed`) is the number of placed members;
+    `list.notPlaced` (`rateStats.windows[w][code].notPlaced`) the number not
+    placed. Positions, rank ranges, `list.zc`, and the state and type lists
+    count placed members only.
     - Order (`entries`): rate, highest first, compared exactly (N_i × F_j
       against N_j × F_i), then institution name, then base UNITID. The point
       position (`position`) is 1 + the number of members with a strictly
       higher rate, so equal rates share a position.
     - Rank range (`rankLo`-`rankHi`): for members i and j, with the common
-      rate r = (N_i + N_j) / (F_i + F_j) and the variance of rule 6 for a
-      window total with mean mu, V(mu) = 3 × (m + c × g(m) × m^1.5) with
-      m = mu / 3,
+      rate r = (N_i + N_j) / (F_i + F_j), the model's variance of rule 6 for
+      a window total with mean mu, V0(mu) = 3 × (m + c × g(m) × m^1.5) with
+      m = mu / 3, and each member's variance the larger of the model's and
+      its own spread (rule 6), V_i = max(V0(r F_i), 3 × s_i^2),
 
       ```
-      z_ij = (N_i/F_i - N_j/F_j) / sqrt( V(r F_i) / F_i^2 + V(r F_j) / F_j^2 )
+      z_ij = (N_i/F_i - N_j/F_j) / sqrt( V_i / F_i^2 + V_j / F_j^2 )
       zc   = Phi^-1( 1 - 0.05 / (2 (n - 1)) )        (n = list.n; list.zc)
       ```
 
@@ -538,11 +601,22 @@ build are named below by the field that holds them, in `metadata.json`
     only when it has at least `lists.stateDisplayMin` (5) members; for a
     state with fewer, it names the state's institutions on the national list
     with their national positions.
+
+    Type lists (`TYPE_LIST_MIN_MEMBERS` = 2; `rateRules.lists.typeMinMembers`;
+    `typePosition`, `typeRankLo`, `typeRankHi`, `typeN`, and `typeLists` in
+    the window file) are made the same way from the national list's placed
+    members of one peer type (rule 9), for every type with at least
+    `typeMinMembers` members. `typeLists` gives every type's number of
+    members, and `rateStats.windows[w][code].typeLists` counts the types
+    with at least `typeMinMembers`. On-campus rates differ by type, so a
+    type list compares an institution only with institutions of its type.
 12. **Unusual years** (`FLAG_*`, `unusual_years`; `rateRules.flags`;
     `rates/flags.json`, and `flags` in rate entries, institution files and
     school files). DOE counts incidents in the year they are reported (see
-    Year of report), so one investigation or series of reports can add many
-    incidents to one year. A cell is one institution's count of one offense
+    Year of report), so a year's count can include incidents from earlier
+    years. A flag says only that a year's count is far above the
+    institution's other years; the figures do not say why. A cell is one
+    institution's count of one offense
     of `rateRules.flags.offenses` (aggravated assault, burglary, dating
     violence, domestic violence, fondling, motor vehicle theft, rape,
     robbery, stalking) at one geography (on campus, non-campus, public
@@ -558,9 +632,10 @@ build are named below by the field that holds them, in `metadata.json`
     offenses in its window's years; for an entry with flags the verdict is
     computed again with N less the flagged excess (the sum of count - usual,
     not below 0), and published as `verdictWithoutFlagged` only when it
-    differs from `verdict`. Audit check 12 also checks that removing a
-    listed institution's flagged excess would leave its point position
-    inside its rank range (`details.A4`). Each window file's `summary`
+    differs from `verdict`. An on-campus flag of a list code's offenses in
+    a window keeps the institution off that window's list (rule 10,
+    `notPlaced`); audit check 12 checks that no placed entry has a flag and
+    that every entry not placed has one (`details.A4`). Each window file's `summary`
     counts the entries with flags (`withFlags`) and those whose verdict
     differs without them (`verdictWithoutFlaggedDiffers`); `rateStats.flags`
     counts the flags by year, geography and offense.
@@ -619,7 +694,9 @@ build are named below by the field that holds them, in `metadata.json`
     The reference is `rateRules.countFlag.reference[year][code]` (per
     10,000), and `rateStats.countFlags[year][code]` counts the flagged
     entries of each year's national rankings file. The count is shown as
-    reported.
+    reported and keeps its place; the flag says that it is high for the
+    institution's size, not why (DOE counts each incident in the year it is
+    reported, so some may have happened earlier).
 16. **Medical-center campuses** (`reference/medical_campuses.csv`,
     `reference/medical_campus_reviews.csv`, `MEDICAL_SCREEN_*`;
     `rateRules.medicalShare`, `medicalScreen`). A university's Clery
@@ -630,8 +707,12 @@ build are named below by the field that holds them, in `metadata.json`
     university next to a medical center owned by a separate organization,
     such as a health system, can report no hospital and is then not caught
     by it; its incidents at that medical center count toward a reason (rule
-    5) only when its medical campus is on the reviewed list.
-    `medical_campuses.csv` lists such campuses by DOE campus ID and years,
+    5) only when its medical campus is on the reviewed list, and a hospital
+    on or next to its main campus is covered only by the reviewed exclusions
+    (rule 4, `listed`) and notes (rule 19).
+    `medical_campuses.csv` (45 rows at 37 institutions; the Sayre campus of
+    Commonwealth University of Pennsylvania is listed under both its DOE
+    IDs) lists such campuses by DOE campus ID and years,
     each with its reason and source (DOE's campus name and address and,
     where they do not settle it, the institution's annual security report
     or another source). Each was reviewed by hand;
@@ -661,7 +742,12 @@ build are named below by the field that holds them, in `metadata.json`
     `rateStats.institutionYears.byYear[y].abroad` counts the institutions
     in the national scope with a denominator of at least 1,000 that have a
     counting campus abroad that year; audit check 10 recomputes the counts
-    with those campuses apart (`details.by_year`).
+    with those campuses apart (`details.by_year`). A campus abroad that DOE
+    lists under a U.S. state is a counting campus, so it is in the
+    rankings files' `campuses` (national and its state) like any other and
+    would be ranked by count if it reported an incident; none of them
+    reported one in 2015-2024. Its incidents are never in an institution's
+    totals or rates.
 18. **Shared sites** (`shared_rate_rules`, `find_near_copies` and
     `classify_shared_sites` in `04_create_aggregates.py`;
     `SHARED_MIN_NONZERO`, `SHARED_NEAR_*`, `SHARED_SITE_MAX_SHARE`,
@@ -682,12 +768,14 @@ build are named below by the field that holds them, in `metadata.json`
     source). Counts never change: an identical copy counts once, under its
     host, as in totals, and a near-copy or listed campus keeps its figures.
     Only the rates follow the site's class. Its parties are the
-    institutions DOE lists that year; a main campus is a campus whose
-    UNITID ends in 001.
+    institutions with at least one counting campus that year (anywhere); a
+    main campus is a campus whose UNITID ends in 001. Two IDs of one campus
+    (`campus_id_changes.csv`, decision `link`) are never joined to each
+    other.
     - One party's main campus at the site: that party owns the site. Its
-      on-campus incidents there are in its N (`sharedIn`; the other parties
-      in `sharedInWith`), and it is compared and listed as usual. Every
-      other party is a guest.
+      on-campus incidents there are in its N, and it is compared and listed
+      as usual; the other parties are in `sharedInWith`. Every other party
+      is a guest.
     - Two or more parties' main campuses: the owner is the party with the
       largest on-campus FTE. When every other party counts no campus
       outside the site that year, or their on-campus FTE together is at
@@ -699,6 +787,26 @@ build are named below by the field that holds them, in `metadata.json`
     - No main campus: every party is a participant.
     - One party: rule 3 (pooled with its host).
 
+    `sharedIn` and `sharedOut` are counted per year from the published files
+    alone. Let C(u) be campus u's counted on-campus figures that year (its
+    `counts-{y}.csv` rows with geo On-campus and an empty
+    `counted_under_unitid`, when u is a counting campus in
+    `campus-years.csv` and not abroad; otherwise none), and say that u is a
+    copy of h when its on-campus rows have `counted_under_unitid` h. The
+    owner's `sharedIn` adds C(u) of each of its campuses u at the site: the
+    whole campus's counted on-campus figures, not only the figures a guest
+    repeats. A guest's or participant's `sharedOut` adds, for each of its
+    campuses u at the site, C(h) when u is a copy of h, else C(u): the
+    figures u reported either way. Per code, the figures of the code's
+    offenses (`rateRules.codes`) are added; `years[y].sharedIn` and
+    `sharedOut` in the institution file give a rated year's sums and the
+    window entries the window's, each only when above 0. `sharedOut` is
+    never in the guest's N and the owner's `sharedIn` is in its N, so the
+    same incidents can be one institution's `sharedIn` and another's
+    `sharedOut`. A site with two or more main campuses, or with one party,
+    has neither (rules 3 and 4 apply instead). Audit check 12 recomputes
+    both with its own implementation.
+
     A guest's or participant's campuses at the site are in none of its
     rates: their on-campus incidents are its `sharedOut`, the owner or the
     other participants are its `sharedOutWith`, and `sharedSite` gives the
@@ -707,7 +815,8 @@ build are named below by the field that holds them, in `metadata.json`
     null when a site-year has no figure), whether any figure is an upper
     bound, whether the sum is at most `sharedSiteShare` of F (`exempt`),
     and `figures`: one item per site campus and year, by year, then campus,
-    `{year, unitid, students, figureYear, upperBound, derived}` (`students`
+    `{year, unitid, name, students, figureYear, upperBound, derived}` (`name`
+    is DOE's name of that site campus that year; `students`
     and `figureYear` null when that campus-year has no figure; `figureYear`
     is the year the figure itself describes, and differs from `year` when
     another year's figure is used; `derived` marks an upper bound computed
@@ -715,39 +824,58 @@ build are named below by the field that holds them, in `metadata.json`
     every code of the window. `rateStats.institutionYears.rules`
     (`shared_pooled`, `shared_campus`) and `pooled.shared` count the
     institution-years.
+19. **Hospital notes** (`reference/hospital_unresolved.csv`: unitid,
+    first_year, last_year, hospital, known, source). The reviewed list of
+    institutions with a hospital next to or inside the main campus whose
+    own reports, as read, do not establish whether the hospital's incidents
+    are in their figures (rule 4's `listed` rows are those whose reports say
+    they are). Such an institution keeps its rate, verdicts and positions.
+    Every code of a rated window that overlaps a row's years carries
+    `hospitalUnresolved` {`name`, `years`} (the window's years the row
+    covers), in the window files and in the institution file's rated window
+    status; the institution file's top-level `hospitalUnresolved` gives the
+    rows (`name`, `firstYear`, `lastYear`, `known`: what the reports do say,
+    `source`). The annual security reports read for this list and for the
+    `listed` hospital rows were those of universities near the top of the
+    lists, not every institution's.
 
 ### Published rate files
 `05_generate_json.py` writes, under `frontend/public/data/`:
 
 - `rates/{y0}-{y1}-{code}.json`, one per window and rate code: `window`,
-  `years`, `c` (rule 6), `natl`, `natlN`, `natlF` (rule 7), `peer` (rule
-  9), `summary` (the rated institutions by reason and by verdict, national
-  and peer, and the counts of rule 12), `composition` (violent: the
-  national on-campus counts of its four offenses; criminal_xmvt: the
-  national on-campus motor vehicle thefts it leaves out; both over the
-  institutions in the national rate), for the list codes `list` (`n`,
-  `minExpected`, `minFteYears`, `zc`) and `stateLists` (members per state),
-  and `entries`: every rated institution, by rate (highest first, exact),
-  then name, then base UNITID. An entry has `id` (base UNITID), `unitid`
-  (link campus), `name`, `state` and `peerType`, `n`, `nNoncampus`,
-  `nPublic`, `fteYears`, `rate`, `lo`, `hi`, `E`, `verdict` and
-  `peerVerdict`; where they apply `why`, the fields of rule 5 (`medical`,
-  `sharedIn` and `sharedOut` only when above 0), the shared-site notes of
-  rule 18 (`sharedInWith`, `sharedOutWith` and `coLocated`, each a list of
-  `{id, name}`, and `sharedSite`), `flags` and
-  `verdictWithoutFlagged`; and for the list codes `listed` and, when
-  listed, `position`, `rankLo`, `rankHi`, the state fields of rule 11 and,
-  for violent and criminal_xmvt, the entry's own `composition`.
+  `years`, `c` (rule 6), `natl`, `natl4`, `natlN`, `natlF` (rule 7),
+  `peer` (rule 9, with `rate4`), `summary` (the rated institutions by
+  reason and by verdict, national and peer, and the counts of rule 12),
+  `composition` (violent: the national on-campus counts of its four
+  offenses; criminal_xmvt: the national on-campus motor vehicle thefts it
+  leaves out; both over the institutions in the national rate),
+  `compositionShare` (violent: each offense's share of the national
+  on-campus count, half up to 4 decimals), for the list codes `list` (`n`,
+  `notPlaced`, `minExpected`, `minFteYears`, `zc`), `stateLists` (members
+  per state) and `typeLists` (members per type), and `entries`: every rated
+  institution, by rate (highest first, exact), then name, then base
+  UNITID. An entry has `id` (base UNITID), `unitid` (link campus), `name`,
+  `state` and `peerType`, `n`, `nNoncampus`, `nPublic`, `fteYears`,
+  `rate`, `lo`, `hi`, `lo4`, `hi4`, `phi`, `phiFrom` (rule 6), `E`,
+  `verdict` and `peerVerdict`; where they apply `why`, the fields of rule 5
+  (`medical`, `sharedIn` and `sharedOut` only when above 0), the
+  shared-site notes of rule 18 (`sharedInWith`, `sharedOutWith` and
+  `coLocated`, each a list of `{id, name}`, and `sharedSite`), `flags`,
+  `verdictWithoutFlagged` and `hospitalUnresolved` (rule 19); and for the
+  list codes `listed`, `notPlaced` (rule 10) and, when listed, `position`,
+  `rankLo`, `rankHi`, the state and type fields of rule 11 and, for violent
+  and criminal_xmvt, the entry's own `composition`.
 - `rates/institutions/{base}.json`, one per institution with a rated
   window, a single-year rate or a flag: `id`, `unitid`, `name`, `state`,
   `peerType`; `years` (rule 13); `windows`, for each window in which DOE has
   the institution in at least one year: its status (rule 4) and, when
   rated, `fteByYear`, `why` (`online` or `shared`), `fteSmallerByYear` for
   `online`, the shared-site notes of rule 18 (once for the window, not in
-  each code), and
-  `codes` (each code's window-file entry with `nByYear`, `natl`, `peerRate`
-  and, for violent and criminal_xmvt, `composition`); and `flags` (all its
-  unusual-year flags, every geography).
+  each code), `hospitalUnresolved` (rule 19), and
+  `codes` (each code's window-file entry with `nByYear`, `natl`, `natl4`,
+  `peerRate`, `peerRate4` and, for violent and criminal_xmvt,
+  `composition`); `flags` (all its unusual-year flags, every geography);
+  and `hospitalUnresolved` (rule 19's rows for the institution).
 - `rates/flags.json`: every unusual-year flag (`id`, `name`, `state`,
   `year`, `offense`, `geo`, `count`, `usual`).
 - `rankings/{preset}-{year}-all.json`: rankings by count only; an entry
@@ -970,13 +1098,17 @@ or more of a window's on-campus incidents at a listed medical-center campus
 is on no list for that code (rate rules 5 and 16), but other Clery geography
 can include places used mostly by others (a clinic, or a medical center not
 on the list), where a rate per student says little about risk to a student.
+The reviewed exclusions of universities whose reports count a hospital's
+incidents (rate rule 4, `listed`) and the hospital notes (rate rule 19) rest
+on the annual security reports of universities near the top of the lists
+only; a university elsewhere can count hospital incidents without a note.
 Rates leave out campuses abroad, whose students NCES's fall enrollment
 leaves out (rate rule 17).
 
 ### Small numbers, zeros and unweighted totals
 Every rate has a 95% interval (rate rule 6), and an institution is on a list
-only when its expected count at the national rate is at least 20 (rate rule
-10). Because counts vary from year to year beyond chance, intervals stay
+only when its expected count at the national rate is at least 20 and no
+year in the window is flagged as unusual (rate rule 10). Because counts vary from year to year beyond chance, intervals stay
 wide even for large counts (`rateRules.testVectors.counts` gives examples).
 A rate of 0 means that no on-campus incident of the code was reported in
 the window's 3 years; it can reflect classification or chance, and incidents
@@ -1010,20 +1142,26 @@ rates here (rate rules above):
    drives its rate; the peer comparison (rate rule 9) compares it with
    institutions of its own type, and each window file's `peer` gives the
    types' rates.
-4. The intervals come from a model whose calibration is checked in
+4. The intervals come from a model, widened by an institution's own spread
+   when that is larger (rate rule 6), whose calibration is checked in
    aggregate, over groups of institutions, not institution by institution
    (audit check 13). `audit.json`, check "Interval Calibration", gives the
    measured and expected coverage for each code, period and band of yearly
-   means (`details.rows`): where the measured share is below the expected
-   one, the intervals of that band are too narrow, and where it is above,
-   too wide. A band with fewer institutions than
-   `rateRules.calibration.bandMinUnits` is reported but not tested, and the
-   check's errors name every tested row outside its limits. A band too
-   small to test can be below the expected coverage by more than
-   `bandToleranceBelow` without failing the check; the site's Methodology
-   page ("How well the intervals fit") shows every band from `audit.json`
-   and names each one, tested or not, that is below by more than that. In
-   such a band the intervals may be too narrow.
+   means (`details.rows`, with each row's limits `toleranceBelow` and
+   `toleranceAbove`): where the measured share is below the expected one,
+   the intervals of that band are too narrow, and where it is above, too
+   wide. A band with fewer institutions than
+   `rateRules.calibration.bandMinUnits` is reported but not tested, except
+   the top band (20 or more a year) of `calibration.topBandCodes`, which is
+   tested whatever its size with each limit widened, below `bandMinUnits`
+   institutions, by `calibration.topBandSE` binomial standard errors of the
+   expected share over the band's institution-years; the check's errors
+   name every tested row outside its limits. So a band can be below the
+   expected coverage by more than `bandToleranceBelow` without failing the
+   check; the site's Methodology page ("How well the intervals fit") shows
+   every band from `audit.json` and names each one, tested or not, that is
+   below by more than `bandToleranceBelow`. In such a band the intervals may
+   be too narrow.
 5. A rank range is a 95% statement about one institution on its own. It is
    not a statement about all of a list's ranges at once.
 6. The lists hold only large institutions: those with at least
@@ -1041,9 +1179,10 @@ rates here (rate rules above):
 9. The medical-center campus list (rate rule 16) was reviewed by hand and
    may be incomplete: audit check 14 names, as a warning, every campus its
    screen finds that has not been reviewed.
-10. DOE counts incidents in the year they are reported, so one
-    investigation can add many incidents to one year; the unusual-year
-    flags (rate rule 12) mark such years.
+10. DOE counts incidents in the year they are reported, so a year's count
+    can include incidents from earlier years; the unusual-year flags (rate
+    rule 12) mark years far above an institution's others, without saying
+    why, and keep the institution off that window's list order.
 11. 2020 has no rate (rate rule 1).
 12. Motor vehicle theft, arrests and disciplinary referrals are counts only
     (rate rule 14).
@@ -1139,29 +1278,35 @@ figures with their own implementation of the rules (nothing of
 12. **Rate Rules**: every window status, N, F, reason, national and peer
     rate, interval, E, verdict (national, peer, both FTE estimates),
     unusual-year flag, verdict without the flagged excess, list, position,
-    rank range and state list; the window files' headers and summaries, the
+    rank range, state and type list, placement (`notPlaced`), `phi` and
+    `phiFrom`, the 4-decimal figures, `sharedIn` and `sharedOut`, and
+    `hospitalUnresolved`; the window files' headers and summaries, the
     institution files (single-year rates and statuses), `rates/flags.json`,
     the count flag in every rankings file, the school files' `ratesFile`,
     `rated`, `notRated` and `flags`, and `metadata.json`'s `rateRules` and
     `rateStats` against `config.py` and the design's values. It also
-    recomputes the test vectors (`rateRules.testVectors`), checks that
-    removing a listed institution's flagged excess would leave its position
-    inside its rank range (`details.A4`) and that no interval bound falls as
-    the count rises (`details.A5`). `details.subchecks` counts the problems
-    per part.
+    recomputes the test vectors (`rateRules.testVectors`), checks that no
+    placed entry has an unusual-year flag and that every entry not placed
+    has one (`details.A4`), and that no interval bound falls as the count
+    rises (`details.A5`). `details.subchecks` counts the problems per part.
 13. **Interval Calibration** (added with the 3-year rates): for each code
     and period of `rateRules.calibration`, every institution with a
     single-year rate in all the period's years and an incident in at least
     one has each year's on-campus count predicted from its other years
-    under the published dispersion model (rate rule 6). The share of counts
-    inside the central 95% predictive interval is compared with the share
-    the model expects (the mean of `simulations` simulated panels, NumPy
-    PCG64 seeded with `seed`). The check fails when they differ, either
-    way, by more than `tolerance` over the institutions with a mean of at
-    least 2 a year, or, in a band of yearly means (`bands`) with at least
-    `bandMinUnits` institutions, when the observed share is below the
-    expected one by more than `bandToleranceBelow` or above it by more than
-    `bandToleranceAbove`. The band limits differ on purpose: intervals that
+    under the published dispersion (rate rule 6: the model, or the other
+    years' own spread when that is larger). The share of counts inside the
+    central 95% predictive interval is compared with the share expected
+    under the model with the same rule (the mean of `simulations` simulated
+    panels, NumPy PCG64 seeded with `seed`). The check fails when they
+    differ, either way, by more than `tolerance` over the institutions with
+    a mean of at least 2 a year, or, in a band of yearly means (`bands`)
+    with at least `bandMinUnits` institutions, when the observed share is
+    below the expected one by more than `bandToleranceBelow` or above it by
+    more than `bandToleranceAbove`. The top band of `topBandCodes` is
+    tested whatever its size: below `bandMinUnits` institutions each limit
+    is widened by `topBandSE` binomial standard errors of the expected
+    share e over the band's k institution-years, sqrt(e (1 - e) / k). The
+    band limits differ on purpose: intervals that
     cover less often than the model says are too narrow, so verdicts and
     rank ranges claim more certainty than the data give; intervals that
     cover more often are too wide, which only leaves more rates without a
