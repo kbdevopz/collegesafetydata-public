@@ -1,10 +1,13 @@
-import type { ReactNode } from 'react'
-import type { InstitutionWindowCode, RateEntryFields, RateRules, SchoolProfile, SharedSiteNotes, Verdict } from '../lib/types'
+import { Fragment, type ReactNode } from 'react'
+import { Link } from 'react-router-dom'
+import type {
+  InstitutionWindowCode, RateEntryFields, RateRules, SchoolProfile, SharedSiteFigure, SharedSiteNotes, Verdict,
+} from '../lib/types'
 import {
   coLocatedSentence, compositionSentence, differSentence, entryPosition, flagSentence, FLAG_NOTE, fmtInt, fmtRate,
   intervalSentence, isListCode, medicalSentence, nationalSentence, notListedSentence, onlineSentence,
-  otherLocationsSentence, peerSentence, rateCodeLabel, sharedGuestSentence, sharedHostSentence, windowLabel,
-  withoutFlaggedSentence,
+  otherLocationsSentence, peerSentence, rateCodeLabel, roundedTieSentence, sharedFigureText, sharedGuestSentence,
+  sharedHostSentence, windowLabel, withoutFlaggedSentence,
 } from '../lib/rates'
 import { stateDisplayMin, VERDICT_LABELS } from '../lib/rateDisplay'
 import { cn } from '../lib/utils'
@@ -34,6 +37,8 @@ export function VerdictLabel({ verdict, short, className }: { verdict: Verdict; 
 export interface EntryText {
   verdict: Verdict
   interval: string
+  // A bound that prints the same as the rate it is compared with
+  ties: string[]
   peer: string | null
   differ: string | null
   position: string | null
@@ -41,6 +46,10 @@ export interface EntryText {
   notListed: string | null
   why: string | null
   notes: string[]
+  // A guest's shared-site sentence (in `why` when withheld, else in `notes`)
+  // and the per-year figures listed after it (empty when none is published)
+  guest: string | null
+  figures: SharedSiteFigure[]
   flags: string[]
   withoutFlagged: string | null
   composition: string | null
@@ -91,9 +100,15 @@ export function entryText(
   const statePosition = e.listed && e.stateN !== undefined && minState !== null && e.stateN >= minState
     ? entryPosition(e, null, true)
     : null
+  const figures = site.sharedSite?.figures ?? []
+  const ties = [
+    roundedTieSentence(e, e.verdict, natl, 'the national rate'),
+    roundedTieSentence(e, e.peerVerdict, peerRate, 'the rate of institutions of its type'),
+  ].filter((s): s is string => s !== null)
   return {
     verdict: e.verdict,
     interval: intervalSentence(e, rules),
+    ties,
     peer: peerSentence(e, peerType, peerRate, rules),
     differ: differSentence(e.verdict, e.peerVerdict, natl, peerType, peerRate, rules),
     position: listCode && e.listed ? entryPosition(e, listN) : null,
@@ -101,6 +116,8 @@ export function entryText(
     notListed: listCode && !e.listed && !e.why ? notListedSentence(minFteYears, rules) : null,
     why,
     notes,
+    guest,
+    figures: figures.some((f) => f.students !== null) ? figures : [],
     flags: (e.flags ?? []).map((f) => flagSentence(f)),
     withoutFlagged: e.verdictWithoutFlagged ? withoutFlaggedSentence(e.verdictWithoutFlagged) : null,
     composition: compositionSentence(code, e.composition, e.n, windowKey),
@@ -110,6 +127,30 @@ export function entryText(
 
 function Line({ children, className }: { children: ReactNode; className?: string }) {
   return <p className={cn('text-sm text-gray-700 dark:text-gray-300', className)}>{children}</p>
+}
+
+/** A guest's shared-site figures, one per site campus and year, behind a disclosure */
+function SiteFigures({ figures }: { figures: SharedSiteFigure[] }) {
+  return (
+    <details className="text-sm text-gray-600 dark:text-gray-400">
+      <summary className="cursor-pointer text-primary-600 dark:text-primary-400 hover:underline">
+        Students there by year and campus
+      </summary>
+      <ul className="mt-1 ml-5 list-disc space-y-0.5">
+        {figures.map((f) => (
+          <li key={`${f.year}-${f.unitid}`}>
+            {f.year},{' '}
+            <Link to={`/school/${f.unitid}`} className="underline">DOE campus {f.unitid}</Link>: {sharedFigureText(f)}
+          </li>
+        ))}
+      </ul>
+      <p className="mt-1 text-xs">
+        A figure's year is the fall term it describes, or the academic year that begins that fall. Which figures
+        are accepted and what they count:{' '}
+        <Link to="/methodology#rate-shared" className="underline">Shared campuses</Link>.
+      </p>
+    </details>
+  )
 }
 
 /**
@@ -151,7 +192,9 @@ export function RateCodeBlock({
         </span>
       </p>
       <Line>{t.interval}</Line>
+      {t.ties.map((s) => <Line key={s}>{s}</Line>)}
       {t.why && <Line className="font-medium">{t.why}</Line>}
+      {t.why !== null && t.why === t.guest && t.figures.length > 0 && <SiteFigures figures={t.figures} />}
       {t.peer && <Line>{t.peer}</Line>}
       {t.differ && <Line>{t.differ}</Line>}
       {t.position && (
@@ -167,7 +210,12 @@ export function RateCodeBlock({
         {fmtInt(entry.fteYears)} student-years (on-campus students added up over the three years). At the national
         rate, about {entry.E.toFixed(1)} would be expected.
       </Line>
-      {t.notes.map((n) => <Line key={n} className="text-gray-600 dark:text-gray-400">{n}</Line>)}
+      {t.notes.map((n) => (
+        <Fragment key={n}>
+          <Line className="text-gray-600 dark:text-gray-400">{n}</Line>
+          {n === t.guest && t.figures.length > 0 && <SiteFigures figures={t.figures} />}
+        </Fragment>
+      ))}
       {t.flags.length > 0 && (
         <div className="rounded-md border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 p-2 space-y-1">
           <p className="text-xs font-medium text-amber-900 dark:text-amber-200">Unusual {t.flags.length === 1 ? 'year' : 'years'}</p>

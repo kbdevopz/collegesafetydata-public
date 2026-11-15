@@ -304,7 +304,11 @@ function limitations(d: RateFacts): { title: string; body: React.ReactNode }[] {
           DOE's files give no enrollment per campus. Where campuses of different institutions are at one site and
           report the same incidents, the site's incidents are in one institution's rate or in none, and an
           institution whose students there cannot be counted is shown without a comparison and is not on a list (
-          <a href="#rate-shared" className="underline">Shared campuses</a>).
+          <a href="#rate-shared" className="underline">Shared campuses</a>). The figures that let a guest be
+          compared count only the students of the programs their sources cover (the Texas A&amp;M pharmacy
+          college's PharmD students, not its PhD students; the Indiana University School of Medicine's MD
+          students), and a figure may be another year's, or an upper bound computed from class sizes or a cap per
+          class.
           {d.violent && latest && (
             <>
               {' '}In {latestLabel}, {formatNumber(withheld.length)} rated{' '}
@@ -1135,7 +1139,9 @@ export default function Methodology() {
                 divided by their student-years and multiplied by 10,000, leaving out the institutions whose on-campus
                 FTE is uncertain. A rate is "{VERDICT_LABELS.above}" when the lower end of its interval is above the
                 national rate, "{VERDICT_LABELS.below}" when the upper end is below it, and otherwise "
-                {VERDICT_LABELS.nd}"; the test uses unrounded figures. If the intervals have their intended coverage,
+                {VERDICT_LABELS.nd}"; the test uses unrounded figures, so an end of the interval and the national rate
+                can be equal to two decimals, as the site shows them, and still differ: the page then says so. If the
+                intervals have their intended coverage,
                 an institution whose underlying rate equals the national rate is shown as above with a chance of about{' '}
                 {oneSidedChance(rr)}, and as below with the same chance
                 {w?.violent && rr && (
@@ -1298,14 +1304,25 @@ export default function Methodology() {
                   include its students at the site, and no file says how many they are. Its rate for a window with
                   such a year leaves out the site's incidents but may count those students, so the rate is shown
                   without comparisons ("{VERDICT_LABELS.withheld}") and is not on a list, in every category. The
-                  exception is an institution with a published enrollment figure for its students at those sites in
-                  each such year (a count, or an upper bound such as the enrollment of every location of a program
-                  together; never an estimate, a lower bound or another year's figure), reviewed in
-                  etl/reference/shared_site_enrollment.csv: when those students add up to at most {siteShare} of its
-                  student-years in the window, it is compared and listed as usual. {siteShare} is well within the
-                  difference of up to {share(rr?.onlineUncertainRatio, true)} between the two estimates of on-campus
-                  students that the rates accept (<a href="#rate-denominator" className="underline">On-campus students</a>).
-                  Guests and participants stay in the national rate.
+                  exception is an institution with a figure for its students at each of those sites in each such
+                  year, reviewed in etl/reference/shared_site_enrollment.csv: when those figures add up to at most{' '}
+                  {siteShare} of its student-years in the window, it is compared and listed as usual. A figure is a
+                  published count, a published upper bound (such as the enrollment of every location of a program
+                  together), or an upper bound computed only from published figures by arithmetic the file states:
+                  the sum of the published sizes of a program's classes enrolled that fall, or a published cap per
+                  class times the number of classes at the site at one time. It is never an estimate or a lower
+                  bound. A
+                  site-year takes the figure for its own fall term (or the academic year that begins then); when it
+                  has none, it takes the largest of the figures whose own year is at most{' '}
+                  {rr?.sharedSiteFigureYears !== undefined ? formatNumber(rr.sharedSiteFigureYears) : '…'} years
+                  before or after it (on a tie, the nearer, then the earlier), and the school page gives that
+                  figure's own year. A figure counts the students of the programs its source covers, and a guest can
+                  have other students at the site: the figures for the Texas A&amp;M pharmacy college count PharmD
+                  students only, not its PhD students, and those for the Indiana University School of Medicine count
+                  MD students only. {siteShare} is well within the difference of up to{' '}
+                  {share(rr?.onlineUncertainRatio, true)} between the two estimates of on-campus students that the
+                  rates accept (<a href="#rate-denominator" className="underline">On-campus students</a>). Guests
+                  and participants stay in the national rate.
                   {w?.violent && (
                     <>
                       {' '}In {latestLabel}, {formatNumber(w.violent.verdicts.withheld ?? 0)} rated institutions have
@@ -1323,7 +1340,8 @@ export default function Methodology() {
                     <>
                       {' '}Of the {formatNumber(w.violent.verdicts.withheld ?? 0)} withheld,{' '}
                       {formatNumber(bigWithheld)} {bigWithheld === 1 ? 'is' : 'are'} large enough for the
-                      violent-crime list, so some large institutions have no comparison on this site (
+                      violent-crime list, so {bigWithheld === 1 ? 'a large institution has' : 'some large institutions have'}{' '}
+                      no comparison on this site (
                       <a href="#limitations" className="underline">Limitations</a>).
                     </>
                   )}

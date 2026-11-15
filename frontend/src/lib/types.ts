@@ -75,6 +75,9 @@ export interface RateRules {
   // a reviewed, published figure puts its students there at most this
   // share of its student-years ([1, 10])
   sharedSiteShare: Ratio
+  // A site-year without a figure of its own takes the largest figure whose
+  // own year is at most this many years before or after it
+  sharedSiteFigureYears?: number
   // Near-copies that join two campuses into a shared site: the campus with
   // the smaller total has at least minNonzero nonzero cells, at least
   // match[0] / match[1] of them equal to the other's, and a total of at
@@ -167,6 +170,21 @@ export interface NamedInstitution {
   name: string
 }
 
+// One site campus and year of a guest or participant: the reviewed figure
+// for its students there (null when there is none), the year the figure
+// itself describes (its fall term, or the academic year that begins then;
+// it differs from `year` when another year's figure is used), whether it is
+// an upper bound, and whether that bound is computed from published figures
+// (class sizes, or a cap per class)
+export interface SharedSiteFigure {
+  year: number
+  unitid: number
+  students: number | null
+  figureYear: number | null
+  upperBound: boolean
+  derived: boolean
+}
+
 // A guest or participant at a shared site: the years, its students there by
 // a reviewed published figure (summed over those years; null when a year
 // has none), whether that figure is an upper bound, and whether it is small
@@ -177,6 +195,8 @@ export interface SharedSite {
   students: number | null
   upperBound: boolean
   exempt: boolean
+  // One per site campus and year, by year, then campus
+  figures?: SharedSiteFigure[]
 }
 
 // The shared-site notes of an institution and window (window-file entries;

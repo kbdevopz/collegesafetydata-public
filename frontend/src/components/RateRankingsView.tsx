@@ -5,7 +5,8 @@ import { fetchPresets, fetchRateWindow } from '../lib/api'
 import type { Metadata, RateRules, RateWindowEntry, RateWindowFile, Verdict } from '../lib/types'
 import {
   entryPosition, fmtInt, fmtRate, isListCode, isWithheld, levelPct, listMinStudents, nationalCompositionSentence,
-  nationalSentence, offenseCount, ordinal, peerLabel, rateCodeLabel, rateCodePhrase, sharedShortNotes, windowLabel,
+  nationalSentence, offenseCount, ordinal, peerLabel, rateCodeLabel, rateCodePhrase, roundedTieSentence,
+  sharedShortNotes, windowLabel,
 } from '../lib/rates'
 import {
   PLACES_WITHOUT_PRESET, RATE_IS_NOT, RATE_MEASURE, stateDisplayMin, VERDICT_ORDER, VERDICT_SHORT,
@@ -248,6 +249,7 @@ export default function RateRankingsView({
                   rules={rules}
                   listN={listN}
                   windowKey={windowKey}
+                  natl={file.natl}
                   position={useStatePositions ? 'state' : 'national'}
                   isInCompare={isInCompare}
                   toggleCompare={toggleCompare}
@@ -285,6 +287,7 @@ export default function RateRankingsView({
                 rules={rules}
                 listN={listN}
                 windowKey={windowKey}
+                natl={file.natl}
                 position="status"
                 isInCompare={isInCompare}
                 toggleCompare={toggleCompare}
@@ -336,13 +339,15 @@ function notListedShort(e: RateWindowEntry, rules: RateRules, listN: number): st
 }
 
 function EntryRow({
-  e, code, rules, listN, windowKey, position, isInCompare, toggleCompare,
+  e, code, rules, listN, windowKey, natl, position, isInCompare, toggleCompare,
 }: {
   e: RateWindowEntry
   code: string
   rules: RateRules
   listN: number
   windowKey: string
+  // The national rate shown above the list
+  natl: number
   // national or state position first (lists), or the list status (by-name table)
   position: 'national' | 'state' | 'status'
   isInCompare: (unitid: number) => boolean
@@ -353,6 +358,8 @@ function EntryRow({
   const state = entryPosition(e, null, true)
   const head = position === 'state' ? state : position === 'national' ? national : null
   const notes: string[] = []
+  const tie = roundedTieSentence(e, e.verdict, natl, 'the national rate', true)
+  if (tie) notes.push(tie)
   if (position === 'state' && national) notes.push(`National list: ${national}`)
   // Shared campus sites: why it is not compared (first, when it is not), host and co-located notes
   const site = sharedShortNotes(e, e, rules)

@@ -12,7 +12,7 @@
 
 import type {
   FteUncertain, InstitutionFlag, InstitutionWindow, Metadata, NamedInstitution, NotRatedReason, PooledInstitution,
-  RateEntryFields, RateFlag, RateRules, RateRule, SchoolProfile, SharedSiteNotes, Verdict,
+  RateEntryFields, RateFlag, RateRules, RateRule, SchoolProfile, SharedSite, SharedSiteFigure, SharedSiteNotes, Verdict,
 } from './types'
 import {
   COUNTS_ONLY_REASONS, OFFENSE_NOUNS, RATE_CODE_LABELS, RATE_CODE_ORDER, RATE_CODE_PHRASES, VERDICT_LABELS,
@@ -225,6 +225,30 @@ export function peerSentence(
   return `Compared with institutions of its type (${label}; their rate ${fmtRate(peerRate)}): ${verdict}.`
 }
 
+/**
+ * A comparison whose deciding end of the interval prints the same as the rate
+ * it is compared with ("0.69 to 6.52", "below" a national rate of 6.52). The
+ * verdict is right: it is decided on unrounded figures, and bounds are
+ * published to 2 decimals only, so the page says why the two look equal.
+ * `refName`: "the national rate" or "the rate of institutions of its type".
+ * Null when the printed figures differ or the verdict is not above or below.
+ */
+export function roundedTieSentence(
+  e: Pick<RateEntryFields, 'lo' | 'hi'>, verdict: Verdict | null, ref: number | null, refName: string,
+  short = false,
+): string | null {
+  if (ref === null || (verdict !== 'below' && verdict !== 'above')) return null
+  const end = verdict === 'below' ? e.hi : e.lo
+  if (fmtRate(end) !== fmtRate(ref)) return null
+  const which = verdict === 'below' ? 'upper' : 'lower'
+  if (short) {
+    return `The interval's ${which} end and ${refName} differ only beyond the second decimal; the ${which} end is ` +
+      `${verdict} it`
+  }
+  return `Rounded to two decimals, the ${which} end of the interval and ${refName} are both ${fmtRate(ref)}. ` +
+    `The comparison uses the unrounded figures, in which the ${which} end is ${verdict} ${refName}.`
+}
+
 /** One sentence on why the national and peer comparisons differ, or null when they agree */
 export function differSentence(
   verdict: Verdict, peerVerdict: Verdict | null, natl: number, peerType: string, peerRate: number | null,
@@ -371,24 +395,84 @@ export function sharedGuestSentence(
       ? 'The 1 incident of this kind it reported there is not in this rate.'
       : `It reported no ${phrase} there.`
   const share = sharedSiteShareText(rules) ?? 'the share the rule allows'
+  const figs = site?.figures ?? []
+  const campuses = new Set(figs.map((f) => f.unitid)).size
+  const multiYear = (site?.years.length ?? 0) > 1
+  const added = multiYear && campuses > 1
+    ? ' (added over its campuses there and those years)'
+    : multiYear ? ' (added over those years)' : campuses > 1 ? ' (added over its campuses there)' : ''
   const figure = site && site.students !== null
-    ? `Published enrollment figures put its students there at ${site.upperBound ? 'no more than ' : ''}` +
-      `${fmtInt(site.students)}${site.years.length > 1 ? ' (added over those years)' : ''}`
+    ? `Published enrollment figures put its students there, in the programs they count, at ` +
+      `${site.upperBound ? 'no more than ' : ''}${fmtInt(site.students)}${added}`
     : null
   const against = `of the ${fmtInt(e.fteYears)} on-campus student-years in this rate`
+  const detail = sharedFiguresSentence(site, rules)
   if (!withheld) {
     // Exempt: compared as usual
     return `${fact} ${left} ${figure ?? 'Published enrollment figures put its students there'}: at most ` +
-      `${share} ${against}, so it is compared as usual.`
+      `${share} ${against}, so it is compared as usual.${detail ? ` ${detail}` : ''}`
   }
   const lead = listCode ? 'Not compared and not on the list.' : 'Not compared.'
+  const missing = figs.filter((f) => f.students === null).length
+  const campusThere = campuses > 1 ? 'campuses there' : 'campus there'
+  const cover = figs.length === 0
+    ? `do not cover ${multiYear ? 'all of those years' : 'that year'}`
+    : missing === figs.length
+      ? `cover none of its ${campusThere} in ${multiYear ? 'those years' : 'that year'}`
+      : `cover ${fmtInt(figs.length - missing)} of the ${fmtInt(figs.length)} campus-years concerned, not all ` +
+        '(listed below)'
   const why = figure
-    ? `${figure}: more than ${share} ${against}${site?.upperBound ? ' (an upper bound: the true number may be smaller, but no figure shows that it is)' : ''}.`
+    ? `${figure}: more than ${share} ${against}${site?.upperBound ? ' (an upper bound: the true number may be smaller, but no figure shows that it is)' : ''}.${detail ? ` ${detail}` : ''}`
     : "Its student count is NCES's figure for the whole institution, so it may include students there, and how " +
       "many is not known: DOE's files give no enrollment per campus, and the published enrollment figures used " +
-      `here do not cover ${site && site.years.length > 1 ? 'all of those years' : 'that year'}.`
+      `here ${cover}.`
   return `${lead} ${fact} ${left} ${why} So the rate may count students whose incidents it leaves out. It is ` +
     'shown, but not compared with the national rate or with institutions of its type.'
+}
+
+/**
+ * What kind of figures a guest's student count rests on, in one sentence:
+ * how many are upper bounds, how many of those are computed from published
+ * class sizes or a cap per class, and how many are another year's figure.
+ * Null when every figure is a published count for its own year (or none).
+ */
+export function sharedFiguresSentence(site: SharedSite | undefined, rules: RateRules | null | undefined): string | null {
+  const figs = (site?.figures ?? []).filter((f) => f.students !== null)
+  const n = figs.length
+  if (n === 0) return null
+  const subject = (k: number) => (k === n
+    ? (n === 1 ? 'The figure' : n === 2 ? 'Both figures' : `All ${fmtInt(n)} figures`)
+    : `${fmtInt(k)} of the ${fmtInt(n)} figures`)
+  const ub = figs.filter((f) => f.upperBound).length
+  const der = figs.filter((f) => f.derived).length
+  const other = figs.filter((f) => f.figureYear !== null && f.figureYear !== f.year).length
+  const clauses: string[] = []
+  if (ub > 0) {
+    const how = 'computed from published class sizes or a cap per class'
+    const derived = der === 0 ? '' : der === ub ? (ub === 1 ? `, ${how}` : `, all ${how}`) : `, ${fmtInt(der)} of them ${how}`
+    clauses.push(`${subject(ub)} ${ub === 1 ? 'is an upper bound' : 'are upper bounds'}${derived}`)
+  }
+  if (other > 0) {
+    const k = rules?.sharedSiteFigureYears
+    const within = k !== undefined ? `, at most ${fmtInt(k)} ${k === 1 ? 'year' : 'years'} away,` : ''
+    const subj = clauses.length > 0 ? subject(other).replace(/^(The figure|Both|All)/, (m) => m.toLowerCase()) : subject(other)
+    clauses.push(`${subj} ${other === 1 ? 'is' : 'are'} for another year${within} used because the year ` +
+      `${other === 1 ? 'it stands for has' : 'each stands for has'} no figure of its own`)
+  }
+  if (clauses.length === 0) return null
+  return `${clauses.join('; ')}.${n > 1 ? " Each year's figures are listed below." : ''}`
+}
+
+/** One site campus and year's figure in words: "at most 462 (computed from …), the figure for 2022" */
+export function sharedFigureText(f: SharedSiteFigure): string {
+  if (f.students === null) return 'no published figure'
+  const kind = f.derived
+    ? 'an upper bound computed from published class sizes or a cap per class'
+    : f.upperBound ? 'a published upper bound' : 'a published count'
+  const year = f.figureYear !== null && f.figureYear !== f.year
+    ? `; it is the figure for ${f.figureYear}, used because ${f.year} has none`
+    : ''
+  return `${f.upperBound ? 'at most ' : ''}${fmtInt(f.students)} (${kind}${year})`
 }
 
 /** A host of shared sites (notes.sharedInWith): their incidents are in its rate, once */
@@ -429,7 +513,7 @@ export function sharedShortNotes(e: RateEntryFields, notes: SharedSiteNotes, rul
   } else if (notes.sharedSite?.exempt) {
     const share = sharedSiteShareText(rules) ?? 'the share the rule allows'
     out.push(`Compared as usual: ${when}it shared one or more campus sites with ${guestOf}, and published figures ` +
-      `put its students there at most ${share} of its student-years`)
+      `put its students there, in the programs they count, at most ${share} of its student-years`)
   }
   const host = namesOf(notes.sharedInWith)
   if (host) {
