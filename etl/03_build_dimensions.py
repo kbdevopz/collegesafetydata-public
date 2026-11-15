@@ -57,6 +57,10 @@ OVERRIDE_PATH = CURATED_DIR / "dims" / "dim_shared_campus_override.parquet"
 OVERRIDE_LIST_PATH = Path(__file__).parent / "reference" / "shared_campus_overrides.csv"
 SITE_ENROLLMENT_PATH = CURATED_DIR / "dims" / "dim_shared_site_enrollment.parquet"
 SITE_ENROLLMENT_LIST_PATH = Path(__file__).parent / "reference" / "shared_site_enrollment.csv"
+# Hospitals at a main campus whose place in the reported figures the review could not establish (a note on the
+# rates; build_hospital_unresolved)
+HOSPITAL_UNRESOLVED_PATH = CURATED_DIR / "dims" / "dim_hospital_unresolved.parquet"
+HOSPITAL_UNRESOLVED_LIST_PATH = Path(__file__).parent / "reference" / "hospital_unresolved.csv"
 CARNEGIE_FIELDS = ("C21BASIC", "C18BASIC", "C15BASIC")  # newest classification first
 
 
@@ -449,7 +453,10 @@ def build_institution_classes() -> pd.DataFrame:
     (HD HOSPITAL: 1 yes, 2 no, negative not applicable or not reported),
     carnegie_field and carnegie_basic (the newest Carnegie basic
     classification field that year's HD file has: C21BASIC, C18BASIC or
-    C15BASIC), the Carnegie Size & Setting fields that year's file has
+    C15BASIC), c21basic, c18basic and c15basic (each of the three that
+    year's file has; none when the file lacks the field: 04's medical rule
+    reads every classification of every year), the Carnegie Size & Setting
+    fields that year's file has
     (c21szset, c18szset, c15szset of SIZE_SETTING_FIELDS; none when the file
     lacks the field), and listed_reason and listed_source for the
     institution-years of etl/reference/rate_population_exclusions.csv (a row
@@ -480,6 +487,8 @@ def build_institution_classes() -> pd.DataFrame:
             "carnegie_field": field,
             "carnegie_basic": pd.to_numeric(df[field], errors="coerce"),
             **{f.lower(): (pd.to_numeric(df[f], errors="coerce") if f in df.columns else None)
+               for f in CARNEGIE_FIELDS},
+            **{f.lower(): (pd.to_numeric(df[f], errors="coerce") if f in df.columns else None)
                for f in SIZE_SETTING_FIELDS},
         }))
         print(f"  {year}: {len(df):,} institutions, Carnegie field {field}, "
@@ -492,10 +501,19 @@ def build_institution_classes() -> pd.DataFrame:
     if set(listed.columns) != need:
         raise RuntimeError(f"{POPULATION_LIST_PATH} must have the columns {sorted(need)}")
     extra = []
+    seen = set()
     for row in listed.to_dict("records"):
+        values = [row[c].strip() for c in ("unitid", "first_year", "last_year")]
+        if not all(v.isdigit() for v in values) or len(values[0]) != 6 or int(values[1]) > int(values[2]):
+            raise RuntimeError(f"{POPULATION_LIST_PATH}: row {values} needs a base UNITID (6 digits, the "
+                               "institution's IPEDS UNITID) and first_year <= last_year")
         unitid = int(row["unitid"])
         if not row["reason"].strip() or not row["source"].strip():
             raise RuntimeError(f"{POPULATION_LIST_PATH}: {unitid} needs a reason and a source")
+        years = set(range(int(row["first_year"]), int(row["last_year"]) + 1))
+        if {(unitid, y) for y in years} & seen:
+            raise RuntimeError(f"{POPULATION_LIST_PATH}: {unitid} is listed twice for a year")
+        seen |= {(unitid, y) for y in years}
         for year in range(int(row["first_year"]), int(row["last_year"]) + 1):
             if year not in DATA_YEARS:
                 continue
@@ -505,12 +523,14 @@ def build_institution_classes() -> pd.DataFrame:
                 out.loc[hit, "listed_source"] = row["source"].strip()
             else:
                 extra.append({"unitid": unitid, "year": year, "hospital": None, "carnegie_field": None,
-                              "carnegie_basic": None, **{f.lower(): None for f in SIZE_SETTING_FIELDS},
+                              "carnegie_basic": None, **{f.lower(): None for f in CARNEGIE_FIELDS},
+                              **{f.lower(): None for f in SIZE_SETTING_FIELDS},
                               "listed_reason": row["reason"].strip(),
                               "listed_source": row["source"].strip()})
     if extra:
         out = pd.concat([out, pd.DataFrame(extra)], ignore_index=True)
     out = out.astype({"unitid": "int32", "year": "int16", "hospital": "Int16", "carnegie_basic": "Int16",
+                      **{f.lower(): "Int16" for f in CARNEGIE_FIELDS},
                       **{f.lower(): "Int16" for f in SIZE_SETTING_FIELDS},
                       "carnegie_field": "string", "listed_reason": "string", "listed_source": "string"})
     out = out.sort_values(["year", "unitid"]).reset_index(drop=True)
@@ -716,6 +736,45 @@ def build_shared_site_enrollment(dim_institution: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
+def build_hospital_unresolved(dim_institution: pd.DataFrame) -> pd.DataFrame:
+    """
+    dim_hospital_unresolved.parquet, the rows of etl/reference/
+    hospital_unresolved.csv: unitid (base UNITID), first_year, last_year,
+    hospital, known, source. Institutions whose main campus adjoins or holds
+    a hospital the institution does not run, where the review of its annual
+    security reports could not establish whether the hospital's incidents
+    are in the reported figures (a reviewed exclusion goes in
+    rate_population_exclusions.csv instead). They keep their rates; the
+    rate files carry the note (rates.window_status). One row per
+    institution, of an institution in dim_institution, every field filled.
+    """
+    print("\nBuilding the list of hospitals whose place in the figures is not established...")
+    listed = pd.read_csv(HOSPITAL_UNRESOLVED_LIST_PATH, dtype=str, keep_default_na=False)
+    need = ["unitid", "first_year", "last_year", "hospital", "known", "source"]
+    if list(listed.columns) != need:
+        raise RuntimeError(f"{HOSPITAL_UNRESOLVED_LIST_PATH} must have the columns {need}")
+    bases = set(dim_institution["base_unitid"].astype(int).tolist())
+    for row in listed.to_dict("records"):
+        values = [row[c].strip() for c in ("unitid", "first_year", "last_year")]
+        if not all(v.isdigit() for v in values) or len(values[0]) != 6 or int(values[1]) > int(values[2]):
+            raise RuntimeError(f"{HOSPITAL_UNRESOLVED_LIST_PATH}: row {values} needs a base UNITID (6 digits) and "
+                               "first_year <= last_year")
+        if int(values[0]) not in bases:
+            raise RuntimeError(f"{HOSPITAL_UNRESOLVED_LIST_PATH}: {values[0]} is not an institution in DOE's files")
+        if not all(row[c].strip() for c in ("hospital", "known", "source")):
+            raise RuntimeError(f"{HOSPITAL_UNRESOLVED_LIST_PATH}: {values[0]} needs a hospital, what is known and "
+                               "a source")
+    if listed["unitid"].duplicated().any():
+        raise RuntimeError(f"{HOSPITAL_UNRESOLVED_LIST_PATH} lists an institution twice")
+    out = pd.DataFrame({"unitid": listed["unitid"].astype("int32"), "first_year": listed["first_year"].astype("int16"),
+                        "last_year": listed["last_year"].astype("int16"),
+                        **{c: listed[c].str.strip().astype("string") for c in ("hospital", "known", "source")}})
+    out = out.sort_values("unitid").reset_index(drop=True)
+    out.to_parquet(HOSPITAL_UNRESOLVED_PATH, index=False)
+    print(f"  {len(out)} institutions. Saved to: {HOSPITAL_UNRESOLVED_PATH}")
+    return out
+
+
 def check_medical_reviews(dim_institution: pd.DataFrame) -> None:
     """
     Check etl/reference/medical_campus_reviews.csv, the campuses reviewed for
@@ -761,7 +820,8 @@ def main():
     other_inputs = provenance.other_input_records(hd_files + [campus_identity.ID_CHANGES_PATH,
                                                               POPULATION_LIST_PATH, MEDICAL_LIST_PATH,
                                                               MEDICAL_REVIEWS_PATH, ABROAD_LIST_PATH,
-                                                              OVERRIDE_LIST_PATH, SITE_ENROLLMENT_LIST_PATH])
+                                                              OVERRIDE_LIST_PATH, SITE_ENROLLMENT_LIST_PATH,
+                                                              HOSPITAL_UNRESOLVED_LIST_PATH])
     provenance.invalidate(provenance.INSTITUTION_MANIFEST)
     dim_institution = build_dim_institution()
     links = build_id_links(dim_institution)
@@ -774,9 +834,11 @@ def main():
     build_campuses_abroad(dim_institution)
     build_shared_campus_overrides(dim_institution)
     build_shared_site_enrollment(dim_institution)
+    build_hospital_unresolved(dim_institution)
     provenance.write_institution_manifest(
         inputs_before, outputs=[dims / "dim_institution.parquet", dims / "dim_offense.parquet", LINKS_PATH,
-                                CLASS_PATH, MEDICAL_PATH, ABROAD_PATH, OVERRIDE_PATH, SITE_ENROLLMENT_PATH],
+                                CLASS_PATH, MEDICAL_PATH, ABROAD_PATH, OVERRIDE_PATH, SITE_ENROLLMENT_PATH,
+                                HOSPITAL_UNRESOLVED_PATH],
         other_inputs=other_inputs)
 
     print("\n" + "=" * 60)
