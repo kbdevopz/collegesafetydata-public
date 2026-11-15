@@ -15,8 +15,8 @@ import type {
   RateEntryFields, RateFlag, RateRules, RateRule, SchoolProfile, SharedSite, SharedSiteFigure, SharedSiteNotes, Verdict,
 } from './types'
 import {
-  COUNTS_ONLY_REASONS, OFFENSE_NOUNS, RATE_CODE_LABELS, RATE_CODE_ORDER, RATE_CODE_PHRASES, VERDICT_LABELS,
-  VERDICT_SHORT,
+  COUNTS_ONLY_REASONS, OFFENSE_NOUNS, RATE_CODE_LABELS, RATE_CODE_ORDER, RATE_CODE_PHRASES, SHOW_POINT_POSITION,
+  VERDICT_LABELS, VERDICT_SHORT,
 } from './rateDisplay'
 
 // =============================================================================
@@ -172,10 +172,23 @@ export function countsOnlyReason(code: string, label?: string): string {
 // Sentences about one rated institution, window and code
 // =============================================================================
 
-/** "12th; could be anywhere from 3rd to 61st of 206" */
+/**
+ * "12th; could be anywhere from 3rd to 61st of 206", or without the point
+ * position (SHOW_POINT_POSITION false) "anywhere from 3rd to 61st of 206"
+ */
 export function positionText(position: number, lo: number, hi: number, n: number): string {
-  if (lo === hi) return `${ordinal(position)} of ${fmtInt(n)}; the range is that position alone`
-  return `${ordinal(position)}; could be anywhere from ${ordinal(lo)} to ${ordinal(hi)} of ${fmtInt(n)}`
+  if (lo === hi) {
+    return SHOW_POINT_POSITION ? `${ordinal(position)} of ${fmtInt(n)}; the range is that position alone` : `${ordinal(lo)} of ${fmtInt(n)}`
+  }
+  const range = `anywhere from ${ordinal(lo)} to ${ordinal(hi)} of ${fmtInt(n)}`
+  return SHOW_POINT_POSITION ? `${ordinal(position)}; could be ${range}` : range
+}
+
+/** "Among four-year, primarily residential institutions on the list: …", or null when not in a type list */
+export function typePositionText(e: RateEntryFields, peerType: string, rules: RateRules | null | undefined): string | null {
+  if (!e.listed || e.typePosition === undefined || e.typeRankLo === undefined || e.typeRankHi === undefined || !e.typeN) return null
+  return `Among the ${fmtInt(e.typeN)} ${peerLabel(peerType, rules).toLowerCase()} institutions on the list: ` +
+    positionText(e.typePosition, e.typeRankLo, e.typeRankHi, e.typeN)
 }
 
 /** The list position of an entry, national or within its state, or null when not listed there */
@@ -189,16 +202,56 @@ export function entryPosition(e: RateEntryFields, listN: number | null, state = 
   return positionText(e.position, e.rankLo, e.rankHi, listN)
 }
 
-export function intervalSentence(e: Pick<RateEntryFields, 'lo' | 'hi'>, rules: RateRules | null | undefined): string {
-  return `${levelPct(rules)}% interval ${fmtRate(e.lo)} to ${fmtRate(e.hi)}. This range allows for how much an ` +
-    "institution's yearly counts vary. It does not allow for differences in how institutions record and report " +
-    'incidents.'
+/**
+ * A figure published to 2 decimals and to 4 (`x4`): to 4 decimals when
+ * `digits` is 4 and the 4-decimal figure is published, else to 2.
+ */
+export function fmtRateAt(x: number, x4: number | null | undefined, digits: 2 | 4): string {
+  return digits === 4 && x4 !== undefined && x4 !== null ? x4.toFixed(4) : fmtRate(x)
+}
+
+/**
+ * The decimals at which an interval and the rate it is compared with are
+ * shown: 2, unless the deciding end of the interval (the upper for "below",
+ * the lower for "above") prints the same as that rate to 2 decimals, and
+ * both are published to 4; then 4, so that the reader sees them differ.
+ */
+export function tieDigits(
+  e: Pick<RateEntryFields, 'lo' | 'hi' | 'lo4' | 'hi4'>, verdict: Verdict | null, ref: number | null,
+  ref4: number | null | undefined,
+): 2 | 4 {
+  if (ref === null || (verdict !== 'below' && verdict !== 'above')) return 2
+  const end = verdict === 'below' ? e.hi : e.lo
+  const end4 = verdict === 'below' ? e.hi4 : e.lo4
+  if (fmtRate(end) !== fmtRate(ref)) return 2
+  return end4 !== undefined && ref4 !== undefined && ref4 !== null ? 4 : 2
+}
+
+export function intervalSentence(
+  e: Pick<RateEntryFields, 'lo' | 'hi' | 'lo4' | 'hi4'>, rules: RateRules | null | undefined, digits: 2 | 4 = 2,
+): string {
+  const shown = `${fmtRateAt(e.lo, e.lo4, digits)} to ${fmtRateAt(e.hi, e.hi4, digits)}${digits === 4 ? ' (to 4 decimals)' : ''}`
+  return `${levelPct(rules)}% interval ${shown}. This range allows for how much the yearly counts vary: as much as ` +
+    "is usual for an institution with this many incidents, or as much as this institution's own counts varied " +
+    'from year to year when that is more. It does not allow for differences in how institutions record and ' +
+    'report incidents.'
+}
+
+/** When the interval rests on the institution's own year-to-year spread (phiFrom "years"), with its yearly counts */
+export function spreadSentence(e: Pick<RateEntryFields, 'phiFrom'>, nByYear: Record<string, number> | undefined): string | null {
+  if (e.phiFrom !== 'years') return null
+  const years = Object.keys(nByYear ?? {}).sort()
+  const counts = years.length > 0 ? ` (${joinAnd(years.map((y) => `${fmtInt(nByYear?.[y] ?? 0)} in ${y}`))})` : ''
+  return `Its yearly counts${counts} vary more than is usual for an institution with this many incidents, so the ` +
+    'range is based on their own spread and is wider.'
 }
 
 /** What the national rate is and what "above" means */
-export function nationalSentence(natl: number, key: string, rules: RateRules | null | undefined): string {
+export function nationalSentence(
+  natl: number, key: string, rules: RateRules | null | undefined, natl4?: number | null, digits: 2 | 4 = 2,
+): string {
   const chance = oneSidedChance(rules)
-  return `National rate ${fmtRate(natl)} for ${windowLabel(key)}: the on-campus incidents of all rated ` +
+  return `National rate ${fmtRateAt(natl, natl4, digits)}${digits === 4 ? ' (to 4 decimals)' : ''} for ${windowLabel(key)}: the on-campus incidents of all rated ` +
     'institutions whose on-campus student count is certain, per 10,000 of their on-campus students a year. ' +
     `"Above" means the whole ${levelPct(rules)}% interval is above the national rate. If the intervals have their ` +
     `intended coverage, about ${chance} institutions whose underlying rate equals the national rate are shown as ` +
@@ -213,6 +266,7 @@ export function peerLabel(peerType: string, rules: RateRules | null | undefined)
 export function peerSentence(
   e: Pick<RateEntryFields, 'peerVerdict' | 'peerVerdictLargerFte' | 'peerVerdictSmallerFte'>,
   peerType: string, peerRate: number | null, rules: RateRules | null | undefined,
+  peerRate4?: number | null, digits: 2 | 4 = 2,
 ): string | null {
   // "withheld": the shared-site sentence says why there is no comparison
   if (e.peerVerdict === null || e.peerVerdict === 'withheld' || peerRate === null) return null
@@ -222,31 +276,8 @@ export function peerSentence(
     verdict += ` (${VERDICT_SHORT[e.peerVerdictLargerFte]} with the larger student count, ` +
       `${VERDICT_SHORT[e.peerVerdictSmallerFte]} with the smaller)`
   }
-  return `Compared with institutions of its type (${label}; their rate ${fmtRate(peerRate)}): ${verdict}.`
-}
-
-/**
- * A comparison whose deciding end of the interval prints the same as the rate
- * it is compared with ("0.69 to 6.52", "below" a national rate of 6.52). The
- * verdict is right: it is decided on unrounded figures, and bounds are
- * published to 2 decimals only, so the page says why the two look equal.
- * `refName`: "the national rate" or "the rate of institutions of its type".
- * Null when the printed figures differ or the verdict is not above or below.
- */
-export function roundedTieSentence(
-  e: Pick<RateEntryFields, 'lo' | 'hi'>, verdict: Verdict | null, ref: number | null, refName: string,
-  short = false,
-): string | null {
-  if (ref === null || (verdict !== 'below' && verdict !== 'above')) return null
-  const end = verdict === 'below' ? e.hi : e.lo
-  if (fmtRate(end) !== fmtRate(ref)) return null
-  const which = verdict === 'below' ? 'upper' : 'lower'
-  if (short) {
-    return `The interval's ${which} end and ${refName} differ only beyond the second decimal; the ${which} end is ` +
-      `${verdict} it`
-  }
-  return `Rounded to two decimals, the ${which} end of the interval and ${refName} are both ${fmtRate(ref)}. ` +
-    `The comparison uses the unrounded figures, in which the ${which} end is ${verdict} ${refName}.`
+  const rate = `${fmtRateAt(peerRate, peerRate4, digits)}${digits === 4 ? ', to 4 decimals' : ''}`
+  return `Compared with institutions of its type (${label}; their rate ${rate}): ${verdict}.`
 }
 
 /** One sentence on why the national and peer comparisons differ, or null when they agree */
@@ -282,8 +313,30 @@ const GEO_PHRASES: Record<string, string> = {
 export function flagSentence(f: RateFlag | InstitutionFlag, geo = 'On-campus'): string {
   const where = GEO_PHRASES[('geo' in f && f.geo) || geo] ?? 'on campus'
   return `${f.year}: ${offenseCount(f.count, f.offense)} reported ${where}, compared with a median of ` +
-    `${f.usual.toLocaleString('en-US')} a year in this institution's other years. DOE counts incidents in the ` +
-    'year they are reported, so a single investigation or series of reports can add many to one year.'
+    `${f.usual.toLocaleString('en-US')} a year in this institution's other years. DOE counts each incident in ` +
+    'the year it is reported.'
+}
+
+/** Why a list-sized institution has no position (notPlaced "unusual_year"), from its flags */
+export function notPlacedSentence(e: Pick<RateEntryFields, 'notPlaced' | 'flags'>): string | null {
+  if (e.notPlaced !== 'unusual_year') return null
+  const flags = (e.flags ?? []).map((f) =>
+    `in ${f.year} it reported ${offenseCount(f.count, f.offense)} on campus, against a median of ` +
+    `${f.usual.toLocaleString('en-US')} a year in its other years`)
+  const what = flags.length > 0 ? `: ${joinAnd(flags)}` : ': it has an unusual year in this period'
+  return `Not placed on the list${what}. An institution with an unusual year in the window is not given a ` +
+    "position, so that one year's count does not set its place; its rate and comparisons are shown."
+}
+
+/** A hospital next to or inside the main campus whose incidents may be in the figures (hospitalUnresolved) */
+export function hospitalNote(h: { name: string; years: number[] } | undefined, windowYearsN = 3, short = false): string | null {
+  if (!h) return null
+  const when = h.years.length > 0 && h.years.length < windowYearsN ? ` in ${joinAnd(h.years.map(String))}` : ''
+  return short
+    ? `A hospital adjoins or lies inside its main campus (${h.name}); whether its incidents are in these figures${when} is not established`
+    : `A hospital adjoins or lies inside this institution's main campus (${h.name}); whether its incidents are in ` +
+      `these figures${when} is not established. If they are, the rate may count incidents involving patients, ` +
+      'visitors and hospital staff, who are not students.'
 }
 
 export const FLAG_NOTE =
@@ -559,15 +612,19 @@ export function compositionSentence(code: string, composition: Record<string, nu
 }
 
 /** National composition from a window file, as shares of its on-campus count */
-export function nationalCompositionSentence(code: string, composition: Record<string, number> | undefined, key: string): string | null {
+export function nationalCompositionSentence(
+  code: string, composition: Record<string, number> | undefined, key: string, share?: Record<string, number>,
+): string | null {
   if (!composition) return null
   if (code === 'violent') {
     const total = Object.values(composition).reduce((a, b) => a + b, 0)
     if (total <= 0) return null
-    const pct = (o: string) => `${((composition[o] ?? 0) / total * 100).toFixed(1)}%`
-    return 'Violent crimes are murder, rape, robbery and aggravated assault. In ' +
-      `${windowLabel(key)}, of the ${fmtInt(total)} on-campus violent crimes at the institutions in the national rate, ${pct('rape')} ` +
-      `were rapes, ${pct('aggravated_assault')} aggravated assaults, ${pct('robbery')} robberies and ` +
+    // The published shares (compositionShare, 4 decimals) as percentages to
+    // 2 decimals, so that they are not rounded twice; else from the counts
+    const pct = (o: string) => `${(share?.[o] !== undefined ? share[o] * 100 : (composition[o] ?? 0) / total * 100).toFixed(2)}%`
+    return 'Violent crimes are murder, rape, robbery and aggravated assault. Of the ' +
+      `${fmtInt(total)} on-campus violent crimes counted in the national rate for ${windowLabel(key)}, ${pct('rape')} ` +
+      `are reported rapes, ${pct('aggravated_assault')} aggravated assaults, ${pct('robbery')} robberies and ` +
       `${pct('murder')} murders.`
   }
   if (code === 'criminal_xmvt' && composition.motor_vehicle_theft !== undefined) {
@@ -586,17 +643,72 @@ export function scopeSentence(): string {
     'U.S. Virgin Islands.'
 }
 
+type StatusProfile = Pick<SchoolProfile, 'unitid' | 'institution' | 'sharedFigures' | 'yearlyTotals'>
+
+/**
+ * Why a window has no rate when the institution has no figures of its own in
+ * some of its years (`present` lists the years it has them; none when the
+ * institution file has no status for the window). A year without figures of
+ * its own is one the institution is not in DOE's data, or one whose figures
+ * all count under another institution's campus. The page knows only its own
+ * campus: it names the campus whose figures this campus's on-campus figures
+ * are, says the figures count elsewhere when this campus is in DOE's data
+ * that year, and says "not in DOE's data" only when this campus is not and
+ * the institution counts no other campus in any year; otherwise it gives
+ * both possibilities.
+ */
+export function missingYearsSentence(
+  key: string, present: number[], rules: RateRules | null | undefined, profile?: StatusProfile | null,
+): string {
+  const [y0, y1] = windowYears(key)
+  const missing = Array.from({ length: y1 - y0 + 1 }, (_, i) => y0 + i)
+    .filter((y) => !present.includes(y) && !(rules?.skipYears ?? []).includes(y))
+  const inDoe = new Set((profile?.yearlyTotals ?? []).map((t) => t.year))
+  const oneCampus = !!profile && profile.unitid % 1000 === 1 &&
+    Object.values(profile.institution?.byYear ?? {}).every((iy) => iy.campuses <= 1)
+  const hosts = new Map<string, number[]>()
+  const elsewhere: number[] = []
+  const absent: number[] = []
+  const either: number[] = []
+  for (const y of missing) {
+    const host = profile?.sharedFigures?.find((f) => f.year === y && f.geo === 'On-campus')?.hostName
+    if (host) hosts.set(host, [...(hosts.get(host) ?? []), y])
+    else if (inDoe.has(y)) elsewhere.push(y)
+    else if (oneCampus) absent.push(y)
+    else either.push(y)
+  }
+  const label = windowLabel(key)
+  if (hosts.size === 0 && elsewhere.length === 0 && either.length === 0) {
+    return present.length > 0
+      ? `Not rated for ${label}: not in DOE's data all three years (only ${joinAnd(present.map(String))}).`
+      : `Not rated for ${label}: not in DOE's data in any of its years.`
+  }
+  const years = (ys: number[]) => joinAnd(ys.map(String))
+  const parts = [
+    ...Array.from(hosts.entries()).map(([host, ys]) =>
+      `in ${years(ys)} its on-campus figures in DOE's data are the same as those of ${host} and are counted there`),
+    ...(elsewhere.length > 0
+      ? [`in ${years(elsewhere)} the figures DOE publishes for it count under another institution's campus`] : []),
+    ...(either.length > 0
+      ? [`DOE's data has no figures of its own for it in ${years(either)} (each of its campuses is either not in ` +
+        `DOE's data ${either.length === 1 ? 'that year' : 'those years'} or has figures that count under another ` +
+        'institution\'s campus)'] : []),
+    ...(absent.length > 0 ? [`it is not in DOE's data in ${years(absent)}`] : []),
+  ]
+  return `Not rated for ${label}: ${parts.join('; ')}.`
+}
+
 /** Why a window has no rate for this institution, or null when it is rated */
 export function windowStatusSentence(
   w: InstitutionWindow, key: string, rules: RateRules | null | undefined,
-  profile?: Pick<SchoolProfile, 'institution'> | null,
+  profile?: StatusProfile | null,
 ): string | null {
   const minFte = fmtInt(rules?.minFte ?? 1000)
   switch (w.status) {
     case 'rated':
       return null
     case 'missingYears':
-      return `Not rated for ${windowLabel(key)}: not in DOE's data all three years (only ${joinAnd(w.years.map(String))}).`
+      return missingYearsSentence(key, w.years, rules, profile)
     case 'scope':
       return scopeSentence()
     case 'size': {
@@ -627,9 +739,11 @@ export function ruleText(rule: RateRule | undefined): string {
     case 'hospital':
       return 'IPEDS reports that it has a hospital, whose patients, visitors and staff are not students.'
     case 'medical':
-      return 'its Carnegie classification is a special-focus medical school or research institution.'
+      return 'an edition of its Carnegie classification codes it as a special-focus medical school or research ' +
+        'institution.'
     case 'listed':
-      return 'it is on the reviewed list of institutions whose campus holds people its enrollment does not count.'
+      return 'it is on the reviewed list of institutions whose figures count many people its enrollment does not ' +
+        'count.'
     case 'merger':
     case 'family':
       return 'a merger or renumbering means its incidents and enrollment may not cover the same campuses.'
@@ -667,10 +781,21 @@ export function notRatedYearText(reason: NotRatedReason | undefined, rules: Rate
  * each year's reason after it, so the sentence need not repeat them.
  */
 export function noRatesSentence(
-  profile: Pick<SchoolProfile, 'institution'> | null | undefined, rules: RateRules | null | undefined, yearsListed = false,
+  profile: Pick<SchoolProfile, 'institution' | 'yearlyTotals'> | null | undefined, rules: RateRules | null | undefined,
+  yearsListed = false,
 ): string {
   const byYear = Object.entries(profile?.institution?.byYear ?? {}).sort(([a], [b]) => a.localeCompare(b))
-  if (byYear.length === 0) return 'No rate: NCES enrollment figures do not cover this institution.'
+  if (byYear.length === 0) {
+    // The institution has figures of its own in none of the years this
+    // campus is in DOE's data: each of those years' figures counts under
+    // another institution's campus
+    const ys = (profile?.yearlyTotals ?? []).map((t) => t.year).sort((a, b) => a - b)
+    if (ys.length > 0) {
+      return `No rate: it has no figures of its own in DOE's data. In ${joinAnd(ys.map(String))} the figures DOE ` +
+        'publishes for it count under another institution\'s campus.'
+    }
+    return 'No rate: it has no figures of its own in DOE\'s data.'
+  }
   const reasons = new Set(byYear.map(([, y]) => y.notRated).filter((r) => r && r !== 'skippedYear'))
   // Each year's reason in words, with the years that share it
   const groups = (pick: (v: (typeof byYear)[number][1]) => string | null) => {
@@ -732,8 +857,9 @@ export function highForSizeNote(perTenK: number, code: string, year: number, met
   const pct = flag?.percentile ?? 99
   const ref = reference !== undefined ? `${reference.toFixed(2)}, ` : ''
   return `Very high for its institution's size: ${perTenK.toFixed(1)} per 10,000 of its institution's FTE, more ` +
-    `than ${factor} times ${ref}the ${pct}th percentile of ${year} institution rates of this category. Shown as ` +
-    "reported; check the institution's Annual Security Report."
+    `than ${factor} times ${ref}the ${pct}th percentile of ${year} institution rates of this category. The count ` +
+    'is shown as reported. DOE counts each incident in the year it is reported, so some may have happened ' +
+    'earlier, and the figures do not say why a count is high.'
 }
 
 export { VERDICT_LABELS }

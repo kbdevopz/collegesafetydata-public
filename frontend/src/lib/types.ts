@@ -95,6 +95,11 @@ export interface RateRules {
     // The pages show a state's own positions from this many members up
     // (lib/rateDisplay.ts stateDisplayMin)
     stateDisplayMin: number
+    // Type lists (the national list's members of one peer type) are
+    // published from this many members up
+    typeMinMembers?: number
+    // Why a member that meets the conditions is not placed: ["unusual_year"]
+    notPlaced?: string[]
   }
   // Residential types of the peer comparison (Carnegie size and setting)
   peerTypes: Record<string, { label: string; sizeSetting: number[] }>
@@ -136,6 +141,10 @@ export interface RateRules {
     bandToleranceBelow: number
     bandToleranceAbove: number
     bandMinUnits: number
+    // The top band of these codes is tested whatever its size: below
+    // bandMinUnits each limit is widened by topBandSE binomial standard errors
+    topBandCodes?: string[]
+    topBandSE?: number
   }
   testVectors?: {
     // interval: [lo, hi] of the count
@@ -151,6 +160,9 @@ export interface Dispersion {
   fitted: Record<string, number>
   other: number
   ramp: { start: number; end: number; cap: number }
+  // "max": a window's variance is the larger of the model's and the
+  // institution's own year-to-year spread
+  spread?: string
 }
 
 // The rules that give an institution no rate (in any window containing the year)
@@ -179,6 +191,8 @@ export interface NamedInstitution {
 export interface SharedSiteFigure {
   year: number
   unitid: number
+  // DOE's name of that site campus that year
+  name?: string
   students: number | null
   figureYear: number | null
   upperBound: boolean
@@ -223,9 +237,11 @@ export interface WindowCodeStats {
   verdictWithoutFlaggedDiffers: number
   // List codes only
   listed?: number
+  notPlaced?: number
   minFteYears?: number
   stateLists?: number
   stateListsDisplayMin?: number
+  typeLists?: number
 }
 
 export interface RateStats {
@@ -399,6 +415,13 @@ export interface RateEntryFields {
   rate: number
   lo: number
   hi: number
+  // The interval to 4 decimals
+  lo4?: number
+  hi4?: number
+  // The window's variance-to-mean ratio, and whether it is the model's or
+  // the institution's own year-to-year spread (the larger of the two)
+  phi?: number
+  phiFrom?: 'model' | 'years'
   // Incidents expected at the national rate (1 decimal)
   E: number
   verdict: Verdict
@@ -430,6 +453,17 @@ export interface RateEntryFields {
   stateRankLo?: number
   stateRankHi?: number
   stateN?: number
+  // Meets the list's conditions but is not placed ("unusual_year": an
+  // on-campus unusual-year flag of the code in the window)
+  notPlaced?: string
+  // Position among the national list's members of its peer type
+  typePosition?: number
+  typeRankLo?: number
+  typeRankHi?: number
+  typeN?: number
+  // A hospital adjoins or lies inside the main campus, and whether its
+  // incidents are in the figures is not established (the window's years)
+  hospitalUnresolved?: { name: string; years: number[] }
   // violent: its four offenses; criminal_xmvt: motor-vehicle thefts
   composition?: Record<string, number>
 }
@@ -444,6 +478,7 @@ export interface RateWindowEntry extends RateEntryFields, SharedSiteNotes {
 
 export interface PeerRate {
   rate: number
+  rate4?: number
   n: number
   fteYears: number
   members: number
@@ -456,6 +491,7 @@ export interface RateWindowFile {
   years: number[]
   c: number
   natl: number
+  natl4?: number
   natlN: number
   natlF: number
   peer: Record<string, PeerRate>
@@ -469,8 +505,12 @@ export interface RateWindowFile {
     verdictWithoutFlaggedDiffers: number
   }
   composition?: Record<string, number>
-  list?: { n: number; minExpected: number; minFteYears: number; zc: number | null }
+  // violent: each offense's share of the national on-campus count (4 decimals)
+  compositionShare?: Record<string, number>
+  list?: { n: number; notPlaced?: number; minExpected: number; minFteYears: number; zc: number | null }
   stateLists?: Record<string, number>
+  // Placed members per peer type
+  typeLists?: Record<string, number>
   entries: RateWindowEntry[]
 }
 
@@ -479,7 +519,9 @@ export interface RateWindowFile {
 export interface InstitutionWindowCode extends RateEntryFields {
   nByYear: Record<string, number>
   natl: number
+  natl4?: number
   peerRate: number | null
+  peerRate4?: number | null
 }
 
 export type InstitutionWindow =
@@ -489,6 +531,7 @@ export type InstitutionWindow =
       fteByYear: Record<string, number>
       fteSmallerByYear?: Record<string, number>
       codes: Record<string, InstitutionWindowCode>
+      hospitalUnresolved?: { name: string; years: number[] }
     } & SharedSiteNotes)
   | { status: 'missingYears'; years: number[] }
   | { status: 'scope' }
@@ -518,6 +561,17 @@ export interface InstitutionRatesFile {
   years: Record<string, InstitutionRateYear>
   windows: Record<string, InstitutionWindow>
   flags: InstitutionFlag[]
+  // The reviewed rows: a hospital adjoins or lies inside the main campus;
+  // `known` is what its reports say, `source` where
+  hospitalUnresolved?: HospitalUnresolved[]
+}
+
+export interface HospitalUnresolved {
+  name: string
+  firstYear: number
+  lastYear: number
+  known: string
+  source: string
 }
 
 // =============================================================================

@@ -4,12 +4,13 @@ import { Info, Loader2 } from 'lucide-react'
 import { fetchInstitutionRates } from '../lib/api'
 import type { InstitutionRatesFile, Metadata, SchoolProfile } from '../lib/types'
 import {
-  abroadNote, entryPosition, fmtInt, fteUncertainNote, isListCode, noRatesSentence, notRatedYearText, offenseCount,
-  pooledNote,
+  abroadNote, entryPosition, fmtInt, fteUncertainNote, isListCode, missingYearsSentence, noRatesSentence,
+  notRatedYearText, offenseCount, pooledNote,
   rateCodeLabel, rateCodes, windowKeys, windowLabel, windowStatusSentence, windowYears,
 } from '../lib/rates'
 import { MAIN_RATE_CODES, RATE_IS_NOT, RATE_MEASURE } from '../lib/rateDisplay'
-import { RateCodeBlock, VerdictLabel } from './RateCard'
+import { HospitalNote, RateCodeBlock, VerdictLabel } from './RateCard'
+import LinkedText from './LinkedText'
 import SingleYearRates from './SingleYearRates'
 
 const card = 'bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 p-4 sm:p-6'
@@ -70,8 +71,17 @@ export default function RatePanel({
   )
 
   if (!path) {
-    // No rates file: no rated window, single-year rate or flag
+    // No rates file: no rated window, single-year rate or flag. Each year's
+    // reason, with the years that share it
     const years = Object.entries(profile.institution?.byYear ?? {}).sort(([a], [b]) => Number(a) - Number(b))
+    const groups = new Map<string, string[]>()
+    for (const [y, v] of years) {
+      const text = v.rated
+        ? 'single-year rate'
+        : `${notRatedYearText(v.notRated, rules, v.rateExcludedReason)}` +
+          `${v.rateFte !== undefined && v.notRated === 'size' ? ` (${fmtInt(v.rateFte)})` : ''}`
+      groups.set(text, [...(groups.get(text) ?? []), y])
+    }
     return (
       <div className="space-y-4 mb-8">
         {countsOnlyNote && <Note>{countsOnlyNote}</Note>}
@@ -80,11 +90,10 @@ export default function RatePanel({
           {intro}
           <p className="mt-3 font-medium text-gray-900 dark:text-gray-100">{noRatesSentence(profile, rules, years.length > 0)}</p>
           {years.length > 0 && (
-            <ul className="mt-2 text-sm text-gray-600 dark:text-gray-400 space-y-0.5">
-              {years.map(([y, v]) => (
-                <li key={y}>
-                  {y}: {v.rated ? 'single-year rate' : notRatedYearText(v.notRated, rules, v.rateExcludedReason)}
-                  {v.rateFte !== undefined && !v.rated && v.notRated === 'size' && ` (${fmtInt(v.rateFte)})`}
+            <ul className="mt-2 text-sm text-gray-600 dark:text-gray-400 space-y-0.5 break-words">
+              {Array.from(groups.entries()).map(([text, ys]) => (
+                <li key={ys[0]}>
+                  {ys.join(', ')}: <LinkedText text={text} />
                 </li>
               ))}
             </ul>
@@ -150,6 +159,7 @@ export default function RatePanel({
           state={file.state}
           notes={win}
           headingLevel={level}
+          hospital={null}
         />
         {abroadNotes(code).map((n) => (
           <p key={n} className="mt-2 text-sm text-gray-600 dark:text-gray-400">{n}</p>
@@ -167,10 +177,10 @@ export default function RatePanel({
           Rates, {windowLabel(windowKey)}
         </h2>
         {intro}
-        {status && <p className="mt-3 font-medium text-gray-900 dark:text-gray-100">{status}</p>}
+        {status && <p className="mt-3 font-medium text-gray-900 dark:text-gray-100 break-words"><LinkedText text={status} /></p>}
         {!win && (
-          <p className="mt-3 font-medium text-gray-900 dark:text-gray-100">
-            Not rated for {windowLabel(windowKey)}: not in DOE's data in any of its years.
+          <p className="mt-3 font-medium text-gray-900 dark:text-gray-100 break-words">
+            {missingYearsSentence(windowKey, [], rules, profile)}
           </p>
         )}
         {win?.status === 'rated' && (
@@ -186,6 +196,11 @@ export default function RatePanel({
         {yearNotes.map((n) => (
           <p key={n} className="mt-1 text-sm text-gray-600 dark:text-gray-400">{n}</p>
         ))}
+        {win?.status === 'rated' && win.hospitalUnresolved && (
+          <div className="mt-3">
+            <HospitalNote note={win.hospitalUnresolved} rows={file.hospitalUnresolved ?? []} windowYearsN={winYears.length} />
+          </div>
+        )}
       </section>
 
       {win?.status === 'rated' && (
@@ -271,14 +286,16 @@ function PositionHistory({
   const keys = windowKeys(metadata.rateRules).filter((k) => k !== current)
   const rows = keys.map((k) => {
     const w = file.windows[k]
-    if (!w) return { k, text: 'not in DOE\'s data' }
-    if (w.status !== 'rated') return { k, text: 'not rated' }
+    // The window's own view says why (some years are not in DOE's data, or
+    // their figures count under another institution)
+    if (!w || w.status !== 'rated') return { k, text: 'not rated' }
     const e = w.codes[code]
     if (!e) return { k, text: 'no figure' }
     const n = metadata.rateStats?.windows?.[k]?.[code]?.listed ?? null
     const pos = entryPosition(e, n)
     if (pos) return { k, text: pos }
     if (e.why) return { k, text: 'not on the list (see that window)' }
+    if (e.notPlaced) return { k, text: 'not placed: an unusual year in that period' }
     return { k, text: 'not on the list (too few expected incidents)' }
   })
   return (

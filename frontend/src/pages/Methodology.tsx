@@ -115,17 +115,18 @@ function medianRange(f: RateWindowFile | null): { width: number; n: number } | n
 const auditCheck = (build: BuildInfo | null, name: string): AuditCheck | null =>
   build?.checks.find((c) => c.name === name) ?? null
 
-// The audit's lower limit for a calibration row: its own, else the band
-// limit of metadata.json
-const belowLimit = (r: CalibrationRow, metadata: Metadata | null): number | undefined =>
-  r.toleranceBelow ?? metadata?.rateRules?.calibration?.bandToleranceBelow
+// The band limit below the expected share (metadata.json): the one the text
+// names. A small top band that the audit tests has a wider limit of its own
+// (the row's toleranceBelow), so it can be short by more than this and pass.
+const belowLimit = (metadata: Metadata | null): number | undefined =>
+  metadata?.rateRules?.calibration?.bandToleranceBelow
 
 // Groups of similar counts (bands, tested or not) whose share inside the
-// predicted range is below the expected share by more than the audit's
-// lower limit: computed here from audit.json, never written in
+// predicted range is below the expected share by more than the band limit:
+// computed here from audit.json, never written in
 function shortBands(rows: CalibrationRow[], metadata: Metadata | null): CalibrationRow[] {
   return rows.filter((r) => {
-    const limit = belowLimit(r, metadata)
+    const limit = belowLimit(metadata)
     return !r.band.startsWith('all') && r.observed !== null && r.expected !== null && limit !== undefined &&
       r.observed < r.expected - limit
   })
@@ -276,16 +277,21 @@ function limitations(d: RateFacts): { title: string; body: React.ReactNode }[] {
           Rates divide by an estimate of the institution's students on campus (FTE). Residents who are not
           students, employees, visitors and patients are not in it, and incidents involving them are counted.
           Because so many people at a hospital or medical center are not students, institutions that IPEDS
-          reports have a hospital, special-focus medical institutions and a reviewed list have no rate, and an
-          institution whose incidents at listed medical-center campuses are{' '}
+          reports have a hospital, special-focus medical institutions and the institutions of a reviewed list
+          have no rate, and an institution whose incidents at listed medical-center campuses are{' '}
           {rr ? ratioPercent(rr.medicalShare) : '…'} or more of its on-campus count is not on a list (
           <a href="#rate-population-rules" className="underline">Population rules</a>,{' '}
-          <a href="#rate-medical-campuses" className="underline">Medical-center campuses</a>). Two gaps remain.
-          The hospital rule depends on what the institution reports to IPEDS: a university next to a medical
-          center run by a separate organization, such as a health system, can report no hospital and then has a
-          rate. And the list of medical-center campuses was reviewed by hand, campus by campus: incidents at a
-          medical center that is not on it, or that DOE does not list as a campus of its own, count as ordinary
-          campus incidents.{' '}
+          <a href="#rate-medical-campuses" className="underline">Medical-center campuses</a>). Gaps remain. The
+          hospital rule depends on what the institution reports to IPEDS: a university next to a hospital run by
+          a separate organization, such as a health system, can report no hospital. The reviewed list adds the
+          universities whose annual security reports say that their figures count incidents at such a hospital,
+          and a second reviewed list marks the universities with a hospital next to or inside the main campus
+          whose reports do not say whether its incidents are counted; those keep their rates and positions, with
+          a note on their pages (<a href="#rate-hospital-notes" className="underline">Hospital notes</a>). Only
+          the reports of universities near the top of the ordered lists were read for these two lists, so a
+          university elsewhere can count hospital incidents in its figures without a note. And the list of
+          medical-center campuses was reviewed by hand, campus by campus: incidents at a medical center that is
+          not on it, or that DOE does not list as a campus of its own, count as ordinary campus incidents.{' '}
           {screenSentence(d.build)}
           {peers.length > 0 && (
             <>
@@ -346,8 +352,10 @@ function limitations(d: RateFacts): { title: string; body: React.ReactNode }[] {
       body: (
         <>
           Each interval allows for year-to-year variation with one variance model per category, fitted to
-          institutions' counts together, not to each institution (
-          <a href="#rate-interval" className="underline">Intervals</a>). The audit tests the model on every build
+          institutions' counts together, or with the institution's own spread over the window's three years when
+          that is larger (<a href="#rate-interval" className="underline">Intervals</a>). Three yearly counts say
+          little about an institution's own variation, so the model sets the least width an interval can have.
+          The audit tests the intervals on every build
           by predicting each year's count from the institution's other years (
           <a href="#calibration" className="underline">How well the intervals fit</a>).
           {short.length > 0 && tolBelow !== undefined && (
@@ -356,13 +364,23 @@ function limitations(d: RateFacts): { title: string; body: React.ReactNode }[] {
               similar counts, fewer counts fall inside the predicted range than the model expects, by more than{' '}
               {pctPoints(tolBelow)}:
               <CalibrationList rows={short} />
-              There the model understates how much counts vary, so the intervals may be too narrow, and an
-              "above" or "below" can be due to chance more often than {chance}.
+              There the intervals understate how much counts vary, so they may be too narrow, and an "above" or
+              "below" can be due to chance more often than {chance}.
               {minUnits !== undefined && short.some((r) => !r.tested) && (
                 <>
                   {' '}{short.every((r) => !r.tested) ? 'All of these groups have' : `${formatNumber(short.filter((r) => !r.tested).length)} of them have`}{' '}
                   fewer than {formatNumber(minUnits)} institutions, too few for the audit's pass rule, so the audit
                   reports them without failing.
+                </>
+              )}
+              {short.some((r) => r.tested && r.ok !== false && (r.toleranceBelow ?? 0) > (tolBelow ?? 0)) && (
+                <>
+                  {' '}{short.every((r) => r.tested && r.ok !== false && (r.toleranceBelow ?? 0) > (tolBelow ?? 0))
+                    ? 'These groups are'
+                    : `${formatNumber(short.filter((r) => r.tested && r.ok !== false && (r.toleranceBelow ?? 0) > (tolBelow ?? 0)).length)} of them are`}{' '}
+                  the group with the most incidents of a category the audit tests whatever its size, with limits
+                  widened for its number of institutions (
+                  <a href="#calibration" className="underline">How well the intervals fit</a>), and pass.
                 </>
               )}
             </>
@@ -471,7 +489,8 @@ function limitations(d: RateFacts): { title: string; body: React.ReactNode }[] {
       body: (
         <>
           The figures are what institutions submitted to ED's survey, as ED publishes them. This site does not check
-          them against institutions' records or Annual Security Reports. Its audit checks that the published files
+          them against institutions' records or Annual Security Reports; the reviewed lists read some reports only
+          for which places and people their figures cover. Its audit checks that the published files
           are consistent with each other and with the pipeline's tables built from DOE's and NCES's files, and
           tests the rate model; it does not verify what institutions reported.
         </>
@@ -519,7 +538,7 @@ const CHECK_DESCRIPTIONS: Record<string, string> = {
   'Enrollment Matches NCES': "every FTE, online share and headcount the rates use is NCES's own published figure",
   'Institution Rates': 'the figures rates are made of: U.S. campuses, both on-campus FTE estimates, the rules that give no rate, pooled institutions, counts per location, medical-center and shared figures, and the peer type',
   'Campus Identity': 'the reviewed list of renumbered campuses matches the DOE files, linked pages name each other, and every school is in the search under its campus name',
-  'Rate Rules': 'every three-year rate, interval, comparison, list, position, range, state list, unusual-year flag, single-year rate and count flag recomputed with a separate implementation, and the rules in metadata.json checked against the design',
+  'Rate Rules': 'every three-year rate, interval, comparison, list, position, range, state and type list, unusual-year flag, single-year rate and count flag recomputed with a separate implementation, and the rules in metadata.json checked against the design',
   'Interval Calibration': "how often each year's count falls inside the range the interval model predicts from the institution's other years, against how often it should",
   'Medical-Campus Screen': "campuses whose DOE name or address suggests a medical center, and that hold a material share of an institution's on-campus count, are on the medical-center campus list or recorded as reviewed (a warning otherwise, never a failure)",
 }
@@ -730,7 +749,7 @@ export default function Methodology() {
                       <div id="copies" className="flex items-start gap-2 scroll-mt-20">
                         <Info className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
                         <span className="min-w-0 text-gray-600 dark:text-gray-400">
-                          <strong className="text-gray-900 dark:text-gray-200">Figures reported by more than one campus:</strong> Some campuses report exactly the same 20 figures for a location (on-campus, non-campus or public property) as another campus in the same state and year, at least six of them nonzero, usually because a branch repeats its parent's statistics. When a campus's whole year (all three locations, at least six figures nonzero) matches another campus's, all of its locations count as copies. For a campus-year taken from an older release, a match with another campus in that same release counts too, even if that campus has since corrected its figures. School pages show the figures as DOE publishes them; state and national totals and rankings count them once, under one host campus, which the school page names. The host is the campus whose figures come from the newest release for that year, then the main campus, then the one with more students (FTE), then the larger total, then the lower IPEDS ID. One more case: when DOE reported a campus under a new ID (see below) and both IDs have the same whole year (every figure, at least one nonzero) from different releases, the older release's copy counts under the newer ID, whatever the number of nonzero figures.
+                          <strong className="text-gray-900 dark:text-gray-200">Figures reported by more than one campus:</strong> Some campuses report exactly the same 20 figures for a location (on-campus, non-campus or public property) as another campus in the same state and year, at least six of them nonzero, usually because a branch repeats its parent's statistics. When a campus's whole year (all three locations, at least six figures nonzero) matches another campus's, all of its locations count as copies. For a campus-year taken from an older release, a match with another campus in that same release counts too, even if that campus has since corrected its figures. School pages show the figures as DOE publishes them; state and national totals and rankings count them once, under one host campus, which the school page names. The host is the campus whose figures come from the newest release for that year, then the main campus, then the one with more students (FTE), then the larger total, then the lower IPEDS ID. One more case: when DOE reported a campus under a new ID (see below) and both IDs have the same whole year (every figure, at least one nonzero) from different releases, the older release's copy counts under the newer ID, whatever the number of nonzero figures. And when campuses of different institutions in the same city have the same whole year (all three locations), with figures adding up to at least 20, they count as one report filed by each (for example by the schools of one hospital, or by institutions on one shared campus), whatever the number of nonzero figures, and count once under the host chosen as above. The rates treat such a campus as described under <a href="#rate-shared" className="underline">Shared campuses</a>: an institution with no other campus counting that year has no figures of its own that year, and its students are added to the host's rate.
                         </span>
                       </div>
                       <div className="flex items-start gap-2">
@@ -890,7 +909,8 @@ export default function Methodology() {
                 </li>
                 <li>
                   Each rate has a {ci}% interval: the underlying rates its counts are consistent with, given how much
-                  an institution's counts vary from year to year. It does not allow for differences in how
+                  yearly counts vary, as much as is usual for an institution with that many incidents or as much as
+                  its own three yearly counts varied when that is more. It does not allow for differences in how
                   institutions record and report incidents.
                 </li>
                 <li>
@@ -901,11 +921,13 @@ export default function Methodology() {
                 <li>
                   For {listCodes.length > 0 ? joinAnd(listCodes.map(rateCodePhrase)) : '…'}, institutions large enough
                   to expect at least {rr?.lists?.minExpected ?? '…'} incidents at the national rate are placed on an
-                  ordered list. Each position is given with a range: positions closer together than the ranges
-                  cannot be told apart.
+                  ordered list, unless one of their years in the window is unusually high. Each position is given
+                  with a range: positions closer together than the ranges cannot be told apart. Positions within a
+                  state and within a type of institution are given the same way.
                 </li>
                 <li>
-                  A year that is unusually high for an institution is flagged, not removed.
+                  A year that is unusually high for an institution is flagged, not removed: the rate counts it as
+                  reported.
                 </li>
                 <li>
                   Arrests, disciplinary referrals, motor-vehicle theft and several rare offenses are shown as counts
@@ -1008,10 +1030,14 @@ export default function Methodology() {
                 proportional, FTE × (1 − PCTDEEXC / 100); (b) part-time first: the on-campus headcount, headcount ×
                 (1 − PCTDEEXC / 100), holds all the full-time students it can, and the rest are part-time students,
                 each counting the institution's FTE per part-time student, (FTE − full-time students) / part-time
-                students. Estimate (b) is made for undergraduates and graduate students separately when NCES gives the
-                year's own share for each level (2021 on), else from the totals. The on-campus FTE is the larger
-                estimate, rounded half up to a whole number; an institution without a PCTDEEXC keeps its full FTE. A
-                student who takes some courses online counts as on campus.
+                students. Estimate (b) is made for undergraduates and graduate students separately when the year's own
+                share is used and NCES gives each level's headcounts, full-time headcounts and share (2021 on), and
+                the levels add up to the totals (a level without students counts a share of 0); else it is made from
+                the totals. It cannot be computed when the headcounts are missing, the full-time and part-time
+                headcounts do not add up to the total, or the FTE is below the full-time headcount or above the total
+                headcount. The on-campus FTE is the larger estimate, rounded half up to a whole number, and the
+                smaller is rounded the same way; an institution without a PCTDEEXC, or with a PCTDEEXC of 0, keeps its
+                full FTE, and its FTE is certain. A student who takes some courses online counts as on campus.
                 {rr?.onlineShareYear && Object.keys(rr.onlineShareYear).length > 0 && (
                   <>
                     {' '}For {joinAnd(Object.keys(rr.onlineShareYear))}, when many institutions taught remotely for the
@@ -1022,7 +1048,7 @@ export default function Methodology() {
                   </>
                 )}{' '}
                 When the larger estimate is more than {share(rr?.onlineUncertainRatio, true)} above the smaller, or
-                (b) cannot be computed because NCES's headcounts do not add up, the on-campus FTE is uncertain. The
+                (b) cannot be computed, the on-campus FTE is uncertain. The
                 rate then uses the larger estimate, each comparison is made with both, and when the two give
                 different results the comparison is "{VERDICT_LABELS.undetermined}". Such an institution is never on
                 a list, and the national and peer rates leave it out. The same holds when the denominator adds the
@@ -1045,7 +1071,9 @@ export default function Methodology() {
                 Sources: <SourceLink source={SOURCES.drvefDictionary}>NCES, DRVEF data dictionary</SourceLink>.
               </Rule>
               <Rule id="rate-population" title="Who has a rate">
-                An institution has a rate for a window when DOE's data has it in every year of the window; the campus
+                An institution has a rate for a window when DOE's data has figures of its own for it in every year of
+                the window (a year whose figures all count under another institution's campus has none:{' '}
+                <a href="#copies" className="underline">Figures reported by more than one campus</a>); the campus
                 its rates link to in the window's last year is in one of the 50 states, the District of Columbia,
                 Puerto Rico or the U.S. Virgin Islands; its denominator is at least {num(rr?.minFte)} in every year,
                 because with fewer students a few incidents move the rate far; and none of the population rules below
@@ -1058,10 +1086,11 @@ export default function Methodology() {
                 for any window containing a year in which IPEDS reports that it has a hospital (HD variable HOSPITAL =
                 1: patients, visitors and hospital staff; {num(iy?.rules.hospital.institutionYears)} institution-years,{' '}
                 {num(iy?.rules.hospital.withFte)} of them in the states covered with a denominator of at least{' '}
-                {num(rr?.minFte)}); else whose Carnegie basic classification in IPEDS is "Special Focus Four-Year:
-                Medical Schools &amp; Centers" (code 25 of C15BASIC, C18BASIC and C21BASIC) or the 2021 category
-                "Special Focus Research Institution" (C21BASIC 27; 20 of its 22 institutions in 2024 were medical
-                schools and centers in the 2018 classification) ({num(iy?.rules.medical.institutionYears)}{' '}
+                {num(rr?.minFte)}); else, in every year, an institution that any edition of the Carnegie basic
+                classification, in the IPEDS file of any data year, codes as "Special Focus Four-Year: Medical Schools
+                &amp; Centers" (code 25 of C15BASIC, C18BASIC or C21BASIC) or as the 2021 category "Special Focus
+                Research Institution" (C21BASIC 27; 20 of its 22 institutions in 2024 were medical schools and
+                centers in the 2018 classification) ({num(iy?.rules.medical.institutionYears)}{' '}
                 institution-years, {num(iy?.rules.medical.withFte)}); else that is on a reviewed list with a sourced
                 reason, etl/reference/rate_population_exclusions.csv in the open-source pipeline (
                 {num(iy?.rules.listed.institutionYears)} institution-years, {num(iy?.rules.listed.withFte)}): Gallaudet
@@ -1070,11 +1099,14 @@ export default function Methodology() {
                 <SourceLink source={SOURCES.clercCenter}>Laurent Clerc National Deaf Education Center</SourceLink>);
                 AdventHealth University, whose main campus's Clery geography includes a hospital that IPEDS does not
                 flag (<SourceLink source={SOURCES.adventHealthAsr2018}>AdventHealth University, Annual Security Report 2018</SourceLink>);
-                and The University of Tennessee Health Science Center and Albert Einstein College of Medicine in the
-                years IPEDS gives them no Carnegie basic classification. Such a year also has no single-year rate.
-                HOSPITAL is what the institution reports to IPEDS, so a university next to a medical center run by a
-                separate organization, such as a health system, can report no hospital and is then not left out by
-                this rule; see{' '}
+                and Vanderbilt University, Yale University, the University of North Carolina at Chapel Hill, West
+                Virginia University, the University of Pittsburgh-Pittsburgh Campus and George Washington University,
+                in the years their annual security reports count incidents at a hospital whose patients, visitors and
+                staff are not in their FTE (each school page gives the years, the report's account and its source).
+                Such a year also has no single-year rate. HOSPITAL is what the institution reports to IPEDS, so a
+                university next to a hospital run by a separate organization, such as a health system, can report no
+                hospital; see{' '}
+                <a href="#rate-hospital-notes" className="underline">Hospital notes</a> and{' '}
                 <a href="#rate-medical-campuses" className="underline">Medical-center campuses</a>. Two more rules can
                 give no rate to an institution whose main campus shares a site with another institution's main
                 campus (
@@ -1123,8 +1155,17 @@ export default function Methodology() {
                   ? joinAnd(rateCodes(rr).filter((code) => rr.dispersion.fitted[code] === undefined).map(rateCodePhrase))
                   : '…'}
                 . For a window total N
-                over T years the variance is φ·N with φ = 1 + c·g(N/T)·√(N/T), and the interval of the count is φ times
-                the gamma interval of the effective count N/φ (
+                over T years the model's variance is φ·N with φ = 1 + c·g(N/T)·√(N/T).
+                {rr?.dispersion?.spread === 'max' && (
+                  <>
+                    {' '}An institution's own yearly counts can vary more than that: one year of many reports between
+                    two quiet ones, for example. So φ is the larger of the model's and T·s²/N, where s² is the sample
+                    variance of the institution's yearly counts in the window (n − 1 in the denominator); with N = 0
+                    it is the model's. When its own spread is the larger, the school page says so and gives the yearly
+                    counts.
+                  </>
+                )}{' '}
+                The interval of the count is φ times the gamma interval of the effective count N/φ (
                 <SourceLink source={SOURCES.fayFeuer1997}>Fay and Feuer, 1997</SourceLink>; with φ = 1 it is the exact
                 Poisson interval, <SourceLink source={SOURCES.garwood1936}>Garwood, 1936</SourceLink>), with a lower end
                 of 0 when N is 0. Divided by the student-years and multiplied by 10,000, it is the rate's interval.
@@ -1140,7 +1181,8 @@ export default function Methodology() {
                 FTE is uncertain. A rate is "{VERDICT_LABELS.above}" when the lower end of its interval is above the
                 national rate, "{VERDICT_LABELS.below}" when the upper end is below it, and otherwise "
                 {VERDICT_LABELS.nd}"; the test uses unrounded figures, so an end of the interval and the national rate
-                can be equal to two decimals, as the site shows them, and still differ: the page then says so. If the
+                can be equal to two decimals, as the site shows them, and still differ: the page then shows both to
+                four decimals. If the
                 intervals have their intended coverage,
                 an institution whose underlying rate equals the national rate is shown as above with a chance of about{' '}
                 {oneSidedChance(rr)}, and as below with the same chance
@@ -1179,18 +1221,23 @@ export default function Methodology() {
                 at least {rr?.lists?.minExpected ?? '…'} incidents would be expected at the national rate (the
                 national rate times their student-years). That depends on size only, never on the count. Rates on
                 fewer than 20 events are marked unreliable by CDC WONDER (
-                <SourceLink source={SOURCES.cdcWonderUnreliable}>CDC WONDER</SourceLink>).
+                <SourceLink source={SOURCES.cdcWonderUnreliable}>CDC WONDER</SourceLink>). An institution that meets
+                these conditions but has an unusual year (<a href="#rate-flags" className="underline">Unusual years</a>)
+                on campus, of one of the category's offenses, in the window is not placed, so that one year's count
+                does not set its place; the list page shows it in a group of its own, with its rate and comparisons.
                 {w && latest && (
                   <>
                     {' '}In {latestLabel},{' '}
                     {joinAnd(listCodes.filter((c) => w[c]?.listed !== undefined).map((c) =>
-                      `the list of ${rateCodePhrase(c)} has ${formatNumber(w[c].listed!)} members (about ${formatNumber(listMinStudents(w[c].minFteYears ?? 0, rr))} or more on-campus students)`))}
+                      `the list of ${rateCodePhrase(c)} has ${formatNumber(w[c].listed!)} members (about ${formatNumber(listMinStudents(w[c].minFteYears ?? 0, rr))} or more on-campus students)` +
+                      (w[c].notPlaced !== undefined ? ` and ${formatNumber(w[c].notPlaced!)} not placed` : '')))}
                     .
                   </>
                 )}{' '}
                 Members are ordered by rate, highest first; equal rates share a position (1, 2, 2, 4) and are listed
                 by name. Each member's rate is compared with every other member's by a z-test of the difference,
-                with the variance of the interval model at their pooled rate, at the level{' '}
+                with each member's variance the larger of the interval model's at their pooled rate and its own
+                yearly spread (<a href="#rate-interval" className="underline">Intervals</a>), at the level{' '}
                 {rr?.lists?.alpha ?? '…'} / (2(n − 1)) for a list of n members (Bonferroni). The range runs from 1 +
                 the number of members whose rate is significantly higher to n − the number whose rate is significantly
                 lower, widened to hold its position. With {ci}% confidence the institution's position among the n
@@ -1220,6 +1267,20 @@ export default function Methodology() {
                   </>
                 )}
               </Rule>
+              <Rule id="rate-type-lists" title="Positions within a type">
+                A type's positions are the national list's members of one type of institution (
+                <a href="#rate-peers" className="underline">Comparisons with institutions of the same type</a>), with
+                positions and ranges recomputed among them alone, like a state's. The data has them for every type
+                with at least {rr?.lists?.typeMinMembers ?? '…'} members, and the list page and school pages show
+                them. On-campus rates differ by type, and a position within a type compares an institution only with
+                institutions of the same type.
+                {w?.violent?.typeLists !== undefined && (
+                  <>
+                    {' '}In {latestLabel}, {formatNumber(w.violent.typeLists)} types have positions on the violent-crime
+                    list.
+                  </>
+                )}
+              </Rule>
               <Rule id="rate-reasons" title="Rated but not on a list">
                 Three reasons keep a rated institution off a list: an uncertain on-campus FTE (
                 <a href="#rate-denominator" className="underline">On-campus students</a>); incidents at listed
@@ -1228,7 +1289,9 @@ export default function Methodology() {
                 with its rate and comparisons shown; and a campus at a site shared with another institution whose
                 students there are not shown by a published figure to be few (
                 <a href="#rate-shared" className="underline">Shared campuses</a>), with its rate shown and its
-                comparisons withheld. Institutions with the second or third reason stay in the national rate.
+                comparisons withheld. Institutions with the second or third reason stay in the national rate. An
+                institution not placed for an unusual year (<a href="#rate-lists" className="underline">Ordered lists</a>)
+                has none of these reasons and stays in the national rate too.
                 {w && (
                   <>
                     {' '}Institutions with each reason in {latestLabel}, in that order:{' '}
@@ -1254,6 +1317,15 @@ export default function Methodology() {
                 campus-year that is in neither file as a warning; it adds nothing to the list itself.{' '}
                 {screenSentence(build)} Incidents at a medical center that is not on the list, or that DOE does not
                 list as a campus of its own, are not counted apart.
+              </Rule>
+              <Rule id="rate-hospital-notes" title="Hospital notes">
+                A second reviewed list (etl/reference/hospital_unresolved.csv in the open-source pipeline) holds the
+                universities with a hospital next to or inside the main campus whose own reports, as read, do not
+                establish whether the hospital's incidents are in their figures. Each keeps its rate and its
+                positions, and every page that shows one of its rates for those years says that this is not
+                established and names the hospital; its school page gives what its reports do say, with the source.
+                The annual security reports read for this list and for the reviewed exclusions above were those of
+                universities near the top of the ordered lists, not every institution's.
               </Rule>
               <Rule id="rate-shared" title="Shared campuses">
                 DOE's files give enrollment per institution, not per campus, so where campuses of two or more
@@ -1293,6 +1365,14 @@ export default function Methodology() {
                     incidents at the site are in none of its rates; each is a participant.
                   </li>
                 </ul>
+                <span className="block mt-2">
+                  The school pages give, for each category, the incidents behind these notes. An owner's figure is
+                  everything its campuses at the site reported on campus (all of it in its rate), not only the
+                  figures a guest repeats; a guest's or participant's figure is what its campuses at the site
+                  reported, its own figures or the owner's when it repeated them (none of it in its rates). So the
+                  same incidents can be one institution's figure at the site and another's. A site is found anew each
+                  year, and the window figures add the window's years.
+                </span>
                 <span className="block mt-2">
                   An institution whose every campus repeats one other institution's figures counts no campus of its
                   own, and that institution's denominator adds its on-campus FTE. In all,{' '}
@@ -1357,9 +1437,12 @@ export default function Methodology() {
                 {rr?.flags.minOtherYears ?? '…'} other years (a year without an incident counts as 0), and a negative
                 binomial count with the median of those years as its mean (at least {rr?.flags.minMean ?? '…'}) and
                 variance μ + {rr?.flags.c ?? '…'}·μ<sup>1.5</sup> would reach that count with a probability below{' '}
-                {rr?.flags.p ?? '…'}. A flag never changes a count or a rate: DOE counts incidents in the year they
-                are reported, and one investigation or series of reports can add many to one year (
-                <a href="#year-reported" className="underline">How Institutions Count</a>). When on-campus flags of a
+                {rr?.flags.p ?? '…'}. A flag never changes a count or a rate. It says only that the year's count is
+                far above the institution's other years; DOE counts each incident in the year it is reported, so the
+                incidents may have happened earlier, and the figures do not say why the count is high (
+                <a href="#year-reported" className="underline">How Institutions Count</a>). An on-campus flag of a
+                list category's offenses in a window keeps the institution off that window's order (
+                <a href="#rate-lists" className="underline">Ordered lists</a>). When on-campus flags of a
                 rate's offenses fall in a window, the comparison with the national rate is also made with each flagged
                 year counted at its median, and the school page shows that result when it differs.
                 {rs?.flags && (
@@ -1421,8 +1504,10 @@ export default function Methodology() {
                 <SourceLink source={SOURCES.ncesFallEnrollment2024}>NCES, Fall Enrollment instructions, Who to Exclude</SourceLink>),
                 so an institution's rates leave out the incidents at its campuses abroad; they stay on each such
                 campus's own school page, and the institution's school pages say how many there were. Campuses in
-                Puerto Rico, Guam and other U.S. territories are not abroad, and state and national rankings by count
-                never included campuses abroad.
+                Puerto Rico, Guam and other U.S. territories are not abroad. Campuses abroad that DOE lists under a
+                U.S. state appear in the lists of campuses by count, like any campus that reported; none of them
+                reported an incident in the years shown. Their incidents are never in an institution's totals or
+                rates.
                 {latestYear && iy?.byYear[latestYear] && (
                   <>
                     {' '}In {latestYear}, {formatNumber(iy.byYear[latestYear].abroad)} institutions in the states covered
@@ -1438,7 +1523,9 @@ export default function Methodology() {
                 of the category, counting every location, per 10,000 of the rate denominator, over the institutions in
                 the states covered with a denominator of at least {num(rr?.minFte)}, no population rule and a certain
                 on-campus FTE (zeros included). No count is flagged where the reference is 0. The count is shown as
-                reported; the flag says to check the institution's Annual Security Report.
+                reported and keeps its place in the ranking; the flag says only that it is high for the
+                institution's size, not why (DOE counts each incident in the year it is reported, so some may have
+                happened earlier).
                 {latestYear && rs?.countFlags?.[latestYear] && (
                   <>
                     {' '}In the {latestYear} national rankings by count, the flagged counts are{' '}
@@ -1522,7 +1609,7 @@ export default function Methodology() {
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
                   Rates per 10,000 on-campus students a year. Each category's columns add up to the{' '}
                   {num(w.violent?.rated)} rated institutions.{' '}
-                  {nationalCompositionSentence('violent', facts.violent?.composition, latest) ?? ''}
+                  {nationalCompositionSentence('violent', facts.violent?.composition, latest, facts.violent?.compositionShare) ?? ''}
                 </p>
               </>
             )}
@@ -1573,16 +1660,27 @@ export default function Methodology() {
             </h3>
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
               On every build the audit (check Interval Calibration) predicts each year's on-campus count of every
-              institution with a rate from its other years, with the variance model of the intervals, and counts how
-              often the year falls inside the central {ci}% of the prediction. The expected share comes from data
-              simulated under the model, so it is not exactly {ci}%. The audit fails a category and period when the
+              institution with a rate from its other years, with the intervals' variance (the model's, or the
+              other years' own spread when that is larger), and counts how often the year falls inside the central{' '}
+              {ci}% of the prediction. The expected share comes from data simulated under the model with the same
+              rule, so it is not exactly {ci}%. The audit fails a category and period when the
               two differ, either way, by more than {rr?.calibration ? pctPoints(rr.calibration.tolerance) : '…'} over
               the institutions with at least {calBands[0] ?? '…'} incidents a year. In a group of institutions with
               similar counts it fails when the share inside is below the expected share by more than{' '}
               {rr?.calibration ? pctPoints(rr.calibration.bandToleranceBelow) : '…'}, or above it by more than{' '}
               {rr?.calibration ? pctPoints(rr.calibration.bandToleranceAbove) : '…'}, if the group has at least{' '}
-              {rr?.calibration ? formatNumber(rr.calibration.bandMinUnits) : '…'} institutions; smaller groups are
-              reported without a pass rule. The two limits differ on purpose: intervals that hold fewer counts than
+              {rr?.calibration ? formatNumber(rr.calibration.bandMinUnits) : '…'} institutions.
+              {rr?.calibration?.topBandCodes && rr.calibration.topBandCodes.length > 0 && rr.calibration.topBandSE !== undefined ? (
+                <>
+                  {' '}The group with the most incidents a year
+                  {calColumns.length > 0 ? ` (${bandLabel(calColumns[calColumns.length - 1])})` : ''} of{' '}
+                  {joinAnd(rr.calibration.topBandCodes.map(rateCodePhrase))} is tested whatever its size: with fewer than{' '}
+                  {formatNumber(rr.calibration.bandMinUnits)} institutions, each limit is widened by{' '}
+                  {formatNumber(rr.calibration.topBandSE)} binomial standard errors of the expected share, √(e(1 −
+                  e)/k) for k institution-years. Other smaller groups are reported without a pass rule.
+                </>
+              ) : ' Smaller groups are reported without a pass rule.'}{' '}
+              The two limits differ on purpose: intervals that hold fewer counts than
               the model says are too narrow, so comparisons and rank ranges claim more certainty than the data give;
               intervals that hold more are too wide, which only leaves more rates without a verdict.
             </p>
@@ -1665,7 +1763,9 @@ export default function Methodology() {
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
               Each cell: the share of yearly counts inside the predicted range, the share expected in brackets, and the
               number of institutions. Columns: institutions by their average incidents a year. † Below the expected
-              share by more than {rr?.calibration ? pctPoints(rr.calibration.bandToleranceBelow) : '…'}. Years: the
+              share by more than {rr?.calibration ? pctPoints(rr.calibration.bandToleranceBelow) : '…'} (a small
+              group with the most incidents is tested against its widened limit, and "fails" says when it is
+              outside it). Years: the
               first five years and the latest {rr?.calibration?.latestYears ?? '…'}.{' '}
               <a href="/audit.json" className="underline">audit.json</a> has every figure.
             </p>
@@ -2148,10 +2248,14 @@ export default function Methodology() {
                   and the other files named by window and category: every rated institution, ordered by rate, with
                   its on-campus count (<code>n</code>), its counts at non-campus locations and on public property
                   (<code>nNoncampus</code>, <code>nPublic</code>), student-years (<code>fteYears</code>), rate and
-                  interval (<code>rate</code>, <code>lo</code>, <code>hi</code>), the count expected at the national
-                  rate (<code>E</code>), the comparisons (<code>verdict</code>, <code>peerVerdict</code>), the reason
-                  it is not on a list (<code>why</code>), its unusual-year flags and, for the list categories, its
-                  position and range; the file's header has the national rate and the rates by type.{' '}
+                  interval (<code>rate</code>, <code>lo</code>, <code>hi</code>; to 4 decimals <code>lo4</code>,{' '}
+                  <code>hi4</code>), the variance ratio and whether it is the model's or the institution's own spread
+                  (<code>phi</code>, <code>phiFrom</code>), the count expected at the national rate (<code>E</code>),
+                  the comparisons (<code>verdict</code>, <code>peerVerdict</code>), the reason it is not on a list
+                  (<code>why</code>, or <code>notPlaced</code> for an unusual year), its unusual-year flags, a hospital
+                  note (<code>hospitalUnresolved</code>) and, for the list categories, its national, state and type
+                  positions and ranges; the file's header has the national rate and the rates by type, to 2 and 4
+                  decimals.{' '}
                   <code>rates/institutions/</code> has one file per institution with its windows and single years,
                   and <code>rates/flags.json</code> every unusual-year flag.
                 </dd>

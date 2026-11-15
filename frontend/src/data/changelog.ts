@@ -23,6 +23,28 @@ export interface ChangeEntry {
 export const CHANGES: ChangeEntry[] = [
   {
     date: '2026-11-15',
+    kind: 'correction',
+    title: 'One report filed by two institutions in the same city counted once',
+    body: [
+      'Where campuses of two or more institutions in the same city report exactly the same figures for a whole year (every category at every location), adding up to at least 20, the year now counts once, under one host campus, in state and national totals and rankings by count, as other identical figures already did. Over 2015-2024 this takes 1,301 (crimes, arrests and disciplinary referrals together), in 36 sets of figures for one campus, year and location, out of the totals, where they had been counted twice; the repeating campuses leave the rankings by count in those years.',
+      'School pages still show every figure as DOE publishes it, and each such campus\'s page names the campus its figures count under. An institution with no other campus counting that year has no figures of its own that year, so it has no rate for the windows containing it, and its students are added to the host institution\'s rate.',
+    ],
+    methodology: 'copies',
+  },
+  {
+    date: '2026-11-15',
+    kind: 'method',
+    title: 'Wider intervals for uneven years, unusual years kept off the order, positions within a type, hospitals',
+    body: [
+      'An interval now allows for as much year-to-year variation as the institution\'s own three yearly counts show, when that is more than the model allows. Such intervals are wider, and the school page says so and gives the yearly counts. Comparisons and rank ranges use the same rule.',
+      'An institution with an unusually high year of one of a list\'s offenses in the window is no longer placed on that list: one year would set its place. It is shown in a group of its own with its rate and comparisons. The lists also give positions within each type of institution.',
+      'Vanderbilt University, Yale University, the University of North Carolina at Chapel Hill, West Virginia University, the University of Pittsburgh and George Washington University have no rate in the years their annual security reports count incidents at a hospital whose patients, visitors and staff are not their students; each school page gives the reason and the source. Universities with a hospital next to or inside the main campus whose reports do not say whether its incidents are counted keep their rates, with a note.',
+      'The medical-school rule now applies in every year when any edition of the Carnegie classification codes an institution as a medical school, and one more medical-center campus is counted apart. Where an end of an interval and the rate it is compared with are the same to two decimals, both are now shown to four. No count changed.',
+    ],
+    methodology: 'rate-rules',
+  },
+  {
+    date: '2026-11-15',
     kind: 'method',
     title: 'Three-year rates of on-campus incidents, compared with the national rate',
     body: [

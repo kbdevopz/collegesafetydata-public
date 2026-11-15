@@ -675,6 +675,8 @@ export default function Rankings() {
             code={rateCode}
             verdict={selectedVerdict}
             onVerdict={(v) => setRateParams({ verdict: v })}
+            peerType={searchParams.get('type')}
+            onPeerType={(t) => setRateParams({ type: t })}
             isInCompare={isInCompare}
             toggleCompare={toggleCompare}
           />

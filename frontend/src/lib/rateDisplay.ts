@@ -8,6 +8,8 @@ import type { RateRules, Verdict } from './types'
 
 // A listed institution's point position is shown next to its rank range,
 // always together ("12th; could be anywhere from 3rd to 61st of 206").
+// False shows the range alone ("anywhere from 3rd to 61st of 206") and
+// orders a list by the rate without numbering it.
 export const SHOW_POINT_POSITION = true
 
 /**

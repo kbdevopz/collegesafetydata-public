@@ -381,7 +381,8 @@ export default function About() {
                     Incidents reported on campus at all of an institution's campuses in the United States over three
                     years, per 10,000 of its on-campus FTE a year (an estimate of its FTE without students enrolled
                     only online): a size-adjusted figure, not a measure of risk. Each rate has an interval and is
-                    compared with the national rate; the largest institutions are also placed on ordered lists. How
+                    compared with the national rate; the largest institutions are also placed on ordered lists, unless
+                    one of their years in the window is unusually high. How
                     all of this is done is described on the{' '}
                     <Link to="/methodology#rates" className="text-primary-600 dark:text-primary-400 underline">Methodology page</Link>.
                   </p>
@@ -497,7 +498,7 @@ export default function About() {
                   (metadata?.rateRules?.lists?.minExpected !== undefined
                     ? `at least ${metadata.rateRules.lists.minExpected} incidents at the national rate`
                     : 'enough incidents at the national rate') +
-                  ' are placed on the ordered lists.'
+                  ' are placed on the ordered lists, and an institution with an unusually high year in the window is not placed.'
                 }
               />
               <LimitationCard

@@ -4,10 +4,11 @@ import { Loader2 } from 'lucide-react'
 import { fetchInstitutionRates } from '../lib/api'
 import type { InstitutionRatesFile, Metadata, SchoolProfile } from '../lib/types'
 import {
-  isListCode, noRatesSentence, ordinal, rateCodeLabel, windowLabel, windowStatusSentence,
+  isListCode, missingYearsSentence, noRatesSentence, ordinal, rateCodeLabel, windowLabel, windowStatusSentence,
 } from '../lib/rates'
 import { RATE_IS_NOT, RATE_MEASURE } from '../lib/rateDisplay'
 import { RateCodeBlock } from './RateCard'
+import LinkedText from './LinkedText'
 
 type Loaded = { file: InstitutionRatesFile | null; failed: boolean }
 
@@ -119,11 +120,11 @@ export default function CompareRates({
                 <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{noRatesSentence(p, rules)}</p>
               ) : !w ? (
                 <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                  Not rated for {windowLabel(windowKey)}: not in DOE's data in any of its years.
+                  {missingYearsSentence(windowKey, [], rules, p)}
                 </p>
               ) : w.status !== 'rated' ? (
                 <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                  {windowStatusSentence(w, windowKey, rules, p)}
+                  <LinkedText text={windowStatusSentence(w, windowKey, rules, p) ?? ''} />
                 </p>
               ) : entry ? (
                 <RateCodeBlock
@@ -137,6 +138,7 @@ export default function CompareRates({
                   profile={p}
                   state={file.state}
                   notes={w}
+                  hospital={file.hospitalUnresolved ?? []}
                 />
               ) : (
                 <p className="text-sm text-gray-600 dark:text-gray-400">No figure for this code.</p>

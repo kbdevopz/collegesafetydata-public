@@ -1,14 +1,16 @@
 import { Fragment, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import type {
-  InstitutionWindowCode, RateEntryFields, RateRules, SchoolProfile, SharedSiteFigure, SharedSiteNotes, Verdict,
+  HospitalUnresolved, InstitutionWindowCode, RateEntryFields, RateRules, SchoolProfile, SharedSiteFigure,
+  SharedSiteNotes, Verdict,
 } from '../lib/types'
 import {
   coLocatedSentence, compositionSentence, differSentence, entryPosition, flagSentence, FLAG_NOTE, fmtInt, fmtRate,
-  intervalSentence, isListCode, medicalSentence, nationalSentence, notListedSentence, onlineSentence,
-  otherLocationsSentence, peerSentence, rateCodeLabel, roundedTieSentence, sharedFigureText, sharedGuestSentence,
-  sharedHostSentence, windowLabel, withoutFlaggedSentence,
+  hospitalNote, intervalSentence, isListCode, medicalSentence, nationalSentence, notListedSentence, notPlacedSentence,
+  onlineSentence, otherLocationsSentence, peerSentence, rateCodeLabel, sharedFigureText, sharedGuestSentence,
+  sharedHostSentence, spreadSentence, tieDigits, typePositionText, windowLabel, withoutFlaggedSentence,
 } from '../lib/rates'
+import LinkedText from './LinkedText'
 import { stateDisplayMin, VERDICT_LABELS } from '../lib/rateDisplay'
 import { cn } from '../lib/utils'
 
@@ -37,13 +39,15 @@ export function VerdictLabel({ verdict, short, className }: { verdict: Verdict; 
 export interface EntryText {
   verdict: Verdict
   interval: string
-  // A bound that prints the same as the rate it is compared with
-  ties: string[]
   peer: string | null
   differ: string | null
   position: string | null
   statePosition: string | null
+  typePosition: string | null
+  // Not on the list: too few expected incidents, or not placed (unusual year)
   notListed: string | null
+  // A hospital next to the main campus (hospitalUnresolved)
+  hospital: string | null
   why: string | null
   notes: string[]
   // A guest's shared-site sentence (in `why` when withheld, else in `notes`)
@@ -70,6 +74,10 @@ export function entryText(
     state?: string
     // The window's shared-site notes (on a window-file entry: the entry itself)
     notes?: SharedSiteNotes
+    // The national and peer rates to 4 decimals, and the yearly counts
+    natl4?: number | null
+    peerRate4?: number | null
+    nByYear?: Record<string, number>
   },
 ): EntryText {
   const { code, windowKey, rules, natl, peerType, peerRate, listN, minFteYears, profile } = opts
@@ -101,19 +109,24 @@ export function entryText(
     ? entryPosition(e, null, true)
     : null
   const figures = site.sharedSite?.figures ?? []
-  const ties = [
-    roundedTieSentence(e, e.verdict, natl, 'the national rate'),
-    roundedTieSentence(e, e.peerVerdict, peerRate, 'the rate of institutions of its type'),
-  ].filter((s): s is string => s !== null)
+  // A deciding end of the interval that prints the same as the rate it is
+  // compared with: both to 4 decimals
+  const natDigits = tieDigits(e, e.verdict, natl, opts.natl4)
+  const peerDigits = tieDigits(e, e.peerVerdict, peerRate, opts.peerRate4)
+  const digits = natDigits === 4 || peerDigits === 4 ? 4 : 2
+  const spread = spreadSentence(e, opts.nByYear)
   return {
     verdict: e.verdict,
-    interval: intervalSentence(e, rules),
-    ties,
-    peer: peerSentence(e, peerType, peerRate, rules),
+    interval: `${intervalSentence(e, rules, digits)}${spread ? ` ${spread}` : ''}`,
+    peer: peerSentence(e, peerType, peerRate, rules, opts.peerRate4, peerDigits),
     differ: differSentence(e.verdict, e.peerVerdict, natl, peerType, peerRate, rules),
     position: listCode && e.listed ? entryPosition(e, listN) : null,
     statePosition: statePosition && opts.state ? `Among the ${fmtInt(e.stateN ?? 0)} on the list in ${opts.state}: ${statePosition}` : null,
-    notListed: listCode && !e.listed && !e.why ? notListedSentence(minFteYears, rules) : null,
+    typePosition: listCode ? typePositionText(e, peerType, rules) : null,
+    notListed: listCode && !e.listed && !e.why
+      ? (notPlacedSentence(e) ?? notListedSentence(minFteYears, rules))
+      : null,
+    hospital: hospitalNote(e.hospitalUnresolved),
     why,
     notes,
     guest,
@@ -121,7 +134,7 @@ export function entryText(
     flags: (e.flags ?? []).map((f) => flagSentence(f)),
     withoutFlagged: e.verdictWithoutFlagged ? withoutFlaggedSentence(e.verdictWithoutFlagged) : null,
     composition: compositionSentence(code, e.composition, e.n, windowKey),
-    national: nationalSentence(natl, windowKey, rules),
+    national: nationalSentence(natl, windowKey, rules, opts.natl4, natDigits),
   }
 }
 
@@ -159,6 +172,7 @@ function SiteFigures({ figures }: { figures: SharedSiteFigure[] }) {
  */
 export function RateCodeBlock({
   code, windowKey, entry, rules, peerType, listN, minFteYears, profile, state, notes, headingLevel = 3,
+  hospital,
 }: {
   code: string
   windowKey: string
@@ -172,10 +186,13 @@ export function RateCodeBlock({
   // The window's shared-site notes (institution file: the rated window status)
   notes?: SharedSiteNotes
   headingLevel?: 3 | 4
+  // The institution file's hospital rows, for the hospital note's "more";
+  // null: the page shows the note once elsewhere, not in this block
+  hospital?: HospitalUnresolved[] | null
 }) {
   const t = entryText(entry, {
     code, windowKey, rules, natl: entry.natl, peerType, peerRate: entry.peerRate, listN, minFteYears, profile, state,
-    notes,
+    notes, natl4: entry.natl4, peerRate4: entry.peerRate4, nByYear: entry.nByYear,
   })
   const Heading = headingLevel === 3 ? 'h3' : 'h4'
   const years = Object.keys(entry.nByYear).sort()
@@ -192,7 +209,6 @@ export function RateCodeBlock({
         </span>
       </p>
       <Line>{t.interval}</Line>
-      {t.ties.map((s) => <Line key={s}>{s}</Line>)}
       {t.why && <Line className="font-medium">{t.why}</Line>}
       {t.why !== null && t.why === t.guest && t.figures.length > 0 && <SiteFigures figures={t.figures} />}
       {t.peer && <Line>{t.peer}</Line>}
@@ -203,6 +219,7 @@ export function RateCodeBlock({
         </Line>
       )}
       {t.statePosition && <Line>{t.statePosition}.</Line>}
+      {t.typePosition && <Line>{t.typePosition}.</Line>}
       {t.notListed && <Line>{t.notListed}</Line>}
       <Line className="text-gray-600 dark:text-gray-400">
         On campus: {fmtInt(entry.n)} {entry.n === 1 ? 'incident' : 'incidents'}
@@ -225,7 +242,38 @@ export function RateCodeBlock({
         </div>
       )}
       {t.composition && <Line className="text-gray-600 dark:text-gray-400">{t.composition}</Line>}
+      {hospital !== null && entry.hospitalUnresolved && (
+        <HospitalNote note={entry.hospitalUnresolved} rows={hospital ?? []} />
+      )}
       <Line className="text-xs text-gray-500 dark:text-gray-400">{t.national}</Line>
+    </div>
+  )
+}
+
+/**
+ * The hospital note (hospitalUnresolved) with what the institution's reports
+ * say and where, from the institution file's reviewed rows, behind "More".
+ */
+export function HospitalNote({
+  note, rows, windowYearsN = 3,
+}: {
+  note: { name: string; years: number[] }
+  rows: HospitalUnresolved[]
+  windowYearsN?: number
+}) {
+  const row = rows.find((r) => r.name === note.name)
+  return (
+    <div className="text-sm text-gray-700 dark:text-gray-300">
+      <p>{hospitalNote(note, windowYearsN)}</p>
+      {row && (
+        <details className="mt-1 text-gray-600 dark:text-gray-400">
+          <summary className="cursor-pointer text-primary-600 dark:text-primary-400 hover:underline">
+            More: what its reports say
+          </summary>
+          <p className="mt-1">{row.known}</p>
+          <p className="mt-1 text-xs break-words">Source: <LinkedText text={row.source} /></p>
+        </details>
+      )}
     </div>
   )
 }

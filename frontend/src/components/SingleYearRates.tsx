@@ -1,5 +1,6 @@
 import type { InstitutionRatesFile, RateRules, SchoolProfile } from '../lib/types'
 import { fmtInt, fmtRate, joinAnd, levelPct, notRatedYearText, rateCodeLabel } from '../lib/rates'
+import LinkedText from './LinkedText'
 
 interface YearRow {
   year: number
@@ -37,13 +38,25 @@ export default function SingleYearRates({
       if ((y.sharedIn?.[code] ?? 0) > 0) notes.push(`${fmtInt(y.sharedIn?.[code] ?? 0)} at a campus site shared with another institution, counted here once`)
       if ((y.sharedOut?.[code] ?? 0) > 0) notes.push(`${fmtInt(y.sharedOut?.[code] ?? 0)} more at a campus site shared with another institution, not in this rate`)
       if (!r) {
-        const excluded = profile?.institution?.byYear[String(year)]?.rateExcludedReason
+        // The reason without its source (the sources are listed below the table)
+        const excluded = profile?.institution?.byYear[String(year)]?.rateExcludedReason?.split(' Source: ')[0]
         return { year, n: null, rate: null, lo: null, hi: null, note: notRatedYearText(y.notRated, rules, excluded) }
       }
       const [n, rate, lo, hi] = r
       return { year, n, rate, lo, hi, note: notes.length > 0 ? joinAnd(notes) : null }
     })
   const rated = rows.filter((r) => r.rate !== null)
+  // The sources of the reasons in the table, with the years that cite each
+  const sources = new Map<string, number[]>()
+  for (const r of rows) {
+    if (r.rate !== null) continue
+    const full = profile?.institution?.byYear[String(r.year)]?.rateExcludedReason
+    const i = full?.indexOf(' Source: ') ?? -1
+    if (full && i >= 0) {
+      const src = full.slice(i + ' Source: '.length)
+      sources.set(src, [...(sources.get(src) ?? []), r.year])
+    }
+  }
   const skip = rules?.skipYears ?? []
   const level = levelPct(rules)
 
@@ -123,6 +136,15 @@ export default function SingleYearRates({
           </tbody>
         </table>
       </div>
+      {sources.size > 0 && (
+        <ul className="text-xs text-gray-600 dark:text-gray-400 space-y-0.5 break-words">
+          {Array.from(sources.entries()).map(([src, ys]) => (
+            <li key={src}>
+              Source for {ys.length === 1 ? ys[0] : joinAnd(ys.map(String))}: <LinkedText text={src} />
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   )
 }
