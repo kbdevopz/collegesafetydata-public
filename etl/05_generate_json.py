@@ -11,11 +11,12 @@ Usage:
     python 05_generate_json.py
 """
 
-import bisect
 import math
 import re
 import sys
 import json
+import zlib
+import numpy as np
 import pandas as pd
 from pathlib import Path, PurePosixPath
 from datetime import datetime
@@ -27,7 +28,9 @@ from config import (
     OFFENSE_DESCRIPTIONS, OFFENSE_FAMILIES, DATA_YEARS,
     US_STATES, PROCESS_ALL_SCHOOLS,
     SUMMARY_FAMILIES, MIN_FTE_FOR_RATE, ONLINE_SHARE_YEAR, MIN_COUNT_FOR_RATE_RANK, RATE_COUNTS_ONLY,
-    RATE_CI_LEVEL, SPIKE_MIN_COUNT, SPIKE_FACTOR, SPIKE_MIN_OTHER_YEARS, summary_codes
+    RATE_CI_LEVEL, SPIKE_MIN_COUNT, SPIKE_FACTOR, SPIKE_MAX_FACTOR, SPIKE_P, SPIKE_MIN_OTHER_YEARS, summary_codes,
+    ONLINE_UNCERTAIN_RATIO, DISPERSION_YEARS, DISPERSION_MIN_MEAN, DISPERSION_GROUPS, RANK_DRAWS, RANK_SEED,
+    MEDICAL_CAMPUS_SHARE, SHARED_MAX_SHARE, COUNT_FLAG_MIN_COUNT, COUNT_FLAG_FACTOR
 )
 import provenance
 
@@ -74,6 +77,7 @@ def required_inputs() -> list[Path]:
         CURATED_DIR / "dims" / "dim_enrollment.parquet",
         CURATED_DIR / "dims" / "campus_year_sources.parquet",
         CURATED_DIR / "dims" / "campus_id_links.parquet",
+        CURATED_DIR / "dims" / "dim_medical_campus.parquet",
     ]
     if PROCESS_ALL_SCHOOLS:
         paths += [
@@ -240,7 +244,7 @@ def known_defects(aggs_record: dict, years) -> list[dict]:
     return out
 
 
-def generate_metadata(aggs_record: dict) -> dict:
+def generate_metadata(aggs_record: dict, rate_stats: dict) -> dict:
     """
     Generate metadata.json with available options.
 
@@ -384,13 +388,28 @@ def generate_metadata(aggs_record: dict) -> dict:
         # The rate rules (config.py): who rate rankings list (on-campus FTE
         # of at least minFte; the years of onlineShareYear use that other
         # fall's online share), who is ranked by rate (minCount incidents or
-        # more; countsOnly codes never), the interval and the spike flag
+        # more; countsOnly codes never; not with an uncertain on-campus FTE,
+        # a medical-campus share of medicalShare or more, or a shared share
+        # above sharedShare), the interval (dispersion k per code), the
+        # simulated rank ranges, the spike flag and the count flag
         "rateRules": {"minFte": MIN_FTE_FOR_RATE, "minCount": MIN_COUNT_FOR_RATE_RANK,
                       "countsOnly": [offense_code(o) for o in RATE_COUNTS_ONLY],
                       "ciLevel": RATE_CI_LEVEL,
+                      "onlineUncertainRatio": list(ONLINE_UNCERTAIN_RATIO),
+                      "medicalShare": list(MEDICAL_CAMPUS_SHARE),
+                      "sharedShare": list(SHARED_MAX_SHARE),
+                      "dispersion": {"years": list(DISPERSION_YEARS), "minMean": DISPERSION_MIN_MEAN,
+                                     "groups": dispersion()["groups"],
+                                     "kByCode": {code: dispersion_k(code) for code in sorted(dispersion()["familyOf"])
+                                                 } | {code: dispersion_k(code) for code in SUMMARY_FAMILIES}},
+                      "rankRanges": {"draws": RANK_DRAWS, "seed": RANK_SEED},
                       "spike": {"minCount": SPIKE_MIN_COUNT, "factor": SPIKE_FACTOR,
+                                "maxFactor": SPIKE_MAX_FACTOR, "p": SPIKE_P,
                                 "minOtherYears": SPIKE_MIN_OTHER_YEARS},
+                      "countFlag": {"minCount": COUNT_FLAG_MIN_COUNT, "factor": COUNT_FLAG_FACTOR},
                       "onlineShareYear": {str(y): src for y, src in sorted(ONLINE_SHARE_YEAR.items())}},
+        # Numbers of the national rankings files that the Methodology page shows
+        "rateStats": rate_stats,
         "offenses": offenses,
         # Known DOE file errors and the campuses whose figures they touch
         # (residence-hall figures of campus-years from DOE's 2021-2023 release)
@@ -520,12 +539,17 @@ def offense_code(offense: str) -> str:
     return code
 
 
-def code_counts(rows: pd.DataFrame, keys: list[str]) -> dict[str, pd.DataFrame]:
+INSTITUTION_VALUES = ["count", "medical_count", "shared_in", "shared_out", "abroad_count"]
+
+
+def code_counts(rows: pd.DataFrame, keys: list[str], values: tuple[str, ...] = ("count",)) -> dict[str, pd.DataFrame]:
     """
-    {code: rows of `keys` + count} for every summary code (SUMMARY_FAMILIES:
+    {code: rows of `keys` + `values`} for every summary code (SUMMARY_FAMILIES:
     the sum over its family, or over every offense) and every offense in
-    `rows` (which have offense, offense_family and count), counts above 0.
+    `rows` (which have offense, offense_family and `values`), the rows with
+    a value above 0.
     """
+    values = list(values)
     out = {}
     for code, family in SUMMARY_FAMILIES.items():
         if family is None:
@@ -534,29 +558,37 @@ def code_counts(rows: pd.DataFrame, keys: list[str]) -> dict[str, pd.DataFrame]:
             part = rows[rows["offense"].isin(family)]
         else:
             part = rows[rows["offense_family"] == family]
-        out[code] = part.groupby(keys, as_index=False, dropna=False)["count"].sum()
+        out[code] = part.groupby(keys, as_index=False, dropna=False)[values].sum()
     for offense, part in rows.groupby("offense"):
-        out[offense_code(offense)] = part[keys + ["count"]]
-    return {code: df[df["count"] > 0] for code, df in out.items()}
+        out[offense_code(offense)] = part[keys + values]
+    return {code: df[(df[values] > 0).any(axis=1)] for code, df in out.items()}
+
+
+# Why a rate is not ranked (rateNotRanked "why"): a rule of 04 that leaves
+# the institution-year out (no rate: its counts only), or a reason its rate
+# is shown but not ranked (config.py)
+EXCLUDING_RULES = ("hospital", "medical", "listed", "merger", "family")
+NOT_RANKED_REASONS = ("online", "medical_campus", "shared", "few")
 
 
 class Institutions:
     """
     The institutions rates are calculated for (04's agg_institution_year and
     agg_institution_year_offense): per institution-year its link campus,
-    name, state, campuses, FTE and share of exclusively online students, and
-    its counts per code (code_counts).
+    name, state, campuses, FTE estimates and share of exclusively online
+    students, and its counts per code (code_counts): count (campuses in the
+    United States), medical_count, shared_in, shared_out, abroad_count.
     """
 
     def __init__(self):
         aggs = CURATED_DIR / "aggs"
         self.years = pd.read_parquet(aggs / "agg_institution_year.parquet")
         offense_rows = pd.read_parquet(aggs / "agg_institution_year_offense.parquet")
-        self.counts = code_counts(offense_rows, ["year", "base_unitid"])
+        self.counts = code_counts(offense_rows, ["year", "base_unitid"], tuple(INSTITUTION_VALUES))
         self.by_key = {(int(r["year"]), int(r["base_unitid"])): r for r in self.years.to_dict("records")}
-        self._count_of = {code: {(int(y), int(b)): int(c) for y, b, c in
-                                 zip(df["year"].tolist(), df["base_unitid"].tolist(), df["count"].tolist())}
-                          for code, df in self.counts.items()}
+        self._values = {code: {(int(r[0]), int(r[1])): tuple(int(v) for v in r[2:]) for r in
+                               df[["year", "base_unitid"] + INSTITUTION_VALUES].itertuples(index=False)}
+                        for code, df in self.counts.items()}
         # The name of an institution whose FTE another's rate adds (04's
         # pooled_with): its 001 campus's, else its lowest campus's
         dim_inst = pd.read_parquet(CURATED_DIR / "dims" / "dim_institution.parquet",
@@ -571,15 +603,20 @@ class Institutions:
             self._listed_years.setdefault(b, []).append(y)
 
     @staticmethod
+    def rate_listed(rec: dict) -> bool:
+        """Whether an institution-year's rate's denominator (rate_fte, pooled FTE included) is at least MIN_FTE_FOR_RATE."""
+        fte = rec.get("rate_fte")
+        return pd.notna(fte) and int(fte) >= MIN_FTE_FOR_RATE
+
+    @staticmethod
     def rate_ranked(rec: dict) -> bool:
         """
         Whether an institution-year is in rate rankings (config.py,
-        MIN_FTE_FOR_RATE): its rate's denominator (rate_fte: its on-campus
-        FTE plus that of institutions 04 pools with it) is at least
+        MIN_FTE_FOR_RATE): its rate's denominator is at least
         MIN_FTE_FOR_RATE, and no rule of 04 leaves it out (rate_excluded).
+        A code is then ranked unless why_not_ranked gives a reason.
         """
-        fte = rec.get("rate_fte")
-        return pd.notna(fte) and int(fte) >= MIN_FTE_FOR_RATE and opt(rec.get("rate_excluded")) is None
+        return Institutions.rate_listed(rec) and opt(rec.get("rate_excluded")) is None
 
     def pooled(self, rec: dict) -> list[dict] | None:
         """[{id, name, fte (on-campus)}] of the institutions whose FTE the rate adds (04's pooled_with), or None."""
@@ -593,17 +630,51 @@ class Institutions:
         return out
 
     def count(self, code: str, year: int, base_unitid: int) -> int:
-        return self._count_of.get(code, {}).get((int(year), int(base_unitid)), 0)
+        return self.values(code, year, base_unitid)[0]
+
+    def values(self, code: str, year: int, base_unitid: int) -> tuple[int, int, int, int, int]:
+        """(count, medical_count, shared_in, shared_out, abroad_count) of a code."""
+        return self._values.get(code, {}).get((int(year), int(base_unitid)), (0, 0, 0, 0, 0))
 
     def codes(self) -> list[str]:
         return list(self.counts)
 
+    def why_not_ranked(self, code: str, rec: dict) -> list[str]:
+        """
+        For a listed institution-year (rate_listed) and a code it has
+        incidents of (or figures of which count under another institution's
+        campus, shared_out): [] when its rate is ranked; [rule]
+        (EXCLUDING_RULES) when a rule of 04 leaves it out (no rate);
+        otherwise the reasons its rate is shown but not ranked, in this
+        order (config.py): "online" (uncertain on-campus FTE),
+        "medical_campus" (MEDICAL_CAMPUS_SHARE), "shared" (SHARED_MAX_SHARE),
+        and "few" (fewer than MIN_COUNT_FOR_RATE_RANK incidents) when there
+        is another reason.
+        """
+        if opt(rec.get("rate_excluded")) is not None:
+            return [str(rec["rate_rule"])]
+        n, medical, shared_in, shared_out, _abroad = self.values(code, rec["year"], rec["base_unitid"])
+        why = []
+        if bool(rec.get("online_uncertain")):
+            why.append("online")
+        num, den = MEDICAL_CAMPUS_SHARE
+        if n and medical * den >= n * num:
+            why.append("medical_campus")
+        num, den = SHARED_MAX_SHARE
+        if (shared_in + shared_out) * den > (n + shared_out) * num:
+            why.append("shared")
+        if why and n < MIN_COUNT_FOR_RATE_RANK:
+            why.append("few")
+        return why
+
     def spike(self, code: str, year: int, base_unitid: int) -> bool:
         """
-        Whether the institution's count of `code` in `year` is unusually high
-        for it (config.py, SPIKE_*): at least SPIKE_MIN_COUNT and more than
-        SPIKE_FACTOR times the median of its counts in its other listed years
-        (0 for a year without one), with at least SPIKE_MIN_OTHER_YEARS of them.
+        Whether the institution's count n of `code` in `year` is unusually
+        high for it (config.py, SPIKE_*): n >= SPIKE_MIN_COUNT, at least
+        SPIKE_MIN_OTHER_YEARS other listed years (0 for a year without an
+        incident), n > SPIKE_FACTOR x their median and > SPIKE_MAX_FACTOR x
+        their largest, and P(Y >= n) < SPIKE_P for a negative binomial Y with
+        the median as mean and the code's k (dispersion_k).
         """
         count = self.count(code, year, base_unitid)
         if count < SPIKE_MIN_COUNT:
@@ -614,31 +685,43 @@ class Institutions:
             return False
         mid = len(others) // 2
         median = others[mid] if len(others) % 2 else (others[mid - 1] + others[mid]) / 2
-        return count > SPIKE_FACTOR * median
+        if not (count > SPIKE_FACTOR * median and count > SPIKE_MAX_FACTOR * others[-1]):
+            return False
+        return nb_upper_tail(count, median, dispersion_k(code)) < SPIKE_P
 
     def profile_years(self, base_unitid: int, own: dict[int, dict[str, int]]) -> dict[str, dict]:
         """
         A school file's "institution" years: {year: {campuses, online,
         onlineYear (ONLINE_SHARE_YEAR years only), rateRanked,
-        rateExcludedReason, rateFte, pooledWith, spikes, counts}} for each
+        rateExcludedReason, rateFte, fteUncertain, pooledWith, abroad,
+        medical, sharedIn, sharedOut, notRanked, spikes, counts}} for each
         year of `own` (the school's own counts per year and code, above 0) in
         which its institution is listed.
 
         rateFte is the rate's denominator (on-campus FTE, with any pooled
-        institutions' added), absent without an FTE; pooledWith lists the
-        pooled institutions; spikes the codes whose count is unusually high
-        for the institution that year (Institutions.spike). counts (per code,
-        above 0) is left out when it equals the school's own counts that year
-        (one campus and no shadow blocks), which keeps the files small: the
-        page then uses the school's own counts.
+        institutions' added), absent without an FTE; fteUncertain
+        ({share, partTimeFirst}: the two estimates, partTimeFirst null when
+        it cannot be calculated) when the on-campus FTE is uncertain;
+        pooledWith lists the pooled institutions; abroad ({campuses,
+        counts}) the counting campuses abroad and their counts per code (not
+        in the institution's counts); medical, sharedIn and sharedOut the
+        codes' counts at listed medical-center campuses and shared with
+        another institution's campus (above 0 only); notRanked {code:
+        reasons} the codes a listed institution-year is not ranked by rate
+        for (why_not_ranked, without "online", which fteUncertain gives);
+        spikes the codes whose count is unusually high for the institution
+        that year (Institutions.spike). counts (per code, above 0) is left
+        out when it equals the school's own counts that year (one campus, in
+        the United States, and no shadow blocks), which keeps the files
+        small: the page then uses the school's own counts.
         """
         out = {}
         for year in sorted(own):
             rec = self.by_key.get((int(year), int(base_unitid)))
             if rec is None:
                 continue
-            counts = {code: self.count(code, year, base_unitid) for code in self.counts}
-            counts = {code: n for code, n in counts.items() if n > 0}
+            vals = {code: self.values(code, year, base_unitid) for code in self.counts}
+            counts = {code: v[0] for code, v in vals.items() if v[0] > 0}
             entry = {
                 "campuses": int(rec["campuses"]),
                 "online": int(rec["online_pct"]) if pd.notna(rec.get("online_pct")) else None,
@@ -648,15 +731,35 @@ class Institutions:
             # (that other year, or the year itself when NCES has none for it)
             if int(year) in ONLINE_SHARE_YEAR and entry["online"] is not None:
                 entry["onlineYear"] = int(rec["online_year"])
-            # Left out of rate rankings by a rule of 04 (population, merger, shared campus): why
+            # Left out of rate rankings by a rule of 04 (population, merger): why
             if opt(rec.get("rate_excluded")) is not None:
                 entry["rateExcludedReason"] = rec["rate_excluded"]
             if pd.notna(rec.get("rate_fte")):
                 entry["rateFte"] = int(rec["rate_fte"])
+            if bool(rec.get("online_uncertain")):
+                entry["fteUncertain"] = {"share": opt_int(rec.get("fte_share")),
+                                         "partTimeFirst": opt_int(rec.get("fte_part_time_first"))}
             # Rated with other institutions' on-campus FTE added (04's pooled_with)
             pooled = self.pooled(rec)
             if pooled:
                 entry["pooledWith"] = pooled
+            if int(rec.get("abroad_campuses") or 0) > 0:
+                entry["abroad"] = {"campuses": int(rec["abroad_campuses"]),
+                                   "counts": {code: v[4] for code, v in vals.items() if v[4] > 0}}
+            for key, i in (("medical", 1), ("sharedIn", 2), ("sharedOut", 3)):
+                part = {code: v[i] for code, v in vals.items() if v[i] > 0}
+                if part:
+                    entry[key] = part
+            if self.rate_ranked(rec):
+                not_ranked = {}
+                for code in [code for code, v in vals.items() if v[0] > 0 or v[3] > 0]:
+                    if code in COUNTS_ONLY_CODES:
+                        continue
+                    why = [w for w in self.why_not_ranked(code, rec) if w not in ("online", "few")]
+                    if why:
+                        not_ranked[code] = why
+                if not_ranked:
+                    entry["notRanked"] = not_ranked
             spikes = [code for code in counts if self.spike(code, year, base_unitid)]
             if spikes:
                 entry["spikes"] = spikes
@@ -666,6 +769,15 @@ class Institutions:
         return out
 
 
+def opt_int(value) -> int | None:
+    v = opt(value)
+    return None if v is None else int(v)
+
+
+# --------------------------------------------------------------------------
+# Intervals: overdispersion (negative binomial k) and the gamma interval
+# --------------------------------------------------------------------------
+
 def poisson_cdf(n: int, lam: float) -> float:
     """P(X <= n) for X ~ Poisson(lam), summed in log space."""
     if lam <= 0:
@@ -674,6 +786,23 @@ def poisson_cdf(n: int, lam: float) -> float:
     terms = [k * log_lam - lam - math.lgamma(k + 1) for k in range(n + 1)]
     top = max(terms)
     return min(1.0, math.exp(top) * sum(math.exp(t - top) for t in terms))
+
+
+def gamma_cdf(a: float, x: float) -> float:
+    """
+    The regularized lower incomplete gamma function P(a, x) (a > 0), by its
+    power series x^a e^-x / Gamma(a + 1) x sum_n x^n / ((a + 1) ... (a + n)).
+    """
+    if x <= 0:
+        return 0.0
+    term, total, n = 1.0, 1.0, 0
+    while True:
+        n += 1
+        term *= x / (a + n)
+        total += term
+        if term < 1e-17 * total and n > x:
+            break
+    return min(1.0, math.exp(a * math.log(x) - x - math.lgamma(a + 1)) * total)
 
 
 def _solve(f, target: float, lo: float, hi: float) -> float:
@@ -689,22 +818,30 @@ def _solve(f, target: float, lo: float, hi: float) -> float:
     return (lo + hi) / 2
 
 
-_garwood_cache: dict[int, tuple[float, float]] = {}
+def gamma_quantile(a: float, q: float) -> float:
+    """The x with P(a, x) = q."""
+    span = a + 20 * math.sqrt(a + 1) + 20
+    return _solve(lambda x: 1 - gamma_cdf(a, x), 1 - q, 0.0, span)
 
 
-def garwood(n: int) -> tuple[float, float]:
+_interval_cache: dict[tuple[int, float], tuple[float, float]] = {}
+
+
+def count_interval(n: int, k: float) -> tuple[float, float]:
     """
-    The exact (Garwood) Poisson interval of a count n at RATE_CI_LEVEL: lower
-    = the mean at which P(X >= n) = alpha/2 (0 for n = 0), upper = the mean at
-    which P(X <= n) = alpha/2.
+    A count n's interval at RATE_CI_LEVEL with overdispersion k (config.py):
+    phi = 1 + n/k, m = n / phi; lower phi x G(alpha/2; m) (0 for n = 0),
+    upper phi x G(1 - alpha/2; m + 1), G the gamma quantile.
     """
-    if n not in _garwood_cache:
+    key = (int(n), float(k))
+    if key not in _interval_cache:
         alpha = 1 - RATE_CI_LEVEL
-        span = n + 10 * math.sqrt(n + 1) + 10
-        lower = 0.0 if n == 0 else _solve(lambda lam: poisson_cdf(n - 1, lam), 1 - alpha / 2, 0.0, span)
-        upper = _solve(lambda lam: poisson_cdf(n, lam), alpha / 2, 0.0, span)
-        _garwood_cache[n] = (lower, upper)
-    return _garwood_cache[n]
+        phi = 1 + n / k
+        m = n / phi
+        lower = 0.0 if n == 0 else phi * gamma_quantile(m, alpha / 2)
+        upper = phi * gamma_quantile(m + 1, 1 - alpha / 2)
+        _interval_cache[key] = (lower, upper)
+    return _interval_cache[key]
 
 
 def round2(x: float) -> float:
@@ -712,39 +849,165 @@ def round2(x: float) -> float:
     return round(x * 100) / 100
 
 
-def rate_interval(count: int, fte: int) -> tuple[float, float]:
-    """The interval of a rate per 10,000: garwood(count) / fte x 10,000, rounded to 2 decimals."""
-    lower, upper = garwood(int(count))
+def rate_interval(count: int, fte: int, k: float) -> tuple[float, float]:
+    """The interval of a rate per 10,000: count_interval(count, k) / fte x 10,000, rounded to 2 decimals."""
+    lower, upper = count_interval(int(count), k)
     return round2(lower / fte * 10000), round2(upper / fte * 10000)
+
+
+def nb_upper_tail(n: int, mean: float, k: float) -> float:
+    """P(Y >= n) for a negative binomial Y with this mean and size k (0 when the mean is 0 and n >= 1)."""
+    if n <= 0:
+        return 1.0
+    if mean <= 0:
+        return 0.0
+    log_q, log_p = math.log(k / (k + mean)), math.log(mean / (k + mean))
+    below = sum(math.exp(math.lgamma(y + k) - math.lgamma(k) - math.lgamma(y + 1) + k * log_q + y * log_p)
+                for y in range(n))
+    return max(0.0, 1.0 - below)
+
+
+def chi2_median(df: int) -> float:
+    """The median of a chi-square distribution with an even number df of degrees of freedom."""
+    if df % 2:
+        raise SiteDataError("DISPERSION_YEARS must span an odd number of years (an even number of degrees of freedom).")
+    return _solve(lambda x: poisson_cdf(df // 2 - 1, x / 2), 0.5, 0.0, 10.0 * df + 10)
+
+
+def median(values: list[float]) -> float:
+    s = sorted(values)
+    mid = len(s) // 2
+    return s[mid] if len(s) % 2 else (s[mid - 1] + s[mid]) / 2
+
+
+_DISPERSION: dict | None = None
+
+
+def dispersion(institutions: "Institutions | None" = None) -> dict:
+    """
+    {group: {k, estimate, phi, units}} of config.py's DISPERSION_GROUPS: for
+    the institutions listed in rate rankings without a rule (rate_ranked)
+    in every year of DISPERSION_YEARS, each unit (an institution for a
+    summary code; an institution and offense for a group of single offenses,
+    each offense its own table) with a mean count of at least
+    DISPERSION_MIN_MEAN: mu = row total x year total / table total (the
+    two-way Poisson model's fit), X = sum (n - mu)^2 / mu, D = X /
+    chi2_median(years - 1); phi = median D, 1/k = median (D - 1) / mean.
+    k is rounded to 1 decimal (estimate keeps it unrounded).
+    """
+    global _DISPERSION
+    if _DISPERSION is not None:
+        return _DISPERSION
+    institutions = institutions or Institutions()
+    years = list(range(DISPERSION_YEARS[0], DISPERSION_YEARS[1] + 1))
+    panel = sorted(b for b in {b for (_y, b) in institutions.by_key}
+                   if all((y, b) in institutions.by_key and Institutions.rate_ranked(institutions.by_key[(y, b)])
+                          for y in years))
+    med = chi2_median(len(years) - 1)
+    family_of = {}
+    for o in pd.read_parquet(CURATED_DIR / "dims" / "dim_offense.parquet")[["offense", "offense_family"]].itertuples(index=False):
+        family_of[offense_code(o.offense)] = o.offense_family
+
+    def table_units(code: str) -> list[tuple[float, float]]:
+        rows = [[institutions.count(code, y, b) for y in years] for b in panel]
+        rows = [r for r in rows if sum(r) >= DISPERSION_MIN_MEAN * len(years)]
+        if not rows:
+            return []
+        col = [sum(r[t] for r in rows) for t in range(len(years))]
+        grand = sum(col)
+        out = []
+        for r in rows:
+            total = sum(r)
+            x = sum((r[t] - total * col[t] / grand) ** 2 / (total * col[t] / grand) for t in range(len(years)))
+            out.append((x / med, total / len(years)))
+        return out
+
+    result = {}
+    for group, families in DISPERSION_GROUPS.items():
+        if families is None:
+            units = table_units(group)
+        else:
+            units = [u for code in sorted(family_of) if family_of[code] in families for u in table_units(code)]
+        if len(units) < 20:
+            raise SiteDataError(f"Dispersion group {group}: only {len(units)} units. Check DISPERSION_* in config.py.")
+        inv_k = median([(d - 1) / m for d, m in units])
+        if inv_k <= 0:
+            raise SiteDataError(f"Dispersion group {group}: no overdispersion found (1/k = {inv_k}).")
+        result[group] = {"k": round(1 / inv_k, 1), "estimate": 1 / inv_k,
+                         "phi": round(median([d for d, _m in units]), 2), "units": len(units)}
+    _DISPERSION = {"groups": result, "familyOf": family_of}
+    return _DISPERSION
+
+
+def dispersion_k(code: str) -> float:
+    """The k (rounded) of a code: its own for a summary code, else its family's group."""
+    d = dispersion()
+    if code in d["groups"]:
+        return d["groups"][code]["k"]
+    fam = d["familyOf"][code]
+    group = next(g for g, fams in DISPERSION_GROUPS.items() if fams is not None and fam in fams)
+    return d["groups"][group]["k"]
+
+
+def rank_ranges(year: int, code: str, rows: list[dict]) -> list[tuple[int, int]]:
+    """
+    Simulated rank ranges (config.py, RANK_DRAWS, RANK_SEED) of ranked
+    entries [{id, count, fte, rank}]: per institution RANK_DRAWS draws of
+    gamma(m + 1/2) x phi / fte (m, phi of count_interval) from
+    numpy.random.default_rng([RANK_SEED, year, CRC-32 of code, base]); each
+    draw ranked (1 = highest); the range is the middle RATE_CI_LEVEL of an
+    institution's simulated ranks, widened to hold its rank.
+    """
+    if not rows:
+        return []
+    k = dispersion_k(code)
+    crc = zlib.crc32(code.encode("ascii"))
+    draws = np.empty((RANK_DRAWS, len(rows)))
+    for j, r in enumerate(rows):
+        phi = 1 + r["count"] / k
+        rng = np.random.default_rng([RANK_SEED, int(year), crc, int(r["id"])])
+        draws[:, j] = rng.gamma(r["count"] / phi + 0.5, 1.0, RANK_DRAWS) * phi / r["fte"]
+    order = np.argsort(-draws, axis=1, kind="stable")
+    ranks = np.empty_like(order)
+    ranks[np.arange(RANK_DRAWS)[:, None], order] = np.arange(1, len(rows) + 1)
+    ranks.sort(axis=0)
+    cut = round(RANK_DRAWS * (1 - RATE_CI_LEVEL) / 2)
+    lo, hi = ranks[cut], ranks[RANK_DRAWS - cut - 1]
+    return [(min(int(lo[j]), r["rank"]), max(int(hi[j]), r["rank"])) for j, r in enumerate(rows)]
 
 
 COUNTS_ONLY_CODES = {offense_code(o) for o in RATE_COUNTS_ONLY}
 
 
-def rate_rankings(institutions: Institutions, year: int, in_preset) -> tuple[dict, dict, dict]:
+def classify_rates(institutions: Institutions, year: int, in_preset) -> tuple[dict, dict, dict, dict]:
     """
-    One file's rate rankings: ({base UNITID: institution}, {code: ranked
-    entries}, {code: unranked entries}).
+    One scope's rates, without rank ranges: ({base UNITID: institution},
+    {code: ranked entries}, {code: unranked entries}, {code: not ranked
+    entries}).
 
     The institutions are those of the year that `in_preset(rec)` accepts and
-    that are rate ranked (Institutions.rate_ranked). A code of
-    RATE_COUNTS_ONLY has no rate entries. For every other code, each
-    institution with a count above 0 gets rate = count / rate_fte x 10,000
-    rounded to 2 decimals and its interval (rate_interval). Those with at
-    least MIN_COUNT_FOR_RATE_RANK incidents are ranked by rate, largest
-    first, ties by name, then base UNITID, ranks 1, 2, 2, 4, each with its
-    rank range: from 1 + the number of ranked institutions whose interval is
-    entirely above its interval (lower bound above its upper bound) to the
-    number of ranked institutions minus those whose interval is entirely
-    below it. The others (1 to MIN_COUNT_FOR_RATE_RANK - 1 incidents) are
-    listed unranked, by rate the same way. spike: true marks an unusually
-    high count for the institution (Institutions.spike).
+    whose rate's denominator is at least MIN_FTE_FOR_RATE
+    (Institutions.rate_listed). A code of RATE_COUNTS_ONLY has no rate
+    entries. For every other code, each institution with a count above 0,
+    or with figures counted under another institution's campus (shared_out;
+    a count of 0 then undercounts):
+      - left out by a rule of 04 (EXCLUDING_RULES): not ranked, {id, count,
+        why: [rule]}, no rate;
+      - otherwise rate = count / rate_fte x 10,000 rounded to 2 decimals and
+        its interval (rate_interval, the code's k); with a reason not to rank
+        it (Institutions.why_not_ranked): not ranked, with why; else with at
+        least MIN_COUNT_FOR_RATE_RANK incidents: ranked by rate, largest
+        first, ties by name, then base UNITID, ranks 1, 2, 2, 4; else
+        unranked (too few incidents), by rate the same way.
+    Entries with rates carry medical, sharedIn and sharedOut (the counts of
+    config.py's medical-campus and shared-campus rules) when above 0; spike:
+    true marks an unusually high count (Institutions.spike).
     """
     recs = [r for r in institutions.years[institutions.years["year"] == year].to_dict("records")
-            if in_preset(r) and Institutions.rate_ranked(r)]
+            if in_preset(r) and Institutions.rate_listed(r)]
     table = {}
     for r in sorted(recs, key=lambda r: int(r["base_unitid"])):
-        table[str(int(r["base_unitid"]))] = {
+        entry = {
             "name": r["institution_name"],
             "unitid": int(r["link_unitid"]),
             "state": opt(r["state"]),
@@ -753,44 +1016,108 @@ def rate_rankings(institutions: Institutions, year: int, in_preset) -> tuple[dic
         }
         pooled = institutions.pooled(r)
         if pooled:
-            table[str(int(r["base_unitid"]))]["pooled"] = pooled
-    frame = pd.DataFrame({
-        "unitid": [int(r["base_unitid"]) for r in recs],
-        "institution_name": [r["institution_name"] for r in recs],
-        "fte": [int(r["rate_fte"]) for r in recs],
-    })
-    entries, unranked = {}, {}
+            entry["pooled"] = pooled
+        if opt(r.get("rate_excluded")) is not None:
+            entry["excluded"] = str(r["rate_rule"])
+        if bool(r.get("online_uncertain")):
+            entry["fteUncertain"] = {"share": opt_int(r.get("fte_share")),
+                                     "partTimeFirst": opt_int(r.get("fte_part_time_first"))}
+        if int(r.get("abroad_campuses") or 0) > 0:
+            entry["abroad"] = int(r["abroad_campuses"])
+        table[str(int(r["base_unitid"]))] = entry
+    ranked_out, unranked, not_ranked = {}, {}, {}
     for code in institutions.codes():
         if code in COUNTS_ONLY_CODES:
             continue
-        rows = frame.assign(count=[institutions.count(code, year, u) for u in frame["unitid"].tolist()])
-        rows = rows[rows["count"] > 0].copy()
-        rows["rate"] = (rows["count"] / rows["fte"] * 10000).round(2)
-        bounds = [rate_interval(c, f) for c, f in zip(rows["count"].tolist(), rows["fte"].tolist())]
-        rows["lo"] = [b[0] for b in bounds]
-        rows["hi"] = [b[1] for b in bounds]
-        big, small = rows[rows["count"] >= MIN_COUNT_FOR_RATE_RANK], rows[rows["count"] < MIN_COUNT_FOR_RATE_RANK]
-        big, ranks = ranked(big, "rate")
-        los, his = sorted(big["lo"].tolist()), sorted(big["hi"].tolist())
-        n = len(big)
-        out = []
-        for rank, (_, row) in zip(ranks, big.iterrows()):
-            above = n - bisect.bisect_right(los, row["hi"])  # lower bound above its upper bound
-            below = bisect.bisect_left(his, row["lo"])  # upper bound below its lower bound
-            entry = {"rank": rank, "id": int(row["unitid"]), "count": int(row["count"]), "rate": float(row["rate"]),
-                     "lo": float(row["lo"]), "hi": float(row["hi"]), "rankLo": 1 + above, "rankHi": n - below}
-            if institutions.spike(code, year, int(row["unitid"])):
-                entry["spike"] = True
-            out.append(entry)
-        entries[code] = out
-        small, _ranks = ranked(small, "rate")
-        unranked[code] = [{"id": int(row["unitid"]), "count": int(row["count"]), "rate": float(row["rate"]),
-                           "lo": float(row["lo"]), "hi": float(row["hi"])} for _, row in small.iterrows()]
-    return table, entries, unranked
+        k = dispersion_k(code)
+        big, small, other = [], [], []
+        for r in recs:
+            base = int(r["base_unitid"])
+            n, medical, shared_in, shared_out, _abroad = institutions.values(code, year, base)
+            # No incident: 0 for that code, unless figures of its campus count under another
+            # institution's (shared_out), which makes its 0 an undercount (not ranked: "shared")
+            if n == 0 and shared_out == 0:
+                continue
+            why = institutions.why_not_ranked(code, r)
+            if why and why[0] in EXCLUDING_RULES:
+                other.append({"id": base, "count": n, "why": why, "_name": r["institution_name"], "_rate": -1.0})
+                continue
+            fte = int(r["rate_fte"])
+            lo, hi = rate_interval(n, fte, k)
+            e = {"id": base, "count": n, "rate": round2(n / fte * 10000), "lo": lo, "hi": hi,
+                 "_name": r["institution_name"], "_fte": fte}
+            e["_rate"] = e["rate"]
+            for key, v in (("medical", medical), ("sharedIn", shared_in), ("sharedOut", shared_out)):
+                if v:
+                    e[key] = v
+            if institutions.spike(code, year, base):
+                e["spike"] = True
+            if why:
+                e["why"] = why
+                other.append(e)
+            elif n >= MIN_COUNT_FOR_RATE_RANK:
+                big.append(e)
+            else:
+                small.append(e)
+        order = lambda e: (-e["_rate"], e["_name"], e["id"])  # noqa: E731
+        big.sort(key=order)
+        for i, e in enumerate(big):
+            e["rank"] = big[i - 1]["rank"] if i and e["rate"] == big[i - 1]["rate"] else i + 1
+        ranked_out[code] = big
+        unranked[code] = sorted(small, key=order)
+        not_ranked[code] = sorted(other, key=order)
+    return table, ranked_out, unranked, not_ranked
+
+
+ENTRY_KEYS = ("rank", "id", "count", "rate", "lo", "hi", "rankLo", "rankHi", "spike", "medical", "sharedIn",
+              "sharedOut", "why")
+
+
+def rate_rankings(institutions: Institutions, year: int, in_preset) -> tuple[dict, dict, dict, dict]:
+    """
+    One file's rate rankings: classify_rates, each ranked entry with its
+    simulated rank range (rank_ranges: rankLo, rankHi). Returns
+    ({base UNITID: institution}, {code: ranked}, {code: unranked},
+    {code: not ranked}), entries in the site's key order.
+    """
+    table, big, small, other = classify_rates(institutions, year, in_preset)
+    for code, rows in big.items():
+        ranges = rank_ranges(year, code, [{"id": e["id"], "count": e["count"], "fte": e["_fte"], "rank": e["rank"]}
+                                          for e in rows])
+        for e, (lo, hi) in zip(rows, ranges):
+            e["rankLo"], e["rankHi"] = lo, hi
+
+    def clean(rows):
+        return [{key: e[key] for key in ENTRY_KEYS if key in e} for e in rows]
+    return (table, {c: clean(v) for c, v in big.items()}, {c: clean(v) for c, v in small.items()},
+            {c: clean(v) for c, v in other.items()})
+
+
+def count_flag_limits(institutions: Institutions) -> dict[int, dict[str, int]]:
+    """
+    {year: {code: the highest rate in that year's national rate rankings, in
+    hundredths}} (config.py, COUNT_FLAG_*), from classify_rates of the
+    national scope (rank ranges do not change it).
+    """
+    out = {}
+    for year in sorted(int(y) for y in institutions.years["year"].unique() if int(y) in DATA_YEARS):
+        _t, big, _s, _o = classify_rates(institutions, year, lambda r: r["state"] in US_STATES)
+        out[year] = {code: max(round(e["rate"] * 100) for e in rows) for code, rows in big.items() if rows}
+    return out
+
+
+def high_for_size(count: int, fte, limit_cents) -> bool:
+    """
+    config.py COUNT_FLAG_*: count >= COUNT_FLAG_MIN_COUNT and count per
+    10,000 FTE above COUNT_FLAG_FACTOR x the national highest ranked rate
+    (exactly: count x 10,000 x 100 > factor x limit in hundredths x FTE).
+    """
+    return (limit_cents is not None and fte is not None and count >= COUNT_FLAG_MIN_COUNT
+            and count * 10000 * 100 > COUNT_FLAG_FACTOR * limit_cents * int(fte))
 
 
 def rankings_output(year_data: pd.DataFrame, preset: str, year: int, institutions: Institutions,
-                    in_preset, campus_rows: pd.DataFrame) -> dict:
+                    in_preset, campus_rows: pd.DataFrame, limits: dict[str, int]) -> dict:
     """
     One rankings file.
 
@@ -802,24 +1129,35 @@ def rankings_output(year_data: pd.DataFrame, preset: str, year: int, institution
             figures counted under another campus), incidents or not; fte is
             its institution's (NCES publishes FTE per institution) and
             campuses its institution's number of campuses that year
-        rankings: {code: [{rank, unitid, count}]}
+        rankings: {code: [{rank, unitid, count, highForSize?}]}
             per summary code (SUMMARY_FAMILIES) and offense, the campuses
             with a count above 0 (04's geo "All", shadow blocks left out),
             largest first, ties by name, then UNITID, ranks 1, 2, 2, 4. Every
             other campus of `campuses` has 0 for that code: the site lists
             those after them, all with rank (number of entries + 1), by name,
-            then UNITID (the same tie rule)
+            then UNITID (the same tie rule). highForSize: true marks a count
+            very high for the institution's FTE (high_for_size, `limits`:
+            count_flag_limits of the year)
         totals: {code: sum of the counts}
-        institutions: {base UNITID: {name, unitid (link campus), state, fte, campuses, pooled?}}
-            every institution of the scope that rate rankings may list this
-            year, incidents or not; fte is the rate's denominator (on-campus
-            FTE, with the on-campus FTE of `pooled` institutions added)
-        rateRankings: {code: [{rank, id (base UNITID), count, rate, lo, hi, rankLo, rankHi, spike?}]}
-            (rate_rankings) those with at least MIN_COUNT_FOR_RATE_RANK
-            incidents, ranked by rate; no code of RATE_COUNTS_ONLY
-        rateUnranked: {code: [{id, count, rate, lo, hi}]}
-            those with 1 to MIN_COUNT_FOR_RATE_RANK - 1 incidents, by rate;
-            every other institution of `institutions` has 0 for that code
+        institutions: {base UNITID: {name, unitid (link campus), state, fte, campuses, pooled?,
+                       excluded?, fteUncertain?, abroad?}}
+            every institution of the scope whose rate's denominator is at
+            least MIN_FTE_FOR_RATE this year, incidents or not; fte is that
+            denominator (on-campus FTE, with the on-campus FTE of `pooled`
+            institutions added); excluded the rule of 04 that leaves it out;
+            fteUncertain the two on-campus FTE estimates when they differ by
+            more than config.py allows; abroad its counting campuses abroad
+        rateRankings: {code: [{rank, id (base UNITID), count, rate, lo, hi, rankLo, rankHi, spike?,
+                              medical?, sharedIn?, sharedOut?}]}
+            (rate_rankings) those ranked by rate; no code of RATE_COUNTS_ONLY
+        rateUnranked: {code: [{id, count, rate, lo, hi, ...}]}
+            those with 1 to MIN_COUNT_FOR_RATE_RANK - 1 incidents and no
+            other reason not to rank them, by rate
+        rateNotRanked: {code: [{id, count, why, rate?, lo?, hi?, ...}]}
+            those not ranked by rate for a reason of classify_rates (why);
+            no rate when a rule of 04 leaves the institution out; count 0
+            only with sharedOut. Every other institution of `institutions`
+            has 0 for that code (one with `excluded` has no rate at all)
     """
     all_geo = year_data[year_data["geo"] == "All"]
     output = {"preset": preset, "year": int(year), "campuses": {}, "rankings": {}, "totals": {}}
@@ -851,8 +1189,13 @@ def rankings_output(year_data: pd.DataFrame, preset: str, year: int, institution
     for code, rows in code_counts(all_geo, ["unitid"]).items():
         rows = rows.merge(names, on="unitid", how="left")
         rows, ranks = ranked(rows, "count")
-        output["rankings"][code] = [{"rank": rank, "unitid": int(u), "count": int(c)}
-                                    for rank, u, c in zip(ranks, rows["unitid"].tolist(), rows["count"].tolist())]
+        entries = []
+        for rank, u, c in zip(ranks, rows["unitid"].tolist(), rows["count"].tolist()):
+            e = {"rank": rank, "unitid": int(u), "count": int(c)}
+            if high_for_size(int(c), output["campuses"][str(int(u))]["fte"], limits.get(code)):
+                e["highForSize"] = True
+            entries.append(e)
+        output["rankings"][code] = entries
         output["totals"][code] = int(rows["count"].sum())
 
     # 04's ranks of each offense must be the ones written (one ranking rule)
@@ -863,8 +1206,8 @@ def rankings_output(year_data: pd.DataFrame, preset: str, year: int, institution
             raise SiteDataError(f"{preset}-{year}: the ranks of {offense} differ from 04's. "
                                 "Re-run 04_create_aggregates.py, then 05.")
 
-    output["institutions"], output["rateRankings"], output["rateUnranked"] = rate_rankings(
-        institutions, int(year), in_preset)
+    output["institutions"], output["rateRankings"], output["rateUnranked"], output["rateNotRanked"] = \
+        rate_rankings(institutions, int(year), in_preset)
     return output
 
 
@@ -885,7 +1228,112 @@ def campus_year_rows() -> pd.DataFrame:
     return out
 
 
-def generate_rankings_json() -> None:
+STATS_CODES = ("violent", "criminal", "property")
+
+
+def national_stats(out: dict) -> dict:
+    """
+    The numbers the Methodology page shows for one national rankings file
+    (metadata rateStats.byYear): institutions listed in rate rankings
+    (on-campus FTE of at least MIN_FTE_FOR_RATE), of them left out by a rule
+    of 04 (excluded, and per rule), with an uncertain on-campus FTE (not
+    excluded) and with a counting campus abroad; per code of STATS_CODES the
+    ranked, too-few and not-ranked entries (per reason: an entry with
+    several reasons counts under each), ranked entries with a
+    medical-campus or shared-campus note, spikes and the median width of
+    the rank ranges (rankHi - rankLo + 1); over all codes the ranked
+    entries and spikes; per code the count rankings' entries flagged
+    highForSize.
+    """
+    inst = out["institutions"]
+    s = {"listed": len(inst),
+         "excluded": sum(1 for e in inst.values() if "excluded" in e),
+         "excludedBy": {rule: sum(1 for e in inst.values() if e.get("excluded") == rule) for rule in EXCLUDING_RULES},
+         "fteUncertain": sum(1 for e in inst.values() if "fteUncertain" in e and "excluded" not in e),
+         "abroad": sum(1 for e in inst.values() if "abroad" in e)}
+    for code in STATS_CODES:
+        ranked_rows = out["rateRankings"].get(code, [])
+        other = out["rateNotRanked"].get(code, [])
+        widths = [e["rankHi"] - e["rankLo"] + 1 for e in ranked_rows]
+        s[code] = {"ranked": len(ranked_rows), "few": len(out["rateUnranked"].get(code, [])),
+                   "notRanked": {w: sum(1 for e in other if w in e["why"])
+                                 for w in NOT_RANKED_REASONS + EXCLUDING_RULES},
+                   "medicalNote": sum(1 for e in ranked_rows if e.get("medical")),
+                   "sharedNote": sum(1 for e in ranked_rows if e.get("sharedIn") or e.get("sharedOut")),
+                   "spikes": sum(1 for e in ranked_rows if e.get("spike")),
+                   "medianRange": median(widths) if widths else None}
+    entries = [e for rows in out["rateRankings"].values() for e in rows]
+    s["rankedEntries"] = len(entries)
+    s["spikes"] = sum(1 for e in entries if e.get("spike"))
+    s["countFlags"] = {code: sum(1 for e in out["rankings"].get(code, []) if e.get("highForSize"))
+                       for code in ("all",) + STATS_CODES}
+    return s
+
+
+def institution_year_stats(institutions: Institutions) -> dict:
+    """
+    metadata rateStats numbers over every institution-year of DATA_YEARS (all
+    states, for the rules): per rule of 04 the institution-years it is the
+    first rule for (EXCLUDING_RULES order), and of those with an on-campus
+    FTE of at least MIN_FTE_FOR_RATE; the institution-years rated with
+    another institution's FTE added, per rule (merger, shared: one with both
+    counts under each); per year the institutions listed in rate rankings
+    (state and national files: on-campus FTE of at least MIN_FTE_FOR_RATE,
+    a state), of them left out by a rule, with an uncertain on-campus FTE
+    and with a counting campus abroad; per ONLINE_SHARE_YEAR year the
+    institutions whose own year's online share was used (no share for that
+    other fall), all and listed.
+    """
+    recs = [r for r in institutions.by_key.values() if int(r["year"]) in DATA_YEARS]
+    rules = {rule: {"institutionYears": 0, "listed": 0} for rule in EXCLUDING_RULES}
+    pooled = {"merger": 0, "shared": 0}
+    by_year = {}
+    own_year = {str(y): {"all": 0, "listed": 0} for y in sorted(ONLINE_SHARE_YEAR)}
+    for r in sorted(recs, key=lambda r: (int(r["year"]), int(r["base_unitid"]))):
+        y, listed = int(r["year"]), Institutions.rate_listed(r) and opt(r.get("state")) is not None
+        rule = opt(r.get("rate_rule"))
+        if rule is not None:
+            rules[rule]["institutionYears"] += 1
+            rules[rule]["listed"] += int(listed)
+        for p in str(opt(r.get("pooled_rule")) or "").split():
+            pooled[p] += 1
+        row = by_year.setdefault(str(y), {"listed": 0, "excluded": 0, "fteUncertain": 0, "abroad": 0})
+        if listed:
+            row["listed"] += 1
+            row["excluded"] += int(rule is not None)
+            row["fteUncertain"] += int(rule is None and bool(r.get("online_uncertain")))
+            row["abroad"] += int(int(r.get("abroad_campuses") or 0) > 0)
+        if y in ONLINE_SHARE_YEAR and pd.notna(r.get("online_year")) and int(r["online_year"]) == y:
+            own_year[str(y)]["all"] += 1
+            own_year[str(y)]["listed"] += int(listed)
+    return {"rules": rules, "pooled": pooled, "byYear": by_year, "onlineOwnYear": own_year}
+
+
+def counts_only_stats(institutions: Institutions, national_totals: dict[str, int], years: int) -> dict:
+    """
+    metadata rateStats numbers for RATE_COUNTS_ONLY: every offense's
+    average count a year in the national rankings (totals summed over the
+    national files' years, divided by their number, 1 decimal), and per
+    counts-only offense the institution-years listed in rate rankings
+    without a rule (rate_ranked) with at least MIN_COUNT_FOR_RATE_RANK of it.
+    """
+    offense_codes = sorted(c for c in national_totals if c not in SUMMARY_FAMILIES)
+    reaching = {}
+    for code in sorted(COUNTS_ONLY_CODES):
+        reaching[code] = sum(1 for (y, b), r in institutions.by_key.items()
+                             if y in DATA_YEARS and Institutions.rate_ranked(r)
+                             and institutions.count(code, y, b) >= MIN_COUNT_FOR_RATE_RANK)
+    return {"averagePerYear": {c: round(national_totals[c] / years, 1) for c in offense_codes},
+            "reachingMinCount": reaching}
+
+
+def interval_examples() -> dict:
+    """metadata rateStats: each summary code's count interval (count_interval, its k) for counts 0 and 20, 2 decimals."""
+    return {code: {str(n): [round2(v) for v in count_interval(n, dispersion_k(code))] for n in (0, 20)}
+            for code in SUMMARY_FAMILIES}
+
+
+def generate_rankings_json() -> dict:
     """
     Generate rankings JSON files for each year and preset (schema: rankings_output).
 
@@ -899,6 +1347,10 @@ def generate_rankings_json() -> None:
     rankings_dir = JSON_DIR / "rankings"
     rankings_dir.mkdir(exist_ok=True)
     institutions = Institutions()
+    dispersion(institutions)
+    limits = count_flag_limits(institutions)
+    stats = {}
+    national_totals: dict[str, int] = {}
     campus_years = campus_year_rows()
     zero_rows = 0
 
@@ -915,7 +1367,8 @@ def generate_rankings_json() -> None:
             year_data = rankings_df[rankings_df["year"] == year].copy()
             scope = campus_years[(campus_years["year"] == year) & campus_years["unitid"].isin(IVY_LEAGUE.keys())]
             output = rankings_output(year_data, "ivy", year, institutions,
-                                     lambda r: int(r["base_unitid"]) in IVY_BASE_UNITIDS, scope)
+                                     lambda r: int(r["base_unitid"]) in IVY_BASE_UNITIDS, scope,
+                                     limits.get(int(year), {}))
             write_json(rankings_dir / f"ivy-{year}-all.json", output)
             ivy_files += 1
 
@@ -948,7 +1401,8 @@ def generate_rankings_json() -> None:
                     if len(year_data) == 0 and len(scope) == 0:
                         continue
                     output = rankings_output(year_data, state, year, institutions,
-                                             lambda r, s=state: r["state"] == s, scope)
+                                             lambda r, s=state: r["state"] == s, scope,
+                                             limits.get(int(year), {}))
                     zero_rows += len(scope) - len(output["rankings"]["all"])
                     write_json(rankings_dir / f"{state}-{year}-all.json", output)
                     state_files += 1
@@ -977,7 +1431,11 @@ def generate_rankings_json() -> None:
                     continue
                 scope = campus_years[(campus_years["year"] == year) & campus_years["state"].isin(US_STATES)]
                 output = rankings_output(year_data, "national", year, institutions,
-                                         lambda r: r["state"] in US_STATES, scope)
+                                         lambda r: r["state"] in US_STATES, scope,
+                                         limits.get(int(year), {}))
+                stats[str(int(year))] = national_stats(output)
+                for code, total in output["totals"].items():
+                    national_totals[code] = national_totals.get(code, 0) + total
                 print(f"    {year}: {len(scope):,} campuses ranked, "
                       f"{len(scope) - len(output['rankings']['all']):,} of them with no incident (0)")
                 write_json(rankings_dir / f"national-{year}-all.json", output)
@@ -989,6 +1447,13 @@ def generate_rankings_json() -> None:
 
     print(f"  Total: {ivy_files + state_files + national_files} ranking files")
     print(f"  Saved to: {rankings_dir}/")
+    # metadata rateStats: the numbers the Methodology page shows, so it need not hard-code them
+    return {"byYear": stats,
+            "institutionYears": institution_year_stats(institutions),
+            "countsOnly": counts_only_stats(institutions, national_totals, national_files),
+            "intervalExamples": interval_examples(),
+            "countFlagLimits": {str(y): {c: v / 100 for c, v in sorted(lim.items())}
+                                for y, lim in sorted(limits.items())}}
 
 
 def generate_school_profiles() -> None:
@@ -1274,8 +1739,11 @@ def generate_downloads() -> None:
       its institution's name, the DOE release its figures come
       from, whether it counts in rankings, its institution's NCES FTE and
       online share as the rate rules use them, its rate's denominator
-      (on-campus FTE, pooled FTE added) and the rule that leaves it out of
-      rate rankings, if any.
+      (on-campus FTE, pooled FTE added), the rule that leaves it out of
+      rate rankings, if any, the two on-campus FTE estimates (config.py:
+      proportional and part-time first, rounded half up) and whether they
+      make the on-campus FTE uncertain, and whether the campus is a listed
+      medical-center campus that year (etl/reference/medical_campuses.csv).
     - counts-YYYY.csv: every nonzero count of that year, by campus, location
       and offense, as DOE publishes it (school pages show the same figures),
       and for a location also reported identically by another campus, the
@@ -1292,7 +1760,8 @@ def generate_downloads() -> None:
     counted = pd.read_parquet(CURATED_DIR / "aggs" / "agg_campus_year.parquet", columns=["year", "unitid"])
     inst = pd.read_parquet(CURATED_DIR / "aggs" / "agg_institution_year.parquet",
                            columns=["year", "base_unitid", "fte", "online_pct", "online_year", "rate_fte",
-                                    "rate_rule"])
+                                    "rate_rule", "fte_share", "fte_part_time_first", "online_uncertain"])
+    medical = pd.read_parquet(CURATED_DIR / "dims" / "dim_medical_campus.parquet", columns=["unitid", "year"])
     agg = pd.read_parquet(CURATED_DIR / "aggs" / "agg_school_year_offense.parquet",
                           columns=["year", "unitid", "offense", "geo", "count"])
     shared = pd.read_parquet(CURATED_DIR / "aggs" / "shared_blocks.parquet",
@@ -1308,17 +1777,28 @@ def generate_downloads() -> None:
     cy["counts_in_rankings"] = cy["counts_in_rankings"].eq(True)
     cy = cy.merge(inst.rename(columns={"fte": "institution_fte", "online_pct": "institution_online_pct",
                                        "online_year": "online_pct_fall", "rate_fte": "institution_rate_fte",
-                                       "rate_rule": "institution_rate_rule"}),
+                                       "rate_rule": "institution_rate_rule",
+                                       "fte_share": "institution_oncampus_fte_proportional",
+                                       "fte_part_time_first": "institution_oncampus_fte_part_time_first",
+                                       "online_uncertain": "institution_oncampus_fte_uncertain"}),
                   on=["year", "base_unitid"], how="left", validate="many_to_one")
+    # A campus of etl/reference/medical_campuses.csv that year (config.py, MEDICAL_CAMPUS_SHARE)
+    medical_keys = set(zip(medical["unitid"].astype(int).tolist(), medical["year"].astype(int).tolist()))
+    cy["medical_center_campus"] = [(int(u), int(y)) in medical_keys for u, y in zip(cy["unitid"], cy["year"])]
+    # Institution-years rates are not calculated for have no estimates and no flag
+    cy["institution_oncampus_fte_uncertain"] = cy["institution_oncampus_fte_uncertain"].astype("boolean")
     # The campus's own DOE name (the institution's name when DOE gives none)
     cy["campus_name"] = cy["campus_name"].where(cy["campus_name"].notna(), cy["institution_name"])
     cy = cy.rename(columns={"release": "doe_release"})
     cy["main_campus"] = cy["unitid"].astype("int64") % 1000 == 1
     cy = cy[["year", "unitid", "base_unitid", "campus_name", "institution_name", "city", "state", "main_campus", "doe_release",
              "counts_in_rankings", "institution_fte", "institution_online_pct", "online_pct_fall",
-             "institution_rate_fte", "institution_rate_rule"]]
+             "institution_rate_fte", "institution_rate_rule", "institution_oncampus_fte_proportional",
+             "institution_oncampus_fte_part_time_first", "institution_oncampus_fte_uncertain",
+             "medical_center_campus"]]
     cy = cy.sort_values(["year", "unitid"]).reset_index(drop=True)
-    for col in ("institution_fte", "online_pct_fall", "institution_rate_fte"):
+    for col in ("institution_fte", "online_pct_fall", "institution_rate_fte", "institution_oncampus_fte_proportional",
+                "institution_oncampus_fte_part_time_first"):
         cy[col] = cy[col].astype("Int64")
     write_csv(out_dir / "campus-years.csv", cy)
 
@@ -1479,9 +1959,9 @@ def main() -> int:
     provenance.invalidate(provenance.PUBLISHED_MANIFEST)
 
     try:
-        metadata = generate_metadata(inputs_before.records["04"])
         presets = generate_presets()
-        generate_rankings_json()
+        rate_stats = generate_rankings_json()
+        metadata = generate_metadata(inputs_before.records["04"], rate_stats)
         generate_school_profiles()
         generate_downloads()
 

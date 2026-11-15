@@ -21,6 +21,8 @@ Usage:
 """
 
 from collections import defaultdict
+from fractions import Fraction
+import math
 import os
 import sys
 import argparse
@@ -32,7 +34,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 from config import (CURATED_DIR, IVY_LEAGUE, GEO_FOR_ALL, US_STATES, PROCESS_ALL_SCHOOLS, OFFENSE_ORDER,
                     SHARED_MIN_NONZERO, MIN_FTE_FOR_RATE, ONLINE_SHARE_YEAR, HOSPITAL_CODE, MEDICAL_CARNEGIE,
-                    MEDICAL_CARNEGIE_LABELS)
+                    MEDICAL_CARNEGIE_LABELS, ONLINE_UNCERTAIN_RATIO)
 import provenance
 
 # The one fact table that 02_transform_to_parquet.py writes
@@ -47,6 +49,8 @@ OLDER_PATH = CURATED_DIR / "dims" / "older_release_counts.parquet"
 SHARED_PATH = CURATED_DIR / "aggs" / "shared_blocks.parquet"
 # IPEDS hospital and Carnegie fields, and the reviewed list (03_build_dimensions.py)
 CLASS_PATH = CURATED_DIR / "dims" / "dim_institution_class.parquet"
+# Campuses that are medical centers or hospitals (03_build_dimensions.py, etl/reference/medical_campuses.csv)
+MEDICAL_PATH = CURATED_DIR / "dims" / "dim_medical_campus.parquet"
 
 # Shared (copied) statistics. Some DOE rows repeat another campus's numbers:
 # a medical school's sites report their university's main campus figures, a
@@ -412,15 +416,17 @@ def merger_rate_rules(sources: pd.DataFrame, counting: set[tuple[int, int]], fte
 
 
 def shared_rate_rules(shared: pd.DataFrame, counting: set[tuple[int, int]], fte_of: dict[tuple[int, int], int]
-                      ) -> tuple[dict[tuple[int, int], str], dict[tuple[int, int], set[int]]]:
+                      ) -> tuple[dict[tuple[int, int], set[int]], list[tuple[int, str, int, int, bool]]]:
     """
     The rate rules for figures DOE published identically for campuses of two
     institutions in one year (a shared campus: a shadow block whose host
     campus has another base UNITID, other than two IDs of one campus, which
     merger_rate_rules handles). The figures count once, under the host, but
     the students on that campus are in each institution's own FTE. Returns
-    ({(year, base): reason} left out of rate rankings, {(year, base): {bases
-    whose FTE its rate adds}}).
+    ({(year, base): {bases whose FTE its rate adds}}, [(year, geo, shadow
+    campus, host campus, whether the shadow's institution counts campuses of
+    its own that year)] of the shared blocks whose figures are in one
+    institution's numerator and whose students are partly in another's FTE).
 
     Per year and shadow institution (the one whose campus copies the host's
     figures):
@@ -430,39 +436,89 @@ def shared_rate_rules(shared: pd.DataFrame, counting: set[tuple[int, int]], fte_
       - it counts no campus and has no IPEDS FTE: nothing to add, the host
         keeps its rate;
       - otherwise (it counts campuses of its own, or its figures count under
-        two or more host institutions): it and every host institution are
-        left out that year.
+        two or more host institutions): its blocks are listed, and 05 ranks
+        each institution's rate of a code only when the shared figures are
+        at most SHARED_MAX_SHARE of its count (config.py).
     """
     linked = {frozenset(p) for p in load_id_links()}
     listed = {(u // 1000, y) for u, y in counting}
     shadows = shared[shared["role"] == "shadow"]
     hosts = defaultdict(set)
-    example = {}
-    for y, u, h in zip(shadows["year"].tolist(), shadows["unitid"].tolist(), shadows["host_unitid"].tolist()):
+    blocks = defaultdict(list)
+    for y, g, u, h in zip(shadows["year"].tolist(), shadows["geo"].tolist(), shadows["unitid"].tolist(),
+                          shadows["host_unitid"].tolist()):
         y, u, h = int(y), int(u), int(h)
         if u // 1000 == h // 1000 or frozenset((u, h)) in linked:
             continue
         hosts[(y, u // 1000)].add(h // 1000)
-        example.setdefault((y, u // 1000), (u, h))
-    excluded: dict[tuple[int, int], str] = {}
+        blocks[(y, u // 1000)].append((y, str(g), u, h))
     pooled: dict[tuple[int, int], set[int]] = defaultdict(set)
+    partial = []
     for (y, a), host_bases in sorted(hosts.items()):
-        u, h = example[(y, a)]
         if (a, y) not in listed and len(host_bases) == 1:
             if (a, y) in fte_of:
                 pooled[(y, next(iter(host_bases)))].add(a)
             continue
-        if (a, y) in listed:
-            excluded.setdefault((y, a), (
-                f"In {y} figures of this institution's campus {u} are also reported, identically, by campus {h} "
-                "of another institution (a shared campus) and count once, under that campus, while the "
-                "students on it are in each institution's own FTE. No rate is shown for that year."))
-        for t in sorted(host_bases):
-            excluded.setdefault((y, t), (
-                f"In {y} figures this institution reports for a campus are also reported, identically, by campus "
-                f"{u} of another institution (a shared campus) and count here, while that institution's "
-                "students are in its own FTE. No rate is shown for that year."))
-    return excluded, pooled
+        partial += [(*block, (a, y) in listed) for block in sorted(blocks[(y, a)])]
+    return pooled, partial
+
+
+def oncampus_estimates(fte: int, pct: int | None, heads: tuple, level: tuple | None
+                       ) -> tuple[Fraction, Fraction | None]:
+    """
+    The two on-campus FTE estimates of config.py, exactly: (a) fte x (100 -
+    pct) / 100 and (b) part-time first, None when the headcounts `heads`
+    (total, full-time, part-time) do not add up or put FTE outside [FT,
+    total]. `level` is (UG, UG full-time, graduate, graduate full-time, UG
+    share, graduate share) for (b) by level, or None for the totals. Without
+    a share both are the FTE; with a share of 0 both are the FTE.
+    """
+    if pct is None or pct == 0:
+        return Fraction(fte), Fraction(fte)
+    a = Fraction(fte * (100 - pct), 100)
+    total, ft, pt = heads
+    if total is None or ft is None or pt is None or total <= 0 or ft + pt != total or not ft <= fte <= total:
+        return a, None
+    factor = Fraction(fte - ft, pt) if pt else Fraction(0)
+    if level is None:
+        on = Fraction(total * (100 - pct), 100)
+        ft_on = min(Fraction(ft), on)
+    else:
+        ug, ug_ft, grad, grad_ft, pcu, pcg = level
+        on_ug, on_grad = Fraction(ug * (100 - pcu), 100), Fraction(grad * (100 - pcg), 100)
+        on = on_ug + on_grad
+        ft_on = min(Fraction(ug_ft), on_ug) + min(Fraction(grad_ft), on_grad)
+    return a, ft_on + (on - ft_on) * factor
+
+
+def level_figures(rec: dict) -> tuple | None:
+    """
+    (UG, UG full-time, graduate, graduate full-time, UG share, graduate
+    share) of a dim_enrollment row when DRVEF has them and they add up to its
+    totals (a level without students counts a share of 0), else None.
+    """
+    vals = [rec.get(c) for c in ("enrollment_ug", "enrollment_ug_ft", "enrollment_grad", "enrollment_grad_ft")]
+    if any(v is None or pd.isna(v) for v in vals):
+        return None
+    ug, ug_ft, grad, grad_ft = (int(v) for v in vals)
+    shares = []
+    for heads, col in ((ug, "pcudeexc"), (grad, "pcgdeexc")):
+        p = rec.get(col)
+        if p is None or pd.isna(p):
+            if heads:
+                return None
+            p = 0
+        shares.append(int(p))
+    total, ft = rec.get("enrollment_total"), rec.get("enrollment_ft")
+    if pd.isna(total) or pd.isna(ft) or ug + grad != int(total) or ug_ft + grad_ft != int(ft) \
+            or ug_ft > ug or grad_ft > grad:
+        return None
+    return ug, ug_ft, grad, grad_ft, shares[0], shares[1]
+
+
+def half_up(x: Fraction) -> int:
+    """x rounded half up to a whole number."""
+    return math.floor(x + Fraction(1, 2))
 
 
 def population_class_rules(classes: pd.DataFrame) -> dict[tuple[int, int], tuple[str, str]]:
@@ -1233,15 +1289,26 @@ INSTITUTION_OFFENSE_PATH = CURATED_DIR / "aggs" / "agg_institution_year_offense.
 
 def load_institution_enrollment() -> pd.DataFrame:
     """
-    FTE and the share of students enrolled exclusively online (pctdeexc) per
-    institution (base UNITID) and year, from dim_enrollment.parquet.
+    FTE, the share of students enrolled exclusively online (pctdeexc), the
+    fall headcounts (total, full-time, part-time) and, from DRVEF, the
+    headcounts and shares by level per institution (base UNITID) and year,
+    from dim_enrollment.parquet.
     """
     path = CURATED_DIR / "dims" / "dim_enrollment.parquet"
     df = pd.read_parquet(path)
-    if "pctdeexc" not in df.columns:
-        raise RuntimeError(f"{path} has no pctdeexc column. Run 02b_transform_ef_enrollment.py and "
+    need = ["unitid", "year", "fte", "pctdeexc", "enrollment_total", "enrollment_ft", "enrollment_pt",
+            "enrollment_ug", "enrollment_ug_ft", "enrollment_grad", "enrollment_grad_ft", "pcudeexc", "pcgdeexc"]
+    missing = [c for c in need if c not in df.columns]
+    if missing:
+        raise RuntimeError(f"{path} has no column {', '.join(missing)}. Run 02b_transform_ef_enrollment.py and "
                            "02a_transform_enrollment.py again, then this step.")
-    return df[["unitid", "year", "fte", "pctdeexc"]]
+    return df[need]
+
+
+def abroad_campuses(dim_inst: pd.DataFrame) -> set[int]:
+    """The campuses DOE lists without a state (campuses abroad; config.py: not in the rate)."""
+    return {int(u) for u, s in zip(dim_inst["unitid"].tolist(), dim_inst["state"].tolist())
+            if s is None or pd.isna(s) or not str(s).strip()}
 
 
 def create_institution_tables(ranked_agg: pd.DataFrame, shared: pd.DataFrame, dim_inst: pd.DataFrame,
@@ -1258,7 +1325,9 @@ def create_institution_tables(ranked_agg: pd.DataFrame, shared: pd.DataFrame, di
     figures are not all counted under another campus (a campus-year whose
     every block with counts is a shadow block is left out). It is ranked
     with its count, 0 for an offense it had none of. The institution's
-    counts are those of all its counting campuses, in any state, without
+    counts are those of all its counting campuses in the United States
+    (campuses DOE lists without a state, campuses abroad, are counted
+    separately: IPEDS fall enrollment leaves out their students), without
     shadow blocks and residence halls (the geo "All" of `ranked_agg`). An
     institution is listed for a year when at least one of its campuses
     counts that year, incidents or not.
@@ -1266,27 +1335,39 @@ def create_institution_tables(ranked_agg: pd.DataFrame, shared: pd.DataFrame, di
     Each institution-year has a link campus, whose school page the rate
     rankings link to and whose name and state they show: the main campus
     (UNITID ending in 001) when it counts that year, otherwise the campus
-    with the most incidents that year (ties: the lowest UNITID). Only a
-    campus with a school file (dim_institution.parquet) can be the link.
+    with the most incidents that year (ties: the lowest UNITID), of its
+    counting campuses in the United States when it has one. Only a campus
+    with a school file (dim_institution.parquet) can be the link.
 
     Saves and returns:
       agg_campus_year.parquet: year, unitid, base_unitid, state, count (the
         geo "All" total of every offense, 0 included)
       agg_institution_year.parquet: year, base_unitid, institution_name,
-        link_unitid, state, campuses (that count that year), fte, pctdeexc
-        (that year's share of exclusively online students), online_pct and
+        link_unitid, state, campuses (that count that year, in the United
+        States), abroad_campuses (that count, abroad), fte, pctdeexc (that
+        year's share of exclusively online students), online_pct and
         online_year (the share the rate rules use and the fall it is from:
-        ONLINE_SHARE_YEAR), oncampus_fte (config.py: fte x (1 - online_pct
-        / 100), rounded half up; fte without a share), rate_rule and
-        rate_excluded (the first rule that leaves it out of rate rankings:
-        hospital, medical, listed (population_class_rules), merger
-        (merger_rate_rules), family (split_family_exclusions), shared
-        (shared_rate_rules), and why; none when no rule does), pooled_with
-        ("base:on-campus FTE" of each institution whose FTE its rate adds,
-        space separated, or none) and rate_fte (the rate's denominator:
-        oncampus_fte plus those)
+        ONLINE_SHARE_YEAR), fte_share and fte_part_time_first (config.py's
+        estimates (a) and (b), rounded half up; (b) none when it cannot be
+        calculated), fte_by_level (whether (b) is by level), oncampus_fte
+        (the larger, rounded half up; fte without a share), online_uncertain
+        (config.py, ONLINE_UNCERTAIN_RATIO, for the institution or one pooled
+        with it), rate_rule and rate_excluded (the first rule that leaves it
+        out of rate rankings: hospital, medical, listed
+        (population_class_rules), merger (merger_rate_rules), family
+        (split_family_exclusions), and why; none when no rule does),
+        pooled_with ("base:on-campus FTE" of each institution whose FTE its
+        rate adds, space separated, or none), pooled_rule (the rules that
+        add them, merger and/or shared, space separated, or none) and
+        rate_fte (the rate's denominator: oncampus_fte plus those)
       agg_institution_year_offense.parquet: year, base_unitid, offense,
-        offense_family, count (above 0 only)
+        offense_family, count (its counting campuses in the United States),
+        medical_count (of those, at campuses of dim_medical_campus that
+        year), shared_in (of the count, figures that a campus of another
+        institution also reported, shared_rate_rules), shared_out (figures
+        of its campuses that count under another institution's campus, not
+        in the count), abroad_count (its counting campuses abroad, not in the
+        count); rows with any of them above 0
     """
     print("\nCreating institution tables (rates are per institution)...")
     counted = ranked_agg[ranked_agg["geo"] == "All"]
@@ -1317,6 +1398,7 @@ def create_institution_tables(ranked_agg: pd.DataFrame, shared: pd.DataFrame, di
     has_file = set(dim_inst["unitid"].astype("int64").tolist())
     name_of = dim_inst.set_index("unitid")["institution_name"].to_dict()
     state_of = dim_inst.set_index("unitid")["state"].to_dict()
+    abroad = abroad_campuses(dim_inst)
     no_file = campus_years[~campus_years["unitid"].isin(has_file)]
     if len(no_file):
         first = no_file.iloc[0]
@@ -1330,22 +1412,29 @@ def create_institution_tables(ranked_agg: pd.DataFrame, shared: pd.DataFrame, di
     print(f"  Of these without an incident (ranked with 0): {int((campus_out['count'] == 0).sum()):,}")
 
     # Institution-years (a counting campus, incidents or not), their campuses and link campus
+    # (a campus in the United States when the institution counts one that year)
     rows = []
     for (year, base_id), group in campus_years.groupby(["year", "base_unitid"]):
-        candidates = group
+        home = group[~group["unitid"].isin(abroad)]
+        candidates = home if len(home) else group
         main_campus = int(base_id) * 1000 + 1
         if main_campus in set(candidates["unitid"].tolist()):
             link = main_campus
         else:
             link = int(candidates.sort_values(["count", "unitid"], ascending=[False, True]).iloc[0]["unitid"])
+        n_abroad = sum(1 for u in group["unitid"].tolist() if int(u) in abroad)
         rows.append({"year": int(year), "base_unitid": int(base_id), "institution_name": name_of[link],
-                     "link_unitid": link, "state": opt_value(state_of.get(link)), "campuses": len(group)})
+                     "link_unitid": link, "state": opt_value(state_of.get(link)), "campuses": len(group) - n_abroad,
+                     "abroad_campuses": n_abroad})
     inst_year = pd.DataFrame(rows, columns=["year", "base_unitid", "institution_name", "link_unitid", "state",
-                                            "campuses"])
+                                            "campuses", "abroad_campuses"])
+    print(f"  Institution-years with a counting campus abroad (its incidents not in the rate): "
+          f"{int((inst_year['abroad_campuses'] > 0).sum()):,}")
 
     # FTE and online share of each institution-year (none when NCES has no figure)
     enroll = enrollment.rename(columns={"unitid": "base_unitid"})
-    inst_year = inst_year.merge(enroll, on=["base_unitid", "year"], how="left", validate="many_to_one")
+    inst_year = inst_year.merge(enroll[["base_unitid", "year", "fte", "pctdeexc"]], on=["base_unitid", "year"],
+                                how="left", validate="many_to_one")
 
     # The online share the rate rules use (online_pct) and the fall it is
     # from (online_year): the year's own, except in the years of
@@ -1376,35 +1465,52 @@ def create_institution_tables(ranked_agg: pd.DataFrame, shared: pd.DataFrame, di
     keys = list(zip(inst_year["year"].astype(int).tolist(), inst_year["base_unitid"].astype(int).tolist()))
     key_set = set(keys)
 
-    # On-campus FTE (config.py): FTE x (1 - online share / 100), rounded half
-    # up; the full FTE without a share. Of every institution with an FTE that
-    # year, listed or not (a pooled one is not listed)
-    share = {}
-    for b, y, p in zip(enroll["base_unitid"].tolist(), enroll["year"].tolist(), enroll["pctdeexc"].tolist()):
-        share[(int(b), int(y))] = None if pd.isna(p) else int(p)
-    oncampus_of = {}
+    # On-campus FTE (config.py): the larger of (a) proportional and (b)
+    # part-time first, rounded half up; the full FTE without a share. Of every
+    # institution with an FTE that year, listed or not (a pooled one is not listed)
+    enroll_rec = {(int(r["base_unitid"]), int(r["year"])): r for r in enroll.to_dict("records")}
+    estimates = {}  # (base, year) -> (a, b, by level, uncertain)
     for (b, y), f in fte_of.items():
+        rec = enroll_rec[(b, y)]
         src = ONLINE_SHARE_YEAR.get(y, y)
-        p = share.get((b, src)) if share.get((b, src)) is not None else share.get((b, y))
-        oncampus_of[(b, y)] = f if p is None else (f * (100 - p) + 50) // 100
+        src_pct = enroll_rec.get((b, src), {}).get("pctdeexc")
+        own_pct = rec.get("pctdeexc")
+        if src != y and src_pct is not None and pd.notna(src_pct):
+            p, own = int(src_pct), False
+        else:
+            p, own = (None if own_pct is None or pd.isna(own_pct) else int(own_pct)), True
+        heads = tuple(None if pd.isna(rec.get(c)) else int(rec.get(c))
+                      for c in ("enrollment_total", "enrollment_ft", "enrollment_pt"))
+        level = level_figures(rec) if own else None
+        a, b_est = oncampus_estimates(f, p, heads, level)
+        hi, lo = (a, a) if b_est is None else (max(a, b_est), min(a, b_est))
+        num, den = ONLINE_UNCERTAIN_RATIO
+        uncertain = p is not None and p > 0 and (b_est is None or hi * den > lo * num)
+        estimates[(b, y)] = (a, b_est, level is not None and b_est is not None and bool(p), uncertain)
+    oncampus_of = {k: half_up(a if b_est is None else max(a, b_est)) for k, (a, b_est, _l, _u) in estimates.items()}
+    inst_year["fte_share"] = [half_up(estimates[(b, y)][0]) if (b, y) in estimates else None for y, b in keys]
+    inst_year["fte_part_time_first"] = [half_up(estimates[(b, y)][1])
+                                        if (b, y) in estimates and estimates[(b, y)][1] is not None else None
+                                        for y, b in keys]
+    inst_year["fte_by_level"] = [bool(estimates[(b, y)][2]) if (b, y) in estimates else False for y, b in keys]
     inst_year["oncampus_fte"] = [oncampus_of.get((b, y)) for y, b in keys]
 
     # Who is left out of rate rankings, first rule first: the campus
     # population (population_class_rules), a merger or renumbering
-    # (merger_rate_rules, split_family_exclusions), a shared campus
-    # (shared_rate_rules); and whose rate adds another institution's FTE
+    # (merger_rate_rules, split_family_exclusions); and whose rate adds
+    # another institution's FTE (those and a shared campus, shared_rate_rules)
     classes = population_class_rules(pd.read_parquet(CLASS_PATH))
     # Campus-years with at least one incident in DOE's figures (shadow blocks included)
     published = school_agg[(school_agg["geo"] == "All") & (school_agg["count"] > 0)]
     active = set(zip(published["unitid"].astype(int).tolist(), published["year"].astype(int).tolist()))
     merger_out, merger_pool = merger_rate_rules(sources, counting, fte_of, active)
     family_out = split_family_exclusions(inst_year, sources, counting, active)
-    shared_out, shared_pool = shared_rate_rules(shared, counting, fte_of)
+    shared_pool, shared_partial = shared_rate_rules(shared, counting, fte_of)
     excluded, rule_of = {}, {}
     for rule, found in (("hospital", {k: t for k, (r, t) in classes.items() if r == "hospital"}),
                         ("medical", {k: t for k, (r, t) in classes.items() if r == "medical"}),
                         ("listed", {k: t for k, (r, t) in classes.items() if r == "listed"}),
-                        ("merger", merger_out), ("family", family_out), ("shared", shared_out)):
+                        ("merger", merger_out), ("family", family_out)):
         for key, text in found.items():
             if key in key_set and key not in excluded:
                 excluded[key], rule_of[key] = text, rule
@@ -1413,11 +1519,14 @@ def create_institution_tables(ranked_agg: pd.DataFrame, shared: pd.DataFrame, di
         print(f"  Rate rule {rule}: {n_rule:,} institution-years ({n_big:,} with {MIN_FTE_FOR_RATE:,}+ on-campus "
               f"FTE; first rule for {sum(1 for r in rule_of.values() if r == rule):,})")
     pooled = defaultdict(set)
-    for found in (merger_pool, shared_pool):
+    pooled_by = defaultdict(set)
+    for rule, found in (("merger", merger_pool), ("shared", shared_pool)):
         for key, adds in found.items():
             if key in key_set and key not in excluded and (key[1], key[0]) in fte_of:
                 pooled[key] |= adds
+                pooled_by[key].add(rule)
     inst_year["rate_rule"] = [rule_of.get(k) for k in keys]
+    inst_year["pooled_rule"] = [" ".join(sorted(pooled_by[k])) if pooled_by.get(k) else None for k in keys]
     inst_year["rate_excluded"] = [excluded.get(k) for k in keys]
     # pooled_with: "base:on-campus FTE" of each institution whose FTE the rate adds
     inst_year["pooled_with"] = [" ".join(f"{s}:{oncampus_of[(s, k[0])]}" for s in sorted(pooled[k]))
@@ -1425,32 +1534,81 @@ def create_institution_tables(ranked_agg: pd.DataFrame, shared: pd.DataFrame, di
     inst_year["rate_fte"] = [None if (b, y) not in oncampus_of else
                              oncampus_of[(b, y)] + sum(oncampus_of[(s, y)] for s in pooled.get((y, b), ()))
                              for y, b in keys]
+    inst_year["online_uncertain"] = [(b, y) in estimates and (
+        estimates[(b, y)][3] or any(estimates[(s, y)][3] for s in pooled.get((y, b), ()))) for y, b in keys]
     print(f"  Rated with the on-campus FTE of institutions whose figures they count (merger or renumbering: "
           f"{sum(1 for k in merger_pool if k in pooled):,}; shared campus: "
           f"{sum(1 for k in shared_pool if k in pooled):,}): {len(pooled):,} institution-years")
     inst_year = inst_year.astype({"year": "int16", "base_unitid": "int32", "link_unitid": "int32",
-                                  "campuses": "int16", "fte": "Int32", "pctdeexc": "Int16",
-                                  "online_pct": "Int16", "online_year": "Int16", "oncampus_fte": "Int32",
-                                  "rate_fte": "Int32"})
+                                  "campuses": "int16", "abroad_campuses": "int16", "fte": "Int32",
+                                  "pctdeexc": "Int16", "online_pct": "Int16", "online_year": "Int16",
+                                  "fte_share": "Int32", "fte_part_time_first": "Int32", "fte_by_level": "bool",
+                                  "oncampus_fte": "Int32", "rate_fte": "Int32", "online_uncertain": "bool"})
     for year in sorted(set(inst_year["year"].astype(int))):
         g = inst_year[inst_year["year"] == year]
         ok = (g["rate_fte"].fillna(0) >= MIN_FTE_FOR_RATE) & g["rate_excluded"].isna()
         print(f"  {year}: {len(g):,} institutions, {int(ok.sum()):,} in rate rankings (on-campus FTE "
-              f"{MIN_FTE_FOR_RATE:,}+, no rule)")
+              f"{MIN_FTE_FOR_RATE:,}+, no rule), of which {int((ok & g['online_uncertain']).sum()):,} with an "
+              f"uncertain on-campus FTE (not ranked) and {int((ok & g['fte_by_level']).sum()):,} with (b) by level")
     inst_year = inst_year.sort_values(["year", "base_unitid"]).reset_index(drop=True)
 
-    # The counts of every campus of the institution
-    inst_offense = counted.assign(base_unitid=counted["unitid"] // 1000).groupby(
-        ["year", "base_unitid", "offense", "offense_family"], as_index=False)["count"].sum()
-    inst_offense = inst_offense[inst_offense["count"] > 0]
+    # The counts of every campus of the institution: in the United States
+    # (count; medical_count of those at listed medical-center campuses) and
+    # abroad (abroad_count)
+    medical = pd.read_parquet(MEDICAL_PATH)
+    medical_set = set(zip(medical["unitid"].astype(int).tolist(), medical["year"].astype(int).tolist()))
+    rows = counted.assign(base_unitid=counted["unitid"] // 1000)
+    is_abroad = rows["unitid"].isin(abroad)
+    is_medical = pd.Series([(int(u), int(y)) in medical_set for u, y in zip(rows["unitid"], rows["year"])],
+                           index=rows.index)
+    rows = rows.assign(us=rows["count"].where(~is_abroad, 0), medical_count=rows["count"].where(is_medical & ~is_abroad, 0),
+                       abroad_count=rows["count"].where(is_abroad, 0))
+    inst_offense = rows.groupby(["year", "base_unitid", "offense", "offense_family"], as_index=False)[
+        ["us", "medical_count", "abroad_count"]].sum().rename(columns={"us": "count"})
+
+    # Shared figures (shared_rate_rules): a host block's figures per offense,
+    # once per host block for the host's institution (shared_in), once per
+    # shadow block for a shadow institution that counts campuses of its own
+    # (shared_out); not for a campus abroad (not in any rate)
+    by_geo = ranked_agg[ranked_agg["geo"].isin(GEO_FOR_ALL)]
+    cells = defaultdict(dict)
+    for y, u, g, o, c in zip(by_geo["year"].tolist(), by_geo["unitid"].tolist(), by_geo["geo"].tolist(),
+                             by_geo["offense"].tolist(), by_geo["count"].tolist()):
+        if c:
+            cells[(int(y), int(u), str(g))][o] = int(c)
+    shared_in, shared_out = defaultdict(int), defaultdict(int)
+    host_blocks = set()
+    for y, g, u, h, shadow_listed in shared_partial:
+        for o, c in cells.get((y, h, g), {}).items():
+            if h not in abroad and (y, h, g) not in host_blocks:
+                shared_in[(y, h // 1000, o)] += c
+            if shadow_listed and u not in abroad:
+                shared_out[(y, u // 1000, o)] += c
+        host_blocks.add((y, h, g))
+    family = dict(zip(rows["offense"], rows["offense_family"]))
+    extra = pd.DataFrame([{"year": y, "base_unitid": b, "offense": o, "offense_family": family[o],
+                           "shared_in": shared_in.get((y, b, o), 0), "shared_out": shared_out.get((y, b, o), 0)}
+                          for (y, b, o) in sorted(set(shared_in) | set(shared_out))],
+                         columns=["year", "base_unitid", "offense", "offense_family", "shared_in", "shared_out"])
+    inst_offense = inst_offense.merge(extra, on=["year", "base_unitid", "offense", "offense_family"], how="outer")
+    value_cols = ["count", "medical_count", "shared_in", "shared_out", "abroad_count"]
+    inst_offense[value_cols] = inst_offense[value_cols].fillna(0).astype("int64")
+    if (inst_offense["shared_in"] > inst_offense["count"]).any():
+        raise RuntimeError("Shared figures exceed an institution's count. This is a bug in create_institution_tables.")
+    inst_offense = inst_offense[(inst_offense[value_cols] > 0).any(axis=1)]
     listed = set(zip(inst_year["year"].astype(int).tolist(), inst_year["base_unitid"].astype(int).tolist()))
     unlisted = [k for k in zip(inst_offense["year"].astype(int).tolist(), inst_offense["base_unitid"].astype(int).tolist())
                 if k not in listed]
     if unlisted:
         raise RuntimeError(f"{len(unlisted):,} institution counts belong to no listed institution-year "
                            f"(first: {unlisted[0]}). This is a bug in create_institution_tables.")
-    inst_offense = inst_offense.astype({"year": "int16", "base_unitid": "int32", "count": "int32"})
+    inst_offense = inst_offense.astype({"year": "int16", "base_unitid": "int32",
+                                        **{c: "int32" for c in value_cols}})
     inst_offense = inst_offense.sort_values(["year", "base_unitid", "offense"]).reset_index(drop=True)
+    print(f"  Incidents at listed medical-center campuses: {int(inst_offense['medical_count'].sum()):,}; abroad "
+          f"(not in rates): {int(inst_offense['abroad_count'].sum()):,}; shared with another institution's "
+          f"campus: {int(inst_offense['shared_in'].sum()):,} in hosts' counts, "
+          f"{int(inst_offense['shared_out'].sum()):,} under another institution")
 
     campus_out.to_parquet(CAMPUS_YEAR_PATH, index=False)
     inst_year.to_parquet(INSTITUTION_YEAR_PATH, index=False)
@@ -1459,7 +1617,8 @@ def create_institution_tables(ranked_agg: pd.DataFrame, shared: pd.DataFrame, di
     multi = inst_year[inst_year["campuses"] > 1]
     states_per_inst = campus_years.assign(state=campus_years["unitid"].map(state_of)).groupby(
         ["year", "base_unitid"])["state"].nunique()
-    no_incident = len(inst_year) - len(set(zip(inst_offense["year"].tolist(), inst_offense["base_unitid"].tolist())))
+    no_incident = len(inst_year) - len(set(zip(inst_offense.loc[inst_offense["count"] > 0, "year"].tolist(),
+                                               inst_offense.loc[inst_offense["count"] > 0, "base_unitid"].tolist())))
     print(f"  Institution-years: {len(inst_year):,} (without an incident: {no_incident:,}); with more than one "
           f"campus: {len(multi):,}; with campuses in more than one state: {int((states_per_inst > 1).sum()):,}")
     no_fte = int(inst_year["fte"].isna().sum())
@@ -1508,7 +1667,7 @@ def main():
     dims = CURATED_DIR / "dims"
     inputs_before = provenance.Snapshot(
         "04", [FACTS_PATH, dims / "dim_institution.parquet", dims / "dim_enrollment.parquet", SOURCES_PATH,
-               OLDER_PATH, LINKS_PATH, CLASS_PATH])
+               OLDER_PATH, LINKS_PATH, CLASS_PATH, MEDICAL_PATH])
 
     # The old build record no longer describes the files about to be written
     provenance.invalidate(provenance.AGGS_MANIFEST)

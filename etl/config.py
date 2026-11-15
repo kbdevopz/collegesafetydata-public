@@ -342,16 +342,33 @@ def summary_codes(offense: str, family: str) -> list[str]:
 
 
 # Rates are institution rates: the incidents of all of an institution's
-# campuses (the base UNITID, the first six digits) per 10,000 of the
+# campuses in the United States (the base UNITID, the first six digits; IPEDS
+# fall enrollment leaves out students at branch campuses abroad, so a campus
+# DOE lists without a state is not in the rate) per 10,000 of the
 # institution's on-campus FTE, because NCES publishes FTE per institution,
-# not per campus. On-campus FTE = FTE x (1 - PCTDEEXC / 100), rounded half
-# up to a whole number: NCES's share of students enrolled exclusively in
-# distance education (a fall headcount share, applied to the 12-month FTE,
-# so it is an approximation) is taken out, because campus crime statistics
-# cover the campus. An institution without PCTDEEXC keeps its full FTE.
-# Rate rankings list an institution only when that year its on-campus FTE
-# (with any FTE 04 pools with it) is at least MIN_FTE_FOR_RATE.
+# not per campus. Campus crime statistics cover the campus, so students
+# enrolled exclusively in distance education are taken out of NCES's fall
+# FTE. NCES gives their share of the fall headcount (PCTDEEXC), not of FTE,
+# so 04 makes two estimates:
+#   (a) proportional: FTE x (1 - PCTDEEXC / 100);
+#   (b) part-time first: the on-campus headcount H x (1 - PCTDEEXC / 100) is
+#       taken to hold all full-time students it can (FT_on = min(FT, on-campus
+#       headcount)), the rest part-time, each part-time student counting
+#       (FTE - FT) / PT, as in the institution's FTE: FT_on + PT_on x (FTE -
+#       FT) / PT. By level (undergraduate and graduate, DRVEF's PCUDEEXC and
+#       PCGDEEXC) when the share is the year's own and the DRVEF file has
+#       them (2021 on), else from the totals.
+# On-campus FTE is the larger of the two, rounded half up to a whole number
+# (exclusively online students are mostly part-time, so (a) takes out too
+# much FTE; from the totals, (b) is at least (a) whenever 0 <= (FTE - FT) / PT <= 1). When
+# the larger is more than ONLINE_UNCERTAIN_RATIO times the smaller, or (b)
+# cannot be calculated (headcounts that do not add up), the institution-year
+# is not ranked by rate: its rate is shown with a note. An institution
+# without PCTDEEXC keeps its full FTE. Rate rankings list an institution only
+# when that year its on-campus FTE (with any FTE 04 pools with it) is at
+# least MIN_FTE_FOR_RATE.
 MIN_FTE_FOR_RATE = 1000
+ONLINE_UNCERTAIN_RATIO = (5, 4)  # larger / smaller above 5/4 (the estimates differ by more than 25%)
 
 # The years whose online share is another year's PCTDEEXC: in fall 2020 and
 # 2021 many institutions taught remotely for the pandemic, which does not
@@ -374,9 +391,61 @@ MIN_COUNT_FOR_RATE_RANK = 20
 RATE_RANK_MIN_NATIONAL = 1000
 RATE_COUNTS_ONLY = ("Murder", "Negligent Manslaughter", "Incest", "Statutory Rape", "Arson")
 
-# Each rate's 95% interval: the exact Poisson (Garwood) interval of the count,
-# divided by the denominator.
+# Each rate's 95% interval allows for overdispersion: institutions' yearly
+# counts vary more than Poisson counts do. 05 estimates it from the panel
+# (DISPERSION_YEARS, before the pandemic): for each group of codes
+# (DISPERSION_GROUPS) and each institution (institution and offense, for a
+# group of single offenses) in rate rankings in all those years with a mean count of at least DISPERSION_MIN_MEAN, a two-way
+# Poisson model (institution x year main effects, closed form on a complete
+# table) gives Pearson's statistic X over the years; X / median(chi-square,
+# years - 1) estimates the variance-to-mean ratio, and the median over
+# institutions of (that ratio - 1) / mean count is 1/k, the negative
+# binomial's variance n(1 + n/k). k is published rounded to 1 decimal and
+# used as rounded. A count n's interval is the gamma interval of the
+# effective count m = n / phi, phi = 1 + n/k (Fay and Feuer 1997; Garwood's
+# exact Poisson interval when phi = 1): lower phi x G(alpha/2; m) (0 for n =
+# 0), upper phi x G(1 - alpha/2; m + 1), G the gamma quantile; divided by the
+# denominator.
 RATE_CI_LEVEL = 0.95
+DISPERSION_YEARS = (2015, 2019)
+DISPERSION_MIN_MEAN = 20
+# Summary codes have their own k; a single offense uses the k of its group of families
+DISPERSION_GROUPS = {"violent": None, "criminal": None, "property": None, "all": None,
+                     "crime_offense": ("Criminal", "VAWA"), "enforcement_offense": ("Arrest", "Disciplinary")}
+
+# Rank ranges are simulated: RANK_DRAWS draws of every ranked institution's
+# rate (gamma, shape m + 1/2 for the effective count m above, times phi /
+# denominator), each draw ranked; the range is the middle RATE_CI_LEVEL of an
+# institution's simulated ranks (the 51st to the 1,950th of 2,000 sorted),
+# widened to hold its published rank. Each institution's draws come from
+# NumPy's default generator (PCG64) seeded with (RANK_SEED, year, CRC-32 of
+# the code, base UNITID), so a build is repeatable and an institution's draws
+# are the same in every file.
+RANK_DRAWS = 2000
+RANK_SEED = 20151024
+
+# Incidents at campuses that are medical centers or hospitals inside a
+# university (etl/reference/medical_campuses.csv, reviewed per campus): when
+# they are at least MEDICAL_CAMPUS_SHARE of an institution-year's count of a
+# code, it is not ranked by rate for that code (its rate is shown with a
+# note); below, it is ranked with a note giving the share.
+MEDICAL_CAMPUS_SHARE = (1, 4)
+
+# Figures DOE published identically for campuses of two institutions (a
+# shared campus) count once, under the host, while the students are in each
+# institution's own FTE. When the shared figures are at most SHARED_MAX_SHARE
+# of the institution's count of a code (with the shared figures added for
+# the institution whose copy is the shadow), the rate is off by at most that
+# share and is ranked with a note; above, it is not ranked by rate.
+SHARED_MAX_SHARE = (1, 20)
+
+# A count in rankings by count is flagged as very high for the institution's
+# size when it is at least COUNT_FLAG_MIN_COUNT and the count per 10,000 of
+# the institution's (full) FTE is more than COUNT_FLAG_FACTOR times the
+# highest rate in that year's national rate rankings for the code. The count
+# is shown as reported.
+COUNT_FLAG_MIN_COUNT = 20
+COUNT_FLAG_FACTOR = 3
 
 # Institutions whose campus population students do not measure: left out of
 # rate rankings (counts only) in a year when IPEDS HD says they have a
@@ -398,13 +467,17 @@ MEDICAL_CARNEGIE_LABELS = {("C15BASIC", 25): "Special Focus Four-Year: Medical S
                            ("C21BASIC", 27): "Special Focus Research Institution"}
 
 # An institution-year is flagged as unusually high for a code when its count
-# is at least SPIKE_MIN_COUNT and more than SPIKE_FACTOR times the median of
-# its counts of that code in its other listed years (0 for a year without
-# one), with at least SPIKE_MIN_OTHER_YEARS other listed years. It stays
-# ranked: DOE counts crimes in the year they are reported, so one report of
-# many past incidents raises one year.
+# n is at least SPIKE_MIN_COUNT, with at least SPIKE_MIN_OTHER_YEARS other
+# listed years (0 for a year without an incident), n is more than
+# SPIKE_FACTOR times the median of those years and more than
+# SPIKE_MAX_FACTOR times their largest, and a negative binomial count with
+# the median as mean and the code's k (above) is n or more with probability
+# below SPIKE_P. It stays ranked: DOE counts crimes in the year they are
+# reported, so one report of many past incidents raises one year.
 SPIKE_MIN_COUNT = 20
 SPIKE_FACTOR = 3
+SPIKE_MAX_FACTOR = 2
+SPIKE_P = 0.001
 SPIKE_MIN_OTHER_YEARS = 3
 
 # =============================================================================
