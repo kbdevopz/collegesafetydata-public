@@ -2106,21 +2106,41 @@ def shared_campus_overrides() -> dict:
 
 def shared_site_figures() -> dict:
     """
-    {(campus UNITID, year): (students, whether an upper bound)} of
-    etl/reference/shared_site_enrollment.csv (reviewed student figures of
-    shared sites), read here (not 03's table).
+    {(campus UNITID, year of DATA_YEARS): (students, whether an upper bound,
+    the figure's own year, whether derived)} of etl/reference/
+    shared_site_enrollment.csv (reviewed student figures of shared sites),
+    read here (not 03's table). A row's first_year to last_year are the
+    years its figure describes; a derived row (arithmetic in its derived
+    column) must be an upper bound; a campus has one figure of its own per
+    year. A year takes the figure of its own year; failing that, the
+    largest of those whose own year is within SPEC shared_site_figure_years
+    (ties: the nearer, then the earlier own year).
     """
-    out = {}
+    reach = SPEC["shared_site_figure_years"]
+    rows = {}
+    name = "etl/reference/shared_site_enrollment.csv"
     with open(PROJECT_ROOT / "etl" / "reference" / "shared_site_enrollment.csv", encoding="utf-8", newline="") as f:
         for r in csv.DictReader(f):
             if r["kind"] not in ("count", "upper bound"):
-                raise RuntimeError(f"etl/reference/shared_site_enrollment.csv: {r['unitid']} has kind {r['kind']!r}")
+                raise RuntimeError(f"{name}: {r['unitid']} has kind {r['kind']!r}")
+            derived = r["derived"].strip() != ""
+            if derived and r["kind"] != "upper bound":
+                raise RuntimeError(f"{name}: {r['unitid']} is derived but not an upper bound")
+            u = int(r["unitid"])
             for y in range(int(r["first_year"]), int(r["last_year"]) + 1):
-                if y in DATA_YEARS:
-                    key = (int(r["unitid"]), y)
-                    if key in out:
-                        raise RuntimeError(f"etl/reference/shared_site_enrollment.csv lists {key[0]} twice for {y}")
-                    out[key] = (int(r["students"]), r["kind"] == "upper bound")
+                if (u, y) in rows:
+                    raise RuntimeError(f"{name} lists {u} twice for {y}")
+                rows[(u, y)] = (int(r["students"]), r["kind"] == "upper bound", y, derived)
+    out = {}
+    for u in sorted({u for u, _y in rows}):
+        for y in DATA_YEARS:
+            if (u, y) in rows:
+                out[(u, y)] = rows[(u, y)]
+                continue
+            near = [(v[0], -abs(fy - y), -fy, v) for (uu, fy), v in rows.items()
+                    if uu == u and abs(fy - y) <= reach]
+            if near:
+                out[(u, y)] = max(near)[3]
     return out
 
 
@@ -2369,8 +2389,10 @@ def expected_institutions() -> Expected:
     host's of a shadow block) are its shared_out_on. The order of rules is
     hospital, medical, listed, merger, family, shared_pooled,
     shared_campus. The student figures of etl/reference/
-    shared_site_enrollment.csv give shared_site_students (all the year's
-    guest or participant campuses need one) and shared_site_upper.
+    shared_site_enrollment.csv (shared_site_figures: a year's own figure,
+    else the largest within three years) give shared_site_students (all the
+    year's guest or participant campuses need one), shared_site_upper and
+    shared_site_each ([(campus, figure or None)]).
     peer_type: the institution's Carnegie Size & Setting type
     (hd_size_settings, SPEC_PEER_TYPES).
     """
@@ -2786,6 +2808,7 @@ def expected_institutions() -> Expected:
         known = bool(figures) and None not in figures
         rec["shared_site_students"] = sum(f[0] for f in figures) if known else None
         rec["shared_site_upper"] = known and any(f[1] for f in figures)
+        rec["shared_site_each"] = [(u, f) for u, f in zip(sorted(out_sites.get((y, b), ())), figures)]
     campus_years = {}
     for u, y in counting:
         if u not in name:
@@ -2821,7 +2844,7 @@ def rate_inputs(E: Optional[Expected] = None) -> dict:
     E = E or expected_institutions()
     keys = ("name", "link", "state", "fte", "rate_fte", "rate_fte_smaller", "rule", "uncertain", "uncertain_own",
             "peer_type", "co_located_with", "shared_in_with", "shared_out_sites", "shared_out_with",
-            "shared_site_students", "shared_site_upper")
+            "shared_site_students", "shared_site_upper", "shared_site_each")
     return {
         "inst": {k: {f: rec[f] for f in keys} for k, rec in E.institutions.items()},
         "base_name": dict(E.base_name),
@@ -2904,7 +2927,9 @@ def audit_institution_rates(verbose: bool = False) -> AuditResult:
             "the reviewed override list; joined with union-find), their class, owner and roles, the rules "
             "shared_pooled and shared_campus, the pooled FTE, the campuses whose figures are in the counts and in "
             "none of the rates, the shared figures on campus and the reviewed site student figures "
-            "(etl/reference/shared_site_enrollment.csv); aggs/shared_sites.parquet and aggs/near_copies.parquet. "
+            "(etl/reference/shared_site_enrollment.csv: a site-year takes its own year's figure, else the largest "
+            "whose own year is at most 3 years away; derived figures upper bounds); aggs/shared_sites.parquet and "
+            "aggs/near_copies.parquet. "
             "Every rankings/*.json file must list exactly its preset's "
             "counting campuses; 04's institution tables, every school file's institution years, "
             "downloads/campus-years.csv and metadata.json's rateStats.institutionYears must match.")
@@ -3284,6 +3309,8 @@ SPEC = {
     # Shared sites: the students a rate cannot place at most 1 in 10 of its FTE-years (guests, and the
     # co-located institutions a main campus pools); near-copies: 6 nonzero cells, 4 in 5 equal, a total of 20
     "shared_site_share": (1, 10),
+    # A site-year's student figure: its own year's, else the largest whose own year is at most 3 years away
+    "shared_site_figure_years": 3,
     "near_min_nonzero": 6,
     "near_match": (4, 5),
     "near_min_total": 20,
@@ -3751,6 +3778,7 @@ def derive(inputs, spec, cfg, bank):
             else:
                 st = {"status": "rated"}
                 # A guest or participant at a shared site: verdicts withheld unless its reviewed site students
+                # (a figure for each site-year: its own year's, else the largest within shared_site_figure_years)
                 # are at most shared_site_share of the window's FTE-years
                 guest_years = [y for y, r in zip(wy, recs) if r["shared_out_sites"]]
                 site = None
@@ -3761,7 +3789,11 @@ def derive(inputs, spec, cfg, bank):
                     site = {"years": guest_years, "students": students,
                             "upperBound": students is not None and any(inst[(y, b)]["shared_site_upper"]
                                                                        for y in guest_years),
-                            "exempt": students is not None and sd * students <= sa * sum(r["rate_fte"] for r in recs)}
+                            "exempt": students is not None and sd * students <= sa * sum(r["rate_fte"] for r in recs),
+                            "figures": [{"year": y, "unitid": u, "students": None if f is None else f[0],
+                                         "figureYear": None if f is None else f[2],
+                                         "upperBound": f is not None and f[1], "derived": f is not None and f[3]}
+                                        for y in guest_years for u, f in inst[(y, b)]["shared_site_each"]]}
                 if site is not None and not site["exempt"]:
                     st["why"] = "shared"
                 elif any(r["uncertain"] for r in recs):
@@ -4175,6 +4207,7 @@ def expected_rate_rules_meta(spec, cfg, windows):
                        "ramp": {"start": spec["ramp_start"], "end": spec["ramp_end"], "cap": spec["ramp_cap"]}},
         "medicalShare": list(spec["medical_share"]),
         "sharedSiteShare": list(spec["shared_site_share"]),
+        "sharedSiteFigureYears": spec["shared_site_figure_years"],
         "sharedNear": {"minNonzero": spec["near_min_nonzero"], "match": list(spec["near_match"]),
                        "minTotal": spec["near_min_total"]},
         "lists": {"codes": list(spec["list_codes"]), "minExpected": spec["list_min_expected"],
@@ -4224,6 +4257,7 @@ def check_config(spec, cfg, P):
         ("STATE_LIST_DISPLAY_MIN", c.STATE_LIST_DISPLAY_MIN, spec["state_display_min"]),
         ("MEDICAL_CAMPUS_SHARE", tuple(c.MEDICAL_CAMPUS_SHARE), tuple(spec["medical_share"])),
         ("SHARED_SITE_MAX_SHARE", tuple(c.SHARED_SITE_MAX_SHARE), tuple(spec["shared_site_share"])),
+        ("SHARED_SITE_FIGURE_YEARS", c.SHARED_SITE_FIGURE_YEARS, spec["shared_site_figure_years"]),
         ("SHARED_NEAR_MIN_NONZERO", c.SHARED_NEAR_MIN_NONZERO, spec["near_min_nonzero"]),
         ("SHARED_NEAR_MATCH", tuple(c.SHARED_NEAR_MATCH), tuple(spec["near_match"])),
         ("SHARED_NEAR_MIN_TOTAL", c.SHARED_NEAR_MIN_TOTAL, spec["near_min_total"]),
@@ -4317,7 +4351,9 @@ def audit_rate_rules(verbose: bool = False, inputs=None, data=None, spec=None, c
             "rules, online uncertainty, peer type) and the rule constants written out in this check: each "
             "institution's status in every 3-year window without 2020 (missingYears, scope, size, excluded, rated), "
             "the window counts, FTE-years, reason (shared: a guest or participant at a shared site in a year of the "
-            "window unless its reviewed site students are at most 1/10 of its FTE-years, then verdicts withheld; "
+            "window unless its reviewed site students (each site-year its own year's figure, else the largest within "
+            "3 years; sharedSite.figures gives each figure's own year and whether derived) are at most 1/10 of its "
+            "FTE-years, then verdicts withheld; "
             "online; medical_campus: medical share at least 1/4) and the shared-site notes (sharedInWith, "
             "sharedOutWith, sharedSite, coLocated), the national and peer rates as exact fractions, phi with the ramp, "
             "the gamma interval (own incomplete gamma, bisection), rate/lo/hi/E rounded half up, the verdicts "

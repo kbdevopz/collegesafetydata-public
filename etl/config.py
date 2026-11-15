@@ -401,8 +401,9 @@ ONLINE_SHARE_YEAR = {2020: 2019, 2021: 2019}
 #                   SHARED_SITE_MAX_SHARE) in any year of the window, unless
 #                   etl/reference/shared_site_enrollment.csv proves its
 #                   students there are at most SHARED_SITE_MAX_SHARE of its
-#                   FTE-years: a rate, verdicts withheld, never listed (every
-#                   code alike)
+#                   FTE-years (a figure for each site-year, within
+#                   SHARED_SITE_FIGURE_YEARS): a rate, verdicts withheld,
+#                   never listed (every code alike)
 #   online          an uncertain on-campus FTE in any year: a rate, compared
 #                   with the national rate only when the larger and the
 #                   smaller estimates give the same verdict; never listed
@@ -589,17 +590,24 @@ MEDICAL_SCREEN_MIN_COUNT = 5
 # verdicts withheld and is not listed (why "shared"), for every code: the
 # reason is its students at the site, not the offense. The exception is an
 # institution whose students at those sites, by the reviewed
-# etl/reference/shared_site_enrollment.csv (published counts, or published
-# upper bounds such as the enrollment of every location of a program
-# together, for that year's fall term or an academic year that includes
-# it; never estimates, lower bounds or another year's figure), are at most
+# etl/reference/shared_site_enrollment.csv, are at most
 # SHARED_SITE_MAX_SHARE of its FTE-years in the window (every site-year must
-# have a figure).
+# have a figure). A figure is a published count, a published upper bound
+# (such as the enrollment of every location of a program together), or an
+# upper bound derived from published figures only by the arithmetic stated
+# in its row (the sum of the published sizes of the classes in a program
+# that fall, or a published per-class cap times the program years spent at
+# the site); never an estimate or a lower bound. A site-year takes the
+# figure for its fall term (or an academic year that includes it); failing
+# that, the figures whose own year is at most SHARED_SITE_FIGURE_YEARS
+# before or after it, the largest of them (the published note then gives
+# the figure's own year).
 # SHARED_SITE_MAX_SHARE bounds the denominator error from students who
 # cannot be located: 1 in 10 is well inside the 25% disagreement the
 # on-campus FTE rule already accepts (ONLINE_UNCERTAIN_RATIO) and small
 # against the published intervals.
 SHARED_SITE_MAX_SHARE = (1, 10)
+SHARED_SITE_FIGURE_YEARS = 3
 SHARED_NEAR_MIN_NONZERO = 6
 SHARED_NEAR_MATCH = (4, 5)
 SHARED_NEAR_MIN_TOTAL = 20

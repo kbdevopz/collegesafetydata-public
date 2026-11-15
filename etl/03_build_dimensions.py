@@ -23,7 +23,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 from config import (
     CURATED_DIR, IVY_LEAGUE, IVY_BASE_UNITIDS, OFFENSE_ORDER_MAP,
     OFFENSE_DESCRIPTIONS, OFFENSE_FAMILIES, US_STATES, VALID_STATE_CODES,
-    PROCESS_ALL_SCHOOLS, DATA_YEARS, GEO_FOR_ALL, SIZE_SETTING_FIELDS
+    PROCESS_ALL_SCHOOLS, DATA_YEARS, GEO_FOR_ALL, SIZE_SETTING_FIELDS, SHARED_SITE_FIGURE_YEARS
 )
 import campus_identity
 import provenance
@@ -635,27 +635,39 @@ def build_shared_campus_overrides(dim_institution: pd.DataFrame) -> pd.DataFrame
 
 def build_shared_site_enrollment(dim_institution: pd.DataFrame) -> pd.DataFrame:
     """
-    dim_shared_site_enrollment.parquet: unitid, year, students, kind for each
-    year of DATA_YEARS in the ranges of etl/reference/shared_site_enrollment.csv:
+    dim_shared_site_enrollment.parquet: unitid, year, students, kind,
+    figure_year, derived for each campus of etl/reference/
+    shared_site_enrollment.csv and year of DATA_YEARS that a figure covers:
     the students of an institution at one of its campuses that is a shared
-    site (config.py, SHARED_SITE_MAX_SHARE), reviewed one by one from a
-    published source. kind is "count" (the site's enrollment as published) or
-    "upper bound" (a published figure that is at least the site's enrollment,
-    such as the enrollment of every location of a program together, or an
-    academic year's enrollment for its fall term); figure_term is the fall
-    term of the year, or an academic year that includes it; never an
-    estimate or another year's figure. Each row needs a campus of dim_institution, a positive
-    whole number, the figure's measure and term, a source, a URL and the
-    quoted text; a campus has one figure per year.
+    site (config.py, SHARED_SITE_MAX_SHARE), reviewed one by one from
+    published sources. A row's first_year to last_year are the fall terms
+    its figure itself describes (its own years; an academic year counts for
+    its fall). kind is "count" (the site's enrollment as published) or
+    "upper bound" (a figure that is at least the site's enrollment: a
+    published one, such as the enrollment of every location of a program
+    together, or one derived from published figures by the arithmetic in
+    the row's derived column: the sum of the published sizes of the classes
+    in a program that fall, or a published per-class cap times the program
+    years spent at the site); never an estimate or a lower bound. A year
+    takes the figure whose own years include it; failing that, of the
+    figures whose own year is at most SHARED_SITE_FIGURE_YEARS before or
+    after it, the largest (then the nearer, then the earlier).
+    figure_year is the figure's own year used (the year itself, or the
+    nearest of the figure's own years); derived is whether the figure is
+    derived. Each row needs a campus of dim_institution, a positive whole
+    number, the figure's measure and term, a source, one or more web
+    addresses (space separated) and the quoted text; a derived row an
+    upper bound with its arithmetic; a campus has one figure of its own per
+    year.
     """
     print("\nBuilding the reviewed student figures of shared sites...")
     listed = pd.read_csv(SITE_ENROLLMENT_LIST_PATH, dtype=str, keep_default_na=False)
-    need = ["unitid", "first_year", "last_year", "students", "kind", "measure", "figure_term", "source", "url",
-            "quote"]
+    need = ["unitid", "first_year", "last_year", "students", "kind", "measure", "figure_term", "derived", "source",
+            "url", "quote"]
     if list(listed.columns) != need:
         raise RuntimeError(f"{SITE_ENROLLMENT_LIST_PATH} must have the columns {need}")
     campuses = set(dim_institution["unitid"].astype(int).tolist())
-    rows = []
+    own: dict[int, list[tuple[int, int, int, str, bool]]] = {}
     for row in listed.to_dict("records"):
         unitid = int(row["unitid"])
         if unitid not in campuses:
@@ -666,22 +678,41 @@ def build_shared_site_enrollment(dim_institution: pd.DataFrame) -> pd.DataFrame:
             raise RuntimeError(f"{SITE_ENROLLMENT_LIST_PATH}: {unitid} needs a positive whole number of students")
         if any(not row[k].strip() for k in ("measure", "figure_term", "source", "url", "quote")):
             raise RuntimeError(f"{SITE_ENROLLMENT_LIST_PATH}: {unitid} needs a measure, term, source, URL and quote")
-        if not row["url"].startswith(("https://", "http://")):
-            raise RuntimeError(f"{SITE_ENROLLMENT_LIST_PATH}: {unitid} url must be a web address")
+        if not all(u.startswith(("https://", "http://")) for u in row["url"].split()):
+            raise RuntimeError(f"{SITE_ENROLLMENT_LIST_PATH}: {unitid} url must be web addresses")
+        derived = bool(row["derived"].strip())
+        if derived and row["kind"] != "upper bound":
+            raise RuntimeError(f"{SITE_ENROLLMENT_LIST_PATH}: {unitid} a derived figure must be an upper bound")
         first, last = int(row["first_year"]), int(row["last_year"])
         if first > last:
             raise RuntimeError(f"{SITE_ENROLLMENT_LIST_PATH}: {unitid} first_year is after last_year")
-        for year in range(first, last + 1):
-            if year in DATA_YEARS:
-                rows.append({"unitid": unitid, "year": year, "students": int(row["students"]), "kind": row["kind"]})
-    out = pd.DataFrame(rows, columns=["unitid", "year", "students", "kind"]).astype(
-        {"unitid": "int32", "year": "int16", "students": "int32", "kind": "string"})
-    if out.duplicated(["unitid", "year"]).any():
-        raise RuntimeError(f"{SITE_ENROLLMENT_LIST_PATH} gives a campus two figures for one year")
+        mine = own.setdefault(unitid, [])
+        if any(first <= b and a <= last for a, b, _n, _k, _d in mine):
+            raise RuntimeError(f"{SITE_ENROLLMENT_LIST_PATH} gives {unitid} two figures for one year")
+        mine.append((first, last, int(row["students"]), row["kind"], derived))
+    rows = []
+    for unitid, figures in sorted(own.items()):
+        for year in DATA_YEARS:
+            # (students, -distance, -own year) of each figure in reach: the same year, else the largest
+            reach = []
+            for a, b, n, kind, derived in figures:
+                fy = min(max(year, a), b)
+                if abs(fy - year) <= SHARED_SITE_FIGURE_YEARS:
+                    reach.append((abs(fy - year), n, fy, kind, derived))
+            if not reach:
+                continue
+            same = [r for r in reach if r[0] == 0]
+            _d, n, fy, kind, derived = same[0] if same else max(reach, key=lambda r: (r[1], -r[0], -r[2]))
+            rows.append({"unitid": unitid, "year": year, "students": n, "kind": kind, "figure_year": fy,
+                         "derived": derived})
+    out = pd.DataFrame(rows, columns=["unitid", "year", "students", "kind", "figure_year", "derived"]).astype(
+        {"unitid": "int32", "year": "int16", "students": "int32", "kind": "string", "figure_year": "int16",
+         "derived": "bool"})
     out = out.sort_values(["year", "unitid"]).reset_index(drop=True)
     out.to_parquet(SITE_ENROLLMENT_PATH, index=False)
     print(f"  {listed['unitid'].nunique()} campuses, {len(out):,} campus-years "
-          f"({int((out['kind'] == 'upper bound').sum()):,} upper bounds). Saved to: {SITE_ENROLLMENT_PATH}")
+          f"({int((out['kind'] == 'upper bound').sum()):,} upper bounds, {int(out['derived'].sum()):,} derived, "
+          f"{int((out['figure_year'] != out['year']).sum()):,} another year's figure). Saved to: {SITE_ENROLLMENT_PATH}")
     return out
 
 
