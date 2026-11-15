@@ -164,93 +164,148 @@ Rate = (Incident Count / On-campus FTE) × 10,000
 NCES publishes FTE for each institution, not for each campus: every campus
 of an institution (all campuses whose UNITID starts with the same six
 digits, the base UNITID) carries the institution's FTE. A rate therefore
-divides the incidents of all the institution's campuses that year by the
-institution's on-campus FTE (`04_create_aggregates.py`,
+divides the incidents of all the institution's campuses in the United States
+that year by the institution's on-campus FTE (`04_create_aggregates.py`,
 `create_institution_tables`):
 
 - A campus counts for its institution in a year when it reported that year
   (`campus_year_sources`) and its figures are not all shadow blocks.
 - The incidents are counted as in rankings: the sum of on-campus, non-campus
   and public property (residence halls are part of on-campus), shadow blocks
-  left out, campuses in any state.
+  left out, campuses with a state (territories included). A campus DOE lists
+  without a state is abroad (`abroad_campuses`): its incidents are not in its
+  institution's counts or rates (rule 12), but stay in its own school file.
 - Rate rankings list institutions, one row each, under the institution's
   name. The row links to the main campus (UNITID ending in 001) when that
-  campus counts that year, otherwise to the institution's campus with the
-  most incidents that year (ties: the lowest UNITID), and is listed in that
-  campus's state. Rankings by count still list each campus.
+  campus counts that year, otherwise to the institution's campus in the
+  United States with the most incidents that year (ties: the lowest UNITID),
+  and is listed in that campus's state. State and national rankings cover
+  the states of `US_STATES` (the 50 states, DC, PR and VI); an institution
+  elsewhere (Guam, the Federated States of Micronesia, ...) is in no rankings
+  file, and its school page says so. Rankings by count still list each
+  campus.
 - School pages and Compare show the institution's rate and, for an
   institution of more than one campus, label it "all N campuses combined".
 
 ### Rate rules
 Every rule rates and rate rankings follow (constants in `config.py`, rules
-in `04_create_aggregates.py`, checked again without that code by
-`07_comprehensive_audit.py` checks 10 and 12). None changes a count or a
-ranking by count. School pages and Compare show the rate of an institution
-under the floor (rule 2) or with fewer than 20 incidents, with a note; an
-institution-year left out by rule 3, 8 or 9 gets no rate there, only its
-counts and the note (`rateExcludedReason`). Numbers are for 2015-2024
-("institution-years": one institution in one year).
+in `04_create_aggregates.py` and `05_generate_json.py`, checked again
+without that code by `07_comprehensive_audit.py` checks 10 and 12). None
+changes a count or the order of a ranking by count; rule 13 adds a flag to
+rankings by count. For each code an institution of a rankings file's
+`institutions` is in exactly one of `rateRankings` (ranked), `rateUnranked`
+(1-19 incidents, no other reason), `rateNotRanked` (shown, not ranked, with
+`why`; or left out by rule 3 or 8, with no rate) or none of them (0
+incidents). School pages and Compare say the same, and also show the rate of
+an institution under the floor (rule 2), with a note; an institution-year
+left out by rule 3 or 8 gets no rate there, only its counts and the note
+(`rateExcludedReason`). The numbers below are for 2015-2024
+("institution-years": one institution in one year); "2024" figures are those
+of the national file, `metadata.json` `rateStats.byYear["2024"]`, and totals
+over all years are `rateStats.institutionYears`.
 
-1. **On-campus FTE** (`MIN_FTE_FOR_RATE`, `ONLINE_SHARE_YEAR`). On-campus
-   FTE = FTE × (1 − PCTDEEXC / 100), rounded half up to a whole number,
-   PCTDEEXC being NCES's share of students enrolled exclusively in distance
-   education (in the same DRVEF/EF tables as the FTE). Clery figures cover
-   the campus. It is an approximation: PCTDEEXC is a share of the fall
-   headcount, applied to FTE, and a student with some online courses counts
-   as on campus. For 2020 and 2021 the share is the institution's fall 2019
-   share, so those years divide by the same kind of enrollment as the
-   others; when NCES has no 2019 figure the year's own share is used (66
-   institutions in 2020 and 102 in 2021, of which 1 and 2 have 1,000+ FTE).
-   An institution without PCTDEEXC would keep its full FTE (none with an FTE
-   lacks it in 2015-2024). This replaces the earlier cut-off, which left out
-   institutions at 50% or more exclusively online and divided by the full FTE
-   below that.
-2. **Floor.** Rate rankings list an institution only in a year its
-   on-campus FTE, with any FTE pooled under rules 8 and 9, is at least 1,000
-   (1,987 institutions in 2024).
+1. **On-campus FTE** (`oncampus_estimates`, `ONLINE_UNCERTAIN_RATIO`,
+   `ONLINE_SHARE_YEAR`). Clery figures cover the campus, so the rate divides
+   by an estimate of the FTE without students enrolled exclusively in
+   distance education. NCES gives their share of the fall headcount
+   (PCTDEEXC), not of FTE, so 04 makes two estimates: (a) proportional, FTE
+   x (1 - PCTDEEXC / 100); (b) part-time first, the on-campus headcount H x
+   (1 - PCTDEEXC / 100) filled first with full-time students (FT_on =
+   min(FT, on-campus headcount)), the rest part-time, each counting
+   (FTE - FT) / PT as in the institution's FTE; by level (PCUDEEXC,
+   PCGDEEXC) when the share is the year's own and DRVEF has them (2021 on),
+   else from the totals. Headcounts are NCES's (DRVEF 2021 on, EF A before).
+   On-campus FTE is the larger, rounded half up. When the larger is more
+   than 5/4 of the smaller (more than 25% apart) or (b) cannot be computed
+   (headcounts that do not add up), the on-campus FTE is uncertain
+   (`fteUncertain`, `why: "online"`): every rate of the institution that year
+   is shown with the larger estimate and not ranked. A rate that pools
+   another institution's FTE (rules 8, 9) is uncertain too when that
+   institution's estimates are. 221 institutions in 2024 (not left out by a
+   rule), e.g. Grand Canyon University (12,503 and 23,110). For 2020 and 2021
+   the share is the institution's fall 2019 share, so those years divide by
+   the same kind of enrollment as the others; when NCES has no 2019 figure
+   the year's own share is used (66 institutions in 2020 and 102 in 2021, of
+   which 1 and 2 are listed in rate rankings). The number of uncertain
+   institutions rises in 2022 (from 89 in 2021 to 257), the first year after
+   2020-2021 that uses each fall's own share. An institution without PCTDEEXC
+   would keep its full FTE (none with an FTE lacks it in 2015-2024).
+2. **Floor** (`MIN_FTE_FOR_RATE` = 1,000). Rate rankings list an institution
+   only in a year its on-campus FTE, with any FTE pooled under rules 8 and
+   9, is at least 1,000: 2,076 institutions in the 2024 national file (2,078
+   with a state code; the University of Guam and the College of
+   Micronesia-FSM are in no rankings file).
 3. **Population** (`HOSPITAL_CODE`, `MEDICAL_CARNEGIE`,
    `reference/rate_population_exclusions.csv`, read by
    `03_build_dimensions.py` into `dims/dim_institution_class.parquet`). Left
    out of rate rankings in a year when the IPEDS HD file says the
-   institution has a hospital (HOSPITAL = 1; 882 institution-years, 701 with
-   1,000+ on-campus FTE, 71 in 2024); else when its Carnegie basic
+   institution has a hospital (HOSPITAL = 1; 882 institution-years, 702 with
+   a denominator of 1,000+, 72 in 2024); else when its Carnegie basic
    classification is "Special Focus Four-Year: Medical Schools & Centers"
    (25 in C15BASIC, C18BASIC and C21BASIC) or the 2021 "Special Focus
    Research Institution" category (C21BASIC 27; 20 of its 22 institutions
-   in HD2024 were 25 in C18BASIC): 335 institution-years, 205 with 1,000+,
+   in HD2024 were 25 in C18BASIC): 335 institution-years, 210 with 1,000+,
    21 in 2024; else when the reference list names it with a sourced reason
-   (Gallaudet University 2015-2024: the Clerc Center's Kendall Demonstration
-   Elementary School and Model Secondary School for the Deaf are on its
-   campus and their pupils are not in its FTE; 10 institution-years). Their
-   campuses hold many people who are not in FTE (patients, visitors,
-   clinical and research staff, pupils). In 2024 the median criminal-offense
-   rate per 10,000 on-campus FTE of Carnegie R1 universities was 80.2 with a
-   hospital and 34.6 without. Limitation: HOSPITAL = 1 only when the
-   institution itself runs the hospital; a university whose medical center is
-   a separate legal entity (for example Johns Hopkins University) is not caught
-   and stays ranked.
+   (15 institution-years: Gallaudet University 2015-2024, whose campus also
+   holds the Clerc Center's Kendall Demonstration Elementary School and Model
+   Secondary School for the Deaf, whose pupils are not in its FTE; The
+   University of Tennessee Health Science Center 2015-2017 and Albert
+   Einstein College of Medicine 2019-2020, the years IPEDS gives them no
+   Carnegie basic classification). Their campuses hold many people who are
+   not in FTE (patients, visitors, clinical and research staff, pupils). In
+   the 2024 national file the median criminal-offense rate per 10,000 of
+   the denominator of Carnegie R1 universities (C21BASIC 15) was 79.1 with a
+   hospital (37) and 33.3 without (109). Limitation: HOSPITAL = 1 only when
+   the institution itself runs the hospital; a university whose medical
+   center is a separate legal entity is not caught by this rule (see rule
+   11).
 4. **Minimum count** (`MIN_COUNT_FOR_RATE_RANK` = 20). Only a rate on at
    least 20 incidents is ranked. A Poisson count n has a relative standard
-   error of 1/sqrt(n): 22.4% at 20, 31.6% at 10; CDC WONDER flags death
-   rates on fewer than 20 deaths as unreliable (relative standard error 23%
-   or more, https://wonder.cdc.gov/wonder/help/ucd.html). Institutions with
-   1-19 incidents are written to `rateUnranked` (by rate) and shown as "too
-   few incidents to rank by rate", with the rate and interval.
+   error of 1/sqrt(n): 22.4% at 20, 31.6% at 10 (more with the
+   overdispersion of rule 6); CDC WONDER flags death rates on fewer than 20
+   deaths as unreliable (relative standard error 23% or more,
+   https://wonder.cdc.gov/wonder/help/ucd.html). Institutions with 1-19
+   incidents and no other reason are written to `rateUnranked` (by rate) and
+   shown as "too few incidents to rank by rate", with the rate and interval;
+   with another reason, `few` is added to their `why` in `rateNotRanked`. In
+   2024: ranked 293 (criminal), 79 (violent), 152 (property); too few 1,088,
+   1,000, 978.
 5. **Counts only** (`RATE_RANK_MIN_NATIONAL` = 1,000, `RATE_COUNTS_ONLY`).
-   Offenses averaging fewer than 1,000 incidents a year nationally have no
-   rate rankings: incest 2.5, negligent manslaughter 6.2, murder 48.8,
-   statutory rape 78.7, arson 654.9 a year. Only 7 institution-years in rate
-   rankings reached 20 of any of them (statutory rape 3, arson 4). 07 checks
-   that the list is exactly the offenses under the threshold.
-6. **Intervals and rank ranges** (`RATE_CI_LEVEL` = 0.95). Each rate's
-   interval is the exact Poisson (Garwood 1936) interval of its count,
-   divided by the denominator, × 10,000, rounded to 2 decimals. 05 finds it
-   by bisection on the Poisson distribution, 07 again through the
-   regularized incomplete gamma function. A ranked institution's rank range
-   is 1 + #{ranked institutions whose lower bound is above its upper bound}
-   to N − #{those whose upper bound is below its lower bound}, on the
-   published bounds. In 2024 the median ranked institution's range holds 48
-   of 84 ranks for violent crimes and 155 of 310 for all criminal offenses.
+   Offenses averaging fewer than 1,000 incidents a year in national totals
+   (50 states, DC, PR, VI) have no rate rankings: incest 2.5, negligent
+   manslaughter 6.1, murder 48.6, statutory rape 78.7, arson 653.8 a year.
+   Only 7 institution-years in rate rankings reached 20 of any of them
+   (statutory rape 3, arson 4). 07 checks that the list is exactly the
+   offenses under the threshold.
+6. **Intervals and rank ranges** (`RATE_CI_LEVEL` = 0.95,
+   `DISPERSION_*`, `RANK_DRAWS`, `RANK_SEED`). Institutions' yearly counts
+   vary more than Poisson counts. 05 (`dispersion`) fits the overdispersion
+   on 2015-2019, institutions listed without a rule in all five years, units
+   (an institution for a summary code; an institution and offense for a
+   group of single offenses) with a mean of at least 20: a two-way Poisson
+   model (institution x year) gives each unit's Pearson statistic X over the
+   years, D = X / median(chi-square, 4) estimates its variance-to-mean ratio,
+   and 1/k = median over units of (D - 1) / mean, the negative binomial's
+   variance n(1 + n/k). Median D: violent 3.44 (89 units), criminal 3.3
+   (375), property 3.75 (146), all 9.3 (1,262). k (rounded to 1 decimal,
+   used as rounded): violent 13.3, criminal 16.5, property 12.8, all 13.4,
+   single criminal and VAWA offenses 7.3, arrests and disciplinary referrals
+   7.7 (`rateRules.dispersion`). A count n's interval (`count_interval`) is
+   phi x the gamma interval of the effective count m = n / phi, phi = 1 +
+   n/k: lower phi x G(0.025; m) (0 for n = 0), upper phi x G(0.975; m + 1),
+   G the gamma quantile (Fay and Feuer 1997; Garwood's exact Poisson interval
+   when phi = 1); divided by the denominator, x 10,000, rounded to 2
+   decimals. 07 finds it again through the regularized incomplete gamma
+   function. Count of 20: violent 8.63-39.43, criminal 9.16-37.91; count of
+   0: 0-3.69 (`rateStats.intervalExamples`). At 1,000 violent crimes the
+   count's interval is 534-1,706, so intervals stay wide for large counts. A
+   ranked institution's rank range (`rank_ranges`) is the middle 95% of its
+   ranks in 2,000 simulated rankings (each draw of a ranked institution's
+   rate: gamma, shape m + 1/2, times phi / denominator; NumPy PCG64 seeded
+   with (RANK_SEED, year, CRC-32 of the code, base UNITID)), widened to hold
+   its published rank. In 2024 the median ranked institution's range spans
+   40 of 79 ranks for violent crimes, 134 of 293 for all criminal offenses
+   and 69 of 152 for property crimes.
 7. **Violent and property crimes** (`VIOLENT_OFFENSES`,
    `PROPERTY_OFFENSES`). "violent" = murder, rape, robbery, aggravated
    assault (the FBI's violent crime); "property" = burglary, motor vehicle
@@ -273,31 +328,85 @@ counts and the note (`rateExcludedReason`). Numbers are for 2015-2024
    institutions leaves them out. A merged institution's group is left out
    when a member without an FTE counts a campus with incidents that no
    member with an FTE also counts. A campus with no incident that year
-   (under either ID, any category) needs none of this. 91 institution-years
-   are left out (27 with 1,000+ on-campus FTE); 31 are rated with pooled
-   FTE.
-9. **Shared campuses** (`shared_rate_rules`). For a shadow block whose
-   host campus belongs to another institution (not a linked pair of IDs):
-   when the shadow's institution counts no campus of its own that year and
-   has one host institution, the host's rate adds its on-campus FTE (44
-   institution-years); otherwise neither rate is exact, and the shadow's
-   institution (if listed) and every host institution are left out that
-   year: 243 institution-years, 209 with 1,000+ on-campus FTE, 21 in 2024
-   (among them Texas A&M, Purdue, Indiana University Bloomington and the
-   University of Maryland, College Park).
+   (under either ID, any category) needs none of this. As the first rule
+   that applies, `merger` leaves out 30 institution-years (23 with a
+   denominator of 1,000+) and `family` 57 (1): 87 (24); 31 are rated with
+   pooled FTE.
+9. **Shared campuses** (`shared_rate_rules`; `SHARED_MAX_SHARE` = 1/20).
+   For a shadow block whose host campus belongs to another institution (not
+   a linked pair of IDs): when the shadow's institution counts no campus of
+   its own that year and has one host institution, the host's rate adds its
+   on-campus FTE (46 institution-years). Otherwise no institution is left
+   out; per code, `sharedIn` (the host's figures that another institution
+   also reports) and `sharedOut` (an institution's figures for its campus
+   counted under another institution's campus, not in its count) are
+   compared with the count: when (sharedIn + sharedOut) x 20 > count +
+   sharedOut, the rate is shown, not ranked (`why: "shared"`); otherwise,
+   when either is above 0, it is ranked with a note. In 2024: not ranked 19
+   (violent), 23 (criminal), 21 (property), among them Texas A&M
+   University-College Station, Indiana University-Bloomington and Purdue
+   University-Main Campus (criminal); ranked with a note 0, 0, 1.
 10. **Unusually high years** (`SPIKE_MIN_COUNT` = 20, `SPIKE_FACTOR` = 3,
-    `SPIKE_MIN_OTHER_YEARS` = 3). A rate entry is flagged `spike` when its
-    count is at least 20 and more than 3 times the median of the
-    institution's counts of that code in its other listed years (0 for a
-    year without one), with at least 3 other years. It stays ranked; the
-    site notes that DOE counts crimes in the year reported. School files
-    list the flagged codes per year (`spikes`).
+    `SPIKE_MAX_FACTOR` = 2, `SPIKE_P` = 0.001, `SPIKE_MIN_OTHER_YEARS` = 3).
+    A count is flagged `spike` when it is at least 20, the institution has
+    at least 3 other years with figures (0 for a year without an incident),
+    the count is more than 3 times their median and more than 2 times their
+    largest, and P(Y >= count) < 0.001 for a negative binomial Y with that
+    median as its mean and the code's k (`nb_upper_tail`). It stays ranked;
+    the site notes that DOE counts crimes in the year reported. School files
+    list the flagged codes per year (`spikes`). In 2024: 1 (violent), 4
+    (criminal), 7 (property); 63 of 2,839 ranked entries over all codes.
+11. **Medical-center campuses** (`reference/medical_campuses.csv`,
+    `MEDICAL_CAMPUS_SHARE` = 1/4). The hospital test of rule 3 catches only
+    institutions that run a hospital themselves. 13 campuses, each with its
+    source (DOE's
+    campus name and address): Johns Hopkins East Baltimore and Bayview,
+    Boston University Medical Campus, University of Kansas Medical Center,
+    Washington University Medical School campus, Columbia University Medical
+    Center, NYU Langone and NYU Langone Hospital - Brooklyn, Wake Forest
+    Medical Center campus (2015-2018), UF Health Jacksonville, Loyola
+    University Medical Center, University of the District of Columbia at
+    United Medical Center, College of Our Lady of the Elms at Berkshire
+    Medical Center. Their incidents stay in the institution's count; per
+    code, when they are 25% or more of it, the rate is shown, not ranked
+    (`why: "medical_campus"`); below that, with `medical` > 0, it is ranked
+    with a note. Johns Hopkins University 2024: 97 of 144 violent crimes at
+    its medical campuses. In 2024: not ranked 3 (violent), 4 (criminal), 3
+    (property); ranked with a note 3, 2, 3.
+12. **Campuses abroad** (`abroad_campuses`). A campus DOE lists without a
+    state is abroad. NCES's fall enrollment excludes "students enrolled in
+    any branch campus located in a foreign country" (IPEDS 2024-25 Fall
+    Enrollment instructions, Who to Exclude), so its incidents are not in
+    the institution's counts or rates; they stay in the campus's own school
+    file, and the institution's school-file entry gives them under
+    `abroad`. Territories (PR, VI, GU, ...) are not abroad. In 2024 the
+    national file has 95 institutions with a campus abroad (`abroad`); 32
+    criminal offenses at those campuses are left out of their rates
+    (`audit.json`, Institution Rates).
+13. **Count flag** (`COUNT_FLAG_MIN_COUNT` = 20, `COUNT_FLAG_FACTOR` = 3).
+    In rankings by count, an entry is flagged `highForSize` when its count
+    is at least 20 and the count per 10,000 of the institution's FTE (NCES's
+    FTE of the whole institution) is more than 3 times the highest ranked
+    rate of that code in that year's national file
+    (`rateStats.countFlagLimits`). The count is shown as reported. In 2024:
+    violent 6, criminal 19, property 7, all 11.
 
-Rules 3, 8 and 9 leave out 1,546 institution-years (1,139 with 1,000+
-on-campus FTE). Rate rankings list 2,153 institutions in 2015, 2,106 in
-2016, 2,092 in 2017, 2,057 in 2018, 2,025 in 2019, 1,973 in 2020, 1,945 in
-2021, 1,822 in 2022, 1,834 in 2023 and 1,874 in 2024 (2,077 in 2024 under
-the earlier rules).
+Rules 3 and 8 leave out 1,319 institution-years (950 with a denominator of
+1,000+). The national files list (denominator of 1,000+), leave out by rule
+3 or 8, and show with an uncertain on-campus FTE (not left out):
+
+| Year | Listed | Left out | Uncertain FTE | With a campus abroad |
+|------|-------:|---------:|--------------:|---------------------:|
+| 2015 | 2,306 | 89 | 66 | 96 |
+| 2016 | 2,273 | 90 | 72 | 102 |
+| 2017 | 2,243 | 96 | 77 | 108 |
+| 2018 | 2,220 | 91 | 93 | 108 |
+| 2019 | 2,210 | 103 | 95 | 107 |
+| 2020 | 2,154 | 96 | 100 | 104 |
+| 2021 | 2,131 | 100 | 89 | 101 |
+| 2022 | 2,041 | 97 | 257 | 96 |
+| 2023 | 2,058 | 94 | 218 | 96 |
+| 2024 | 2,076 | 94 | 221 | 95 |
 
 ## Geographic Classifications
 
@@ -399,7 +508,7 @@ rapes in 2018 are about 12% of that year's national total. These are the
 figures the institutions reported; this site does not mark or remove them.
 
 ### Totals shown on the site
-- **All criminal offenses** (the default view of rankings, school pages and comparisons): the 11 criminal offenses above, added up.
+- **All criminal offenses** (what school pages and comparisons open on; rankings open on violent crimes, rate rule 7): the 11 criminal offenses above, added up.
 - **All categories (crimes, arrests, referrals)**: every category added up, criminal offenses, VAWA offenses, arrests and disciplinary referrals. These are different kinds of counts. Arrests and disciplinary referrals count people (each person arrested or referred), not incidents, and an incident of dating violence, domestic violence or stalking can also be counted as a criminal offense such as aggravated assault. So this total is not a number of incidents, and high totals often reflect drug and alcohol enforcement rather than violent crime. It is still available (`?offense=all` on the rankings page).
 
 ## Comparing Years (2015-2024)
@@ -474,19 +583,25 @@ reasonable interpretation of terms and applies no measurable distance to
 "reasonably contiguous". The same incidents can be reported differently.
 
 ### Rates are per enrolled student
-On-campus FTE is estimated from NCES's FTE of the whole institution and its
-share of students enrolled exclusively online. It does not count residents
-who are not students, employees, visitors or patients. Rate rankings leave
-out institutions with a hospital and special-focus medical and research
-institutions (rule 3), but other Clery geography can include places used
-mostly by others (a clinic, for example), where a rate per student says
-little about risk to a student.
+On-campus FTE is estimated from NCES's FTE of the whole institution, its
+fall headcounts and its share of students enrolled exclusively online (rule
+1); when the two estimates differ by more than 25% the rate is not ranked.
+It does not count residents who are not students, employees, visitors or
+patients. Rate rankings leave out institutions with a hospital and
+special-focus medical and research institutions (rule 3) and do not rank a
+rate with 25% or more of its incidents at a listed medical-center campus
+(rule 11), but other Clery geography can include places used mostly by
+others (a clinic, or a medical center not on the list), where a rate per
+student says little about risk to a student. Rates leave out campuses
+abroad, whose students NCES's fall enrollment leaves out (rule 12).
 
 ### Small numbers, zeros and unweighted totals
 Rates on fewer than 20 incidents are not ranked (rule 4), and every rate has
 a 95% interval and a rank range (rule 6); ranks inside one range are not
-clearly different. A rate of 0 is a reported zero, which can reflect
-classification or chance. "All criminal offenses" adds unlike crimes with
+clearly different. Because counts vary from year to year beyond chance, the
+interval stays wide for large counts (534-1,706 for 1,000 violent crimes). A
+rate of 0 is a reported zero, listed after the ranked rates, not ranked; it
+can reflect classification or chance. "All criminal offenses" adds unlike crimes with
 equal weight; motor vehicle theft was about 15% of the national criminal
 total in 2015 and about 37% in 2024, which is why rankings open on violent
 crimes.
@@ -570,3 +685,5 @@ For questions about methodology or to report data issues, please open an issue o
 16. Centers for Disease Control and Prevention. CDC WONDER, Underlying Cause of Death help (unreliable rates). https://wonder.cdc.gov/wonder/help/ucd.html
 17. Garwood, F. (1936). Fiducial limits for the Poisson distribution. Biometrika 28(3/4), 437-442. https://doi.org/10.1093/biomet/28.3-4.437
 18. Federal Bureau of Investigation. Crime in the United States, 2019: Violent Crime and Property Crime. https://ucr.fbi.gov/crime-in-the-u.s/2019/crime-in-the-u.s.-2019/topic-pages/violent-crime ; https://ucr.fbi.gov/crime-in-the-u.s/2019/crime-in-the-u.s.-2019/topic-pages/property-crime
+19. Fay, M. P. and Feuer, E. J. (1997). Confidence intervals for directly standardized rates: a method based on the gamma distribution. Statistics in Medicine 16(7), 791-801. https://doi.org/10.1002/(SICI)1097-0258(19970415)16:7%3C791::AID-SIM500%3E3.0.CO;2-%23
+20. National Center for Education Statistics. IPEDS 2024-25 Survey Materials: Fall Enrollment for 4-year degree-granting institutions (full instructions, "Who to Exclude"). https://nces.ed.gov/ipeds/use-the-data/download-survey-material/2024/fall%20enrollment/package_6_74.pdf

@@ -378,9 +378,10 @@ export default function About() {
                 <div>
                   <h4 className="font-medium text-gray-900 dark:text-gray-100 text-sm">Per 10k Rates</h4>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Incidents per 10,000 on-campus FTE students (FTE without students enrolled only online) of the
-                    whole institution: a size-adjusted figure, not a measure of risk. Which institutions rate rankings
-                    list and rank is described on the{' '}
+                    Incidents at all of an institution's campuses in the United States per 10,000 of its on-campus
+                    FTE, an estimate of its FTE without students enrolled only online: a size-adjusted figure, not a
+                    measure of risk. How the estimate is made, and which institutions rate rankings list and rank, is
+                    described on the{' '}
                     <Link to="/methodology#rate-rules" className="text-primary-600 dark:text-primary-400 underline">Methodology page</Link>.
                   </p>
                 </div>

@@ -24,6 +24,20 @@ export const CHANGES: ChangeEntry[] = [
   {
     date: '2026-11-14',
     kind: 'method',
+    title: 'Rate rules revised: on-campus estimate, medical-center campuses, campuses abroad, wider intervals',
+    body: [
+      'On-campus FTE is now the larger of two estimates made from NCES\'s FTE, fall headcounts and share of students enrolled exclusively online. When the two differ by more than 25%, or NCES\'s headcounts do not add up, the rate is shown but not ranked: 221 institutions in the 2024 national rate rankings, among them Grand Canyon University (estimates of 12,503 and 23,110), which the previous change ranked.',
+      'Incidents at 13 listed medical-center campuses, such as Johns Hopkins University\'s East Baltimore campus, are counted apart: when they are 25% or more of an institution\'s count of an offense, its rate is shown but not ranked. The University of Tennessee Health Science Center (2015-2017) and Albert Einstein College of Medicine (2019-2020) are left out of rate rankings in the years IPEDS gives them no Carnegie classification.',
+      'Shared campuses no longer leave institutions out of rate rankings. For each offense, a rate is not ranked when the figures shared with another institution\'s campus are more than 5% of its count, and is ranked with a note below that.',
+      'Rates leave out incidents at campuses abroad, because NCES\'s fall enrollment leaves out their students (95 institutions in 2024). Those incidents stay on each campus\'s own page.',
+      'Intervals now allow for how much institutions\' counts vary from year to year beyond chance (a negative binomial interval), so they are wider, most of all for large counts, and rank ranges are simulated. Unusually high years are marked under a stricter test, and rankings by count flag counts that are very high for an institution\'s size.',
+      'In the 2024 national rate rankings 2,076 institutions are listed, 94 of them left out by a rule; 293 are ranked for all criminal offenses and 79 for violent crimes. Of the previous top 25 by all criminal offenses, 20 are still in it: Grand Canyon University, Metropolitan State University and the CUNY Graduate Center are not ranked because of an uncertain on-campus FTE, Johns Hopkins University because of that and its medical-center campuses, and Harvard University is 26th. No count changed.',
+    ],
+    methodology: 'rate-rules',
+  },
+  {
+    date: '2026-11-14',
+    kind: 'method',
     title: 'Rates per on-campus student, with intervals; violent and property crimes',
     body: [
       'Rates now divide by on-campus FTE: the FTE without NCES\'s share of students enrolled only in distance education. The 50% online cut-off is gone, and rate rankings list institutions with at least 1,000 on-campus FTE. Grand Canyon University (79% exclusively online in fall 2024), for example, is now listed.',
@@ -31,6 +45,7 @@ export const CHANGES: ChangeEntry[] = [
       'Only rates built on at least 20 incidents get a rank; the others are listed as too few to rank by rate, with their rate. Every rate shows a 95% interval and every rank the range of ranks the intervals allow. Murder, negligent manslaughter, incest, statutory rape and arson are ranked by count only.',
       'New categories: "Violent crimes" and "Property crimes", the offenses of the FBI\'s violent and property crime (without larceny-theft, which Clery does not collect). Rankings open on violent crimes. A year more than 3 times an institution\'s usual count is marked as unusually high and stays ranked.',
       'In 2024 rate rankings list 1,874 institutions (2,077 before). Of the previous top 25 by all criminal offenses, 13 are still in it and 11 are now left out, most of them medical institutions or institutions with a hospital. No count changed.',
+      'The figures in this entry are those of this change. The revision above changed the denominator, the shared-campus rule, the intervals and the unusually-high test, so several of them no longer hold; Methodology has the current ones.',
     ],
     methodology: 'rate-rules',
   },

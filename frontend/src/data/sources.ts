@@ -105,6 +105,16 @@ export const SOURCES = {
     url: 'https://doi.org/10.1093/biomet/28.3-4.437',
     publisher: 'Biometrika',
   },
+  fayFeuer1997: {
+    label: 'Fay, M. P. and Feuer, E. J. (1997). Confidence intervals for directly standardized rates: a method based on the gamma distribution. Statistics in Medicine 16(7), 791-801',
+    url: 'https://doi.org/10.1002/(SICI)1097-0258(19970415)16:7%3C791::AID-SIM500%3E3.0.CO;2-%23',
+    publisher: 'Statistics in Medicine',
+  },
+  ncesFallEnrollment2024: {
+    label: 'IPEDS 2024-25 Survey Materials: Fall Enrollment for 4-year degree-granting institutions (full instructions, "Who to Exclude")',
+    url: 'https://nces.ed.gov/ipeds/use-the-data/download-survey-material/2024/fall%20enrollment/package_6_74.pdf',
+    publisher: 'National Center for Education Statistics',
+  },
   fbiViolent2019: {
     label: 'Crime in the United States, 2019: Violent Crime',
     url: 'https://ucr.fbi.gov/crime-in-the-u.s/2019/crime-in-the-u.s.-2019/topic-pages/violent-crime',
