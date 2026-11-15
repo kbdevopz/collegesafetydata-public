@@ -33,7 +33,8 @@ from pathlib import Path
 # Add parent to path for config import
 sys.path.insert(0, str(Path(__file__).parent))
 from config import (CURATED_DIR, IVY_LEAGUE, GEO_FOR_ALL, US_STATES, PROCESS_ALL_SCHOOLS, OFFENSE_ORDER,
-                    SHARED_MIN_NONZERO, MIN_FTE_FOR_RATE, ONLINE_SHARE_YEAR, HOSPITAL_CODE, MEDICAL_CARNEGIE,
+                    SHARED_MIN_NONZERO, SHARED_CITY_MIN_TOTAL, MIN_FTE_FOR_RATE, ONLINE_SHARE_YEAR, HOSPITAL_CODE,
+                    DATA_YEARS, MEDICAL_CARNEGIE,
                     MEDICAL_CARNEGIE_LABELS, ONLINE_UNCERTAIN_RATIO, SIZE_SETTING_FIELDS, SHARED_SITE_MAX_SHARE,
                     SHARED_NEAR_MIN_NONZERO, SHARED_NEAR_MATCH, SHARED_NEAR_MIN_TOTAL, peer_type)
 import provenance
@@ -77,8 +78,10 @@ NEAR_PATH = CURATED_DIR / "aggs" / "near_copies.parquet"
 # whole figures are its three blocks (60 cells). Copies are looked for only
 # between campuses in the same state, and need at least SHARED_MIN_NONZERO
 # (config.py) cells that are not 0: fewer match by chance too often to call
-# a copy. find_shared_blocks lists the rules (SHARED_RULES).
-SHARED_RULES = ("same_block", "whole_year", "whole_year_older_release", "block_older_release", "renumbered")
+# a copy, except for whole figures equal between institutions of one city
+# (whole_year_city). find_shared_blocks lists the rules (SHARED_RULES).
+SHARED_RULES = ("same_block", "whole_year", "whole_year_older_release", "block_older_release", "renumbered",
+                "whole_year_city")
 
 
 def find_stray_facts() -> list:
@@ -745,34 +748,51 @@ def population_class_rules(classes: pd.DataFrame) -> dict[tuple[int, int], tuple
     """
     {(year, base): (rule, reason)} for the institution-years whose campus
     population students do not measure (config.py, HOSPITAL_CODE and
-    MEDICAL_CARNEGIE; 03's dim_institution_class): IPEDS HD says the
-    institution has a hospital, its Carnegie basic classification is a
-    special-focus medical school or center or a special-focus research
-    institution (MEDICAL_CARNEGIE), or it is listed in
-    etl/reference/rate_population_exclusions.csv.
+    MEDICAL_CARNEGIE; 03's dim_institution_class), first rule first: IPEDS
+    HD says the institution has a hospital that year; any of its Carnegie
+    basic classifications (C15BASIC, C18BASIC or C21BASIC, in any HD file of
+    DATA_YEARS) is a special-focus medical school or center or a
+    special-focus research institution (MEDICAL_CARNEGIE), in every year of
+    DATA_YEARS; or it is listed in
+    etl/reference/rate_population_exclusions.csv for that year.
     """
+    records = classes.to_dict("records")
+    editions = defaultdict(set)  # base -> {(field, code)} of MEDICAL_CARNEGIE in any year's HD file
+    for rec in records:
+        for field, codes in MEDICAL_CARNEGIE.items():
+            value = rec.get(field.lower())
+            if value is not None and pd.notna(value) and int(value) in codes:
+                editions[int(rec["unitid"])].add((field, int(value)))
+    by_key = {(int(rec["year"]), int(rec["unitid"])): rec for rec in records}
+    keys = set(by_key) | {(y, b) for b in editions for y in DATA_YEARS}
     out = {}
-    for rec in classes.to_dict("records"):
-        key = (int(rec["year"]), int(rec["unitid"]))
-        hospital, field, basic = rec["hospital"], rec["carnegie_field"], rec["carnegie_basic"]
-        if pd.notna(hospital) and int(hospital) == HOSPITAL_CODE:
+    for key in sorted(keys):
+        rec = by_key.get(key, {})
+        hospital = rec.get("hospital")
+        if hospital is not None and pd.notna(hospital) and int(hospital) == HOSPITAL_CODE:
             out[key] = ("hospital", (
                 f"IPEDS reports that this institution has a hospital (institutional characteristics, {key[0]}). "
                 "Patients, visitors and hospital staff are on its campus but not in its FTE, so a rate per "
                 "student would not measure its campus population. It has no rate; its counts are "
                 "shown."))
-        elif pd.notna(field) and pd.notna(basic) and int(basic) in MEDICAL_CARNEGIE.get(str(field), ()):
-            label = MEDICAL_CARNEGIE_LABELS[(str(field), int(basic))]
+        elif editions.get(key[1]):
+            found = sorted(editions[key[1]], key=lambda fc: (CARNEGIE_ORDER.index(fc[0]), fc[1]))
+            text = "; ".join(f"{field} {code}, \"{MEDICAL_CARNEGIE_LABELS[(field, code)]}\"" for field, code in found)
             out[key] = ("medical", (
-                f"Its Carnegie basic classification in IPEDS for {key[0]} is \"{label}\" ({field} {int(basic)}). "
-                "Such an institution's campus holds medical or research facilities whose staff, researchers and "
-                "patients are not in its FTE, so a rate per student would not measure its campus population. It has "
-                "no rate; its counts are shown."))
-        elif pd.notna(rec["listed_reason"]):
+                f"Its Carnegie basic classification in IPEDS is a special-focus medical school, medical center or "
+                f"research institution ({text}); the rule applies in every year when any of C15BASIC, C18BASIC and "
+                "C21BASIC gives such a code. Such an institution's campus holds medical or research facilities whose "
+                "staff, researchers and patients are not in its FTE, so a rate per student would not measure its "
+                "campus population. It has no rate; its counts are shown."))
+        elif rec.get("listed_reason") is not None and pd.notna(rec.get("listed_reason")):
             out[key] = ("listed", (
                 f"{rec['listed_reason']} So a rate per student would not measure its campus population. It has no "
                 f"rate; its counts are shown. Source: {rec['listed_source']}"))
     return out
+
+
+# The Carnegie basic classification fields, oldest first (the order the medical rule's reason lists them in)
+CARNEGIE_ORDER = ("C15BASIC", "C18BASIC", "C21BASIC")
 
 
 def merger_families() -> dict[int, int]:
@@ -901,6 +921,15 @@ def find_shared_blocks(base: pd.DataFrame, dim_inst: pd.DataFrame, enrollment: p
         campus-year taken from the older release is a shadow of the other.
         The two IDs are never in the same release, so no rule above can
         compare them.
+      whole_year_city: two or more campus-years of the same year, of at
+        least two institutions (base UNITIDs), in the same state and city
+        (dim_institution's city, compared without case and extra spaces),
+        whose whole figures (60 cells) are equal, add up to at least
+        SHARED_CITY_MIN_TOTAL and have fewer than SHARED_MIN_NONZERO nonzero
+        cells (whole_year takes those with more), none of their blocks a
+        shadow or a same_block block by the rules above. One is the host
+        (same order); every block of the others is a shadow of it. Applied
+        last, so it changes nothing the rules above find.
 
     The first campus by this order is the host:
       1. its campus-year is taken from the newest DOE release that covers
@@ -1042,6 +1071,26 @@ def find_shared_blocks(base: pd.DataFrame, dim_inst: pd.DataFrame, enrollment: p
                 continue
             older_id, newer_id = (o, n) if ro < rn else (n, o)
             shadow_campus_year(y, older_id, newer_id, "renumbered")
+
+    # whole_year_city (the selected figures): one report filed by
+    # institutions of one city, whatever its number of nonzero cells
+    city = {int(u): " ".join(str(c).split()).upper()
+            for u, c in zip(dim_inst["unitid"].tolist(), dim_inst["city"].tolist()) if isinstance(c, str) and c.strip()}
+    groups = {}
+    for y, u in sorted({(y, u) for (y, u, _g) in selected}):
+        if not ranked(u) or u not in city:
+            continue
+        if any((y, g, u) in shadows or (y, g, u) in same_block for g in GEO_FOR_ALL):
+            continue
+        vector = whole(selected, y, u)
+        if nonzero(vector) < SHARED_MIN_NONZERO and sum(vector) >= SHARED_CITY_MIN_TOTAL:
+            groups.setdefault((y, state[u], city[u], vector), []).append(u)
+    for (y, _state, _city, _vector), members in sorted(groups.items()):
+        if len({u // 1000 for u in members}) >= 2:
+            host = first(members, y)
+            for u in members:
+                if u != host:
+                    shadow_campus_year(y, u, host, "whole_year_city")
 
     # A host whose own block is a shadow passes its shadows on to its host
     def final_host(year: int, geo: str, host: int, unitid: int) -> int:

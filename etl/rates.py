@@ -2,7 +2,7 @@
 Rates (config.py, "Rates"): 3-year window rates of on-campus incidents per
 10,000 on-campus FTE-years with their intervals, the comparison with the
 national rate and with the peer group's rate, unusual-year flags, the
-ordered national and state lists with rank ranges, single-year rates (a
+ordered national, state and peer-type lists with rank ranges, single-year rates (a
 school page's trend) and the count flag's reference.
 
 05_generate_json.py writes what build() returns; 07_comprehensive_audit.py
@@ -22,8 +22,8 @@ from functools import lru_cache
 import pandas as pd
 
 from config import (CURATED_DIR, DATA_YEARS, US_STATES, MIN_FTE_FOR_RATE, SUMMARY_FAMILIES, RATE_CODES,
-                    RATE_RAMP, RATE_CI_LEVEL, RATE_SKIP_YEARS, LIST_CODES, LIST_MIN_EXPECTED, LIST_ALPHA,
-                    STATE_LIST_MIN_MEMBERS, MEDICAL_CAMPUS_SHARE, SHARED_SITE_MAX_SHARE, FLAG_OFFENSES, FLAG_GEOS,
+                    RATE_RAMP, RATE_CI_LEVEL, RATE_SPREAD, RATE_SKIP_YEARS, LIST_CODES, LIST_MIN_EXPECTED, LIST_ALPHA,
+                    STATE_LIST_MIN_MEMBERS, TYPE_LIST_MIN_MEMBERS, MEDICAL_CAMPUS_SHARE, SHARED_SITE_MAX_SHARE, FLAG_OFFENSES, FLAG_GEOS,
                     FLAG_MIN_COUNT, FLAG_MIN_OTHER_YEARS, FLAG_P, FLAG_C, FLAG_MIN_MEAN, COUNT_FLAG_PERCENTILE,
                     PEER_TYPES, rate_windows, dispersion_c, summary_codes)
 
@@ -59,6 +59,30 @@ def variance(mu: float, years: int, c: float) -> float:
     """The variance of a window total with mean mu over `years` years: T (m + c g(m) m^1.5), m = mu / T."""
     m = mu / years
     return years * (m + c * ramp(m) * m ** 1.5)
+
+
+def sample_variance(counts) -> Fraction:
+    """s^2 of an institution's yearly counts in a window (n - 1 denominator), exactly; 0 for one year."""
+    values = [Fraction(v) for v in counts]
+    if len(values) < 2:
+        return Fraction(0)
+    mean = sum(values) / len(values)
+    return sum((v - mean) ** 2 for v in values) / (len(values) - 1)
+
+
+def window_phi(n, years: int, c: float, spread: Fraction = Fraction(0)) -> tuple[float, bool]:
+    """
+    The variance-to-mean ratio of a window total n (config.py, RATE_SPREAD):
+    the larger of the model's phi(n) and T s^2 / n, s^2 = `spread` (the
+    sample variance of the window's yearly counts); (phi, whether the yearly
+    counts give it). n = 0: the model's.
+    """
+    model = phi(float(n), years, c)
+    if RATE_SPREAD == "max" and n and spread:
+        own = float(years * Fraction(spread) / Fraction(n))
+        if own > model:
+            return own, True
+    return model, False
 
 
 def gamma_p(a: float, x: float) -> float:
@@ -114,15 +138,16 @@ def gamma_quantile(a: float, q: float) -> float:
 
 
 @lru_cache(maxsize=None)
-def count_interval(n: float, years: int, c: float) -> tuple[float, float]:
+def count_interval(n, years: int, c: float, spread: Fraction = Fraction(0)) -> tuple[float, float]:
     """
     The RATE_CI_LEVEL interval of a window total n over `years` years
-    (config.py): phi = phi(n), m = n / phi; lower phi G(alpha/2; m), 0 for n
-    = 0; upper phi G(1 - alpha/2; m + 1).
+    (config.py): phi = window_phi(n, spread), m = n / phi; lower phi G(alpha/2;
+    m), 0 for n = 0; upper phi G(1 - alpha/2; m + 1).
     """
-    f = phi(n, years, c)
-    m = n / f
-    lower = 0.0 if n == 0 else f * gamma_quantile(m, ALPHA / 2)
+    f, _ = window_phi(n, years, c, spread)
+    nf = float(n)
+    m = nf / f
+    lower = 0.0 if nf == 0 else f * gamma_quantile(m, ALPHA / 2)
     upper = f * gamma_quantile(m + 1, 1 - ALPHA / 2)
     return lower, upper
 
@@ -141,6 +166,11 @@ def rate_value(n: int, fte_years: int) -> float:
 def round2(x: float) -> float:
     """An interval bound half up to 2 decimals: floor(x 100 + 0.5) / 100."""
     return math.floor(x * 100 + 0.5) / 100
+
+
+def round4(x: float) -> float:
+    """An interval bound half up to 4 decimals: floor(x 10^4 + 0.5) / 10^4."""
+    return math.floor(x * 10000 + 0.5) / 10000
 
 
 def normal_quantile(p: float) -> float:
@@ -205,13 +235,13 @@ def percentile_linear(values: list[Fraction], q: int) -> Fraction:
     return s[lo] + (h - lo) * (s[lo + 1] - s[lo])
 
 
-def verdict(n: float, fte_years: int, years: int, c: float, ref: Fraction) -> str:
+def verdict(n, fte_years: int, years: int, c: float, ref: Fraction, spread: Fraction = Fraction(0)) -> str:
     """
     ABOVE when the interval's lower bound per FTE-year is above the reference
     rate `ref` (incidents per FTE-year, exact), BELOW when the upper bound is
     below it, otherwise NOT_DISTINGUISHABLE. Unrounded.
     """
-    lower, upper = count_interval(n, years, c)
+    lower, upper = count_interval(n, years, c, spread)
     if lower * ref.denominator > ref.numerator * fte_years:
         return ABOVE
     if upper * ref.denominator < ref.numerator * fte_years:
@@ -219,24 +249,28 @@ def verdict(n: float, fte_years: int, years: int, c: float, ref: Fraction) -> st
     return NOT_DISTINGUISHABLE
 
 
-def z_statistic(ni: int, fi: int, nj: int, fj: int, years: int, c: float) -> float:
+def z_statistic(ni: int, fi: int, nj: int, fj: int, years: int, c: float, si: Fraction = Fraction(0),
+                sj: Fraction = Fraction(0)) -> float:
     """
-    The pairwise statistic of members i and j: (ni/fi - nj/fj) / sqrt(V0(r fi) / fi^2 + V0(r fj) / fj^2),
-    r = (ni + nj) / (fi + fj), V0 = variance; 0 when both counts are 0.
+    The pairwise statistic of members i and j: (ni/fi - nj/fj) / sqrt(Vi / fi^2 + Vj / fj^2),
+    Vi = max(V0(r fi), T si) with si member i's yearly s^2 (config.py, RATE_SPREAD), r = (ni + nj) /
+    (fi + fj), V0 = variance; 0 when both counts are 0.
     """
     r = (ni + nj) / (fi + fj)
-    v = variance(r * fi, years, c) / fi ** 2 + variance(r * fj, years, c) / fj ** 2
+    vi = max(variance(r * fi, years, c), float(years * si))
+    vj = max(variance(r * fj, years, c), float(years * sj))
+    v = vi / fi ** 2 + vj / fj ** 2
     if v <= 0:
         return 0.0
     return (ni / fi - nj / fj) / math.sqrt(v)
 
 
-def rank_ranges(members: list[tuple[int, int, int]], years: int, c: float) -> list[tuple[int, int]]:
+def rank_ranges(members: list[tuple], years: int, c: float) -> list[tuple[int, int]]:
     """
-    For members [(n, FTE-years, position)] (one list, any order), each one's
-    rank range: lo = 1 + the members significantly above it, hi = n - the
-    members significantly below it (z beyond critical_z(n)), widened to hold
-    its position.
+    For members [(n, FTE-years, position[, s^2 of its yearly counts])] (one
+    list, any order), each one's rank range: lo = 1 + the members
+    significantly above it, hi = n - the members significantly below it (z
+    beyond critical_z(n)), widened to hold its position.
     """
     n = len(members)
     if n == 1:
@@ -244,11 +278,12 @@ def rank_ranges(members: list[tuple[int, int, int]], years: int, c: float) -> li
     zc = critical_z(n)
     above = [0] * n
     below = [0] * n
+    spread = [Fraction(m[3]) if RATE_SPREAD == "max" and len(m) > 3 else Fraction(0) for m in members]
     for i in range(n):
-        ni, fi, _ = members[i]
+        ni, fi = members[i][0], members[i][1]
         for j in range(i + 1, n):
-            nj, fj, _ = members[j]
-            z = z_statistic(ni, fi, nj, fj, years, c)
+            nj, fj = members[j][0], members[j][1]
+            z = z_statistic(ni, fi, nj, fj, years, c, spread[i], spread[j])
             if z > zc:
                 below[i] += 1
                 above[j] += 1
@@ -293,11 +328,22 @@ class RateInputs:
             (int(u), int(y)): (int(n), str(k), int(fy), bool(d)) for u, y, n, k, fy, d in zip(
                 site["unitid"], site["year"], site["students"], site["kind"], site["figure_year"], site["derived"])}
         dim_inst = pd.read_parquet(CURATED_DIR / "dims" / "dim_institution.parquet",
-                                   columns=["unitid", "institution_name"])
+                                   columns=["unitid", "institution_name", "campus_name"])
         self.base_name: dict[int, str] = {}
         for u, name in sorted(zip(dim_inst["unitid"].astype(int).tolist(), dim_inst["institution_name"].tolist())):
             if u % 1000 == 1 or u // 1000 not in self.base_name:
                 self.base_name[u // 1000] = str(name)
+        # A campus's name in the shared-site notes: its DOE campus name, else its institution's name
+        self.campus_name: dict[int, str] = {
+            int(u): str(c) if isinstance(c, str) and c.strip() else str(i)
+            for u, i, c in zip(dim_inst["unitid"], dim_inst["institution_name"], dim_inst["campus_name"])}
+        # Hospitals at a main campus whose place in the reported figures is not established (03's list,
+        # etl/reference/hospital_unresolved.csv): {base: {name, firstYear, lastYear, known, source}}
+        hosp = pd.read_parquet(CURATED_DIR / "dims" / "dim_hospital_unresolved.parquet")
+        self.hospital_unresolved: dict[int, dict] = {
+            int(u): {"name": str(h), "firstYear": int(a), "lastYear": int(b), "known": str(k), "source": str(s)}
+            for u, a, b, h, k, s in zip(hosp["unitid"], hosp["first_year"], hosp["last_year"], hosp["hospital"],
+                                        hosp["known"], hosp["source"])}
 
     def values(self, code: str, year: int, base: int) -> tuple:
         """The VALUES of a rate code (RATE_CODES: the sum over its offenses) in an institution-year."""
@@ -406,12 +452,13 @@ def shared_site(inp: RateInputs, recs: list[dict], years: range) -> dict | None:
     shared_out_sites; config.py, SHARED_SITE_MAX_SHARE), or None: years (the
     window's years it has such a campus), students (the sum of 04's
     shared_site_students over those years; None when a year has no reviewed
-    figure), upperBound (a figure is an upper bound), exempt (students at
-    most SHARED_SITE_MAX_SHARE of the window's FTE-years, the sum of
-    rate_fte: compared and listed as usual) and figures (each such campus
-    and year, by year and campus: {year, unitid, students, figureYear (the
-    figure's own year: the year itself, or one within
-    SHARED_SITE_FIGURE_YEARS), upperBound, derived}; students and
+    figure), upperBound (any of its figures is an upper bound, whether or not
+    every year has one), exempt (students at most SHARED_SITE_MAX_SHARE of
+    the window's FTE-years, the sum of rate_fte: compared and listed as
+    usual) and figures (each such campus and year, by year and campus:
+    {year, unitid, name (the campus's DOE name, else its institution's),
+    students, figureYear (the figure's own year: the year itself, or one
+    within SHARED_SITE_FIGURE_YEARS), upperBound, derived}; students and
     figureYear None without a figure).
     """
     site_years = [(y, r) for y, r in zip(years, recs) if opt(r.get("shared_out_sites")) is not None]
@@ -425,11 +472,11 @@ def shared_site(inp: RateInputs, recs: list[dict], years: range) -> dict | None:
     for y, r in site_years:
         for u in sorted(int(x) for x in str(r["shared_out_sites"]).split()):
             f = inp.site_figure.get((u, y))
-            each.append({"year": y, "unitid": u, "students": None if f is None else f[0],
-                         "figureYear": None if f is None else f[2],
+            each.append({"year": y, "unitid": u, "name": inp.campus_name.get(u),
+                         "students": None if f is None else f[0], "figureYear": None if f is None else f[2],
                          "upperBound": f is not None and f[1] == "upper bound", "derived": f is not None and f[3]})
     return {"years": [y for y, _r in site_years], "students": students,
-            "upperBound": students is not None and any(bool(r.get("shared_site_upper")) for _y, r in site_years),
+            "upperBound": any(f["upperBound"] for f in each),
             "exempt": students is not None and students * den <= fte_years * num, "figures": each}
 
 
@@ -449,7 +496,10 @@ def window_status(inp: RateInputs, base: int, window: tuple[int, int]) -> dict:
     sharedOutWith (the owners or other participants of the sites it is a
     guest or participant of), sharedSite (shared_site) and coLocated (the
     institutions whose students its rate adds, or would add with an FTE,
-    because their campuses at a shared site copy its own): [{id, name}].
+    because their campuses at a shared site copy its own): [{id, name}];
+    hospitalUnresolved {name, years}: a hospital at its main campus whose
+    place in the reported figures is not established, in those years of the
+    window (etl/reference/hospital_unresolved.csv). The rate is as usual.
     """
     years = range(window[0], window[1] + 1)
     recs = [inp.rec.get((y, base)) for y in years]
@@ -477,11 +527,17 @@ def window_status(inp: RateInputs, base: int, window: tuple[int, int]) -> dict:
     co_located = named(inp, recs, "co_located_with")
     if co_located:
         out["coLocated"] = co_located
+    hospital = inp.hospital_unresolved.get(base)
+    if hospital is not None:
+        in_window = [y for y in years if hospital["firstYear"] <= y <= hospital["lastYear"]]
+        if in_window:
+            out["hospitalUnresolved"] = {"name": hospital["name"], "years": in_window}
     return out
 
 
-# The shared-site notes of a window status that the window files repeat in each entry
-SHARED_NOTES = ("sharedInWith", "sharedOutWith", "sharedSite", "coLocated")
+# The notes of a window status that the window files repeat in each entry: the shared-site notes and the
+# unresolved-hospital note
+SHARED_NOTES = ("sharedInWith", "sharedOutWith", "sharedSite", "coLocated", "hospitalUnresolved")
 
 
 class WindowCode:
@@ -521,6 +577,8 @@ class WindowCode:
             row["notes"] = {k: status[k] for k in SHARED_NOTES if k in status}
             row["flags"] = [f for f in flags.get(base, []) if f["geo"] == "On-campus" and f["offense"] in offenses
                             and window[0] <= f["year"] <= window[1]]
+            # s^2 of the yearly counts (config.py, RATE_SPREAD)
+            row["spread"] = sample_variance(row["nByYear"])
             if code in ("violent", "criminal_xmvt"):
                 parts = RATE_CODES["violent"] if code == "violent" else ("Motor Vehicle Theft",)
                 row["composition"] = {code_of(o): sum(inp.offense_count(o, y, base, "on") for y in self.years)
@@ -543,27 +601,31 @@ class WindowCode:
         for r in self.rows.values():
             self._compare(r)
         self.list_members: list[int] = []
+        self.not_placed: list[int] = []
         self.zc = None
         self.state_lists: dict[str, int] = {}
+        self.type_lists: dict[str, int] = {}
         if code in LIST_CODES:
             self._lists()
 
-    def _verdicts(self, n: float, r: dict, ref: Fraction) -> tuple[str, dict]:
+    def _verdicts(self, n, r: dict, ref: Fraction, spread: Fraction) -> tuple[str, dict]:
         """The verdict of count n against `ref`; for an uncertain on-campus FTE, both estimates (config.py)."""
-        larger = verdict(n, r["F"], self.T, self.c, ref)
+        larger = verdict(n, r["F"], self.T, self.c, ref, spread)
         if r["why"] != "online":
             return larger, {}
         if r["Fsmall"] is None:
             return UNDETERMINED, {"verdictLargerFte": larger, "undeterminedReason": "noSecondEstimate"}
-        smaller = verdict(n, r["Fsmall"], self.T, self.c, ref)
+        smaller = verdict(n, r["Fsmall"], self.T, self.c, ref, spread)
         extra = {"verdictLargerFte": larger, "verdictSmallerFte": smaller}
         if larger == smaller:
             return larger, extra
         return UNDETERMINED, extra | {"undeterminedReason": "estimates"}
 
     def _compare(self, r: dict) -> None:
-        lower, upper = count_interval(r["n"], self.T, self.c)
+        lower, upper = count_interval(r["n"], self.T, self.c, r["spread"])
+        r["phi"], r["phiFromYears"] = window_phi(r["n"], self.T, self.c, r["spread"])
         r["lo"], r["hi"] = round2(lower / r["F"] * 10000), round2(upper / r["F"] * 10000)
+        r["lo4"], r["hi4"] = round4(lower / r["F"] * 10000), round4(upper / r["F"] * 10000)
         r["rate"] = rate_value(r["n"], r["F"])
         r["E"] = half_up(self.natl * r["F"], 1)
         peer = self.peer.get(r["peerType"])
@@ -573,48 +635,66 @@ class WindowCode:
             r["peerVerdict"], r["peerDual"] = (WITHHELD if peer else None), {}
             r["verdictWithoutFlagged"] = None
             return
-        r["verdict"], r["dual"] = self._verdicts(r["n"], r, self.natl)
+        r["verdict"], r["dual"] = self._verdicts(r["n"], r, self.natl, r["spread"])
         if peer:
-            r["peerVerdict"], r["peerDual"] = self._verdicts(r["n"], r, Fraction(peer[0], peer[1]))
+            r["peerVerdict"], r["peerDual"] = self._verdicts(r["n"], r, Fraction(peer[0], peer[1]), r["spread"])
         else:
             r["peerVerdict"], r["peerDual"] = None, {}
         r["verdictWithoutFlagged"] = None
         if r["flags"]:
-            excess = sum(f["count"] - f["usual"] for f in r["flags"])
-            reduced = max(0.0, r["n"] - excess)
-            without, _ = self._verdicts(reduced, r, self.natl)
+            # Each flagged year less its excess over the usual count; s^2 of those yearly counts
+            by_year = [Fraction(v) for v in r["nByYear"]]
+            for f in r["flags"]:
+                by_year[self.years.index(f["year"])] -= Fraction(f["count"]) - Fraction(f["usual"])
+            reduced = sum(by_year)
+            without, _ = self._verdicts(reduced, r, self.natl, sample_variance(by_year))
             r["nWithoutFlagged"] = reduced
             if without != r["verdict"]:
                 r["verdictWithoutFlagged"] = without
 
     def _lists(self) -> None:
-        """The national list (LIST_CODES): members, positions, ranges; and the state lists."""
-        members = [r for r in self.rows.values() if r["why"] == ""
-                   and self.natl_n * r["F"] >= LIST_MIN_EXPECTED * self.natl_f]
+        """
+        The national list (LIST_CODES): eligible are the rated institutions
+        without a reason whose expected count is at least LIST_MIN_EXPECTED;
+        an eligible one with an on-campus unusual-year flag of the code in the
+        window is not placed (notPlaced "unusual_year"); the others are the
+        members: positions, ranges. The state and type lists: the members of
+        one state, of one peer type.
+        """
+        eligible = [r for r in self.rows.values() if r["why"] == ""
+                    and self.natl_n * r["F"] >= LIST_MIN_EXPECTED * self.natl_f]
+        for r in self.rows.values():
+            r["listed"] = False
+        for r in eligible:
+            if r["flags"]:
+                r["notPlaced"] = "unusual_year"
+        members = [r for r in eligible if not r["flags"]]
         members.sort(key=lambda r: (-Fraction(r["n"], r["F"]), r["name"], r["base"]))
+        self.not_placed = sorted(r["base"] for r in eligible if r["flags"])
         self._positions(members, "position")
         n = len(members)
         if n:
-            ranges = rank_ranges([(r["n"], r["F"], r["position"]) for r in members], self.T, self.c)
+            ranges = rank_ranges([(r["n"], r["F"], r["position"], r["spread"]) for r in members], self.T, self.c)
             for r, (lo, hi) in zip(members, ranges):
                 r["rankLo"], r["rankHi"] = lo, hi
             self.zc = critical_z(n) if n > 1 else None
-        for r in self.rows.values():
-            r["listed"] = False
         for r in members:
             r["listed"] = True
         self.list_members = [r["base"] for r in members]
-        by_state = defaultdict(list)
-        for r in members:
-            by_state[r["state"]].append(r)
-        for state, part in sorted(by_state.items()):
-            self.state_lists[state] = len(part)
-            if len(part) < STATE_LIST_MIN_MEMBERS:
-                continue
-            self._positions(part, "statePosition")
-            ranges = rank_ranges([(r["n"], r["F"], r["statePosition"]) for r in part], self.T, self.c)
-            for r, (lo, hi) in zip(part, ranges):
-                r["stateRankLo"], r["stateRankHi"], r["stateN"] = lo, hi, len(part)
+        for key, lists, field, least in (("state", self.state_lists, "state", STATE_LIST_MIN_MEMBERS),
+                                         ("type", self.type_lists, "peerType", TYPE_LIST_MIN_MEMBERS)):
+            groups = defaultdict(list)
+            for r in members:
+                groups[r[field]].append(r)
+            for value, part in sorted(groups.items()):
+                lists[value] = len(part)
+                if len(part) < least:
+                    continue
+                self._positions(part, f"{key}Position")
+                ranges = rank_ranges([(r["n"], r["F"], r[f"{key}Position"], r["spread"]) for r in part],
+                                     self.T, self.c)
+                for r, (lo, hi) in zip(part, ranges):
+                    r[f"{key}RankLo"], r[f"{key}RankHi"], r[f"{key}N"] = lo, hi, len(part)
 
     @staticmethod
     def _positions(ordered: list[dict], key: str) -> None:
@@ -625,12 +705,18 @@ class WindowCode:
             else:
                 r[key] = i + 1
 
-    def natl_rate(self) -> float:
-        return half_up(self.natl * 10000, 2)
+    def natl_rate(self, places: int = 2) -> float:
+        return half_up(self.natl * 10000, places)
 
-    def peer_rate(self, key: str) -> float | None:
+    def peer_rate(self, key: str, places: int = 2) -> float | None:
         p = self.peer.get(key)
-        return None if p is None else half_up(Fraction(p[0], p[1]) * 10000, 2)
+        return None if p is None else half_up(Fraction(p[0], p[1]) * 10000, places)
+
+    def composition_share(self) -> dict[str, float] | None:
+        """violent: each offense's share of the national rate's on-campus count, half up to 4 decimals."""
+        if self.code != "violent" or not self.natl_n:
+            return None
+        return {k: half_up(Fraction(v, self.natl_n), 4) for k, v in self.composition.items()}
 
     def entry(self, r: dict, detail: bool) -> dict:
         """The published entry of a rated institution; with `detail` (its institution file) the yearly figures."""
@@ -639,7 +725,9 @@ class WindowCode:
             e |= {"id": r["base"], "unitid": r["unitid"], "name": r["name"], "state": r["state"],
                   "peerType": r["peerType"]}
         e |= {"n": r["n"], "nNoncampus": r["nNoncampus"], "nPublic": r["nPublic"], "fteYears": r["F"],
-              "rate": r["rate"], "lo": r["lo"], "hi": r["hi"], "E": r["E"], "verdict": r["verdict"]}
+              "rate": r["rate"], "lo": r["lo"], "hi": r["hi"], "lo4": r["lo4"], "hi4": r["hi4"],
+              "phi": round(r["phi"], 6), "phiFrom": "years" if r["phiFromYears"] else "model", "E": r["E"],
+              "verdict": r["verdict"]}
         if r["why"]:
             e["why"] = r["why"]
         e |= r["dual"]
@@ -663,16 +751,20 @@ class WindowCode:
                 e["verdictWithoutFlagged"] = r["verdictWithoutFlagged"]
         if self.code in LIST_CODES:
             e["listed"] = r["listed"]
+            if "notPlaced" in r:
+                e["notPlaced"] = r["notPlaced"]
             if r["listed"]:
                 e |= {"position": r["position"], "rankLo": r["rankLo"], "rankHi": r["rankHi"]}
-                if "stateN" in r:
-                    e |= {"statePosition": r["statePosition"], "stateRankLo": r["stateRankLo"],
-                          "stateRankHi": r["stateRankHi"], "stateN": r["stateN"]}
+                for key in ("state", "type"):
+                    if f"{key}N" in r:
+                        e |= {f"{key}Position": r[f"{key}Position"], f"{key}RankLo": r[f"{key}RankLo"],
+                              f"{key}RankHi": r[f"{key}RankHi"], f"{key}N": r[f"{key}N"]}
                 if "composition" in r:
                     e["composition"] = r["composition"]
         if detail:
             e |= {"nByYear": dict(zip(map(str, self.years), r["nByYear"])), "natl": self.natl_rate(),
-                  "peerRate": self.peer_rate(r["peerType"])}
+                  "natl4": self.natl_rate(4), "peerRate": self.peer_rate(r["peerType"]),
+                  "peerRate4": self.peer_rate(r["peerType"], 4)}
             if "composition" in r:
                 e["composition"] = r["composition"]
         return e

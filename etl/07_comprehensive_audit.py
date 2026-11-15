@@ -92,9 +92,9 @@ from typing import Optional
 # Add parent to path for config import
 sys.path.insert(0, str(Path(__file__).parent))
 from config import (CURATED_DIR, QA_DIR, JSON_DIR, DATA_YEARS, PROJECT_ROOT, GEO_CODES, GEO_FOR_ALL,
-                    OFFENSE_ORDER, SHARED_MIN_NONZERO, US_STATES, IVY_LEAGUE, SUMMARY_FAMILIES, MIN_FTE_FOR_RATE,
+                    OFFENSE_ORDER, SHARED_MIN_NONZERO, SHARED_CITY_MIN_TOTAL, US_STATES, IVY_LEAGUE, SUMMARY_FAMILIES, MIN_FTE_FOR_RATE,
                     ONLINE_SHARE_YEAR, HOSPITAL_CODE, MEDICAL_CARNEGIE, ONLINE_UNCERTAIN_RATIO,
-                    STATE_LIST_MIN_MEMBERS)
+                    STATE_LIST_MIN_MEMBERS, TYPE_LIST_MIN_MEMBERS)
 import config
 import provenance
 import campus_identity
@@ -672,8 +672,10 @@ def window_order_problems(name: str, entries: list, list_n: Optional[int]) -> li
     listed entry's position = 1 + the listed entries with a strictly higher
     rate, rankLo <= position <= rankHi within 1..list.n; a listed entry in a
     state list (stateN >= 2) the same within its state (statePosition,
-    stateRankLo, stateRankHi, stateN = the state's listed entries); no
-    position fields on an entry that is not listed.
+    stateRankLo, stateRankHi, stateN = the state's listed entries), and in a
+    type list (typeN >= TYPE_LIST_MIN_MEMBERS) within its peer type
+    (typePosition, typeRankLo, typeRankHi, typeN); no position fields on an
+    entry that is not listed, and no listed entry is notPlaced.
     """
     problems = []
 
@@ -692,17 +694,33 @@ def window_order_problems(name: str, entries: list, list_n: Optional[int]) -> li
     if list_n is not None and len(listed) != list_n:
         problems.append(f"{name}: list.n is {list_n}, {len(listed)} entries are listed")
     rates = sorted(-Fraction(e["n"], e["fteYears"]) for e in listed)
-    by_state = {}
+    by_state, by_type = {}, {}
     for e in listed:
         by_state.setdefault(e.get("state"), []).append(-Fraction(e["n"], e["fteYears"]))
-    for v in by_state.values():
+        by_type.setdefault(e.get("peerType"), []).append(-Fraction(e["n"], e["fteYears"]))
+    for v in list(by_state.values()) + list(by_type.values()):
         v.sort()
     for e in entries:
-        fields = ("position", "rankLo", "rankHi", "statePosition", "stateRankLo", "stateRankHi", "stateN")
+        fields = ("position", "rankLo", "rankHi", "statePosition", "stateRankLo", "stateRankHi", "stateN",
+                  "typePosition", "typeRankLo", "typeRankHi", "typeN")
         if not e.get("listed"):
             if any(k in e for k in fields):
                 problems.append(f"{name}: institution {e.get('id')} is not listed but has a position")
             continue
+        if "notPlaced" in e:
+            problems.append(f"{name}: institution {e.get('id')} is listed and notPlaced")
+        members = by_type[e.get("peerType")]
+        r = -Fraction(e["n"], e["fteYears"])
+        if len(members) >= TYPE_LIST_MIN_MEMBERS:
+            tpos = 1 + bisect.bisect_left(members, r)
+            tlo, thi = e.get("typeRankLo"), e.get("typeRankHi")
+            if e.get("typePosition") != tpos or e.get("typeN") != len(members) or not (
+                    isinstance(tlo, int) and isinstance(thi, int) and 1 <= tlo <= tpos <= thi <= len(members)):
+                problems.append(f"{name}: institution {e.get('id')} type position {e.get('typePosition')} range "
+                                f"{tlo}-{thi} of {e.get('typeN')}, expected position {tpos} of {len(members)}")
+        elif any(k in e for k in fields[7:]):
+            problems.append(f"{name}: institution {e.get('id')} has a type position in a type list of "
+                            f"{len(members)}")
         r = -Fraction(e["n"], e["fteYears"])
         pos = 1 + bisect.bisect_left(rates, r)
         lo, hi = e.get("rankLo"), e.get("rankHi")
@@ -718,7 +736,7 @@ def window_order_problems(name: str, entries: list, list_n: Optional[int]) -> li
                     isinstance(slo, int) and isinstance(shi, int) and 1 <= slo <= spos <= shi <= len(members)):
                 problems.append(f"{name}: institution {e.get('id')} state position {e.get('statePosition')} range "
                                 f"{slo}-{shi} of {e.get('stateN')}, expected position {spos} of {len(members)}")
-        elif any(k in e for k in fields[3:]):
+        elif any(k in e for k in fields[3:7]):
             problems.append(f"{name}: institution {e.get('id')} has a state position in a state list of "
                             f"{len(members)}")
     return problems
@@ -787,8 +805,9 @@ def audit_ranking_order(verbose: bool = False) -> AuditResult:
             "n / fteYears), highest first, ties by name, then base UNITID; list.n is the number of listed "
             "entries; each listed entry's position is 1 + the listed entries with a strictly higher rate and "
             "lies inside its range (rankLo-rankHi within 1-n); a state list (2+ members) the same within the "
-            "state with stateN its members; entries not listed have no position. Check 12 recomputes the lists "
-            "and ranges.")
+            "state with stateN its members, and a type list (2+ members) within the peer type with typeN its "
+            "members; entries not listed have no position and no listed entry is notPlaced. Check 12 "
+            "recomputes the lists and ranges.")
         result.details["groups_validated"] = groups_validated
         result.details["rate_files_validated"] = windows_validated
         result.details["entries_checked"] = entries_checked
@@ -821,9 +840,10 @@ def audit_ranking_order(verbose: bool = False) -> AuditResult:
 
 # The keys a window file's entry shares with the institution file's copy of it (rates/institutions/{base}.json)
 WINDOW_ENTRY_ONLY = ("id", "unitid", "name", "state", "peerType")
-# The shared-site notes: on each window-file entry, and once on the institution file's window status
-WINDOW_NOTES = ("sharedInWith", "sharedOutWith", "sharedSite", "coLocated")
-INSTITUTION_CODE_ONLY = ("nByYear", "natl", "peerRate")
+# The shared-site notes and the unresolved-hospital note: on each window-file entry, and once on the institution
+# file's window status
+WINDOW_NOTES = ("sharedInWith", "sharedOutWith", "sharedSite", "coLocated", "hospitalUnresolved")
+INSTITUTION_CODE_ONLY = ("nByYear", "natl", "natl4", "peerRate", "peerRate4")
 
 
 def audit_ranking_totals(verbose: bool = False) -> AuditResult:
@@ -835,10 +855,12 @@ def audit_ranking_totals(verbose: bool = False) -> AuditResult:
     ranked campus is in the file's campuses table; the rate keys v4 removed
     (institutions, rateRankings, rateUnranked, rateNotRanked) are gone. Each
     rates/{window}-{code}.json file lists each institution once, its
-    summary.rated is the number of entries and its stateLists the listed
-    entries per state; every entry is in rates/institutions/{id}.json, whose
+    summary.rated is the number of entries, its stateLists and typeLists the
+    listed entries per state and per peer type, list.notPlaced the entries
+    not placed; every entry is in rates/institutions/{id}.json, whose
     window status is "rated" and whose copy of the entry has the same
-    values, with natl and peerRate as in the window file; every rated window
+    values, with natl, natl4, peerRate and peerRate4 as in the window file;
+    every rated window
     of an institution file is in the window files. rates/flags.json holds
     exactly the institution files' flags. The shared-site notes of each
     entry (WINDOW_NOTES) equal those of the institution file's window status,
@@ -890,13 +912,21 @@ def audit_ranking_totals(verbose: bool = False) -> AuditResult:
                 problems.append(f"rates/{path.name}: summary.rated {(data.get('summary') or {}).get('rated')}, "
                                 f"{len(entries)} entries")
             if "list" in data:
-                per_state = {}
+                per_state, per_type = {}, {}
                 for e in entries:
                     if e.get("listed"):
                         per_state[e.get("state")] = per_state.get(e.get("state"), 0) + 1
+                        per_type[e.get("peerType")] = per_type.get(e.get("peerType"), 0) + 1
                 if (data.get("stateLists") or {}) != per_state:
                     problems.append(f"rates/{path.name}: stateLists {data.get('stateLists')}, the listed entries "
                                     f"per state are {per_state}")
+                if (data.get("typeLists") or {}) != per_type:
+                    problems.append(f"rates/{path.name}: typeLists {data.get('typeLists')}, the listed entries "
+                                    f"per peer type are {per_type}")
+                not_placed = sum(1 for e in entries if "notPlaced" in e)
+                if (data.get("list") or {}).get("notPlaced") != not_placed:
+                    problems.append(f"rates/{path.name}: list.notPlaced {(data.get('list') or {}).get('notPlaced')}, "
+                                    f"{not_placed} entries are notPlaced")
             peers = data.get("peer") or {}
             for e in entries:
                 b = e.get("id")
@@ -912,8 +942,9 @@ def audit_ranking_totals(verbose: bool = False) -> AuditResult:
                 # The institution file's copy also has the composition of an entry that is not listed
                 got = {k: v for k, v in copy.items() if k not in INSTITUTION_CODE_ONLY
                        and (k != "composition" or "composition" in want)}
-                peer_rate = (peers.get(e.get("peerType")) or {}).get("rate")
-                if got != want or copy.get("natl") != data.get("natl") or copy.get("peerRate") != peer_rate:
+                peer = peers.get(e.get("peerType")) or {}
+                if (got != want or copy.get("natl") != data.get("natl") or copy.get("peerRate") != peer.get("rate")
+                        or copy.get("natl4") != data.get("natl4") or copy.get("peerRate4") != peer.get("rate4")):
                     problems.append(f"rates/institutions/{b}.json: {window} {code} differs from rates/{path.name}")
                 if ({k: e[k] for k in WINDOW_NOTES if k in e} != {k: status[k] for k in WINDOW_NOTES if k in status}
                         or any(k in copy for k in WINDOW_NOTES)):
@@ -954,8 +985,9 @@ def audit_ranking_totals(verbose: bool = False) -> AuditResult:
             "the campuses table holds every ranked campus (and the campuses ranked with 0, which check 10 checks), "
             "and the v3 rate keys (institutions, rateRankings, rateUnranked, rateNotRanked) are gone. Each "
             "rates/{window}-{code}.json file lists an institution once, summary.rated is its number of entries and "
-            "stateLists the listed entries per state; each entry is in rates/institutions/{id}.json, rated in that "
-            "window, with the same values (natl and peerRate as in the window file; the shared-site notes "
+            "stateLists and typeLists the listed entries per state and peer type, list.notPlaced the entries not "
+            "placed; each entry is in rates/institutions/{id}.json, rated in that "
+            "window, with the same values (natl, natl4, peerRate and peerRate4 as in the window file; the shared-site notes "
             "sharedInWith, sharedOutWith, sharedSite and coLocated as on that window's status); every rated window of an "
             "institution file is in the window files; rates/flags.json holds exactly the institution files' "
             "flags; every school file names its institution's rates file (ratesFile) exactly when it exists, and "
@@ -1170,9 +1202,10 @@ def audit_shared_statistics(verbose: bool = False) -> AuditResult:
 
     Without 04's code, from the fact table and dims/older_release_counts.parquet
     (every campus's counts in each older release a campus-year is taken
-    from), it finds the shadow blocks again by the four rules of
+    from), it finds the shadow blocks again by the rules of
     find_shared_blocks, in the same order; copies only between campuses of
-    the same ranked state, at least SHARED_MIN_NONZERO cells not 0 (blank = 0):
+    the same ranked state, at least SHARED_MIN_NONZERO cells not 0 (blank = 0)
+    except in rules 5 and 6:
       1. same_block: equal 20-cell blocks of a year and geography of
          GEO_FOR_ALL; the first campus by 04's host order (not restored, main
          campus, larger FTE, larger campus-year total, lower UNITID) is the
@@ -1187,6 +1220,13 @@ def audit_shared_statistics(verbose: bool = False) -> AuditResult:
          etl/reference/campus_id_changes.csv) with equal whole figures in a
          year both report (no nonzero minimum): the campus-year from the
          older release is a shadow of the other.
+      6. whole_year_city: equal 60-cell campus-years of at least two
+         institutions (base UNITIDs) in one ranked state and one city
+         (dim_institution's, without case and extra spaces), adding up to
+         SHARED_CITY_MIN_TOTAL or more, with fewer than SHARED_MIN_NONZERO
+         nonzero cells, none of whose blocks rules 1 to 5 made a shadow or a
+         same_block block: every block of the campus-years after the first
+         by the order is a shadow of it.
     A host whose own block is a shadow passes its shadows to its host.
     aggs/shared_blocks.parquet must hold exactly those shadows with those
     hosts and rules, and a host row for each host block in the facts. Then:
@@ -1203,7 +1243,7 @@ def audit_shared_statistics(verbose: bool = False) -> AuditResult:
         facts = pd.read_parquet(get_facts_path(), columns=["year", "unitid", "offense", "offense_family", "geo",
                                                            "count"])
         family_of = dict(zip(facts["offense"].tolist(), facts["offense_family"].tolist()))
-        inst = read_curated("dims/dim_institution.parquet", "03_build_dimensions.py", ["unitid", "state"])
+        inst = read_curated("dims/dim_institution.parquet", "03_build_dimensions.py", ["unitid", "state", "city"])
         sources = read_curated("dims/campus_year_sources.parquet", "02_transform_to_parquet.py")
         older = read_curated("dims/older_release_counts.parquet", "02_transform_to_parquet.py")
         enrollment = read_curated("dims/dim_enrollment.parquet", "02a_transform_enrollment.py",
@@ -1219,7 +1259,9 @@ def audit_shared_statistics(verbose: bool = False) -> AuditResult:
             "equal in that release to a campus whose figures now come from a newer release "
             "(whole_year_older_release, block_older_release); and the two DOE IDs of one campus (link rows of "
             "etl/reference/campus_id_changes.csv) with equal whole figures in a year both report, any number of "
-            "nonzero cells: the older release's campus-year is a shadow (renumbered). Hosts are chosen by 04's order. "
+            "nonzero cells: the older release's campus-year is a shadow (renumbered); last, equal whole figures of "
+            f"two or more institutions in one city adding up to at least {SHARED_CITY_MIN_TOTAL}, with fewer "
+            "nonzero cells than the minimum, not already shadows (whole_year_city). Hosts are chosen by 04's order. "
             "aggs/shared_blocks.parquet must hold exactly those shadows, hosts and rules. Every "
             "rankings/*.json entry must count the school's facts without its shadow blocks (for \"criminal\" "
             "summed over the Criminal family, for \"violent\" and \"property\" over their offenses, for \"all\" "
@@ -1368,6 +1410,30 @@ def audit_shared_statistics(verbose: bool = False) -> AuditResult:
                 ro, rn = int(release[(o, y)]), int(release[(n, y)])
                 if ro != rn:
                     shadow_all(y, o if ro < rn else n, n if ro < rn else o, "renumbered")
+
+        # 6. whole_year_city: one report that institutions of one city each
+        # filed, at least SHARED_CITY_MIN_TOTAL counts, fewer nonzero cells
+        # than the minimum; campus-years untouched by rules 1 to 5
+        city_of = {}
+        for u, cty in zip(inst["unitid"].tolist(), inst["city"].tolist()):
+            words = cty.split() if isinstance(cty, str) else []
+            if words:
+                city_of[int(u)] = " ".join(words).upper()
+        groups = {}
+        for (y, u) in sorted({(y, u) for (y, _g, u) in cells}):
+            if not in_ranked_state(u) or u not in city_of:
+                continue
+            if any((y, g, u) in expected or (y, g, u) in settled for g in GEO_FOR_ALL):
+                continue
+            v = full_year(cells, y, u)
+            if not enough(v) and sum(v) >= SHARED_CITY_MIN_TOTAL:
+                groups.setdefault((y, state[u], city_of[u], v), []).append(u)
+        for (y, _s, _c, _v), us in groups.items():
+            if len({u // 1000 for u in us}) > 1:
+                host = min(us, key=lambda u: host_order(u, y))
+                for u in us:
+                    if u != host:
+                        shadow_all(y, u, host, "whole_year_city")
 
         # Hosts passed on, and the host rows
         want_shadow = {}
@@ -1974,13 +2040,15 @@ def half_up(numerator: int, denominator: int) -> int:
 
 def hd_classes() -> dict:
     """
-    From the raw IPEDS HD files (not 03's table): {(year, UNITID): (rule, reason
-    text start)} for the institution-years the population rule leaves out:
-    HOSPITAL = HOSPITAL_CODE; else the newest Carnegie basic field the file
-    has (C21BASIC, C18BASIC, C15BASIC) in MEDICAL_CARNEGIE; else listed in
-    etl/reference/rate_population_exclusions.csv.
+    From the raw IPEDS HD files (not 03's table): {(year, UNITID): rule} for
+    the institution-years the population rule leaves out: HOSPITAL =
+    HOSPITAL_CODE that year; else, in every year of DATA_YEARS, an
+    institution that any HD file of DATA_YEARS gives a code of
+    MEDICAL_CARNEGIE in any of C21BASIC, C18BASIC and C15BASIC; else listed
+    in etl/reference/rate_population_exclusions.csv for the year.
     """
     out = {}
+    medical = set()
     for y in DATA_YEARS:
         path = PROJECT_ROOT / "data" / "raw" / "ipeds" / str(y) / f"hd{y}.csv"
         if not path.is_file():
@@ -1992,17 +2060,24 @@ def hd_classes() -> dict:
             text = raw.decode("cp1252")
         rows = csv.DictReader(io.StringIO(text))
         rows.fieldnames = [f.strip().upper() for f in rows.fieldnames]
-        field = next(f for f in ("C21BASIC", "C18BASIC", "C15BASIC") if f in rows.fieldnames)
+        fields = [f for f in ("C21BASIC", "C18BASIC", "C15BASIC") if f in rows.fieldnames]
+        if not fields:
+            raise RuntimeError(f"{path} has no Carnegie basic classification field")
         for r in rows:
             try:
                 u = int(r["UNITID"])
             except ValueError:
                 continue
-            hosp, basic = r["HOSPITAL"].strip(), r[field].strip()
+            hosp = r["HOSPITAL"].strip()
             if hosp.lstrip("-").isdigit() and int(hosp) == HOSPITAL_CODE:
                 out[(y, u)] = "hospital"
-            elif basic.lstrip("-").isdigit() and int(basic) in MEDICAL_CARNEGIE[field]:
-                out[(y, u)] = "medical"
+            for f in fields:
+                basic = r[f].strip()
+                if basic.lstrip("-").isdigit() and int(basic) in MEDICAL_CARNEGIE[f]:
+                    medical.add(u)
+    for u in sorted(medical):
+        for y in DATA_YEARS:
+            out.setdefault((y, u), "medical")
     listed = PROJECT_ROOT / "etl" / "reference" / "rate_population_exclusions.csv"
     with open(listed, encoding="utf-8", newline="") as f:
         for r in csv.DictReader(f):
@@ -2404,7 +2479,8 @@ def expected_institutions() -> Expected:
     facts = facts[facts["geo"].isin(GEO_FOR_ALL)]
     shared = read_curated("aggs/shared_blocks.parquet", "04_create_aggregates.py")
     sources = read_curated("dims/campus_year_sources.parquet", "02_transform_to_parquet.py", ["unitid", "year"])
-    inst = read_curated("dims/dim_institution.parquet", "03_build_dimensions.py", ["unitid", "institution_name", "state"])
+    inst = read_curated("dims/dim_institution.parquet", "03_build_dimensions.py",
+                        ["unitid", "institution_name", "state", "campus_name"])
     enrollment = read_curated("dims/dim_enrollment.parquet", "02a_transform_enrollment.py",
                               ["unitid", "year", "fte", "pctdeexc"])
     heads = raw_headcounts()
@@ -2413,6 +2489,9 @@ def expected_institutions() -> Expected:
     size_settings = hd_size_settings()
 
     name = dict(zip(inst["unitid"].astype(int).tolist(), inst["institution_name"].tolist()))
+    # a campus's name in the shared-site notes: its DOE campus name, else its institution's
+    campus_label = {int(u): (c if isinstance(c, str) and c.strip() else i)
+                    for u, i, c in zip(inst["unitid"], inst["institution_name"], inst["campus_name"])}
     state = {}
     for u, s in zip(inst["unitid"].astype(int).tolist(), inst["state"].tolist()):
         state[u] = None if s is None or pd.isna(s) or not str(s).strip() else s
@@ -2824,9 +2903,33 @@ def expected_institutions() -> Expected:
         if u % 1000 == 1 or u // 1000 not in e.base_name:
             e.base_name[u // 1000] = name[u]
     e.campus_geo, e.campus_codes, e.family_of = campus_geo, campus_codes, family_of
+    e.campus_label = campus_label
     e.medical_years, e.abroad_campuses = medical_years, abroad_campus
     _EXPECTED_INSTITUTIONS = e
     return e
+
+
+def hospital_unresolved_reference() -> dict:
+    """
+    From etl/reference/hospital_unresolved.csv (not 03's table): {base:
+    {name, firstYear, lastYear, known, source}}, the institutions whose main
+    campus adjoins or holds a hospital whose place in the reported figures
+    the review could not establish. One row per institution (a 6-digit base
+    UNITID), first_year <= last_year, every field filled.
+    """
+    out = {}
+    path = PROJECT_ROOT / "etl" / "reference" / "hospital_unresolved.csv"
+    with open(path, encoding="utf-8", newline="") as f:
+        rows = list(csv.DictReader(f))
+    for r in rows:
+        u, a, b = r["unitid"].strip(), r["first_year"].strip(), r["last_year"].strip()
+        if not (u.isdigit() and len(u) == 6 and a.isdigit() and b.isdigit() and int(a) <= int(b)):
+            raise RuntimeError(f"{path.name}: row {u, a, b} needs a 6-digit base UNITID and first <= last year")
+        if int(u) in out or not all(r[k].strip() for k in ("hospital", "known", "source")):
+            raise RuntimeError(f"{path.name}: {u} listed twice or without a hospital, what is known or a source")
+        out[int(u)] = {"name": r["hospital"].strip(), "firstYear": int(a), "lastYear": int(b),
+                       "known": r["known"].strip(), "source": r["source"].strip()}
+    return out
 
 
 def rate_inputs(E: Optional[Expected] = None) -> dict:
@@ -2848,6 +2951,8 @@ def rate_inputs(E: Optional[Expected] = None) -> dict:
     return {
         "inst": {k: {f: rec[f] for f in keys} for k, rec in E.institutions.items()},
         "base_name": dict(E.base_name),
+        "campus_label": dict(E.campus_label),
+        "hospital_unresolved": hospital_unresolved_reference(),
         "off": {k: tuple(v) for k, v in E.geo.items() if any(v)},
         "medical_on": {k: v for k, v in E.medical_on.items() if v},
         "shared_in_on": {k: v for k, v in E.shared_in_on.items() if v},
@@ -3277,7 +3382,9 @@ def audit_institution_rates(verbose: bool = False) -> AuditResult:
 # =============================================================================
 # The rule constants, written out from the design (v4 spec sections 1-3, as
 # amended: state lists from 2 members, single-year rates kept for the school
-# page). Changing one here, in config.py or in metadata.json makes check 12 fail.
+# page; the yearly spread in window variances, flagged institutions not
+# placed, type lists). Changing one here, in config.py or in metadata.json
+# makes check 12 fail.
 # =============================================================================
 
 VIOLENT = ("Murder", "Rape", "Robbery", "Aggravated Assault")
@@ -3304,6 +3411,9 @@ SPEC = {
     "c_other": 0.522,
     "power": 1.5,
     "ramp_start": 10, "ramp_end": 20, "ramp_cap": 2,
+    # A window's variance: the larger of the model's and T s^2, s^2 the sample variance of its yearly counts
+    # (intervals, verdicts, the verdict without flagged excess, pairwise z); single years: the model's
+    "spread": "max",
     "ci_level": 0.95,
     "medical_share": (1, 4),
     # Shared sites: the students a rate cannot place at most 1 in 10 of its FTE-years (guests, and the
@@ -3319,7 +3429,12 @@ SPEC = {
     "list_alpha": 0.05,
     "state_min_members": 2,
     "state_display_min": 5,
+    # Type lists: the placed members of one peer type, published from 2 members. An eligible institution
+    # with an on-campus unusual-year flag of the code in the window is placed on no list (notPlaced)
+    "type_min_members": 2,
     "composition": {"violent": VIOLENT, "criminal_xmvt": ("Motor Vehicle Theft",)},
+    # Each part's share of the national count, 4 decimals, in the header of these codes' window files
+    "composition_share": ("violent",),
     "flag_offenses": ("Aggravated Assault", "Burglary", "Dating Violence", "Domestic Violence", "Fondling",
                       "Motor Vehicle Theft", "Rape", "Robbery", "Stalking"),
     "flag_geos": ("On-campus", "Non-campus", "Public property"),
@@ -3330,7 +3445,8 @@ SPEC = {
                               "fondling", "stalking"),
                     "periods": ((2015, 2019), "latest"), "latestYears": 3, "simulations": 600, "seed": 11,
                     "bands": (2, 5, 10, 20), "tolerance": 0.02, "bandToleranceBelow": 0.03,
-                    "bandToleranceAbove": 0.05, "bandMinUnits": 100},
+                    "bandToleranceAbove": 0.05, "bandMinUnits": 100,
+                    "topBandCodes": ("violent", "criminal_xmvt", "burglary", "rape"), "topBandSE": 2},
     "size_setting_fields": ("C21SZSET", "C18SZSET", "C15SZSET"),
     "peer_size_setting": {"two_year": (1, 2, 3, 4, 5), "nonresidential": (6, 9, 12, 15),
                           "residential": (7, 10, 13, 16), "highly_residential": (8, 11, 14, 17), "other": ()},
@@ -3353,6 +3469,20 @@ SPEC = {
                   "z": (("A", "B", 0.4478), ("A", "C", 3.3169), ("B", "C", 3.2472), ("C", "D", 0.0),
                         ("C", "E", 2.0556), ("D", "E", 2.0995))},
     "critical_z": {5: 2.4977, 146: 3.5791, 208: 3.6711, 531: 3.9047},
+    # With the yearly spread, T = 3: (c, yearly counts, s^2 to 6 decimals, phi to 6 decimals, phi from,
+    # count interval to 4 decimals)
+    "test_spread": ((0.354, (5, 121, 3), 4564.0, 106.139535, "years", 5.6999, 630.5467),
+                    (0.354, (40, 50, 45), 25.0, 5.749408, "model", 86.0266, 201.7355),
+                    (0.354, (30, 20, 10), 100.0, 5.0, "years", 31.0029, 104.8079),
+                    (0.497, (10, 30, 20), 100.0, 5.445303, "model", 29.9725, 107.3053),
+                    (0.665, (0, 0, 9), 27.0, 9.0, "years", 0.2279, 50.1448),
+                    (0.295, (16, 18, 96), 2081.333333, 48.030769, "years", 23.8396, 399.762)),
+    # list example with the yearly spread: c 0.354, T 3, members (FTE-years, yearly counts, position, rankLo,
+    # rankHi); the first member's swinging years leave its place open (1-5)
+    "test_spread_list": {"c": 0.354, "years": 3, "zc": 2.497705,
+                         "members": ((3268, (5, 121, 3), 1, 1, 5), (44830, (45, 47, 47), 2, 1, 3),
+                                     (30483, (20, 30, 32), 3, 1, 3), (90000, (20, 20, 20), 4, 3, 5),
+                                     (100000, (5, 15, 10), 5, 3, 5))},
 }
 
 GEO_IDX = {"On-campus": 0, "Residence halls": 1, "Non-campus": 2, "Public property": 3}
@@ -3488,12 +3618,31 @@ def ramp(m, spec):
     return np.minimum(spec["ramp_cap"], np.maximum(1.0, np.asarray(m, float) / spec["ramp_start"]))
 
 
-def count_intervals(N, c, T, spec):
-    """R5/R6 for window totals N (array) over T years: phi(N) = 1 + c g(N/T) sqrt(N/T), m = N / phi,
-    lower = phi GammaInv(alpha/2; m) (0 for N = 0), upper = phi GammaInv(1 - alpha/2; m + 1)."""
+def model_phi(N, c, T, spec):
+    """The model's phi(N) = 1 + c g(N/T) sqrt(N/T) of window totals N (array) over T years."""
+    m = np.asarray(N, float) / T
+    return 1.0 + c * ramp(m, spec) * np.sqrt(m)
+
+
+def spread_s2(counts) -> Fraction:
+    """s^2 of yearly counts (n - 1 denominator), exactly; 0 for one year."""
+    xs = [Fraction(x) for x in counts]
+    if len(xs) < 2:
+        return Fraction(0)
+    mean = sum(xs, Fraction(0)) / len(xs)
+    return sum(((x - mean) ** 2 for x in xs), Fraction(0)) / (len(xs) - 1)
+
+
+def count_intervals(N, c, T, spec, own=None):
+    """R5/R6 for window totals N (array) over T years: phi = model_phi(N); with the spread rule
+    (spec["spread"] "max") and `own` (an array: T s^2 / N of each total's yearly counts) the larger of the two
+    where N > 0; m = N / phi, lower = phi GammaInv(alpha/2; m) (0 for N = 0), upper = phi GammaInv(1 - alpha/2;
+    m + 1)."""
     N = np.asarray(N, float)
-    m = N / T
-    phi = 1.0 + c * ramp(m, spec) * np.sqrt(m)
+    phi = model_phi(N, c, T, spec)
+    if own is not None and spec["spread"] == "max":
+        own = np.asarray(own, float)
+        phi = np.where((N > 0) & (own > phi), own, phi)
     shape = N / phi
     q_lo, q_hi = ci_quantiles(spec)
     lower = np.zeros_like(N)
@@ -3505,29 +3654,33 @@ def count_intervals(N, c, T, spec):
 
 
 class IntervalBank:
-    """Count intervals asked for by (N, c, T), computed together (count_intervals) and kept."""
+    """Count intervals asked for by (N, c, T, s^2 of the yearly counts), computed together (count_intervals)
+    and kept: (phi, lower, upper, whether phi is the yearly counts' T s^2 / N)."""
     def __init__(self, spec):
         self.spec = spec
         self.want = defaultdict(set)
         self.val = {}
 
-    def need(self, N, c, T):
-        key = (float(N), c, T)
+    def need(self, N, c, T, s2=0):
+        key = (Fraction(N), c, T, Fraction(s2))
         if key not in self.val:
-            self.want[(c, T)].add(float(N))
+            self.want[(c, T)].add(key)
 
     def compute(self):
-        for (c, T), ns in self.want.items():
-            arr = np.array(sorted(ns))
-            phi, lo, hi = count_intervals(arr, c, T, self.spec)
-            for n, p, l, h in zip(arr.tolist(), phi.tolist(), lo.tolist(), hi.tolist()):
-                self.val[(n, c, T)] = (p, l, h)
+        for (c, T), keys in self.want.items():
+            keys = sorted(keys, key=lambda k: (k[0], k[3]))
+            arr = np.array([float(k[0]) for k in keys])
+            own = np.array([float(T * k[3] / k[0]) if k[0] and k[3] else 0.0 for k in keys])
+            model = model_phi(arr, c, T, self.spec)
+            phi, lo, hi = count_intervals(arr, c, T, self.spec, own)
+            for k, p, m, l, h in zip(keys, phi.tolist(), model.tolist(), lo.tolist(), hi.tolist()):
+                self.val[k] = (p, l, h, p != m)
         self.want = defaultdict(set)
 
-    def get(self, N, c, T):
-        key = (float(N), c, T)
+    def get(self, N, c, T, s2=0):
+        key = (Fraction(N), c, T, Fraction(s2))
         if key not in self.val:
-            self.need(N, c, T)
+            self.need(N, c, T, s2)
             self.compute()
         return self.val[key]
 
@@ -3540,6 +3693,11 @@ def rate2(N: int, F: int) -> float:
 def bound2(x: float) -> float:
     """R12: floor(x 100 + 0.5) / 100 from a double."""
     return math.floor(x * 100 + 0.5) / 100
+
+
+def bound4(x: float) -> float:
+    """lo4 / hi4: floor(x 10^4 + 0.5) / 10^4 from a double."""
+    return math.floor(x * 10000 + 0.5) / 10000
 
 
 def half_up_dp(x: Fraction, dp: int) -> float:
@@ -3588,8 +3746,9 @@ def percentile_linear(values_sorted, pct) -> Fraction:
     return values_sorted[i] + g * (values_sorted[i + 1] - values_sorted[i])
 
 
-def z_matrix(N, F, c, T, spec):
-    """R9 pairwise z_ij (0 where the variance is 0)."""
+def z_matrix(N, F, c, T, spec, S2=None):
+    """R9 pairwise z_ij (0 where the variance is 0). With S2 (each member's s^2 of its yearly counts) and the
+    spread rule, each member's variance is the larger of V0(rbar F) and T s^2."""
     N = np.asarray(N, float)
     F = np.asarray(F, float)
     r = N / F
@@ -3598,25 +3757,32 @@ def z_matrix(N, F, c, T, spec):
     def V0(mu):
         m = mu / T
         return T * (m + c * ramp(m, spec) * m ** 1.5)
-    var = V0(rbar * F[:, None]) / F[:, None] ** 2 + V0(rbar * F[None, :]) / F[None, :] ** 2
+    vi, vj = V0(rbar * F[:, None]), V0(rbar * F[None, :])
+    if S2 is not None and spec["spread"] == "max":
+        own = np.array([float(T * Fraction(s)) for s in S2])
+        vi = np.maximum(vi, own[:, None])
+        vj = np.maximum(vj, own[None, :])
+    var = vi / F[:, None] ** 2 + vj / F[None, :] ** 2
     with np.errstate(divide="ignore", invalid="ignore"):
         z = np.where(var > 0, (r[:, None] - r[None, :]) / np.sqrt(np.where(var > 0, var, 1.0)), 0.0)
     return z
 
 
 def rank_list(members, c, T, spec):
-    """members: list of (N, F) in list order (rate descending). Returns positions, rankLo, rankHi, zc, z."""
+    """members: list of (N, F[, s^2 of the yearly counts]) in list order (rate descending). Returns positions,
+    rankLo, rankHi, zc, z."""
     n = len(members)
     pos = []
-    for i, (Ni, Fi) in enumerate(members):
-        if i > 0 and Fraction(Ni, Fi) == Fraction(*members[i - 1]):
+    for i, m in enumerate(members):
+        if i > 0 and Fraction(m[0], m[1]) == Fraction(members[i - 1][0], members[i - 1][1]):
             pos.append(pos[-1])
         else:
             pos.append(i + 1)
     if n < 2:
         return pos, [1] * n, [1] * n, None, None
     zc = critical_z(n, spec)
-    z = z_matrix([m[0] for m in members], [m[1] for m in members], c, T, spec)
+    S2 = [m[2] for m in members] if all(len(m) > 2 for m in members) else None
+    z = z_matrix([m[0] for m in members], [m[1] for m in members], c, T, spec, S2)
     sig = z > zc
     lo = 1 + sig.sum(axis=0)
     hi = n - sig.sum(axis=1)
@@ -3694,6 +3860,8 @@ def derive(inputs, spec, cfg, bank):
     inst = inputs["inst"]
     off = inputs["off"]
     base_name = inputs["base_name"]
+    campus_label = inputs.get("campus_label", {})
+    hospital_note = inputs.get("hospital_unresolved", {})
     codes = spec["codes"]
     code_of = defaultdict(list)
     for k, offs in codes.items():
@@ -3786,14 +3954,16 @@ def derive(inputs, spec, cfg, bank):
                     figs = [inst[(y, b)]["shared_site_students"] for y in guest_years]
                     students = None if None in figs else sum(figs)
                     sa, sd = spec["shared_site_share"]
+                    # each campus's figure, named by its DOE campus name (else its institution's); upperBound:
+                    # any figure is an upper bound, whether or not every site-year has a figure
+                    each = [{"year": y, "unitid": u, "name": campus_label.get(u),
+                             "students": None if f is None else f[0], "figureYear": None if f is None else f[2],
+                             "upperBound": f is not None and f[1], "derived": f is not None and f[3]}
+                            for y in guest_years for u, f in inst[(y, b)]["shared_site_each"]]
                     site = {"years": guest_years, "students": students,
-                            "upperBound": students is not None and any(inst[(y, b)]["shared_site_upper"]
-                                                                       for y in guest_years),
+                            "upperBound": any(f["upperBound"] for f in each),
                             "exempt": students is not None and sd * students <= sa * sum(r["rate_fte"] for r in recs),
-                            "figures": [{"year": y, "unitid": u, "students": None if f is None else f[0],
-                                         "figureYear": None if f is None else f[2],
-                                         "upperBound": f is not None and f[1], "derived": f is not None and f[3]}
-                                        for y in guest_years for u, f in inst[(y, b)]["shared_site_each"]]}
+                            "figures": each}
                 if site is not None and not site["exempt"]:
                     st["why"] = "shared"
                 elif any(r["uncertain"] for r in recs):
@@ -3805,6 +3975,11 @@ def derive(inputs, spec, cfg, bank):
                         st[key] = [{"id": i, "name": base_name.get(i)} for i in ids]
                 if site is not None:
                     st["sharedSite"] = site
+                # a hospital at the main campus whose place in the figures is not established: a note, no change
+                hn = hospital_note.get(b)
+                hyears = [y for y in wy if hn is not None and hn["firstYear"] <= y <= hn["lastYear"]]
+                if hyears:
+                    st["hospitalUnresolved"] = {"name": hn["name"], "years": hyears}
                 st["fteByYear"] = {str(y): r["rate_fte"] for y, r in zip(wy, recs)}
                 if st.get("why") == "online":
                     st["fteSmallerByYear"] = {str(y): r["rate_fte_smaller"] for y, r in zip(wy, recs)}
@@ -3833,21 +4008,30 @@ def derive(inputs, spec, cfg, bank):
                     why = "medical_campus"
                 else:
                     why = ""
-                notes = {kk: st[kk] for kk in ("sharedInWith", "sharedOutWith", "sharedSite", "coLocated") if kk in st}
+                notes = {kk: st[kk] for kk in ("sharedInWith", "sharedOutWith", "sharedSite", "coLocated",
+                                               "hospitalUnresolved") if kk in st}
                 att = [f for f in flags.get(b, ()) if f["geo"] == "On-campus" and y0 <= f["year"] <= y1
                        and f["offense"] in {ocode(o) for o in codes[k]}]
-                Nw = None
+                # s^2 of the yearly counts; with flags, the yearly counts less each flagged year's excess over
+                # its usual count, their total Nw and their s^2
+                ys = [s[0] for s in sums]
+                s2 = spread_s2(ys)
+                Nw = s2w = None
                 if att:
-                    Nw = max(Fraction(0), Fraction(N) - sum(Fraction(f["count"]) - Fraction(f["usual"]) for f in att))
-                    bank.need(float(Nw), c, spec["window_years"])
-                bank.need(N, c, spec["window_years"])
+                    red = [Fraction(v) for v in ys]
+                    for f in att:
+                        red[wy.index(f["year"])] -= Fraction(f["count"]) - Fraction(f["usual"])
+                    Nw, s2w = sum(red, Fraction(0)), spread_s2(red)
+                    bank.need(Nw, c, spec["window_years"], s2w)
+                bank.need(N, c, spec["window_years"], s2)
                 comp = {}
                 if k in spec["composition"]:
                     for o in spec["composition"][k]:
                         comp[ocode(o)] = sum(oncount.get((y, b, o), 0) for y in wy)
                 raw[((y0, y1), k, b)] = {
                     "N": N, "non": sum(s[1] for s in sums), "pub": sum(s[2] for s in sums), "F": F, "Fs": Fs,
-                    "med": med, "sI": sI, "sO": sO, "why": why, "notes": notes, "flags": att, "Nw": Nw, "comp": comp,
+                    "med": med, "sI": sI, "sO": sO, "why": why, "notes": notes, "flags": att, "Nw": Nw, "s2": s2,
+                    "s2w": s2w, "comp": comp,
                     "nByYear": {str(y): s[0] for y, s in zip(wy, sums)}, "rec": recs[-1], "recs": recs, "wy": wy}
 
     # ---------------------------------------------------------- single years (T = 1)
@@ -3880,18 +4064,21 @@ def derive(inputs, spec, cfg, bank):
                 peerF[pt] += r["F"]
                 peerM[pt] += 1
             peer_ref = {pt: Fraction(peerN[pt], peerF[pt]) for pt in peerF if peerF[pt] > 0}
-            peer = {pt: {"rate": half_up_dp(peer_ref[pt] * 10000, 2), "n": peerN[pt], "fteYears": peerF[pt],
-                         "members": peerM[pt]} for pt in peer_ref}
+            peer = {pt: {"rate": half_up_dp(peer_ref[pt] * 10000, 2), "rate4": half_up_dp(peer_ref[pt] * 10000, 4),
+                         "n": peerN[pt], "fteYears": peerF[pt], "members": peerM[pt]} for pt in peer_ref}
             natl = half_up_dp(r0 * 10000, 2)
+            natl4 = half_up_dp(r0 * 10000, 4)
             entries = {}
             for b, r in rs:
                 N, F, Fs = r["N"], r["F"], r["Fs"]
-                phi, lower, upper = bank.get(N, c, T)
+                phi, lower, upper, from_years = bank.get(N, c, T, r["s2"])
                 rec = r["rec"]
                 e = {"id": b, "unitid": rec["link"], "name": rec["name"], "state": rec["state"],
                      "peerType": rec["peer_type"], "n": N, "nNoncampus": r["non"], "nPublic": r["pub"],
                      "fteYears": F, "rate": rate2(N, F), "lo": bound2(lower / F * 10000.0),
-                     "hi": bound2(upper / F * 10000.0), "E": half_up_dp(r0 * F, 1)}
+                     "hi": bound2(upper / F * 10000.0), "lo4": bound4(lower / F * 10000.0),
+                     "hi4": bound4(upper / F * 10000.0), "phi": round(phi, 6),
+                     "phiFrom": "years" if from_years else "model", "E": half_up_dp(r0 * F, 1)}
                 withheld = r["why"] == "shared"
                 v, vL, vS, reason = dual_verdict(lower, upper, F, Fs, r0, r["why"] == "online")
                 if withheld:
@@ -3930,7 +4117,7 @@ def derive(inputs, spec, cfg, bank):
                 if r["flags"]:
                     e["flags"] = [{"year": f["year"], "offense": f["offense"], "count": f["count"],
                                    "usual": f["usual"]} for f in r["flags"]]
-                    _, lw, uw = bank.get(float(r["Nw"]), c, T)
+                    _, lw, uw, _ = bank.get(r["Nw"], c, T, r["s2w"])
                     vw, _, _, _ = dual_verdict(lw, uw, F, Fs, r0, r["why"] == "online")
                     if not withheld and vw != v:
                         e["verdictWithoutFlagged"] = vw
@@ -3941,44 +4128,60 @@ def derive(inputs, spec, cfg, bank):
             order = sorted(entries, key=lambda b: (Fraction(-raw[((y0, y1), k, b)]["N"], raw[((y0, y1), k, b)]["F"]),
                                                    entries[b]["name"], b))
             header = {"window": [y0, y1], "code": k, "years": list(range(y0, y1 + 1)), "c": c, "natl": natl,
-                      "natlN": natlN, "natlF": natlF, "peer": peer}
+                      "natl4": natl4, "natlN": natlN, "natlF": natlF, "peer": peer}
             if k in spec["composition"]:
                 header["composition"] = {ocode(o): sum(r["comp"][ocode(o)] for b, r in pop)
                                          for o in spec["composition"][k]}
+                if k in spec["composition_share"] and natlN:
+                    header["compositionShare"] = {o: half_up_dp(Fraction(v, natlN), 4)
+                                                  for o, v in header["composition"].items()}
             lists = None
             if k in spec["list_codes"]:
                 E_min = spec["list_min_expected"]
-                members = [b for b in order if raw[((y0, y1), k, b)]["why"] == ""
-                           and natlN * raw[((y0, y1), k, b)]["F"] >= E_min * natlF]
-                mem = [(raw[((y0, y1), k, b)]["N"], raw[((y0, y1), k, b)]["F"]) for b in members]
-                pos, rlo, rhi, zc, _z = rank_list(mem, c, T, spec)
+
+                def R(b):
+                    return raw[((y0, y1), k, b)]
+
+                def ranked(bs):
+                    return [(R(b)["N"], R(b)["F"], R(b)["s2"]) for b in bs]
+                eligible = [b for b in order if R(b)["why"] == "" and natlN * R(b)["F"] >= E_min * natlF]
+                # eligible with an on-campus unusual-year flag of the code in the window: not placed on any list
+                not_placed = [b for b in eligible if R(b)["flags"]]
+                members = [b for b in eligible if not R(b)["flags"]]
+                for b in not_placed:
+                    entries[b]["notPlaced"] = "unusual_year"
+                pos, rlo, rhi, zc, _z = rank_list(ranked(members), c, T, spec)
                 for i, b in enumerate(members):
                     e = entries[b]
                     e["listed"] = True
                     e["position"], e["rankLo"], e["rankHi"] = pos[i], rlo[i], rhi[i]
-                by_state = defaultdict(list)
+                by_state, by_type = defaultdict(list), defaultdict(list)
                 for b in members:
                     by_state[entries[b]["state"]].append(b)
-                for st, bs in by_state.items():
-                    if len(bs) >= spec["state_min_members"]:
-                        sm = [(raw[((y0, y1), k, b)]["N"], raw[((y0, y1), k, b)]["F"]) for b in bs]
-                        sp, slo, shi, _, _ = rank_list(sm, c, T, spec)
-                        for i, b in enumerate(bs):
-                            entries[b].update({"statePosition": sp[i], "stateRankLo": slo[i],
-                                               "stateRankHi": shi[i], "stateN": len(bs)})
+                    by_type[entries[b]["peerType"]].append(b)
+                for key, groups, least in (("state", by_state, spec["state_min_members"]),
+                                           ("type", by_type, spec["type_min_members"])):
+                    for _g, bs in groups.items():
+                        if len(bs) >= least:
+                            sp, slo, shi, _, _ = rank_list(ranked(bs), c, T, spec)
+                            for i, b in enumerate(bs):
+                                entries[b].update({f"{key}Position": sp[i], f"{key}RankLo": slo[i],
+                                                   f"{key}RankHi": shi[i], f"{key}N": len(bs)})
                 if k in spec["composition"]:
                     for b in members:
                         entries[b]["composition"] = dict(raw[((y0, y1), k, b)]["comp"])
-                header["list"] = {"n": len(members), "minExpected": E_min,
+                header["list"] = {"n": len(members), "notPlaced": len(not_placed), "minExpected": E_min,
                                   "minFteYears": math.ceil(Fraction(E_min * natlF, natlN)) if natlN else None,
                                   "zc": None if zc is None else zc}
                 header["stateLists"] = {st: len(bs) for st, bs in by_state.items()}
-                lists = {"members": members, "by_state": dict(by_state), "zc": zc}
+                header["typeLists"] = {t: len(bs) for t, bs in by_type.items()}
+                lists = {"members": members, "not_placed": not_placed, "by_state": dict(by_state),
+                         "by_type": dict(by_type), "zc": zc}
             ents = [entries[b] for b in order]
             summ = window_summary_of(ents)
             header["summary"] = summ
             wfiles[f"{w}-{k}"] = {"header": header, "entries": ents, "by_base": entries, "lists": lists,
-                                  "r0": r0, "natl": natl, "peer_ref": peer_ref, "peer": peer}
+                                  "r0": r0, "natl": natl, "natl4": natl4, "peer_ref": peer_ref, "peer": peer}
             natl_info[(w, k)] = (natl, header.get("peer"))
 
     # ---------------------------------------------------------- single-year entries
@@ -3993,7 +4196,7 @@ def derive(inputs, spec, cfg, bank):
         mdict, idict, odict = {}, {}, {}
         for k in codes:
             s = S.get((y, b, k), ZERO)
-            _, lower, upper = bank.get(s[0], c_of(k, spec), 1)
+            _, lower, upper, _ = bank.get(s[0], c_of(k, spec), 1)
             ent["rates"][k] = [s[0], rate2(s[0], F), bound2(lower / F * 10000.0), bound2(upper / F * 10000.0)]
             if s[3] > 0:
                 mdict[k] = s[3]
@@ -4022,6 +4225,8 @@ def derive(inputs, spec, cfg, bank):
         f = {"id": b, "name": last["name"], "unitid": last["link"], "state": last["state"],
              "peerType": last["peer_type"], "years": {str(y): single_entries[(y, b)] for y in ys}, "windows": {},
              "flags": flags.get(b, [])}
+        if b in hospital_note:
+            f["hospitalUnresolved"] = [dict(hospital_note[b])]
         for (y0, y1) in windows:
             w = f"{y0}-{y1}"
             st = status.get((b, w))
@@ -4034,14 +4239,16 @@ def derive(inputs, spec, cfg, bank):
                     wf = wfiles[f"{w}-{k}"]
                     e = {kk: vv for kk, vv in wf["by_base"][b].items()
                          if kk not in ("id", "unitid", "name", "state", "peerType", "sharedInWith", "sharedOutWith",
-                                       "sharedSite", "coLocated")}
+                                       "sharedSite", "coLocated", "hospitalUnresolved")}
                     e["nByYear"] = raw[((y0, y1), k, b)]["nByYear"]
                     if k in spec["composition"]:
                         # institution files carry the composition for every rated entry
                         e["composition"] = dict(raw[((y0, y1), k, b)]["comp"])
                     e["natl"] = wf["natl"]
+                    e["natl4"] = wf["natl4"]
                     pt = raw[((y0, y1), k, b)]["rec"]["peer_type"]
                     e["peerRate"] = wf["peer"][pt]["rate"] if pt in wf["peer"] else None
+                    e["peerRate4"] = wf["peer"][pt]["rate4"] if pt in wf["peer"] else None
                     cds[k] = e
                 st["codes"] = cds
             f["windows"][w] = st
@@ -4111,19 +4318,19 @@ class Problems:
 KEY_SUB = {}
 for _k in ("id", "unitid", "name", "state", "peerType", "n", "nNoncampus", "nPublic", "fteYears",
            "fteYearsSmaller", "fteUncertain", "medical", "sharedIn", "sharedOut", "why", "sharedInWith",
-           "sharedOutWith", "sharedSite", "coLocated"):
+           "sharedOutWith", "sharedSite", "coLocated", "hospitalUnresolved"):
     KEY_SUB[_k] = "entry_fields"
-for _k in ("rate", "lo", "hi", "E"):
+for _k in ("rate", "lo", "hi", "lo4", "hi4", "phi", "phiFrom", "E"):
     KEY_SUB[_k] = "rate_interval"
 for _k in ("verdict", "verdictLargerFte", "verdictSmallerFte", "undeterminedReason", "peerVerdict",
            "peerVerdictLargerFte", "peerVerdictSmallerFte"):
     KEY_SUB[_k] = "verdicts"
 for _k in ("flags", "verdictWithoutFlagged"):
     KEY_SUB[_k] = "flag_attachment"
-for _k in ("listed", "position", "rankLo", "rankHi", "statePosition", "stateRankLo", "stateRankHi", "stateN",
-           "composition"):
+for _k in ("listed", "notPlaced", "position", "rankLo", "rankHi", "statePosition", "stateRankLo", "stateRankHi",
+           "stateN", "typePosition", "typeRankLo", "typeRankHi", "typeN", "composition"):
     KEY_SUB[_k] = "lists"
-for _k in ("nByYear", "natl", "peerRate"):
+for _k in ("nByYear", "natl", "natl4", "peerRate", "peerRate4"):
     KEY_SUB[_k] = "institution_files"
 
 
@@ -4192,6 +4399,7 @@ def expected_rate_rules_meta(spec, cfg, windows):
     rate_codes = list(spec["codes"])
     count_codes = list(cfg.SUMMARY_FAMILIES) + [ocode(o) for o in cfg.OFFENSE_ORDER]
     tl = spec["test_list"]
+    sl = spec["test_spread_list"]
     return {
         "minFte": spec["min_fte"],
         "onlineUncertainRatio": list(cfg.ONLINE_UNCERTAIN_RATIO),
@@ -4204,7 +4412,8 @@ def expected_rate_rules_meta(spec, cfg, windows):
         "ciLevel": spec["ci_level"],
         "dispersion": {"power": spec["power"], "c": {k: c_of(k, spec) for k in rate_codes},
                        "fitted": dict(spec["c"]), "other": spec["c_other"],
-                       "ramp": {"start": spec["ramp_start"], "end": spec["ramp_end"], "cap": spec["ramp_cap"]}},
+                       "ramp": {"start": spec["ramp_start"], "end": spec["ramp_end"], "cap": spec["ramp_cap"]},
+                       "spread": spec["spread"]},
         "medicalShare": list(spec["medical_share"]),
         "sharedSiteShare": list(spec["shared_site_share"]),
         "sharedSiteFigureYears": spec["shared_site_figure_years"],
@@ -4212,7 +4421,8 @@ def expected_rate_rules_meta(spec, cfg, windows):
                        "minTotal": spec["near_min_total"]},
         "lists": {"codes": list(spec["list_codes"]), "minExpected": spec["list_min_expected"],
                   "alpha": spec["list_alpha"], "stateMinMembers": spec["state_min_members"],
-                  "stateDisplayMin": spec["state_display_min"]},
+                  "stateDisplayMin": spec["state_display_min"], "typeMinMembers": spec["type_min_members"],
+                  "notPlaced": ["unusual_year"]},
         "peerTypes": {k: {"label": cfg.PEER_TYPES[k][0] if k in cfg.PEER_TYPES else None, "sizeSetting": list(v)}
                       for k, v in spec["peer_size_setting"].items()},
         "sizeSettingFields": list(spec["size_setting_fields"]),
@@ -4235,7 +4445,13 @@ def expected_rate_rules_meta(spec, cfg, windows):
             "list": {"c": tl["c"], "years": tl["years"], "zc": tl["zc"],
                      "members": [{"n": n, "fteYears": f, "position": p, "rankLo": a, "rankHi": b}
                                  for n, f, p, a, b in tl["members"]]},
-            "criticalZ": {str(k): v for k, v in spec["critical_z"].items()}},
+            "criticalZ": {str(k): v for k, v in spec["critical_z"].items()},
+            "countsSpread": [{"c": c, "years": 3, "byYear": list(ys), "n": sum(ys), "s2": s2, "phi": p,
+                              "phiFrom": frm, "interval": [lo, hi]}
+                             for c, ys, s2, p, frm, lo, hi in spec["test_spread"]],
+            "listSpread": {"c": sl["c"], "years": sl["years"], "zc": sl["zc"],
+                           "members": [{"byYear": list(ys), "n": sum(ys), "fteYears": f, "position": p,
+                                        "rankLo": a, "rankHi": b} for f, ys, p, a, b in sl["members"]]}},
     }
 
 
@@ -4255,6 +4471,8 @@ def check_config(spec, cfg, P):
         ("LIST_ALPHA", c.LIST_ALPHA, spec["list_alpha"]),
         ("STATE_LIST_MIN_MEMBERS", c.STATE_LIST_MIN_MEMBERS, spec["state_min_members"]),
         ("STATE_LIST_DISPLAY_MIN", c.STATE_LIST_DISPLAY_MIN, spec["state_display_min"]),
+        ("TYPE_LIST_MIN_MEMBERS", c.TYPE_LIST_MIN_MEMBERS, spec["type_min_members"]),
+        ("RATE_SPREAD", c.RATE_SPREAD, spec["spread"]),
         ("MEDICAL_CAMPUS_SHARE", tuple(c.MEDICAL_CAMPUS_SHARE), tuple(spec["medical_share"])),
         ("SHARED_SITE_MAX_SHARE", tuple(c.SHARED_SITE_MAX_SHARE), tuple(spec["shared_site_share"])),
         ("SHARED_SITE_FIGURE_YEARS", c.SHARED_SITE_FIGURE_YEARS, spec["shared_site_figure_years"]),
@@ -4318,6 +4536,27 @@ def check_test_vectors(spec, P):
         got = critical_z(n, spec)
         if abs(got - want) > 0.5e-4 + 1e-12:
             P.add("test_vectors", f"zc({n}) {got:.6f}, the design gives {want}")
+    # the yearly spread: s^2, phi and whose it is, the interval
+    for c, ys, s2, phi, frm, lo, hi in spec["test_spread"]:
+        bank = IntervalBank(spec)
+        s2x = spread_s2(ys)
+        p, l, h, from_years = bank.get(sum(ys), c, 3, s2x)
+        got_from = "years" if from_years else "model"
+        if (abs(float(s2x) - s2) > 0.5e-6 + 1e-12 or abs(p - phi) > 0.5e-6 + 1e-12 or got_from != frm
+                or abs(l - lo) > 0.5e-4 + 1e-12 or abs(h - hi) > 0.5e-4 + 1e-12):
+            P.add("test_vectors", f"c {c} years {ys}: s2 {float(s2x):.6f} phi {p:.6f} ({got_from}) [{l:.4f}, {h:.4f}], "
+                                  f"the design gives s2 {s2} phi {phi} ({frm}) [{lo}, {hi}]")
+    sl = spec["test_spread_list"]
+    order = sorted(range(len(sl["members"])),
+                   key=lambda i: -Fraction(sum(sl["members"][i][1]), sl["members"][i][0]))
+    mem = [(sum(sl["members"][i][1]), sl["members"][i][0], spread_s2(sl["members"][i][1])) for i in order]
+    pos, rlo, rhi, zc, _z = rank_list(mem, sl["c"], sl["years"], spec)
+    if abs(zc - sl["zc"]) > 0.5e-6 + 1e-12:
+        P.add("test_vectors", f"spread list zc {zc:.6f}, the design gives {sl['zc']}")
+    for j, i in enumerate(order):
+        _f, ys, p, a, b = sl["members"][i]
+        if (pos[j], rlo[j], rhi[j]) != (p, a, b):
+            P.add("test_vectors", f"spread list member {ys}: {pos[j]} {rlo[j]}-{rhi[j]}, the design gives {p} {a}-{b}")
 
 
 def audit_rate_rules(verbose: bool = False, inputs=None, data=None, spec=None, cfg=None) -> AuditResult:
@@ -4327,15 +4566,17 @@ def audit_rate_rules(verbose: bool = False, inputs=None, data=None, spec=None, c
     From the institution data alone (rate_inputs) and the rules written out in
     SPEC: the windows and each institution's window status, the 3-year counts,
     FTE-years, reason (why), national and peer rates, intervals (own gamma
-    function), rates, bounds and E rounded half up, verdicts (exact, the online
-    rule with both FTE estimates, peer verdicts), unusual-year flags and their
-    effect on the verdict, the ordered lists (members by E, exact order,
-    positions, Bonferroni rank ranges, state lists, composition), the summary
-    counts, single-year entries, institution files, flags.json, count flags in
-    every rankings file and the rate fields of every school file. Also
-    config.py's and metadata.json's constants against SPEC, the design's test
-    vectors, A4 (removing flagged excess keeps a listed institution's position
-    inside its published range) and A5 (bounds non-decreasing in N).
+    function; phi the larger of the model's and the yearly counts' T s^2 / N),
+    rates, bounds and E rounded half up (2 and 4 decimals), verdicts (exact,
+    the online rule with both FTE estimates, peer verdicts), unusual-year
+    flags and their effect on the verdict, the ordered lists (eligible by E,
+    flagged ones not placed, exact order, positions, Bonferroni rank ranges
+    with each member's yearly spread, state and type lists, composition), the
+    summary counts, single-year entries, institution files, flags.json, count
+    flags in every rankings file and the rate fields of every school file.
+    Also config.py's and metadata.json's constants against SPEC, the design's
+    test vectors, A4 (no placed entry has a flag; every notPlaced one has one)
+    and A5 (the model's bounds non-decreasing in N).
     """
     result = AuditResult("Rate Rules")
     print("\nCHECK 12: Rate Rules")
@@ -4352,19 +4593,27 @@ def audit_rate_rules(verbose: bool = False, inputs=None, data=None, spec=None, c
             "institution's status in every 3-year window without 2020 (missingYears, scope, size, excluded, rated), "
             "the window counts, FTE-years, reason (shared: a guest or participant at a shared site in a year of the "
             "window unless its reviewed site students (each site-year its own year's figure, else the largest within "
-            "3 years; sharedSite.figures gives each figure's own year and whether derived) are at most 1/10 of its "
+            "3 years; sharedSite.figures gives each campus's name, each figure's own year and whether derived; "
+            "upperBound when any figure is an upper bound) are at most 1/10 of its "
             "FTE-years, then verdicts withheld; "
             "online; medical_campus: medical share at least 1/4) and the shared-site notes (sharedInWith, "
-            "sharedOutWith, sharedSite, coLocated), the national and peer rates as exact fractions, phi with the ramp, "
-            "the gamma interval (own incomplete gamma, bisection), rate/lo/hi/E rounded half up, the verdicts "
-            "against the exact reference (online: both FTE estimates must agree), the unusual-year flags "
-            "(negative binomial tail < 0.001) and the verdict without the flagged excess, the ordered lists "
-            "(E >= 20 exactly, exact order, positions, pairwise z with Bonferroni critical values from an own "
-            "normal quantile, ranges widened to the position, state lists from 2 members, composition), every "
-            "window file's header and summary, rates/institutions (single-year T = 1 entries and notRated "
-            "reasons, window statuses), rates/flags.json, the count flag (3 x P99, numpy linear percentile, "
-            "count >= 20) in every rankings file, school files' ratesFile/rated/notRated/flags, metadata.json "
-            "rateRules and rateStats, config.py's constants, the design's test vectors, A4 and A5.")
+            "sharedOutWith, sharedSite, coLocated), the unresolved-hospital note (hospitalUnresolved {name, "
+            "years} from etl/reference/hospital_unresolved.csv, read here, and the institution file's full row), "
+            "the national and peer rates as exact fractions (2 and 4 "
+            "decimals), phi with the ramp, raised to T s^2 / N when the window's yearly counts spread more "
+            "(s^2 their sample variance; phiFrom), the gamma interval (own incomplete gamma, bisection), "
+            "rate/lo/hi/lo4/hi4/E rounded half up, the verdicts against the exact reference (online: both FTE "
+            "estimates must agree), the unusual-year flags (negative binomial tail < 0.001) and the verdict "
+            "without the flagged excess (the yearly counts less each flagged year's excess, their spread), the "
+            "ordered lists (E >= 20 exactly; an on-campus unusual-year flag of the code in the window: not "
+            "placed; exact order, positions, pairwise z with each member's variance the larger of the model's "
+            "and T s^2 and Bonferroni critical values from an own normal quantile, ranges widened to the "
+            "position, state and type lists from 2 members, composition), every window file's header "
+            "(compositionShare, typeLists) and summary, rates/institutions (single-year T = 1 entries and "
+            "notRated reasons, window statuses), rates/flags.json, the count flag (3 x P99, numpy linear "
+            "percentile, count >= 20) in every rankings file, school files' ratesFile/rated/notRated/flags, "
+            "metadata.json rateRules and rateStats, config.py's constants, the design's test vectors, A4 (no "
+            "placed entry has a flag, every notPlaced one has one) and A5 (the model's bounds rise with N).")
         inputs = inputs if inputs is not None else default_inputs()
         data = data if data is not None else default_data()
         md = data["metadata"]
@@ -4401,10 +4650,14 @@ def audit_rate_rules(verbose: bool = False, inputs=None, data=None, spec=None, c
             for key in ("window", "code", "years", "c"):
                 if not same(h[key], pub.get(key)):
                     P.add("window_files", f"{name}: {key} published {pub.get(key)!r}, expected {h[key]!r}")
-            for key in ("natl", "natlN", "natlF", "peer"):
+            for key in ("natl", "natl4", "natlN", "natlF", "peer"):
                 if not same(h[key], pub.get(key)):
                     P.add("national_rate", f"{name}: {key} published {pub.get(key)!r}, expected {h[key]!r}")
-            for key in ("composition", "list", "stateLists"):
+            if ("compositionShare" in h or "compositionShare" in pub) and not same(h.get("compositionShare"),
+                                                                                  pub.get("compositionShare")):
+                P.add("national_rate", f"{name}: compositionShare published {pub.get('compositionShare')!r}, "
+                                       f"expected {h.get('compositionShare')!r}")
+            for key in ("composition", "list", "stateLists", "typeLists"):
                 if key in h or key in pub:
                     a, b = h.get(key), pub.get(key)
                     if key == "list" and isinstance(a, dict) and isinstance(b, dict):
@@ -4449,9 +4702,12 @@ def audit_rate_rules(verbose: bool = False, inputs=None, data=None, spec=None, c
             pw = {"rated": len(eby), "verdicts": h["summary"]["verdicts"], "natl": h["natl"]}
             if W["lists"] is not None:
                 bs = W["lists"]["by_state"]
-                pw.update({"listed": len(W["lists"]["members"]), "zc": W["lists"]["zc"],
+                pw.update({"listed": len(W["lists"]["members"]), "notPlaced": len(W["lists"]["not_placed"]),
+                           "zc": W["lists"]["zc"],
                            "stateLists": sum(1 for v in bs.values() if len(v) >= spec["state_min_members"]),
-                           "stateListsDisplayMin": sum(1 for v in bs.values() if len(v) >= spec["state_display_min"])})
+                           "stateListsDisplayMin": sum(1 for v in bs.values() if len(v) >= spec["state_display_min"]),
+                           "typeLists": sum(1 for v in W["lists"]["by_type"].values()
+                                            if len(v) >= spec["type_min_members"])})
             per_window[name] = pw
 
         # ---- rateStats.windows
@@ -4464,9 +4720,11 @@ def audit_rate_rules(verbose: bool = False, inputs=None, data=None, spec=None, c
             exp["natl"] = h["natl"]
             if W["lists"] is not None:
                 exp["listed"] = h["list"]["n"]
+                exp["notPlaced"] = h["list"]["notPlaced"]
                 exp["minFteYears"] = h["list"]["minFteYears"]
                 exp["stateLists"] = per_window[name]["stateLists"] if name in per_window else None
                 exp["stateListsDisplayMin"] = per_window[name]["stateListsDisplayMin"] if name in per_window else None
+                exp["typeLists"] = per_window[name]["typeLists"] if name in per_window else None
             pub = rs.get("windows", {}).get(w, {}).get(k)
             if pub is None:
                 P.add("summary", f"rateStats.windows.{w}.{k} missing")
@@ -4523,9 +4781,9 @@ def audit_rate_rules(verbose: bool = False, inputs=None, data=None, spec=None, c
             pf = pub_files.get(str(b))
             if pf is None:
                 continue
-            for key in ("id", "name", "unitid", "state", "peerType"):
-                if not same(ef[key], pf.get(key)):
-                    P.add("institution_files", f"{b}.json: {key} published {pf.get(key)!r}, expected {ef[key]!r}")
+            for key in ("id", "name", "unitid", "state", "peerType", "hospitalUnresolved"):
+                if not same(ef.get(key), pf.get(key)):
+                    P.add("institution_files", f"{b}.json: {key} published {pf.get(key)!r}, expected {ef.get(key)!r}")
             if not same(norm_flags(ef["flags"]), norm_flags(pf.get("flags"))):
                 P.add("unusual_year_flags", f"{b}.json: flags published {pf.get('flags')}, expected {ef['flags']}")
             py = pf.get("years", {})
@@ -4580,31 +4838,24 @@ def audit_rate_rules(verbose: bool = False, inputs=None, data=None, spec=None, c
         # ---- school files
         sch_details = check_school_files(inputs, data, X, P)
 
-        # ---- A4: removing flagged excess keeps listed positions inside the published range
-        a4 = {"checked": 0, "outside": 0, "verdict_changes": {}}
+        # ---- A4: in the published window files no placed entry has an unusual-year flag, and every entry not
+        # placed for one (notPlaced) has a flag and no position
+        a4 = {"placed_with_flags": 0, "not_placed": 0, "not_placed_wrong": 0, "verdict_changes": {}}
         for name, W in X["wfiles"].items():
             k = name.split("-", 2)[2]
             w = "-".join(name.split("-")[:2])
             a4["verdict_changes"].setdefault(w, {})[k] = W["header"]["summary"]["verdictWithoutFlaggedDiffers"]
-            if W["lists"] is None:
-                continue
-            pby = {e.get("id"): e for e in data["windows"].get(name, {}).get("entries", [])}
-            mem = W["lists"]["members"]
-            yy = tuple(W["header"]["window"])
-            rates = {b: Fraction(X["raw"][(yy, k, b)]["N"], X["raw"][(yy, k, b)]["F"]) for b in mem}
-            for b in mem:
-                r = X["raw"][(yy, k, b)]
-                if not r["flags"]:
-                    continue
-                a4["checked"] += 1
-                rw = r["Nw"] / r["F"]
-                pos = 1 + sum(1 for j in mem if j != b and rates[j] > rw)
-                pe = pby.get(b, {})
-                lo_, hi_ = pe.get("rankLo", W["by_base"][b]["rankLo"]), pe.get("rankHi", W["by_base"][b]["rankHi"])
-                if not (isinstance(lo_, int) and isinstance(hi_, int) and lo_ <= pos <= hi_):
-                    a4["outside"] += 1
-                    P.add("A4", f"{name} {b} {W['by_base'][b]['name']}: position without the flagged excess {pos}, "
-                                f"published range {lo_}-{hi_}")
+            for e in data["windows"].get(name, {}).get("entries", []):
+                if e.get("listed") and e.get("flags"):
+                    a4["placed_with_flags"] += 1
+                    P.add("A4", f"{name} {e.get('id')} {e.get('name')}: placed with flags {e.get('flags')}")
+                if "notPlaced" in e:
+                    a4["not_placed"] += 1
+                    if (e["notPlaced"] != "unusual_year" or not e.get("flags") or e.get("listed")
+                            or "position" in e or W["lists"] is None):
+                        a4["not_placed_wrong"] += 1
+                        P.add("A4", f"{name} {e.get('id')} {e.get('name')}: notPlaced {e['notPlaced']!r} with "
+                                    f"listed {e.get('listed')!r}, flags {e.get('flags')}")
 
         # ---- A5: bounds non-decreasing in N
         a5 = {}
@@ -4638,8 +4889,8 @@ def audit_rate_rules(verbose: bool = False, inputs=None, data=None, spec=None, c
         result.details["seconds"] = round(time.time() - t0, 1)
 
         print(f"  Windows {len(windows)}, window files {len(exp_names)}, institution files {len(exp_files):,}, "
-              f"flags {len(all_flags):,}; A4 listed entries with flags {a4['checked']}, outside range "
-              f"{a4['outside']}; A5 {'monotone' if not P.counts['A5'] else 'NOT monotone'}")
+              f"flags {len(all_flags):,}; A4 placed entries with flags {a4['placed_with_flags']}, not placed "
+              f"{a4['not_placed']}; A5 {'monotone' if not P.counts['A5'] else 'NOT monotone'}")
         bad = {k: v for k, v in P.counts.items() if v}
         print(f"  Problems: {P.total()}" + (f" {bad}" if bad else ""))
         if verbose:
@@ -4820,18 +5071,26 @@ def calib_V(mu, c, spec):
 
 def calib_indicators(Y, W, c, spec, q):
     """Leave-one-out: each year's count against the 95% predictive interval from the institution's other
-    years (rate from the other years times the year's exposure; variance of the count plus the estimate's)."""
+    years (rate from the other years times the year's exposure; variance of the count plus the estimate's).
+    With the spread rule the variance is at least the other years' own spread: the sample variance of their
+    residuals around the rate (n - 1 denominator, n the other years) times 1 + n (the year's exposure /
+    theirs)^2."""
     U, T = Y.shape
     N = Y.sum(1)
     Ws = W.sum(1)
     out = np.zeros((U, T))
     for t in range(T):
+        others = [s for s in range(T) if s != t]
         Nm = N - Y[:, t]
         Wm = Ws - W[:, t]
         rate = Nm / Wm
         mut = rate * W[:, t]
-        vp = calib_V(mut, c, spec) + (W[:, t] / Wm) ** 2 * sum(calib_V(rate * W[:, s], c, spec)
-                                                             for s in range(T) if s != t)
+        vp = calib_V(mut, c, spec) + (W[:, t] / Wm) ** 2 * sum(calib_V(rate * W[:, s], c, spec) for s in others)
+        if spec["spread"] == "max":
+            n = len(others)
+            res = Y[:, others] - rate[:, None] * W[:, others]
+            s2 = (res ** 2).sum(1) / (n - 1)
+            vp = np.maximum(vp, s2 * (1 + n * (W[:, t] / Wm) ** 2))
         ok = mut > 0
         lo, hi = nb_central(np.where(ok, mut, 1.0), np.where(ok, vp, 1.0), q)
         out[:, t] = np.where(ok, (Y[:, t] >= lo) & (Y[:, t] <= hi), Y[:, t] == 0)
@@ -4869,17 +5128,21 @@ def audit_rate_calibration(verbose: bool = False, inputs=None, data=None, spec=N
     with a single-year rate and a certain on-campus FTE in all the period's
     years and at least one on-campus incident: each year's on-campus count is
     predicted from the institution's other years (year effects from the
-    panel's national rates) with variance m + c g(m) m^1.5, and the share of
-    counts inside the central 95% predictive interval is compared with the
-    share expected under the model (mean of 600 simulated panels, NumPy PCG64
+    panel's national rates) with variance m + c g(m) m^1.5, raised with the
+    spread rule to the other years' own spread (calib_indicators), and the
+    share of counts inside the central 95% predictive interval is compared
+    with the share expected when the counts follow the model (mean of 600
+    panels simulated from the model and judged by the same rule, NumPy PCG64
     seeded 11 for each code and period). Fails when they differ, either way,
     by more than 0.02 over institutions with a mean of at least 2 a year; in a
     band of yearly means with at least 100 institutions, when the observed
     share is below the expected one by more than 0.03 (intervals too narrow:
     verdicts claim more certainty than the data give) or above it by more
-    than 0.05 (intervals too wide: only fewer verdicts). Every band is
-    published in details["rows"], with tested false when it has fewer than
-    100 institutions (or none).
+    than 0.05 (intervals too wide: only fewer verdicts). The top band (20+)
+    of the topBandCodes is tested whatever its size, its limits widened below
+    100 institutions by topBandSE binomial standard errors of the expected
+    share over its institution-years. Every band is published in
+    details["rows"], with tested false when it is not tested.
     """
     result = AuditResult("Interval Calibration")
     print("\nCHECK 13: Interval Calibration")
@@ -4890,13 +5153,19 @@ def audit_rate_calibration(verbose: bool = False, inputs=None, data=None, spec=N
         cal = spec["calibration"]
         result.details["what_it_checks"] = (
             "A1: single-year leave-one-out predictive coverage of on-campus counts under the published "
-            "dispersion (c per code, ramp), observed against expected from "
-            f"{cal['simulations']} simulations (PCG64 seed {cal['seed']}, fresh per code and period); "
+            "dispersion (c per code, ramp"
+            + (", and the other years' own spread when larger" if spec["spread"] == "max" else "")
+            + "), observed against expected from "
+            f"{cal['simulations']} panels simulated from the model and judged by the same rule (PCG64 seed "
+            f"{cal['seed']}, fresh per code and period); "
             f"tolerance {cal['tolerance']} either way over units with a mean >= {cal['bands'][0]}/year; "
             f"in bands with >= {cal['bandMinUnits']} units, fails when observed is below expected by more than "
             f"{cal['bandToleranceBelow']} (intervals too narrow: verdicts overstate certainty) or above it by "
             f"more than {cal['bandToleranceAbove']} (intervals too wide: fewer verdicts, the safer error). "
-            "Every band is listed in rows; tested is false below the unit minimum.")
+            f"The {cal['bands'][-1]}+ band of {', '.join(cal['topBandCodes'])} is tested whatever its size, "
+            f"each limit widened below {cal['bandMinUnits']} units by {cal['topBandSE']} binomial standard "
+            "errors of the expected share over its unit-years. "
+            "Every band is listed in rows; tested is false when not tested.")
         inputs = inputs if inputs is not None else default_inputs()
         problems = []
         if dict(cfg.RATE_CALIBRATION) != dict(cal):
@@ -4937,6 +5206,7 @@ def audit_rate_calibration(verbose: bool = False, inputs=None, data=None, spec=N
                     mm = (mb >= a) & (mb < b)
                     units_n = int(mm.sum())
                     overall = lab.startswith("all")
+                    top = lab == labels[-1] and code in cal["topBandCodes"]
                     below = cal["tolerance"] if overall else cal["bandToleranceBelow"]
                     above = cal["tolerance"] if overall else cal["bandToleranceAbove"]
                     if units_n == 0:
@@ -4945,11 +5215,17 @@ def audit_rate_calibration(verbose: bool = False, inputs=None, data=None, spec=N
                                      "toleranceAbove": above, "tested": False, "ok": None})
                         continue
                     o, x = float(obs[mm].mean()), float(e[mm].mean())
-                    tested = overall or units_n >= cal["bandMinUnits"]
+                    tested = overall or units_n >= cal["bandMinUnits"] or top
+                    if top and units_n < cal["bandMinUnits"]:
+                        # a small top band: each limit widened by topBandSE binomial standard errors of the
+                        # expected share over the band's institution-years
+                        widen = cal["topBandSE"] * math.sqrt(x * (1 - x) / (units_n * Y.shape[1]))
+                        below, above = below + widen, above + widen
                     ok = (-below <= o - x <= above) if tested else None
                     rows.append({"code": code, "c": c, "period": period, "band": lab, "units": units_n,
                                  "observed": round(o, 4), "expected": round(x, 4), "diff": round(o - x, 4),
-                                 "toleranceBelow": below, "toleranceAbove": above, "tested": tested, "ok": ok})
+                                 "toleranceBelow": round(below, 4), "toleranceAbove": round(above, 4),
+                                 "tested": tested, "ok": ok})
                     if tested and not ok:
                         side = f"below by more than {below}" if o < x else f"above by more than {above}"
                         problems.append(f"{code} {period} {lab}: observed {o:.3f}, expected {x:.3f} "

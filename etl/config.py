@@ -254,6 +254,13 @@ OFFENSE_ORDER_MAP = {offense: i for i, offense in enumerate(OFFENSE_ORDER)}
 # campuses are in the same state. Fewer nonzero cells match by chance too
 # often to call a copy.
 SHARED_MIN_NONZERO = 6
+# One exception: campuses of two or more institutions (different base
+# UNITIDs) in the same city and state whose whole figures for a year (all
+# three blocks) are equal, with at least SHARED_CITY_MIN_TOTAL counts in
+# all, are one report filed by each of them (the schools of one hospital,
+# institutions on one shared campus), whatever the number of nonzero cells:
+# 04's rule whole_year_city.
+SHARED_CITY_MIN_TOTAL = 20
 
 # =============================================================================
 # OFFENSE FAMILIES (for grouping in UI)
@@ -493,6 +500,26 @@ def dispersion_c(code: str) -> float:
 # years (each school page's trend) use the same interval with T = 1.
 RATE_CI_LEVEL = 0.95
 
+# The institution's own year-to-year spread (RATE_SPREAD = "max"): a
+# window's variance is the larger of the model's, T (m + c g(m) m^1.5), and
+# T s^2, s^2 the sample variance (n - 1 denominator) of its T yearly
+# on-campus counts of the code. So phi = max(phi(N), T s^2 / N) for N > 0
+# (phi(0) for N = 0) in the interval and the verdicts, and each list
+# member's variance in the pairwise tests of the rank ranges is max(V0(r
+# F), T s^2). A single year (T = 1) has no spread: the model alone. The
+# verdict without the flagged excess uses the yearly counts with each
+# flagged year's excess taken out. Chosen in 2026 after the fourth review
+# (the model alone gives yearly counts of 5, 121 and 3 the interval of
+# steady counts with that total). Candidates fitted on 2015-2019 and judged
+# on 2015-2019 and 2022-2024 by RATE_CALIBRATION's test, the 20+ band of
+# violent, criminal_xmvt, burglary and rape included: the model alone fails
+# it (rape 20+), and so do the ramp without its cap and a fitted variance
+# power; a fitted cap (3 for rape), a fitted growth power of the ramp and
+# this rule pass it. This rule is the one of the three that widens the
+# interval of an institution whose own counts swing, not of every
+# institution with a high count. None: the model alone.
+RATE_SPREAD = "max"
+
 # Peer groups for a second comparison: the institution's type by Carnegie
 # Size & Setting (SIZE_SETTING_FIELDS, newest first: the newest IPEDS HD
 # file that gives the institution a classified value), the peer rate
@@ -530,11 +557,23 @@ def peer_type(size_setting) -> str:
 # them; published for every state with at least STATE_LIST_MIN_MEMBERS
 # members. STATE_LIST_DISPLAY_MIN is the smallest state list the design
 # recommends showing (published for the pages; the data has every list).
+#
+# An institution that would be a member but has an on-campus unusual-year
+# flag (FLAG_*) of an offense of the code in a year of the window is not
+# placed on the list, nor on its state or type list (notPlaced
+# "unusual_year"): one year's spike would set its position. Its rate,
+# interval, verdicts and verdict without the flagged excess are published
+# as for every rated institution; positions and ranges are among the
+# placed members only. A type list is the national list's members of one
+# peer type (PEER_TYPES), with positions and ranges recomputed among them
+# like a state list; published for every type with at least
+# TYPE_LIST_MIN_MEMBERS members.
 LIST_CODES = ("violent", "criminal_xmvt", "burglary")
 LIST_MIN_EXPECTED = 20
 LIST_ALPHA = 0.05
 STATE_LIST_MIN_MEMBERS = 2
 STATE_LIST_DISPLAY_MIN = 5
+TYPE_LIST_MIN_MEMBERS = 2
 
 # Incidents at campuses that are medical centers or hospitals inside a
 # university (etl/reference/medical_campuses.csv, reviewed per campus), on
@@ -648,16 +687,25 @@ COUNT_FLAG_PERCENTILE = 99
 # RATE_CALIBRATION["codes"] and each period (the first five years and the
 # latest three), every institution with a rate in all the period's years
 # and incidents in at least one, each year's count predicted from its other
-# years (year effects from the national totals) with the variance above;
+# years (year effects from the national totals) with the variance the
+# intervals use: the larger of the model's predictive variance above and,
+# with RATE_SPREAD, the spread of the institution's other years around
+# their prediction (the sample variance of those years' residuals, times 1
+# + their number x (the year's exposure / theirs)^2 for the estimated rate);
 # the share of counts inside the central 95% predictive interval against
-# the share expected under the model (the mean of "simulations" simulated
-# panels, NumPy PCG64 seeded with "seed", the same panels on every run). The
-# check fails when they differ, either way, by more than "tolerance" over the
-# institutions with a mean of at least 2 a year. In a band of yearly means
-# ("bands") with at least "bandMinUnits" institutions it fails when the
-# observed share is below the expected one by more than "bandToleranceBelow"
-# or above it by more than "bandToleranceAbove". The two band limits differ
-# on purpose: intervals that cover less often than the model says are too
+# the share expected when the model holds (the mean over "simulations"
+# panels simulated from the model, NumPy PCG64 seeded with "seed", the same
+# panels on every run, judged by the same rule). The check fails when they
+# differ, either way, by more than "tolerance" over the institutions with
+# a mean of at least 2 a year. In a band of yearly means ("bands") with at
+# least "bandMinUnits" institutions it fails when the observed share is
+# below the expected one by more than "bandToleranceBelow" or above it by
+# more than "bandToleranceAbove". The top band (20 or more a year) of the
+# codes of "topBandCodes" is tested whatever its number of institutions:
+# below "bandMinUnits", each limit is widened by "topBandSE" binomial
+# standard errors of the expected share over the band's institution-years
+# (sqrt(e (1 - e) / (institutions x years))). The two band limits differ on
+# purpose: intervals that cover less often than the model says are too
 # narrow, so verdicts and rank ranges claim more certainty than the data
 # give, and that is the error to hold tightly; intervals that cover more
 # often are too wide, which only leaves more rates without a verdict, so a
@@ -667,7 +715,8 @@ RATE_CALIBRATION = {"codes": ("violent", "criminal_xmvt", "burglary", "rape", "a
                               "fondling", "stalking"),
                     "periods": ((2015, 2019), "latest"), "latestYears": 3, "simulations": 600, "seed": 11,
                     "bands": (2, 5, 10, 20), "tolerance": 0.02, "bandToleranceBelow": 0.03,
-                    "bandToleranceAbove": 0.05, "bandMinUnits": 100}
+                    "bandToleranceAbove": 0.05, "bandMinUnits": 100,
+                    "topBandCodes": ("violent", "criminal_xmvt", "burglary", "rape"), "topBandSE": 2}
 
 # Institutions whose campus population students do not measure: no rate in a
 # year when IPEDS HD says they have a hospital (HOSPITAL = 1: patients,

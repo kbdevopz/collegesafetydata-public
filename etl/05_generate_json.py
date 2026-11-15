@@ -30,8 +30,9 @@ from config import (
     MEDICAL_CAMPUS_SHARE, SHARED_SITE_MAX_SHARE, SHARED_SITE_FIGURE_YEARS, SHARED_NEAR_MIN_NONZERO, SHARED_NEAR_MATCH,
     SHARED_NEAR_MIN_TOTAL,
     COUNT_FLAG_MIN_COUNT, COUNT_FLAG_FACTOR, COUNT_FLAG_PERCENTILE,
-    RATE_WINDOW_YEARS, RATE_SKIP_YEARS, RATE_CODES, RATE_DISPERSION, RATE_DISPERSION_OTHER, RATE_RAMP, LIST_CODES,
-    LIST_MIN_EXPECTED, LIST_ALPHA, STATE_LIST_MIN_MEMBERS, STATE_LIST_DISPLAY_MIN, PEER_TYPES, SIZE_SETTING_FIELDS,
+    RATE_WINDOW_YEARS, RATE_SKIP_YEARS, RATE_CODES, RATE_DISPERSION, RATE_DISPERSION_OTHER, RATE_RAMP, RATE_SPREAD,
+    LIST_CODES, LIST_MIN_EXPECTED, LIST_ALPHA, STATE_LIST_MIN_MEMBERS, STATE_LIST_DISPLAY_MIN, TYPE_LIST_MIN_MEMBERS,
+    PEER_TYPES, SIZE_SETTING_FIELDS,
     FLAG_OFFENSES, FLAG_GEOS, FLAG_MIN_COUNT, FLAG_MIN_OTHER_YEARS, FLAG_P, FLAG_C, FLAG_MIN_MEAN, RATE_CALIBRATION,
     MEDICAL_SCREEN_PATTERN, MEDICAL_SCREEN_SHARE, MEDICAL_SCREEN_MIN_COUNT, rate_windows, dispersion_c
 )
@@ -87,6 +88,7 @@ def required_inputs() -> list[Path]:
         CURATED_DIR / "dims" / "campus_id_links.parquet",
         CURATED_DIR / "dims" / "dim_medical_campus.parquet",
         CURATED_DIR / "dims" / "dim_shared_site_enrollment.parquet",
+        CURATED_DIR / "dims" / "dim_hospital_unresolved.parquet",
     ]
     if PROCESS_ALL_SCHOOLS:
         paths += [
@@ -984,6 +986,11 @@ TEST_VECTOR_RATES = ((20, 30000, 0.354), (139, 44830, 0.354), (82, 30483, 0.354)
                      (188, 20282, 0.497))
 TEST_VECTOR_LIST = (0.354, ((139, 44830), (82, 30483), (20, 30000), (60, 90000), (30, 100000)))
 TEST_VECTOR_CRITICAL = (5, 146, 208, 531)
+# With the yearly spread (RATE_SPREAD): (c, yearly counts) and a five-member list ((FTE-years, yearly counts))
+TEST_VECTOR_SPREAD = ((0.354, (5, 121, 3)), (0.354, (40, 50, 45)), (0.354, (30, 20, 10)), (0.497, (10, 30, 20)),
+                      (0.665, (0, 0, 9)), (0.295, (16, 18, 96)))
+TEST_VECTOR_SPREAD_LIST = (0.354, ((3268, (5, 121, 3)), (44830, (45, 47, 47)), (30483, (20, 30, 32)),
+                                   (90000, (20, 20, 20)), (100000, (5, 15, 10))))
 
 # What each count of rated institutions counts (metadata rateStats.definitions)
 RATE_DEFINITIONS = {
@@ -993,9 +1000,15 @@ RATE_DEFINITIONS = {
              "no rule (hospital, medical, listed, merger, family, shared_pooled, shared_campus) in any year. The "
              "window files list exactly these.",
     "listed": "Rated institutions without a reason (why) whose expected count at the national rate is at least "
-              "lists.minExpected: the members of the national ordered list.",
+              "lists.minExpected and without an on-campus unusual-year flag of the code in the window: the members "
+              "of the national ordered list.",
+    "notPlaced": "Rated institutions without a reason whose expected count is at least lists.minExpected but with an "
+                 "on-campus unusual-year flag of an offense of the code in a year of the window: not placed on the "
+                 "national, state or type list (notPlaced \"unusual_year\"); rate, interval and verdicts as usual.",
     "stateLists": "Per state, the national list's members in that state; a state list is published (positions and "
                   "ranges within the state) when it has at least lists.stateMinMembers members.",
+    "typeLists": "Per peer type, the national list's members of that type; a type list is published (positions and "
+                 "ranges within the type) when it has at least lists.typeMinMembers members.",
     "withFte": "Institution-years whose link campus is in US_STATES with a rate denominator of at least minFte, "
                "rules included (single years).",
     "ratedYears": "Of withFte, those with a single-year rate: no rule, and not a year of skipYears.",
@@ -1008,14 +1021,17 @@ def write_rates(result: dict) -> tuple[set[int], dict]:
 
     rates/{first}-{last}-{code}.json, per rate window and rate code:
         window, code, years, c (overdispersion constant), natl (national rate
-        per 10,000 FTE-years, 2 decimals; natlN / natlF exactly), peer {type:
-        {rate, n, fteYears, members}}, summary (rated institutions by reason
-        and verdict), composition (national on-campus counts of the parts of
-        violent, or the motor vehicle thefts beside criminal_xmvt), list
-        (LIST_CODES: n, minExpected, minFteYears, zc), stateLists {state:
-        members}, entries: every rated institution (rates.WindowCode.entry,
-        with the window's shared-site notes: rates.window_status), by rate
-        (highest first), then name, then base UNITID.
+        per 10,000 FTE-years, 2 decimals; natl4 the same to 4 decimals; natlN
+        / natlF exactly), peer {type: {rate, rate4, n, fteYears, members}},
+        summary (rated institutions by reason and verdict), composition
+        (national on-campus counts of the parts of violent, or the motor
+        vehicle thefts beside criminal_xmvt), compositionShare (violent: each
+        part's share of natlN, 4 decimals), list (LIST_CODES: n placed,
+        notPlaced, minExpected, minFteYears, zc), stateLists {state: members},
+        typeLists {peer type: members}, entries: every rated institution
+        (rates.WindowCode.entry, with the window's shared-site notes and
+        hospitalUnresolved: rates.window_status), by rate (highest first),
+        then name, then base UNITID.
     rates/institutions/{base UNITID}.json, per institution with a rated
         window, a single-year rate or an unusual-year flag: id, name, unitid
         (link campus), state, peerType, years {year: single-year entry
@@ -1023,7 +1039,9 @@ def write_rates(result: dict) -> tuple[set[int], dict]:
         with the shared-site notes of a rated one), and for a rated one
         fteByYear, fteSmallerByYear (an uncertain on-campus FTE), codes
         {code: entry with nByYear, natl, peerRate}}, flags (every unusual
-        year: rates.unusual_years).
+        year: rates.unusual_years), hospitalUnresolved ([{name, firstYear,
+        lastYear, known, source}]: etl/reference/hospital_unresolved.csv's
+        row of the institution, when it has one).
     rates/flags.json: every unusual-year flag {id, name, state, year, offense, geo, count, usual}.
     """
     print("\nGenerating rate files...")
@@ -1035,24 +1053,31 @@ def write_rates(result: dict) -> tuple[set[int], dict]:
         stats["windows"][label] = {}
         for code, wc in codes.items():
             obj = {"window": list(window), "code": code, "years": wc.years, "c": wc.c,
-                   "natl": wc.natl_rate(), "natlN": wc.natl_n, "natlF": wc.natl_f,
-                   "peer": {key: {"rate": wc.peer_rate(key), "n": n, "fteYears": f, "members": m}
+                   "natl": wc.natl_rate(), "natl4": wc.natl_rate(4), "natlN": wc.natl_n, "natlF": wc.natl_f,
+                   "peer": {key: {"rate": wc.peer_rate(key), "rate4": wc.peer_rate(key, 4), "n": n, "fteYears": f,
+                                  "members": m}
                             for key, (n, f, m) in wc.peer.items()},
                    "summary": wc.summary()}
             if wc.composition is not None:
                 obj["composition"] = wc.composition
+                if wc.composition_share() is not None:
+                    obj["compositionShare"] = wc.composition_share()
             if code in LIST_CODES:
                 threshold = -(-LIST_MIN_EXPECTED * wc.natl_f // wc.natl_n)
-                obj["list"] = {"n": len(wc.list_members), "minExpected": LIST_MIN_EXPECTED,
-                               "minFteYears": threshold, "zc": None if wc.zc is None else round(wc.zc, 6)}
+                obj["list"] = {"n": len(wc.list_members), "notPlaced": len(wc.not_placed),
+                               "minExpected": LIST_MIN_EXPECTED, "minFteYears": threshold,
+                               "zc": None if wc.zc is None else round(wc.zc, 6)}
                 obj["stateLists"] = wc.state_lists
+                obj["typeLists"] = wc.type_lists
             obj["entries"] = [wc.entry(r, False) for r in wc.ordered_rows()]
             write_json(out_dir / f"{label}-{code}.json", obj, compact=True)
             s = {"natl": obj["natl"], **obj["summary"]}
             if code in LIST_CODES:
-                s |= {"listed": len(wc.list_members), "minFteYears": obj["list"]["minFteYears"],
+                s |= {"listed": len(wc.list_members), "notPlaced": len(wc.not_placed),
+                      "minFteYears": obj["list"]["minFteYears"],
                       "stateLists": sum(1 for m in wc.state_lists.values() if m >= STATE_LIST_MIN_MEMBERS),
-                      "stateListsDisplayMin": sum(1 for m in wc.state_lists.values() if m >= STATE_LIST_DISPLAY_MIN)}
+                      "stateListsDisplayMin": sum(1 for m in wc.state_lists.values() if m >= STATE_LIST_DISPLAY_MIN),
+                      "typeLists": sum(1 for m in wc.type_lists.values() if m >= TYPE_LIST_MIN_MEMBERS)}
             stats["windows"][label][code] = s
             print(f"  {label} {code}: national {obj['natl']}, rated {s['rated']}, verdicts {s['verdicts']}"
                   + (f", listed {s['listed']}, state lists {s['stateLists']}" if code in LIST_CODES else ""))
@@ -1084,6 +1109,8 @@ def write_rates(result: dict) -> tuple[set[int], dict]:
                 entry["codes"] = {code: wc.entry(wc.rows[base], True) for code, wc in windows[window].items()}
             obj["windows"][f"{window[0]}-{window[1]}"] = entry
         obj["flags"] = flags.get(base, [])
+        if base in inp.hospital_unresolved:
+            obj["hospitalUnresolved"] = [inp.hospital_unresolved[base]]
         write_json(JSON_DIR / RATES_INSTITUTIONS_DIR / f"{base}.json", obj, compact=True)
         rate_files.add(base)
     names = {b: inp.rec[(max(inp.years_of[b]), b)] for b in flags}
@@ -1114,6 +1141,23 @@ def rate_rules(years: list[int], references: dict[int, dict[str, Fraction]]) -> 
         prev = order[k - 1] if k else None
         position[i] = position[prev] if k and Fraction(*members[i]) == Fraction(*members[prev]) else k + 1
     ranges = rates.rank_ranges([(n, f, position[i]) for i, (n, f) in enumerate(members)], 3, c)
+    sc, smembers = TEST_VECTOR_SPREAD_LIST
+    stotals = [(sum(ys), f, ys) for f, ys in smembers]
+    sorder = sorted(range(len(stotals)), key=lambda i: -Fraction(stotals[i][0], stotals[i][1]))
+    sposition = {}
+    for k, i in enumerate(sorder):
+        prev = sorder[k - 1] if k else None
+        same_rate = k and Fraction(*stotals[i][:2]) == Fraction(*stotals[prev][:2])
+        sposition[i] = sposition[prev] if same_rate else k + 1
+    sranges = rates.rank_ranges([(n, f, sposition[i], rates.sample_variance(ys))
+                                 for i, (n, f, ys) in enumerate(stotals)], 3, sc)
+
+    def spread_vector(cc, ys):
+        s2 = rates.sample_variance(ys)
+        f, from_years = rates.window_phi(sum(ys), 3, cc, s2)
+        return {"c": cc, "years": 3, "byYear": list(ys), "n": sum(ys), "s2": round(float(s2), 6),
+                "phi": round(f, 6), "phiFrom": "years" if from_years else "model",
+                "interval": [round(x, 4) for x in rates.count_interval(sum(ys), 3, cc, s2)]}
     return {
         "minFte": MIN_FTE_FOR_RATE,
         "onlineUncertainRatio": list(ONLINE_UNCERTAIN_RATIO),
@@ -1126,14 +1170,15 @@ def rate_rules(years: list[int], references: dict[int, dict[str, Fraction]]) -> 
         "ciLevel": RATE_CI_LEVEL,
         "dispersion": {"power": 1.5, "c": {code: dispersion_c(code) for code in RATE_CODES},
                        "fitted": RATE_DISPERSION, "other": RATE_DISPERSION_OTHER,
-                       "ramp": {"start": start, "end": start * cap, "cap": cap}},
+                       "ramp": {"start": start, "end": start * cap, "cap": cap}, "spread": RATE_SPREAD},
         "medicalShare": list(MEDICAL_CAMPUS_SHARE),
         "sharedSiteShare": list(SHARED_SITE_MAX_SHARE),
         "sharedSiteFigureYears": SHARED_SITE_FIGURE_YEARS,
         "sharedNear": {"minNonzero": SHARED_NEAR_MIN_NONZERO, "match": list(SHARED_NEAR_MATCH),
                        "minTotal": SHARED_NEAR_MIN_TOTAL},
         "lists": {"codes": list(LIST_CODES), "minExpected": LIST_MIN_EXPECTED, "alpha": LIST_ALPHA,
-                  "stateMinMembers": STATE_LIST_MIN_MEMBERS, "stateDisplayMin": STATE_LIST_DISPLAY_MIN},
+                  "stateMinMembers": STATE_LIST_MIN_MEMBERS, "stateDisplayMin": STATE_LIST_DISPLAY_MIN,
+                  "typeMinMembers": TYPE_LIST_MIN_MEMBERS, "notPlaced": ["unusual_year"]},
         "peerTypes": {key: {"label": label, "sizeSetting": list(values)} for key, (label, values) in PEER_TYPES.items()},
         "sizeSettingFields": list(SIZE_SETTING_FIELDS),
         "flags": {"offenses": [rates.code_of(o) for o in FLAG_OFFENSES], "geos": list(FLAG_GEOS),
@@ -1158,6 +1203,11 @@ def rate_rules(years: list[int], references: dict[int, dict[str, Fraction]]) -> 
                      "members": [{"n": n, "fteYears": f, "position": position[i], "rankLo": ranges[i][0],
                                   "rankHi": ranges[i][1]} for i, (n, f) in enumerate(members)]},
             "criticalZ": {str(n): round(rates.critical_z(n), 4) for n in TEST_VECTOR_CRITICAL},
+            "countsSpread": [spread_vector(cc, ys) for cc, ys in TEST_VECTOR_SPREAD],
+            "listSpread": {"c": sc, "years": 3, "zc": round(rates.critical_z(len(smembers)), 6),
+                           "members": [{"byYear": list(ys), "n": n, "fteYears": f, "position": sposition[i],
+                                        "rankLo": sranges[i][0], "rankHi": sranges[i][1]}
+                                       for i, (n, f, ys) in enumerate(stotals)]},
         },
     }
 
