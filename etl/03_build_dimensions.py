@@ -44,6 +44,8 @@ LINKS_PATH = CURATED_DIR / "dims" / "campus_id_links.parquet"
 # measure (build_institution_classes; 04's rate rules read it)
 CLASS_PATH = CURATED_DIR / "dims" / "dim_institution_class.parquet"
 POPULATION_LIST_PATH = Path(__file__).parent / "reference" / "rate_population_exclusions.csv"
+MEDICAL_PATH = CURATED_DIR / "dims" / "dim_medical_campus.parquet"
+MEDICAL_LIST_PATH = Path(__file__).parent / "reference" / "medical_campuses.csv"
 CARNEGIE_FIELDS = ("C21BASIC", "C18BASIC", "C15BASIC")  # newest classification first
 
 
@@ -503,6 +505,41 @@ def build_institution_classes() -> pd.DataFrame:
     return out
 
 
+def build_medical_campuses(dim_institution: pd.DataFrame) -> pd.DataFrame:
+    """
+    dim_medical_campus.parquet: unitid, year, reason, source for each year of
+    DATA_YEARS in the ranges of etl/reference/medical_campuses.csv (campuses
+    that are medical centers or hospitals inside an institution, reviewed
+    one by one; config.py, MEDICAL_CAMPUS_SHARE). Every listed UNITID must
+    be a campus of dim_institution.
+    """
+    print("\nBuilding the list of medical-center campuses...")
+    listed = pd.read_csv(MEDICAL_LIST_PATH, dtype=str, keep_default_na=False)
+    need = {"unitid", "first_year", "last_year", "reason", "source"}
+    if set(listed.columns) != need:
+        raise RuntimeError(f"{MEDICAL_LIST_PATH} must have the columns {sorted(need)}")
+    campuses = set(dim_institution["unitid"].astype(int).tolist())
+    rows = []
+    for row in listed.to_dict("records"):
+        unitid = int(row["unitid"])
+        if unitid not in campuses:
+            raise RuntimeError(f"{MEDICAL_LIST_PATH}: {unitid} is not a campus in DOE's files")
+        if not row["reason"].strip() or not row["source"].strip():
+            raise RuntimeError(f"{MEDICAL_LIST_PATH}: {unitid} needs a reason and a source")
+        for year in range(int(row["first_year"]), int(row["last_year"]) + 1):
+            if year in DATA_YEARS:
+                rows.append({"unitid": unitid, "year": year, "reason": row["reason"].strip(),
+                             "source": row["source"].strip()})
+    out = pd.DataFrame(rows, columns=["unitid", "year", "reason", "source"]).astype(
+        {"unitid": "int32", "year": "int16", "reason": "string", "source": "string"})
+    if out.duplicated(["unitid", "year"]).any():
+        raise RuntimeError(f"{MEDICAL_LIST_PATH} lists a campus twice for one year")
+    out = out.sort_values(["year", "unitid"]).reset_index(drop=True)
+    out.to_parquet(MEDICAL_PATH, index=False)
+    print(f"  {listed['unitid'].nunique()} campuses, {len(out):,} campus-years. Saved to: {MEDICAL_PATH}")
+    return out
+
+
 def main():
     print("=" * 60)
     print("Building Dimension Tables")
@@ -515,7 +552,7 @@ def main():
     # The other files it reads: the IPEDS directory files and the reviewed ID changes
     _hd, hd_files = campus_identity.ipeds_directory(IPEDS_RAW_DIR, DATA_YEARS)
     other_inputs = provenance.other_input_records(hd_files + [campus_identity.ID_CHANGES_PATH,
-                                                              POPULATION_LIST_PATH])
+                                                              POPULATION_LIST_PATH, MEDICAL_LIST_PATH])
     provenance.invalidate(provenance.INSTITUTION_MANIFEST)
     dim_institution = build_dim_institution()
     links = build_id_links(dim_institution)
@@ -523,9 +560,10 @@ def main():
     print(f"  Saved to: {LINKS_PATH}")
     dim_offense = build_dim_offense()
     build_institution_classes()
+    build_medical_campuses(dim_institution)
     provenance.write_institution_manifest(
         inputs_before, outputs=[dims / "dim_institution.parquet", dims / "dim_offense.parquet", LINKS_PATH,
-                                CLASS_PATH],
+                                CLASS_PATH, MEDICAL_PATH],
         other_inputs=other_inputs)
 
     print("\n" + "=" * 60)
