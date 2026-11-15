@@ -127,10 +127,10 @@
         "violent": 0.354,
         "criminal_xmvt": 0.497,
         "burglary": 0.665,
-        "rape": 0.522,
+        "rape": 0.295,
         "fondling": 0.522,
         "robbery": 0.522,
-        "aggravated_assault": 0.522,
+        "aggravated_assault": 0.585,
         "stalking": 0.522,
         "dating_violence": 0.522,
         "domestic_violence": 0.522
@@ -138,7 +138,9 @@
       "fitted": {
         "violent": 0.354,
         "criminal_xmvt": 0.497,
-        "burglary": 0.665
+        "burglary": 0.665,
+        "rape": 0.295,
+        "aggravated_assault": 0.585
       },
       "other": 0.522,
       "ramp": {
@@ -897,24 +899,24 @@
             "shared": 18
           },
           "verdicts": {
-            "above": 261,
-            "below": 464,
-            "nd": 1350,
-            "undetermined": 8
+            "above": 292,
+            "below": 496,
+            "nd": 1286,
+            "undetermined": 9
           },
           "verdictsNoReason": {
-            "above": 254,
-            "below": 454,
-            "nd": 1269
+            "above": 284,
+            "below": 484,
+            "nd": 1209
           },
           "peerVerdicts": {
-            "above": 159,
-            "below": 206,
-            "nd": 1708,
-            "undetermined": 10
+            "above": 201,
+            "below": 231,
+            "nd": 1642,
+            "undetermined": 9
           },
           "withFlags": 16,
-          "verdictWithoutFlaggedDiffers": 7
+          "verdictWithoutFlaggedDiffers": 8
         },
         "fondling": {
           "natl": 2.27,
@@ -984,20 +986,20 @@
             "shared": 12
           },
           "verdicts": {
-            "above": 132,
+            "above": 120,
             "below": 62,
-            "nd": 1887,
+            "nd": 1899,
             "undetermined": 2
           },
           "verdictsNoReason": {
-            "above": 119,
+            "above": 108,
             "below": 61,
-            "nd": 1796
+            "nd": 1807
           },
           "peerVerdicts": {
-            "above": 113,
-            "below": 57,
-            "nd": 1911,
+            "above": 107,
+            "below": 54,
+            "nd": 1920,
             "undetermined": 2
           },
           "withFlags": 8,
@@ -1201,20 +1203,20 @@
             "shared": 20
           },
           "verdicts": {
-            "above": 270,
-            "below": 491,
-            "nd": 1301,
-            "undetermined": 9
+            "above": 312,
+            "below": 512,
+            "nd": 1235,
+            "undetermined": 12
           },
           "verdictsNoReason": {
-            "above": 261,
-            "below": 473,
-            "nd": 1214
+            "above": 301,
+            "below": 493,
+            "nd": 1154
           },
           "peerVerdicts": {
-            "above": 168,
-            "below": 210,
-            "nd": 1684,
+            "above": 206,
+            "below": 238,
+            "nd": 1618,
             "undetermined": 9
           },
           "withFlags": 18,
@@ -1288,20 +1290,20 @@
             "shared": 18
           },
           "verdicts": {
-            "above": 121,
-            "below": 64,
-            "nd": 1884,
-            "undetermined": 2
+            "above": 116,
+            "below": 63,
+            "nd": 1891,
+            "undetermined": 1
           },
           "verdictsNoReason": {
-            "above": 109,
-            "below": 63,
-            "nd": 1769
+            "above": 104,
+            "below": 62,
+            "nd": 1775
           },
           "peerVerdicts": {
-            "above": 110,
+            "above": 102,
             "below": 59,
-            "nd": 1900,
+            "nd": 1908,
             "undetermined": 2
           },
           "withFlags": 4,
@@ -1505,20 +1507,20 @@
             "shared": 18
           },
           "verdicts": {
-            "above": 269,
-            "below": 490,
-            "nd": 1275,
-            "undetermined": 8
+            "above": 307,
+            "below": 509,
+            "nd": 1214,
+            "undetermined": 12
           },
           "verdictsNoReason": {
-            "above": 260,
-            "below": 473,
-            "nd": 1183
+            "above": 296,
+            "below": 492,
+            "nd": 1128
           },
           "peerVerdicts": {
-            "above": 162,
-            "below": 208,
-            "nd": 1665,
+            "above": 201,
+            "below": 232,
+            "nd": 1602,
             "undetermined": 7
           },
           "withFlags": 17,
@@ -1592,20 +1594,20 @@
             "shared": 17
           },
           "verdicts": {
-            "above": 117,
-            "below": 60,
-            "nd": 1863,
+            "above": 112,
+            "below": 58,
+            "nd": 1870,
             "undetermined": 2
           },
           "verdictsNoReason": {
-            "above": 96,
-            "below": 60,
-            "nd": 1751
+            "above": 92,
+            "below": 58,
+            "nd": 1757
           },
           "peerVerdicts": {
-            "above": 101,
-            "below": 65,
-            "nd": 1875,
+            "above": 97,
+            "below": 63,
+            "nd": 1881,
             "undetermined": 1
           },
           "withFlags": 5,
@@ -1701,7 +1703,7 @@
       },
       "2021-2023": {
         "violent": {
-          "natl": 6.83,
+          "natl": 6.82,
           "rated": 1862,
           "byWhy": {
             "none": 1560,
@@ -1710,15 +1712,15 @@
             "shared": 21
           },
           "verdicts": {
-            "above": 239,
+            "above": 240,
             "below": 492,
-            "nd": 1098,
+            "nd": 1097,
             "undetermined": 33
           },
           "verdictsNoReason": {
-            "above": 218,
+            "above": 219,
             "below": 414,
-            "nd": 928
+            "nd": 927
           },
           "peerVerdicts": {
             "above": 159,
@@ -1726,15 +1728,15 @@
             "nd": 1461,
             "undetermined": 20
           },
-          "withFlags": 30,
+          "withFlags": 31,
           "verdictWithoutFlaggedDiffers": 12,
           "listed": 205,
-          "minFteYears": 29290,
+          "minFteYears": 29329,
           "stateLists": 34,
           "stateListsDisplayMin": 13
         },
         "criminal_xmvt": {
-          "natl": 15.69,
+          "natl": 15.67,
           "rated": 1862,
           "byWhy": {
             "none": 1560,
@@ -1754,15 +1756,15 @@
             "nd": 761
           },
           "peerVerdicts": {
-            "above": 230,
-            "below": 355,
+            "above": 231,
+            "below": 354,
             "nd": 1250,
             "undetermined": 27
           },
-          "withFlags": 81,
+          "withFlags": 82,
           "verdictWithoutFlaggedDiffers": 30,
           "listed": 527,
-          "minFteYears": 12750,
+          "minFteYears": 12762,
           "stateLists": 46,
           "stateListsDisplayMin": 31
         },
@@ -1795,12 +1797,12 @@
           "withFlags": 28,
           "verdictWithoutFlaggedDiffers": 15,
           "listed": 146,
-          "minFteYears": 39145,
+          "minFteYears": 39165,
           "stateLists": 25,
           "stateListsDisplayMin": 11
         },
         "rape": {
-          "natl": 4.87,
+          "natl": 4.86,
           "rated": 1862,
           "byWhy": {
             "none": 1568,
@@ -1809,24 +1811,24 @@
             "shared": 21
           },
           "verdicts": {
-            "above": 206,
-            "below": 403,
-            "nd": 1228,
-            "undetermined": 25
+            "above": 252,
+            "below": 420,
+            "nd": 1168,
+            "undetermined": 22
           },
           "verdictsNoReason": {
-            "above": 195,
-            "below": 336,
-            "nd": 1037
+            "above": 230,
+            "below": 352,
+            "nd": 986
           },
           "peerVerdicts": {
-            "above": 130,
-            "below": 169,
-            "nd": 1551,
-            "undetermined": 12
+            "above": 158,
+            "below": 190,
+            "nd": 1500,
+            "undetermined": 14
           },
-          "withFlags": 12,
-          "verdictWithoutFlaggedDiffers": 7
+          "withFlags": 13,
+          "verdictWithoutFlaggedDiffers": 9
         },
         "fondling": {
           "natl": 3.27,
@@ -1839,14 +1841,14 @@
           },
           "verdicts": {
             "above": 178,
-            "below": 205,
-            "nd": 1462,
+            "below": 204,
+            "nd": 1463,
             "undetermined": 17
           },
           "verdictsNoReason": {
             "above": 160,
-            "below": 179,
-            "nd": 1227
+            "below": 178,
+            "nd": 1228
           },
           "peerVerdicts": {
             "above": 114,
@@ -1896,21 +1898,21 @@
             "shared": 15
           },
           "verdicts": {
-            "above": 99,
-            "below": 62,
-            "nd": 1693,
-            "undetermined": 8
+            "above": 94,
+            "below": 59,
+            "nd": 1702,
+            "undetermined": 7
           },
           "verdictsNoReason": {
-            "above": 85,
-            "below": 58,
-            "nd": 1423
+            "above": 81,
+            "below": 55,
+            "nd": 1430
           },
           "peerVerdicts": {
-            "above": 88,
+            "above": 85,
             "below": 58,
-            "nd": 1712,
-            "undetermined": 4
+            "nd": 1714,
+            "undetermined": 5
           },
           "withFlags": 18,
           "verdictWithoutFlaggedDiffers": 8
@@ -1937,15 +1939,15 @@
           },
           "peerVerdicts": {
             "above": 157,
-            "below": 335,
-            "nd": 1347,
+            "below": 334,
+            "nd": 1348,
             "undetermined": 23
           },
           "withFlags": 44,
           "verdictWithoutFlaggedDiffers": 21
         },
         "dating_violence": {
-          "natl": 2.99,
+          "natl": 2.98,
           "rated": 1862,
           "byWhy": {
             "none": 1570,
@@ -1956,8 +1958,8 @@
           "verdicts": {
             "above": 185,
             "below": 244,
-            "nd": 1414,
-            "undetermined": 19
+            "nd": 1415,
+            "undetermined": 18
           },
           "verdictsNoReason": {
             "above": 163,
@@ -1965,9 +1967,9 @@
             "nd": 1198
           },
           "peerVerdicts": {
-            "above": 156,
+            "above": 157,
             "below": 163,
-            "nd": 1533,
+            "nd": 1532,
             "undetermined": 10
           },
           "withFlags": 20,
@@ -1995,8 +1997,8 @@
           },
           "peerVerdicts": {
             "above": 87,
-            "below": 155,
-            "nd": 1615,
+            "below": 153,
+            "nd": 1617,
             "undetermined": 5
           },
           "withFlags": 16,
@@ -2005,7 +2007,7 @@
       },
       "2022-2024": {
         "violent": {
-          "natl": 6.94,
+          "natl": 6.92,
           "rated": 1872,
           "byWhy": {
             "none": 1562,
@@ -2016,8 +2018,8 @@
           "verdicts": {
             "above": 231,
             "below": 465,
-            "nd": 1130,
-            "undetermined": 46
+            "nd": 1131,
+            "undetermined": 45
           },
           "verdictsNoReason": {
             "above": 211,
@@ -2026,19 +2028,19 @@
           },
           "peerVerdicts": {
             "above": 174,
-            "below": 246,
-            "nd": 1432,
-            "undetermined": 20
+            "below": 243,
+            "nd": 1436,
+            "undetermined": 19
           },
           "withFlags": 37,
           "verdictWithoutFlaggedDiffers": 14,
           "listed": 206,
-          "minFteYears": 28838,
+          "minFteYears": 28905,
           "stateLists": 35,
           "stateListsDisplayMin": 14
         },
         "criminal_xmvt": {
-          "natl": 15.9,
+          "natl": 15.86,
           "rated": 1872,
           "byWhy": {
             "none": 1564,
@@ -2047,31 +2049,31 @@
             "shared": 24
           },
           "verdicts": {
-            "above": 266,
+            "above": 268,
             "below": 619,
-            "nd": 944,
-            "undetermined": 43
+            "nd": 943,
+            "undetermined": 42
           },
           "verdictsNoReason": {
-            "above": 241,
+            "above": 243,
             "below": 516,
-            "nd": 807
+            "nd": 805
           },
           "peerVerdicts": {
             "above": 230,
-            "below": 364,
-            "nd": 1243,
-            "undetermined": 35
+            "below": 362,
+            "nd": 1244,
+            "undetermined": 36
           },
           "withFlags": 86,
           "verdictWithoutFlaggedDiffers": 25,
           "listed": 530,
-          "minFteYears": 12581,
+          "minFteYears": 12608,
           "stateLists": 45,
           "stateListsDisplayMin": 32
         },
         "burglary": {
-          "natl": 5.17,
+          "natl": 5.16,
           "rated": 1872,
           "byWhy": {
             "none": 1572,
@@ -2081,30 +2083,30 @@
           },
           "verdicts": {
             "above": 178,
-            "below": 317,
-            "nd": 1347,
+            "below": 315,
+            "nd": 1349,
             "undetermined": 30
           },
           "verdictsNoReason": {
             "above": 150,
-            "below": 288,
-            "nd": 1134
+            "below": 286,
+            "nd": 1136
           },
           "peerVerdicts": {
-            "above": 173,
-            "below": 256,
+            "above": 174,
+            "below": 253,
             "nd": 1426,
-            "undetermined": 17
+            "undetermined": 19
           },
           "withFlags": 30,
           "verdictWithoutFlaggedDiffers": 20,
           "listed": 146,
-          "minFteYears": 38672,
+          "minFteYears": 38733,
           "stateLists": 24,
           "stateListsDisplayMin": 11
         },
         "rape": {
-          "natl": 4.75,
+          "natl": 4.73,
           "rated": 1872,
           "byWhy": {
             "none": 1570,
@@ -2113,27 +2115,27 @@
             "shared": 23
           },
           "verdicts": {
-            "above": 203,
-            "below": 378,
-            "nd": 1263,
-            "undetermined": 28
+            "above": 243,
+            "below": 394,
+            "nd": 1211,
+            "undetermined": 24
           },
           "verdictsNoReason": {
-            "above": 191,
-            "below": 319,
-            "nd": 1060
+            "above": 226,
+            "below": 333,
+            "nd": 1011
           },
           "peerVerdicts": {
-            "above": 125,
-            "below": 165,
-            "nd": 1568,
-            "undetermined": 14
+            "above": 165,
+            "below": 187,
+            "nd": 1511,
+            "undetermined": 9
           },
           "withFlags": 17,
-          "verdictWithoutFlaggedDiffers": 11
+          "verdictWithoutFlaggedDiffers": 12
         },
         "fondling": {
-          "natl": 3.26,
+          "natl": 3.25,
           "rated": 1872,
           "byWhy": {
             "none": 1569,
@@ -2142,9 +2144,9 @@
             "shared": 19
           },
           "verdicts": {
-            "above": 181,
+            "above": 180,
             "below": 174,
-            "nd": 1492,
+            "nd": 1493,
             "undetermined": 25
           },
           "verdictsNoReason": {
@@ -2155,8 +2157,8 @@
           "peerVerdicts": {
             "above": 126,
             "below": 102,
-            "nd": 1636,
-            "undetermined": 8
+            "nd": 1637,
+            "undetermined": 7
           },
           "withFlags": 26,
           "verdictWithoutFlaggedDiffers": 19
@@ -2194,33 +2196,33 @@
           "natl": 1.75,
           "rated": 1872,
           "byWhy": {
-            "none": 1571,
+            "none": 1570,
             "online": 279,
             "medical_campus": 7,
-            "shared": 15
+            "shared": 16
           },
           "verdicts": {
-            "above": 103,
-            "below": 77,
-            "nd": 1682,
+            "above": 96,
+            "below": 75,
+            "nd": 1691,
             "undetermined": 10
           },
           "verdictsNoReason": {
-            "above": 87,
-            "below": 72,
-            "nd": 1412
+            "above": 81,
+            "below": 70,
+            "nd": 1419
           },
           "peerVerdicts": {
-            "above": 96,
-            "below": 71,
-            "nd": 1695,
-            "undetermined": 10
+            "above": 93,
+            "below": 67,
+            "nd": 1701,
+            "undetermined": 11
           },
           "withFlags": 21,
           "verdictWithoutFlaggedDiffers": 8
         },
         "stalking": {
-          "natl": 7.15,
+          "natl": 7.14,
           "rated": 1872,
           "byWhy": {
             "none": 1572,
@@ -2252,27 +2254,27 @@
           "natl": 3.35,
           "rated": 1872,
           "byWhy": {
-            "none": 1574,
+            "none": 1573,
             "online": 279,
-            "medical_campus": 0,
+            "medical_campus": 1,
             "shared": 19
           },
           "verdicts": {
             "above": 186,
-            "below": 285,
-            "nd": 1372,
+            "below": 284,
+            "nd": 1373,
             "undetermined": 29
           },
           "verdictsNoReason": {
             "above": 168,
-            "below": 254,
-            "nd": 1152
+            "below": 252,
+            "nd": 1153
           },
           "peerVerdicts": {
             "above": 163,
-            "below": 186,
-            "nd": 1514,
-            "undetermined": 9
+            "below": 183,
+            "nd": 1516,
+            "undetermined": 10
           },
           "withFlags": 30,
           "verdictWithoutFlaggedDiffers": 16
@@ -2309,9 +2311,9 @@
       }
     },
     "flags": {
-      "total": 1866,
+      "total": 1867,
       "byGeo": {
-        "On-campus": 1364,
+        "On-campus": 1365,
         "Non-campus": 228,
         "Public property": 274
       },
@@ -2322,7 +2324,7 @@
         "2018": 117,
         "2019": 109,
         "2020": 70,
-        "2021": 113,
+        "2021": 114,
         "2022": 227,
         "2023": 298,
         "2024": 339
@@ -2334,7 +2336,7 @@
         "domestic_violence": 148,
         "fondling": 121,
         "motor_vehicle_theft": 489,
-        "rape": 96,
+        "rape": 97,
         "robbery": 66,
         "stalking": 210
       }
@@ -4421,7 +4423,7 @@
       "schoolCount": 20
     }
   ],
-  "lastUpdated": "2026-11-15T01:48:56.963373",
+  "lastUpdated": "2026-11-15T03:07:08.599342",
   "dataSource": "U.S. Department of Education Campus Safety & Security",
   "dataSourceUrl": "https://ope.ed.gov/campussafety/",
   "coverage": "2015-2024",
