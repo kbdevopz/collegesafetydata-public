@@ -127,7 +127,7 @@
         "online": 33,
         "rateRanked": true,
         "onlineYear": 2019,
-        "rateFte": 5684,
+        "rateFte": 7040,
         "counts": {
           "criminal": 18,
           "violent": 8,
@@ -148,9 +148,44 @@
       "2022": {
         "campuses": 7,
         "online": 40,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2022 figures of this institution's campus 224554007 are also reported, identically, by campus 224615001 of another institution (a shared campus) and count once, under that campus, while the students on it are in each institution's own FTE. No rate is shown for that year.",
-        "rateFte": 5119,
+        "rateRanked": true,
+        "rateFte": 6617,
+        "fteUncertain": {
+          "share": 5119,
+          "partTimeFirst": 6617
+        },
+        "sharedOut": {
+          "criminal": 3,
+          "property": 1,
+          "all": 16,
+          "arson": 1,
+          "drug_arrest": 4,
+          "drug_discipline": 1,
+          "fondling": 2,
+          "liquor_arrest": 1,
+          "stalking": 6,
+          "weapons_discipline": 1
+        },
+        "notRanked": {
+          "criminal": [
+            "shared"
+          ],
+          "property": [
+            "shared"
+          ],
+          "all": [
+            "shared"
+          ],
+          "fondling": [
+            "shared"
+          ],
+          "stalking": [
+            "shared"
+          ],
+          "weapons_discipline": [
+            "shared"
+          ]
+        },
         "counts": {
           "criminal": 18,
           "violent": 6,
@@ -176,7 +211,11 @@
         "campuses": 6,
         "online": 39,
         "rateRanked": true,
-        "rateFte": 5524,
+        "rateFte": 7101,
+        "fteUncertain": {
+          "share": 5524,
+          "partTimeFirst": 7101
+        },
         "counts": {
           "criminal": 25,
           "violent": 9,
@@ -200,7 +239,11 @@
         "campuses": 6,
         "online": 45,
         "rateRanked": true,
-        "rateFte": 5315,
+        "rateFte": 7195,
+        "fteUncertain": {
+          "share": 5315,
+          "partTimeFirst": 7195
+        },
         "counts": {
           "criminal": 29,
           "violent": 12,

@@ -34,14 +34,1272 @@
       "arson"
     ],
     "ciLevel": 0.95,
+    "onlineUncertainRatio": [
+      5,
+      4
+    ],
+    "medicalShare": [
+      1,
+      4
+    ],
+    "sharedShare": [
+      1,
+      20
+    ],
+    "dispersion": {
+      "years": [
+        2015,
+        2019
+      ],
+      "minMean": 20,
+      "groups": {
+        "violent": {
+          "k": 13.3,
+          "estimate": 13.323544601479497,
+          "phi": 3.44,
+          "units": 89
+        },
+        "criminal": {
+          "k": 16.5,
+          "estimate": 16.50092082524047,
+          "phi": 3.3,
+          "units": 375
+        },
+        "property": {
+          "k": 12.8,
+          "estimate": 12.775991298606707,
+          "phi": 3.75,
+          "units": 146
+        },
+        "all": {
+          "k": 13.4,
+          "estimate": 13.40857827913011,
+          "phi": 9.3,
+          "units": 1262
+        },
+        "crime_offense": {
+          "k": 7.3,
+          "estimate": 7.273132313267047,
+          "phi": 4.97,
+          "units": 212
+        },
+        "enforcement_offense": {
+          "k": 7.7,
+          "estimate": 7.658180118608102,
+          "phi": 9.91,
+          "units": 1877
+        }
+      },
+      "kByCode": {
+        "aggravated_assault": 7.3,
+        "arson": 7.3,
+        "burglary": 7.3,
+        "dating_violence": 7.3,
+        "domestic_violence": 7.3,
+        "drug_arrest": 7.7,
+        "drug_discipline": 7.7,
+        "fondling": 7.3,
+        "incest": 7.3,
+        "liquor_arrest": 7.7,
+        "liquor_discipline": 7.7,
+        "motor_vehicle_theft": 7.3,
+        "murder": 7.3,
+        "negligent_manslaughter": 7.3,
+        "rape": 7.3,
+        "robbery": 7.3,
+        "stalking": 7.3,
+        "statutory_rape": 7.3,
+        "weapons_arrest": 7.7,
+        "weapons_discipline": 7.7,
+        "criminal": 16.5,
+        "violent": 13.3,
+        "property": 12.8,
+        "all": 13.4
+      }
+    },
+    "rankRanges": {
+      "draws": 2000,
+      "seed": 20151024
+    },
     "spike": {
       "minCount": 20,
       "factor": 3,
+      "maxFactor": 2,
+      "p": 0.001,
       "minOtherYears": 3
+    },
+    "countFlag": {
+      "minCount": 20,
+      "factor": 3
     },
     "onlineShareYear": {
       "2020": 2019,
       "2021": 2019
+    }
+  },
+  "rateStats": {
+    "byYear": {
+      "2015": {
+        "listed": 2306,
+        "excluded": 89,
+        "excludedBy": {
+          "hospital": 67,
+          "medical": 18,
+          "listed": 2,
+          "merger": 1,
+          "family": 1
+        },
+        "fteUncertain": 66,
+        "abroad": 96,
+        "violent": {
+          "ranked": 88,
+          "few": 1302,
+          "notRanked": {
+            "online": 41,
+            "medical_campus": 6,
+            "shared": 18,
+            "few": 56,
+            "hospital": 62,
+            "medical": 8,
+            "listed": 1,
+            "merger": 0,
+            "family": 1
+          },
+          "medicalNote": 3,
+          "sharedNote": 0,
+          "spikes": 2,
+          "medianRange": 49.0
+        },
+        "criminal": {
+          "ranked": 388,
+          "few": 1383,
+          "notRanked": {
+            "online": 59,
+            "medical_campus": 6,
+            "shared": 19,
+            "few": 60,
+            "hospital": 64,
+            "medical": 12,
+            "listed": 2,
+            "merger": 1,
+            "family": 1
+          },
+          "medicalNote": 3,
+          "sharedNote": 0,
+          "spikes": 10,
+          "medianRange": 159.5
+        },
+        "property": {
+          "ranked": 183,
+          "few": 1371,
+          "notRanked": {
+            "online": 49,
+            "medical_campus": 6,
+            "shared": 16,
+            "few": 58,
+            "hospital": 61,
+            "medical": 10,
+            "listed": 2,
+            "merger": 1,
+            "family": 1
+          },
+          "medicalNote": 3,
+          "sharedNote": 1,
+          "spikes": 12,
+          "medianRange": 80
+        },
+        "rankedEntries": 4103,
+        "spikes": 182,
+        "countFlags": {
+          "all": 3,
+          "violent": 2,
+          "criminal": 11,
+          "property": 6
+        }
+      },
+      "2016": {
+        "listed": 2273,
+        "excluded": 90,
+        "excludedBy": {
+          "hospital": 65,
+          "medical": 19,
+          "listed": 2,
+          "merger": 4,
+          "family": 0
+        },
+        "fteUncertain": 72,
+        "abroad": 102,
+        "violent": {
+          "ranked": 91,
+          "few": 1304,
+          "notRanked": {
+            "online": 40,
+            "medical_campus": 5,
+            "shared": 20,
+            "few": 54,
+            "hospital": 62,
+            "medical": 7,
+            "listed": 2,
+            "merger": 2,
+            "family": 0
+          },
+          "medicalNote": 1,
+          "sharedNote": 0,
+          "spikes": 0,
+          "medianRange": 50
+        },
+        "criminal": {
+          "ranked": 413,
+          "few": 1339,
+          "notRanked": {
+            "online": 60,
+            "medical_campus": 4,
+            "shared": 21,
+            "few": 61,
+            "hospital": 65,
+            "medical": 12,
+            "listed": 2,
+            "merger": 4,
+            "family": 0
+          },
+          "medicalNote": 4,
+          "sharedNote": 1,
+          "spikes": 4,
+          "medianRange": 165
+        },
+        "property": {
+          "ranked": 187,
+          "few": 1328,
+          "notRanked": {
+            "online": 48,
+            "medical_campus": 2,
+            "shared": 17,
+            "few": 56,
+            "hospital": 64,
+            "medical": 11,
+            "listed": 2,
+            "merger": 4,
+            "family": 0
+          },
+          "medicalNote": 5,
+          "sharedNote": 0,
+          "spikes": 7,
+          "medianRange": 82
+        },
+        "rankedEntries": 4094,
+        "spikes": 59,
+        "countFlags": {
+          "all": 6,
+          "violent": 3,
+          "criminal": 5,
+          "property": 1
+        }
+      },
+      "2017": {
+        "listed": 2243,
+        "excluded": 96,
+        "excludedBy": {
+          "hospital": 70,
+          "medical": 19,
+          "listed": 2,
+          "merger": 5,
+          "family": 0
+        },
+        "fteUncertain": 77,
+        "abroad": 108,
+        "violent": {
+          "ranked": 100,
+          "few": 1296,
+          "notRanked": {
+            "online": 53,
+            "medical_campus": 6,
+            "shared": 12,
+            "few": 60,
+            "hospital": 60,
+            "medical": 11,
+            "listed": 1,
+            "merger": 3,
+            "family": 0
+          },
+          "medicalNote": 1,
+          "sharedNote": 0,
+          "spikes": 3,
+          "medianRange": 50.0
+        },
+        "criminal": {
+          "ranked": 418,
+          "few": 1318,
+          "notRanked": {
+            "online": 63,
+            "medical_campus": 5,
+            "shared": 16,
+            "few": 63,
+            "hospital": 65,
+            "medical": 13,
+            "listed": 2,
+            "merger": 5,
+            "family": 0
+          },
+          "medicalNote": 3,
+          "sharedNote": 0,
+          "spikes": 5,
+          "medianRange": 170.0
+        },
+        "property": {
+          "ranked": 154,
+          "few": 1328,
+          "notRanked": {
+            "online": 54,
+            "medical_campus": 5,
+            "shared": 13,
+            "few": 58,
+            "hospital": 61,
+            "medical": 11,
+            "listed": 2,
+            "merger": 5,
+            "family": 0
+          },
+          "medicalNote": 4,
+          "sharedNote": 0,
+          "spikes": 5,
+          "medianRange": 77.0
+        },
+        "rankedEntries": 4036,
+        "spikes": 64,
+        "countFlags": {
+          "all": 8,
+          "violent": 4,
+          "criminal": 5,
+          "property": 2
+        }
+      },
+      "2018": {
+        "listed": 2220,
+        "excluded": 91,
+        "excludedBy": {
+          "hospital": 68,
+          "medical": 22,
+          "listed": 1,
+          "merger": 0,
+          "family": 0
+        },
+        "fteUncertain": 93,
+        "abroad": 108,
+        "violent": {
+          "ranked": 89,
+          "few": 1263,
+          "notRanked": {
+            "online": 62,
+            "medical_campus": 6,
+            "shared": 22,
+            "few": 76,
+            "hospital": 62,
+            "medical": 14,
+            "listed": 1,
+            "merger": 0,
+            "family": 0
+          },
+          "medicalNote": 3,
+          "sharedNote": 1,
+          "spikes": 0,
+          "medianRange": 49
+        },
+        "criminal": {
+          "ranked": 362,
+          "few": 1329,
+          "notRanked": {
+            "online": 77,
+            "medical_campus": 4,
+            "shared": 24,
+            "few": 81,
+            "hospital": 65,
+            "medical": 18,
+            "listed": 1,
+            "merger": 0,
+            "family": 0
+          },
+          "medicalNote": 5,
+          "sharedNote": 2,
+          "spikes": 2,
+          "medianRange": 159.0
+        },
+        "property": {
+          "ranked": 122,
+          "few": 1294,
+          "notRanked": {
+            "online": 70,
+            "medical_campus": 3,
+            "shared": 21,
+            "few": 78,
+            "hospital": 62,
+            "medical": 16,
+            "listed": 1,
+            "merger": 0,
+            "family": 0
+          },
+          "medicalNote": 4,
+          "sharedNote": 1,
+          "spikes": 1,
+          "medianRange": 60.5
+        },
+        "rankedEntries": 3720,
+        "spikes": 35,
+        "countFlags": {
+          "all": 7,
+          "violent": 3,
+          "criminal": 5,
+          "property": 3
+        }
+      },
+      "2019": {
+        "listed": 2210,
+        "excluded": 103,
+        "excludedBy": {
+          "hospital": 73,
+          "medical": 22,
+          "listed": 1,
+          "merger": 7,
+          "family": 0
+        },
+        "fteUncertain": 95,
+        "abroad": 107,
+        "violent": {
+          "ranked": 95,
+          "few": 1204,
+          "notRanked": {
+            "online": 56,
+            "medical_campus": 4,
+            "shared": 17,
+            "few": 66,
+            "hospital": 64,
+            "medical": 13,
+            "listed": 1,
+            "merger": 3,
+            "family": 0
+          },
+          "medicalNote": 3,
+          "sharedNote": 0,
+          "spikes": 0,
+          "medianRange": 55
+        },
+        "criminal": {
+          "ranked": 348,
+          "few": 1317,
+          "notRanked": {
+            "online": 73,
+            "medical_campus": 4,
+            "shared": 16,
+            "few": 67,
+            "hospital": 69,
+            "medical": 18,
+            "listed": 1,
+            "merger": 4,
+            "family": 0
+          },
+          "medicalNote": 4,
+          "sharedNote": 1,
+          "spikes": 5,
+          "medianRange": 145.0
+        },
+        "property": {
+          "ranked": 117,
+          "few": 1243,
+          "notRanked": {
+            "online": 59,
+            "medical_campus": 5,
+            "shared": 13,
+            "few": 63,
+            "hospital": 67,
+            "medical": 16,
+            "listed": 1,
+            "merger": 4,
+            "family": 0
+          },
+          "medicalNote": 1,
+          "sharedNote": 1,
+          "spikes": 2,
+          "medianRange": 56
+        },
+        "rankedEntries": 3558,
+        "spikes": 50,
+        "countFlags": {
+          "all": 8,
+          "violent": 10,
+          "criminal": 8,
+          "property": 2
+        }
+      },
+      "2020": {
+        "listed": 2154,
+        "excluded": 96,
+        "excludedBy": {
+          "hospital": 71,
+          "medical": 23,
+          "listed": 2,
+          "merger": 0,
+          "family": 0
+        },
+        "fteUncertain": 100,
+        "abroad": 104,
+        "violent": {
+          "ranked": 50,
+          "few": 1012,
+          "notRanked": {
+            "online": 50,
+            "medical_campus": 5,
+            "shared": 15,
+            "few": 62,
+            "hospital": 60,
+            "medical": 12,
+            "listed": 2,
+            "merger": 0,
+            "family": 0
+          },
+          "medicalNote": 1,
+          "sharedNote": 1,
+          "spikes": 2,
+          "medianRange": 21.0
+        },
+        "criminal": {
+          "ranked": 204,
+          "few": 1243,
+          "notRanked": {
+            "online": 74,
+            "medical_campus": 5,
+            "shared": 18,
+            "few": 75,
+            "hospital": 65,
+            "medical": 19,
+            "listed": 2,
+            "merger": 0,
+            "family": 0
+          },
+          "medicalNote": 2,
+          "sharedNote": 0,
+          "spikes": 3,
+          "medianRange": 82.0
+        },
+        "property": {
+          "ranked": 83,
+          "few": 1100,
+          "notRanked": {
+            "online": 59,
+            "medical_campus": 4,
+            "shared": 15,
+            "few": 66,
+            "hospital": 64,
+            "medical": 16,
+            "listed": 2,
+            "merger": 0,
+            "family": 0
+          },
+          "medicalNote": 3,
+          "sharedNote": 1,
+          "spikes": 0,
+          "medianRange": 41
+        },
+        "rankedEntries": 2549,
+        "spikes": 20,
+        "countFlags": {
+          "all": 2,
+          "violent": 3,
+          "criminal": 5,
+          "property": 3
+        }
+      },
+      "2021": {
+        "listed": 2131,
+        "excluded": 100,
+        "excludedBy": {
+          "hospital": 73,
+          "medical": 23,
+          "listed": 1,
+          "merger": 3,
+          "family": 0
+        },
+        "fteUncertain": 89,
+        "abroad": 101,
+        "violent": {
+          "ranked": 74,
+          "few": 1050,
+          "notRanked": {
+            "online": 48,
+            "medical_campus": 5,
+            "shared": 16,
+            "few": 53,
+            "hospital": 64,
+            "medical": 14,
+            "listed": 1,
+            "merger": 0,
+            "family": 0
+          },
+          "medicalNote": 2,
+          "sharedNote": 0,
+          "spikes": 2,
+          "medianRange": 35.5
+        },
+        "criminal": {
+          "ranked": 245,
+          "few": 1239,
+          "notRanked": {
+            "online": 72,
+            "medical_campus": 5,
+            "shared": 16,
+            "few": 70,
+            "hospital": 67,
+            "medical": 20,
+            "listed": 1,
+            "merger": 0,
+            "family": 0
+          },
+          "medicalNote": 2,
+          "sharedNote": 0,
+          "spikes": 5,
+          "medianRange": 100
+        },
+        "property": {
+          "ranked": 104,
+          "few": 1097,
+          "notRanked": {
+            "online": 58,
+            "medical_campus": 5,
+            "shared": 15,
+            "few": 59,
+            "hospital": 66,
+            "medical": 19,
+            "listed": 1,
+            "merger": 0,
+            "family": 0
+          },
+          "medicalNote": 2,
+          "sharedNote": 0,
+          "spikes": 2,
+          "medianRange": 48.0
+        },
+        "rankedEntries": 2685,
+        "spikes": 30,
+        "countFlags": {
+          "all": 9,
+          "violent": 5,
+          "criminal": 11,
+          "property": 4
+        }
+      },
+      "2022": {
+        "listed": 2041,
+        "excluded": 97,
+        "excludedBy": {
+          "hospital": 72,
+          "medical": 22,
+          "listed": 1,
+          "merger": 2,
+          "family": 0
+        },
+        "fteUncertain": 257,
+        "abroad": 96,
+        "violent": {
+          "ranked": 97,
+          "few": 967,
+          "notRanked": {
+            "online": 129,
+            "medical_campus": 4,
+            "shared": 17,
+            "few": 136,
+            "hospital": 64,
+            "medical": 12,
+            "listed": 1,
+            "merger": 1,
+            "family": 0
+          },
+          "medicalNote": 3,
+          "sharedNote": 0,
+          "spikes": 1,
+          "medianRange": 49
+        },
+        "criminal": {
+          "ranked": 283,
+          "few": 1071,
+          "notRanked": {
+            "online": 197,
+            "medical_campus": 4,
+            "shared": 20,
+            "few": 179,
+            "hospital": 68,
+            "medical": 16,
+            "listed": 1,
+            "merger": 1,
+            "family": 0
+          },
+          "medicalNote": 4,
+          "sharedNote": 1,
+          "spikes": 1,
+          "medianRange": 118
+        },
+        "property": {
+          "ranked": 120,
+          "few": 1005,
+          "notRanked": {
+            "online": 168,
+            "medical_campus": 4,
+            "shared": 19,
+            "few": 171,
+            "hospital": 64,
+            "medical": 15,
+            "listed": 1,
+            "merger": 1,
+            "family": 0
+          },
+          "medicalNote": 4,
+          "sharedNote": 0,
+          "spikes": 1,
+          "medianRange": 54.0
+        },
+        "rankedEntries": 2818,
+        "spikes": 18,
+        "countFlags": {
+          "all": 14,
+          "violent": 8,
+          "criminal": 13,
+          "property": 3
+        }
+      },
+      "2023": {
+        "listed": 2058,
+        "excluded": 94,
+        "excludedBy": {
+          "hospital": 71,
+          "medical": 21,
+          "listed": 1,
+          "merger": 1,
+          "family": 0
+        },
+        "fteUncertain": 218,
+        "abroad": 96,
+        "violent": {
+          "ranked": 80,
+          "few": 1020,
+          "notRanked": {
+            "online": 115,
+            "medical_campus": 5,
+            "shared": 26,
+            "few": 130,
+            "hospital": 65,
+            "medical": 15,
+            "listed": 1,
+            "merger": 1,
+            "family": 0
+          },
+          "medicalNote": 1,
+          "sharedNote": 0,
+          "spikes": 3,
+          "medianRange": 43.5
+        },
+        "criminal": {
+          "ranked": 302,
+          "few": 1097,
+          "notRanked": {
+            "online": 167,
+            "medical_campus": 5,
+            "shared": 26,
+            "few": 161,
+            "hospital": 67,
+            "medical": 20,
+            "listed": 1,
+            "merger": 1,
+            "family": 0
+          },
+          "medicalNote": 2,
+          "sharedNote": 0,
+          "spikes": 5,
+          "medianRange": 131.5
+        },
+        "property": {
+          "ranked": 146,
+          "few": 1016,
+          "notRanked": {
+            "online": 138,
+            "medical_campus": 3,
+            "shared": 20,
+            "few": 142,
+            "hospital": 64,
+            "medical": 16,
+            "listed": 1,
+            "merger": 0,
+            "family": 0
+          },
+          "medicalNote": 2,
+          "sharedNote": 1,
+          "spikes": 3,
+          "medianRange": 63.5
+        },
+        "rankedEntries": 2860,
+        "spikes": 34,
+        "countFlags": {
+          "all": 12,
+          "violent": 3,
+          "criminal": 9,
+          "property": 10
+        }
+      },
+      "2024": {
+        "listed": 2076,
+        "excluded": 94,
+        "excludedBy": {
+          "hospital": 72,
+          "medical": 21,
+          "listed": 1,
+          "merger": 0,
+          "family": 0
+        },
+        "fteUncertain": 221,
+        "abroad": 95,
+        "violent": {
+          "ranked": 79,
+          "few": 1000,
+          "notRanked": {
+            "online": 109,
+            "medical_campus": 3,
+            "shared": 19,
+            "few": 118,
+            "hospital": 62,
+            "medical": 13,
+            "listed": 1,
+            "merger": 0,
+            "family": 0
+          },
+          "medicalNote": 3,
+          "sharedNote": 0,
+          "spikes": 1,
+          "medianRange": 40
+        },
+        "criminal": {
+          "ranked": 293,
+          "few": 1088,
+          "notRanked": {
+            "online": 158,
+            "medical_campus": 4,
+            "shared": 23,
+            "few": 151,
+            "hospital": 65,
+            "medical": 16,
+            "listed": 1,
+            "merger": 0,
+            "family": 0
+          },
+          "medicalNote": 2,
+          "sharedNote": 0,
+          "spikes": 4,
+          "medianRange": 134
+        },
+        "property": {
+          "ranked": 152,
+          "few": 978,
+          "notRanked": {
+            "online": 126,
+            "medical_campus": 3,
+            "shared": 21,
+            "few": 133,
+            "hospital": 63,
+            "medical": 14,
+            "listed": 1,
+            "merger": 0,
+            "family": 0
+          },
+          "medicalNote": 3,
+          "sharedNote": 1,
+          "spikes": 7,
+          "medianRange": 69.0
+        },
+        "rankedEntries": 2839,
+        "spikes": 63,
+        "countFlags": {
+          "all": 11,
+          "violent": 6,
+          "criminal": 19,
+          "property": 7
+        }
+      }
+    },
+    "institutionYears": {
+      "rules": {
+        "hospital": {
+          "institutionYears": 882,
+          "listed": 702
+        },
+        "medical": {
+          "institutionYears": 335,
+          "listed": 210
+        },
+        "listed": {
+          "institutionYears": 15,
+          "listed": 14
+        },
+        "merger": {
+          "institutionYears": 30,
+          "listed": 23
+        },
+        "family": {
+          "institutionYears": 57,
+          "listed": 1
+        }
+      },
+      "pooled": {
+        "merger": 31,
+        "shared": 46
+      },
+      "byYear": {
+        "2015": {
+          "listed": 2310,
+          "excluded": 89,
+          "fteUncertain": 66,
+          "abroad": 96
+        },
+        "2016": {
+          "listed": 2276,
+          "excluded": 90,
+          "fteUncertain": 72,
+          "abroad": 102
+        },
+        "2017": {
+          "listed": 2247,
+          "excluded": 96,
+          "fteUncertain": 77,
+          "abroad": 108
+        },
+        "2018": {
+          "listed": 2224,
+          "excluded": 91,
+          "fteUncertain": 93,
+          "abroad": 108
+        },
+        "2019": {
+          "listed": 2214,
+          "excluded": 103,
+          "fteUncertain": 95,
+          "abroad": 107
+        },
+        "2020": {
+          "listed": 2158,
+          "excluded": 96,
+          "fteUncertain": 100,
+          "abroad": 104
+        },
+        "2021": {
+          "listed": 2135,
+          "excluded": 100,
+          "fteUncertain": 89,
+          "abroad": 101
+        },
+        "2022": {
+          "listed": 2045,
+          "excluded": 97,
+          "fteUncertain": 257,
+          "abroad": 96
+        },
+        "2023": {
+          "listed": 2061,
+          "excluded": 94,
+          "fteUncertain": 218,
+          "abroad": 96
+        },
+        "2024": {
+          "listed": 2078,
+          "excluded": 94,
+          "fteUncertain": 221,
+          "abroad": 95
+        }
+      },
+      "onlineOwnYear": {
+        "2020": {
+          "all": 66,
+          "listed": 1
+        },
+        "2021": {
+          "all": 102,
+          "listed": 2
+        }
+      }
+    },
+    "countsOnly": {
+      "averagePerYear": {
+        "aggravated_assault": 4173.7,
+        "arson": 653.8,
+        "burglary": 9780.9,
+        "dating_violence": 4241.1,
+        "domestic_violence": 4287.6,
+        "drug_arrest": 17898.4,
+        "drug_discipline": 40627.8,
+        "fondling": 4868.1,
+        "incest": 2.5,
+        "liquor_arrest": 14422.7,
+        "liquor_discipline": 127820.2,
+        "motor_vehicle_theft": 7576.7,
+        "murder": 48.6,
+        "negligent_manslaughter": 6.1,
+        "rape": 6609.4,
+        "robbery": 2213.4,
+        "stalking": 7539.2,
+        "statutory_rape": 78.7,
+        "weapons_arrest": 2008.4,
+        "weapons_discipline": 1286.6
+      },
+      "reachingMinCount": {
+        "arson": 4,
+        "incest": 0,
+        "murder": 0,
+        "negligent_manslaughter": 0,
+        "statutory_rape": 3
+      }
+    },
+    "intervalExamples": {
+      "criminal": {
+        "0": [
+          0.0,
+          3.69
+        ],
+        "20": [
+          9.16,
+          37.91
+        ]
+      },
+      "violent": {
+        "0": [
+          0.0,
+          3.69
+        ],
+        "20": [
+          8.63,
+          39.43
+        ]
+      },
+      "property": {
+        "0": [
+          0.0,
+          3.69
+        ],
+        "20": [
+          8.53,
+          39.73
+        ]
+      },
+      "all": {
+        "0": [
+          0.0,
+          3.69
+        ],
+        "20": [
+          8.65,
+          39.37
+        ]
+      }
+    },
+    "countFlagLimits": {
+      "2015": {
+        "aggravated_assault": 126.65,
+        "all": 5529.12,
+        "burglary": 191.14,
+        "criminal": 326.09,
+        "dating_violence": 73.95,
+        "domestic_violence": 165.11,
+        "drug_arrest": 663.8,
+        "drug_discipline": 1806.63,
+        "fondling": 15.93,
+        "liquor_arrest": 452.49,
+        "liquor_discipline": 4618.54,
+        "motor_vehicle_theft": 147.76,
+        "property": 247.58,
+        "rape": 82.94,
+        "robbery": 29.21,
+        "stalking": 50.37,
+        "violent": 126.65,
+        "weapons_arrest": 272.07,
+        "weapons_discipline": 66.46
+      },
+      "2016": {
+        "aggravated_assault": 76.44,
+        "all": 3664.5,
+        "burglary": 294.81,
+        "criminal": 341.75,
+        "dating_violence": 264.66,
+        "domestic_violence": 57.09,
+        "drug_arrest": 299.63,
+        "drug_discipline": 1180.26,
+        "fondling": 171.84,
+        "liquor_arrest": 505.2,
+        "liquor_discipline": 2719.87,
+        "motor_vehicle_theft": 44.68,
+        "property": 306.6,
+        "rape": 250.36,
+        "robbery": 43.71,
+        "stalking": 156.35,
+        "violent": 250.36,
+        "weapons_arrest": 7.93,
+        "weapons_discipline": 68.91
+      },
+      "2017": {
+        "aggravated_assault": 236.29,
+        "all": 2962.14,
+        "burglary": 215.56,
+        "criminal": 558.66,
+        "dating_violence": 370.11,
+        "domestic_violence": 90.28,
+        "drug_arrest": 359.39,
+        "drug_discipline": 1061.45,
+        "fondling": 140.43,
+        "liquor_arrest": 852.8,
+        "liquor_discipline": 2183.54,
+        "motor_vehicle_theft": 176.83,
+        "property": 220.24,
+        "rape": 405.03,
+        "robbery": 36.09,
+        "stalking": 154.02,
+        "violent": 405.03,
+        "weapons_arrest": 115.27,
+        "weapons_discipline": 92.12
+      },
+      "2018": {
+        "aggravated_assault": 11.78,
+        "all": 2948.86,
+        "burglary": 168.31,
+        "criminal": 393.43,
+        "dating_violence": 98.13,
+        "domestic_violence": 76.91,
+        "drug_arrest": 342.13,
+        "drug_discipline": 954.86,
+        "fondling": 355.8,
+        "liquor_arrest": 1197.48,
+        "liquor_discipline": 2447.92,
+        "motor_vehicle_theft": 27.39,
+        "property": 168.31,
+        "rape": 221.99,
+        "robbery": 16.72,
+        "stalking": 62.39,
+        "violent": 222.02,
+        "weapons_arrest": 14.7,
+        "weapons_discipline": 57.08
+      },
+      "2019": {
+        "aggravated_assault": 92.08,
+        "all": 2397.66,
+        "burglary": 158.73,
+        "criminal": 374.22,
+        "dating_violence": 142.12,
+        "domestic_violence": 124.48,
+        "drug_arrest": 281.2,
+        "drug_discipline": 892.02,
+        "fondling": 244.79,
+        "liquor_arrest": 1182.97,
+        "liquor_discipline": 1700.79,
+        "motor_vehicle_theft": 50.86,
+        "property": 174.48,
+        "rape": 50.48,
+        "robbery": 11.75,
+        "stalking": 152.46,
+        "violent": 173.25,
+        "weapons_arrest": 34.76
+      },
+      "2020": {
+        "aggravated_assault": 297.03,
+        "all": 2752.48,
+        "burglary": 184.37,
+        "criminal": 653.47,
+        "dating_violence": 37.11,
+        "domestic_violence": 46.37,
+        "drug_arrest": 1940.59,
+        "drug_discipline": 748.09,
+        "fondling": 100.72,
+        "liquor_arrest": 492.96,
+        "liquor_discipline": 1752.99,
+        "motor_vehicle_theft": 25.11,
+        "property": 222.79,
+        "rape": 351.0,
+        "robbery": 18.39,
+        "stalking": 29.63,
+        "violent": 514.85,
+        "weapons_arrest": 9.37
+      },
+      "2021": {
+        "aggravated_assault": 240.55,
+        "all": 1987.18,
+        "burglary": 169.38,
+        "criminal": 419.92,
+        "dating_violence": 50.62,
+        "domestic_violence": 36.17,
+        "drug_arrest": 411.08,
+        "drug_discipline": 566.41,
+        "fondling": 101.62,
+        "liquor_arrest": 344.48,
+        "liquor_discipline": 1369.08,
+        "motor_vehicle_theft": 111.35,
+        "property": 260.59,
+        "rape": 83.21,
+        "robbery": 12.27,
+        "stalking": 93.72,
+        "violent": 335.05,
+        "weapons_arrest": 56.59
+      },
+      "2022": {
+        "aggravated_assault": 224.72,
+        "all": 1920.96,
+        "burglary": 261.19,
+        "criminal": 470.45,
+        "dating_violence": 131.58,
+        "domestic_violence": 61.03,
+        "drug_arrest": 267.93,
+        "drug_discipline": 677.75,
+        "fondling": 108.29,
+        "liquor_arrest": 241.31,
+        "liquor_discipline": 1397.19,
+        "motor_vehicle_theft": 381.99,
+        "property": 402.09,
+        "rape": 137.84,
+        "robbery": 33.84,
+        "stalking": 71.7,
+        "violent": 328.44,
+        "weapons_arrest": 195.47,
+        "weapons_discipline": 54.1
+      },
+      "2023": {
+        "aggravated_assault": 111.3,
+        "all": 3505.9,
+        "burglary": 116.17,
+        "criminal": 1189.83,
+        "dating_violence": 953.68,
+        "domestic_violence": 489.35,
+        "drug_arrest": 407.98,
+        "drug_discipline": 652.77,
+        "fondling": 25.87,
+        "liquor_arrest": 280.52,
+        "liquor_discipline": 1836.55,
+        "motor_vehicle_theft": 273.29,
+        "property": 323.33,
+        "rape": 1035.42,
+        "robbery": 44.26,
+        "stalking": 94.51,
+        "violent": 1108.08,
+        "weapons_arrest": 15.73
+      },
+      "2024": {
+        "aggravated_assault": 140.61,
+        "all": 2476.68,
+        "burglary": 112.49,
+        "criminal": 315.08,
+        "dating_violence": 131.0,
+        "domestic_violence": 160.77,
+        "drug_arrest": 363.29,
+        "drug_discipline": 797.29,
+        "fondling": 30.61,
+        "liquor_arrest": 198.49,
+        "liquor_discipline": 1492.09,
+        "motor_vehicle_theft": 232.14,
+        "property": 285.71,
+        "rape": 49.42,
+        "robbery": 13.73,
+        "stalking": 125.62,
+        "violent": 168.73,
+        "weapons_arrest": 9.94,
+        "weapons_discipline": 712.47
+      }
     }
   },
   "offenses": [
@@ -1723,7 +2981,7 @@
       "schoolCount": 20
     }
   ],
-  "lastUpdated": "2026-11-14T11:24:31.623111",
+  "lastUpdated": "2026-11-14T22:42:34.822615",
   "dataSource": "U.S. Department of Education Campus Safety & Security",
   "dataSourceUrl": "https://ope.ed.gov/campussafety/",
   "coverage": "2015-2024",

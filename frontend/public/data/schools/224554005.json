@@ -53,10 +53,7 @@
         "campuses": 7,
         "online": 33,
         "rateRanked": true,
-        "rateFte": 6318,
-        "spikes": [
-          "liquor_arrest"
-        ],
+        "rateFte": 7820,
         "counts": {
           "criminal": 35,
           "violent": 10,
@@ -83,10 +80,7 @@
         "campuses": 7,
         "online": 34,
         "rateRanked": true,
-        "rateFte": 6476,
-        "spikes": [
-          "liquor_arrest"
-        ],
+        "rateFte": 8076,
         "counts": {
           "criminal": 20,
           "violent": 4,
@@ -107,13 +101,72 @@
       "2017": {
         "campuses": 6,
         "online": 35,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2017 figures of this institution's campus 224554004 are also reported, identically, by campus 227146001 of another institution (a shared campus) and count once, under that campus, while the students on it are in each institution's own FTE. No rate is shown for that year.",
-        "rateFte": 6232,
-        "spikes": [
-          "property",
-          "burglary"
-        ],
+        "rateRanked": true,
+        "rateFte": 7832,
+        "fteUncertain": {
+          "share": 6232,
+          "partTimeFirst": 7832
+        },
+        "sharedOut": {
+          "criminal": 10,
+          "violent": 1,
+          "property": 9,
+          "all": 109,
+          "burglary": 5,
+          "dating_violence": 3,
+          "drug_arrest": 54,
+          "drug_discipline": 8,
+          "liquor_arrest": 22,
+          "liquor_discipline": 7,
+          "motor_vehicle_theft": 4,
+          "rape": 1,
+          "weapons_arrest": 2,
+          "weapons_discipline": 3
+        },
+        "notRanked": {
+          "criminal": [
+            "shared"
+          ],
+          "violent": [
+            "shared"
+          ],
+          "property": [
+            "shared"
+          ],
+          "all": [
+            "shared"
+          ],
+          "burglary": [
+            "shared"
+          ],
+          "dating_violence": [
+            "shared"
+          ],
+          "drug_arrest": [
+            "shared"
+          ],
+          "drug_discipline": [
+            "shared"
+          ],
+          "liquor_arrest": [
+            "shared"
+          ],
+          "liquor_discipline": [
+            "shared"
+          ],
+          "motor_vehicle_theft": [
+            "shared"
+          ],
+          "rape": [
+            "shared"
+          ],
+          "weapons_arrest": [
+            "shared"
+          ],
+          "weapons_discipline": [
+            "shared"
+          ]
+        },
         "counts": {
           "criminal": 38,
           "violent": 5,

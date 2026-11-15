@@ -53,7 +53,7 @@
         "campuses": 7,
         "online": 29,
         "rateRanked": true,
-        "rateFte": 1801,
+        "rateFte": 2144,
         "counts": {
           "criminal": 17,
           "violent": 2,
@@ -74,10 +74,11 @@
         "campuses": 5,
         "online": 41,
         "rateRanked": true,
-        "rateFte": 1437,
-        "spikes": [
-          "liquor_arrest"
-        ],
+        "rateFte": 1904,
+        "fteUncertain": {
+          "share": 1437,
+          "partTimeFirst": 1904
+        },
         "counts": {
           "criminal": 5,
           "violent": 5,
@@ -95,9 +96,40 @@
       "2017": {
         "campuses": 7,
         "online": 26,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2017 figures of this institution's campus 206048010 are also reported, identically, by campus 204945001 of another institution (a shared campus) and count once, under that campus, while the students on it are in each institution's own FTE. No rate is shown for that year.",
-        "rateFte": 1761,
+        "rateRanked": true,
+        "rateFte": 2064,
+        "sharedOut": {
+          "criminal": 2,
+          "all": 9,
+          "domestic_violence": 1,
+          "drug_arrest": 4,
+          "fondling": 2,
+          "liquor_discipline": 1,
+          "weapons_discipline": 1
+        },
+        "notRanked": {
+          "criminal": [
+            "shared"
+          ],
+          "all": [
+            "shared"
+          ],
+          "domestic_violence": [
+            "shared"
+          ],
+          "drug_arrest": [
+            "shared"
+          ],
+          "fondling": [
+            "shared"
+          ],
+          "liquor_discipline": [
+            "shared"
+          ],
+          "weapons_discipline": [
+            "shared"
+          ]
+        },
         "counts": {
           "criminal": 19,
           "violent": 7,

@@ -65,10 +65,7 @@
         "campuses": 8,
         "online": 3,
         "rateRanked": true,
-        "rateFte": 9857,
-        "spikes": [
-          "liquor_discipline"
-        ],
+        "rateFte": 10037,
         "counts": {
           "criminal": 45,
           "violent": 8,
@@ -93,11 +90,7 @@
         "campuses": 8,
         "online": 4,
         "rateRanked": true,
-        "rateFte": 9931,
-        "spikes": [
-          "drug_discipline",
-          "liquor_discipline"
-        ],
+        "rateFte": 10176,
         "counts": {
           "criminal": 29,
           "violent": 6,
@@ -122,10 +115,7 @@
         "campuses": 8,
         "online": 3,
         "rateRanked": true,
-        "rateFte": 10136,
-        "spikes": [
-          "drug_discipline"
-        ],
+        "rateFte": 10321,
         "counts": {
           "criminal": 45,
           "violent": 12,
@@ -150,7 +140,7 @@
         "campuses": 8,
         "online": 2,
         "rateRanked": true,
-        "rateFte": 9941,
+        "rateFte": 10062,
         "counts": {
           "criminal": 30,
           "violent": 12,
@@ -172,12 +162,49 @@
       "2019": {
         "campuses": 7,
         "online": 2,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2019 figures of this institution's campus 122612008 are also reported, identically, by campus 113333001 of another institution (a shared campus) and count once, under that campus, while the students on it are in each institution's own FTE. No rate is shown for that year.",
-        "rateFte": 8907,
-        "spikes": [
-          "drug_discipline"
-        ],
+        "rateRanked": true,
+        "rateFte": 9007,
+        "sharedOut": {
+          "criminal": 3,
+          "violent": 2,
+          "property": 1,
+          "all": 26,
+          "burglary": 1,
+          "domestic_violence": 3,
+          "drug_arrest": 15,
+          "liquor_arrest": 2,
+          "robbery": 2,
+          "weapons_arrest": 3
+        },
+        "notRanked": {
+          "criminal": [
+            "shared"
+          ],
+          "violent": [
+            "shared"
+          ],
+          "all": [
+            "shared"
+          ],
+          "burglary": [
+            "shared"
+          ],
+          "domestic_violence": [
+            "shared"
+          ],
+          "drug_arrest": [
+            "shared"
+          ],
+          "liquor_arrest": [
+            "shared"
+          ],
+          "robbery": [
+            "shared"
+          ],
+          "weapons_arrest": [
+            "shared"
+          ]
+        },
         "counts": {
           "criminal": 32,
           "violent": 11,
@@ -201,7 +228,7 @@
         "online": 2,
         "rateRanked": true,
         "onlineYear": 2019,
-        "rateFte": 8279,
+        "rateFte": 8371,
         "counts": {
           "criminal": 33,
           "violent": 7,

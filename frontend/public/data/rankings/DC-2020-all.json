@@ -26,7 +26,7 @@
       "state": "DC",
       "main": false,
       "fte": 7317,
-      "campuses": 11,
+      "campuses": 5,
       "campus": "Washington DC"
     },
     "131159001": {
@@ -35,7 +35,7 @@
       "state": "DC",
       "main": true,
       "fte": 11779,
-      "campuses": 4
+      "campuses": 1
     },
     "131283001": {
       "name": "The Catholic University of America",
@@ -155,7 +155,7 @@
       "state": "DC",
       "main": true,
       "fte": 16074,
-      "campuses": 6
+      "campuses": 3
     },
     "131496002": {
       "name": "Georgetown University",
@@ -163,7 +163,7 @@
       "state": "DC",
       "main": false,
       "fte": 16074,
-      "campuses": 6,
+      "campuses": 3,
       "campus": "Capitol Campus"
     },
     "131496007": {
@@ -172,7 +172,7 @@
       "state": "DC",
       "main": false,
       "fte": 16074,
-      "campuses": 6,
+      "campuses": 3,
       "campus": "School of Continuing Studies"
     },
     "131520001": {
@@ -231,7 +231,7 @@
       "state": "DC",
       "main": false,
       "fte": 19600,
-      "campuses": 6,
+      "campuses": 5,
       "campus": "Washington D.C. Campus"
     },
     "162928007": {
@@ -240,7 +240,7 @@
       "state": "DC",
       "main": false,
       "fte": 20098,
-      "campuses": 12,
+      "campuses": 9,
       "campus": "Hopkins Bloomberg Center"
     },
     "177834012": {
@@ -267,7 +267,7 @@
       "state": "DC",
       "main": false,
       "fte": 5254,
-      "campuses": 56,
+      "campuses": 48,
       "campus": "Bolling Air Force Base"
     },
     "193900018": {
@@ -276,7 +276,7 @@
       "state": "DC",
       "main": false,
       "fte": 47399,
-      "campuses": 18,
+      "campuses": 6,
       "campus": "NYU Washington, DC"
     },
     "196413016": {
@@ -285,7 +285,7 @@
       "state": "DC",
       "main": false,
       "fte": 19214,
-      "campuses": 10,
+      "campuses": 4,
       "campus": "Washington, D.C. Campus"
     },
     "198419003": {
@@ -303,7 +303,7 @@
       "state": "DC",
       "main": false,
       "fte": 8333,
-      "campuses": 17,
+      "campuses": 7,
       "campus": "WFU Washington"
     },
     "228778010": {
@@ -321,7 +321,7 @@
       "state": "DC",
       "main": false,
       "fte": 33695,
-      "campuses": 5,
+      "campuses": 3,
       "campus": "BYU Barlow Center - Washington D.C."
     },
     "231624003": {
@@ -348,7 +348,7 @@
       "state": "DC",
       "main": false,
       "fte": 14887,
-      "campuses": 12,
+      "campuses": 4,
       "campus": "Stanford in Washington"
     },
     "384412001": {
@@ -724,7 +724,8 @@
       {
         "rank": 4,
         "unitid": 455813001,
-        "count": 129
+        "count": 129,
+        "highForSize": true
       },
       {
         "rank": 5,
@@ -1038,7 +1039,8 @@
       {
         "rank": 3,
         "unitid": 455813001,
-        "count": 26
+        "count": 26,
+        "highForSize": true
       },
       {
         "rank": 3,
@@ -1139,7 +1141,8 @@
       {
         "rank": 3,
         "unitid": 455813001,
-        "count": 90
+        "count": 90,
+        "highForSize": true
       },
       {
         "rank": 3,
@@ -1422,14 +1425,15 @@
       "name": "American University",
       "unitid": 131159001,
       "state": "DC",
-      "fte": 10719,
-      "campuses": 4
+      "fte": 11296,
+      "campuses": 1,
+      "abroad": 3
     },
     "131283": {
       "name": "The Catholic University of America",
       "unitid": 131283001,
       "state": "DC",
-      "fte": 4256,
+      "fte": 4377,
       "campuses": 1
     },
     "131399": {
@@ -1446,19 +1450,36 @@
         }
       ]
     },
+    "131450": {
+      "name": "Gallaudet University",
+      "unitid": 131450001,
+      "state": "DC",
+      "fte": 1251,
+      "campuses": 1,
+      "excluded": "listed"
+    },
     "131469": {
       "name": "George Washington University",
       "unitid": 131469001,
       "state": "DC",
-      "fte": 17347,
+      "fte": 19288,
       "campuses": 7
     },
     "131496": {
       "name": "Georgetown University",
       "unitid": 131496001,
       "state": "DC",
-      "fte": 14145,
-      "campuses": 6
+      "fte": 15182,
+      "campuses": 3,
+      "abroad": 3
+    },
+    "131520": {
+      "name": "Howard University",
+      "unitid": 131520001,
+      "state": "DC",
+      "fte": 10363,
+      "campuses": 3,
+      "excluded": "hospital"
     },
     "131876": {
       "name": "Trinity Washington University",
@@ -1475,18 +1496,18 @@
         "id": 131399,
         "count": 23,
         "rate": 83.88,
-        "lo": 53.17,
-        "hi": 125.86,
+        "lo": 39.52,
+        "hi": 156.1,
         "rankLo": 1,
         "rankHi": 1
       },
       {
         "rank": 2,
         "id": 131496,
-        "count": 45,
-        "rate": 31.81,
-        "lo": 23.2,
-        "hi": 42.57,
+        "count": 44,
+        "rate": 28.98,
+        "lo": 14.98,
+        "hi": 50.63,
         "rankLo": 2,
         "rankHi": 3
       },
@@ -1494,9 +1515,9 @@
         "rank": 3,
         "id": 131159,
         "count": 26,
-        "rate": 24.26,
-        "lo": 15.84,
-        "hi": 35.54,
+        "rate": 23.02,
+        "lo": 11.08,
+        "hi": 42.21,
         "rankLo": 2,
         "rankHi": 3
       }
@@ -1507,9 +1528,9 @@
         "rank": 1,
         "id": 131496,
         "count": 29,
-        "rate": 20.5,
-        "lo": 13.73,
-        "hi": 29.44,
+        "rate": 19.1,
+        "lo": 8.68,
+        "hi": 36.41,
         "rankLo": 1,
         "rankHi": 1
       }
@@ -1519,49 +1540,49 @@
         "rank": 1,
         "id": 131283,
         "count": 131,
-        "rate": 307.8,
-        "lo": 257.35,
-        "hi": 365.25,
+        "rate": 299.29,
+        "lo": 155.42,
+        "hi": 520.98,
         "rankLo": 1,
-        "rankHi": 1
+        "rankHi": 3
       },
       {
         "rank": 2,
         "id": 131159,
         "count": 214,
-        "rate": 199.65,
-        "lo": 173.79,
-        "hi": 228.26,
-        "rankLo": 2,
+        "rate": 189.45,
+        "lo": 99.75,
+        "hi": 326.56,
+        "rankLo": 1,
         "rankHi": 4
       },
       {
         "rank": 3,
         "id": 131469,
         "count": 283,
-        "rate": 163.14,
-        "lo": 144.69,
-        "hi": 183.3,
+        "rate": 146.72,
+        "lo": 77.67,
+        "hi": 251.95,
         "rankLo": 2,
-        "rankHi": 4
+        "rankHi": 5
       },
       {
         "rank": 4,
         "id": 131399,
         "count": 37,
         "rate": 134.94,
-        "lo": 95.01,
-        "hi": 185.99,
+        "lo": 64.25,
+        "hi": 249.36,
         "rankLo": 2,
         "rankHi": 5
       },
       {
         "rank": 5,
         "id": 131496,
-        "count": 114,
-        "rate": 80.59,
-        "lo": 66.48,
-        "hi": 96.82,
+        "count": 109,
+        "rate": 71.8,
+        "lo": 37.02,
+        "hi": 125.6,
         "rankLo": 4,
         "rankHi": 5
       }
@@ -1572,9 +1593,9 @@
         "rank": 1,
         "id": 131496,
         "count": 27,
-        "rate": 19.09,
-        "lo": 12.58,
-        "hi": 27.77,
+        "rate": 17.78,
+        "lo": 6.35,
+        "hi": 39.33,
         "rankLo": 1,
         "rankHi": 1
       }
@@ -1585,31 +1606,31 @@
     "drug_discipline": [
       {
         "rank": 1,
-        "id": 131469,
-        "count": 110,
-        "rate": 63.41,
-        "lo": 52.12,
-        "hi": 76.43,
+        "id": 131283,
+        "count": 26,
+        "rate": 59.4,
+        "lo": 21.66,
+        "hi": 129.77,
         "rankLo": 1,
         "rankHi": 3
       },
       {
         "rank": 2,
-        "id": 131283,
-        "count": 26,
-        "rate": 61.09,
-        "lo": 39.91,
-        "hi": 89.51,
+        "id": 131159,
+        "count": 65,
+        "rate": 57.54,
+        "lo": 22.92,
+        "hi": 119.24,
         "rankLo": 1,
         "rankHi": 3
       },
       {
         "rank": 3,
-        "id": 131159,
-        "count": 65,
-        "rate": 60.64,
-        "lo": 46.8,
-        "hi": 77.29,
+        "id": 131469,
+        "count": 110,
+        "rate": 57.03,
+        "lo": 23.28,
+        "hi": 116.4,
         "rankLo": 1,
         "rankHi": 3
       }
@@ -1621,29 +1642,29 @@
         "rank": 1,
         "id": 131283,
         "count": 90,
-        "rate": 211.47,
-        "lo": 170.04,
-        "hi": 259.93,
+        "rate": 205.62,
+        "lo": 83.28,
+        "hi": 421.74,
         "rankLo": 1,
-        "rankHi": 1
+        "rankHi": 2
       },
       {
         "rank": 2,
         "id": 131159,
         "count": 107,
-        "rate": 99.82,
-        "lo": 81.81,
-        "hi": 120.63,
-        "rankLo": 2,
+        "rate": 94.72,
+        "lo": 38.63,
+        "hi": 193.45,
+        "rankLo": 1,
         "rankHi": 3
       },
       {
         "rank": 3,
         "id": 131469,
         "count": 141,
-        "rate": 81.28,
-        "lo": 68.42,
-        "hi": 95.86,
+        "rate": 73.1,
+        "lo": 30.08,
+        "hi": 148.47,
         "rankLo": 2,
         "rankHi": 3
       },
@@ -1651,9 +1672,9 @@
         "rank": 4,
         "id": 131496,
         "count": 33,
-        "rate": 23.33,
-        "lo": 16.06,
-        "hi": 32.76,
+        "rate": 21.74,
+        "lo": 8.17,
+        "hi": 46.63,
         "rankLo": 4,
         "rankHi": 4
       }
@@ -1670,16 +1691,16 @@
       {
         "id": 131283,
         "count": 8,
-        "rate": 18.8,
-        "lo": 8.12,
-        "hi": 37.04
+        "rate": 18.28,
+        "lo": 6.25,
+        "hi": 41.43
       },
       {
         "id": 131469,
         "count": 19,
-        "rate": 10.95,
-        "lo": 6.59,
-        "hi": 17.1
+        "rate": 9.85,
+        "lo": 4.46,
+        "hi": 18.81
       }
     ],
     "violent": [
@@ -1687,36 +1708,36 @@
         "id": 131399,
         "count": 7,
         "rate": 25.53,
-        "lo": 10.26,
-        "hi": 52.6
+        "lo": 7.77,
+        "hi": 61.69
       },
       {
         "id": 131159,
         "count": 19,
-        "rate": 17.73,
-        "lo": 10.67,
-        "hi": 27.68
+        "rate": 16.82,
+        "lo": 7.18,
+        "hi": 33.38
       },
       {
         "id": 131283,
         "count": 5,
-        "rate": 11.75,
-        "lo": 3.81,
-        "hi": 27.42
+        "rate": 11.42,
+        "lo": 2.86,
+        "hi": 30.52
       },
       {
         "id": 131496,
-        "count": 10,
-        "rate": 7.07,
-        "lo": 3.39,
-        "hi": 13.0
+        "count": 9,
+        "rate": 5.93,
+        "lo": 2.02,
+        "hi": 13.46
       },
       {
         "id": 131469,
         "count": 9,
-        "rate": 5.19,
-        "lo": 2.37,
-        "hi": 9.85
+        "rate": 4.67,
+        "lo": 1.59,
+        "hi": 10.59
       }
     ],
     "property": [
@@ -1724,29 +1745,29 @@
         "id": 131399,
         "count": 16,
         "rate": 58.35,
-        "lo": 33.35,
-        "hi": 94.76
+        "lo": 23.67,
+        "hi": 119.58
       },
       {
         "id": 131159,
         "count": 3,
-        "rate": 2.8,
-        "lo": 0.58,
-        "hi": 8.18
+        "rate": 2.66,
+        "lo": 0.43,
+        "hi": 8.63
       },
       {
         "id": 131283,
         "count": 1,
-        "rate": 2.35,
-        "lo": 0.06,
-        "hi": 13.09
+        "rate": 2.28,
+        "lo": 0.05,
+        "hi": 13.41
       },
       {
         "id": 131469,
         "count": 4,
-        "rate": 2.31,
-        "lo": 0.63,
-        "hi": 5.9
+        "rate": 2.07,
+        "lo": 0.44,
+        "hi": 6.01
       }
     ],
     "all": [],
@@ -1755,29 +1776,29 @@
         "id": 131399,
         "count": 1,
         "rate": 3.65,
-        "lo": 0.09,
-        "hi": 20.32
+        "lo": 0.06,
+        "hi": 22.23
       },
       {
         "id": 131283,
         "count": 1,
-        "rate": 2.35,
-        "lo": 0.06,
-        "hi": 13.09
+        "rate": 2.28,
+        "lo": 0.04,
+        "hi": 13.93
       },
       {
         "id": 131496,
         "count": 1,
-        "rate": 0.71,
-        "lo": 0.02,
-        "hi": 3.94
+        "rate": 0.66,
+        "lo": 0.01,
+        "hi": 4.01
       },
       {
         "id": 131469,
         "count": 1,
-        "rate": 0.58,
+        "rate": 0.52,
         "lo": 0.01,
-        "hi": 3.21
+        "hi": 3.16
       }
     ],
     "burglary": [
@@ -1785,61 +1806,61 @@
         "id": 131399,
         "count": 12,
         "rate": 43.76,
-        "lo": 22.61,
-        "hi": 76.45
+        "lo": 13.22,
+        "hi": 106.21
       },
       {
         "id": 131159,
         "count": 3,
-        "rate": 2.8,
-        "lo": 0.58,
-        "hi": 8.18
+        "rate": 2.66,
+        "lo": 0.35,
+        "hi": 9.27
       },
       {
         "id": 131469,
         "count": 3,
-        "rate": 1.73,
-        "lo": 0.36,
-        "hi": 5.05
+        "rate": 1.56,
+        "lo": 0.21,
+        "hi": 5.43
       }
     ],
     "dating_violence": [
       {
         "id": 131469,
         "count": 2,
-        "rate": 1.15,
-        "lo": 0.14,
-        "hi": 4.16
+        "rate": 1.04,
+        "lo": 0.08,
+        "hi": 4.31
       }
     ],
     "domestic_violence": [
       {
         "id": 131283,
         "count": 3,
-        "rate": 7.05,
-        "lo": 1.45,
-        "hi": 20.6
+        "rate": 6.85,
+        "lo": 0.91,
+        "hi": 23.93
       },
       {
         "id": 131159,
         "count": 4,
-        "rate": 3.73,
-        "lo": 1.02,
-        "hi": 9.55
+        "rate": 3.54,
+        "lo": 0.61,
+        "hi": 11.15
       },
       {
         "id": 131496,
         "count": 4,
-        "rate": 2.83,
-        "lo": 0.77,
-        "hi": 7.24
+        "rate": 2.63,
+        "lo": 0.46,
+        "hi": 8.3
       },
       {
         "id": 131469,
         "count": 2,
-        "rate": 1.15,
-        "lo": 0.14,
-        "hi": 4.16
+        "rate": 1.04,
+        "lo": 0.08,
+        "hi": 4.31
       }
     ],
     "drug_arrest": [
@@ -1847,8 +1868,8 @@
         "id": 131399,
         "count": 4,
         "rate": 14.59,
-        "lo": 3.97,
-        "hi": 37.35
+        "lo": 2.59,
+        "hi": 45.49
       }
     ],
     "drug_discipline": [
@@ -1856,45 +1877,45 @@
         "id": 131399,
         "count": 7,
         "rate": 25.53,
-        "lo": 10.26,
-        "hi": 52.6
+        "lo": 6.44,
+        "hi": 67.93
       },
       {
         "id": 131496,
         "count": 15,
-        "rate": 10.6,
-        "lo": 5.94,
-        "hi": 17.49
+        "rate": 9.88,
+        "lo": 3.25,
+        "hi": 22.9
       }
     ],
     "fondling": [
       {
         "id": 131283,
         "count": 2,
-        "rate": 4.7,
-        "lo": 0.57,
-        "hi": 16.98
+        "rate": 4.57,
+        "lo": 0.36,
+        "hi": 19.01
       },
       {
         "id": 131496,
         "count": 6,
-        "rate": 4.24,
-        "lo": 1.56,
-        "hi": 9.23
+        "rate": 3.95,
+        "lo": 0.9,
+        "hi": 11.05
       },
       {
         "id": 131159,
         "count": 4,
-        "rate": 3.73,
-        "lo": 1.02,
-        "hi": 9.55
+        "rate": 3.54,
+        "lo": 0.61,
+        "hi": 11.15
       },
       {
         "id": 131469,
         "count": 6,
-        "rate": 3.46,
-        "lo": 1.27,
-        "hi": 7.53
+        "rate": 3.11,
+        "lo": 0.71,
+        "hi": 8.7
       }
     ],
     "liquor_arrest": [],
@@ -1904,112 +1925,112 @@
         "id": 131399,
         "count": 4,
         "rate": 14.59,
-        "lo": 3.97,
-        "hi": 37.35
+        "lo": 2.53,
+        "hi": 45.93
       },
       {
         "id": 131283,
         "count": 1,
-        "rate": 2.35,
-        "lo": 0.06,
-        "hi": 13.09
+        "rate": 2.28,
+        "lo": 0.04,
+        "hi": 13.93
       },
       {
         "id": 131496,
         "count": 2,
-        "rate": 1.41,
-        "lo": 0.17,
-        "hi": 5.11
+        "rate": 1.32,
+        "lo": 0.1,
+        "hi": 5.48
       }
     ],
     "rape": [
       {
         "id": 131159,
         "count": 19,
-        "rate": 17.73,
-        "lo": 10.67,
-        "hi": 27.68
+        "rate": 16.82,
+        "lo": 5.67,
+        "hi": 38.44
       },
       {
         "id": 131399,
         "count": 4,
         "rate": 14.59,
-        "lo": 3.97,
-        "hi": 37.35
+        "lo": 2.53,
+        "hi": 45.93
       },
       {
         "id": 131496,
         "count": 6,
-        "rate": 4.24,
-        "lo": 1.56,
-        "hi": 9.23
+        "rate": 3.95,
+        "lo": 0.9,
+        "hi": 11.05
       },
       {
         "id": 131469,
         "count": 6,
-        "rate": 3.46,
-        "lo": 1.27,
-        "hi": 7.53
+        "rate": 3.11,
+        "lo": 0.71,
+        "hi": 8.7
       }
     ],
     "robbery": [
       {
         "id": 131283,
         "count": 4,
-        "rate": 9.4,
-        "lo": 2.56,
-        "hi": 24.06
+        "rate": 9.14,
+        "lo": 1.58,
+        "hi": 28.77
       },
       {
         "id": 131399,
         "count": 2,
         "rate": 7.29,
-        "lo": 0.88,
-        "hi": 26.35
+        "lo": 0.58,
+        "hi": 30.34
       },
       {
         "id": 131496,
-        "count": 3,
-        "rate": 2.12,
-        "lo": 0.44,
-        "hi": 6.2
+        "count": 2,
+        "rate": 1.32,
+        "lo": 0.1,
+        "hi": 5.48
       },
       {
         "id": 131469,
         "count": 2,
-        "rate": 1.15,
-        "lo": 0.14,
-        "hi": 4.16
+        "rate": 1.04,
+        "lo": 0.08,
+        "hi": 4.31
       }
     ],
     "stalking": [
       {
-        "id": 131496,
-        "count": 17,
-        "rate": 12.02,
-        "lo": 7.0,
-        "hi": 19.24
-      },
-      {
         "id": 131159,
         "count": 12,
-        "rate": 11.2,
-        "lo": 5.78,
-        "hi": 19.56
+        "rate": 10.62,
+        "lo": 3.21,
+        "hi": 25.78
       },
       {
         "id": 131283,
         "count": 4,
-        "rate": 9.4,
-        "lo": 2.56,
-        "hi": 24.06
+        "rate": 9.14,
+        "lo": 1.58,
+        "hi": 28.77
+      },
+      {
+        "id": 131496,
+        "count": 13,
+        "rate": 8.56,
+        "lo": 2.65,
+        "hi": 20.53
       },
       {
         "id": 131469,
         "count": 6,
-        "rate": 3.46,
-        "lo": 1.27,
-        "hi": 7.53
+        "rate": 3.11,
+        "lo": 0.71,
+        "hi": 8.7
       }
     ],
     "weapons_arrest": [
@@ -2017,25 +2038,253 @@
         "id": 131399,
         "count": 3,
         "rate": 10.94,
-        "lo": 2.26,
-        "hi": 31.97
+        "lo": 1.49,
+        "hi": 37.89
       },
       {
         "id": 131469,
         "count": 2,
-        "rate": 1.15,
-        "lo": 0.14,
-        "hi": 4.16
+        "rate": 1.04,
+        "lo": 0.08,
+        "hi": 4.28
       }
     ],
     "weapons_discipline": [
       {
         "id": 131469,
         "count": 1,
-        "rate": 0.58,
+        "rate": 0.52,
         "lo": 0.01,
-        "hi": 3.21
+        "hi": 3.15
       }
     ]
+  },
+  "rateNotRanked": {
+    "criminal": [
+      {
+        "id": 131450,
+        "count": 43,
+        "why": [
+          "listed"
+        ]
+      },
+      {
+        "id": 131520,
+        "count": 31,
+        "why": [
+          "hospital"
+        ]
+      }
+    ],
+    "violent": [
+      {
+        "id": 131450,
+        "count": 10,
+        "why": [
+          "listed"
+        ]
+      },
+      {
+        "id": 131520,
+        "count": 12,
+        "why": [
+          "hospital"
+        ]
+      }
+    ],
+    "property": [
+      {
+        "id": 131450,
+        "count": 25,
+        "why": [
+          "listed"
+        ]
+      },
+      {
+        "id": 131520,
+        "count": 18,
+        "why": [
+          "hospital"
+        ]
+      }
+    ],
+    "all": [
+      {
+        "id": 131450,
+        "count": 121,
+        "why": [
+          "listed"
+        ]
+      },
+      {
+        "id": 131520,
+        "count": 34,
+        "why": [
+          "hospital"
+        ]
+      }
+    ],
+    "aggravated_assault": [
+      {
+        "id": 131450,
+        "count": 2,
+        "why": [
+          "listed"
+        ]
+      },
+      {
+        "id": 131520,
+        "count": 10,
+        "why": [
+          "hospital"
+        ]
+      }
+    ],
+    "burglary": [
+      {
+        "id": 131450,
+        "count": 14,
+        "why": [
+          "listed"
+        ]
+      },
+      {
+        "id": 131520,
+        "count": 18,
+        "why": [
+          "hospital"
+        ]
+      }
+    ],
+    "dating_violence": [
+      {
+        "id": 131450,
+        "count": 6,
+        "why": [
+          "listed"
+        ]
+      }
+    ],
+    "domestic_violence": [
+      {
+        "id": 131450,
+        "count": 18,
+        "why": [
+          "listed"
+        ]
+      },
+      {
+        "id": 131520,
+        "count": 3,
+        "why": [
+          "hospital"
+        ]
+      }
+    ],
+    "drug_arrest": [
+      {
+        "id": 131450,
+        "count": 16,
+        "why": [
+          "listed"
+        ]
+      }
+    ],
+    "drug_discipline": [
+      {
+        "id": 131450,
+        "count": 5,
+        "why": [
+          "listed"
+        ]
+      }
+    ],
+    "fondling": [
+      {
+        "id": 131450,
+        "count": 8,
+        "why": [
+          "listed"
+        ]
+      },
+      {
+        "id": 131520,
+        "count": 1,
+        "why": [
+          "hospital"
+        ]
+      }
+    ],
+    "liquor_arrest": [
+      {
+        "id": 131450,
+        "count": 1,
+        "why": [
+          "listed"
+        ]
+      }
+    ],
+    "liquor_discipline": [
+      {
+        "id": 131450,
+        "count": 23,
+        "why": [
+          "listed"
+        ]
+      }
+    ],
+    "motor_vehicle_theft": [
+      {
+        "id": 131450,
+        "count": 9,
+        "why": [
+          "listed"
+        ]
+      }
+    ],
+    "rape": [
+      {
+        "id": 131450,
+        "count": 2,
+        "why": [
+          "listed"
+        ]
+      }
+    ],
+    "robbery": [
+      {
+        "id": 131450,
+        "count": 6,
+        "why": [
+          "listed"
+        ]
+      },
+      {
+        "id": 131520,
+        "count": 2,
+        "why": [
+          "hospital"
+        ]
+      }
+    ],
+    "stalking": [
+      {
+        "id": 131450,
+        "count": 7,
+        "why": [
+          "listed"
+        ]
+      }
+    ],
+    "weapons_arrest": [
+      {
+        "id": 131450,
+        "count": 2,
+        "why": [
+          "listed"
+        ]
+      }
+    ],
+    "weapons_discipline": []
   }
 }

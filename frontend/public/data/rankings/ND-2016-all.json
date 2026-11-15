@@ -178,7 +178,7 @@
       "state": "ND",
       "main": true,
       "fte": 2734,
-      "campuses": 9
+      "campuses": 8
     },
     "200217002": {
       "name": "University of Mary",
@@ -186,7 +186,7 @@
       "state": "ND",
       "main": false,
       "fte": 2734,
-      "campuses": 9,
+      "campuses": 8,
       "campus": "University of Mary, Fargo Center"
     },
     "200217015": {
@@ -195,7 +195,7 @@
       "state": "ND",
       "main": false,
       "fte": 2734,
-      "campuses": 9,
+      "campuses": 8,
       "campus": "University of Mary, Butler Center"
     },
     "200217019": {
@@ -204,7 +204,7 @@
       "state": "ND",
       "main": false,
       "fte": 2734,
-      "campuses": 9,
+      "campuses": 8,
       "campus": "University of Mary, Grand Forks AFB Center"
     },
     "200217020": {
@@ -213,7 +213,7 @@
       "state": "ND",
       "main": false,
       "fte": 2734,
-      "campuses": 9,
+      "campuses": 8,
       "campus": "University of Mary, Physical Therapy Center"
     },
     "200226001": {
@@ -352,7 +352,7 @@
       "state": "ND",
       "main": false,
       "fte": 8400,
-      "campuses": 117,
+      "campuses": 103,
       "campus": "Minot"
     },
     "448026001": {
@@ -1241,49 +1241,58 @@
       "name": "Bismarck State College",
       "unitid": 200022001,
       "state": "ND",
-      "fte": 1676,
-      "campuses": 1
+      "fte": 2251,
+      "campuses": 1,
+      "fteUncertain": {
+        "share": 1676,
+        "partTimeFirst": 2251
+      }
     },
     "200156": {
       "name": "University of Jamestown",
       "unitid": 200156001,
       "state": "ND",
-      "fte": 1078,
+      "fte": 1098,
       "campuses": 1
     },
     "200217": {
       "name": "University of Mary",
       "unitid": 200217001,
       "state": "ND",
-      "fte": 2406,
-      "campuses": 9
+      "fte": 2582,
+      "campuses": 8,
+      "abroad": 1
     },
     "200253": {
       "name": "Minot State University",
       "unitid": 200253001,
       "state": "ND",
-      "fte": 1770,
+      "fte": 2193,
       "campuses": 1
     },
     "200280": {
       "name": "University of North Dakota",
       "unitid": 200280001,
       "state": "ND",
-      "fte": 9356,
+      "fte": 10848,
       "campuses": 1
     },
     "200305": {
       "name": "North Dakota State College of Science",
       "unitid": 200305001,
       "state": "ND",
-      "fte": 1130,
-      "campuses": 1
+      "fte": 1562,
+      "campuses": 1,
+      "fteUncertain": {
+        "share": 1130,
+        "partTimeFirst": 1562
+      }
     },
     "200332": {
       "name": "North Dakota State University-Main Campus",
       "unitid": 200332001,
       "state": "ND",
-      "fte": 12094,
+      "fte": 12455,
       "campuses": 2
     }
   },
@@ -1293,9 +1302,9 @@
         "rank": 1,
         "id": 200280,
         "count": 33,
-        "rate": 35.27,
-        "lo": 24.28,
-        "hi": 49.53,
+        "rate": 30.42,
+        "lo": 15.19,
+        "hi": 54.43,
         "rankLo": 1,
         "rankHi": 1
       }
@@ -1305,73 +1314,53 @@
     "all": [
       {
         "rank": 1,
-        "id": 200305,
-        "count": 199,
-        "rate": 1761.06,
-        "lo": 1524.87,
-        "hi": 2023.48,
+        "id": 200156,
+        "count": 84,
+        "rate": 765.03,
+        "lo": 389.54,
+        "hi": 1350.16,
         "rankLo": 1,
-        "rankHi": 1
+        "rankHi": 3
       },
       {
         "rank": 2,
-        "id": 200156,
-        "count": 84,
-        "rate": 779.22,
-        "lo": 621.54,
-        "hi": 964.73,
-        "rankLo": 2,
-        "rankHi": 3
+        "id": 200280,
+        "count": 632,
+        "rate": 582.6,
+        "lo": 311.26,
+        "hi": 993.84,
+        "rankLo": 1,
+        "rankHi": 4
       },
       {
         "rank": 3,
-        "id": 200280,
-        "count": 632,
-        "rate": 675.5,
-        "lo": 623.86,
-        "hi": 730.28,
-        "rankLo": 2,
-        "rankHi": 3
+        "id": 200217,
+        "count": 113,
+        "rate": 437.65,
+        "lo": 225.99,
+        "hi": 764.83,
+        "rankLo": 1,
+        "rankHi": 4
       },
       {
         "rank": 4,
-        "id": 200217,
-        "count": 113,
-        "rate": 469.66,
-        "lo": 387.07,
-        "hi": 564.66,
-        "rankLo": 4,
-        "rankHi": 5
+        "id": 200332,
+        "count": 362,
+        "rate": 290.65,
+        "lo": 154.42,
+        "hi": 497.8,
+        "rankLo": 3,
+        "rankHi": 4
       },
       {
         "rank": 5,
-        "id": 200022,
-        "count": 69,
-        "rate": 411.69,
-        "lo": 320.32,
-        "hi": 521.03,
-        "rankLo": 4,
-        "rankHi": 6
-      },
-      {
-        "rank": 6,
-        "id": 200332,
-        "count": 362,
-        "rate": 299.32,
-        "lo": 269.28,
-        "hi": 331.8,
-        "rankLo": 5,
-        "rankHi": 6
-      },
-      {
-        "rank": 7,
         "id": 200253,
         "count": 25,
-        "rate": 141.24,
-        "lo": 91.4,
-        "hi": 208.5,
-        "rankLo": 7,
-        "rankHi": 7
+        "rate": 114.0,
+        "lo": 51.36,
+        "hi": 218.51,
+        "rankLo": 5,
+        "rankHi": 5
       }
     ],
     "aggravated_assault": [],
@@ -1383,43 +1372,33 @@
         "rank": 1,
         "id": 200280,
         "count": 120,
-        "rate": 128.26,
-        "lo": 106.34,
-        "hi": 153.37,
+        "rate": 110.62,
+        "lo": 45.3,
+        "hi": 225.35,
         "rankLo": 1,
-        "rankHi": 1
+        "rankHi": 2
       },
       {
         "rank": 2,
         "id": 200332,
         "count": 57,
-        "rate": 47.13,
-        "lo": 35.7,
-        "hi": 61.06,
-        "rankLo": 2,
+        "rate": 45.76,
+        "lo": 18.08,
+        "hi": 95.32,
+        "rankLo": 1,
         "rankHi": 2
       }
     ],
     "drug_discipline": [
       {
         "rank": 1,
-        "id": 200305,
-        "count": 24,
-        "rate": 212.39,
-        "lo": 136.08,
-        "hi": 316.02,
-        "rankLo": 1,
-        "rankHi": 1
-      },
-      {
-        "rank": 2,
         "id": 200280,
         "count": 30,
-        "rate": 32.06,
-        "lo": 21.63,
-        "hi": 45.77,
-        "rankLo": 2,
-        "rankHi": 2
+        "rate": 27.65,
+        "lo": 10.28,
+        "hi": 59.73,
+        "rankLo": 1,
+        "rankHi": 1
       }
     ],
     "fondling": [],
@@ -1428,94 +1407,63 @@
         "rank": 1,
         "id": 200280,
         "count": 299,
-        "rate": 319.58,
-        "lo": 284.38,
-        "hi": 357.94,
-        "rankLo": 1,
-        "rankHi": 2
-      },
-      {
-        "rank": 2,
-        "id": 200305,
-        "count": 30,
-        "rate": 265.49,
-        "lo": 179.12,
-        "hi": 379.0,
-        "rankLo": 1,
-        "rankHi": 2,
-        "spike": true
-      },
-      {
-        "rank": 3,
-        "id": 200332,
-        "count": 112,
-        "rate": 92.61,
-        "lo": 76.25,
-        "hi": 111.43,
-        "rankLo": 3,
-        "rankHi": 3
-      }
-    ],
-    "liquor_discipline": [
-      {
-        "rank": 1,
-        "id": 200305,
-        "count": 116,
-        "rate": 1026.55,
-        "lo": 848.26,
-        "hi": 1231.25,
+        "rate": 275.63,
+        "lo": 115.12,
+        "hi": 554.6,
         "rankLo": 1,
         "rankHi": 1
       },
       {
         "rank": 2,
+        "id": 200332,
+        "count": 112,
+        "rate": 89.92,
+        "lo": 36.74,
+        "hi": 183.46,
+        "rankLo": 2,
+        "rankHi": 2
+      }
+    ],
+    "liquor_discipline": [
+      {
+        "rank": 1,
         "id": 200156,
         "count": 69,
-        "rate": 640.07,
-        "lo": 498.02,
-        "hi": 810.05,
-        "rankLo": 2,
+        "rate": 628.42,
+        "lo": 251.17,
+        "hi": 1299.47,
+        "rankLo": 1,
         "rankHi": 2
       },
       {
-        "rank": 3,
+        "rank": 2,
         "id": 200217,
         "count": 96,
-        "rate": 399.0,
-        "lo": 323.19,
-        "hi": 487.25,
+        "rate": 371.8,
+        "lo": 151.0,
+        "hi": 761.31,
+        "rankLo": 1,
+        "rankHi": 3
+      },
+      {
+        "rank": 3,
+        "id": 200332,
+        "count": 173,
+        "rate": 138.9,
+        "lo": 57.45,
+        "hi": 281.19,
         "rankLo": 3,
         "rankHi": 4
       },
       {
         "rank": 4,
-        "id": 200022,
-        "count": 64,
-        "rate": 381.86,
-        "lo": 294.08,
-        "hi": 487.63,
-        "rankLo": 3,
-        "rankHi": 4
-      },
-      {
-        "rank": 5,
-        "id": 200332,
-        "count": 173,
-        "rate": 143.05,
-        "lo": 122.52,
-        "hi": 166.02,
-        "rankLo": 5,
-        "rankHi": 6
-      },
-      {
-        "rank": 6,
         "id": 200280,
         "count": 130,
-        "rate": 138.95,
-        "lo": 116.09,
-        "hi": 164.99,
-        "rankLo": 5,
-        "rankHi": 6
+        "rate": 119.84,
+        "lo": 49.2,
+        "hi": 243.75,
+        "rankLo": 3,
+        "rankHi": 4
       }
     ],
     "motor_vehicle_theft": [],
@@ -1528,480 +1476,654 @@
   "rateUnranked": {
     "criminal": [
       {
-        "id": 200305,
-        "count": 11,
-        "rate": 97.35,
-        "lo": 48.59,
-        "hi": 174.18
-      },
-      {
         "id": 200253,
         "count": 4,
-        "rate": 22.6,
-        "lo": 6.16,
-        "hi": 57.86
+        "rate": 18.24,
+        "lo": 4.05,
+        "hi": 51.53
       },
       {
         "id": 200217,
         "count": 3,
-        "rate": 12.47,
-        "lo": 2.57,
-        "hi": 36.44
+        "rate": 11.62,
+        "lo": 1.97,
+        "hi": 36.92
       },
       {
         "id": 200156,
         "count": 1,
-        "rate": 9.28,
-        "lo": 0.23,
-        "hi": 51.69
-      },
-      {
-        "id": 200022,
-        "count": 1,
-        "rate": 5.97,
-        "lo": 0.15,
-        "hi": 33.24
+        "rate": 9.11,
+        "lo": 0.19,
+        "hi": 52.86
       },
       {
         "id": 200332,
         "count": 6,
-        "rate": 4.96,
-        "lo": 1.82,
-        "hi": 10.8
+        "rate": 4.82,
+        "lo": 1.42,
+        "hi": 11.84
       }
     ],
     "violent": [
       {
-        "id": 200305,
-        "count": 3,
-        "rate": 26.55,
-        "lo": 5.47,
-        "hi": 77.59
-      },
-      {
         "id": 200280,
         "count": 11,
-        "rate": 11.76,
-        "lo": 5.87,
-        "hi": 21.04
+        "rate": 10.14,
+        "lo": 3.73,
+        "hi": 22.04
       },
       {
         "id": 200156,
         "count": 1,
-        "rate": 9.28,
-        "lo": 0.23,
-        "hi": 51.69
+        "rate": 9.11,
+        "lo": 0.18,
+        "hi": 53.37
       },
       {
         "id": 200217,
         "count": 2,
-        "rate": 8.31,
-        "lo": 1.01,
-        "hi": 30.03
+        "rate": 7.75,
+        "lo": 0.74,
+        "hi": 30.32
       },
       {
         "id": 200332,
         "count": 1,
-        "rate": 0.83,
+        "rate": 0.8,
         "lo": 0.02,
-        "hi": 4.61
+        "hi": 4.7
       }
     ],
     "property": [
       {
-        "id": 200305,
-        "count": 8,
-        "rate": 70.8,
-        "lo": 30.56,
-        "hi": 139.5
-      },
-      {
         "id": 200253,
         "count": 4,
-        "rate": 22.6,
-        "lo": 6.16,
-        "hi": 57.86
+        "rate": 18.24,
+        "lo": 3.83,
+        "hi": 52.9
       },
       {
         "id": 200280,
         "count": 19,
-        "rate": 20.31,
-        "lo": 12.23,
-        "hi": 31.71
-      },
-      {
-        "id": 200022,
-        "count": 1,
-        "rate": 5.97,
-        "lo": 0.15,
-        "hi": 33.24
+        "rate": 17.51,
+        "lo": 7.39,
+        "hi": 35.02
       },
       {
         "id": 200332,
         "count": 4,
-        "rate": 3.31,
-        "lo": 0.9,
-        "hi": 8.47
+        "rate": 3.21,
+        "lo": 0.67,
+        "hi": 9.31
       }
     ],
     "all": [],
     "aggravated_assault": [
       {
-        "id": 200305,
-        "count": 1,
-        "rate": 8.85,
-        "lo": 0.22,
-        "hi": 49.31
-      },
-      {
         "id": 200280,
         "count": 3,
-        "rate": 3.21,
-        "lo": 0.66,
-        "hi": 9.37
+        "rate": 2.77,
+        "lo": 0.37,
+        "hi": 9.66
       }
     ],
     "burglary": [
       {
-        "id": 200305,
-        "count": 4,
-        "rate": 35.4,
-        "lo": 9.64,
-        "hi": 90.63
-      },
-      {
         "id": 200280,
         "count": 13,
-        "rate": 13.89,
-        "lo": 7.4,
-        "hi": 23.76
-      },
-      {
-        "id": 200022,
-        "count": 1,
-        "rate": 5.97,
-        "lo": 0.15,
-        "hi": 33.24
+        "rate": 11.98,
+        "lo": 3.7,
+        "hi": 28.73
       },
       {
         "id": 200332,
         "count": 4,
-        "rate": 3.31,
-        "lo": 0.9,
-        "hi": 8.47
+        "rate": 3.21,
+        "lo": 0.56,
+        "hi": 10.11
       }
     ],
     "dating_violence": [
       {
         "id": 200156,
         "count": 1,
-        "rate": 9.28,
-        "lo": 0.23,
-        "hi": 51.69
-      },
-      {
-        "id": 200305,
-        "count": 1,
-        "rate": 8.85,
-        "lo": 0.22,
-        "hi": 49.31
+        "rate": 9.11,
+        "lo": 0.15,
+        "hi": 55.51
       },
       {
         "id": 200280,
         "count": 2,
-        "rate": 2.14,
-        "lo": 0.26,
-        "hi": 7.72
+        "rate": 1.84,
+        "lo": 0.15,
+        "hi": 7.67
       }
     ],
     "domestic_violence": [
       {
-        "id": 200305,
-        "count": 6,
-        "rate": 53.1,
-        "lo": 19.49,
-        "hi": 115.57
-      },
-      {
         "id": 200332,
         "count": 7,
-        "rate": 5.79,
-        "lo": 2.33,
-        "hi": 11.93
+        "rate": 5.62,
+        "lo": 1.38,
+        "hi": 15.13
       },
       {
         "id": 200280,
         "count": 5,
-        "rate": 5.34,
-        "lo": 1.74,
-        "hi": 12.47
+        "rate": 4.61,
+        "lo": 0.94,
+        "hi": 13.54
       }
     ],
     "drug_arrest": [
       {
-        "id": 200305,
-        "count": 6,
-        "rate": 53.1,
-        "lo": 19.49,
-        "hi": 115.57
-      },
-      {
         "id": 200253,
         "count": 7,
-        "rate": 39.55,
-        "lo": 15.9,
-        "hi": 81.48
+        "rate": 31.92,
+        "lo": 8.05,
+        "hi": 84.93
       },
       {
         "id": 200156,
         "count": 3,
-        "rate": 27.83,
-        "lo": 5.74,
-        "hi": 81.33
+        "rate": 27.32,
+        "lo": 3.72,
+        "hi": 94.61
       },
       {
         "id": 200217,
         "count": 5,
-        "rate": 20.78,
-        "lo": 6.75,
-        "hi": 48.5
+        "rate": 19.36,
+        "lo": 4.04,
+        "hi": 56.31
       }
     ],
     "drug_discipline": [
       {
         "id": 200156,
         "count": 2,
-        "rate": 18.55,
-        "lo": 2.25,
-        "hi": 67.02
+        "rate": 18.21,
+        "lo": 1.47,
+        "hi": 75.27
       },
       {
         "id": 200217,
         "count": 1,
-        "rate": 4.16,
-        "lo": 0.11,
-        "hi": 23.16
+        "rate": 3.87,
+        "lo": 0.06,
+        "hi": 23.5
       },
       {
         "id": 200332,
         "count": 2,
-        "rate": 1.65,
-        "lo": 0.2,
-        "hi": 5.97
+        "rate": 1.61,
+        "lo": 0.13,
+        "hi": 6.64
       }
     ],
     "fondling": [
       {
         "id": 200217,
         "count": 1,
-        "rate": 4.16,
-        "lo": 0.11,
-        "hi": 23.16
+        "rate": 3.87,
+        "lo": 0.06,
+        "hi": 23.61
       },
       {
         "id": 200280,
         "count": 3,
-        "rate": 3.21,
-        "lo": 0.66,
-        "hi": 9.37
+        "rate": 2.77,
+        "lo": 0.37,
+        "hi": 9.66
       },
       {
         "id": 200332,
         "count": 1,
-        "rate": 0.83,
-        "lo": 0.02,
-        "hi": 4.61
+        "rate": 0.8,
+        "lo": 0.01,
+        "hi": 4.89
       }
     ],
     "liquor_arrest": [
       {
         "id": 200156,
         "count": 8,
-        "rate": 74.21,
-        "lo": 32.04,
-        "hi": 146.23
-      },
-      {
-        "id": 200253,
-        "count": 6,
-        "rate": 33.9,
-        "lo": 12.44,
-        "hi": 73.78
+        "rate": 72.86,
+        "lo": 19.52,
+        "hi": 188.13
       },
       {
         "id": 200217,
         "count": 8,
-        "rate": 33.25,
-        "lo": 14.36,
-        "hi": 65.52
+        "rate": 30.98,
+        "lo": 8.3,
+        "hi": 80.0
       },
       {
-        "id": 200022,
-        "count": 1,
-        "rate": 5.97,
-        "lo": 0.15,
-        "hi": 33.24
+        "id": 200253,
+        "count": 6,
+        "rate": 27.36,
+        "lo": 6.37,
+        "hi": 75.64
       }
     ],
     "liquor_discipline": [
       {
         "id": 200253,
         "count": 5,
-        "rate": 28.25,
-        "lo": 9.17,
-        "hi": 65.92
+        "rate": 22.8,
+        "lo": 4.76,
+        "hi": 66.29
       }
     ],
     "motor_vehicle_theft": [
       {
-        "id": 200305,
-        "count": 4,
-        "rate": 35.4,
-        "lo": 9.64,
-        "hi": 90.63
-      },
-      {
         "id": 200253,
         "count": 4,
-        "rate": 22.6,
-        "lo": 6.16,
-        "hi": 57.86
+        "rate": 18.24,
+        "lo": 3.16,
+        "hi": 57.43
       },
       {
         "id": 200280,
         "count": 4,
-        "rate": 4.28,
-        "lo": 1.16,
-        "hi": 10.95
+        "rate": 3.69,
+        "lo": 0.64,
+        "hi": 11.61
       }
     ],
     "rape": [
       {
         "id": 200156,
         "count": 1,
-        "rate": 9.28,
-        "lo": 0.23,
-        "hi": 51.69
+        "rate": 9.11,
+        "lo": 0.15,
+        "hi": 55.51
       },
       {
         "id": 200217,
         "count": 2,
-        "rate": 8.31,
-        "lo": 1.01,
-        "hi": 30.03
+        "rate": 7.75,
+        "lo": 0.61,
+        "hi": 32.23
       },
       {
         "id": 200280,
         "count": 7,
-        "rate": 7.48,
-        "lo": 3.01,
-        "hi": 15.42
+        "rate": 6.45,
+        "lo": 1.59,
+        "hi": 17.37
       },
       {
         "id": 200332,
         "count": 1,
-        "rate": 0.83,
-        "lo": 0.02,
-        "hi": 4.61
+        "rate": 0.8,
+        "lo": 0.01,
+        "hi": 4.89
       }
     ],
     "robbery": [
       {
-        "id": 200305,
+        "id": 200280,
+        "count": 1,
+        "rate": 0.92,
+        "lo": 0.02,
+        "hi": 5.62
+      }
+    ],
+    "stalking": [
+      {
+        "id": 200253,
         "count": 2,
-        "rate": 17.7,
-        "lo": 2.14,
-        "hi": 63.94
+        "rate": 9.12,
+        "lo": 0.72,
+        "hi": 37.94
       },
       {
         "id": 200280,
+        "count": 9,
+        "rate": 8.3,
+        "lo": 2.28,
+        "hi": 21.17
+      },
+      {
+        "id": 200332,
+        "count": 5,
+        "rate": 4.01,
+        "lo": 0.82,
+        "hi": 11.79
+      }
+    ],
+    "weapons_arrest": [
+      {
+        "id": 200253,
         "count": 1,
-        "rate": 1.07,
-        "lo": 0.03,
-        "hi": 5.96
+        "rate": 4.56,
+        "lo": 0.08,
+        "hi": 27.67
+      },
+      {
+        "id": 200280,
+        "count": 3,
+        "rate": 2.77,
+        "lo": 0.38,
+        "hi": 9.58
+      }
+    ],
+    "weapons_discipline": [
+      {
+        "id": 200280,
+        "count": 1,
+        "rate": 0.92,
+        "lo": 0.02,
+        "hi": 5.59
+      }
+    ]
+  },
+  "rateNotRanked": {
+    "criminal": [
+      {
+        "id": 200305,
+        "count": 11,
+        "rate": 70.42,
+        "lo": 27.38,
+        "hi": 148.1,
+        "why": [
+          "online",
+          "few"
+        ]
+      },
+      {
+        "id": 200022,
+        "count": 1,
+        "rate": 4.44,
+        "lo": 0.09,
+        "hi": 25.78,
+        "why": [
+          "online",
+          "few"
+        ]
+      }
+    ],
+    "violent": [
+      {
+        "id": 200305,
+        "count": 3,
+        "rate": 19.21,
+        "lo": 3.11,
+        "hi": 62.19,
+        "why": [
+          "online",
+          "few"
+        ]
+      }
+    ],
+    "property": [
+      {
+        "id": 200305,
+        "count": 8,
+        "rate": 51.22,
+        "lo": 16.44,
+        "hi": 120.26,
+        "why": [
+          "online",
+          "few"
+        ]
+      },
+      {
+        "id": 200022,
+        "count": 1,
+        "rate": 4.44,
+        "lo": 0.09,
+        "hi": 26.08,
+        "why": [
+          "online",
+          "few"
+        ]
+      }
+    ],
+    "all": [
+      {
+        "id": 200305,
+        "count": 199,
+        "rate": 1274.01,
+        "lo": 669.68,
+        "hi": 2198.66,
+        "why": [
+          "online"
+        ]
+      },
+      {
+        "id": 200022,
+        "count": 69,
+        "rate": 306.53,
+        "lo": 154.26,
+        "hi": 545.42,
+        "why": [
+          "online"
+        ]
+      }
+    ],
+    "aggravated_assault": [
+      {
+        "id": 200305,
+        "count": 1,
+        "rate": 6.4,
+        "lo": 0.1,
+        "hi": 39.02,
+        "why": [
+          "online",
+          "few"
+        ]
+      }
+    ],
+    "burglary": [
+      {
+        "id": 200305,
+        "count": 4,
+        "rate": 25.61,
+        "lo": 4.44,
+        "hi": 80.62,
+        "why": [
+          "online",
+          "few"
+        ]
+      },
+      {
+        "id": 200022,
+        "count": 1,
+        "rate": 4.44,
+        "lo": 0.07,
+        "hi": 27.08,
+        "why": [
+          "online",
+          "few"
+        ]
+      }
+    ],
+    "dating_violence": [
+      {
+        "id": 200305,
+        "count": 1,
+        "rate": 6.4,
+        "lo": 0.1,
+        "hi": 39.02,
+        "why": [
+          "online",
+          "few"
+        ]
+      }
+    ],
+    "domestic_violence": [
+      {
+        "id": 200305,
+        "count": 6,
+        "rate": 38.41,
+        "lo": 8.73,
+        "hi": 107.37,
+        "why": [
+          "online",
+          "few"
+        ]
+      }
+    ],
+    "drug_arrest": [
+      {
+        "id": 200305,
+        "count": 6,
+        "rate": 38.41,
+        "lo": 8.94,
+        "hi": 106.19,
+        "why": [
+          "online",
+          "few"
+        ]
+      }
+    ],
+    "drug_discipline": [
+      {
+        "id": 200305,
+        "count": 24,
+        "rate": 153.65,
+        "lo": 55.37,
+        "hi": 338.01,
+        "why": [
+          "online"
+        ]
+      }
+    ],
+    "fondling": [],
+    "liquor_arrest": [
+      {
+        "id": 200305,
+        "count": 30,
+        "rate": 192.06,
+        "lo": 71.41,
+        "hi": 414.84,
+        "why": [
+          "online"
+        ]
+      },
+      {
+        "id": 200022,
+        "count": 1,
+        "rate": 4.44,
+        "lo": 0.07,
+        "hi": 26.96,
+        "why": [
+          "online",
+          "few"
+        ]
+      }
+    ],
+    "liquor_discipline": [
+      {
+        "id": 200305,
+        "count": 116,
+        "rate": 742.64,
+        "lo": 303.75,
+        "hi": 1513.96,
+        "why": [
+          "online"
+        ]
+      },
+      {
+        "id": 200022,
+        "count": 64,
+        "rate": 284.32,
+        "lo": 113.14,
+        "hi": 589.52,
+        "why": [
+          "online"
+        ]
+      }
+    ],
+    "motor_vehicle_theft": [
+      {
+        "id": 200305,
+        "count": 4,
+        "rate": 25.61,
+        "lo": 4.44,
+        "hi": 80.62,
+        "why": [
+          "online",
+          "few"
+        ]
+      }
+    ],
+    "rape": [],
+    "robbery": [
+      {
+        "id": 200305,
+        "count": 2,
+        "rate": 12.8,
+        "lo": 1.01,
+        "hi": 53.27,
+        "why": [
+          "online",
+          "few"
+        ]
       }
     ],
     "stalking": [
       {
         "id": 200305,
         "count": 4,
-        "rate": 35.4,
-        "lo": 9.64,
-        "hi": 90.63
-      },
-      {
-        "id": 200253,
-        "count": 2,
-        "rate": 11.3,
-        "lo": 1.37,
-        "hi": 40.82
-      },
-      {
-        "id": 200280,
-        "count": 9,
-        "rate": 9.62,
-        "lo": 4.4,
-        "hi": 18.26
+        "rate": 25.61,
+        "lo": 4.44,
+        "hi": 80.62,
+        "why": [
+          "online",
+          "few"
+        ]
       },
       {
         "id": 200022,
         "count": 1,
-        "rate": 5.97,
-        "lo": 0.15,
-        "hi": 33.24
-      },
-      {
-        "id": 200332,
-        "count": 5,
-        "rate": 4.13,
-        "lo": 1.34,
-        "hi": 9.65
+        "rate": 4.44,
+        "lo": 0.07,
+        "hi": 27.08,
+        "why": [
+          "online",
+          "few"
+        ]
       }
     ],
     "weapons_arrest": [
       {
         "id": 200022,
         "count": 1,
-        "rate": 5.97,
-        "lo": 0.15,
-        "hi": 33.24
-      },
-      {
-        "id": 200253,
-        "count": 1,
-        "rate": 5.65,
-        "lo": 0.14,
-        "hi": 31.48
-      },
-      {
-        "id": 200280,
-        "count": 3,
-        "rate": 3.21,
-        "lo": 0.66,
-        "hi": 9.37
+        "rate": 4.44,
+        "lo": 0.07,
+        "hi": 26.96,
+        "why": [
+          "online",
+          "few"
+        ]
       }
     ],
     "weapons_discipline": [
       {
         "id": 200305,
         "count": 1,
-        "rate": 8.85,
-        "lo": 0.22,
-        "hi": 49.31
+        "rate": 6.4,
+        "lo": 0.11,
+        "hi": 38.85,
+        "why": [
+          "online",
+          "few"
+        ]
       },
       {
         "id": 200022,
         "count": 1,
-        "rate": 5.97,
-        "lo": 0.15,
-        "hi": 33.24
-      },
-      {
-        "id": 200280,
-        "count": 1,
-        "rate": 1.07,
-        "lo": 0.03,
-        "hi": 5.96
+        "rate": 4.44,
+        "lo": 0.07,
+        "hi": 26.96,
+        "why": [
+          "online",
+          "few"
+        ]
       }
     ]
   }

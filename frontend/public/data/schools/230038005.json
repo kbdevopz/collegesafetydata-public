@@ -97,16 +97,24 @@
     "id": 230038,
     "byYear": {
       "2015": {
-        "campuses": 5,
+        "campuses": 3,
         "online": 0,
         "rateRanked": true,
         "rateFte": 30950,
+        "abroad": {
+          "campuses": 2,
+          "counts": {
+            "criminal": 2,
+            "property": 2,
+            "all": 2,
+            "burglary": 2
+          }
+        },
         "counts": {
-          "criminal": 15,
+          "criminal": 13,
           "violent": 3,
-          "property": 7,
-          "all": 52,
-          "burglary": 2,
+          "property": 5,
+          "all": 50,
           "domestic_violence": 4,
           "drug_arrest": 8,
           "drug_discipline": 10,
@@ -118,10 +126,14 @@
         }
       },
       "2016": {
-        "campuses": 5,
+        "campuses": 3,
         "online": 0,
         "rateRanked": true,
         "rateFte": 31674,
+        "abroad": {
+          "campuses": 2,
+          "counts": {}
+        },
         "counts": {
           "criminal": 29,
           "violent": 9,
@@ -142,10 +154,14 @@
         }
       },
       "2017": {
-        "campuses": 5,
+        "campuses": 3,
         "online": 0,
         "rateRanked": true,
         "rateFte": 31712,
+        "abroad": {
+          "campuses": 2,
+          "counts": {}
+        },
         "counts": {
           "criminal": 32,
           "violent": 7,
@@ -168,10 +184,14 @@
         }
       },
       "2018": {
-        "campuses": 5,
+        "campuses": 3,
         "online": 1,
         "rateRanked": true,
-        "rateFte": 31534,
+        "rateFte": 31718,
+        "abroad": {
+          "campuses": 2,
+          "counts": {}
+        },
         "counts": {
           "criminal": 40,
           "violent": 9,
@@ -192,22 +212,30 @@
         }
       },
       "2019": {
-        "campuses": 5,
+        "campuses": 3,
         "online": 1,
         "rateRanked": true,
-        "rateFte": 31438,
+        "rateFte": 31622,
+        "abroad": {
+          "campuses": 2,
+          "counts": {
+            "criminal": 1,
+            "all": 1,
+            "fondling": 1
+          }
+        },
         "counts": {
-          "criminal": 23,
+          "criminal": 22,
           "violent": 4,
           "property": 6,
-          "all": 90,
+          "all": 89,
           "aggravated_assault": 1,
           "burglary": 3,
           "dating_violence": 7,
           "domestic_violence": 5,
           "drug_arrest": 15,
           "drug_discipline": 3,
-          "fondling": 13,
+          "fondling": 12,
           "liquor_arrest": 2,
           "liquor_discipline": 1,
           "motor_vehicle_theft": 3,
@@ -216,11 +244,15 @@
         }
       },
       "2020": {
-        "campuses": 5,
+        "campuses": 3,
         "online": 1,
         "rateRanked": true,
         "onlineYear": 2019,
-        "rateFte": 33358,
+        "rateFte": 33553,
+        "abroad": {
+          "campuses": 2,
+          "counts": {}
+        },
         "counts": {
           "criminal": 22,
           "violent": 6,
@@ -241,11 +273,15 @@
         }
       },
       "2021": {
-        "campuses": 5,
+        "campuses": 3,
         "online": 1,
         "rateRanked": true,
         "onlineYear": 2019,
-        "rateFte": 31743,
+        "rateFte": 31928,
+        "abroad": {
+          "campuses": 2,
+          "counts": {}
+        },
         "counts": {
           "criminal": 31,
           "violent": 9,
@@ -266,13 +302,14 @@
         }
       },
       "2022": {
-        "campuses": 5,
+        "campuses": 3,
         "online": 2,
         "rateRanked": true,
-        "rateFte": 31193,
-        "spikes": [
-          "liquor_arrest"
-        ],
+        "rateFte": 31537,
+        "abroad": {
+          "campuses": 2,
+          "counts": {}
+        },
         "counts": {
           "criminal": 46,
           "violent": 7,
@@ -295,13 +332,14 @@
         }
       },
       "2023": {
-        "campuses": 4,
+        "campuses": 3,
         "online": 2,
         "rateRanked": true,
-        "rateFte": 31970,
-        "spikes": [
-          "liquor_arrest"
-        ],
+        "rateFte": 32337,
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
         "counts": {
           "criminal": 41,
           "violent": 6,
@@ -321,19 +359,67 @@
         }
       },
       "2024": {
-        "campuses": 3,
+        "campuses": 2,
         "online": 3,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2024 figures of this institution's campus 230038002 are also reported, identically, by campus 230418001 of another institution (a shared campus) and count once, under that campus, while the students on it are in each institution's own FTE. No rate is shown for that year.",
-        "rateFte": 32502,
+        "rateRanked": true,
+        "rateFte": 33099,
+        "abroad": {
+          "campuses": 1,
+          "counts": {
+            "criminal": 1,
+            "property": 1,
+            "all": 1,
+            "burglary": 1
+          }
+        },
+        "sharedOut": {
+          "criminal": 6,
+          "property": 6,
+          "all": 14,
+          "burglary": 2,
+          "dating_violence": 1,
+          "drug_arrest": 3,
+          "motor_vehicle_theft": 4,
+          "stalking": 2,
+          "weapons_arrest": 2
+        },
+        "notRanked": {
+          "criminal": [
+            "shared"
+          ],
+          "property": [
+            "shared"
+          ],
+          "all": [
+            "shared"
+          ],
+          "burglary": [
+            "shared"
+          ],
+          "dating_violence": [
+            "shared"
+          ],
+          "drug_arrest": [
+            "shared"
+          ],
+          "motor_vehicle_theft": [
+            "shared"
+          ],
+          "stalking": [
+            "shared"
+          ],
+          "weapons_arrest": [
+            "shared"
+          ]
+        },
         "counts": {
-          "criminal": 36,
+          "criminal": 35,
           "violent": 5,
-          "property": 17,
-          "all": 78,
+          "property": 16,
+          "all": 77,
           "aggravated_assault": 1,
           "arson": 1,
-          "burglary": 9,
+          "burglary": 8,
           "dating_violence": 3,
           "domestic_violence": 4,
           "drug_arrest": 2,

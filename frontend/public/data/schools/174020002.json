@@ -128,7 +128,7 @@
         "campuses": 5,
         "online": 20,
         "rateRanked": true,
-        "rateFte": 4035,
+        "rateFte": 4418,
         "counts": {
           "criminal": 14,
           "violent": 6,
@@ -152,9 +152,52 @@
       "2019": {
         "campuses": 5,
         "online": 20,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2019 figures of this institution's campus 174020005 are also reported, identically, by campus 174136001 of another institution (a shared campus) and count once, under that campus, while the students on it are in each institution's own FTE. No rate is shown for that year.",
-        "rateFte": 3958,
+        "rateRanked": true,
+        "rateFte": 4344,
+        "sharedOut": {
+          "criminal": 8,
+          "violent": 7,
+          "all": 30,
+          "aggravated_assault": 2,
+          "domestic_violence": 3,
+          "drug_arrest": 5,
+          "fondling": 1,
+          "liquor_arrest": 14,
+          "rape": 1,
+          "robbery": 4
+        },
+        "notRanked": {
+          "criminal": [
+            "shared"
+          ],
+          "violent": [
+            "shared"
+          ],
+          "all": [
+            "shared"
+          ],
+          "aggravated_assault": [
+            "shared"
+          ],
+          "domestic_violence": [
+            "shared"
+          ],
+          "drug_arrest": [
+            "shared"
+          ],
+          "fondling": [
+            "shared"
+          ],
+          "liquor_arrest": [
+            "shared"
+          ],
+          "rape": [
+            "shared"
+          ],
+          "robbery": [
+            "shared"
+          ]
+        },
         "counts": {
           "criminal": 10,
           "violent": 8,
@@ -174,7 +217,7 @@
         "online": 20,
         "rateRanked": true,
         "onlineYear": 2019,
-        "rateFte": 3901,
+        "rateFte": 4276,
         "counts": {
           "criminal": 32,
           "violent": 20,
@@ -197,10 +240,57 @@
       "2021": {
         "campuses": 5,
         "online": 20,
-        "rateRanked": false,
+        "rateRanked": true,
         "onlineYear": 2019,
-        "rateExcludedReason": "In 2021 figures of this institution's campus 174020005 are also reported, identically, by campus 174136001 of another institution (a shared campus) and count once, under that campus, while the students on it are in each institution's own FTE. No rate is shown for that year.",
-        "rateFte": 3584,
+        "rateFte": 3932,
+        "sharedOut": {
+          "criminal": 21,
+          "violent": 18,
+          "property": 3,
+          "all": 36,
+          "aggravated_assault": 7,
+          "domestic_violence": 8,
+          "drug_arrest": 3,
+          "liquor_arrest": 4,
+          "motor_vehicle_theft": 3,
+          "rape": 1,
+          "robbery": 10
+        },
+        "notRanked": {
+          "criminal": [
+            "shared"
+          ],
+          "violent": [
+            "shared"
+          ],
+          "property": [
+            "shared"
+          ],
+          "all": [
+            "shared"
+          ],
+          "aggravated_assault": [
+            "shared"
+          ],
+          "domestic_violence": [
+            "shared"
+          ],
+          "drug_arrest": [
+            "shared"
+          ],
+          "liquor_arrest": [
+            "shared"
+          ],
+          "motor_vehicle_theft": [
+            "shared"
+          ],
+          "rape": [
+            "shared"
+          ],
+          "robbery": [
+            "shared"
+          ]
+        },
         "counts": {
           "criminal": 14,
           "property": 14,
@@ -218,9 +308,52 @@
       "2022": {
         "campuses": 5,
         "online": 58,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2022 figures of this institution's campus 174020005 are also reported, identically, by campus 174136001 of another institution (a shared campus) and count once, under that campus, while the students on it are in each institution's own FTE. No rate is shown for that year.",
-        "rateFte": 1723,
+        "rateRanked": true,
+        "rateFte": 2522,
+        "fteUncertain": {
+          "share": 1723,
+          "partTimeFirst": 2522
+        },
+        "sharedOut": {
+          "criminal": 5,
+          "property": 5,
+          "all": 12,
+          "dating_violence": 1,
+          "domestic_violence": 1,
+          "drug_discipline": 3,
+          "liquor_discipline": 1,
+          "motor_vehicle_theft": 5,
+          "stalking": 1
+        },
+        "notRanked": {
+          "criminal": [
+            "shared"
+          ],
+          "property": [
+            "shared"
+          ],
+          "all": [
+            "shared"
+          ],
+          "dating_violence": [
+            "shared"
+          ],
+          "domestic_violence": [
+            "shared"
+          ],
+          "drug_discipline": [
+            "shared"
+          ],
+          "liquor_discipline": [
+            "shared"
+          ],
+          "motor_vehicle_theft": [
+            "shared"
+          ],
+          "stalking": [
+            "shared"
+          ]
+        },
         "counts": {
           "criminal": 21,
           "violent": 8,
@@ -242,7 +375,11 @@
         "campuses": 5,
         "online": 47,
         "rateRanked": true,
-        "rateFte": 2136,
+        "rateFte": 2899,
+        "fteUncertain": {
+          "share": 2136,
+          "partTimeFirst": 2899
+        },
         "counts": {
           "criminal": 17,
           "violent": 11,
@@ -263,11 +400,11 @@
         "campuses": 5,
         "online": 47,
         "rateRanked": true,
-        "rateFte": 2406,
-        "spikes": [
-          "criminal",
-          "motor_vehicle_theft"
-        ],
+        "rateFte": 3306,
+        "fteUncertain": {
+          "share": 2406,
+          "partTimeFirst": 3306
+        },
         "counts": {
           "criminal": 45,
           "violent": 20,

@@ -138,7 +138,7 @@
       "state": "IN",
       "main": true,
       "fte": 2284,
-      "campuses": 2
+      "campuses": 1
     },
     "150604001": {
       "name": "Franklin College",
@@ -1211,7 +1211,7 @@
       "state": "IN",
       "main": true,
       "fte": 12432,
-      "campuses": 7
+      "campuses": 3
     },
     "152099001": {
       "name": "Oakland City University",
@@ -5089,21 +5089,21 @@
       "name": "Anderson University",
       "unitid": 150066001,
       "state": "IN",
-      "fte": 1399,
+      "fte": 1457,
       "campuses": 1
     },
     "150136": {
       "name": "Ball State University",
       "unitid": 150136001,
       "state": "IN",
-      "fte": 13993,
+      "fte": 16315,
       "campuses": 3
     },
     "150145": {
       "name": "Bethel University",
       "unitid": 150145001,
       "state": "IN",
-      "fte": 1073,
+      "fte": 1174,
       "campuses": 1
     },
     "150163": {
@@ -5124,7 +5124,7 @@
       "name": "Earlham College",
       "unitid": 150455001,
       "state": "IN",
-      "fte": 1075,
+      "fte": 1082,
       "campuses": 1
     },
     "150534": {
@@ -5132,13 +5132,14 @@
       "unitid": 150534001,
       "state": "IN",
       "fte": 2284,
-      "campuses": 2
+      "campuses": 1,
+      "abroad": 1
     },
     "150677": {
       "name": "Grace College and Theological Seminary",
       "unitid": 150677001,
       "state": "IN",
-      "fte": 1444,
+      "fte": 1581,
       "campuses": 1
     },
     "150756": {
@@ -5152,77 +5153,116 @@
       "name": "Huntington University",
       "unitid": 150941001,
       "state": "IN",
-      "fte": 1075,
+      "fte": 1143,
       "campuses": 1
     },
     "150987": {
       "name": "Ivy Tech Community College",
       "unitid": 150987001,
       "state": "IN",
-      "fte": 29950,
+      "fte": 32834,
       "campuses": 65
+    },
+    "151102": {
+      "name": "Purdue University Fort Wayne",
+      "unitid": 151102001,
+      "state": "IN",
+      "fte": 7356,
+      "campuses": 1
+    },
+    "151111": {
+      "name": "Indiana University-Indianapolis",
+      "unitid": 151111001,
+      "state": "IN",
+      "fte": 24228,
+      "campuses": 7
     },
     "151263": {
       "name": "University of Indianapolis",
       "unitid": 151263001,
       "state": "IN",
-      "fte": 4905,
+      "fte": 5049,
       "campuses": 1
     },
     "151290": {
       "name": "Indiana Institute of Technology",
       "unitid": 151290001,
       "state": "IN",
-      "fte": 1625,
+      "fte": 1798,
       "campuses": 13
     },
     "151306": {
       "name": "University of Southern Indiana",
       "unitid": 151306001,
       "state": "IN",
-      "fte": 7053,
+      "fte": 7707,
       "campuses": 1
+    },
+    "151324": {
+      "name": "Indiana State University",
+      "unitid": 151324001,
+      "state": "IN",
+      "fte": 10042,
+      "campuses": 4
     },
     "151333": {
       "name": "Indiana University-Kokomo",
       "unitid": 151333001,
       "state": "IN",
-      "fte": 2421,
+      "fte": 2532,
       "campuses": 1
     },
     "151342": {
       "name": "Indiana University-South Bend",
       "unitid": 151342001,
       "state": "IN",
-      "fte": 4046,
+      "fte": 4181,
       "campuses": 2
+    },
+    "151351": {
+      "name": "Indiana University-Bloomington",
+      "unitid": 151351001,
+      "state": "IN",
+      "fte": 39270,
+      "campuses": 1
+    },
+    "151360": {
+      "name": "Indiana University-Northwest",
+      "unitid": 151360001,
+      "state": "IN",
+      "fte": 2973,
+      "campuses": 1
     },
     "151379": {
       "name": "Indiana University-Southeast",
       "unitid": 151379001,
       "state": "IN",
-      "fte": 3572,
+      "fte": 3790,
       "campuses": 1
     },
     "151388": {
       "name": "Indiana University-East",
       "unitid": 151388001,
       "state": "IN",
-      "fte": 1153,
-      "campuses": 3
+      "fte": 1600,
+      "campuses": 3,
+      "fteUncertain": {
+        "share": 1153,
+        "partTimeFirst": 1600
+      }
     },
     "151777": {
       "name": "Manchester University",
       "unitid": 151777001,
       "state": "IN",
-      "fte": 1454,
+      "fte": 1472,
       "campuses": 2
     },
     "151786": {
       "name": "Marian University",
       "unitid": 151786001,
       "state": "IN",
-      "fte": 2385,
+      "fte": 2730,
       "campuses": 1
     },
     "151801": {
@@ -5236,8 +5276,9 @@
       "name": "University of Notre Dame",
       "unitid": 152080001,
       "state": "IN",
-      "fte": 12308,
-      "campuses": 7
+      "fte": 12384,
+      "campuses": 3,
+      "abroad": 4
     },
     "152318": {
       "name": "Rose-Hulman Institute of Technology",
@@ -5250,64 +5291,75 @@
       "name": "University of Saint Francis-Fort Wayne",
       "unitid": 152336001,
       "state": "IN",
-      "fte": 1664,
+      "fte": 1789,
       "campuses": 1
     },
     "152390": {
       "name": "Saint Mary's College",
       "unitid": 152390001,
       "state": "IN",
-      "fte": 1479,
+      "fte": 1516,
       "campuses": 1
     },
     "152530": {
       "name": "Taylor University",
       "unitid": 152530001,
       "state": "IN",
-      "fte": 1759,
+      "fte": 1896,
       "campuses": 1
     },
     "152567": {
       "name": "Trine University",
       "unitid": 152567001,
       "state": "IN",
-      "fte": 2993,
+      "fte": 3006,
       "campuses": 1
     },
     "152600": {
       "name": "Valparaiso University",
       "unitid": 152600001,
       "state": "IN",
-      "fte": 3490,
+      "fte": 3554,
       "campuses": 1
     },
     "152637": {
       "name": "Vincennes University",
       "unitid": 152637001,
       "state": "IN",
-      "fte": 9518,
+      "fte": 9666,
       "campuses": 1
+    },
+    "243780": {
+      "name": "Purdue University-Main Campus",
+      "unitid": 243780001,
+      "state": "IN",
+      "fte": 39673,
+      "campuses": 10
     },
     "488679": {
       "name": "Indiana Wesleyan University-National & Global",
       "unitid": 488679001,
       "state": "IN",
-      "fte": 1868,
+      "fte": 2017,
       "campuses": 15
     },
     "490805": {
       "name": "Purdue University Northwest",
       "unitid": 490805002,
       "state": "IN",
-      "fte": 6695,
+      "fte": 7251,
       "campuses": 2
     },
     "492962": {
       "name": "Indiana Institute of Technology-College of Professional Studies",
       "unitid": 492962001,
       "state": "IN",
-      "fte": 1174,
-      "campuses": 1
+      "fte": 1603,
+      "campuses": 1,
+      "fteUncertain": {
+        "share": 1174,
+        "partTimeFirst": 1603
+      }
     }
   },
   "rateRankings": {
@@ -5317,49 +5369,48 @@
         "id": 150400,
         "count": 28,
         "rate": 130.48,
-        "lo": 86.7,
-        "hi": 188.57,
+        "lo": 63.58,
+        "hi": 237.34,
         "rankLo": 1,
-        "rankHi": 3
+        "rankHi": 2
       },
       {
         "rank": 2,
         "id": 151801,
         "count": 21,
         "rate": 71.94,
-        "lo": 44.53,
-        "hi": 109.97,
+        "lo": 33.3,
+        "hi": 135.47,
         "rankLo": 1,
-        "rankHi": 4,
-        "spike": true
+        "rankHi": 4
       },
       {
         "rank": 3,
         "id": 150163,
         "count": 32,
         "rate": 61.98,
-        "lo": 42.39,
-        "hi": 87.5,
+        "lo": 30.81,
+        "hi": 111.22,
         "rankLo": 1,
-        "rankHi": 5
+        "rankHi": 4
       },
       {
         "rank": 4,
         "id": 152080,
-        "count": 43,
-        "rate": 34.94,
-        "lo": 25.28,
-        "hi": 47.06,
-        "rankLo": 2,
+        "count": 42,
+        "rate": 33.91,
+        "lo": 17.44,
+        "hi": 59.45,
+        "rankLo": 3,
         "rankHi": 5
       },
       {
         "rank": 5,
         "id": 150136,
         "count": 46,
-        "rate": 32.87,
-        "lo": 24.07,
-        "hi": 43.85,
+        "rate": 28.19,
+        "lo": 14.64,
+        "hi": 49.09,
         "rankLo": 3,
         "rankHi": 5
       }
@@ -5369,10 +5420,10 @@
       {
         "rank": 1,
         "id": 152080,
-        "count": 26,
-        "rate": 21.12,
-        "lo": 13.8,
-        "hi": 30.95,
+        "count": 25,
+        "rate": 20.19,
+        "lo": 8.96,
+        "hi": 39.06,
         "rankLo": 1,
         "rankHi": 1
       }
@@ -5383,149 +5434,148 @@
         "id": 150400,
         "count": 252,
         "rate": 1174.28,
-        "lo": 1033.76,
-        "hi": 1328.57,
+        "lo": 620.33,
+        "hi": 2019.41,
         "rankLo": 1,
-        "rankHi": 1
+        "rankHi": 4
       },
       {
         "rank": 2,
         "id": 150455,
         "count": 86,
-        "rate": 800.0,
-        "lo": 639.9,
-        "hi": 987.99,
-        "rankLo": 2,
-        "rankHi": 5
+        "rate": 794.82,
+        "lo": 405.22,
+        "hi": 1401.51,
+        "rankLo": 1,
+        "rankHi": 6
       },
       {
         "rank": 3,
         "id": 150163,
         "count": 370,
         "rate": 716.64,
-        "lo": 645.47,
-        "hi": 793.51,
-        "rankLo": 2,
-        "rankHi": 5
+        "lo": 380.84,
+        "hi": 1227.16,
+        "rankLo": 1,
+        "rankHi": 7
       },
       {
         "rank": 4,
         "id": 152080,
-        "count": 796,
-        "rate": 646.73,
-        "lo": 602.58,
-        "hi": 693.27,
-        "rankLo": 2,
-        "rankHi": 5
+        "count": 795,
+        "rate": 641.96,
+        "lo": 343.51,
+        "hi": 1093.89,
+        "rankLo": 1,
+        "rankHi": 8
       },
       {
         "rank": 5,
         "id": 151777,
         "count": 93,
-        "rate": 639.61,
-        "lo": 516.25,
-        "hi": 783.57,
-        "rankLo": 2,
-        "rankHi": 5
+        "rate": 631.79,
+        "lo": 323.4,
+        "hi": 1110.93,
+        "rankLo": 1,
+        "rankHi": 9
       },
       {
         "rank": 6,
-        "id": 150136,
-        "count": 573,
-        "rate": 409.49,
-        "lo": 376.64,
-        "hi": 444.43,
-        "rankLo": 6,
-        "rankHi": 10
+        "id": 152600,
+        "count": 134,
+        "rate": 377.04,
+        "lo": 195.95,
+        "hi": 655.95,
+        "rankLo": 4,
+        "rankHi": 16
       },
       {
         "rank": 7,
-        "id": 152600,
-        "count": 134,
-        "rate": 383.95,
-        "lo": 321.7,
-        "hi": 454.74,
-        "rankLo": 6,
-        "rankHi": 13
-      },
-      {
-        "rank": 8,
         "id": 150534,
         "count": 83,
         "rate": 363.4,
-        "lo": 289.44,
-        "hi": 450.49,
-        "rankLo": 6,
-        "rankHi": 14
+        "lo": 184.91,
+        "hi": 641.64,
+        "rankLo": 4,
+        "rankHi": 16
+      },
+      {
+        "rank": 8,
+        "id": 150136,
+        "count": 573,
+        "rate": 351.21,
+        "lo": 187.5,
+        "hi": 599.46,
+        "rankLo": 5,
+        "rankHi": 16
       },
       {
         "rank": 9,
         "id": 150756,
         "count": 35,
         "rate": 318.18,
-        "lo": 221.63,
-        "hi": 442.51,
-        "rankLo": 6,
+        "lo": 150.48,
+        "hi": 590.63,
+        "rankLo": 5,
         "rankHi": 19
       },
       {
         "rank": 10,
         "id": 152390,
         "count": 46,
-        "rate": 311.02,
-        "lo": 227.71,
-        "hi": 414.86,
-        "rankLo": 6,
+        "rate": 303.43,
+        "lo": 147.84,
+        "hi": 552.03,
+        "rankLo": 5,
         "rankHi": 19
       },
       {
         "rank": 11,
-        "id": 151306,
-        "count": 207,
-        "rate": 293.49,
-        "lo": 254.87,
-        "hi": 336.31,
-        "rankLo": 7,
-        "rankHi": 17
+        "id": 152567,
+        "count": 84,
+        "rate": 279.44,
+        "lo": 142.29,
+        "hi": 493.17,
+        "rankLo": 6,
+        "rankHi": 20
       },
       {
         "rank": 12,
-        "id": 152567,
-        "count": 84,
-        "rate": 280.65,
-        "lo": 223.86,
-        "hi": 347.47,
-        "rankLo": 7,
+        "id": 151306,
+        "count": 207,
+        "rate": 268.59,
+        "lo": 141.31,
+        "hi": 463.22,
+        "rankLo": 6,
         "rankHi": 19
       },
       {
         "rank": 13,
-        "id": 151786,
-        "count": 62,
-        "rate": 259.96,
-        "lo": 199.31,
-        "hi": 333.25,
-        "rankLo": 7,
-        "rankHi": 21
-      },
-      {
-        "rank": 14,
         "id": 151801,
         "count": 74,
         "rate": 253.51,
-        "lo": 199.06,
-        "hi": 318.26,
-        "rankLo": 8,
-        "rankHi": 21,
-        "spike": true
+        "lo": 128.14,
+        "hi": 449.7,
+        "rankLo": 6,
+        "rankHi": 20
+      },
+      {
+        "rank": 14,
+        "id": 151786,
+        "count": 62,
+        "rate": 227.11,
+        "lo": 113.45,
+        "hi": 406.16,
+        "rankLo": 7,
+        "rankHi": 21
       },
       {
         "rank": 15,
         "id": 151342,
         "count": 85,
-        "rate": 210.08,
-        "lo": 167.81,
-        "hi": 259.77,
+        "rate": 203.3,
+        "lo": 103.58,
+        "hi": 358.64,
         "rankLo": 9,
         "rankHi": 22
       },
@@ -5533,19 +5583,19 @@
         "rank": 16,
         "id": 151263,
         "count": 99,
-        "rate": 201.83,
-        "lo": 164.04,
-        "hi": 245.73,
-        "rankLo": 10,
+        "rate": 196.08,
+        "lo": 100.67,
+        "hi": 344.06,
+        "rankLo": 9,
         "rankHi": 22
       },
       {
         "rank": 17,
         "id": 150066,
         "count": 27,
-        "rate": 192.99,
-        "lo": 127.18,
-        "hi": 280.8,
+        "rate": 185.31,
+        "lo": 84.54,
+        "hi": 352.32,
         "rankLo": 9,
         "rankHi": 23
       },
@@ -5553,60 +5603,60 @@
         "rank": 18,
         "id": 152336,
         "count": 32,
-        "rate": 192.31,
-        "lo": 131.54,
-        "hi": 271.48,
+        "rate": 178.87,
+        "lo": 83.63,
+        "hi": 334.59,
         "rankLo": 9,
         "rankHi": 23
       },
       {
         "rank": 19,
-        "id": 152530,
-        "count": 31,
-        "rate": 176.24,
-        "lo": 119.74,
-        "hi": 250.15,
-        "rankLo": 10,
+        "id": 152637,
+        "count": 165,
+        "rate": 170.7,
+        "lo": 89.29,
+        "hi": 295.61,
+        "rankLo": 11,
         "rankHi": 23
       },
       {
         "rank": 20,
-        "id": 152637,
-        "count": 165,
-        "rate": 173.36,
-        "lo": 147.91,
-        "hi": 201.92,
-        "rankLo": 13,
-        "rankHi": 22
+        "id": 152530,
+        "count": 31,
+        "rate": 163.5,
+        "lo": 76.11,
+        "hi": 306.72,
+        "rankLo": 10,
+        "rankHi": 23
       },
       {
         "rank": 21,
-        "id": 151290,
-        "count": 22,
-        "rate": 135.38,
-        "lo": 84.84,
-        "hi": 204.97,
-        "rankLo": 13,
+        "id": 151379,
+        "count": 47,
+        "rate": 124.01,
+        "lo": 60.55,
+        "hi": 225.3,
+        "rankLo": 15,
         "rankHi": 23
       },
       {
         "rank": 22,
-        "id": 151379,
-        "count": 47,
-        "rate": 131.58,
-        "lo": 96.68,
-        "hi": 174.97,
-        "rankLo": 15,
+        "id": 151290,
+        "count": 22,
+        "rate": 122.36,
+        "lo": 53.9,
+        "hi": 238.0,
+        "rankLo": 14,
         "rankHi": 23
       },
       {
         "rank": 23,
         "id": 490805,
         "count": 75,
-        "rate": 112.02,
-        "lo": 88.11,
-        "hi": 140.42,
-        "rankLo": 18,
+        "rate": 103.43,
+        "lo": 52.33,
+        "hi": 183.37,
+        "rankLo": 17,
         "rankHi": 23
       }
     ],
@@ -5615,10 +5665,10 @@
       {
         "rank": 1,
         "id": 152080,
-        "count": 22,
-        "rate": 17.87,
-        "lo": 11.2,
-        "hi": 27.06,
+        "count": 21,
+        "rate": 16.96,
+        "lo": 5.82,
+        "hi": 38.35,
         "rankLo": 1,
         "rankHi": 1
       }
@@ -5630,41 +5680,39 @@
         "rank": 1,
         "id": 151777,
         "count": 22,
-        "rate": 151.31,
-        "lo": 94.82,
-        "hi": 229.08,
+        "rate": 149.46,
+        "lo": 53.1,
+        "hi": 331.49,
         "rankLo": 1,
-        "rankHi": 1,
-        "spike": true
+        "rankHi": 2
       },
       {
         "rank": 2,
         "id": 152637,
         "count": 44,
-        "rate": 46.23,
-        "lo": 33.59,
-        "hi": 62.06,
+        "rate": 45.52,
+        "lo": 17.62,
+        "hi": 95.97,
         "rankLo": 2,
-        "rankHi": 3
+        "rankHi": 4
       },
       {
         "rank": 3,
         "id": 150163,
         "count": 23,
         "rate": 44.55,
-        "lo": 28.24,
-        "hi": 66.84,
+        "lo": 15.94,
+        "hi": 98.39,
         "rankLo": 2,
-        "rankHi": 4,
-        "spike": true
+        "rankHi": 4
       },
       {
         "rank": 4,
         "id": 150136,
         "count": 31,
-        "rate": 22.15,
-        "lo": 15.05,
-        "hi": 31.45,
+        "rate": 19.0,
+        "lo": 7.09,
+        "hi": 40.94,
         "rankLo": 3,
         "rankHi": 4
       }
@@ -5674,20 +5722,19 @@
         "rank": 1,
         "id": 150455,
         "count": 37,
-        "rate": 344.19,
-        "lo": 242.34,
-        "hi": 474.42,
+        "rate": 341.96,
+        "lo": 130.22,
+        "hi": 728.16,
         "rankLo": 1,
-        "rankHi": 2,
-        "spike": true
+        "rankHi": 2
       },
       {
         "rank": 2,
         "id": 150400,
         "count": 67,
         "rate": 312.21,
-        "lo": 241.96,
-        "hi": 396.49,
+        "lo": 124.58,
+        "hi": 646.27,
         "rankLo": 1,
         "rankHi": 2
       },
@@ -5695,30 +5742,30 @@
         "rank": 3,
         "id": 150136,
         "count": 124,
-        "rate": 88.62,
-        "lo": 73.71,
-        "hi": 105.66,
+        "rate": 76.0,
+        "lo": 31.15,
+        "hi": 154.73,
         "rankLo": 3,
-        "rankHi": 3
+        "rankHi": 5
       },
       {
         "rank": 4,
         "id": 152637,
         "count": 48,
-        "rate": 50.43,
-        "lo": 37.18,
-        "hi": 66.86,
-        "rankLo": 4,
+        "rate": 49.66,
+        "lo": 19.37,
+        "hi": 104.24,
+        "rankLo": 3,
         "rankHi": 5
       },
       {
         "rank": 5,
         "id": 151306,
         "count": 25,
-        "rate": 35.45,
-        "lo": 22.94,
-        "hi": 52.33,
-        "rankLo": 4,
+        "rate": 32.44,
+        "lo": 11.76,
+        "hi": 71.1,
+        "rankLo": 3,
         "rankHi": 5
       }
     ],
@@ -5729,8 +5776,8 @@
         "id": 150400,
         "count": 34,
         "rate": 158.43,
-        "lo": 109.72,
-        "hi": 221.4,
+        "lo": 59.79,
+        "hi": 339.2,
         "rankLo": 1,
         "rankHi": 2
       },
@@ -5739,28 +5786,28 @@
         "id": 150163,
         "count": 59,
         "rate": 114.27,
-        "lo": 86.99,
-        "hi": 147.41,
+        "lo": 45.24,
+        "hi": 237.69,
         "rankLo": 1,
-        "rankHi": 2
+        "rankHi": 3
       },
       {
         "rank": 3,
         "id": 152637,
         "count": 45,
-        "rate": 47.28,
-        "lo": 34.49,
-        "hi": 63.26,
-        "rankLo": 3,
+        "rate": 46.55,
+        "lo": 18.06,
+        "hi": 98.04,
+        "rankLo": 2,
         "rankHi": 4
       },
       {
         "rank": 4,
         "id": 150136,
         "count": 58,
-        "rate": 41.45,
-        "lo": 31.47,
-        "hi": 53.58,
+        "rate": 35.55,
+        "lo": 14.06,
+        "hi": 74.0,
         "rankLo": 3,
         "rankHi": 4
       }
@@ -5770,181 +5817,180 @@
         "rank": 1,
         "id": 152080,
         "count": 701,
-        "rate": 569.55,
-        "lo": 528.16,
-        "hi": 613.32,
+        "rate": 566.05,
+        "lo": 238.25,
+        "hi": 1133.49,
         "rankLo": 1,
-        "rankHi": 3
+        "rankHi": 7
       },
       {
         "rank": 2,
         "id": 150400,
         "count": 98,
         "rate": 456.66,
-        "lo": 370.74,
-        "hi": 556.53,
+        "lo": 185.62,
+        "hi": 934.58,
         "rankLo": 1,
-        "rankHi": 6
+        "rankHi": 9
       },
       {
         "rank": 3,
         "id": 150455,
         "count": 47,
-        "rate": 437.21,
-        "lo": 321.24,
-        "hi": 581.4,
+        "rate": 434.38,
+        "lo": 169.11,
+        "hi": 912.76,
         "rankLo": 1,
-        "rankHi": 8
+        "rankHi": 10
       },
       {
         "rank": 4,
         "id": 150163,
         "count": 224,
         "rate": 433.86,
-        "lo": 378.9,
-        "hi": 494.55,
-        "rankLo": 2,
-        "rankHi": 6
+        "lo": 180.4,
+        "hi": 875.43,
+        "rankLo": 1,
+        "rankHi": 9
       },
       {
         "rank": 5,
         "id": 152600,
         "count": 111,
-        "rate": 318.05,
-        "lo": 261.64,
-        "hi": 383.02,
+        "rate": 312.32,
+        "lo": 127.55,
+        "hi": 637.32,
         "rankLo": 2,
-        "rankHi": 8
+        "rankHi": 12
       },
       {
         "rank": 6,
         "id": 152390,
         "count": 44,
-        "rate": 297.5,
-        "lo": 216.16,
-        "hi": 399.38,
+        "rate": 290.24,
+        "lo": 112.36,
+        "hi": 611.93,
         "rankLo": 2,
-        "rankHi": 11
+        "rankHi": 13
       },
       {
         "rank": 7,
         "id": 150534,
         "count": 57,
         "rate": 249.56,
-        "lo": 189.02,
-        "hi": 323.34,
-        "rankLo": 4,
-        "rankHi": 13
+        "lo": 98.57,
+        "hi": 519.82,
+        "rankLo": 3,
+        "rankHi": 14
       },
       {
         "rank": 8,
         "id": 151777,
         "count": 36,
-        "rate": 247.59,
-        "lo": 173.41,
-        "hi": 342.77,
-        "rankLo": 4,
+        "rate": 244.57,
+        "lo": 92.87,
+        "hi": 521.66,
+        "rankLo": 3,
         "rankHi": 14
       },
       {
         "rank": 9,
-        "id": 150136,
-        "count": 300,
-        "rate": 214.39,
-        "lo": 190.82,
-        "hi": 240.08,
-        "rankLo": 6,
-        "rankHi": 12
+        "id": 151306,
+        "count": 142,
+        "rate": 184.25,
+        "lo": 75.83,
+        "hi": 374.16,
+        "rankLo": 5,
+        "rankHi": 16
       },
       {
         "rank": 10,
-        "id": 151306,
-        "count": 142,
-        "rate": 201.33,
-        "lo": 169.58,
-        "hi": 237.3,
-        "rankLo": 6,
-        "rankHi": 14
+        "id": 150136,
+        "count": 300,
+        "rate": 183.88,
+        "lo": 76.81,
+        "hi": 369.98,
+        "rankLo": 4,
+        "rankHi": 16
       },
       {
         "rank": 11,
         "id": 152567,
         "count": 51,
-        "rate": 170.4,
-        "lo": 126.87,
-        "hi": 224.04,
-        "rankLo": 6,
+        "rate": 169.66,
+        "lo": 66.48,
+        "hi": 355.11,
+        "rankLo": 5,
         "rankHi": 16
       },
       {
         "rank": 12,
         "id": 151342,
         "count": 57,
-        "rate": 140.88,
-        "lo": 106.7,
-        "hi": 182.53,
-        "rankLo": 9,
-        "rankHi": 16
+        "rate": 136.33,
+        "lo": 53.85,
+        "hi": 283.97,
+        "rankLo": 7,
+        "rankHi": 17
       },
       {
         "rank": 13,
         "id": 151786,
         "count": 33,
-        "rate": 138.36,
-        "lo": 95.24,
-        "hi": 194.32,
+        "rate": 120.88,
+        "lo": 45.46,
+        "hi": 259.32,
         "rankLo": 7,
-        "rankHi": 17
+        "rankHi": 18
       },
       {
         "rank": 14,
         "id": 152530,
         "count": 22,
-        "rate": 125.07,
-        "lo": 78.38,
-        "hi": 189.36,
+        "rate": 116.03,
+        "lo": 41.23,
+        "hi": 257.36,
         "rankLo": 8,
-        "rankHi": 17
+        "rankHi": 18
       },
       {
         "rank": 15,
         "id": 151263,
         "count": 55,
-        "rate": 112.13,
-        "lo": 84.47,
-        "hi": 145.95,
-        "rankLo": 11,
-        "rankHi": 17
+        "rate": 108.93,
+        "lo": 42.92,
+        "hi": 227.24,
+        "rankLo": 8,
+        "rankHi": 18
       },
       {
         "rank": 16,
         "id": 151801,
         "count": 30,
         "rate": 102.77,
-        "lo": 69.34,
-        "hi": 146.72,
-        "rankLo": 11,
-        "rankHi": 18,
-        "spike": true
+        "lo": 38.21,
+        "hi": 221.98,
+        "rankLo": 9,
+        "rankHi": 18
       },
       {
         "rank": 17,
         "id": 151379,
         "count": 24,
-        "rate": 67.19,
-        "lo": 43.05,
-        "hi": 99.97,
-        "rankLo": 13,
+        "rate": 63.32,
+        "lo": 22.82,
+        "hi": 139.31,
+        "rankLo": 12,
         "rankHi": 18
       },
       {
         "rank": 18,
         "id": 490805,
         "count": 38,
-        "rate": 56.76,
-        "lo": 40.17,
-        "hi": 77.91,
-        "rankLo": 16,
+        "rate": 52.41,
+        "lo": 20.01,
+        "hi": 111.41,
+        "rankLo": 14,
         "rankHi": 18
       }
     ],
@@ -5961,148 +6007,141 @@
         "id": 150756,
         "count": 7,
         "rate": 63.64,
-        "lo": 25.59,
-        "hi": 131.12
+        "lo": 20.41,
+        "hi": 149.53
       },
       {
         "id": 151777,
         "count": 8,
-        "rate": 55.02,
-        "lo": 23.75,
-        "hi": 108.41
+        "rate": 54.35,
+        "lo": 18.59,
+        "hi": 123.18
       },
       {
         "id": 151263,
         "count": 19,
-        "rate": 38.74,
-        "lo": 23.32,
-        "hi": 60.49
-      },
-      {
-        "id": 151290,
-        "count": 5,
-        "rate": 30.77,
-        "lo": 9.99,
-        "hi": 71.81
+        "rate": 37.63,
+        "lo": 17.05,
+        "hi": 71.86
       },
       {
         "id": 150534,
         "count": 7,
         "rate": 30.65,
-        "lo": 12.32,
-        "hi": 63.15
+        "lo": 9.83,
+        "hi": 72.01
       },
       {
-        "id": 150145,
-        "count": 2,
-        "rate": 18.64,
-        "lo": 2.26,
-        "hi": 67.33
+        "id": 151290,
+        "count": 5,
+        "rate": 27.81,
+        "lo": 7.31,
+        "hi": 72.51
       },
       {
         "id": 150455,
         "count": 2,
-        "rate": 18.6,
-        "lo": 2.25,
-        "hi": 67.21
+        "rate": 18.48,
+        "lo": 1.85,
+        "hi": 71.28
+      },
+      {
+        "id": 150145,
+        "count": 2,
+        "rate": 17.04,
+        "lo": 1.71,
+        "hi": 65.7
       },
       {
         "id": 151342,
         "count": 7,
-        "rate": 17.3,
-        "lo": 6.96,
-        "hi": 35.65
-      },
-      {
-        "id": 492962,
-        "count": 2,
-        "rate": 17.04,
-        "lo": 2.06,
-        "hi": 61.54
+        "rate": 16.74,
+        "lo": 5.37,
+        "hi": 39.34
       },
       {
         "id": 152567,
         "count": 5,
-        "rate": 16.71,
-        "lo": 5.42,
-        "hi": 38.99
+        "rate": 16.63,
+        "lo": 4.37,
+        "hi": 43.37
       },
       {
         "id": 150677,
         "count": 2,
-        "rate": 13.85,
-        "lo": 1.68,
-        "hi": 50.03
-      },
-      {
-        "id": 151786,
-        "count": 3,
-        "rate": 12.58,
-        "lo": 2.59,
-        "hi": 36.76
+        "rate": 12.65,
+        "lo": 1.27,
+        "hi": 48.78
       },
       {
         "id": 152637,
         "count": 11,
-        "rate": 11.56,
-        "lo": 5.77,
-        "hi": 20.68
+        "rate": 11.38,
+        "lo": 4.42,
+        "hi": 23.93
       },
       {
         "id": 152600,
         "count": 4,
-        "rate": 11.46,
-        "lo": 3.12,
-        "hi": 29.35
+        "rate": 11.25,
+        "lo": 2.5,
+        "hi": 31.8
+      },
+      {
+        "id": 151786,
+        "count": 3,
+        "rate": 10.99,
+        "lo": 1.86,
+        "hi": 34.92
       },
       {
         "id": 151306,
         "count": 7,
-        "rate": 9.92,
-        "lo": 3.99,
-        "hi": 20.45
+        "rate": 9.08,
+        "lo": 2.91,
+        "hi": 21.34
       },
       {
         "id": 490805,
         "count": 6,
-        "rate": 8.96,
-        "lo": 3.29,
-        "hi": 19.51
+        "rate": 8.27,
+        "lo": 2.44,
+        "hi": 20.34
       },
       {
         "id": 151379,
         "count": 3,
-        "rate": 8.4,
-        "lo": 1.73,
-        "hi": 24.54
+        "rate": 7.92,
+        "lo": 1.34,
+        "hi": 25.15
       },
       {
         "id": 150066,
         "count": 1,
-        "rate": 7.15,
-        "lo": 0.18,
+        "rate": 6.86,
+        "lo": 0.14,
         "hi": 39.83
       },
       {
         "id": 152336,
         "count": 1,
-        "rate": 6.01,
-        "lo": 0.15,
-        "hi": 33.48
+        "rate": 5.59,
+        "lo": 0.12,
+        "hi": 32.44
       },
       {
         "id": 152530,
         "count": 1,
-        "rate": 5.69,
-        "lo": 0.14,
-        "hi": 31.68
+        "rate": 5.27,
+        "lo": 0.11,
+        "hi": 30.61
       },
       {
         "id": 150987,
         "count": 3,
-        "rate": 1.0,
-        "lo": 0.21,
-        "hi": 2.93
+        "rate": 0.91,
+        "lo": 0.15,
+        "hi": 2.9
       }
     ],
     "violent": [
@@ -6110,169 +6149,162 @@
         "id": 150400,
         "count": 13,
         "rate": 60.58,
-        "lo": 32.26,
-        "hi": 103.59
+        "lo": 23.5,
+        "hi": 127.58
       },
       {
         "id": 150756,
         "count": 4,
         "rate": 36.36,
-        "lo": 9.91,
-        "hi": 93.11
+        "lo": 7.7,
+        "hi": 105.01
       },
       {
         "id": 151777,
         "count": 5,
-        "rate": 34.39,
-        "lo": 11.17,
-        "hi": 80.25
+        "rate": 33.97,
+        "lo": 8.5,
+        "hi": 90.75
       },
       {
         "id": 150163,
         "count": 15,
         "rate": 29.05,
-        "lo": 16.26,
-        "hi": 47.92
+        "lo": 11.73,
+        "hi": 59.72
       },
       {
         "id": 151290,
         "count": 4,
-        "rate": 24.62,
-        "lo": 6.71,
-        "hi": 63.03
+        "rate": 22.25,
+        "lo": 4.71,
+        "hi": 64.24
       },
       {
         "id": 150455,
         "count": 2,
-        "rate": 18.6,
-        "lo": 2.25,
-        "hi": 67.21
+        "rate": 18.48,
+        "lo": 1.77,
+        "hi": 72.36
       },
       {
         "id": 150534,
         "count": 4,
         "rate": 17.51,
-        "lo": 4.77,
-        "hi": 44.84
+        "lo": 3.71,
+        "hi": 50.57
       },
       {
         "id": 151263,
         "count": 7,
-        "rate": 14.27,
-        "lo": 5.74,
-        "hi": 29.4
+        "rate": 13.86,
+        "lo": 4.22,
+        "hi": 33.5
       },
       {
         "id": 151801,
         "count": 3,
         "rate": 10.28,
-        "lo": 2.12,
-        "hi": 30.04
+        "lo": 1.66,
+        "hi": 33.28
       },
       {
         "id": 152567,
         "count": 3,
-        "rate": 10.02,
-        "lo": 2.07,
-        "hi": 29.29
+        "rate": 9.98,
+        "lo": 1.61,
+        "hi": 32.31
       },
       {
         "id": 150136,
         "count": 14,
-        "rate": 10.01,
-        "lo": 5.47,
-        "hi": 16.79
-      },
-      {
-        "id": 492962,
-        "count": 1,
-        "rate": 8.52,
-        "lo": 0.22,
-        "hi": 47.46
+        "rate": 8.58,
+        "lo": 3.4,
+        "hi": 17.84
       },
       {
         "id": 151786,
         "count": 2,
-        "rate": 8.39,
-        "lo": 1.02,
-        "hi": 30.29
+        "rate": 7.33,
+        "lo": 0.7,
+        "hi": 28.68
       },
       {
         "id": 152080,
         "count": 9,
-        "rate": 7.31,
-        "lo": 3.34,
-        "hi": 13.88
+        "rate": 7.27,
+        "lo": 2.48,
+        "hi": 16.5
       },
       {
         "id": 150066,
         "count": 1,
-        "rate": 7.15,
-        "lo": 0.18,
-        "hi": 39.83
+        "rate": 6.86,
+        "lo": 0.14,
+        "hi": 40.22
       },
       {
         "id": 150677,
         "count": 1,
-        "rate": 6.93,
-        "lo": 0.18,
-        "hi": 38.58
+        "rate": 6.33,
+        "lo": 0.13,
+        "hi": 37.06
       },
       {
         "id": 152336,
         "count": 1,
-        "rate": 6.01,
-        "lo": 0.15,
-        "hi": 33.48
+        "rate": 5.59,
+        "lo": 0.11,
+        "hi": 32.75
       },
       {
         "id": 151342,
         "count": 2,
-        "rate": 4.94,
-        "lo": 0.6,
-        "hi": 17.86
-      },
-      {
-        "id": 151306,
-        "count": 3,
-        "rate": 4.25,
-        "lo": 0.88,
-        "hi": 12.43
+        "rate": 4.78,
+        "lo": 0.46,
+        "hi": 18.73
       },
       {
         "id": 152637,
         "count": 4,
-        "rate": 4.2,
-        "lo": 1.15,
-        "hi": 10.76
+        "rate": 4.14,
+        "lo": 0.88,
+        "hi": 11.95
       },
       {
-        "id": 490805,
-        "count": 2,
-        "rate": 2.99,
-        "lo": 0.36,
-        "hi": 10.79
+        "id": 151306,
+        "count": 3,
+        "rate": 3.89,
+        "lo": 0.63,
+        "hi": 12.6
       },
       {
         "id": 152600,
         "count": 1,
-        "rate": 2.87,
-        "lo": 0.07,
-        "hi": 15.96
+        "rate": 2.81,
+        "lo": 0.06,
+        "hi": 16.49
+      },
+      {
+        "id": 490805,
+        "count": 2,
+        "rate": 2.76,
+        "lo": 0.26,
+        "hi": 10.8
       },
       {
         "id": 151379,
         "count": 1,
-        "rate": 2.8,
-        "lo": 0.07,
-        "hi": 15.6
+        "rate": 2.64,
+        "lo": 0.05,
+        "hi": 15.46
       },
       {
         "id": 150987,
         "count": 1,
-        "rate": 0.33,
+        "rate": 0.3,
         "lo": 0.01,
-        "hi": 1.86
+        "hi": 1.78
       }
     ],
     "property": [
@@ -6280,292 +6312,278 @@
         "id": 150400,
         "count": 11,
         "rate": 51.26,
-        "lo": 25.59,
-        "hi": 91.71
+        "lo": 18.64,
+        "hi": 112.15
       },
       {
         "id": 151801,
         "count": 12,
         "rate": 41.11,
-        "lo": 21.24,
-        "hi": 71.81
+        "lo": 15.39,
+        "hi": 88.45
       },
       {
         "id": 150756,
         "count": 3,
         "rate": 27.27,
-        "lo": 5.62,
-        "hi": 79.7
+        "lo": 4.37,
+        "hi": 88.64
       },
       {
         "id": 150163,
         "count": 11,
         "rate": 21.31,
-        "lo": 10.64,
-        "hi": 38.12
+        "lo": 7.75,
+        "hi": 46.61
       },
       {
         "id": 151777,
         "count": 3,
-        "rate": 20.63,
-        "lo": 4.25,
-        "hi": 60.3
+        "rate": 20.38,
+        "lo": 3.27,
+        "hi": 66.24
       },
       {
         "id": 150145,
         "count": 2,
-        "rate": 18.64,
-        "lo": 2.26,
-        "hi": 67.33
+        "rate": 17.04,
+        "lo": 1.62,
+        "hi": 66.89
       },
       {
         "id": 151263,
         "count": 7,
-        "rate": 14.27,
-        "lo": 5.74,
-        "hi": 29.4
+        "rate": 13.86,
+        "lo": 4.18,
+        "hi": 33.69
       },
       {
         "id": 150534,
         "count": 3,
         "rate": 13.13,
-        "lo": 2.71,
-        "hi": 38.39
+        "lo": 2.11,
+        "hi": 42.69
       },
       {
         "id": 150136,
         "count": 18,
-        "rate": 12.86,
-        "lo": 7.62,
-        "hi": 20.33
+        "rate": 11.03,
+        "lo": 4.6,
+        "hi": 22.23
       },
       {
         "id": 151342,
         "count": 4,
-        "rate": 9.89,
-        "lo": 2.69,
-        "hi": 25.31
-      },
-      {
-        "id": 492962,
-        "count": 1,
-        "rate": 8.52,
-        "lo": 0.22,
-        "hi": 47.46
-      },
-      {
-        "id": 150677,
-        "count": 1,
-        "rate": 6.93,
-        "lo": 0.18,
-        "hi": 38.58
+        "rate": 9.57,
+        "lo": 2.01,
+        "hi": 27.75
       },
       {
         "id": 152567,
         "count": 2,
-        "rate": 6.68,
-        "lo": 0.81,
-        "hi": 24.14
+        "rate": 6.65,
+        "lo": 0.63,
+        "hi": 26.12
       },
       {
-        "id": 151290,
+        "id": 150677,
         "count": 1,
-        "rate": 6.15,
-        "lo": 0.16,
-        "hi": 34.29
+        "rate": 6.33,
+        "lo": 0.13,
+        "hi": 37.13
       },
       {
         "id": 152600,
         "count": 2,
-        "rate": 5.73,
-        "lo": 0.69,
-        "hi": 20.7
+        "rate": 5.63,
+        "lo": 0.53,
+        "hi": 22.1
+      },
+      {
+        "id": 151290,
+        "count": 1,
+        "rate": 5.56,
+        "lo": 0.11,
+        "hi": 32.65
       },
       {
         "id": 152637,
         "count": 4,
-        "rate": 4.2,
-        "lo": 1.15,
-        "hi": 10.76
+        "rate": 4.14,
+        "lo": 0.87,
+        "hi": 12.0
       },
       {
         "id": 151786,
         "count": 1,
-        "rate": 4.19,
-        "lo": 0.11,
-        "hi": 23.36
+        "rate": 3.66,
+        "lo": 0.07,
+        "hi": 21.5
       },
       {
         "id": 490805,
         "count": 2,
-        "rate": 2.99,
-        "lo": 0.36,
-        "hi": 10.79
+        "rate": 2.76,
+        "lo": 0.26,
+        "hi": 10.83
       },
       {
         "id": 151379,
         "count": 1,
-        "rate": 2.8,
-        "lo": 0.07,
-        "hi": 15.6
+        "rate": 2.64,
+        "lo": 0.05,
+        "hi": 15.49
       },
       {
         "id": 151306,
         "count": 1,
-        "rate": 1.42,
-        "lo": 0.04,
-        "hi": 7.9
+        "rate": 1.3,
+        "lo": 0.03,
+        "hi": 7.62
       },
       {
         "id": 150987,
         "count": 2,
-        "rate": 0.67,
-        "lo": 0.08,
-        "hi": 2.41
+        "rate": 0.61,
+        "lo": 0.06,
+        "hi": 2.39
       }
     ],
     "all": [
       {
         "id": 150145,
         "count": 17,
-        "rate": 158.43,
-        "lo": 92.29,
-        "hi": 253.67
+        "rate": 144.8,
+        "lo": 60.42,
+        "hi": 291.54
       },
       {
         "id": 150941,
         "count": 8,
-        "rate": 74.42,
-        "lo": 32.13,
-        "hi": 146.63
+        "rate": 69.99,
+        "lo": 22.76,
+        "hi": 163.22
       },
       {
         "id": 150677,
         "count": 8,
-        "rate": 55.4,
-        "lo": 23.92,
-        "hi": 109.16
+        "rate": 50.6,
+        "lo": 16.45,
+        "hi": 118.0
       },
       {
         "id": 152318,
         "count": 7,
         "rate": 33.14,
-        "lo": 13.33,
-        "hi": 68.29
+        "lo": 10.11,
+        "hi": 80.01
       },
       {
         "id": 151333,
         "count": 7,
-        "rate": 28.91,
-        "lo": 11.62,
-        "hi": 59.57
-      },
-      {
-        "id": 492962,
-        "count": 3,
-        "rate": 25.55,
-        "lo": 5.27,
-        "hi": 74.68
+        "rate": 27.65,
+        "lo": 8.43,
+        "hi": 66.74
       },
       {
         "id": 150987,
         "count": 17,
-        "rate": 5.68,
-        "lo": 3.31,
-        "hi": 9.09
+        "rate": 5.18,
+        "lo": 2.16,
+        "hi": 10.42
       },
       {
         "id": 488679,
         "count": 1,
-        "rate": 5.35,
-        "lo": 0.14,
-        "hi": 29.83
+        "rate": 4.96,
+        "lo": 0.1,
+        "hi": 29.04
       }
     ],
     "aggravated_assault": [
       {
         "id": 151263,
         "count": 5,
-        "rate": 10.19,
-        "lo": 3.31,
-        "hi": 23.79
+        "rate": 9.9,
+        "lo": 2.02,
+        "hi": 29.09
       },
       {
         "id": 151777,
         "count": 1,
-        "rate": 6.88,
-        "lo": 0.17,
-        "hi": 38.32
-      },
-      {
-        "id": 151290,
-        "count": 1,
-        "rate": 6.15,
-        "lo": 0.16,
-        "hi": 34.29
+        "rate": 6.79,
+        "lo": 0.11,
+        "hi": 41.41
       },
       {
         "id": 152336,
         "count": 1,
-        "rate": 6.01,
-        "lo": 0.15,
-        "hi": 33.48
+        "rate": 5.59,
+        "lo": 0.09,
+        "hi": 34.07
+      },
+      {
+        "id": 151290,
+        "count": 1,
+        "rate": 5.56,
+        "lo": 0.09,
+        "hi": 33.9
       },
       {
         "id": 150400,
         "count": 1,
         "rate": 4.66,
-        "lo": 0.12,
-        "hi": 25.96
+        "lo": 0.08,
+        "hi": 28.4
       },
       {
         "id": 150163,
         "count": 2,
         "rate": 3.87,
-        "lo": 0.47,
-        "hi": 13.99
+        "lo": 0.31,
+        "hi": 16.12
       },
       {
         "id": 151801,
         "count": 1,
         "rate": 3.43,
-        "lo": 0.09,
-        "hi": 19.09
+        "lo": 0.06,
+        "hi": 20.88
       },
       {
         "id": 152567,
         "count": 1,
-        "rate": 3.34,
-        "lo": 0.08,
-        "hi": 18.62
+        "rate": 3.33,
+        "lo": 0.05,
+        "hi": 20.28
       },
       {
         "id": 151342,
         "count": 1,
-        "rate": 2.47,
-        "lo": 0.06,
-        "hi": 13.77
+        "rate": 2.39,
+        "lo": 0.04,
+        "hi": 14.58
       },
       {
         "id": 152080,
         "count": 2,
-        "rate": 1.62,
-        "lo": 0.2,
-        "hi": 5.87
+        "rate": 1.61,
+        "lo": 0.13,
+        "hi": 6.72
       },
       {
         "id": 490805,
         "count": 1,
-        "rate": 1.49,
-        "lo": 0.04,
-        "hi": 8.32
+        "rate": 1.38,
+        "lo": 0.02,
+        "hi": 8.41
       },
       {
         "id": 150136,
         "count": 2,
-        "rate": 1.43,
-        "lo": 0.17,
-        "hi": 5.16
+        "rate": 1.23,
+        "lo": 0.1,
+        "hi": 5.1
       }
     ],
     "burglary": [
@@ -6573,127 +6591,120 @@
         "id": 150400,
         "count": 9,
         "rate": 41.94,
-        "lo": 19.18,
-        "hi": 79.61
+        "lo": 11.5,
+        "hi": 107.02
       },
       {
         "id": 151801,
         "count": 8,
         "rate": 27.41,
-        "lo": 11.83,
-        "hi": 54.0
+        "lo": 7.17,
+        "hi": 71.63
       },
       {
         "id": 150756,
         "count": 3,
         "rate": 27.27,
-        "lo": 5.62,
-        "hi": 79.7
+        "lo": 3.63,
+        "hi": 95.23
       },
       {
         "id": 151777,
         "count": 3,
-        "rate": 20.63,
-        "lo": 4.25,
-        "hi": 60.3
+        "rate": 20.38,
+        "lo": 2.71,
+        "hi": 71.16
       },
       {
         "id": 150163,
         "count": 9,
         "rate": 17.43,
-        "lo": 7.97,
-        "hi": 33.09
+        "lo": 4.78,
+        "hi": 44.48
       },
       {
         "id": 150136,
         "count": 16,
-        "rate": 11.43,
-        "lo": 6.54,
-        "hi": 18.57
+        "rate": 9.81,
+        "lo": 3.19,
+        "hi": 22.86
       },
       {
         "id": 150145,
         "count": 1,
-        "rate": 9.32,
-        "lo": 0.24,
-        "hi": 51.93
-      },
-      {
-        "id": 492962,
-        "count": 1,
         "rate": 8.52,
-        "lo": 0.22,
-        "hi": 47.46
+        "lo": 0.14,
+        "hi": 51.92
       },
       {
         "id": 152567,
         "count": 2,
-        "rate": 6.68,
-        "lo": 0.81,
-        "hi": 24.14
-      },
-      {
-        "id": 151290,
-        "count": 1,
-        "rate": 6.15,
-        "lo": 0.16,
-        "hi": 34.29
+        "rate": 6.65,
+        "lo": 0.52,
+        "hi": 27.68
       },
       {
         "id": 151263,
         "count": 3,
-        "rate": 6.12,
-        "lo": 1.26,
-        "hi": 17.87
+        "rate": 5.94,
+        "lo": 0.79,
+        "hi": 20.75
       },
       {
         "id": 152600,
         "count": 2,
-        "rate": 5.73,
-        "lo": 0.69,
-        "hi": 20.7
+        "rate": 5.63,
+        "lo": 0.44,
+        "hi": 23.41
+      },
+      {
+        "id": 151290,
+        "count": 1,
+        "rate": 5.56,
+        "lo": 0.09,
+        "hi": 33.9
       },
       {
         "id": 151342,
         "count": 2,
-        "rate": 4.94,
-        "lo": 0.6,
-        "hi": 17.86
+        "rate": 4.78,
+        "lo": 0.38,
+        "hi": 19.9
       },
       {
         "id": 152637,
         "count": 3,
-        "rate": 3.15,
-        "lo": 0.65,
-        "hi": 9.21
+        "rate": 3.1,
+        "lo": 0.41,
+        "hi": 10.84
       },
       {
         "id": 151379,
         "count": 1,
-        "rate": 2.8,
-        "lo": 0.07,
-        "hi": 15.6
+        "rate": 2.64,
+        "lo": 0.04,
+        "hi": 16.08
       },
       {
         "id": 490805,
         "count": 1,
-        "rate": 1.49,
-        "lo": 0.04,
-        "hi": 8.32
+        "rate": 1.38,
+        "lo": 0.02,
+        "hi": 8.41
       },
       {
         "id": 151306,
         "count": 1,
-        "rate": 1.42,
-        "lo": 0.04,
-        "hi": 7.9
+        "rate": 1.3,
+        "lo": 0.02,
+        "hi": 7.91
       },
       {
         "id": 150987,
         "count": 2,
-        "rate": 0.67,
-        "lo": 0.08,
-        "hi": 2.41
+        "rate": 0.61,
+        "lo": 0.05,
+        "hi": 2.53
       }
     ],
     "dating_violence": [
@@ -6701,77 +6712,77 @@
         "id": 150400,
         "count": 7,
         "rate": 32.62,
-        "lo": 13.11,
-        "hi": 67.21
+        "lo": 8.03,
+        "hi": 87.81
       },
       {
         "id": 151777,
         "count": 2,
-        "rate": 13.76,
-        "lo": 1.67,
-        "hi": 49.69
+        "rate": 13.59,
+        "lo": 1.07,
+        "hi": 56.53
       },
       {
         "id": 151379,
         "count": 4,
-        "rate": 11.2,
-        "lo": 3.05,
-        "hi": 28.67
+        "rate": 10.55,
+        "lo": 1.83,
+        "hi": 33.23
       },
       {
         "id": 151306,
         "count": 6,
-        "rate": 8.51,
-        "lo": 3.12,
-        "hi": 18.52
+        "rate": 7.79,
+        "lo": 1.77,
+        "hi": 21.76
       },
       {
         "id": 151786,
         "count": 2,
-        "rate": 8.39,
-        "lo": 1.02,
-        "hi": 30.29
+        "rate": 7.33,
+        "lo": 0.58,
+        "hi": 30.48
       },
       {
         "id": 490805,
         "count": 3,
-        "rate": 4.48,
-        "lo": 0.92,
-        "hi": 13.1
+        "rate": 4.14,
+        "lo": 0.55,
+        "hi": 14.45
       },
       {
         "id": 150136,
         "count": 5,
-        "rate": 3.57,
-        "lo": 1.16,
-        "hi": 8.34
+        "rate": 3.06,
+        "lo": 0.62,
+        "hi": 9.0
       },
       {
         "id": 152600,
         "count": 1,
-        "rate": 2.87,
-        "lo": 0.07,
-        "hi": 15.96
+        "rate": 2.81,
+        "lo": 0.05,
+        "hi": 17.15
       },
       {
         "id": 151263,
         "count": 1,
-        "rate": 2.04,
-        "lo": 0.05,
-        "hi": 11.36
+        "rate": 1.98,
+        "lo": 0.03,
+        "hi": 12.07
       },
       {
         "id": 152080,
         "count": 1,
         "rate": 0.81,
-        "lo": 0.02,
-        "hi": 4.53
+        "lo": 0.01,
+        "hi": 4.92
       },
       {
         "id": 150987,
         "count": 1,
-        "rate": 0.33,
-        "lo": 0.01,
+        "rate": 0.3,
+        "lo": 0.0,
         "hi": 1.86
       }
     ],
@@ -6779,65 +6790,65 @@
       {
         "id": 490805,
         "count": 8,
-        "rate": 11.95,
-        "lo": 5.16,
-        "hi": 23.54
+        "rate": 11.03,
+        "lo": 2.89,
+        "hi": 28.83
       },
       {
         "id": 150163,
         "count": 5,
         "rate": 9.68,
-        "lo": 3.14,
-        "hi": 22.6
+        "lo": 1.97,
+        "hi": 28.45
       },
       {
         "id": 150756,
         "count": 1,
         "rate": 9.09,
-        "lo": 0.23,
-        "hi": 50.65
+        "lo": 0.15,
+        "hi": 55.41
       },
       {
         "id": 152336,
         "count": 1,
-        "rate": 6.01,
-        "lo": 0.15,
-        "hi": 33.48
-      },
-      {
-        "id": 151786,
-        "count": 1,
-        "rate": 4.19,
-        "lo": 0.11,
-        "hi": 23.36
+        "rate": 5.59,
+        "lo": 0.09,
+        "hi": 34.07
       },
       {
         "id": 151263,
         "count": 2,
-        "rate": 4.08,
-        "lo": 0.49,
-        "hi": 14.73
+        "rate": 3.96,
+        "lo": 0.31,
+        "hi": 16.48
+      },
+      {
+        "id": 151786,
+        "count": 1,
+        "rate": 3.66,
+        "lo": 0.06,
+        "hi": 22.33
       },
       {
         "id": 151306,
         "count": 2,
-        "rate": 2.84,
-        "lo": 0.34,
-        "hi": 10.24
+        "rate": 2.6,
+        "lo": 0.2,
+        "hi": 10.8
       },
       {
         "id": 152637,
         "count": 2,
-        "rate": 2.1,
-        "lo": 0.25,
-        "hi": 7.59
+        "rate": 2.07,
+        "lo": 0.16,
+        "hi": 8.61
       },
       {
         "id": 152080,
         "count": 2,
-        "rate": 1.62,
-        "lo": 0.2,
-        "hi": 5.87
+        "rate": 1.61,
+        "lo": 0.13,
+        "hi": 6.72
       }
     ],
     "drug_arrest": [
@@ -6845,255 +6856,255 @@
         "id": 150400,
         "count": 16,
         "rate": 74.56,
-        "lo": 42.62,
-        "hi": 121.08
+        "lo": 24.89,
+        "hi": 171.35
       },
       {
         "id": 151801,
         "count": 8,
         "rate": 27.41,
-        "lo": 11.83,
-        "hi": 54.0
+        "lo": 7.34,
+        "hi": 70.76
       },
       {
         "id": 151379,
         "count": 7,
-        "rate": 19.6,
-        "lo": 7.88,
-        "hi": 40.38
+        "rate": 18.47,
+        "lo": 4.66,
+        "hi": 49.14
       },
       {
         "id": 150534,
         "count": 4,
         "rate": 17.51,
-        "lo": 4.77,
-        "hi": 44.84
+        "lo": 3.11,
+        "hi": 54.62
       },
       {
         "id": 152567,
         "count": 5,
-        "rate": 16.71,
-        "lo": 5.42,
-        "hi": 38.99
+        "rate": 16.63,
+        "lo": 3.47,
+        "hi": 48.36
       },
       {
         "id": 151333,
         "count": 4,
-        "rate": 16.52,
-        "lo": 4.5,
-        "hi": 42.3
+        "rate": 15.8,
+        "lo": 2.8,
+        "hi": 49.27
       },
       {
         "id": 151342,
         "count": 6,
-        "rate": 14.83,
-        "lo": 5.44,
-        "hi": 32.28
+        "rate": 14.35,
+        "lo": 3.34,
+        "hi": 39.67
       },
       {
         "id": 151263,
         "count": 7,
-        "rate": 14.27,
-        "lo": 5.74,
-        "hi": 29.4
+        "rate": 13.86,
+        "lo": 3.5,
+        "hi": 36.89
       },
       {
         "id": 152080,
         "count": 17,
-        "rate": 13.81,
-        "lo": 8.05,
-        "hi": 22.11
+        "rate": 13.73,
+        "lo": 4.64,
+        "hi": 31.31
       },
       {
         "id": 150145,
         "count": 1,
-        "rate": 9.32,
-        "lo": 0.24,
-        "hi": 51.93
+        "rate": 8.52,
+        "lo": 0.14,
+        "hi": 51.69
       },
       {
         "id": 152600,
         "count": 3,
-        "rate": 8.6,
-        "lo": 1.77,
-        "hi": 25.12
+        "rate": 8.44,
+        "lo": 1.15,
+        "hi": 29.23
       },
       {
         "id": 151786,
         "count": 1,
-        "rate": 4.19,
-        "lo": 0.11,
-        "hi": 23.36
+        "rate": 3.66,
+        "lo": 0.06,
+        "hi": 22.23
       },
       {
         "id": 151306,
         "count": 2,
-        "rate": 2.84,
-        "lo": 0.34,
-        "hi": 10.24
+        "rate": 2.6,
+        "lo": 0.21,
+        "hi": 10.72
       },
       {
         "id": 150987,
         "count": 5,
-        "rate": 1.67,
-        "lo": 0.54,
-        "hi": 3.9
+        "rate": 1.52,
+        "lo": 0.32,
+        "hi": 4.43
       },
       {
         "id": 490805,
         "count": 1,
-        "rate": 1.49,
-        "lo": 0.04,
-        "hi": 8.32
+        "rate": 1.38,
+        "lo": 0.02,
+        "hi": 8.37
       }
     ],
     "drug_discipline": [
       {
         "id": 150066,
         "count": 16,
-        "rate": 114.37,
-        "lo": 65.37,
-        "hi": 185.73
+        "rate": 109.81,
+        "lo": 36.65,
+        "hi": 252.38
       },
       {
         "id": 151777,
         "count": 15,
-        "rate": 103.16,
-        "lo": 57.74,
-        "hi": 170.15
-      },
-      {
-        "id": 151786,
-        "count": 18,
-        "rate": 75.47,
-        "lo": 44.73,
-        "hi": 119.28
+        "rate": 101.9,
+        "lo": 33.5,
+        "hi": 236.17
       },
       {
         "id": 150756,
         "count": 8,
         "rate": 72.73,
-        "lo": 31.4,
-        "hi": 143.3
+        "lo": 19.49,
+        "hi": 187.78
+      },
+      {
+        "id": 151786,
+        "count": 18,
+        "rate": 65.93,
+        "lo": 22.57,
+        "hi": 149.39
       },
       {
         "id": 152567,
         "count": 19,
-        "rate": 63.48,
-        "lo": 38.22,
-        "hi": 99.13
-      },
-      {
-        "id": 152530,
-        "count": 8,
-        "rate": 45.48,
-        "lo": 19.64,
-        "hi": 89.61
+        "rate": 63.21,
+        "lo": 21.87,
+        "hi": 142.34
       },
       {
         "id": 150534,
         "count": 10,
         "rate": 43.78,
-        "lo": 21.0,
-        "hi": 80.52
+        "lo": 12.79,
+        "hi": 108.15
+      },
+      {
+        "id": 152530,
+        "count": 8,
+        "rate": 42.19,
+        "lo": 11.31,
+        "hi": 108.95
       },
       {
         "id": 152336,
         "count": 7,
-        "rate": 42.07,
-        "lo": 16.91,
-        "hi": 86.67
-      },
-      {
-        "id": 150145,
-        "count": 3,
-        "rate": 27.96,
-        "lo": 5.77,
-        "hi": 81.71
+        "rate": 39.13,
+        "lo": 9.87,
+        "hi": 104.11
       },
       {
         "id": 151342,
         "count": 11,
-        "rate": 27.19,
-        "lo": 13.57,
-        "hi": 48.65
+        "rate": 26.31,
+        "lo": 7.93,
+        "hi": 63.91
       },
       {
-        "id": 490805,
-        "count": 17,
-        "rate": 25.39,
-        "lo": 14.79,
-        "hi": 40.66
+        "id": 150145,
+        "count": 3,
+        "rate": 25.55,
+        "lo": 3.48,
+        "hi": 88.49
       },
       {
         "id": 150163,
         "count": 13,
         "rate": 25.18,
-        "lo": 13.41,
-        "hi": 43.06
+        "lo": 7.98,
+        "hi": 59.55
       },
       {
-        "id": 151290,
-        "count": 3,
-        "rate": 18.46,
-        "lo": 3.81,
-        "hi": 53.95
+        "id": 490805,
+        "count": 17,
+        "rate": 23.45,
+        "lo": 7.93,
+        "hi": 53.48
       },
       {
         "id": 151801,
         "count": 5,
         "rate": 17.13,
-        "lo": 5.56,
-        "hi": 39.97
+        "lo": 3.57,
+        "hi": 49.81
+      },
+      {
+        "id": 151290,
+        "count": 3,
+        "rate": 16.69,
+        "lo": 2.27,
+        "hi": 57.78
       },
       {
         "id": 151379,
         "count": 5,
-        "rate": 14.0,
-        "lo": 4.55,
-        "hi": 32.67
+        "rate": 13.19,
+        "lo": 2.75,
+        "hi": 38.36
       },
       {
         "id": 152600,
         "count": 4,
-        "rate": 11.46,
-        "lo": 3.12,
-        "hi": 29.35
+        "rate": 11.25,
+        "lo": 2.0,
+        "hi": 35.1
       },
       {
         "id": 152080,
         "count": 13,
-        "rate": 10.56,
-        "lo": 5.62,
-        "hi": 18.06
+        "rate": 10.5,
+        "lo": 3.33,
+        "hi": 24.83
       },
       {
         "id": 151263,
         "count": 5,
-        "rate": 10.19,
-        "lo": 3.31,
-        "hi": 23.79
+        "rate": 9.9,
+        "lo": 2.07,
+        "hi": 28.79
       },
       {
         "id": 150941,
         "count": 1,
-        "rate": 9.3,
-        "lo": 0.24,
-        "hi": 51.83
+        "rate": 8.75,
+        "lo": 0.15,
+        "hi": 53.09
       },
       {
         "id": 152390,
         "count": 1,
-        "rate": 6.76,
-        "lo": 0.17,
-        "hi": 37.67
+        "rate": 6.6,
+        "lo": 0.11,
+        "hi": 40.03
       },
       {
         "id": 150987,
         "count": 2,
-        "rate": 0.67,
-        "lo": 0.08,
-        "hi": 2.41
+        "rate": 0.61,
+        "lo": 0.05,
+        "hi": 2.52
       }
     ],
     "fondling": [
@@ -7101,192 +7112,192 @@
         "id": 151801,
         "count": 6,
         "rate": 20.55,
-        "lo": 7.54,
-        "hi": 44.74
+        "lo": 4.67,
+        "hi": 57.46
       },
       {
         "id": 150400,
         "count": 4,
         "rate": 18.64,
-        "lo": 5.08,
-        "hi": 47.72
+        "lo": 3.23,
+        "hi": 58.68
       },
       {
         "id": 150163,
         "count": 6,
         "rate": 11.62,
-        "lo": 4.26,
-        "hi": 25.29
+        "lo": 2.64,
+        "hi": 32.48
       },
       {
         "id": 151263,
         "count": 5,
-        "rate": 10.19,
-        "lo": 3.31,
-        "hi": 23.79
+        "rate": 9.9,
+        "lo": 2.02,
+        "hi": 29.09
       },
       {
         "id": 150136,
         "count": 14,
-        "rate": 10.01,
-        "lo": 5.47,
-        "hi": 16.79
+        "rate": 8.58,
+        "lo": 2.7,
+        "hi": 20.36
       },
       {
         "id": 152080,
         "count": 8,
-        "rate": 6.5,
-        "lo": 2.81,
-        "hi": 12.81
+        "rate": 6.46,
+        "lo": 1.69,
+        "hi": 16.88
       },
       {
         "id": 152530,
         "count": 1,
-        "rate": 5.69,
-        "lo": 0.14,
-        "hi": 31.68
+        "rate": 5.27,
+        "lo": 0.09,
+        "hi": 32.15
       },
       {
         "id": 151306,
         "count": 3,
-        "rate": 4.25,
-        "lo": 0.88,
-        "hi": 12.43
+        "rate": 3.89,
+        "lo": 0.52,
+        "hi": 13.59
       },
       {
         "id": 152637,
         "count": 3,
-        "rate": 3.15,
-        "lo": 0.65,
-        "hi": 9.21
-      },
-      {
-        "id": 490805,
-        "count": 2,
-        "rate": 2.99,
-        "lo": 0.36,
-        "hi": 10.79
+        "rate": 3.1,
+        "lo": 0.41,
+        "hi": 10.84
       },
       {
         "id": 152600,
         "count": 1,
-        "rate": 2.87,
-        "lo": 0.07,
-        "hi": 15.96
+        "rate": 2.81,
+        "lo": 0.05,
+        "hi": 17.15
+      },
+      {
+        "id": 490805,
+        "count": 2,
+        "rate": 2.76,
+        "lo": 0.22,
+        "hi": 11.48
       },
       {
         "id": 151379,
         "count": 1,
-        "rate": 2.8,
-        "lo": 0.07,
-        "hi": 15.6
+        "rate": 2.64,
+        "lo": 0.04,
+        "hi": 16.08
       },
       {
         "id": 151342,
         "count": 1,
-        "rate": 2.47,
-        "lo": 0.06,
-        "hi": 13.77
+        "rate": 2.39,
+        "lo": 0.04,
+        "hi": 14.58
       }
     ],
     "liquor_arrest": [
       {
         "id": 150145,
         "count": 4,
-        "rate": 37.28,
-        "lo": 10.16,
-        "hi": 95.45
-      },
-      {
-        "id": 150677,
-        "count": 5,
-        "rate": 34.63,
-        "lo": 11.24,
-        "hi": 80.81
+        "rate": 34.07,
+        "lo": 6.04,
+        "hi": 106.26
       },
       {
         "id": 151777,
         "count": 5,
-        "rate": 34.39,
-        "lo": 11.17,
-        "hi": 80.25
+        "rate": 33.97,
+        "lo": 7.08,
+        "hi": 98.77
       },
       {
         "id": 152318,
         "count": 7,
         "rate": 33.14,
-        "lo": 13.33,
-        "hi": 68.29
+        "lo": 8.36,
+        "hi": 88.19
+      },
+      {
+        "id": 150677,
+        "count": 5,
+        "rate": 31.63,
+        "lo": 6.6,
+        "hi": 91.96
       },
       {
         "id": 151306,
         "count": 14,
-        "rate": 19.85,
-        "lo": 10.85,
-        "hi": 33.3
+        "rate": 18.17,
+        "lo": 5.87,
+        "hi": 42.5
       },
       {
         "id": 152600,
         "count": 5,
-        "rate": 14.33,
-        "lo": 4.65,
-        "hi": 33.43
+        "rate": 14.07,
+        "lo": 2.93,
+        "hi": 40.91
       },
       {
         "id": 152567,
         "count": 4,
-        "rate": 13.36,
-        "lo": 3.64,
-        "hi": 34.22
+        "rate": 13.31,
+        "lo": 2.36,
+        "hi": 41.5
       },
       {
         "id": 152080,
         "count": 14,
-        "rate": 11.37,
-        "lo": 6.22,
-        "hi": 19.08
+        "rate": 11.3,
+        "lo": 3.65,
+        "hi": 26.45
       },
       {
         "id": 150534,
         "count": 2,
         "rate": 8.76,
-        "lo": 1.06,
-        "hi": 31.63
+        "lo": 0.71,
+        "hi": 36.18
       },
       {
         "id": 151333,
         "count": 2,
-        "rate": 8.26,
-        "lo": 1.0,
-        "hi": 29.84
+        "rate": 7.9,
+        "lo": 0.64,
+        "hi": 32.64
       },
       {
         "id": 151801,
         "count": 2,
         "rate": 6.85,
-        "lo": 0.83,
-        "hi": 24.75
+        "lo": 0.55,
+        "hi": 28.31
       },
       {
         "id": 151379,
         "count": 2,
-        "rate": 5.6,
-        "lo": 0.68,
-        "hi": 20.23
+        "rate": 5.28,
+        "lo": 0.43,
+        "hi": 21.81
       },
       {
         "id": 151342,
         "count": 2,
-        "rate": 4.94,
-        "lo": 0.6,
-        "hi": 17.86
+        "rate": 4.78,
+        "lo": 0.39,
+        "hi": 19.77
       },
       {
         "id": 151786,
         "count": 1,
-        "rate": 4.19,
-        "lo": 0.11,
-        "hi": 23.36
+        "rate": 3.66,
+        "lo": 0.06,
+        "hi": 22.23
       }
     ],
     "liquor_discipline": [
@@ -7294,57 +7305,57 @@
         "id": 150756,
         "count": 17,
         "rate": 154.55,
-        "lo": 90.03,
-        "hi": 247.44
+        "lo": 52.28,
+        "hi": 352.52
       },
       {
         "id": 152336,
         "count": 18,
-        "rate": 108.17,
-        "lo": 64.11,
-        "hi": 170.96
+        "rate": 100.61,
+        "lo": 34.44,
+        "hi": 227.96
       },
       {
         "id": 151290,
         "count": 13,
-        "rate": 80.0,
-        "lo": 42.6,
-        "hi": 136.8
+        "rate": 72.3,
+        "lo": 22.91,
+        "hi": 171.0
       },
       {
         "id": 150066,
         "count": 10,
-        "rate": 71.48,
-        "lo": 34.28,
-        "hi": 131.45
-      },
-      {
-        "id": 150145,
-        "count": 7,
-        "rate": 65.24,
-        "lo": 26.23,
-        "hi": 134.41
+        "rate": 68.63,
+        "lo": 20.05,
+        "hi": 169.54
       },
       {
         "id": 150941,
         "count": 7,
-        "rate": 65.12,
-        "lo": 26.18,
-        "hi": 134.16
+        "rate": 61.24,
+        "lo": 15.44,
+        "hi": 162.95
+      },
+      {
+        "id": 150145,
+        "count": 7,
+        "rate": 59.63,
+        "lo": 15.04,
+        "hi": 158.65
       },
       {
         "id": 152637,
         "count": 8,
-        "rate": 8.41,
-        "lo": 3.63,
-        "hi": 16.56
+        "rate": 8.28,
+        "lo": 2.22,
+        "hi": 21.37
       },
       {
         "id": 150677,
         "count": 1,
-        "rate": 6.93,
-        "lo": 0.18,
-        "hi": 38.58
+        "rate": 6.33,
+        "lo": 0.11,
+        "hi": 38.38
       }
     ],
     "motor_vehicle_theft": [
@@ -7352,92 +7363,92 @@
         "id": 151801,
         "count": 4,
         "rate": 13.7,
-        "lo": 3.73,
-        "hi": 35.09
+        "lo": 2.38,
+        "hi": 43.14
       },
       {
         "id": 150534,
         "count": 3,
         "rate": 13.13,
-        "lo": 2.71,
-        "hi": 38.39
-      },
-      {
-        "id": 150145,
-        "count": 1,
-        "rate": 9.32,
-        "lo": 0.24,
-        "hi": 51.93
+        "lo": 1.75,
+        "hi": 45.86
       },
       {
         "id": 150400,
         "count": 2,
         "rate": 9.32,
-        "lo": 1.13,
-        "hi": 33.67
+        "lo": 0.74,
+        "hi": 38.77
+      },
+      {
+        "id": 150145,
+        "count": 1,
+        "rate": 8.52,
+        "lo": 0.14,
+        "hi": 51.92
       },
       {
         "id": 150677,
         "count": 1,
-        "rate": 6.93,
-        "lo": 0.18,
-        "hi": 38.58
+        "rate": 6.33,
+        "lo": 0.1,
+        "hi": 38.55
       },
       {
         "id": 151263,
         "count": 3,
-        "rate": 6.12,
-        "lo": 1.26,
-        "hi": 17.87
+        "rate": 5.94,
+        "lo": 0.79,
+        "hi": 20.75
       },
       {
         "id": 151342,
         "count": 2,
-        "rate": 4.94,
-        "lo": 0.6,
-        "hi": 17.86
-      },
-      {
-        "id": 151786,
-        "count": 1,
-        "rate": 4.19,
-        "lo": 0.11,
-        "hi": 23.36
+        "rate": 4.78,
+        "lo": 0.38,
+        "hi": 19.9
       },
       {
         "id": 150163,
         "count": 2,
         "rate": 3.87,
-        "lo": 0.47,
-        "hi": 13.99
+        "lo": 0.31,
+        "hi": 16.12
+      },
+      {
+        "id": 151786,
+        "count": 1,
+        "rate": 3.66,
+        "lo": 0.06,
+        "hi": 22.33
       },
       {
         "id": 152080,
         "count": 4,
-        "rate": 3.25,
-        "lo": 0.89,
-        "hi": 8.32
+        "rate": 3.23,
+        "lo": 0.56,
+        "hi": 10.17
       },
       {
         "id": 490805,
         "count": 1,
-        "rate": 1.49,
-        "lo": 0.04,
-        "hi": 8.32
+        "rate": 1.38,
+        "lo": 0.02,
+        "hi": 8.41
       },
       {
         "id": 150136,
         "count": 2,
-        "rate": 1.43,
-        "lo": 0.17,
-        "hi": 5.16
+        "rate": 1.23,
+        "lo": 0.1,
+        "hi": 5.1
       },
       {
         "id": 152637,
         "count": 1,
-        "rate": 1.05,
-        "lo": 0.03,
-        "hi": 5.85
+        "rate": 1.03,
+        "lo": 0.02,
+        "hi": 6.31
       }
     ],
     "rape": [
@@ -7445,205 +7456,198 @@
         "id": 150400,
         "count": 12,
         "rate": 55.92,
-        "lo": 28.89,
-        "hi": 97.68
+        "lo": 16.89,
+        "hi": 135.71
       },
       {
         "id": 150756,
         "count": 4,
         "rate": 36.36,
-        "lo": 9.91,
-        "hi": 93.11
+        "lo": 6.3,
+        "hi": 114.49
       },
       {
         "id": 150163,
         "count": 13,
         "rate": 25.18,
-        "lo": 13.41,
-        "hi": 43.06
+        "lo": 7.78,
+        "hi": 60.37
       },
       {
         "id": 151777,
         "count": 3,
-        "rate": 20.63,
-        "lo": 4.25,
-        "hi": 60.3
+        "rate": 20.38,
+        "lo": 2.71,
+        "hi": 71.16
       },
       {
         "id": 150455,
         "count": 2,
-        "rate": 18.6,
-        "lo": 2.25,
-        "hi": 67.21
+        "rate": 18.48,
+        "lo": 1.46,
+        "hi": 76.9
       },
       {
         "id": 150534,
         "count": 3,
         "rate": 13.13,
-        "lo": 2.71,
-        "hi": 38.39
+        "lo": 1.75,
+        "hi": 45.86
       },
       {
         "id": 151290,
         "count": 2,
-        "rate": 12.31,
-        "lo": 1.49,
-        "hi": 44.46
+        "rate": 11.12,
+        "lo": 0.88,
+        "hi": 46.28
       },
       {
         "id": 150136,
         "count": 12,
-        "rate": 8.58,
-        "lo": 4.43,
-        "hi": 14.98
+        "rate": 7.36,
+        "lo": 2.22,
+        "hi": 17.85
       },
       {
         "id": 151786,
         "count": 2,
-        "rate": 8.39,
-        "lo": 1.02,
-        "hi": 30.29
+        "rate": 7.33,
+        "lo": 0.58,
+        "hi": 30.48
       },
       {
         "id": 150066,
         "count": 1,
-        "rate": 7.15,
-        "lo": 0.18,
-        "hi": 39.83
-      },
-      {
-        "id": 150677,
-        "count": 1,
-        "rate": 6.93,
-        "lo": 0.18,
-        "hi": 38.58
+        "rate": 6.86,
+        "lo": 0.11,
+        "hi": 41.84
       },
       {
         "id": 152567,
         "count": 2,
-        "rate": 6.68,
-        "lo": 0.81,
-        "hi": 24.14
+        "rate": 6.65,
+        "lo": 0.52,
+        "hi": 27.68
       },
       {
-        "id": 151306,
-        "count": 3,
-        "rate": 4.25,
-        "lo": 0.88,
-        "hi": 12.43
-      },
-      {
-        "id": 151263,
-        "count": 2,
-        "rate": 4.08,
-        "lo": 0.49,
-        "hi": 14.73
+        "id": 150677,
+        "count": 1,
+        "rate": 6.33,
+        "lo": 0.1,
+        "hi": 38.55
       },
       {
         "id": 152080,
         "count": 5,
-        "rate": 4.06,
-        "lo": 1.32,
-        "hi": 9.48
+        "rate": 4.04,
+        "lo": 0.82,
+        "hi": 11.86
+      },
+      {
+        "id": 151263,
+        "count": 2,
+        "rate": 3.96,
+        "lo": 0.31,
+        "hi": 16.48
+      },
+      {
+        "id": 151306,
+        "count": 3,
+        "rate": 3.89,
+        "lo": 0.52,
+        "hi": 13.59
       },
       {
         "id": 151801,
         "count": 1,
         "rate": 3.43,
-        "lo": 0.09,
-        "hi": 19.09
+        "lo": 0.06,
+        "hi": 20.88
       },
       {
         "id": 152600,
         "count": 1,
-        "rate": 2.87,
-        "lo": 0.07,
-        "hi": 15.96
+        "rate": 2.81,
+        "lo": 0.05,
+        "hi": 17.15
       },
       {
         "id": 151379,
         "count": 1,
-        "rate": 2.8,
-        "lo": 0.07,
-        "hi": 15.6
+        "rate": 2.64,
+        "lo": 0.04,
+        "hi": 16.08
       },
       {
         "id": 151342,
         "count": 1,
-        "rate": 2.47,
-        "lo": 0.06,
-        "hi": 13.77
+        "rate": 2.39,
+        "lo": 0.04,
+        "hi": 14.58
       },
       {
         "id": 152637,
         "count": 1,
-        "rate": 1.05,
-        "lo": 0.03,
-        "hi": 5.85
+        "rate": 1.03,
+        "lo": 0.02,
+        "hi": 6.31
       }
     ],
     "robbery": [
       {
-        "id": 492962,
-        "count": 1,
-        "rate": 8.52,
-        "lo": 0.22,
-        "hi": 47.46
-      },
-      {
         "id": 151777,
         "count": 1,
-        "rate": 6.88,
-        "lo": 0.17,
-        "hi": 38.32
+        "rate": 6.79,
+        "lo": 0.11,
+        "hi": 41.41
       },
       {
         "id": 151290,
         "count": 1,
-        "rate": 6.15,
-        "lo": 0.16,
-        "hi": 34.29
+        "rate": 5.56,
+        "lo": 0.09,
+        "hi": 33.9
       },
       {
         "id": 150534,
         "count": 1,
         "rate": 4.38,
-        "lo": 0.11,
-        "hi": 24.39
+        "lo": 0.07,
+        "hi": 26.69
       },
       {
         "id": 151801,
         "count": 1,
         "rate": 3.43,
-        "lo": 0.09,
-        "hi": 19.09
+        "lo": 0.06,
+        "hi": 20.88
       },
       {
         "id": 152637,
         "count": 3,
-        "rate": 3.15,
-        "lo": 0.65,
-        "hi": 9.21
+        "rate": 3.1,
+        "lo": 0.41,
+        "hi": 10.84
       },
       {
         "id": 490805,
         "count": 1,
-        "rate": 1.49,
-        "lo": 0.04,
-        "hi": 8.32
+        "rate": 1.38,
+        "lo": 0.02,
+        "hi": 8.41
       },
       {
         "id": 152080,
         "count": 1,
         "rate": 0.81,
-        "lo": 0.02,
-        "hi": 4.53
+        "lo": 0.01,
+        "hi": 4.92
       },
       {
         "id": 150987,
         "count": 1,
-        "rate": 0.33,
-        "lo": 0.01,
+        "rate": 0.3,
+        "lo": 0.0,
         "hi": 1.86
       }
     ],
@@ -7652,236 +7656,1414 @@
         "id": 151801,
         "count": 8,
         "rate": 27.41,
-        "lo": 11.83,
-        "hi": 54.0
+        "lo": 7.17,
+        "hi": 71.63
       },
       {
         "id": 150163,
         "count": 14,
         "rate": 27.12,
-        "lo": 14.82,
-        "hi": 45.5
+        "lo": 8.54,
+        "hi": 64.33
       },
       {
         "id": 152336,
         "count": 4,
-        "rate": 24.04,
-        "lo": 6.55,
-        "hi": 61.55
-      },
-      {
-        "id": 151263,
-        "count": 9,
-        "rate": 18.35,
-        "lo": 8.39,
-        "hi": 34.83
+        "rate": 22.36,
+        "lo": 3.88,
+        "hi": 70.39
       },
       {
         "id": 150756,
         "count": 2,
         "rate": 18.18,
-        "lo": 2.2,
-        "hi": 65.68
+        "lo": 1.43,
+        "hi": 75.64
+      },
+      {
+        "id": 151263,
+        "count": 9,
+        "rate": 17.83,
+        "lo": 4.89,
+        "hi": 45.49
       },
       {
         "id": 152600,
         "count": 6,
-        "rate": 17.19,
-        "lo": 6.31,
-        "hi": 37.42
+        "rate": 16.88,
+        "lo": 3.84,
+        "hi": 47.19
       },
       {
         "id": 151777,
         "count": 2,
-        "rate": 13.76,
-        "lo": 1.67,
-        "hi": 49.69
+        "rate": 13.59,
+        "lo": 1.07,
+        "hi": 56.53
       },
       {
         "id": 150534,
         "count": 3,
         "rate": 13.13,
-        "lo": 2.71,
-        "hi": 38.39
+        "lo": 1.75,
+        "hi": 45.86
       },
       {
         "id": 151306,
         "count": 9,
-        "rate": 12.76,
-        "lo": 5.83,
-        "hi": 24.22
-      },
-      {
-        "id": 492962,
-        "count": 1,
-        "rate": 8.52,
-        "lo": 0.22,
-        "hi": 47.46
+        "rate": 11.68,
+        "lo": 3.2,
+        "hi": 29.8
       },
       {
         "id": 151786,
         "count": 2,
-        "rate": 8.39,
-        "lo": 1.02,
-        "hi": 30.29
+        "rate": 7.33,
+        "lo": 0.58,
+        "hi": 30.48
       },
       {
         "id": 152390,
         "count": 1,
-        "rate": 6.76,
-        "lo": 0.17,
-        "hi": 37.67
+        "rate": 6.6,
+        "lo": 0.11,
+        "hi": 40.21
       },
       {
         "id": 151290,
         "count": 1,
-        "rate": 6.15,
-        "lo": 0.16,
-        "hi": 34.29
+        "rate": 5.56,
+        "lo": 0.09,
+        "hi": 33.9
       },
       {
         "id": 151379,
         "count": 2,
-        "rate": 5.6,
-        "lo": 0.68,
-        "hi": 20.23
+        "rate": 5.28,
+        "lo": 0.42,
+        "hi": 21.95
       },
       {
         "id": 488679,
         "count": 1,
-        "rate": 5.35,
-        "lo": 0.14,
-        "hi": 29.83
+        "rate": 4.96,
+        "lo": 0.08,
+        "hi": 30.22
       },
       {
         "id": 151342,
         "count": 2,
-        "rate": 4.94,
-        "lo": 0.6,
-        "hi": 17.86
+        "rate": 4.78,
+        "lo": 0.38,
+        "hi": 19.9
       },
       {
         "id": 150400,
         "count": 1,
         "rate": 4.66,
-        "lo": 0.12,
-        "hi": 25.96
+        "lo": 0.08,
+        "hi": 28.4
       },
       {
         "id": 151333,
         "count": 1,
-        "rate": 4.13,
-        "lo": 0.1,
-        "hi": 23.01
+        "rate": 3.95,
+        "lo": 0.06,
+        "hi": 24.07
       },
       {
         "id": 150136,
         "count": 4,
-        "rate": 2.86,
-        "lo": 0.78,
-        "hi": 7.32
+        "rate": 2.45,
+        "lo": 0.42,
+        "hi": 7.72
       },
       {
         "id": 152637,
         "count": 2,
-        "rate": 2.1,
-        "lo": 0.25,
-        "hi": 7.59
+        "rate": 2.07,
+        "lo": 0.16,
+        "hi": 8.61
       },
       {
         "id": 150987,
         "count": 6,
-        "rate": 2.0,
-        "lo": 0.74,
-        "hi": 4.36
+        "rate": 1.83,
+        "lo": 0.42,
+        "hi": 5.11
       },
       {
         "id": 490805,
         "count": 1,
-        "rate": 1.49,
-        "lo": 0.04,
-        "hi": 8.32
+        "rate": 1.38,
+        "lo": 0.02,
+        "hi": 8.41
       },
       {
         "id": 152080,
         "count": 1,
         "rate": 0.81,
-        "lo": 0.02,
-        "hi": 4.53
+        "lo": 0.01,
+        "hi": 4.92
       }
     ],
     "weapons_arrest": [
       {
         "id": 151786,
         "count": 1,
-        "rate": 4.19,
-        "lo": 0.11,
-        "hi": 23.36
+        "rate": 3.66,
+        "lo": 0.06,
+        "hi": 22.23
       },
       {
         "id": 152080,
         "count": 4,
-        "rate": 3.25,
-        "lo": 0.89,
-        "hi": 8.32
+        "rate": 3.23,
+        "lo": 0.57,
+        "hi": 10.07
       },
       {
         "id": 151263,
         "count": 1,
-        "rate": 2.04,
-        "lo": 0.05,
-        "hi": 11.36
+        "rate": 1.98,
+        "lo": 0.03,
+        "hi": 12.02
       },
       {
         "id": 152637,
         "count": 1,
-        "rate": 1.05,
-        "lo": 0.03,
-        "hi": 5.85
+        "rate": 1.03,
+        "lo": 0.02,
+        "hi": 6.28
       }
     ],
     "weapons_discipline": [
       {
         "id": 151777,
         "count": 3,
-        "rate": 20.63,
-        "lo": 4.25,
-        "hi": 60.3
+        "rate": 20.38,
+        "lo": 2.77,
+        "hi": 70.57
       },
       {
         "id": 152336,
         "count": 1,
-        "rate": 6.01,
-        "lo": 0.15,
-        "hi": 33.48
+        "rate": 5.59,
+        "lo": 0.09,
+        "hi": 33.92
       },
       {
         "id": 150400,
         "count": 1,
         "rate": 4.66,
-        "lo": 0.12,
-        "hi": 25.96
+        "lo": 0.08,
+        "hi": 28.28
       },
       {
         "id": 152637,
         "count": 4,
-        "rate": 4.2,
-        "lo": 1.15,
-        "hi": 10.76
+        "rate": 4.14,
+        "lo": 0.73,
+        "hi": 12.91
       },
       {
         "id": 150136,
         "count": 5,
-        "rate": 3.57,
-        "lo": 1.16,
-        "hi": 8.34
+        "rate": 3.06,
+        "lo": 0.64,
+        "hi": 8.91
       },
       {
         "id": 490805,
         "count": 1,
-        "rate": 1.49,
+        "rate": 1.38,
+        "lo": 0.02,
+        "hi": 8.37
+      }
+    ]
+  },
+  "rateNotRanked": {
+    "criminal": [
+      {
+        "id": 151111,
+        "count": 169,
+        "rate": 69.75,
+        "lo": 39.07,
+        "hi": 114.99,
+        "sharedOut": 194,
+        "why": [
+          "shared"
+        ]
+      },
+      {
+        "id": 151324,
+        "count": 69,
+        "rate": 68.71,
+        "lo": 36.91,
+        "hi": 116.77,
+        "sharedIn": 61,
+        "why": [
+          "shared"
+        ]
+      },
+      {
+        "id": 151351,
+        "count": 131,
+        "rate": 33.36,
+        "lo": 18.53,
+        "hi": 55.34,
+        "sharedIn": 83,
+        "why": [
+          "shared"
+        ]
+      },
+      {
+        "id": 243780,
+        "count": 73,
+        "rate": 18.4,
+        "lo": 9.92,
+        "hi": 31.18,
+        "sharedIn": 44,
+        "why": [
+          "shared"
+        ]
+      },
+      {
+        "id": 492962,
+        "count": 2,
+        "rate": 12.48,
+        "lo": 1.25,
+        "hi": 48.11,
+        "why": [
+          "online",
+          "few"
+        ]
+      },
+      {
+        "id": 151360,
+        "count": 3,
+        "rate": 10.09,
+        "lo": 1.71,
+        "hi": 32.06,
+        "sharedIn": 3,
+        "why": [
+          "shared",
+          "few"
+        ]
+      },
+      {
+        "id": 151102,
+        "count": 3,
+        "rate": 4.08,
+        "lo": 0.69,
+        "hi": 12.96,
+        "sharedIn": 3,
+        "why": [
+          "shared",
+          "few"
+        ]
+      }
+    ],
+    "violent": [
+      {
+        "id": 151324,
+        "count": 34,
+        "rate": 33.86,
+        "lo": 15.92,
+        "hi": 63.1,
+        "sharedIn": 31,
+        "why": [
+          "shared"
+        ]
+      },
+      {
+        "id": 151111,
+        "count": 59,
+        "rate": 24.35,
+        "lo": 12.09,
+        "hi": 43.74,
+        "sharedOut": 81,
+        "why": [
+          "shared"
+        ]
+      },
+      {
+        "id": 151360,
+        "count": 3,
+        "rate": 10.09,
+        "lo": 1.63,
+        "hi": 32.67,
+        "sharedIn": 3,
+        "why": [
+          "shared",
+          "few"
+        ]
+      },
+      {
+        "id": 151351,
+        "count": 39,
+        "rate": 9.93,
+        "lo": 4.75,
+        "hi": 18.31,
+        "sharedIn": 28,
+        "why": [
+          "shared"
+        ]
+      },
+      {
+        "id": 243780,
+        "count": 33,
+        "rate": 8.32,
+        "lo": 3.9,
+        "hi": 15.54,
+        "sharedIn": 18,
+        "why": [
+          "shared"
+        ]
+      },
+      {
+        "id": 492962,
+        "count": 1,
+        "rate": 6.24,
+        "lo": 0.12,
+        "hi": 36.55,
+        "why": [
+          "online",
+          "few"
+        ]
+      },
+      {
+        "id": 151102,
+        "count": 1,
+        "rate": 1.36,
+        "lo": 0.03,
+        "hi": 7.97,
+        "sharedIn": 1,
+        "why": [
+          "shared",
+          "few"
+        ]
+      }
+    ],
+    "property": [
+      {
+        "id": 151111,
+        "count": 75,
+        "rate": 30.96,
+        "lo": 15.42,
+        "hi": 55.48,
+        "sharedOut": 80,
+        "why": [
+          "shared"
+        ]
+      },
+      {
+        "id": 151324,
+        "count": 24,
+        "rate": 23.9,
+        "lo": 10.54,
+        "hi": 46.45,
+        "sharedIn": 21,
+        "why": [
+          "shared"
+        ]
+      },
+      {
+        "id": 151351,
+        "count": 81,
+        "rate": 20.63,
+        "lo": 10.32,
+        "hi": 36.86,
+        "sharedIn": 45,
+        "why": [
+          "shared"
+        ]
+      },
+      {
+        "id": 492962,
+        "count": 1,
+        "rate": 6.24,
+        "lo": 0.12,
+        "hi": 36.62,
+        "why": [
+          "online",
+          "few"
+        ]
+      },
+      {
+        "id": 243780,
+        "count": 24,
+        "rate": 6.05,
+        "lo": 2.67,
+        "hi": 11.76,
+        "sharedIn": 12,
+        "why": [
+          "shared"
+        ]
+      },
+      {
+        "id": 151102,
+        "count": 2,
+        "rate": 2.72,
+        "lo": 0.26,
+        "hi": 10.68,
+        "sharedIn": 2,
+        "why": [
+          "shared",
+          "few"
+        ]
+      }
+    ],
+    "all": [
+      {
+        "id": 151351,
+        "count": 2330,
+        "rate": 593.33,
+        "lo": 318.75,
+        "hi": 1008.16,
+        "sharedIn": 2237,
+        "why": [
+          "shared"
+        ]
+      },
+      {
+        "id": 151324,
+        "count": 583,
+        "rate": 580.56,
+        "lo": 309.98,
+        "hi": 990.82,
+        "sharedIn": 550,
+        "why": [
+          "shared"
+        ]
+      },
+      {
+        "id": 151111,
+        "count": 1359,
+        "rate": 560.92,
+        "lo": 300.9,
+        "hi": 954.1,
+        "sharedOut": 4152,
+        "why": [
+          "shared"
+        ]
+      },
+      {
+        "id": 243780,
+        "count": 1454,
+        "rate": 366.5,
+        "lo": 196.64,
+        "hi": 623.29,
+        "sharedIn": 1237,
+        "why": [
+          "shared"
+        ]
+      },
+      {
+        "id": 151102,
+        "count": 113,
+        "rate": 153.62,
+        "lo": 79.32,
+        "hi": 268.46,
+        "sharedIn": 113,
+        "why": [
+          "shared"
+        ]
+      },
+      {
+        "id": 151360,
+        "count": 15,
+        "rate": 50.45,
+        "lo": 20.41,
+        "hi": 103.56,
+        "sharedIn": 15,
+        "why": [
+          "shared",
+          "few"
+        ]
+      },
+      {
+        "id": 492962,
+        "count": 3,
+        "rate": 18.71,
+        "lo": 3.03,
+        "hi": 60.55,
+        "why": [
+          "online",
+          "few"
+        ]
+      }
+    ],
+    "aggravated_assault": [
+      {
+        "id": 151324,
+        "count": 11,
+        "rate": 10.95,
+        "lo": 3.22,
+        "hi": 26.96,
+        "sharedIn": 10,
+        "why": [
+          "shared",
+          "few"
+        ]
+      },
+      {
+        "id": 151360,
+        "count": 3,
+        "rate": 10.09,
+        "lo": 1.34,
+        "hi": 35.23,
+        "sharedIn": 3,
+        "why": [
+          "shared",
+          "few"
+        ]
+      },
+      {
+        "id": 151111,
+        "count": 24,
+        "rate": 9.91,
+        "lo": 3.48,
+        "hi": 22.13,
+        "sharedOut": 27,
+        "why": [
+          "shared"
+        ]
+      },
+      {
+        "id": 151351,
+        "count": 13,
+        "rate": 3.31,
+        "lo": 1.02,
+        "hi": 7.94,
+        "sharedIn": 12,
+        "why": [
+          "shared",
+          "few"
+        ]
+      },
+      {
+        "id": 243780,
+        "count": 5,
+        "rate": 1.26,
+        "lo": 0.26,
+        "hi": 3.7,
+        "sharedIn": 2,
+        "why": [
+          "shared",
+          "few"
+        ]
+      }
+    ],
+    "burglary": [
+      {
+        "id": 151111,
+        "count": 49,
+        "rate": 20.22,
+        "lo": 7.69,
+        "hi": 43.11,
+        "sharedOut": 63,
+        "why": [
+          "shared"
+        ]
+      },
+      {
+        "id": 151351,
+        "count": 75,
+        "rate": 19.1,
+        "lo": 7.46,
+        "hi": 40.05,
+        "sharedIn": 39,
+        "why": [
+          "shared"
+        ]
+      },
+      {
+        "id": 151324,
+        "count": 16,
+        "rate": 15.93,
+        "lo": 5.18,
+        "hi": 37.14,
+        "sharedIn": 16,
+        "why": [
+          "shared",
+          "few"
+        ]
+      },
+      {
+        "id": 492962,
+        "count": 1,
+        "rate": 6.24,
+        "lo": 0.1,
+        "hi": 38.03,
+        "why": [
+          "online",
+          "few"
+        ]
+      },
+      {
+        "id": 243780,
+        "count": 17,
+        "rate": 4.29,
+        "lo": 1.41,
+        "hi": 9.92,
+        "sharedIn": 7,
+        "why": [
+          "shared",
+          "few"
+        ]
+      },
+      {
+        "id": 151102,
+        "count": 1,
+        "rate": 1.36,
+        "lo": 0.02,
+        "hi": 8.29,
+        "sharedIn": 1,
+        "why": [
+          "shared",
+          "few"
+        ]
+      }
+    ],
+    "dating_violence": [
+      {
+        "id": 151324,
+        "count": 11,
+        "rate": 10.95,
+        "lo": 3.22,
+        "hi": 26.96,
+        "sharedIn": 11,
+        "why": [
+          "shared",
+          "few"
+        ]
+      },
+      {
+        "id": 151111,
+        "count": 22,
+        "rate": 9.08,
+        "lo": 3.14,
+        "hi": 20.45,
+        "sharedOut": 42,
+        "why": [
+          "shared"
+        ]
+      },
+      {
+        "id": 243780,
+        "count": 18,
+        "rate": 4.54,
+        "lo": 1.51,
+        "hi": 10.43,
+        "sharedIn": 17,
+        "why": [
+          "shared",
+          "few"
+        ]
+      },
+      {
+        "id": 151102,
+        "count": 3,
+        "rate": 4.08,
+        "lo": 0.54,
+        "hi": 14.24,
+        "sharedIn": 3,
+        "why": [
+          "shared",
+          "few"
+        ]
+      },
+      {
+        "id": 151360,
+        "count": 1,
+        "rate": 3.36,
+        "lo": 0.06,
+        "hi": 20.5,
+        "sharedIn": 1,
+        "why": [
+          "shared",
+          "few"
+        ]
+      },
+      {
+        "id": 151351,
+        "count": 12,
+        "rate": 3.06,
+        "lo": 0.92,
+        "hi": 7.42,
+        "sharedIn": 10,
+        "why": [
+          "shared",
+          "few"
+        ]
+      }
+    ],
+    "domestic_violence": [
+      {
+        "id": 151111,
+        "count": 13,
+        "rate": 5.37,
+        "lo": 1.66,
+        "hi": 12.87,
+        "sharedOut": 11,
+        "why": [
+          "shared",
+          "few"
+        ]
+      },
+      {
+        "id": 151102,
+        "count": 3,
+        "rate": 4.08,
+        "lo": 0.54,
+        "hi": 14.24,
+        "sharedIn": 3,
+        "why": [
+          "shared",
+          "few"
+        ]
+      },
+      {
+        "id": 151324,
+        "count": 3,
+        "rate": 2.99,
+        "lo": 0.4,
+        "hi": 10.43,
+        "sharedIn": 2,
+        "why": [
+          "shared",
+          "few"
+        ]
+      },
+      {
+        "id": 151351,
+        "count": 4,
+        "rate": 1.02,
+        "lo": 0.18,
+        "hi": 3.21,
+        "sharedIn": 4,
+        "why": [
+          "shared",
+          "few"
+        ]
+      },
+      {
+        "id": 243780,
+        "count": 2,
+        "rate": 0.5,
         "lo": 0.04,
-        "hi": 8.32
+        "hi": 2.1,
+        "sharedIn": 2,
+        "why": [
+          "shared",
+          "few"
+        ]
+      }
+    ],
+    "drug_arrest": [
+      {
+        "id": 151351,
+        "count": 253,
+        "rate": 64.43,
+        "lo": 26.84,
+        "hi": 129.83,
+        "sharedIn": 250,
+        "why": [
+          "shared"
+        ]
+      },
+      {
+        "id": 151111,
+        "count": 126,
+        "rate": 52.01,
+        "lo": 21.33,
+        "hi": 105.84,
+        "sharedOut": 470,
+        "why": [
+          "shared"
+        ]
+      },
+      {
+        "id": 243780,
+        "count": 192,
+        "rate": 48.4,
+        "lo": 20.06,
+        "hi": 97.83,
+        "sharedIn": 170,
+        "why": [
+          "shared"
+        ]
+      },
+      {
+        "id": 151324,
+        "count": 35,
+        "rate": 34.85,
+        "lo": 13.19,
+        "hi": 74.48,
+        "sharedIn": 28,
+        "why": [
+          "shared"
+        ]
+      },
+      {
+        "id": 151360,
+        "count": 7,
+        "rate": 23.55,
+        "lo": 5.94,
+        "hi": 62.65,
+        "sharedIn": 7,
+        "why": [
+          "shared",
+          "few"
+        ]
+      },
+      {
+        "id": 151102,
+        "count": 15,
+        "rate": 20.39,
+        "lo": 6.7,
+        "hi": 47.26,
+        "sharedIn": 15,
+        "why": [
+          "shared",
+          "few"
+        ]
+      }
+    ],
+    "drug_discipline": [
+      {
+        "id": 151324,
+        "count": 201,
+        "rate": 200.16,
+        "lo": 83.06,
+        "hi": 404.39,
+        "sharedIn": 201,
+        "why": [
+          "shared"
+        ]
+      },
+      {
+        "id": 151351,
+        "count": 476,
+        "rate": 121.21,
+        "lo": 50.88,
+        "hi": 243.13,
+        "sharedIn": 460,
+        "why": [
+          "shared"
+        ]
+      },
+      {
+        "id": 151111,
+        "count": 203,
+        "rate": 83.79,
+        "lo": 34.78,
+        "hi": 169.26,
+        "sharedOut": 761,
+        "why": [
+          "shared"
+        ]
+      },
+      {
+        "id": 243780,
+        "count": 127,
+        "rate": 32.01,
+        "lo": 13.13,
+        "hi": 65.14,
+        "sharedIn": 85,
+        "why": [
+          "shared"
+        ]
+      },
+      {
+        "id": 151102,
+        "count": 15,
+        "rate": 20.39,
+        "lo": 6.7,
+        "hi": 47.26,
+        "sharedIn": 15,
+        "why": [
+          "shared",
+          "few"
+        ]
+      }
+    ],
+    "fondling": [
+      {
+        "id": 151111,
+        "count": 34,
+        "rate": 14.03,
+        "lo": 5.16,
+        "hi": 30.53,
+        "sharedOut": 33,
+        "why": [
+          "shared"
+        ]
+      },
+      {
+        "id": 151324,
+        "count": 11,
+        "rate": 10.95,
+        "lo": 3.22,
+        "hi": 26.96,
+        "sharedIn": 9,
+        "why": [
+          "shared",
+          "few"
+        ]
+      },
+      {
+        "id": 243780,
+        "count": 16,
+        "rate": 4.03,
+        "lo": 1.31,
+        "hi": 9.4,
+        "sharedIn": 14,
+        "why": [
+          "shared",
+          "few"
+        ]
+      },
+      {
+        "id": 151351,
+        "count": 11,
+        "rate": 2.8,
+        "lo": 0.82,
+        "hi": 6.89,
+        "sharedIn": 10,
+        "why": [
+          "shared",
+          "few"
+        ]
+      }
+    ],
+    "liquor_arrest": [
+      {
+        "id": 151324,
+        "count": 63,
+        "rate": 62.74,
+        "lo": 24.94,
+        "hi": 130.16,
+        "sharedIn": 55,
+        "why": [
+          "shared"
+        ]
+      },
+      {
+        "id": 151351,
+        "count": 212,
+        "rate": 53.99,
+        "lo": 22.43,
+        "hi": 109.0,
+        "sharedIn": 207,
+        "why": [
+          "shared"
+        ]
+      },
+      {
+        "id": 151102,
+        "count": 38,
+        "rate": 51.66,
+        "lo": 19.73,
+        "hi": 109.82,
+        "sharedIn": 38,
+        "why": [
+          "shared"
+        ]
+      },
+      {
+        "id": 151111,
+        "count": 111,
+        "rate": 45.81,
+        "lo": 18.71,
+        "hi": 93.49,
+        "sharedOut": 349,
+        "why": [
+          "shared"
+        ]
+      },
+      {
+        "id": 243780,
+        "count": 65,
+        "rate": 16.38,
+        "lo": 6.53,
+        "hi": 33.95,
+        "sharedIn": 49,
+        "why": [
+          "shared"
+        ]
+      }
+    ],
+    "liquor_discipline": [
+      {
+        "id": 151351,
+        "count": 1209,
+        "rate": 307.87,
+        "lo": 129.89,
+        "hi": 615.56,
+        "sharedIn": 1195,
+        "why": [
+          "shared"
+        ]
+      },
+      {
+        "id": 151111,
+        "count": 617,
+        "rate": 254.66,
+        "lo": 107.1,
+        "hi": 510.2,
+        "sharedOut": 2253,
+        "why": [
+          "shared"
+        ]
+      },
+      {
+        "id": 243780,
+        "count": 959,
+        "rate": 241.73,
+        "lo": 101.9,
+        "hi": 483.57,
+        "sharedIn": 856,
+        "why": [
+          "shared"
+        ]
+      },
+      {
+        "id": 151324,
+        "count": 180,
+        "rate": 179.25,
+        "lo": 74.21,
+        "hi": 362.66,
+        "sharedIn": 171,
+        "why": [
+          "shared"
+        ]
+      },
+      {
+        "id": 151102,
+        "count": 31,
+        "rate": 42.14,
+        "lo": 15.73,
+        "hi": 90.81,
+        "sharedIn": 31,
+        "why": [
+          "shared"
+        ]
+      }
+    ],
+    "motor_vehicle_theft": [
+      {
+        "id": 151111,
+        "count": 26,
+        "rate": 10.73,
+        "lo": 3.81,
+        "hi": 23.81,
+        "sharedOut": 11,
+        "why": [
+          "shared"
+        ]
+      },
+      {
+        "id": 151324,
+        "count": 8,
+        "rate": 7.97,
+        "lo": 2.08,
+        "hi": 20.82,
+        "sharedIn": 5,
+        "why": [
+          "shared",
+          "few"
+        ]
+      },
+      {
+        "id": 151102,
+        "count": 1,
+        "rate": 1.36,
+        "lo": 0.02,
+        "hi": 8.29,
+        "sharedIn": 1,
+        "why": [
+          "shared",
+          "few"
+        ]
+      },
+      {
+        "id": 243780,
+        "count": 4,
+        "rate": 1.01,
+        "lo": 0.17,
+        "hi": 3.17,
+        "sharedIn": 2,
+        "why": [
+          "shared",
+          "few"
+        ]
+      },
+      {
+        "id": 151351,
+        "count": 3,
+        "rate": 0.76,
+        "lo": 0.1,
+        "hi": 2.67,
+        "sharedIn": 3,
+        "why": [
+          "shared",
+          "few"
+        ]
+      }
+    ],
+    "rape": [
+      {
+        "id": 151324,
+        "count": 23,
+        "rate": 22.9,
+        "lo": 7.98,
+        "hi": 51.36,
+        "sharedIn": 21,
+        "why": [
+          "shared"
+        ]
+      },
+      {
+        "id": 151111,
+        "count": 25,
+        "rate": 10.32,
+        "lo": 3.64,
+        "hi": 22.97,
+        "sharedOut": 51,
+        "why": [
+          "shared"
+        ]
+      },
+      {
+        "id": 243780,
+        "count": 28,
+        "rate": 7.06,
+        "lo": 2.53,
+        "hi": 15.57,
+        "sharedIn": 16,
+        "why": [
+          "shared"
+        ]
+      },
+      {
+        "id": 151351,
+        "count": 22,
+        "rate": 5.6,
+        "lo": 1.94,
+        "hi": 12.61,
+        "sharedIn": 13,
+        "why": [
+          "shared"
+        ]
+      },
+      {
+        "id": 151102,
+        "count": 1,
+        "rate": 1.36,
+        "lo": 0.02,
+        "hi": 8.29,
+        "sharedIn": 1,
+        "why": [
+          "shared",
+          "few"
+        ]
+      }
+    ],
+    "robbery": [
+      {
+        "id": 492962,
+        "count": 1,
+        "rate": 6.24,
+        "lo": 0.1,
+        "hi": 38.03,
+        "why": [
+          "online",
+          "few"
+        ]
+      },
+      {
+        "id": 151111,
+        "count": 10,
+        "rate": 4.13,
+        "lo": 1.18,
+        "hi": 10.33,
+        "sharedOut": 3,
+        "why": [
+          "shared",
+          "few"
+        ]
+      },
+      {
+        "id": 151351,
+        "count": 4,
+        "rate": 1.02,
+        "lo": 0.18,
+        "hi": 3.21,
+        "sharedIn": 3,
+        "why": [
+          "shared",
+          "few"
+        ]
+      }
+    ],
+    "stalking": [
+      {
+        "id": 151111,
+        "count": 73,
+        "rate": 30.13,
+        "lo": 11.75,
+        "hi": 63.24,
+        "sharedOut": 65,
+        "why": [
+          "shared"
+        ]
+      },
+      {
+        "id": 151324,
+        "count": 17,
+        "rate": 16.93,
+        "lo": 5.58,
+        "hi": 39.18,
+        "sharedIn": 17,
+        "why": [
+          "shared",
+          "few"
+        ]
+      },
+      {
+        "id": 151360,
+        "count": 3,
+        "rate": 10.09,
+        "lo": 1.34,
+        "hi": 35.23,
+        "sharedIn": 3,
+        "why": [
+          "shared",
+          "few"
+        ]
+      },
+      {
+        "id": 151351,
+        "count": 32,
+        "rate": 8.15,
+        "lo": 2.97,
+        "hi": 17.8,
+        "sharedIn": 27,
+        "why": [
+          "shared"
+        ]
+      },
+      {
+        "id": 492962,
+        "count": 1,
+        "rate": 6.24,
+        "lo": 0.1,
+        "hi": 38.03,
+        "why": [
+          "online",
+          "few"
+        ]
+      },
+      {
+        "id": 151102,
+        "count": 4,
+        "rate": 5.44,
+        "lo": 0.94,
+        "hi": 17.12,
+        "sharedIn": 4,
+        "why": [
+          "shared",
+          "few"
+        ]
+      },
+      {
+        "id": 243780,
+        "count": 18,
+        "rate": 4.54,
+        "lo": 1.51,
+        "hi": 10.43,
+        "sharedIn": 14,
+        "why": [
+          "shared",
+          "few"
+        ]
+      }
+    ],
+    "weapons_arrest": [
+      {
+        "id": 151111,
+        "count": 20,
+        "rate": 8.25,
+        "lo": 2.88,
+        "hi": 18.49,
+        "sharedOut": 6,
+        "why": [
+          "shared"
+        ]
+      },
+      {
+        "id": 151324,
+        "count": 4,
+        "rate": 3.98,
+        "lo": 0.71,
+        "hi": 12.42,
+        "sharedIn": 4,
+        "why": [
+          "shared",
+          "few"
+        ]
+      },
+      {
+        "id": 151360,
+        "count": 1,
+        "rate": 3.36,
+        "lo": 0.06,
+        "hi": 20.41,
+        "sharedIn": 1,
+        "why": [
+          "shared",
+          "few"
+        ]
+      },
+      {
+        "id": 151351,
+        "count": 1,
+        "rate": 0.25,
+        "lo": 0.0,
+        "hi": 1.55,
+        "sharedIn": 1,
+        "why": [
+          "shared",
+          "few"
+        ]
+      }
+    ],
+    "weapons_discipline": [
+      {
+        "id": 151111,
+        "count": 5,
+        "rate": 2.06,
+        "lo": 0.43,
+        "hi": 6.0,
+        "sharedOut": 1,
+        "why": [
+          "shared",
+          "few"
+        ]
+      },
+      {
+        "id": 151102,
+        "count": 1,
+        "rate": 1.36,
+        "lo": 0.02,
+        "hi": 8.25,
+        "sharedIn": 1,
+        "why": [
+          "shared",
+          "few"
+        ]
       }
     ]
   }

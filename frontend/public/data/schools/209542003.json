@@ -244,7 +244,7 @@
         "campuses": 3,
         "online": 17,
         "rateRanked": true,
-        "rateFte": 20793,
+        "rateFte": 23062,
         "counts": {
           "criminal": 80,
           "violent": 24,
@@ -270,12 +270,32 @@
       "2016": {
         "campuses": 3,
         "online": 19,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2016 figures of this institution's campus 209542003 are also reported, identically, by campus 208646001 of another institution (a shared campus) and count once, under that campus, while the students on it are in each institution's own FTE. No rate is shown for that year.",
-        "rateFte": 20716,
-        "spikes": [
-          "liquor_arrest"
-        ],
+        "rateRanked": true,
+        "rateFte": 23292,
+        "sharedOut": {
+          "criminal": 1,
+          "all": 60,
+          "domestic_violence": 1,
+          "drug_discipline": 2,
+          "liquor_arrest": 1,
+          "liquor_discipline": 53,
+          "stalking": 2,
+          "statutory_rape": 1
+        },
+        "notRanked": {
+          "all": [
+            "shared"
+          ],
+          "domestic_violence": [
+            "shared"
+          ],
+          "liquor_discipline": [
+            "shared"
+          ],
+          "stalking": [
+            "shared"
+          ]
+        },
         "counts": {
           "criminal": 96,
           "violent": 28,
@@ -303,7 +323,7 @@
         "campuses": 3,
         "online": 20,
         "rateRanked": true,
-        "rateFte": 20614,
+        "rateFte": 23319,
         "counts": {
           "criminal": 91,
           "violent": 37,
@@ -330,9 +350,37 @@
       "2018": {
         "campuses": 2,
         "online": 21,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2018 figures of this institution's campus 209542003 are also reported, identically, by campus 208646001 of another institution (a shared campus) and count once, under that campus, while the students on it are in each institution's own FTE. No rate is shown for that year.",
-        "rateFte": 20250,
+        "rateRanked": true,
+        "rateFte": 23060,
+        "sharedOut": {
+          "criminal": 5,
+          "violent": 4,
+          "property": 1,
+          "all": 47,
+          "aggravated_assault": 3,
+          "burglary": 1,
+          "drug_discipline": 4,
+          "liquor_discipline": 37,
+          "rape": 1,
+          "stalking": 1
+        },
+        "notRanked": {
+          "criminal": [
+            "shared"
+          ],
+          "violent": [
+            "shared"
+          ],
+          "all": [
+            "shared"
+          ],
+          "aggravated_assault": [
+            "shared"
+          ],
+          "liquor_discipline": [
+            "shared"
+          ]
+        },
         "counts": {
           "criminal": 90,
           "violent": 35,
@@ -359,10 +407,7 @@
         "campuses": 3,
         "online": 24,
         "rateRanked": true,
-        "rateFte": 19692,
-        "spikes": [
-          "domestic_violence"
-        ],
+        "rateFte": 22901,
         "counts": {
           "criminal": 88,
           "violent": 28,
@@ -391,7 +436,7 @@
         "online": 24,
         "rateRanked": true,
         "onlineYear": 2019,
-        "rateFte": 19610,
+        "rateFte": 22740,
         "counts": {
           "criminal": 48,
           "violent": 12,
@@ -418,7 +463,7 @@
         "online": 24,
         "rateRanked": true,
         "onlineYear": 2019,
-        "rateFte": 20206,
+        "rateFte": 23440,
         "counts": {
           "criminal": 73,
           "violent": 25,
@@ -443,10 +488,7 @@
         "campuses": 4,
         "online": 34,
         "rateRanked": true,
-        "rateFte": 18205,
-        "spikes": [
-          "domestic_violence"
-        ],
+        "rateFte": 22505,
         "counts": {
           "criminal": 130,
           "violent": 42,
@@ -474,7 +516,7 @@
         "campuses": 4,
         "online": 35,
         "rateRanked": true,
-        "rateFte": 18696,
+        "rateFte": 23019,
         "counts": {
           "criminal": 91,
           "violent": 21,
@@ -502,10 +544,7 @@
         "campuses": 4,
         "online": 35,
         "rateRanked": true,
-        "rateFte": 19611,
-        "spikes": [
-          "motor_vehicle_theft"
-        ],
+        "rateFte": 23882,
         "counts": {
           "criminal": 135,
           "violent": 35,
