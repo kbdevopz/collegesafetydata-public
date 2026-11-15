@@ -3039,8 +3039,9 @@ SPEC = {
     "medical_screen_share": (1, 10), "medical_screen_min_count": 5,
     "calibration": {"codes": ("violent", "criminal_xmvt", "burglary", "rape", "aggravated_assault", "robbery",
                               "fondling", "stalking"),
-                    "periods": ((2015, 2019), "latest"), "latestYears": 3, "simulations": 30, "seed": 11,
-                    "bands": (2, 5, 10, 20), "tolerance": 0.02, "bandTolerance": 0.03, "bandMinUnits": 100},
+                    "periods": ((2015, 2019), "latest"), "latestYears": 3, "simulations": 600, "seed": 11,
+                    "bands": (2, 5, 10, 20), "tolerance": 0.02, "bandToleranceBelow": 0.03,
+                    "bandToleranceAbove": 0.05, "bandMinUnits": 100},
     "size_setting_fields": ("C21SZSET", "C18SZSET", "C15SZSET"),
     "peer_size_setting": {"two_year": (1, 2, 3, 4, 5), "nonresidential": (6, 9, 12, 15),
                           "residential": (7, 10, 13, 16), "highly_residential": (8, 11, 14, 17), "other": ()},
@@ -4535,10 +4536,15 @@ def audit_rate_calibration(verbose: bool = False, inputs=None, data=None, spec=N
     predicted from the institution's other years (year effects from the
     panel's national rates) with variance m + c g(m) m^1.5, and the share of
     counts inside the central 95% predictive interval is compared with the
-    share expected under the model (mean of 30 simulated panels, NumPy PCG64
-    seeded 11 for each code and period). Fails when they differ by more than
-    0.02 over institutions with a mean of at least 2 a year, or by more than
-    0.03 in a band of yearly means with at least 100 institutions.
+    share expected under the model (mean of 600 simulated panels, NumPy PCG64
+    seeded 11 for each code and period). Fails when they differ, either way,
+    by more than 0.02 over institutions with a mean of at least 2 a year; in a
+    band of yearly means with at least 100 institutions, when the observed
+    share is below the expected one by more than 0.03 (intervals too narrow:
+    verdicts claim more certainty than the data give) or above it by more
+    than 0.05 (intervals too wide: only fewer verdicts). Every band is
+    published in details["rows"], with tested false when it has fewer than
+    100 institutions (or none).
     """
     result = AuditResult("Interval Calibration")
     print("\nCHECK 13: Interval Calibration")
@@ -4551,8 +4557,11 @@ def audit_rate_calibration(verbose: bool = False, inputs=None, data=None, spec=N
             "A1: single-year leave-one-out predictive coverage of on-campus counts under the published "
             "dispersion (c per code, ramp), observed against expected from "
             f"{cal['simulations']} simulations (PCG64 seed {cal['seed']}, fresh per code and period); "
-            f"tolerance {cal['tolerance']} over units with a mean >= {cal['bands'][0]}/year, "
-            f"{cal['bandTolerance']} in bands with >= {cal['bandMinUnits']} units.")
+            f"tolerance {cal['tolerance']} either way over units with a mean >= {cal['bands'][0]}/year; "
+            f"in bands with >= {cal['bandMinUnits']} units, fails when observed is below expected by more than "
+            f"{cal['bandToleranceBelow']} (intervals too narrow: verdicts overstate certainty) or above it by "
+            f"more than {cal['bandToleranceAbove']} (intervals too wide: fewer verdicts, the safer error). "
+            "Every band is listed in rows; tested is false below the unit minimum.")
         inputs = inputs if inputs is not None else default_inputs()
         problems = []
         if dict(cfg.RATE_CALIBRATION) != dict(cal):
@@ -4592,26 +4601,31 @@ def audit_rate_calibration(verbose: bool = False, inputs=None, data=None, spec=N
                 for lab, a, b in [(f"all>={bands[0]}", bands[0], float("inf"))] + list(zip(labels, edges[:-1], edges[1:])):
                     mm = (mb >= a) & (mb < b)
                     units_n = int(mm.sum())
+                    overall = lab.startswith("all")
+                    below = cal["tolerance"] if overall else cal["bandToleranceBelow"]
+                    above = cal["tolerance"] if overall else cal["bandToleranceAbove"]
                     if units_n == 0:
+                        rows.append({"code": code, "c": c, "period": period, "band": lab, "units": 0,
+                                     "observed": None, "expected": None, "diff": None, "toleranceBelow": below,
+                                     "toleranceAbove": above, "tested": False, "ok": None})
                         continue
                     o, x = float(obs[mm].mean()), float(e[mm].mean())
-                    overall = lab.startswith("all")
                     tested = overall or units_n >= cal["bandMinUnits"]
-                    tol = cal["tolerance"] if overall else cal["bandTolerance"]
-                    ok = (abs(o - x) <= tol) if tested else None
+                    ok = (-below <= o - x <= above) if tested else None
                     rows.append({"code": code, "c": c, "period": period, "band": lab, "units": units_n,
                                  "observed": round(o, 4), "expected": round(x, 4), "diff": round(o - x, 4),
-                                 "tested": tested, "ok": ok})
+                                 "toleranceBelow": below, "toleranceAbove": above, "tested": tested, "ok": ok})
                     if tested and not ok:
+                        side = f"below by more than {below}" if o < x else f"above by more than {above}"
                         problems.append(f"{code} {period} {lab}: observed {o:.3f}, expected {x:.3f} "
-                                        f"(diff {o - x:+.3f}, tolerance {tol}, {units_n} institutions)")
+                                        f"(diff {o - x:+.3f}, {side}, {units_n} institutions)")
                 if verbose:
                     print(f"    {code} {period}: {len(units)} institutions", flush=True)
         result.details["rows"] = rows
         result.details["problems"] = problems
         result.details["seconds"] = round(time.time() - t0, 1)
         for r in rows:
-            if r["band"].startswith("all"):
+            if r["band"].startswith("all") and r["units"]:
                 print(f"    {r['code']:<20}{r['period']:<11}units {r['units']:>5}  obs {r['observed']:.3f}  "
                       f"exp {r['expected']:.3f}  diff {r['diff']:+.3f}")
         print(f"  Problems: {len(problems)}")

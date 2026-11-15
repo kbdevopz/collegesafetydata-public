@@ -595,14 +595,23 @@ COUNT_FLAG_PERCENTILE = 99
 # years (year effects from the national totals) with the variance above;
 # the share of counts inside the central 95% predictive interval against
 # the share expected under the model (the mean of "simulations" simulated
-# panels, NumPy PCG64 seeded with "seed"). The check fails when they differ
-# by more than "tolerance" over the institutions with a mean of at least 2 a
-# year, or by more than "bandTolerance" in a band of yearly means ("bands")
-# with at least "bandMinUnits" institutions.
+# panels, NumPy PCG64 seeded with "seed", the same panels on every run). The
+# check fails when they differ, either way, by more than "tolerance" over the
+# institutions with a mean of at least 2 a year. In a band of yearly means
+# ("bands") with at least "bandMinUnits" institutions it fails when the
+# observed share is below the expected one by more than "bandToleranceBelow"
+# or above it by more than "bandToleranceAbove". The two band limits differ
+# on purpose: intervals that cover less often than the model says are too
+# narrow, so verdicts and rank ranges claim more certainty than the data
+# give, and that is the error to hold tightly; intervals that cover more
+# often are too wide, which only leaves more rates without a verdict, so a
+# larger difference is tolerated before the check fails. The dispersion
+# constants are not refitted to pass this check.
 RATE_CALIBRATION = {"codes": ("violent", "criminal_xmvt", "burglary", "rape", "aggravated_assault", "robbery",
                               "fondling", "stalking"),
-                    "periods": ((2015, 2019), "latest"), "latestYears": 3, "simulations": 30, "seed": 11,
-                    "bands": (2, 5, 10, 20), "tolerance": 0.02, "bandTolerance": 0.03, "bandMinUnits": 100}
+                    "periods": ((2015, 2019), "latest"), "latestYears": 3, "simulations": 600, "seed": 11,
+                    "bands": (2, 5, 10, 20), "tolerance": 0.02, "bandToleranceBelow": 0.03,
+                    "bandToleranceAbove": 0.05, "bandMinUnits": 100}
 
 # Institutions whose campus population students do not measure: no rate in a
 # year when IPEDS HD says they have a hospital (HOSPITAL = 1: patients,
