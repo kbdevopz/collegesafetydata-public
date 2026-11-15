@@ -23,7 +23,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 from config import (
     CURATED_DIR, IVY_LEAGUE, IVY_BASE_UNITIDS, OFFENSE_ORDER_MAP,
     OFFENSE_DESCRIPTIONS, OFFENSE_FAMILIES, US_STATES, VALID_STATE_CODES,
-    PROCESS_ALL_SCHOOLS, DATA_YEARS, GEO_FOR_ALL
+    PROCESS_ALL_SCHOOLS, DATA_YEARS, GEO_FOR_ALL, SIZE_SETTING_FIELDS
 )
 import campus_identity
 import provenance
@@ -46,6 +46,11 @@ CLASS_PATH = CURATED_DIR / "dims" / "dim_institution_class.parquet"
 POPULATION_LIST_PATH = Path(__file__).parent / "reference" / "rate_population_exclusions.csv"
 MEDICAL_PATH = CURATED_DIR / "dims" / "dim_medical_campus.parquet"
 MEDICAL_LIST_PATH = Path(__file__).parent / "reference" / "medical_campuses.csv"
+# Campuses reviewed for the medical-center list and not listed (07's screen reads it; checked here)
+MEDICAL_REVIEWS_PATH = Path(__file__).parent / "reference" / "medical_campus_reviews.csv"
+# Campuses DOE gives a state that are abroad (reviewed; not in the institution's rates)
+ABROAD_PATH = CURATED_DIR / "dims" / "dim_campus_abroad.parquet"
+ABROAD_LIST_PATH = Path(__file__).parent / "reference" / "campuses_abroad.csv"
 CARNEGIE_FIELDS = ("C21BASIC", "C18BASIC", "C15BASIC")  # newest classification first
 
 
@@ -438,9 +443,11 @@ def build_institution_classes() -> pd.DataFrame:
     (HD HOSPITAL: 1 yes, 2 no, negative not applicable or not reported),
     carnegie_field and carnegie_basic (the newest Carnegie basic
     classification field that year's HD file has: C21BASIC, C18BASIC or
-    C15BASIC), and listed_reason and listed_source for the institution-years
-    of etl/reference/rate_population_exclusions.csv (a row is added for one
-    the HD file lacks).
+    C15BASIC), the Carnegie Size & Setting fields that year's file has
+    (c21szset, c18szset, c15szset of SIZE_SETTING_FIELDS; none when the file
+    lacks the field), and listed_reason and listed_source for the
+    institution-years of etl/reference/rate_population_exclusions.csv (a row
+    is added for one the HD file lacks).
     """
     print("\nBuilding institution classes (IPEDS HD hospital and Carnegie fields)...")
     frames = []
@@ -466,6 +473,8 @@ def build_institution_classes() -> pd.DataFrame:
             "hospital": pd.to_numeric(df["HOSPITAL"], errors="coerce"),
             "carnegie_field": field,
             "carnegie_basic": pd.to_numeric(df[field], errors="coerce"),
+            **{f.lower(): (pd.to_numeric(df[f], errors="coerce") if f in df.columns else None)
+               for f in SIZE_SETTING_FIELDS},
         }))
         print(f"  {year}: {len(df):,} institutions, Carnegie field {field}, "
               f"HOSPITAL = 1: {int((pd.to_numeric(df['HOSPITAL'], errors='coerce') == 1).sum()):,}")
@@ -490,11 +499,13 @@ def build_institution_classes() -> pd.DataFrame:
                 out.loc[hit, "listed_source"] = row["source"].strip()
             else:
                 extra.append({"unitid": unitid, "year": year, "hospital": None, "carnegie_field": None,
-                              "carnegie_basic": None, "listed_reason": row["reason"].strip(),
+                              "carnegie_basic": None, **{f.lower(): None for f in SIZE_SETTING_FIELDS},
+                              "listed_reason": row["reason"].strip(),
                               "listed_source": row["source"].strip()})
     if extra:
         out = pd.concat([out, pd.DataFrame(extra)], ignore_index=True)
     out = out.astype({"unitid": "int32", "year": "int16", "hospital": "Int16", "carnegie_basic": "Int16",
+                      **{f.lower(): "Int16" for f in SIZE_SETTING_FIELDS},
                       "carnegie_field": "string", "listed_reason": "string", "listed_source": "string"})
     out = out.sort_values(["year", "unitid"]).reset_index(drop=True)
     if out.duplicated(["unitid", "year"]).any():
@@ -540,6 +551,70 @@ def build_medical_campuses(dim_institution: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
+def build_campuses_abroad(dim_institution: pd.DataFrame) -> pd.DataFrame:
+    """
+    dim_campus_abroad.parquet: unitid, country, reason, source for each row of
+    etl/reference/campuses_abroad.csv: campuses DOE gives a U.S. state that are
+    abroad (reviewed one by one). 04 treats them as it treats a campus DOE
+    lists without a state: their incidents are not in the institution's
+    counts for rates (IPEDS fall enrollment leaves out students abroad). Every
+    listed UNITID must be a campus of dim_institution with a state.
+    """
+    print("\nBuilding the list of campuses abroad that DOE gives a state...")
+    listed = pd.read_csv(ABROAD_LIST_PATH, dtype=str, keep_default_na=False)
+    need = ["unitid", "country", "reason", "source"]
+    if list(listed.columns) != need:
+        raise RuntimeError(f"{ABROAD_LIST_PATH} must have the columns {need}")
+    state_of = dict(zip(dim_institution["unitid"].astype(int).tolist(), dim_institution["state"].tolist()))
+    for row in listed.to_dict("records"):
+        unitid = int(row["unitid"])
+        if unitid not in state_of:
+            raise RuntimeError(f"{ABROAD_LIST_PATH}: {unitid} is not a campus in DOE's files")
+        if not state_of[unitid] or pd.isna(state_of[unitid]):
+            raise RuntimeError(f"{ABROAD_LIST_PATH}: {unitid} has no state in DOE's files, so it is abroad already; "
+                               "remove it from the list")
+        if not all(row[c].strip() for c in need[1:]):
+            raise RuntimeError(f"{ABROAD_LIST_PATH}: {unitid} needs a country, a reason and a source")
+    if listed["unitid"].duplicated().any():
+        raise RuntimeError(f"{ABROAD_LIST_PATH} lists a campus twice")
+    out = listed.assign(unitid=listed["unitid"].astype("int32"))[need].sort_values("unitid").reset_index(drop=True)
+    out = out.astype({c: "string" for c in need[1:]})
+    out.to_parquet(ABROAD_PATH, index=False)
+    print(f"  {len(out)} campuses. Saved to: {ABROAD_PATH}")
+    return out
+
+
+def check_medical_reviews(dim_institution: pd.DataFrame) -> None:
+    """
+    Check etl/reference/medical_campus_reviews.csv, the campuses reviewed for
+    the medical-center list and not listed (decision "not listed", or
+    "undecided" when the review could not settle it), with the years
+    reviewed: each a campus of dim_institution, once, and none for a year
+    that medical_campuses.csv lists. 07's name and address screen reads it.
+    """
+    reviews = pd.read_csv(MEDICAL_REVIEWS_PATH, dtype=str, keep_default_na=False)
+    need = ["unitid", "first_year", "last_year", "decision", "reason", "source"]
+    if list(reviews.columns) != need:
+        raise RuntimeError(f"{MEDICAL_REVIEWS_PATH} must have the columns {need}")
+    campuses = set(dim_institution["unitid"].astype(int).tolist())
+    listed = pd.read_csv(MEDICAL_LIST_PATH, dtype=str, keep_default_na=False)
+    listed_years = {(int(u), y) for u, a, b in zip(listed["unitid"], listed["first_year"], listed["last_year"])
+                    for y in range(int(a), int(b) + 1)}
+    for row in reviews.to_dict("records"):
+        unitid = int(row["unitid"])
+        if unitid not in campuses:
+            raise RuntimeError(f"{MEDICAL_REVIEWS_PATH}: {unitid} is not a campus in DOE's files")
+        if row["decision"] not in ("not listed", "undecided") or not row["reason"].strip() or not row["source"].strip():
+            raise RuntimeError(f"{MEDICAL_REVIEWS_PATH}: {unitid} needs a decision (not listed, undecided), a reason "
+                               "and a source")
+        if any((unitid, y) in listed_years for y in range(int(row["first_year"]), int(row["last_year"]) + 1)):
+            raise RuntimeError(f"{MEDICAL_REVIEWS_PATH}: {unitid} is reviewed as not listed for a year that "
+                               f"{MEDICAL_LIST_PATH.name} lists")
+    if reviews["unitid"].duplicated().any():
+        raise RuntimeError(f"{MEDICAL_REVIEWS_PATH} lists a campus twice")
+    print(f"  Medical-center campus reviews (not listed): {len(reviews)} campuses checked")
+
+
 def main():
     print("=" * 60)
     print("Building Dimension Tables")
@@ -552,7 +627,8 @@ def main():
     # The other files it reads: the IPEDS directory files and the reviewed ID changes
     _hd, hd_files = campus_identity.ipeds_directory(IPEDS_RAW_DIR, DATA_YEARS)
     other_inputs = provenance.other_input_records(hd_files + [campus_identity.ID_CHANGES_PATH,
-                                                              POPULATION_LIST_PATH, MEDICAL_LIST_PATH])
+                                                              POPULATION_LIST_PATH, MEDICAL_LIST_PATH,
+                                                              MEDICAL_REVIEWS_PATH, ABROAD_LIST_PATH])
     provenance.invalidate(provenance.INSTITUTION_MANIFEST)
     dim_institution = build_dim_institution()
     links = build_id_links(dim_institution)
@@ -561,9 +637,11 @@ def main():
     dim_offense = build_dim_offense()
     build_institution_classes()
     build_medical_campuses(dim_institution)
+    check_medical_reviews(dim_institution)
+    build_campuses_abroad(dim_institution)
     provenance.write_institution_manifest(
         inputs_before, outputs=[dims / "dim_institution.parquet", dims / "dim_offense.parquet", LINKS_PATH,
-                                CLASS_PATH, MEDICAL_PATH],
+                                CLASS_PATH, MEDICAL_PATH, ABROAD_PATH],
         other_inputs=other_inputs)
 
     print("\n" + "=" * 60)

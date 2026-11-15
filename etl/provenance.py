@@ -88,7 +88,7 @@ STAGE_CODE = {
     "02a": ("02a_transform_enrollment.py", "config.py", "ipeds_files.py", "provenance.py"),
     "03": ("03_build_dimensions.py", "campus_identity.py", "config.py", "ipeds_files.py", "provenance.py"),
     "04": ("04_create_aggregates.py", "config.py", "provenance.py"),
-    "05": ("05_generate_json.py", "config.py", "provenance.py"),
+    "05": ("05_generate_json.py", "rates.py", "config.py", "provenance.py"),
 }
 
 # The step that writes each curated file (paths relative to data/curated)
@@ -105,6 +105,7 @@ CURATED_WRITERS = {
     "dims/campus_id_links.parquet": "03",
     "dims/dim_institution_class.parquet": "03",
     "dims/dim_medical_campus.parquet": "03",
+    "dims/dim_campus_abroad.parquet": "03",
 }
 
 # Records each step reads, and where 04's record keeps the ones it used
