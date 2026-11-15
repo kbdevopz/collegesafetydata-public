@@ -27,11 +27,11 @@ import {
   AlertTriangle,
   Info,
 } from 'lucide-react'
-import { fetchSchoolProfile, fetchSchoolIndex, fetchPresets, getMetadata } from '../lib/api'
+import { fetchSchoolProfile, fetchSchoolIndex, fetchPresets, getMetadata, inRankingStates } from '../lib/api'
 import type { SchoolProfile, School, PresetDetail, SchoolIndex, RateRules } from '../lib/types'
 import { cn, formatNumber, calculateYoYChange, displayName as titleOf, withParams } from '../lib/utils'
 import {
-  fteFor, latestFte, institutionRate, rateNote, campusesPhrase, rateInterval, intervalText, rateTier, SPIKE_NOTE,
+  fteFor, latestFte, institutionRate, campusesPhrase, intervalText, rateSummary, SPIKE_NOTE, rankingStates,
 } from '../lib/rates'
 import {
   ALL, CRIMINAL, PROPERTY, SUMMARY_LABELS, VIOLENT, inSelection, isSummary, selectionCode, selectionFromParam, selectionLabel,
@@ -91,10 +91,17 @@ export default function Compare() {
   const setShowRate = (rate: boolean) => setSelection({ view: rate ? 'rate' : null })
   // Who rate rankings list (metadata.json), for the note on a left-out rate
   const [rateRules, setRateRules] = useState<RateRules | null>(null)
+  // The states and territories with rankings files, and the selected
+  // schools whose institution is outside them (no rate ranking lists it)
+  const [rankedStates, setRankedStates] = useState<Set<string> | null>(null)
+  const [outsideRankings, setOutsideRankings] = useState<Set<number>>(new Set())
 
   useEffect(() => {
     getMetadata()
-      .then((m) => setRateRules(m.rateRules))
+      .then((m) => {
+        setRateRules(m.rateRules)
+        setRankedStates(rankingStates(m.presets))
+      })
       .catch(() => setRateRules(null))
   }, [])
 
@@ -137,6 +144,17 @@ export default function Compare() {
         setLoading(false)
       })
   }, [selectedIds])
+
+  // Which selected schools' institutions no rate ranking can list
+  useEffect(() => {
+    if (!rankedStates) return
+    let current = true
+    Promise.all(profiles.map((p) => inRankingStates(p, rankedStates)))
+      .then((inside) => {
+        if (current) setOutsideRankings(new Set(profiles.filter((_, i) => inside[i] === false).map((p) => p.unitid)))
+      })
+    return () => { current = false }
+  }, [profiles, rankedStates])
 
   // Add a school
   const addSchool = (unitid: number) => {
@@ -327,16 +345,15 @@ export default function Compare() {
         : null
       const rateCount = inst?.count ?? totalIncidents ?? 0
       const rate = inst?.rate ?? null
-      const interval = rate !== null && inst?.fte
-        ? rateInterval(rateCount, inst.fte, rateRules?.ciLevel ?? 0.95)
-        : null
-      const code = selectionCode(selectedOffense)
-      const tier = rateTier(code, rateCount, rateRules)
-      // Where the rate stands under the rate rules, when it is not plainly ranked
-      const tierNote = rate === null || !rateRules ? null
-        : tier === 'countsOnly' ? 'Counts only: too rare nationally for rates to be compared.'
-        : tier === 'few' && inst?.rateRanked ? `Too few incidents to rank by rate (under ${rateRules.minCount}).`
-        : null
+      // Where the rate stands under the rate rules (ranked; shown, not ranked,
+      // and why; too few; counts only; not listed; no rate), its interval and
+      // its notes (lib/rates.ts)
+      const summary = rateSummary(
+        inst && outsideRankings.has(profile.unitid) ? { ...inst, outsideRankings: true } : inst, rateRules
+      )
+      const status = summary.standing.kind === 'countsOnly'
+        ? 'Counts only: too rare nationally for rates to be compared.'
+        : summary.status
 
       return {
         unitid: profile.unitid,
@@ -347,14 +364,16 @@ export default function Compare() {
         rate,
         rateFte: inst?.fte ?? null,
         rateCount,
-        interval: interval ? intervalText(interval.lo, interval.hi) : null,
+        interval: summary.interval ? intervalText(summary.interval.lo, summary.interval.hi) : null,
         campuses: campusesPhrase(inst?.campuses ?? 1),
-        note: rateNote(inst, rateRules),
-        tierNote,
-        spike: !!inst?.spikes?.includes(code),
+        // With a rate: its standing and notes; without one: why not
+        status,
+        notes: summary.notes,
+        spike: summary.spike,
+        abroadCampus: !profile.state,
       }
     })
-  }, [profiles, selectedYear, selectedOffense, rateRules])
+  }, [profiles, selectedYear, selectedOffense, rateRules, outsideRankings])
 
   // FTE label for each school, with the year it belongs to: the selected
   // year's FTE, or with "All Years" the newest FTE. The FTE is the whole
@@ -641,8 +660,11 @@ export default function Compare() {
           <p className="text-sm text-gray-600 dark:text-gray-400">
             {showRate ? (
               <>
-                Per 10,000 on-campus FTE students of the whole institution, with 95% intervals. Rankings rank only
-                rates on at least {rateRules?.minCount ?? 20} incidents; a smaller count gives a wide interval.
+                Per 10,000 on-campus FTE students of the whole institution (its campuses in the United States), with
+                {' '}{Math.round((rateRules?.ciLevel ?? 0.95) * 100)}% intervals that allow for year-to-year variation
+                beyond chance. Rate rankings rank a rate only with at least {rateRules?.minCount ?? 20} incidents and
+                no other reason not to; each rate below says where it stands.{' '}
+                <Link to="/methodology#rate-rules" className="underline">Rate Rules</Link>
               </>
             ) : (
               <>Comparing counts of {selectionLabel(selectedOffense).toLowerCase()}. Toggle "Rate" for per-student comparison.</>
@@ -767,9 +789,9 @@ export default function Compare() {
                                     Institution rate, {metrics.campuses}
                                   </div>
                                 )}
-                                {metrics.tierNote && (
-                                  <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 max-w-xs mx-auto">
-                                    {metrics.tierNote}
+                                {metrics.status && (
+                                  <div className="text-xs text-gray-600 dark:text-gray-300 mt-1 max-w-xs mx-auto">
+                                    {metrics.status}
                                   </div>
                                 )}
                                 {metrics.spike && (
@@ -777,9 +799,14 @@ export default function Compare() {
                                     {SPIKE_NOTE}
                                   </div>
                                 )}
-                                {metrics.note && (
+                                {metrics.notes.map((note) => (
+                                  <div key={note} className="text-xs text-gray-500 dark:text-gray-400 mt-1 max-w-xs mx-auto">
+                                    {note}
+                                  </div>
+                                ))}
+                                {metrics.abroadCampus && (
                                   <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 max-w-xs mx-auto">
-                                    {metrics.note}
+                                    This campus is outside the United States; its incidents are not in its institution's rate.
                                   </div>
                                 )}
                               </div>
@@ -787,9 +814,9 @@ export default function Compare() {
                               <div>
                                 <span className="text-xl text-gray-400 dark:text-gray-500">N/A</span>
                                 {/* Why a rate rule leaves this institution-year without a rate */}
-                                {metrics?.note && (
+                                {metrics?.status && (
                                   <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 max-w-xs mx-auto">
-                                    {metrics.note}
+                                    {metrics.status}
                                   </div>
                                 )}
                               </div>
@@ -918,9 +945,9 @@ export default function Compare() {
                                   Institution rate, {metrics.campuses}
                                 </div>
                               )}
-                              {metrics.tierNote && (
-                                <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                  {metrics.tierNote}
+                              {metrics.status && (
+                                <div className="text-xs text-gray-600 dark:text-gray-300 mt-1">
+                                  {metrics.status}
                                 </div>
                               )}
                               {metrics.spike && (
@@ -928,18 +955,23 @@ export default function Compare() {
                                   {SPIKE_NOTE}
                                 </div>
                               )}
-                              {metrics.note && (
+                              {metrics.notes.map((note) => (
+                                <div key={note} className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                  {note}
+                                </div>
+                              ))}
+                              {metrics.abroadCampus && (
                                 <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                  {metrics.note}
+                                  This campus is outside the United States; its incidents are not in its institution's rate.
                                 </div>
                               )}
                             </div>
                           ) : (
                             <div>
                               <div className="text-xl text-gray-400 dark:text-gray-500">N/A</div>
-                              {metrics?.note && (
+                              {metrics?.status && (
                                 <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                  {metrics.note}
+                                  {metrics.status}
                                 </div>
                               )}
                             </div>

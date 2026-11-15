@@ -17,7 +17,7 @@ import {
   Cell,
 } from 'recharts'
 import { ArrowLeft, MapPin, AlertCircle, Loader2, TrendingUp, TrendingDown, Calendar, AlertTriangle, Users, Info } from 'lucide-react'
-import { fetchSchoolProfile, getMetadata } from '../lib/api'
+import { fetchSchoolProfile, getMetadata, inRankingStates } from '../lib/api'
 import type { SchoolProfile as SchoolProfileType, OffenseBreakdown, RateRules } from '../lib/types'
 import {
   cn,
@@ -32,8 +32,8 @@ import {
   withParams,
 } from '../lib/utils'
 import {
-  fteFor, latestFte, institutionRate, rateNote, pooledNote, onlineNote, campusesPhrase, rateInterval, intervalText,
-  rateTier, SPIKE_NOTE,
+  fteFor, latestFte, institutionRate, onlineNote, campusesPhrase, intervalText, rateSummary, spikeDetail, SPIKE_NOTE,
+  rankingStates,
 } from '../lib/rates'
 import {
   ALL, CRIMINAL, PROPERTY, SUMMARY_LABELS, VIOLENT, inSelection, isSummary, selectionCode, selectionFromParam, selectionLabel,
@@ -62,6 +62,10 @@ export default function SchoolProfile() {
   const [error, setError] = useState<string | null>(null)
   // Who rate rankings list (metadata.json), for the note on a left-out rate
   const [rateRules, setRateRules] = useState<RateRules | null>(null)
+  // The states and territories with rankings files
+  const [rankedStates, setRankedStates] = useState<Set<string> | null>(null)
+  // The campus's institution is outside them, so no rate ranking lists it
+  const [outsideRankings, setOutsideRankings] = useState(false)
 
   // Known DOE file errors (metadata.json "knownDefects"), for the note on
   // residence-hall figures they touch
@@ -71,10 +75,21 @@ export default function SchoolProfile() {
     getMetadata()
       .then((m) => {
         setRateRules(m.rateRules)
+        setRankedStates(rankingStates(m.presets))
         setKnownDefects(m.knownDefects)
       })
       .catch(() => setRateRules(null))
   }, [])
+
+  useEffect(() => {
+    setOutsideRankings(false)
+    if (!profile || !rankedStates) return
+    let current = true
+    inRankingStates(profile, rankedStates).then((inside) => {
+      if (current) setOutsideRankings(inside === false)
+    })
+    return () => { current = false }
+  }, [profile, rankedStates])
 
   useEffect(() => {
     if (!unitid) return
@@ -169,32 +184,40 @@ export default function SchoolProfile() {
   // The rate per 10k students in the selected year (that year's FTE only).
   // It is the institution's: the incidents of all its campuses per its FTE,
   // as NCES publishes FTE per institution.
-  const selectedYearInstitution = useMemo(
-    () => institutionRate(profile, selectedYear, selectedOffense, selectedYearTotal),
-    [profile, selectedYear, selectedOffense, selectedYearTotal]
-  )
+  const selectedYearInstitution = useMemo(() => {
+    const inst = institutionRate(profile, selectedYear, selectedOffense, selectedYearTotal)
+    return inst && outsideRankings ? { ...inst, outsideRankings } : inst
+  }, [profile, selectedYear, selectedOffense, selectedYearTotal, outsideRankings])
   const selectedYearRate = selectedYearInstitution?.rate ?? null
   const selectedYearRateCount = selectedYearInstitution?.count ?? selectedYearTotal
   const selectedYearCampuses = campusesPhrase(selectedYearInstitution?.campuses ?? 1)
-  const selectedYearRateNote = rateNote(selectedYearInstitution, rateRules)
-  const selectedYearPooledNote = pooledNote(selectedYearInstitution)
   const selectedYearOnlineNote = onlineNote(selectedYearInstitution, rateRules)
-  // The rate's denominator (on-campus FTE), its 95% interval, and where it
-  // stands under the rate rules: ranked, too few incidents, or counts only
+  // The rate's denominator (on-campus FTE), its 95% interval, where it
+  // stands under the rate rules (ranked; shown, not ranked, and why; too few
+  // incidents; counts only; not listed; no rate) and its notes (lib/rates.ts)
   const selectedYearRateFte = selectedYearInstitution?.fte ?? null
-  const selectedYearInterval = selectedYearRate !== null && selectedYearRateFte !== null
-    ? rateInterval(selectedYearRateCount, selectedYearRateFte, rateRules?.ciLevel ?? 0.95)
-    : null
-  const selectedCode = selectionCode(selectedOffense)
-  const selectedYearTier = rateTier(selectedCode, selectedYearRateCount, rateRules)
-  const selectedYearSpike = !!selectedYearInstitution?.spikes?.includes(selectedCode)
-  const selectedYearTierNote = selectedYearRate === null || !rateRules
-    ? null
-    : selectedYearTier === 'countsOnly'
-      ? `${selectionLabel(selectedOffense)} is too rare nationally for rates to be compared, so rate rankings leave it out (counts only).`
-      : selectedYearTier === 'few' && selectedYearInstitution?.rateRanked
-        ? `${formatNumber(selectedYearRateCount)} ${selectedYearRateCount === 1 ? 'incident is' : 'incidents are'} too few to rank by rate (rate rankings rank institutions with at least ${rateRules.minCount}); the rate is shown with its interval.`
-        : null
+  const selectedYearSummary = useMemo(
+    () => rateSummary(selectedYearInstitution, rateRules),
+    [selectedYearInstitution, rateRules]
+  )
+  const selectedYearInterval = selectedYearSummary.interval
+  const selectedYearSpike = selectedYearSummary.spike
+  const selectedYearStatus = selectedYearSummary.standing.kind === 'countsOnly'
+    ? `${selectionLabel(selectedOffense)} is too rare nationally for rates to be compared, so rate rankings leave it out (counts only).`
+    : selectedYearSummary.status
+  // A short label of the standing, for the summary card
+  const standingLabel: Record<string, string> = {
+    ranked: 'Ranked by rate',
+    notRanked: 'Shown, not ranked by rate',
+    few: 'Too few incidents to rank',
+    countsOnly: 'Counts only',
+    unlisted: 'Not in rate rankings',
+    outside: 'Not in rate rankings',
+    excluded: 'No rate: left out of rate rankings',
+  }
+  const selectedYearStandingLabel = standingLabel[selectedYearSummary.standing.kind] ?? null
+  // A campus abroad: its incidents are not in its institution's rate
+  const campusAbroad = !!profile && !profile.state
 
   // Number of campuses of the institution in the header FTE's year
   const headerCampuses = headerFte
@@ -379,7 +402,7 @@ export default function SchoolProfile() {
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-gray-600 dark:text-gray-400">
             <span className="flex items-center gap-1.5">
               <MapPin className="w-4 h-4" />
-              {profile.city}, {profile.state}
+              {[profile.city, profile.state].filter(Boolean).join(', ')}
             </span>
             {headerFte && (
               <span
@@ -583,6 +606,9 @@ export default function SchoolProfile() {
                 )}
               </div>
             )}
+            {showRate && selectedYearStandingLabel && (
+              <div className="text-sm font-medium text-gray-700 dark:text-gray-300 mt-1">{selectedYearStandingLabel}</div>
+            )}
             {showRate && selectedYearSpike && (
               <div className="text-sm text-amber-700 dark:text-amber-400 mt-1">{SPIKE_NOTE}</div>
             )}
@@ -662,49 +688,53 @@ export default function SchoolProfile() {
             <div className="flex items-center gap-2 text-sm text-blue-700 dark:text-blue-300">
               <Users className="w-4 h-4 flex-shrink-0" />
               <span>
-                <strong>Rate view:</strong> Incidents per 10,000 on-campus full-time equivalent (FTE) students:
-                NCES's FTE less the share of students enrolled exclusively online (an approximation, as that share
-                counts students, not FTE). The interval is the rate's exact 95% Poisson interval.
+                <strong>Rate view:</strong> Incidents per 10,000 on-campus full-time equivalent (FTE) students.
+                On-campus FTE is estimated from NCES's FTE and the share of students enrolled exclusively online
+                (the larger of two estimates). The {Math.round((rateRules?.ciLevel ?? 0.95) * 100)}% interval allows
+                for the year-to-year variation institutions' counts show beyond chance, not for differences in how
+                institutions report.
                 {selectedYearCampuses && (
                   <span className="ml-1">
                     NCES counts enrollment per institution, not per campus, so this is the institution's rate:
-                    the incidents of {selectedYearCampuses} per its on-campus FTE.
+                    the incidents of {selectedYearCampuses} (in the United States) per its on-campus FTE.
                   </span>
                 )}
+                {' '}<Link to="/methodology#rate-rules" className="underline hover:text-blue-800 dark:hover:text-blue-200">Rate Rules</Link>
               </span>
             </div>
-            {selectedYearOnlineNote && (
+            {campusAbroad && (
               <p role="note" className="flex items-start gap-2 mt-2 text-sm text-blue-700 dark:text-blue-300">
                 <Info className="w-4 h-4 flex-shrink-0 mt-0.5" aria-hidden="true" />
-                <span>In {selectedYear}: {selectedYearOnlineNote}</span>
+                <span>
+                  This campus is outside the United States, so its incidents are not in its institution's rate:
+                  NCES fall enrollment leaves out students at branch campuses abroad.
+                </span>
               </p>
             )}
-            {selectedYearTierNote && (
+            {selectedYearStatus && (
               <p role="note" className="flex items-start gap-2 mt-2 text-sm text-blue-700 dark:text-blue-300">
                 <Info className="w-4 h-4 flex-shrink-0 mt-0.5" aria-hidden="true" />
-                <span>In {selectedYear}: {selectedYearTierNote}</span>
+                <span>In {selectedYear}: {selectedYearStatus}</span>
               </p>
             )}
             {selectedYearSpike && (
               <p role="note" className="flex items-start gap-2 mt-2 text-sm text-amber-700 dark:text-amber-400">
                 <Info className="w-4 h-4 flex-shrink-0 mt-0.5" aria-hidden="true" />
                 <span>
-                  In {selectedYear}: {SPIKE_NOTE} The count is at least {rateRules?.spike.minCount ?? 20} and more
-                  than {rateRules?.spike.factor ?? 3} times the median of the institution's other years; it stays
-                  in rate rankings.
+                  In {selectedYear}: {SPIKE_NOTE} {spikeDetail(rateRules)}
                 </span>
               </p>
             )}
-            {selectedYearRateNote && (
-              <p role="note" className="flex items-start gap-2 mt-2 text-sm text-blue-700 dark:text-blue-300">
+            {selectedYearSummary.notes.map((note) => (
+              <p key={note} role="note" className="flex items-start gap-2 mt-2 text-sm text-blue-700 dark:text-blue-300">
                 <Info className="w-4 h-4 flex-shrink-0 mt-0.5" aria-hidden="true" />
-                <span>In {selectedYear}: {selectedYearRateNote}</span>
+                <span>In {selectedYear}: {note}</span>
               </p>
-            )}
-            {selectedYearPooledNote && (
+            ))}
+            {selectedYearOnlineNote && selectedYearSummary.standing.kind !== 'excluded' && (
               <p role="note" className="flex items-start gap-2 mt-2 text-sm text-blue-700 dark:text-blue-300">
                 <Info className="w-4 h-4 flex-shrink-0 mt-0.5" aria-hidden="true" />
-                <span>{selectedYearPooledNote}</span>
+                <span>In {selectedYear}: {selectedYearOnlineNote}</span>
               </p>
             )}
           </div>

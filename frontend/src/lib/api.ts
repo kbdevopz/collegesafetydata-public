@@ -161,6 +161,29 @@ export async function fetchSchoolProfile(
   return request
 }
 
+/**
+ * Whether rankings files can list a campus's institution: they cover the
+ * states and territories in `rankingStates` (lib/rates.ts). A campus outside
+ * them (abroad, Guam, American Samoa, ...) can belong to an institution in
+ * one of them, so the institution's main campus (UNITID ending 001) decides.
+ * Null when that cannot be told (no file of the main campus).
+ */
+export async function inRankingStates(
+  profile: SchoolProfile,
+  rankingStates: ReadonlySet<string>
+): Promise<boolean | null> {
+  if (rankingStates.has(profile.state)) return true
+  const id = profile.institution?.id
+  if (id === undefined) return null
+  const main = id * 1000 + 1
+  if (main === profile.unitid) return false
+  try {
+    return rankingStates.has((await fetchSchoolProfile(main)).state)
+  } catch {
+    return null
+  }
+}
+
 // =============================================================================
 // School Index (Search)
 // =============================================================================

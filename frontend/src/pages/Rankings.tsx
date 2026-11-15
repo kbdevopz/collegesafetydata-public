@@ -10,10 +10,12 @@ import {
 } from '@tanstack/react-table'
 import { ChevronUp, ChevronDown, ExternalLink, AlertCircle, Loader2, MapPin, Calendar, AlertTriangle, Plus, Check, GitCompare, X, ChevronRight, Info } from 'lucide-react'
 import { fetchRankings, getMetadata } from '../lib/api'
-import type { RankingsData, Metadata, Offense } from '../lib/types'
+import type { RankingsData, Metadata, Offense, RateInstitution, RateNotRankedEntry, RateRules } from '../lib/types'
 import { cn, formatNumber, formatPercent, groupOffensesByFamily, withParams } from '../lib/utils'
 import { VIOLENT, compareText, countHeader, countPhrase, noneOfPhrase } from '../lib/selection'
-import { intervalText, rateInterval, SPIKE_NOTE } from '../lib/rates'
+import {
+  countNotes, intervalText, rateInterval, rateViewGroups, ratioPercent, reasonText, SPIKE_NOTE, joinAnd,
+} from '../lib/rates'
 import SchoolSearch from '../components/SchoolSearch'
 import OffensePopover from '../components/OffensePopover'
 import SeriesNotes from '../components/SeriesNotes'
@@ -22,32 +24,51 @@ import SeriesNotes from '../components/SeriesNotes'
 // campuses together (rate view, as NCES publishes FTE per institution)
 interface Row {
   key: number // campus UNITID, or base UNITID of an institution
-  // count view: 'count'; rate view: 'ranked' (at least rateRules.minCount
-  // incidents), 'few' (1 to minCount - 1: shown, not ranked by rate) or 'zero'
+  // count view: 'count'; rate view: 'ranked' (in the file's rate ranking),
+  // 'few' (1 to minCount - 1 and no other reason: shown, not ranked by rate)
+  // or 'zero'. Institutions shown but not ranked for another reason are in
+  // their own section (NotRankedSection), not in the table.
   tier: 'count' | 'ranked' | 'few' | 'zero'
   rank: number // the rank in the file (ties share a rank: 1, 2, 2, 4); after the ranked ones for few and zero
   unitid: number // the school page the row links to
   name: string
   branch: boolean // count view: not the main campus
   campus: string | null // count view: the campus's own DOE name (shown as the title; name stays the sort key)
-  campuses: number // the institution's campuses that year
+  campuses: number // the institution's campuses in the United States that year
   count: number
   pct: number // count view: share of the file's total
   fte: number | null
   rate: number | null
-  // rate view: the rate's 95% interval, the ranks it allows ('ranked'), and
+  // rate view: the rate's 95% interval, its rank range ('ranked'), and
   // whether the count is unusually high for the institution
   lo: number | null
   hi: number | null
   rankLo: number | null
   rankHi: number | null
   spike: boolean
+  // rate view: notes on incidents the rate counts or leaves out, and on its
+  // denominator (medical-center campuses, shared figures, pooled FTE)
+  notes: string[]
+  // count view: the count per 10,000 of its institution's FTE when the
+  // pipeline flags it as very high for the institution's size (highForSize)
+  highForSize: number | null
 }
 
-const RANK_RANGE_TITLE =
-  'The ranks this institution could hold given the 95% intervals: from 1 plus the number of institutions whose ' +
-  'interval lies entirely above its own, to the number of ranked institutions minus those whose interval lies ' +
-  'entirely below it.'
+// The rank-range tooltip (rules.rankRanges: simulated, never recomputed here)
+function rankRangeTitle(rules: RateRules | undefined): string {
+  const pct = Math.round((rules?.ciLevel ?? 0.95) * 100)
+  const draws = (rules?.rankRanges?.draws ?? 2000).toLocaleString('en-US')
+  return `The middle ${pct}% of the ranks this institution held in ${draws} simulated rankings, each drawing every ` +
+    "ranked institution's rate from a gamma distribution with the overdispersion of its interval; widened to " +
+    'include its published rank. Ranks inside one range are not clearly different.'
+}
+
+// "Rate adds the on-campus FTE of A and B" for an institution with pooled FTE
+function pooledShort(inst: RateInstitution | undefined): string | null {
+  if (!inst?.pooled || inst.pooled.length === 0) return null
+  return `Rate adds the on-campus FTE of ${joinAnd(inst.pooled.map((p) => p.name ?? `institution ${p.id}`))}, ` +
+    'whose campus figures count here.'
+}
 
 export default function Rankings() {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -60,6 +81,8 @@ export default function Rankings() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isSummaryExpanded, setIsSummaryExpanded] = useState(false)
+  // Rate view: the "Not ranked by rate" section below the table
+  const [isNotRankedOpen, setIsNotRankedOpen] = useState(false)
   const [compareSchools, setCompareSchools] = useState<{ unitid: number; name: string }[]>([])
   const [isScrolled, setIsScrolled] = useState(false)
 
@@ -152,12 +175,20 @@ export default function Rankings() {
   // Who rate rankings list and rank (etl/config.py, written to metadata.json)
   const rules = metadata?.rateRules
   const rateRulesText = rules
-    ? `${formatNumber(rules.minFte)}+ on-campus FTE, ranked at ${rules.minCount}+ incidents, ${Math.round(rules.ciLevel * 100)}% intervals`
+    ? `${formatNumber(rules.minFte)}+ on-campus FTE, at least ${rules.minCount} incidents to rank, ${Math.round(rules.ciLevel * 100)}% intervals`
     : ''
   // An offense too rare nationally for a rate ranking: counts only
   const countsOnly = !!rules?.countsOnly?.includes(selectedOffense)
   const rateView = sortByRate && !countsOnly
   const level = rules?.ciLevel ?? 0.95
+  const rankTitle = rankRangeTitle(rules)
+
+  // The institutions of the rate view, by group (lib/rates.ts): ranked, too
+  // few incidents, not ranked for another reason, none of the selection
+  const rateGroups = useMemo(
+    () => (data && rateView ? rateViewGroups(data, selectedOffense, compareText) : null),
+    [data, rateView, selectedOffense]
+  )
 
   // The rows of the selected view, in the file's order and with its ranks:
   // campuses by count, or institutions by rate
@@ -166,17 +197,17 @@ export default function Rankings() {
   // listed by name, then UNITID (the pipeline's tie rule)
   const sortedRankings = useMemo((): Row[] => {
     if (!data) return []
-    if (rateView) {
-      // Ranked by rate (at least minCount incidents), then too few to rank
-      // (by rate, as the file lists them), then none
-      const entries = data.rateRankings[selectedOffense] || []
-      const few = data.rateUnranked?.[selectedOffense] || []
-      const after = entries.length + 1
+    if (rateView && rateGroups) {
+      // Ranked by rate, then too few to rank (by rate, as the file lists
+      // them), then none. Those not ranked for another reason, and those a
+      // rule leaves out, are in the "Not ranked by rate" section.
+      const after = rateGroups.ranked.length + 1
       const rows: Row[] = [
-        ...entries.map((e) => ({ e, tier: 'ranked' as const, rank: e.rank, rankLo: e.rankLo, rankHi: e.rankHi, spike: !!e.spike })),
-        ...few.map((e) => ({ e, tier: 'few' as const, rank: after, rankLo: null, rankHi: null, spike: false })),
+        ...rateGroups.ranked.map((e) => ({ e, tier: 'ranked' as const, rank: e.rank, rankLo: e.rankLo, rankHi: e.rankHi, spike: !!e.spike })),
+        ...rateGroups.few.map((e) => ({ e, tier: 'few' as const, rank: after, rankLo: null, rankHi: null, spike: false })),
       ].map(({ e, tier, rank, rankLo, rankHi, spike }) => {
         const inst = data.institutions[String(e.id)]
+        const pooled = pooledShort(inst)
         return {
           key: e.id,
           tier,
@@ -195,15 +226,13 @@ export default function Rankings() {
           rankLo,
           rankHi,
           spike,
+          notes: [...countNotes(e, [], rules, true), ...(pooled ? [pooled] : [])],
+          highForSize: null,
         }
       })
-      const listed = new Set([...entries.map((e) => e.id), ...few.map((e) => e.id)])
-      const zeros = Object.entries(data.institutions)
-        .map(([id, inst]) => ({ id: Number(id), inst }))
-        .filter(({ id }) => !listed.has(id))
-        .sort((a, b) => compareText(a.inst.name, b.inst.name) || a.id - b.id)
-      zeros.forEach(({ id, inst }) => {
-        const interval = rateInterval(0, inst.fte, level)
+      rateGroups.zero.forEach(({ id, inst }) => {
+        const interval = rateInterval(0, inst.fte, selectedOffense, rules)
+        const pooled = pooledShort(inst)
         rows.push({
           key: id,
           tier: 'zero',
@@ -217,11 +246,13 @@ export default function Rankings() {
           pct: 0,
           fte: inst.fte,
           rate: 0,
-          lo: interval.lo,
-          hi: interval.hi,
+          lo: interval?.lo ?? null,
+          hi: interval?.hi ?? null,
           rankLo: null,
           rankHi: null,
           spike: false,
+          notes: pooled ? [pooled] : [],
+          highForSize: null,
         })
       })
       return rows
@@ -230,6 +261,7 @@ export default function Rankings() {
     const entries = data.rankings[selectedOffense] || []
     const rows: Row[] = entries.map((e) => {
       const campus = data.campuses[String(e.unitid)]
+      const fte = campus?.fte ?? null
       return {
         key: e.unitid,
         tier: 'count' as const,
@@ -241,13 +273,15 @@ export default function Rankings() {
         campuses: campus?.campuses ?? 1,
         count: e.count,
         pct: total > 0 ? (e.count / total) * 100 : 0,
-        fte: campus?.fte ?? null,
+        fte,
         rate: null,
         lo: null,
         hi: null,
         rankLo: null,
         rankHi: null,
         spike: false,
+        notes: [],
+        highForSize: e.highForSize && fte ? (e.count / fte) * 10000 : null,
       }
     })
     const listed = new Set(entries.map((e) => e.unitid))
@@ -273,9 +307,22 @@ export default function Rankings() {
       rankLo: null,
       rankHi: null,
       spike: false,
+      notes: [],
+      highForSize: null,
     }))
     return rows
-  }, [data, selectedOffense, rateView, level])
+  }, [data, selectedOffense, rateView, rateGroups, rules])
+
+  // The note of a count flagged as very high for the institution's size
+  // (highForSize), with the national limit it is over (metadata.rateStats)
+  const flagLimit = metadata?.rateStats?.countFlagLimits?.[String(selectedYear)]?.[selectedOffense]
+  const highForSizeNote = useCallback((perTenK: number) => {
+    const factor = rules?.countFlag?.factor ?? 3
+    const limit = flagLimit !== undefined ? ` (${flagLimit.toFixed(1)})` : ''
+    return `Very high for an institution of this size: ${formatNumber(Math.round(perTenK))} per 10,000 of its ` +
+      `institution's FTE, more than ${factor} times the highest ranked rate in the ${selectedYear} national rate ` +
+      `ranking${limit}. Shown as reported; check the institution's Annual Security Report.`
+  }, [rules, flagLimit, selectedYear])
 
   const displayedRankings = useMemo(() => {
     return sortedRankings.slice(0, displayCount)
@@ -316,7 +363,7 @@ export default function Rankings() {
   const columns = useMemo(
     () => [
       columnHelper.accessor('rank', {
-        header: rateView ? () => <span title={RANK_RANGE_TITLE}>Rank (range)</span> : 'Rank',
+        header: rateView ? () => <span title={rankTitle}>Rank (range)</span> : 'Rank',
         cell: (info) => {
           // The published rank, by count or by rate, and in the rate view the
           // ranks the intervals allow; no rank below minCount incidents
@@ -328,7 +375,7 @@ export default function Rankings() {
             <span className="flex flex-col">
               <span className="font-medium text-gray-500 dark:text-gray-400">#{info.getValue()}</span>
               {row.tier === 'ranked' && row.rankLo !== null && row.rankHi !== null && (
-                <span className="text-xs text-gray-400 dark:text-gray-500 tabular-nums whitespace-nowrap" title={RANK_RANGE_TITLE}>
+                <span className="text-xs text-gray-400 dark:text-gray-500 tabular-nums whitespace-nowrap" title={rankTitle}>
                   {row.rankLo === row.rankHi ? row.rankLo : `${row.rankLo}–${row.rankHi}`}
                 </span>
               )}
@@ -357,7 +404,7 @@ export default function Rankings() {
             {rateView && info.row.original.campuses > 1 && (
               <span
                 className="text-xs font-normal text-gray-500 dark:text-gray-400"
-                title="The rate counts the incidents of all the institution's campuses"
+                title="The rate counts the incidents of all the institution's campuses in the United States"
               >
                 ({info.row.original.campuses} campuses)
               </span>
@@ -366,6 +413,14 @@ export default function Rankings() {
           </Link>
           {info.row.original.spike && (
             <span className="block text-xs text-amber-700 dark:text-amber-400 mt-0.5">{SPIKE_NOTE}</span>
+          )}
+          {info.row.original.notes.map((note) => (
+            <span key={note} className="block text-xs text-gray-500 dark:text-gray-400 mt-0.5">{note}</span>
+          ))}
+          {info.row.original.highForSize !== null && (
+            <span className="block text-xs text-amber-700 dark:text-amber-400 mt-0.5 max-w-xl">
+              {highForSizeNote(info.row.original.highForSize)}
+            </span>
           )}
           </div>
         ),
@@ -382,7 +437,7 @@ export default function Rankings() {
       ...(rateView ? [
         columnHelper.accessor('rate', {
           header: () => (
-            <span title={`Per 10,000 on-campus FTE students, with the rate's exact ${Math.round(level * 100)}% Poisson interval below it`}>
+            <span title={`Per 10,000 on-campus FTE students, with the rate's ${Math.round(level * 100)}% interval below it (negative binomial: it allows for year-to-year variation beyond chance, not for differences in reporting)`}>
               Rate ({Math.round(level * 100)}% interval)
             </span>
           ),
@@ -406,7 +461,7 @@ export default function Rankings() {
         }),
         columnHelper.accessor('fte', {
           header: () => (
-            <span title="The rate's denominator: NCES full-time equivalent enrollment of the whole institution (all its campuses) less its share of students enrolled exclusively online">
+            <span title="The rate's denominator: the whole institution's on-campus FTE, the larger of two estimates from NCES's full-time equivalent enrollment and its share of students enrolled exclusively online, plus that of any institution whose campus figures count under it">
               On-campus FTE
             </span>
           ),
@@ -488,7 +543,7 @@ export default function Rankings() {
         size: 50,
       }),
     ],
-    [columnHelper, isInCompare, rateView, countLabel, level]
+    [columnHelper, isInCompare, rateView, countLabel, level, rankTitle, highForSizeNote]
   )
 
   // The table gets the full list so a column sort orders every campus, not
@@ -510,10 +565,12 @@ export default function Rankings() {
     const zero = sortedRankings.filter((r) => r.tier === 'zero').length
     const what = noneOfPhrase(selectedOffense, currentOffense)
     const notes: Partial<Record<Row['tier'], string>> = {}
+    const fewElsewhere = (rateGroups?.notRanked ?? []).some((e) => e.why.includes('few'))
     if (few > 0) {
       notes.few = `${formatNumber(few)} ${few === 1 ? 'institution' : 'institutions'} had 1 to ${rules.minCount - 1} ` +
         `${what} in ${selectedYear}: too few incidents to rank by rate. Their rates are shown with their ` +
-        `${Math.round(rules.ciLevel * 100)}% intervals, which are wide, and are listed by rate without a rank.`
+        `${Math.round(rules.ciLevel * 100)}% intervals, which are wide, and are listed by rate without a rank.` +
+        (fewElsewhere ? ' Those also not ranked for another reason are under "Not ranked by rate", below the table.' : '')
     }
     if (zero > 0) {
       notes.zero = `${formatNumber(zero)} ${zero === 1 ? 'institution' : 'institutions'} reported no ${what} for ` +
@@ -521,7 +578,44 @@ export default function Rankings() {
         'how safe it is.'
     }
     return notes
-  }, [rateView, rules, sortedRankings, selectedOffense, currentOffense, selectedYear])
+  }, [rateView, rules, sortedRankings, rateGroups, selectedOffense, currentOffense, selectedYear])
+
+  // Rate view: the institutions shown but not ranked, or left out by a rule
+  // (rateNotRanked), each with its reasons in plain words
+  const notRankedRows = useMemo(() => {
+    if (!data || !rateGroups) return []
+    return rateGroups.notRanked.map((e: RateNotRankedEntry) => {
+      const inst = data.institutions[String(e.id)]
+      const ctx = {
+        count: e.count, medical: e.medical, sharedIn: e.sharedIn, sharedOut: e.sharedOut,
+        fteUncertain: inst?.fteUncertain, pooled: inst?.pooled,
+      }
+      const reasons = e.why.filter((r) => r !== 'few').map((r) => reasonText(r, ctx, rules, true))
+      if (e.why.includes('few')) reasons.push(reasonText('few', ctx, rules, true))
+      const notRankedReasons = e.why.filter(
+        (r): r is 'online' | 'medical_campus' | 'shared' | 'few' => ['online', 'medical_campus', 'shared', 'few'].includes(r)
+      )
+      const pooled = e.rate !== undefined ? pooledShort(inst) : null
+      const notes = [...countNotes(ctx, notRankedReasons, rules, true), ...(pooled ? [pooled] : [])]
+      return { e, inst, reasons, notes }
+    })
+  }, [data, rateGroups, rules])
+  // How many of them have each reason
+  const notRankedTally = useMemo(() => {
+    const tally = new Map<string, number>()
+    for (const { e } of notRankedRows) for (const r of e.why) tally.set(r, (tally.get(r) ?? 0) + 1)
+    return tally
+  }, [notRankedRows])
+  const notRankedWithRate = notRankedRows.filter(({ e }) => e.rate !== undefined).length
+  const excludedNone = rateGroups?.excludedZero.length ?? 0
+  const openNotRanked = () => {
+    setIsNotRankedOpen(true)
+    window.requestAnimationFrame(() => {
+      const section = document.getElementById('not-ranked')
+      section?.scrollIntoView({ block: 'start' })
+      section?.focus({ preventScroll: true })
+    })
+  }
   // Desktop: each note goes before the first row of its kind in the table's
   // order when those rows are together (the default order, or sorted by
   // rank, count or rate); when a column sort mixes them in, above the first row
@@ -750,10 +844,12 @@ export default function Rankings() {
               <button
                 type="button"
                 onClick={() => setIsSummaryExpanded(!isSummaryExpanded)}
+                aria-expanded={isSummaryExpanded}
+                aria-controls="rankings-summary"
                 className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
               >
                 <span>{formatNumber(currentTotal)} total</span>
-                <ChevronRight className={cn(
+                <ChevronRight aria-hidden="true" className={cn(
                   'w-4 h-4 transition-transform',
                   isSummaryExpanded && 'rotate-90'
                 )} />
@@ -871,7 +967,7 @@ export default function Rankings() {
 
           {/* Expandable Summary - Desktop only */}
           {isSummaryExpanded && (
-            <div className="hidden sm:block border-t border-gray-100 dark:border-gray-800 px-4 py-3 bg-gray-50 dark:bg-gray-800/50 rounded-b-xl">
+            <div id="rankings-summary" className="hidden sm:block border-t border-gray-100 dark:border-gray-800 px-4 py-3 bg-gray-50 dark:bg-gray-800/50 rounded-b-xl">
               <div className="flex items-center gap-6 text-sm">
                 <div>
                   <span className="text-gray-500 dark:text-gray-400">Showing: </span>
@@ -908,14 +1004,46 @@ export default function Rankings() {
           <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 mb-4 flex items-center gap-2">
             <Info className="w-4 h-4 text-blue-500 flex-shrink-0" />
             <p className="text-sm text-blue-700 dark:text-blue-300">
-              Rates are per institution: the incidents of all its campuses per 10,000 on-campus FTE students (NCES's FTE less the share of students enrolled exclusively online), because NCES counts enrollment per institution, not per campus.
+              Rates are per institution: the incidents of all its campuses in the United States per 10,000
+              on-campus FTE students, because NCES counts enrollment per institution, not per campus. On-campus FTE
+              is estimated from NCES's FTE and the institution's share of students enrolled exclusively online.
               {rules && (
                 <>
-                  {' '}Institutions with under {formatNumber(rules.minFte)} on-campus FTE, and hospitals and medical schools, are left out. Institutions with at least {rules.minCount} incidents are ranked; each rate has a {Math.round(rules.ciLevel * 100)}% interval, and the rank range is the set of ranks those intervals allow, so ranks inside one range are not clearly different.
+                  {' '}Institutions under {formatNumber(rules.minFte)} on-campus FTE are not listed. Institutions
+                  with a hospital (IPEDS), special-focus medical schools and research institutions (Carnegie) and
+                  the few on a reviewed list have no rate. An institution with at least {rules.minCount} incidents
+                  is ranked unless its on-campus FTE is uncertain (its two estimates, or those of an institution
+                  whose FTE its rate adds, differ by more than{' '}
+                  {ratioPercent(rules.onlineUncertainRatio ?? [5, 4], true)} or cannot both be computed),{' '}
+                  {ratioPercent(rules.medicalShare ?? [1, 4])} or more of its incidents were at medical-center
+                  campuses on the site's reviewed list, or more than {ratioPercent(rules.sharedShare ?? [1, 20])} are
+                  figures shared with another institution's campus. Each rate's {Math.round(rules.ciLevel * 100)}%
+                  interval allows for the year-to-year variation institutions' counts show beyond chance; the rank
+                  range is the middle {Math.round(rules.ciLevel * 100)}% of the institution's ranks in{' '}
+                  {formatNumber(rules.rankRanges?.draws ?? 2000)} simulated rankings, so ranks inside one range are
+                  not clearly different.
+                </>
+              )}
+              {notRankedRows.length > 0 && (
+                <>
+                  {' '}{formatNumber(notRankedWithRate)} {notRankedWithRate === 1 ? 'institution is' : 'institutions are'} shown
+                  with a rate but not ranked
+                  {notRankedRows.length > notRankedWithRate && (
+                    <>, and {formatNumber(notRankedRows.length - notRankedWithRate)} with these incidents have no rate under a rule</>
+                  )}
+                  :{' '}
+                  <button
+                    type="button"
+                    onClick={openNotRanked}
+                    className="underline hover:text-blue-800 dark:hover:text-blue-200"
+                  >
+                    see Not ranked by rate
+                  </button>
+                  .
                 </>
               )}
               {' '}Lower numbers may reflect reporting differences.
-              {' '}<Link to="/methodology#rates" className="underline hover:text-blue-800 dark:hover:text-blue-200">Learn more</Link>
+              {' '}<Link to="/methodology#rate-rules" className="underline hover:text-blue-800 dark:hover:text-blue-200">Learn more</Link>
             </p>
           </div>
         )}
@@ -990,6 +1118,14 @@ export default function Rankings() {
                             {item.spike && (
                               <span className="block text-xs font-normal text-amber-700 dark:text-amber-400">{SPIKE_NOTE}</span>
                             )}
+                            {item.notes.map((note) => (
+                              <span key={note} className="block text-xs font-normal text-gray-500 dark:text-gray-400">{note}</span>
+                            ))}
+                            {item.highForSize !== null && (
+                              <span className="block text-xs font-normal text-amber-700 dark:text-amber-400">
+                                {highForSizeNote(item.highForSize)}
+                              </span>
+                            )}
                           </span>
                         </div>
                         <ExternalLink className="w-4 h-4 text-gray-400 flex-shrink-0 mt-1" />
@@ -1006,7 +1142,7 @@ export default function Rankings() {
                               </span>
                             )}
                             {item.tier === 'ranked' && item.rankLo !== null && item.rankHi !== null && (
-                              <span className="text-gray-500 dark:text-gray-400 tabular-nums text-xs" title={RANK_RANGE_TITLE}>
+                              <span className="text-gray-500 dark:text-gray-400 tabular-nums text-xs" title={rankTitle}>
                                 ranks {item.rankLo === item.rankHi ? item.rankLo : `${item.rankLo}–${item.rankHi}`}
                               </span>
                             )}
@@ -1176,6 +1312,145 @@ export default function Rankings() {
             </>
           )}
         </div>
+
+        {/* Rate view: every institution shown but not ranked, or left out
+            by a rule, with its reasons, so none is silently absent */}
+        {rateView && !loading && !error && (notRankedRows.length > 0 || excludedNone > 0) && (
+          <section
+            id="not-ranked"
+            tabIndex={-1}
+            aria-labelledby="not-ranked-heading"
+            className="mt-6 bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 focus:outline-none scroll-mt-20"
+          >
+            <h2 id="not-ranked-heading" className="text-base font-semibold text-gray-900 dark:text-gray-100">
+              <button
+                type="button"
+                onClick={() => setIsNotRankedOpen(!isNotRankedOpen)}
+                aria-expanded={isNotRankedOpen}
+                aria-controls="not-ranked-list"
+                className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded-xl transition-colors"
+              >
+                <span>
+                  Not ranked by rate
+                  <span className="ml-2 text-sm font-normal text-gray-500 dark:text-gray-400">
+                    {formatNumber(notRankedRows.length)} {notRankedRows.length === 1 ? 'institution' : 'institutions'}
+                  </span>
+                </span>
+                <ChevronRight aria-hidden="true" className={cn('w-4 h-4 flex-shrink-0 transition-transform', isNotRankedOpen && 'rotate-90')} />
+              </button>
+            </h2>
+            {isNotRankedOpen && (
+              <div id="not-ranked-list" className="px-4 pb-4 border-t border-gray-100 dark:border-gray-800">
+                <div className="text-sm text-gray-600 dark:text-gray-400 space-y-2 py-3">
+                  <p>
+                    Institutions in this {selectedYear} rate view that are not ranked
+                    for {noneOfPhrase(selectedOffense, currentOffense)}, with their count and, when they have one,
+                    their rate and {Math.round(level * 100)}% interval. The reasons:
+                  </p>
+                  <ul className="list-disc pl-5 space-y-1">
+                    <li>
+                      <strong className="text-gray-800 dark:text-gray-200">Uncertain on-campus FTE</strong>: NCES's
+                      figures give two estimates of the institution's on-campus FTE that differ by more than{' '}
+                      {ratioPercent(rules?.onlineUncertainRatio ?? [5, 4], true)}, or the second cannot be computed,
+                      or the same is true of an institution whose FTE its rate adds. The rate uses the larger
+                      estimate.
+                    </li>
+                    <li>
+                      <strong className="text-gray-800 dark:text-gray-200">Medical-center campuses</strong>:{' '}
+                      {ratioPercent(rules?.medicalShare ?? [1, 4])} or more of its incidents were at medical-center
+                      campuses on the site's reviewed list, whose patients, visitors and hospital staff are not in
+                      the enrollment the rate divides by.
+                    </li>
+                    <li>
+                      <strong className="text-gray-800 dark:text-gray-200">Shared figures</strong>: more
+                      than {ratioPercent(rules?.sharedShare ?? [1, 20])} of its incidents are figures DOE publishes
+                      identically for a campus of another institution, so its count could be off by more than that.
+                    </li>
+                    <li>
+                      <strong className="text-gray-800 dark:text-gray-200">Fewer than {rules?.minCount ?? 20} incidents</strong>,
+                      listed here only together with another reason.
+                    </li>
+                    <li>
+                      <strong className="text-gray-800 dark:text-gray-200">No rate</strong>: a rule leaves the
+                      institution out: IPEDS reports that it has a hospital; its Carnegie classification is a
+                      special-focus medical school or research institution; it is on a reviewed list; or a merger
+                      means its incidents and enrollment may not cover the same campuses.
+                    </li>
+                  </ul>
+                  <p>
+                    {[
+                      ['online', 'uncertain on-campus FTE'],
+                      ['medical_campus', 'medical-center campuses'],
+                      ['shared', 'shared figures'],
+                      ['few', `also fewer than ${rules?.minCount ?? 20} incidents`],
+                      ['hospital', 'hospital, no rate'],
+                      ['medical', 'medical school or research institution, no rate'],
+                      ['listed', 'reviewed list, no rate'],
+                      ['merger', 'merger or renumbering, no rate'],
+                      ['family', 'merged institutions, no rate'],
+                    ]
+                      .filter(([key]) => (notRankedTally.get(key) ?? 0) > 0)
+                      .map(([key, label]) => `${label}: ${formatNumber(notRankedTally.get(key) ?? 0)}`)
+                      .join(' · ')}
+                  </p>
+                  {excludedNone > 0 && (
+                    <p>
+                      {formatNumber(excludedNone)} more {excludedNone === 1 ? 'institution' : 'institutions'} that a
+                      rule leaves out reported no {noneOfPhrase(selectedOffense, currentOffense)} for {selectedYear}.
+                    </p>
+                  )}
+                  <p>
+                    <Link to="/methodology#rate-rules" className="underline text-primary-600 dark:text-primary-400">
+                      Rate Rules
+                    </Link>{' '}
+                    gives each rule and its source.
+                  </p>
+                </div>
+                <ul className="divide-y divide-gray-100 dark:divide-gray-800 border-t border-gray-100 dark:border-gray-800">
+                  {notRankedRows.map(({ e, inst, reasons, notes }) => (
+                    <li key={e.id} className="py-3 flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-4">
+                      <div className="sm:w-2/5 min-w-0">
+                        <Link
+                          to={`/school/${inst?.unitid ?? e.id * 1000 + 1}`}
+                          className="font-medium text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300"
+                        >
+                          {inst?.name ?? `Institution ${e.id}`}
+                        </Link>
+                        {inst && inst.campuses > 1 && (
+                          <span className="ml-1.5 text-xs text-gray-500 dark:text-gray-400">({inst.campuses} campuses)</span>
+                        )}
+                      </div>
+                      <div className="sm:w-1/4 text-sm text-gray-700 dark:text-gray-300 tabular-nums">
+                        <span>{countPhrase(e.count, currentOffense, formatNumber(e.count))}</span>
+                        {e.rate !== undefined ? (
+                          <span className="block">
+                            <span className="font-semibold text-primary-600 dark:text-primary-400">{e.rate.toFixed(1)} per 10k</span>
+                            {e.lo !== undefined && e.hi !== undefined && (
+                              <span className="ml-1.5 text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                                {Math.round(level * 100)}% interval {intervalText(e.lo, e.hi)}
+                              </span>
+                            )}
+                          </span>
+                        ) : (
+                          <span className="block text-gray-500 dark:text-gray-400">No rate</span>
+                        )}
+                      </div>
+                      <div className="sm:flex-1 min-w-0 text-xs text-gray-600 dark:text-gray-400">
+                        {reasons.map((r) => (
+                          <span key={r} className="block">{r}</span>
+                        ))}
+                        {e.spike && <span className="block text-amber-700 dark:text-amber-400">{SPIKE_NOTE}</span>}
+                        {notes.map((n) => (
+                          <span key={n} className="block text-gray-500 dark:text-gray-400">{n}</span>
+                        ))}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </section>
+        )}
 
         {/* Data Note */}
         <div className="mt-6 p-4 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 rounded-lg">
