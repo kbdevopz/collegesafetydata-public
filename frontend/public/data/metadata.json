@@ -533,7 +533,7 @@
         "latest"
       ],
       "latestYears": 3,
-      "simulations": 30,
+      "simulations": 600,
       "seed": 11,
       "bands": [
         2,
@@ -542,7 +542,8 @@
         20
       ],
       "tolerance": 0.02,
-      "bandTolerance": 0.03,
+      "bandToleranceBelow": 0.03,
+      "bandToleranceAbove": 0.05,
       "bandMinUnits": 100
     },
     "testVectors": {
@@ -4423,7 +4424,7 @@
       "schoolCount": 20
     }
   ],
-  "lastUpdated": "2026-11-15T03:07:08.599342",
+  "lastUpdated": "2026-11-15T03:53:32.660843",
   "dataSource": "U.S. Department of Education Campus Safety & Security",
   "dataSourceUrl": "https://ope.ed.gov/campussafety/",
   "coverage": "2015-2024",
