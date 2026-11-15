@@ -99,10 +99,14 @@ export default function SchoolSearch({ className, variant = 'header', compareSch
 
   const isHero = variant === 'hero'
 
-  // Load school index on mount for hero, or first open for header
+  // Load the school index (a large file) when it is first needed: when the
+  // hero input gets focus or text, or when the header search first opens
+  // (once: a failed load is not retried in a loop)
+  const indexRequested = useRef(false)
   useEffect(() => {
-    const shouldLoad = isHero ? schools.length === 0 : isOpen && schools.length === 0
-    if (shouldLoad && !loading) {
+    const needed = isHero ? isFocused || query !== '' : isOpen
+    if (needed && schools.length === 0 && !loading && !indexRequested.current) {
+      indexRequested.current = true
       setLoading(true)
       fetchSchoolIndex()
         .then((index) => {
@@ -113,7 +117,7 @@ export default function SchoolSearch({ className, variant = 'header', compareSch
           setLoading(false)
         })
     }
-  }, [isOpen, isHero, schools.length, loading])
+  }, [isOpen, isHero, isFocused, query, schools.length, loading])
 
   // Focus input when opened (header variant only)
   useEffect(() => {
