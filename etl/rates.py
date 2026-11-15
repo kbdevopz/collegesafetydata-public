@@ -23,13 +23,14 @@ import pandas as pd
 
 from config import (CURATED_DIR, DATA_YEARS, US_STATES, MIN_FTE_FOR_RATE, SUMMARY_FAMILIES, RATE_CODES,
                     RATE_RAMP, RATE_CI_LEVEL, RATE_SKIP_YEARS, LIST_CODES, LIST_MIN_EXPECTED, LIST_ALPHA,
-                    STATE_LIST_MIN_MEMBERS, MEDICAL_CAMPUS_SHARE, SHARED_MAX_SHARE, FLAG_OFFENSES, FLAG_GEOS,
+                    STATE_LIST_MIN_MEMBERS, MEDICAL_CAMPUS_SHARE, SHARED_SITE_MAX_SHARE, FLAG_OFFENSES, FLAG_GEOS,
                     FLAG_MIN_COUNT, FLAG_MIN_OTHER_YEARS, FLAG_P, FLAG_C, FLAG_MIN_MEAN, COUNT_FLAG_PERCENTILE,
                     PEER_TYPES, rate_windows, dispersion_c, summary_codes)
 
 ALPHA = 1 - RATE_CI_LEVEL
-# The verdicts: the rate's interval wholly above, wholly below, or around the reference rate
-ABOVE, BELOW, NOT_DISTINGUISHABLE, UNDETERMINED = "above", "below", "nd", "undetermined"
+# The verdicts: the rate's interval wholly above, wholly below, or around the reference rate;
+# undetermined (the two on-campus FTE estimates disagree) and withheld (why "shared": no comparison)
+ABOVE, BELOW, NOT_DISTINGUISHABLE, UNDETERMINED, WITHHELD = "above", "below", "nd", "undetermined", "withheld"
 GEO_KEYS = {"On-campus": "on", "Non-campus": "non", "Public property": "pub"}
 
 
@@ -265,7 +266,9 @@ class RateInputs:
     """
     04's institution tables: per institution-year (agg_institution_year) its
     record, and per institution-year and offense (agg_institution_year_offense)
-    its counts by geography, medical-center and shared figures.
+    its counts by geography, medical-center and shared figures; and each
+    institution's name (base_name: its 001 campus's in dim_institution, else
+    its lowest campus's).
     """
 
     VALUES = ("count", "count_on", "count_non", "count_pub", "medical_on", "shared_in_on", "shared_out_on")
@@ -283,6 +286,12 @@ class RateInputs:
         for y, b in sorted(self.rec):
             self.years_of[b].append(y)
         self.data_years = sorted({y for y, _b in self.rec if y in DATA_YEARS})
+        dim_inst = pd.read_parquet(CURATED_DIR / "dims" / "dim_institution.parquet",
+                                   columns=["unitid", "institution_name"])
+        self.base_name: dict[int, str] = {}
+        for u, name in sorted(zip(dim_inst["unitid"].astype(int).tolist(), dim_inst["institution_name"].tolist())):
+            if u % 1000 == 1 or u // 1000 not in self.base_name:
+                self.base_name[u // 1000] = str(name)
 
     def values(self, code: str, year: int, base: int) -> tuple:
         """The VALUES of a rate code (RATE_CODES: the sum over its offenses) in an institution-year."""
@@ -379,14 +388,51 @@ def unusual_years(inp: RateInputs) -> dict[int, list[dict]]:
 # Windows
 # --------------------------------------------------------------------------
 
+def named(inp: RateInputs, recs: list[dict], column: str) -> list[dict]:
+    """[{id, name}] of the bases 04 lists in `column` (space separated) in any of `recs`, by base."""
+    ids = sorted({int(x) for r in recs for x in str(opt(r.get(column)) or "").split()})
+    return [{"id": i, "name": inp.base_name.get(i)} for i in ids]
+
+
+def shared_site(recs: list[dict], years: range) -> dict | None:
+    """
+    A guest's or participant's shared sites in a window (04's
+    shared_out_sites; config.py, SHARED_SITE_MAX_SHARE), or None: years (the
+    window's years it has such a campus), students (the sum of 04's
+    shared_site_students over those years; None when a year has no reviewed
+    figure), upperBound (a figure is an upper bound) and exempt (students at
+    most SHARED_SITE_MAX_SHARE of the window's FTE-years, the sum of
+    rate_fte: compared and listed as usual).
+    """
+    site_years = [(y, r) for y, r in zip(years, recs) if opt(r.get("shared_out_sites")) is not None]
+    if not site_years:
+        return None
+    figures = [opt(r.get("shared_site_students")) for _y, r in site_years]
+    students = None if any(f is None for f in figures) else sum(int(f) for f in figures)
+    num, den = SHARED_SITE_MAX_SHARE
+    fte_years = sum(int(r["rate_fte"]) for r in recs)
+    return {"years": [y for y, _r in site_years], "students": students,
+            "upperBound": students is not None and any(bool(r.get("shared_site_upper")) for _y, r in site_years),
+            "exempt": students is not None and students * den <= fte_years * num}
+
+
 def window_status(inp: RateInputs, base: int, window: tuple[int, int]) -> dict:
     """
-    An institution's status in a window: {"status": "rated", "why": "" or
-    "online"} for one in the window's population, else "missingYears" (not in
-    DOE's data every year of the window; years = the ones it is in), "scope"
-    (link campus not in US_STATES), "size"
-    (denominator under MIN_FTE_FOR_RATE in a year) or "excluded" (a rule in a
-    year: rules {year: rule}).
+    An institution's status in a window: {"status": "rated", "why": "",
+    "shared" or "online", and the shared-site notes} for one in the window's
+    population, else "missingYears" (not in DOE's data every year of the
+    window; years = the ones it is in), "scope" (link campus not in
+    US_STATES), "size" (denominator under MIN_FTE_FOR_RATE in a year) or
+    "excluded" (a rule in a year: rules {year: rule}).
+
+    why is "shared" for a guest or participant at a shared site in a year of
+    the window (shared_site) that is not exempt, else "online" for an
+    uncertain on-campus FTE in a year, else "". The notes, each when not
+    empty: sharedInWith (the guests at the shared sites it owns),
+    sharedOutWith (the owners or other participants of the sites it is a
+    guest or participant of), sharedSite (shared_site) and coLocated (the
+    institutions whose students its rate adds, or would add with an FTE,
+    because their campuses at a shared site copy its own): [{id, name}].
     """
     years = range(window[0], window[1] + 1)
     recs = [inp.rec.get((y, base)) for y in years]
@@ -399,7 +445,26 @@ def window_status(inp: RateInputs, base: int, window: tuple[int, int]) -> dict:
     rules = {str(y): str(r["rate_rule"]) for y, r in zip(years, recs) if opt(r.get("rate_excluded")) is not None}
     if rules:
         return {"status": "excluded", "rules": rules}
-    return {"status": "rated", "why": "online" if any(bool(r.get("online_uncertain")) for r in recs) else ""}
+    site = shared_site(recs, years)
+    if site is not None and not site["exempt"]:
+        why = "shared"
+    else:
+        why = "online" if any(bool(r.get("online_uncertain")) for r in recs) else ""
+    out = {"status": "rated", "why": why}
+    for key, column in (("sharedInWith", "shared_in_with"), ("sharedOutWith", "shared_out_with")):
+        found = named(inp, recs, column)
+        if found:
+            out[key] = found
+    if site is not None:
+        out["sharedSite"] = site
+    co_located = named(inp, recs, "co_located_with")
+    if co_located:
+        out["coLocated"] = co_located
+    return out
+
+
+# The shared-site notes of a window status that the window files repeat in each entry
+SHARED_NOTES = ("sharedInWith", "sharedOutWith", "sharedSite", "coLocated")
 
 
 class WindowCode:
@@ -430,15 +495,13 @@ class WindowCode:
                 "uncertain": {str(y): uncertain_reason(r) for y, r in zip(self.years, recs) if uncertain_reason(r)},
             }
             num, den = MEDICAL_CAMPUS_SHARE
-            snum, sden = SHARED_MAX_SHARE
-            if status["why"] == "online":
-                row["why"] = "online"
+            if status["why"] in ("shared", "online"):
+                row["why"] = status["why"]
             elif n and row["medical"] * den >= n * num:
                 row["why"] = "medical_campus"
-            elif (row["sharedIn"] + row["sharedOut"]) * sden > (n + row["sharedOut"]) * snum:
-                row["why"] = "shared"
             else:
                 row["why"] = ""
+            row["notes"] = {k: status[k] for k in SHARED_NOTES if k in status}
             row["flags"] = [f for f in flags.get(base, []) if f["geo"] == "On-campus" and f["offense"] in offenses
                             and window[0] <= f["year"] <= window[1]]
             if code in ("violent", "criminal_xmvt"):
@@ -486,8 +549,14 @@ class WindowCode:
         r["lo"], r["hi"] = round2(lower / r["F"] * 10000), round2(upper / r["F"] * 10000)
         r["rate"] = rate_value(r["n"], r["F"])
         r["E"] = half_up(self.natl * r["F"], 1)
-        r["verdict"], r["dual"] = self._verdicts(r["n"], r, self.natl)
         peer = self.peer.get(r["peerType"])
+        if r["why"] == "shared":
+            # Students at a shared site the rate cannot place: no comparison (config.py)
+            r["verdict"], r["dual"] = WITHHELD, {}
+            r["peerVerdict"], r["peerDual"] = (WITHHELD if peer else None), {}
+            r["verdictWithoutFlagged"] = None
+            return
+        r["verdict"], r["dual"] = self._verdicts(r["n"], r, self.natl)
         if peer:
             r["peerVerdict"], r["peerDual"] = self._verdicts(r["n"], r, Fraction(peer[0], peer[1]))
         else:
@@ -568,6 +637,8 @@ class WindowCode:
         for key in ("medical", "sharedIn", "sharedOut"):
             if r[key]:
                 e[key] = r[key]
+        if not detail:
+            e |= r["notes"]
         if r["flags"]:
             e["flags"] = [{"year": f["year"], "offense": f["offense"], "count": f["count"], "usual": f["usual"]}
                           for f in r["flags"]]
@@ -600,11 +671,11 @@ class WindowCode:
                "byWhy": {w or "none": sum(1 for r in rows if r["why"] == w)
                          for w in ("", "online", "medical_campus", "shared")},
                "verdicts": {v: sum(1 for r in rows if r["verdict"] == v)
-                            for v in (ABOVE, BELOW, NOT_DISTINGUISHABLE, UNDETERMINED)},
+                            for v in (ABOVE, BELOW, NOT_DISTINGUISHABLE, UNDETERMINED, WITHHELD)},
                "verdictsNoReason": {v: sum(1 for r in rows if r["verdict"] == v and r["why"] == "")
                                     for v in (ABOVE, BELOW, NOT_DISTINGUISHABLE)},
                "peerVerdicts": {v: sum(1 for r in rows if r["peerVerdict"] == v)
-                                for v in (ABOVE, BELOW, NOT_DISTINGUISHABLE, UNDETERMINED)},
+                                for v in (ABOVE, BELOW, NOT_DISTINGUISHABLE, UNDETERMINED, WITHHELD)},
                "withFlags": sum(1 for r in rows if r["flags"]),
                "verdictWithoutFlaggedDiffers": sum(1 for r in rows if r["verdictWithoutFlagged"])}
         return out

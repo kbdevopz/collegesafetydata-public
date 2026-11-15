@@ -395,8 +395,14 @@ ONLINE_SHARE_YEAR = {2020: 2019, 2021: 2019}
 # every year of the window, its denominator is at least MIN_FTE_FOR_RATE in
 # every year, and its link campus is in US_STATES (the national scope;
 # other territories have counts only). Of those, in this order:
-#   excluded        a rule (hospital, medical, listed, merger, family) in any
-#                   year: no rate
+#   excluded        a rule (hospital, medical, listed, merger, family,
+#                   shared_pooled, shared_campus) in any year: no rate
+#   shared          a guest or shared-center party at a shared site (see
+#                   SHARED_SITE_MAX_SHARE) in any year of the window, unless
+#                   etl/reference/shared_site_enrollment.csv proves its
+#                   students there are at most SHARED_SITE_MAX_SHARE of its
+#                   FTE-years: a rate, verdicts withheld, never listed (every
+#                   code alike)
 #   online          an uncertain on-campus FTE in any year: a rate, compared
 #                   with the national rate only when the larger and the
 #                   smaller estimates give the same verdict; never listed
@@ -404,8 +410,6 @@ ONLINE_SHARE_YEAR = {2020: 2019, 2021: 2019}
 #                   residence halls taken out: patients, visitors and staff
 #                   are not students) are MEDICAL_CAMPUS_SHARE or more of the
 #                   window's count: a rate and a verdict, never listed
-#   shared          (sharedIn + sharedOut) / (count + sharedOut) above
-#                   SHARED_MAX_SHARE, on-campus window sums: as medical_campus
 # and the rest are rated with no reason. The national rate of a window and
 # code is the sum of the counts over the sum of the FTE-years of the rated
 # institutions without a reason and those with medical_campus or shared.
@@ -450,11 +454,25 @@ RATE_CODES = {
 # max(1, m / start)): RATE_RAMP = (start, cap), so g rises from 1 at 10 a year
 # to 2 at 20 a year, where counts vary more than the exponent alone allows.
 # For a window total N over T years the variance-to-mean ratio is phi(N) = 1
-# + c g(N/T) sqrt(N/T). c was fitted on 2015-2019 on-campus counts of
-# institutions with a rate; 07 checks every build that the intervals cover
-# as they should (RATE_CALIBRATION). A code without its own c uses
-# RATE_DISPERSION_OTHER (the fit pooled over the single crime offenses).
-RATE_DISPERSION = {"violent": 0.354, "criminal_xmvt": 0.497, "burglary": 0.665}
+# + c g(N/T) sqrt(N/T). 07 checks every build that the intervals cover as
+# they should (RATE_CALIBRATION).
+#
+# Where each c comes from. Every value was fitted on the on-campus counts of
+# 2015-2019, by one method: institutions with an on-campus FTE of 1,000 or
+# more, no rate rule and no uncertain on-campus FTE, that reported all five
+# years; each institution's yearly counts compared with its five-year total
+# shared out in proportion to FTE times that year's rate over all of them
+# (Pearson variance-to-mean ratio); institutions grouped into bands by mean yearly
+# count (1-2, 2-5, 5-10, 10-20, 20-50, 50-100, 100+; bands of 15 or more
+# institutions with a ratio above 1); c fitted to the bands by least squares
+# on the log scale, weighted by institutions, with the exponent fixed at 1.5.
+# RATE_DISPERSION holds each code fitted on its own counts this way: violent
+# (0.354), criminal_xmvt (0.497), burglary (0.665), rape (0.295), aggravated
+# assault (0.585). RATE_DISPERSION_OTHER (0.522) is the same fit pooled over
+# the single crime offenses; it is used for the codes without a fit of their
+# own: fondling, robbery, stalking, dating violence, domestic violence.
+RATE_DISPERSION = {"violent": 0.354, "criminal_xmvt": 0.497, "burglary": 0.665,
+                   "rape": 0.295, "aggravated_assault": 0.585}
 RATE_DISPERSION_OTHER = 0.522
 RATE_RAMP = (10, 2)
 
@@ -530,12 +548,61 @@ MEDICAL_SCREEN_PATTERN = (r"MEDIC|HOSPITAL|HEALTH SCI|HEALTH CENT|MED CENT|MED\.
 MEDICAL_SCREEN_SHARE = (1, 10)
 MEDICAL_SCREEN_MIN_COUNT = 5
 
-# Figures DOE published identically for campuses of two institutions (a
-# shared campus) count once, under the host, while the students are in each
-# institution's own FTE: above SHARED_MAX_SHARE of the window's count (with
-# the shared figures added for the institution whose copy is the shadow) the
-# rate is shown with a note and not listed.
-SHARED_MAX_SHARE = (1, 20)
+# Shared sites. DOE files have no campus-level enrollment, so when campuses
+# of different institutions report the same on-campus figures, the figures
+# cannot be divided among the institutions' students. A shared site is, per
+# year, a group of campuses of two or more institutions joined by any of:
+# an identical copy (SHARED_MIN_NONZERO above; shadow blocks of 04, other
+# than two IDs of one campus), a near-copy (SHARED_NEAR_*: two campuses of
+# different institutions in one state, or in two states when every cell is
+# equal; the campus with the smaller on-campus total over the OFFENSE_ORDER
+# cells has at least SHARED_NEAR_MIN_NONZERO nonzero cells, at least
+# SHARED_NEAR_MATCH of them equal to the other's, and a total of at least
+# SHARED_NEAR_MIN_TOTAL), or the reviewed list
+# etl/reference/shared_campus_overrides.csv. Counts never change (an
+# identical copy counts once, under the host campus, as before; a near-copy
+# or listed campus keeps its figures); only the rates follow these rules.
+# The parties of a site are the institutions DOE lists that year (a
+# counting campus); an institution whose campuses all copy one host
+# institution's counts no campus and is pooled with it as before:
+#   one main campus   exactly one party's main campus (UNITID ending in 001)
+#                     is at the site: that institution keeps the figures and
+#                     is compared and listed normally (sharedIn, with the
+#                     other institutions named); every other party's campuses
+#                     at the site are in none of its rates (sharedOut) and it
+#                     is a guest
+#   several main      the owner is the party with the largest on-campus FTE.
+#   campuses          When every other institution there counts no campus
+#                     outside the site that year, or their on-campus FTE
+#                     together is at most SHARED_SITE_MAX_SHARE of the
+#                     owner's, the owner's rate counts the site once and adds
+#                     their on-campus FTE (pooled, rule shared; coLocated
+#                     names them) and the other parties have no rate that
+#                     year (rule shared_pooled); otherwise no party has a
+#                     rate that year (rule shared_campus): the incidents
+#                     cannot be assigned to one institution's students, and a
+#                     rate would overstate one of them
+#   no main campus    a shared center: every party's figures there are in
+#                     none of its rates (sharedOut); each is a participant
+#   one party         the others are pooled with it as before
+# A guest or participant in any year of a window has its rate published with
+# verdicts withheld and is not listed (why "shared"), for every code: the
+# reason is its students at the site, not the offense. The exception is an
+# institution whose students at those sites, by the reviewed
+# etl/reference/shared_site_enrollment.csv (published counts, or published
+# upper bounds such as the enrollment of every location of a program
+# together, for that year's fall term or an academic year that includes
+# it; never estimates, lower bounds or another year's figure), are at most
+# SHARED_SITE_MAX_SHARE of its FTE-years in the window (every site-year must
+# have a figure).
+# SHARED_SITE_MAX_SHARE bounds the denominator error from students who
+# cannot be located: 1 in 10 is well inside the 25% disagreement the
+# on-campus FTE rule already accepts (ONLINE_UNCERTAIN_RATIO) and small
+# against the published intervals.
+SHARED_SITE_MAX_SHARE = (1, 10)
+SHARED_NEAR_MIN_NONZERO = 6
+SHARED_NEAR_MATCH = (4, 5)
+SHARED_NEAR_MIN_TOTAL = 20
 
 # Unusual years. A cell is an institution's count of one offense
 # (FLAG_OFFENSES) at one geography (FLAG_GEOS); a cell-year is flagged when
@@ -576,14 +643,23 @@ COUNT_FLAG_PERCENTILE = 99
 # years (year effects from the national totals) with the variance above;
 # the share of counts inside the central 95% predictive interval against
 # the share expected under the model (the mean of "simulations" simulated
-# panels, NumPy PCG64 seeded with "seed"). The check fails when they differ
-# by more than "tolerance" over the institutions with a mean of at least 2 a
-# year, or by more than "bandTolerance" in a band of yearly means ("bands")
-# with at least "bandMinUnits" institutions.
+# panels, NumPy PCG64 seeded with "seed", the same panels on every run). The
+# check fails when they differ, either way, by more than "tolerance" over the
+# institutions with a mean of at least 2 a year. In a band of yearly means
+# ("bands") with at least "bandMinUnits" institutions it fails when the
+# observed share is below the expected one by more than "bandToleranceBelow"
+# or above it by more than "bandToleranceAbove". The two band limits differ
+# on purpose: intervals that cover less often than the model says are too
+# narrow, so verdicts and rank ranges claim more certainty than the data
+# give, and that is the error to hold tightly; intervals that cover more
+# often are too wide, which only leaves more rates without a verdict, so a
+# larger difference is tolerated before the check fails. The dispersion
+# constants are not refitted to pass this check.
 RATE_CALIBRATION = {"codes": ("violent", "criminal_xmvt", "burglary", "rape", "aggravated_assault", "robbery",
                               "fondling", "stalking"),
-                    "periods": ((2015, 2019), "latest"), "latestYears": 3, "simulations": 30, "seed": 11,
-                    "bands": (2, 5, 10, 20), "tolerance": 0.02, "bandTolerance": 0.03, "bandMinUnits": 100}
+                    "periods": ((2015, 2019), "latest"), "latestYears": 3, "simulations": 600, "seed": 11,
+                    "bands": (2, 5, 10, 20), "tolerance": 0.02, "bandToleranceBelow": 0.03,
+                    "bandToleranceAbove": 0.05, "bandMinUnits": 100}
 
 # Institutions whose campus population students do not measure: no rate in a
 # year when IPEDS HD says they have a hospital (HOSPITAL = 1: patients,

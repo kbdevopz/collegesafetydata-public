@@ -27,7 +27,8 @@ from config import (
     OFFENSE_DESCRIPTIONS, OFFENSE_FAMILIES, DATA_YEARS,
     US_STATES, PROCESS_ALL_SCHOOLS,
     SUMMARY_FAMILIES, MIN_FTE_FOR_RATE, ONLINE_SHARE_YEAR, RATE_CI_LEVEL, ONLINE_UNCERTAIN_RATIO,
-    MEDICAL_CAMPUS_SHARE, SHARED_MAX_SHARE, COUNT_FLAG_MIN_COUNT, COUNT_FLAG_FACTOR, COUNT_FLAG_PERCENTILE,
+    MEDICAL_CAMPUS_SHARE, SHARED_SITE_MAX_SHARE, SHARED_NEAR_MIN_NONZERO, SHARED_NEAR_MATCH, SHARED_NEAR_MIN_TOTAL,
+    COUNT_FLAG_MIN_COUNT, COUNT_FLAG_FACTOR, COUNT_FLAG_PERCENTILE,
     RATE_WINDOW_YEARS, RATE_SKIP_YEARS, RATE_CODES, RATE_DISPERSION, RATE_DISPERSION_OTHER, RATE_RAMP, LIST_CODES,
     LIST_MIN_EXPECTED, LIST_ALPHA, STATE_LIST_MIN_MEMBERS, STATE_LIST_DISPLAY_MIN, PEER_TYPES, SIZE_SETTING_FIELDS,
     FLAG_OFFENSES, FLAG_GEOS, FLAG_MIN_COUNT, FLAG_MIN_OTHER_YEARS, FLAG_P, FLAG_C, FLAG_MIN_MEAN, RATE_CALIBRATION,
@@ -552,7 +553,7 @@ def code_counts(rows: pd.DataFrame, keys: list[str], values: tuple[str, ...] = (
 
 
 # The rules of 04 that give an institution-year no rate
-EXCLUDING_RULES = ("hospital", "medical", "listed", "merger", "family")
+EXCLUDING_RULES = ("hospital", "medical", "listed", "merger", "family", "shared_pooled", "shared_campus")
 
 
 class Institutions:
@@ -987,7 +988,8 @@ RATE_DEFINITIONS = {
     "rated": "Institutions with a 3-year rate in the window: a campus listed by DOE in each of its years, a link "
              "campus in a U.S. state, the District of Columbia, Puerto Rico or the U.S. Virgin Islands (config.py "
              "US_STATES), a rate denominator (on-campus FTE, pooled FTE added) of at least minFte in each year, and "
-             "no rule (hospital, medical, listed, merger, family) in any year. The window files list exactly these.",
+             "no rule (hospital, medical, listed, merger, family, shared_pooled, shared_campus) in any year. The "
+             "window files list exactly these.",
     "listed": "Rated institutions without a reason (why) whose expected count at the national rate is at least "
               "lists.minExpected: the members of the national ordered list.",
     "stateLists": "Per state, the national list's members in that state; a state list is published (positions and "
@@ -1009,12 +1011,14 @@ def write_rates(result: dict) -> tuple[set[int], dict]:
         and verdict), composition (national on-campus counts of the parts of
         violent, or the motor vehicle thefts beside criminal_xmvt), list
         (LIST_CODES: n, minExpected, minFteYears, zc), stateLists {state:
-        members}, entries: every rated institution (rates.WindowCode.entry),
-        by rate (highest first), then name, then base UNITID.
+        members}, entries: every rated institution (rates.WindowCode.entry,
+        with the window's shared-site notes: rates.window_status), by rate
+        (highest first), then name, then base UNITID.
     rates/institutions/{base UNITID}.json, per institution with a rated
         window, a single-year rate or an unusual-year flag: id, name, unitid
         (link campus), state, peerType, years {year: single-year entry
-        (rates.single_year)}, windows {window: status, and for a rated one
+        (rates.single_year)}, windows {window: status (rates.window_status,
+        with the shared-site notes of a rated one), and for a rated one
         fteByYear, fteSmallerByYear (an uncertain on-campus FTE), codes
         {code: entry with nByYear, natl, peerRate}}, flags (every unusual
         year: rates.unusual_years).
@@ -1122,7 +1126,9 @@ def rate_rules(years: list[int], references: dict[int, dict[str, Fraction]]) -> 
                        "fitted": RATE_DISPERSION, "other": RATE_DISPERSION_OTHER,
                        "ramp": {"start": start, "end": start * cap, "cap": cap}},
         "medicalShare": list(MEDICAL_CAMPUS_SHARE),
-        "sharedShare": list(SHARED_MAX_SHARE),
+        "sharedSiteShare": list(SHARED_SITE_MAX_SHARE),
+        "sharedNear": {"minNonzero": SHARED_NEAR_MIN_NONZERO, "match": list(SHARED_NEAR_MATCH),
+                       "minTotal": SHARED_NEAR_MIN_TOTAL},
         "lists": {"codes": list(LIST_CODES), "minExpected": LIST_MIN_EXPECTED, "alpha": LIST_ALPHA,
                   "stateMinMembers": STATE_LIST_MIN_MEMBERS, "stateDisplayMin": STATE_LIST_DISPLAY_MIN},
         "peerTypes": {key: {"label": label, "sizeSetting": list(values)} for key, (label, values) in PEER_TYPES.items()},

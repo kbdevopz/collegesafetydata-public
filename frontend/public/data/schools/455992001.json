@@ -146,7 +146,6 @@
   "breakdownByGeo": [],
   "institution": {
     "id": 455992,
-    "ratesFile": "rates/institutions/455992.json",
     "byYear": {
       "2015": {
         "campuses": 1,
@@ -211,21 +210,8 @@
         "online": 0,
         "rated": false,
         "notRated": "size",
-        "rateFte": 223,
-        "flags": [
-          {
-            "offense": "burglary",
-            "geo": "On-campus",
-            "count": 10,
-            "usual": 0
-          },
-          {
-            "offense": "motor_vehicle_theft",
-            "geo": "On-campus",
-            "count": 10,
-            "usual": 0
-          }
-        ]
+        "rateExcludedReason": "Its main campus is shared with Colorado College, whose rate includes this institution's students and the campus's incidents. No separate rate is shown for that year.",
+        "rateFte": 223
       },
       "2024": {
         "campuses": 1,

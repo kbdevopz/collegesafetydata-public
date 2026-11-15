@@ -51,6 +51,12 @@ MEDICAL_REVIEWS_PATH = Path(__file__).parent / "reference" / "medical_campus_rev
 # Campuses DOE gives a state that are abroad (reviewed; not in the institution's rates)
 ABROAD_PATH = CURATED_DIR / "dims" / "dim_campus_abroad.parquet"
 ABROAD_LIST_PATH = Path(__file__).parent / "reference" / "campuses_abroad.csv"
+# Campuses whose reported figures are another institution's campus figures
+# (reviewed; never in their own institution's rates)
+OVERRIDE_PATH = CURATED_DIR / "dims" / "dim_shared_campus_override.parquet"
+OVERRIDE_LIST_PATH = Path(__file__).parent / "reference" / "shared_campus_overrides.csv"
+SITE_ENROLLMENT_PATH = CURATED_DIR / "dims" / "dim_shared_site_enrollment.parquet"
+SITE_ENROLLMENT_LIST_PATH = Path(__file__).parent / "reference" / "shared_site_enrollment.csv"
 CARNEGIE_FIELDS = ("C21BASIC", "C18BASIC", "C15BASIC")  # newest classification first
 
 
@@ -584,6 +590,101 @@ def build_campuses_abroad(dim_institution: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
+def build_shared_campus_overrides(dim_institution: pd.DataFrame) -> pd.DataFrame:
+    """
+    dim_shared_campus_override.parquet: unitid, year, host_unitid, reason,
+    source for each year of DATA_YEARS in the ranges of
+    etl/reference/shared_campus_overrides.csv: campuses whose reported
+    figures are another institution's campus figures (the host campus),
+    reviewed one by one. 04 never counts them in their own institution's
+    rates; DOE's counts are not changed. Each UNITID and host must be a
+    campus of dim_institution, of different institutions.
+    """
+    print("\nBuilding the list of campuses that report another institution's figures...")
+    listed = pd.read_csv(OVERRIDE_LIST_PATH, dtype=str, keep_default_na=False)
+    need = ["unitid", "host_unitid", "first_year", "last_year", "reason", "source"]
+    if list(listed.columns) != need:
+        raise RuntimeError(f"{OVERRIDE_LIST_PATH} must have the columns {need}")
+    campuses = set(dim_institution["unitid"].astype(int).tolist())
+    rows = []
+    for row in listed.to_dict("records"):
+        unitid, host = int(row["unitid"]), int(row["host_unitid"])
+        for u in (unitid, host):
+            if u not in campuses:
+                raise RuntimeError(f"{OVERRIDE_LIST_PATH}: {u} is not a campus in DOE's files")
+        if unitid // 1000 == host // 1000:
+            raise RuntimeError(f"{OVERRIDE_LIST_PATH}: {unitid} and its host {host} are campuses of one institution")
+        if not row["reason"].strip() or not row["source"].strip():
+            raise RuntimeError(f"{OVERRIDE_LIST_PATH}: {unitid} needs a reason and a source")
+        for year in range(int(row["first_year"]), int(row["last_year"]) + 1):
+            if year in DATA_YEARS:
+                rows.append({"unitid": unitid, "year": year, "host_unitid": host, "reason": row["reason"].strip(),
+                             "source": row["source"].strip()})
+    out = pd.DataFrame(rows, columns=["unitid", "year", "host_unitid", "reason", "source"]).astype(
+        {"unitid": "int32", "year": "int16", "host_unitid": "int32", "reason": "string", "source": "string"})
+    if out.duplicated(["unitid", "year"]).any():
+        raise RuntimeError(f"{OVERRIDE_LIST_PATH} lists a campus twice for one year")
+    hosts = set(zip(out["host_unitid"].astype(int).tolist(), out["year"].astype(int).tolist()))
+    if any((int(u), int(y)) in hosts for u, y in zip(out["unitid"], out["year"])):
+        raise RuntimeError(f"{OVERRIDE_LIST_PATH} lists a campus that is another listed campus's host that year")
+    out = out.sort_values(["year", "unitid"]).reset_index(drop=True)
+    out.to_parquet(OVERRIDE_PATH, index=False)
+    print(f"  {listed['unitid'].nunique()} campuses, {len(out):,} campus-years. Saved to: {OVERRIDE_PATH}")
+    return out
+
+
+def build_shared_site_enrollment(dim_institution: pd.DataFrame) -> pd.DataFrame:
+    """
+    dim_shared_site_enrollment.parquet: unitid, year, students, kind for each
+    year of DATA_YEARS in the ranges of etl/reference/shared_site_enrollment.csv:
+    the students of an institution at one of its campuses that is a shared
+    site (config.py, SHARED_SITE_MAX_SHARE), reviewed one by one from a
+    published source. kind is "count" (the site's enrollment as published) or
+    "upper bound" (a published figure that is at least the site's enrollment,
+    such as the enrollment of every location of a program together, or an
+    academic year's enrollment for its fall term); figure_term is the fall
+    term of the year, or an academic year that includes it; never an
+    estimate or another year's figure. Each row needs a campus of dim_institution, a positive
+    whole number, the figure's measure and term, a source, a URL and the
+    quoted text; a campus has one figure per year.
+    """
+    print("\nBuilding the reviewed student figures of shared sites...")
+    listed = pd.read_csv(SITE_ENROLLMENT_LIST_PATH, dtype=str, keep_default_na=False)
+    need = ["unitid", "first_year", "last_year", "students", "kind", "measure", "figure_term", "source", "url",
+            "quote"]
+    if list(listed.columns) != need:
+        raise RuntimeError(f"{SITE_ENROLLMENT_LIST_PATH} must have the columns {need}")
+    campuses = set(dim_institution["unitid"].astype(int).tolist())
+    rows = []
+    for row in listed.to_dict("records"):
+        unitid = int(row["unitid"])
+        if unitid not in campuses:
+            raise RuntimeError(f"{SITE_ENROLLMENT_LIST_PATH}: {unitid} is not a campus in DOE's files")
+        if row["kind"] not in ("count", "upper bound"):
+            raise RuntimeError(f"{SITE_ENROLLMENT_LIST_PATH}: {unitid} kind must be count or upper bound")
+        if not row["students"].isdigit() or int(row["students"]) <= 0:
+            raise RuntimeError(f"{SITE_ENROLLMENT_LIST_PATH}: {unitid} needs a positive whole number of students")
+        if any(not row[k].strip() for k in ("measure", "figure_term", "source", "url", "quote")):
+            raise RuntimeError(f"{SITE_ENROLLMENT_LIST_PATH}: {unitid} needs a measure, term, source, URL and quote")
+        if not row["url"].startswith(("https://", "http://")):
+            raise RuntimeError(f"{SITE_ENROLLMENT_LIST_PATH}: {unitid} url must be a web address")
+        first, last = int(row["first_year"]), int(row["last_year"])
+        if first > last:
+            raise RuntimeError(f"{SITE_ENROLLMENT_LIST_PATH}: {unitid} first_year is after last_year")
+        for year in range(first, last + 1):
+            if year in DATA_YEARS:
+                rows.append({"unitid": unitid, "year": year, "students": int(row["students"]), "kind": row["kind"]})
+    out = pd.DataFrame(rows, columns=["unitid", "year", "students", "kind"]).astype(
+        {"unitid": "int32", "year": "int16", "students": "int32", "kind": "string"})
+    if out.duplicated(["unitid", "year"]).any():
+        raise RuntimeError(f"{SITE_ENROLLMENT_LIST_PATH} gives a campus two figures for one year")
+    out = out.sort_values(["year", "unitid"]).reset_index(drop=True)
+    out.to_parquet(SITE_ENROLLMENT_PATH, index=False)
+    print(f"  {listed['unitid'].nunique()} campuses, {len(out):,} campus-years "
+          f"({int((out['kind'] == 'upper bound').sum()):,} upper bounds). Saved to: {SITE_ENROLLMENT_PATH}")
+    return out
+
+
 def check_medical_reviews(dim_institution: pd.DataFrame) -> None:
     """
     Check etl/reference/medical_campus_reviews.csv, the campuses reviewed for
@@ -628,7 +729,8 @@ def main():
     _hd, hd_files = campus_identity.ipeds_directory(IPEDS_RAW_DIR, DATA_YEARS)
     other_inputs = provenance.other_input_records(hd_files + [campus_identity.ID_CHANGES_PATH,
                                                               POPULATION_LIST_PATH, MEDICAL_LIST_PATH,
-                                                              MEDICAL_REVIEWS_PATH, ABROAD_LIST_PATH])
+                                                              MEDICAL_REVIEWS_PATH, ABROAD_LIST_PATH,
+                                                              OVERRIDE_LIST_PATH, SITE_ENROLLMENT_LIST_PATH])
     provenance.invalidate(provenance.INSTITUTION_MANIFEST)
     dim_institution = build_dim_institution()
     links = build_id_links(dim_institution)
@@ -639,9 +741,11 @@ def main():
     build_medical_campuses(dim_institution)
     check_medical_reviews(dim_institution)
     build_campuses_abroad(dim_institution)
+    build_shared_campus_overrides(dim_institution)
+    build_shared_site_enrollment(dim_institution)
     provenance.write_institution_manifest(
         inputs_before, outputs=[dims / "dim_institution.parquet", dims / "dim_offense.parquet", LINKS_PATH,
-                                CLASS_PATH, MEDICAL_PATH, ABROAD_PATH],
+                                CLASS_PATH, MEDICAL_PATH, ABROAD_PATH, OVERRIDE_PATH, SITE_ENROLLMENT_PATH],
         other_inputs=other_inputs)
 
     print("\n" + "=" * 60)
