@@ -274,10 +274,15 @@ build are named below by the field that holds them, in `metadata.json`
      campus of its own, the other's denominator adds the students'
      institution's on-campus FTE. The other cases are population rules
      (rule 4, `merger`).
-   - Shared campus (`shared_rate_rules`): for a shadow block whose host
-     campus belongs to another institution (not two IDs of one campus), when
-     the shadow's institution counts no campus of its own that year and has
-     one host institution, the host's denominator adds its on-campus FTE.
+   - Shared site (`shared_rate_rules`, `classify_shared_sites`; rule 18):
+     for a shadow block whose host campus belongs to another institution
+     (not two IDs of one campus), when the shadow's institution counts no
+     campus of its own that year and has one host institution, the host's
+     denominator adds its on-campus FTE. The owner of a shared site with
+     several main campuses adds the on-campus FTE of the institutions it
+     pools there (rule 18). Institutions pooled at a shared site are named
+     in the owner's `coLocated` (window entries and the rated window status
+     of its institution file).
 
    A denominator that adds another institution's FTE is uncertain too when
    that institution's is (`fteUncertain` reason `pooled`; `own` when the
@@ -285,7 +290,8 @@ build are named below by the field that holds them, in `metadata.json`
    sum of the 3 years' denominators (`fteByYear` in the institution file).
 4. **Who is rated** (`MIN_FTE_FOR_RATE` = 1,000, `HOSPITAL_CODE`,
    `MEDICAL_CARNEGIE`, `reference/rate_population_exclusions.csv`,
-   `merger_rate_rules`, `split_family_exclusions`; `rateRules.minFte`,
+   `merger_rate_rules`, `split_family_exclusions`, `classify_shared_sites`;
+   `rateRules.minFte`,
    `rateStats.definitions.rated`). An institution is rated in a window when
    DOE has figures for it (a counting campus) in each of the 3 years, its
    link campus in the window's last year is in the 50 states, DC, Puerto
@@ -318,6 +324,13 @@ build are named below by the field that holds them, in `metadata.json`
    - `family`: every institution of a merged group, in a year when a member
      without an FTE counts a campus with incidents that no member with an
      FTE also counts.
+   - `shared_pooled` and `shared_campus`: its main campus is at a shared
+     site with another institution's main campus (rule 18). `shared_pooled`:
+     the site's owner counts the site once and adds this institution's
+     students. `shared_campus`: the site's incidents cannot be assigned to
+     one institution's students, so none of the institutions there has a
+     rate. The school file's `rateExcludedReason` names the other
+     institutions.
 
    The campuses of hospitals and medical schools hold many people who are
    not in FTE (patients, visitors, clinical and research staff, pupils), so
@@ -337,9 +350,29 @@ build are named below by the field that holds them, in `metadata.json`
    such year's rule). A rated window has the status `rated`. The window
    files list exactly the rated institutions (`summary.rated`;
    `rateStats.windows[w][code].rated`).
-5. **Reasons** (`why`; `MEDICAL_CAMPUS_SHARE` = 1/4, `SHARED_MAX_SHARE` =
-   1/20; `rateRules.medicalShare`, `sharedShare`). Per window and code, a
-   rated institution has the first of these reasons that applies, or none:
+5. **Reasons** (`why`; `SHARED_SITE_MAX_SHARE` = 1/10,
+   `MEDICAL_CAMPUS_SHARE` = 1/4; `rateRules.sharedSiteShare`,
+   `medicalShare`). Per window and code, a rated institution has the first
+   of these reasons that applies, or none:
+   - `shared`: in at least one of the 3 years it is a guest or participant
+     at a shared site (rule 18), unless a published figure shows that its
+     students there are few. That needs, for every such site-year, a row of
+     `etl/reference/shared_site_enrollment.csv`: a published count, or a
+     published upper bound such as the enrollment of every location of a
+     program together, for that year's fall term or an academic year that
+     includes it (never an estimate, a lower bound or another year's
+     figure); and the rows' sum must be at most 1/10 of F
+     (`sharedSite.exempt`). The reason is set per window, the same on every
+     code. The institution's campuses at the site are left out of its N
+     (their on-campus incidents are its `sharedOut`), but its FTE is NCES's
+     figure for the whole institution and may include its students there,
+     and no file says how many. So its rate and interval are published and
+     its verdict and peer verdict are `withheld` (without `verdictLargerFte`,
+     `verdictSmallerFte`, their peer counterparts or
+     `verdictWithoutFlagged`). Its incidents and student-years stay in the
+     national and peer rates (rule 7). 1/10 is well inside the 25%
+     difference between the two on-campus estimates that rule 3 accepts,
+     and small against the intervals.
    - `online`: its on-campus FTE (rule 3) is uncertain in at least one of
      the 3 years (`fteUncertain`, `own` or `pooled` per year). The rate and
      interval use the larger estimate. Each comparison (rules 8 and 9) is
@@ -355,19 +388,12 @@ build are named below by the field that holds them, in `metadata.json`
      incidents (`medical`) are the on-campus incidents at a listed campus
      less those in its residence halls: a medical center's patients,
      visitors and staff are not students.
-   - `shared`: (sharedIn + sharedOut) × 20 > N + sharedOut, all on campus
-     and summed over the window. These figures come from the shared
-     campuses rule 3 does not pool (the shadow's institution counts campuses
-     of its own, or its figures count under two or more host institutions):
-     `sharedIn` is the institution's on-campus figures that a campus of
-     another institution also reports, and `sharedOut` its on-campus
-     figures for its own campus that count under another institution's
-     campus (not in its N). Above that share, the institution's count is
-     not exactly its own.
 
-   A reason never takes away the rate, interval or verdict, and an
-   institution with a reason is on no list (rule 10). Each window file's
-   `summary.byWhy` counts the rated institutions per reason.
+   A reason never takes away the rate or interval; `shared` withholds the
+   verdicts. An institution with a reason is on no list (rule 10). The
+   owner of a shared site has no reason for it: its incidents there are in
+   its N (`sharedIn`), and the guests are named (`sharedInWith`). Each
+   window file's `summary.byWhy` counts the rated institutions per reason.
 6. **Interval** (`RATE_CI_LEVEL` = 0.95, `RATE_DISPERSION`,
    `RATE_DISPERSION_OTHER`, `RATE_RAMP`, `count_interval`;
    `rateRules.ciLevel`, `dispersion`). Institutions' yearly counts vary more
@@ -381,10 +407,13 @@ build are named below by the field that holds them, in `metadata.json`
    g on its second term that rises from 1 at 10 a year to 2 at 20 a year,
    where counts vary more than the exponent alone allows
    (`dispersion.power`, `dispersion.ramp`). The constant c is per code
-   (`dispersion.c`): the codes in `dispersion.fitted` have their own,
-   fitted on on-campus counts of institutions with a rate (`config.py`
-   describes the fit), and the others share `dispersion.other`. Each window
-   file gives its code's c (`c`). For a window total N over its 3 years the
+   (`dispersion.c`). Every value was fitted by one method on the on-campus
+   counts of 2015-2019 of the institutions that reported all five years
+   with an on-campus FTE of at least 1,000, no rule of rule 4 and a certain
+   on-campus FTE (`config.py` describes the fit): the codes in
+   `dispersion.fitted` on their own counts, and `dispersion.other` on the
+   single crime offenses together; the codes without a fit of their own
+   use `dispersion.other`. Each window file gives its code's c (`c`). For a window total N over its 3 years the
    variance-to-mean ratio is
 
    ```
@@ -414,8 +443,9 @@ build are named below by the field that holds them, in `metadata.json`
 8. **Comparison with the national rate** (`verdict`). `above` when the
    whole 95% interval is above the national rate, `below` when it is wholly
    below it, otherwise `nd` (not distinguishable); `undetermined` only for
-   `online` (rule 5). If the intervals had exactly 95% coverage, an
-   institution whose underlying rate equals the national rate would be
+   `online` and `withheld` only for `shared` (rule 5). If the intervals
+   had exactly 95% coverage, an institution whose underlying rate equals
+   the national rate would be
    shown above about 1 time in 40 and below about 1 time in 40 (see
    Limitations of the rates, item 4). Each window file's `summary.verdicts`
    counts the verdicts (`verdictsNoReason`: those of institutions without a
@@ -435,8 +465,8 @@ build are named below by the field that holds them, in `metadata.json`
    classified). A type's rate is computed like the national rate within the
    type (`peer[type]`: `rate`, `n`, `fteYears`, `members`). An `online`
    institution's peer comparison follows rule 5 (`peerVerdictLargerFte`,
-   `peerVerdictSmallerFte`). `peerVerdict` is null when the type has no
-   rate.
+   `peerVerdictSmallerFte`), and a `shared` institution's is `withheld`.
+   `peerVerdict` is null when the type has no rate.
 10. **Lists** (`LIST_CODES`, `LIST_MIN_EXPECTED` = 20, `LIST_ALPHA` = 0.05,
     `rank_ranges`; `rateRules.lists`; `listed`, `position`, `rankLo`,
     `rankHi`, and `list` in the window file). Only violent, criminal_xmvt
@@ -617,6 +647,53 @@ build are named below by the field that holds them, in `metadata.json`
     in the national scope with a denominator of at least 1,000 that have a
     counting campus abroad that year; audit check 10 recomputes the counts
     with those campuses apart (`details.by_year`).
+18. **Shared sites** (`shared_rate_rules`, `find_near_copies` and
+    `classify_shared_sites` in `04_create_aggregates.py`;
+    `SHARED_MIN_NONZERO`, `SHARED_NEAR_*`, `SHARED_SITE_MAX_SHARE`,
+    `reference/shared_campus_overrides.csv`,
+    `reference/shared_site_enrollment.csv`; `rateRules.sharedNear`,
+    `sharedSiteShare`). DOE's files give no enrollment per campus, so when
+    campuses of different institutions report the same on-campus incidents,
+    the incidents cannot be divided among the institutions' students. Per
+    year, a shared site is a connected group of campuses of two or more
+    institutions joined by any of: an identical copy (a shadow block, other
+    than two IDs of one campus); a near-copy (`sharedNear`: two counting
+    campuses of different institutions in one state, or in two states when
+    every on-campus cell is equal, where the campus with the smaller
+    on-campus total over the `OFFENSE_ORDER` cells has at least `minNonzero`
+    nonzero cells and a total of at least `minTotal`, and at least `match`
+    of its nonzero cells equal the other's); or a row of
+    `shared_campus_overrides.csv` (reviewed, each with its reason and
+    source). Counts never change: an identical copy counts once, under its
+    host, as in totals, and a near-copy or listed campus keeps its figures.
+    Only the rates follow the site's class. Its parties are the
+    institutions DOE lists that year; a main campus is a campus whose
+    UNITID ends in 001.
+    - One party's main campus at the site: that party owns the site. Its
+      on-campus incidents there are in its N (`sharedIn`; the other parties
+      in `sharedInWith`), and it is compared and listed as usual. Every
+      other party is a guest.
+    - Two or more parties' main campuses: the owner is the party with the
+      largest on-campus FTE. When every other party counts no campus
+      outside the site that year, or their on-campus FTE together is at
+      most `sharedSiteShare` of the owner's, the owner's denominator adds
+      theirs (`coLocated`, `pooled.shared`) and they are left out by rule
+      `shared_pooled`; otherwise every party is left out by rule
+      `shared_campus` (rule 4): the incidents cannot be assigned to one
+      institution's students, and a rate would overstate one of them.
+    - No main campus: every party is a participant.
+    - One party: rule 3 (pooled with its host).
+
+    A guest's or participant's campuses at the site are in none of its
+    rates: their on-campus incidents are its `sharedOut`, the owner or the
+    other participants are its `sharedOutWith`, and `sharedSite` gives the
+    years, its students there by `shared_site_enrollment.csv` (summed over
+    those years; null when a year has no row), whether that figure is an
+    upper bound and whether it is at most `sharedSiteShare` of F
+    (`exempt`). Unless `exempt`, it has the reason `shared` (rule 5) in
+    every code of the window. `rateStats.institutionYears.rules`
+    (`shared_pooled`, `shared_campus`) and `pooled.shared` count the
+    institution-years.
 
 ### Published rate files
 `05_generate_json.py` writes, under `frontend/public/data/`:
@@ -634,7 +711,9 @@ build are named below by the field that holds them, in `metadata.json`
   (link campus), `name`, `state` and `peerType`, `n`, `nNoncampus`,
   `nPublic`, `fteYears`, `rate`, `lo`, `hi`, `E`, `verdict` and
   `peerVerdict`; where they apply `why`, the fields of rule 5 (`medical`,
-  `sharedIn` and `sharedOut` only when above 0), `flags` and
+  `sharedIn` and `sharedOut` only when above 0), the shared-site notes of
+  rule 18 (`sharedInWith`, `sharedOutWith` and `coLocated`, each a list of
+  `{id, name}`, and `sharedSite`), `flags` and
   `verdictWithoutFlagged`; and for the list codes `listed` and, when
   listed, `position`, `rankLo`, `rankHi`, the state fields of rule 11 and,
   for violent and criminal_xmvt, the entry's own `composition`.
@@ -642,7 +721,9 @@ build are named below by the field that holds them, in `metadata.json`
   window, a single-year rate or a flag: `id`, `unitid`, `name`, `state`,
   `peerType`; `years` (rule 13); `windows`, for each window in which DOE has
   the institution in at least one year: its status (rule 4) and, when
-  rated, `fteByYear`, `why` and `fteSmallerByYear` for `online`, and
+  rated, `fteByYear`, `why` (`online` or `shared`), `fteSmallerByYear` for
+  `online`, the shared-site notes of rule 18 (once for the window, not in
+  each code), and
   `codes` (each code's window-file entry with `nByYear`, `natl`, `peerRate`
   and, for violent and criminal_xmvt, `composition`); and `flags` (all its
   unusual-year flags, every geography).
@@ -916,7 +997,12 @@ rates here (rate rules above):
    one, the intervals of that band are too narrow, and where it is above,
    too wide. A band with fewer institutions than
    `rateRules.calibration.bandMinUnits` is reported but not tested, and the
-   check's errors name every tested row outside its tolerance.
+   check's errors name every tested row outside its limits. A band too
+   small to test can be below the expected coverage by more than
+   `bandToleranceBelow` without failing the check; the site's Methodology
+   page ("How well the intervals fit") shows every band from `audit.json`
+   and names each one, tested or not, that is below by more than that. In
+   such a band the intervals may be too narrow.
 5. A rank range is a 95% statement about one institution on its own. It is
    not a statement about all of a list's ranges at once.
 6. The lists hold only large institutions: those with at least
@@ -941,6 +1027,13 @@ rates here (rate rules above):
 12. Motor vehicle theft, arrests and disciplinary referrals are counts only
     (rate rule 14).
 13. Incidents at campuses abroad are not in the rates (rate rule 17).
+14. DOE's files give no enrollment per campus, so at a shared site (rate
+    rule 18) the incidents are in one institution's rate or in none, and a
+    guest or participant without a published figure for its students there
+    has its comparisons withheld and is on no list; institutions whose main
+    campuses share a site may have no rate. Large institutions can
+    therefore have no comparison, or no rate, in a window (each window
+    file's `summary.verdicts.withheld`; `rateStats.institutionYears.rules`).
 
 ### Institution-reported, not audited
 The figures are what institutions submitted to ED's survey. This project
@@ -1036,11 +1129,18 @@ figures with their own implementation of the rules (nothing of
     under the published dispersion model (rate rule 6). The share of counts
     inside the central 95% predictive interval is compared with the share
     the model expects (the mean of `simulations` simulated panels, NumPy
-    PCG64 seeded with `seed`). The check fails when they differ by more than
-    `tolerance` over the institutions with a mean of at least 2 a year, or
-    by more than `bandTolerance` in a band of yearly means (`bands`) with at
-    least `bandMinUnits` institutions. `details.rows` gives the observed and
-    expected coverage per code, period and band, tested or not.
+    PCG64 seeded with `seed`). The check fails when they differ, either
+    way, by more than `tolerance` over the institutions with a mean of at
+    least 2 a year, or, in a band of yearly means (`bands`) with at least
+    `bandMinUnits` institutions, when the observed share is below the
+    expected one by more than `bandToleranceBelow` or above it by more than
+    `bandToleranceAbove`. The band limits differ on purpose: intervals that
+    cover less often than the model says are too narrow, so verdicts and
+    rank ranges claim more certainty than the data give; intervals that
+    cover more often are too wide, which only leaves more rates without a
+    verdict. `details.rows` gives the observed and expected coverage per
+    code, period and band, tested or not, with the limits applied to each
+    row (`toleranceBelow`, `toleranceAbove`).
 14. **Medical-Campus Screen** (added with the 3-year rates): the screen of
     rate rule 16. Campus-years it finds in neither reference file are a
     warning, never a failure (`details.unreviewed`).
