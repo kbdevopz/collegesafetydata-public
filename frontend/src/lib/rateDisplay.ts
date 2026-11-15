@@ -23,6 +23,17 @@ export function stateDisplayMin(rules: RateRules | null | undefined): number | n
   return typeof n === 'number' ? n : null
 }
 
+// Names of the places in DOE's data that have no state preset (and no
+// rates), for a page asked for one of them (?preset=GU)
+export const PLACES_WITHOUT_PRESET: Record<string, string> = {
+  AS: 'American Samoa',
+  FM: 'the Federated States of Micronesia',
+  GU: 'Guam',
+  MH: 'the Marshall Islands',
+  MP: 'the Northern Mariana Islands',
+  PW: 'Palau',
+}
+
 // The codes whose window and list are shown first on school pages, in this order
 export const MAIN_RATE_CODES = ['violent', 'criminal_xmvt', 'burglary'] as const
 
@@ -83,6 +94,7 @@ export const VERDICT_LABELS: Record<Verdict, string> = {
   below: 'Below the national rate',
   nd: 'Not distinguishable from the national rate',
   undetermined: 'Not determined',
+  withheld: 'Not compared (shared campus)',
 }
 
 // The same verdict in a short phrase (peer comparisons, filters)
@@ -91,9 +103,10 @@ export const VERDICT_SHORT: Record<Verdict, string> = {
   below: 'below',
   nd: 'not distinguishable',
   undetermined: 'not determined',
+  withheld: 'not compared (shared campus)',
 }
 
-export const VERDICT_ORDER: Verdict[] = ['above', 'nd', 'below', 'undetermined']
+export const VERDICT_ORDER: Verdict[] = ['above', 'nd', 'below', 'undetermined', 'withheld']
 
 // What a rate is, said once wherever rates appear
 export const RATE_MEASURE =

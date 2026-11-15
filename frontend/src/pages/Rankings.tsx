@@ -17,7 +17,7 @@ import {
   chooseWindow, countsOnlyReason, highForSizeNote as countFlagNote, isListCode, rateCodeForSelection, rateCodeLabel,
   rateCodes, windowKeys, windowLabel,
 } from '../lib/rates'
-import { VERDICT_ORDER } from '../lib/rateDisplay'
+import { PLACES_WITHOUT_PRESET, VERDICT_ORDER } from '../lib/rateDisplay'
 import SchoolSearch from '../components/SchoolSearch'
 import OffensePopover from '../components/OffensePopover'
 import SeriesNotes from '../components/SeriesNotes'
@@ -113,6 +113,12 @@ export default function Rankings() {
   // Load rankings when filters change
   useEffect(() => {
     if (!metadata) return
+    // No file for a place without a preset (?preset=GU): the page says so
+    if (!metadata.presets.some((p) => p.id === selectedPreset)) {
+      setLoading(false)
+      setError(null)
+      return
+    }
 
     setLoading(true)
     setError(null)
@@ -470,6 +476,12 @@ export default function Rankings() {
                       {preset.name}
                     </option>
                   ))}
+                  {/* A place asked for in the address that has no preset (?preset=GU): named, not replaced */}
+                  {!metadata.presets.some((p) => p.id === selectedPreset) && (
+                    <option value={selectedPreset}>
+                      {(PLACES_WITHOUT_PRESET[selectedPreset] ?? selectedPreset).replace(/^the /, 'The ')}
+                    </option>
+                  )}
                 </select>
               </div>
 
@@ -669,7 +681,16 @@ export default function Rankings() {
         ) : (<>
         {/* Rankings Table (Desktop) / Cards (Mobile) */}
         <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden transition-colors duration-200">
-          {loading ? (
+          {!metadata.presets.some((p) => p.id === selectedPreset) ? (
+            <p className="p-6 text-sm text-gray-700 dark:text-gray-300">
+              {PLACES_WITHOUT_PRESET[selectedPreset]
+                ? <><strong>{PLACES_WITHOUT_PRESET[selectedPreset].replace(/^the /, 'The ')}</strong> has no ranking on this site.</>
+                : <><strong>{selectedPreset}</strong> is not a state, territory or group on this site.</>}{' '}
+              Rankings and rates cover institutions in the 50 states, the District of Columbia, Puerto Rico and the
+              U.S. Virgin Islands.{' '}
+              <Link to="/" className="text-primary-600 dark:text-primary-400 underline">See all schools</Link>
+            </p>
+          ) : loading ? (
             <div className="flex flex-col items-center justify-center py-16 min-h-[400px]">
               <Loader2 className="w-8 h-8 text-primary-600 dark:text-primary-400 animate-spin" />
               <span className="mt-3 text-sm text-gray-500 dark:text-gray-400">Loading rankings...</span>

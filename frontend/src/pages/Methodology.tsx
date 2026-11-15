@@ -17,12 +17,13 @@ import {
 } from 'lucide-react'
 import { cachedMetadata, fetchRateWindow, getMetadata } from '../lib/api'
 import type { Metadata, RateWindowEntry, RateWindowFile } from '../lib/types'
-import { formatDate, formatNumber } from '../lib/utils'
+import { cn, formatDate, formatNumber } from '../lib/utils'
 import { summarizeEnrollmentStatus, describeEnrollmentStatus } from '../lib/enrollment'
 import { summarizeDataYears } from '../lib/coverage'
 import {
   fmtRate, joinAnd, latestWindowKey, levelPct, listMinStudents, nationalCompositionSentence, oneSidedChance,
-  peerLabel, rateCodeLabel, rateCodePhrase, rateCodes, ratioPercent, windowKeys, windowLabel, windowYears,
+  peerLabel, rateCodeLabel, rateCodePhrase, rateCodes, ratioPercent, sharedSiteShareText, windowKeys, windowLabel,
+  windowYears,
 } from '../lib/rates'
 import { VERDICT_LABELS } from '../lib/rateDisplay'
 import SourceLink from '../components/SourceLink'
@@ -43,6 +44,8 @@ import {
 const num = (v: number | null | undefined) => (v === null || v === undefined ? '…' : formatNumber(v))
 // "29.3%"
 const pct1 = (x: number) => `${(x * 100).toFixed(1)}%`
+// "3 percentage points"
+const pctPoints = (x: number) => `${Math.round(x * 100)} percentage ${Math.round(x * 100) === 1 ? 'point' : 'points'}`
 // "2015-2019" written for reading: "2015–2019"
 const periodLabel = (p: string) => p.replace(/(\d{4})-(\d{4})/, '$1–$2')
 
@@ -112,14 +115,20 @@ function medianRange(f: RateWindowFile | null): { width: number; n: number } | n
 const auditCheck = (build: BuildInfo | null, name: string): AuditCheck | null =>
   build?.checks.find((c) => c.name === name) ?? null
 
-// Calibration rows whose coverage misses what the model expects by more
-// than the audit's band tolerance, in the band of the most incidents
-function shortTopBand(rows: CalibrationRow[], metadata: Metadata | null): CalibrationRow[] {
-  const bands = metadata?.rateRules?.calibration?.bands
-  const tol = metadata?.rateRules?.calibration?.bandTolerance
-  if (!bands || tol === undefined) return []
-  const top = `${bands[bands.length - 1]}+`
-  return rows.filter((r) => r.band === top && r.observed < r.expected - tol)
+// The audit's lower limit for a calibration row: its own, else the band
+// limit of metadata.json
+const belowLimit = (r: CalibrationRow, metadata: Metadata | null): number | undefined =>
+  r.toleranceBelow ?? metadata?.rateRules?.calibration?.bandToleranceBelow
+
+// Groups of similar counts (bands, tested or not) whose share inside the
+// predicted range is below the expected share by more than the audit's
+// lower limit: computed here from audit.json, never written in
+function shortBands(rows: CalibrationRow[], metadata: Metadata | null): CalibrationRow[] {
+  return rows.filter((r) => {
+    const limit = belowLimit(r, metadata)
+    return !r.band.startsWith('all') && r.observed !== null && r.expected !== null && limit !== undefined &&
+      r.observed < r.expected - limit
+  })
 }
 
 // A calibration band in words: "all>=2", "2-5", "20+"
@@ -133,9 +142,21 @@ function bandLabel(band: string): string {
   return band
 }
 
+// "Rape in 2015–2019, institutions with 20 or more a year: 86.0% inside against 95.0% expected (20 institutions, too few to test)"
 const calibrationText = (r: CalibrationRow) =>
-  `${rateCodeLabel(r.code).toLowerCase()} in ${periodLabel(r.period)}, ${pct1(r.observed)} against ${pct1(r.expected)} ` +
-  `(${formatNumber(r.units)} ${r.units === 1 ? 'institution' : 'institutions'})`
+  `${rateCodeLabel(r.code)} in ${periodLabel(r.period)}, institutions with ${bandLabel(r.band)}: ` +
+  `${r.observed !== null ? pct1(r.observed) : '–'} inside against ${r.expected !== null ? pct1(r.expected) : '–'} ` +
+  `expected (${formatNumber(r.units)} ${r.units === 1 ? 'institution' : 'institutions'}` +
+  `${r.tested ? (r.ok === false ? ', fails' : '') : ', too few to test'})`
+
+// Calibration rows as a list, one per line
+function CalibrationList({ rows }: { rows: CalibrationRow[] }) {
+  return (
+    <ul className="list-disc ml-5 my-1 space-y-0.5">
+      {rows.map((r) => <li key={`${r.code}-${r.period}-${r.band}`}>{calibrationText(r)}</li>)}
+    </ul>
+  )
+}
 
 // The medical-campus screen's result, in a sentence
 function screenSentence(build: BuildInfo | null): string {
@@ -161,11 +182,15 @@ function limitations(d: RateFacts): { title: string; body: React.ReactNode }[] {
   const rising = residential.every((p) => p) && residential[0]!.rate < residential[1]!.rate && residential[1]!.rate < residential[2]!.rate
   const range = medianRange(d.violent)
   const cal = d.build?.calibration ?? []
-  const short = shortTopBand(cal, d.metadata)
-  const failing = cal.filter((r) => r.tested && !r.ok)
-  const tol = rr?.calibration?.bandTolerance
-  const topBand = rr?.calibration?.bands ? rr.calibration.bands[rr.calibration.bands.length - 1] : null
+  const short = shortBands(cal, d.metadata)
+  const failing = cal.filter((r) => r.tested && r.ok === false)
+  const tolBelow = rr?.calibration?.bandToleranceBelow
   const minUnits = rr?.calibration?.bandMinUnits
+  // Rated institutions whose comparisons are withheld for a shared campus
+  // site (violent crimes, latest window), largest first
+  const withheld = (d.violent?.entries ?? []).filter((e) => e.verdict === 'withheld')
+    .sort((a, b) => b.fteYears - a.fteYears)
+  const noRateShared = rs?.institutionYears?.rules?.shared_campus
   const mvtFirst = mvtShare(d.criminalFirst)
   const mvtLatest = mvtShare(d.criminalLatest)
   const listCodes = rr?.lists?.codes ?? []
@@ -273,6 +298,46 @@ function limitations(d: RateFacts): { title: string; body: React.ReactNode }[] {
       ),
     },
     {
+      title: 'Shared campuses leave some institutions without a comparison',
+      body: (
+        <>
+          DOE's files give no enrollment per campus. Where campuses of different institutions are at one site and
+          report the same incidents, the site's incidents are in one institution's rate or in none, and an
+          institution whose students there cannot be counted is shown without a comparison and is not on a list (
+          <a href="#rate-shared" className="underline">Shared campuses</a>).
+          {d.violent && latest && (
+            <>
+              {' '}In {latestLabel}, {formatNumber(withheld.length)} rated{' '}
+              {withheld.length === 1 ? 'institution is' : 'institutions are'} shown without a comparison for this
+              reason
+              {(() => {
+                const minE = rr?.lists?.minExpected
+                const big = minE !== undefined ? withheld.filter((e) => e.E >= minE) : []
+                if (big.length === 0) return '.'
+                return (
+                  <>
+                    ; {formatNumber(big.length)} of them {big.length === 1 ? 'is' : 'are'} large enough for the
+                    violent-crime list (
+                    {joinAnd(big.slice(0, 3).map((e) => e.name))}
+                    {big.length > 3 ? ', among others' : ''}). Some large institutions therefore have no comparison
+                    on this site.
+                  </>
+                )
+              })()}
+            </>
+          )}
+          {noRateShared && noRateShared.withFte > 0 && (
+            <>
+              {' '}Where the main campuses of two or more institutions are at one site and the site cannot be
+              counted with one of them, none of them has a rate in those years:{' '}
+              {formatNumber(noRateShared.withFte)} institution-years with a denominator of at least{' '}
+              {num(rr?.minFte)}.
+            </>
+          )}
+        </>
+      ),
+    },
+    {
       title: 'Intervals rest on a model fitted to all institutions',
       body: (
         <>
@@ -281,15 +346,20 @@ function limitations(d: RateFacts): { title: string; body: React.ReactNode }[] {
           <a href="#rate-interval" className="underline">Intervals</a>). The audit tests the model on every build
           by predicting each year's count from the institution's other years (
           <a href="#calibration" className="underline">How well the intervals fit</a>).
-          {short.length > 0 && topBand !== null && tol !== undefined && (
+          {short.length > 0 && tolBelow !== undefined && (
             <>
-              {' '}At the institutions with the most incidents ({topBand} or more a year), fewer counts fall inside
-              the predicted range than the model expects, by more than {Math.round(tol * 100)} percentage points,
-              for {joinAnd(short.map(calibrationText))}. The model understates how much these institutions' counts
-              vary, so their intervals may be too narrow, and an "above" or "below" among them can be due to chance
-              more often than {chance}.
-              {minUnits !== undefined && short.some((r) => r.units < minUnits) && (
-                <> Groups of fewer than {formatNumber(minUnits)} institutions are reported by the audit without a pass threshold.</>
+              {' '}In {formatNumber(short.length)} {short.length === 1 ? 'group' : 'groups'} of institutions with
+              similar counts, fewer counts fall inside the predicted range than the model expects, by more than{' '}
+              {pctPoints(tolBelow)}:
+              <CalibrationList rows={short} />
+              There the model understates how much counts vary, so the intervals may be too narrow, and an
+              "above" or "below" can be due to chance more often than {chance}.
+              {minUnits !== undefined && short.some((r) => !r.tested) && (
+                <>
+                  {' '}{short.every((r) => !r.tested) ? 'All of these groups have' : `${formatNumber(short.filter((r) => !r.tested).length)} of them have`}{' '}
+                  fewer than {formatNumber(minUnits)} institutions, too few for the audit's pass rule, so the audit
+                  reports them without failing.
+                </>
               )}
             </>
           )}
@@ -297,9 +367,9 @@ function limitations(d: RateFacts): { title: string; body: React.ReactNode }[] {
             <>
               {' '}The audit reports a failure for{' '}
               {joinAnd(failing.map((r) => `${rateCodeLabel(r.code).toLowerCase()} in ${periodLabel(r.period)} (institutions with ${bandLabel(r.band)})`))}:{' '}
-              {failing.every((r) => r.observed > r.expected)
+              {failing.every((r) => r.observed !== null && r.expected !== null && r.observed > r.expected)
                 ? 'more counts fall inside the predicted range than expected, so those intervals are wider than they need to be on average'
-                : 'coverage differs from what the model expects by more than its tolerance'}{' '}
+                : 'coverage differs from what the model expects by more than its limit'}{' '}
               (<a href="#audit" className="underline">Data Quality Audit</a>).
             </>
           )}
@@ -530,6 +600,16 @@ export default function Methodology() {
   }
   const peers = peerRows(facts.violent, metadata)
   const range = medianRange(facts.violent)
+  // Shared campus sites, latest window, violent crimes: guests compared as
+  // usual because of a published figure, and withheld institutions large
+  // enough for the list
+  const siteShare = sharedSiteShareText(rr) ?? '…'
+  const violentEntries = facts.violent?.entries ?? []
+  const exemptN = violentEntries.filter((e) => e.sharedSite?.exempt && e.verdict !== 'withheld').length
+  const minExpected = rr?.lists?.minExpected
+  const bigWithheld = minExpected === undefined
+    ? 0
+    : violentEntries.filter((e) => e.verdict === 'withheld' && e.E >= minExpected).length
   const mvtFirst = mvtShare(facts.criminalFirst)
   const mvtLatest = mvtShare(facts.criminalLatest)
 
@@ -562,6 +642,14 @@ export default function Methodology() {
   const checks = build?.checks ?? []
   const statusCount = (s: string) => checks.filter((c) => c.status === s).length
   const calibration = build?.calibration ?? []
+  // The calibration table: one row per category and period, one column per
+  // group of counts, in the audit's order
+  const calColumns = Array.from(new Set(calibration.map((r) => r.band)))
+  const calKeys = calibration
+    .filter((r, i) => calibration.findIndex((x) => x.code === r.code && x.period === r.period) === i)
+    .map((r) => ({ code: r.code, period: r.period }))
+  const calBands = rr?.calibration?.bands ?? []
+  const calShort = shortBands(calibration, metadata)
 
   return (
     <div className="min-h-screen">
@@ -635,7 +723,7 @@ export default function Methodology() {
                           <strong className="text-gray-900 dark:text-gray-200">Known errors in DOE files:</strong> In the 2021-2023 release (Crime2024SAS.zip), the residence-hall disciplinary file repeats the on-campus figures for 2022 and 2023, and the residence-hall arrest file has no 2022 liquor-law column. For campuses whose 2022 or 2023 figures come from that release, 2022 residence-hall disciplinary actions and liquor-law arrests come from the 2020-2022 release, and 2023 residence-hall disciplinary actions are left blank.
                         </span>
                       </div>
-                      <div className="flex items-start gap-2">
+                      <div id="copies" className="flex items-start gap-2 scroll-mt-20">
                         <Info className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
                         <span className="min-w-0 text-gray-600 dark:text-gray-400">
                           <strong className="text-gray-900 dark:text-gray-200">Figures reported by more than one campus:</strong> Some campuses report exactly the same 20 figures for a location (on-campus, non-campus or public property) as another campus in the same state and year, at least six of them nonzero, usually because a branch repeats its parent's statistics. When a campus's whole year (all three locations, at least six figures nonzero) matches another campus's, all of its locations count as copies. For a campus-year taken from an older release, a match with another campus in that same release counts too, even if that campus has since corrected its figures. School pages show the figures as DOE publishes them; state and national totals and rankings count them once, under one host campus, which the school page names. The host is the campus whose figures come from the newest release for that year, then the main campus, then the one with more students (FTE), then the larger total, then the lower IPEDS ID. One more case: when DOE reported a campus under a new ID (see below) and both IDs have the same whole year (every figure, at least one nonzero) from different releases, the older release's copy counts under the newer ID, whatever the number of nonzero figures.
@@ -889,10 +977,10 @@ export default function Methodology() {
               <Rule id="rate-numerator" title="Incidents">
                 The incidents DOE lists as on campus (its On-campus figures, which include residence halls), at every
                 campus of the institution in the United States, added over the window's years. Incidents at
-                non-campus locations and on public property are shown beside the rate as counts, not in it. Figures
-                reported identically by two campuses count once, as in totals (
-                <a href="#rate-shared" className="underline">Shared campuses</a>). The categories with a rate and the
-                offenses each adds:
+                non-campus locations and on public property are shown beside the rate as counts, not in it. The
+                incidents of a campus site that campuses of two or more institutions report are in one institution's
+                rate at most (<a href="#rate-shared" className="underline">Shared campuses</a>). The categories with a
+                rate and the offenses each adds:
                 <ul className="list-disc ml-5 mt-2 space-y-1">
                   {codesWithRate.map((code) => (
                     <li key={code}>
@@ -983,7 +1071,10 @@ export default function Methodology() {
                 HOSPITAL is what the institution reports to IPEDS, so a university next to a medical center run by a
                 separate organization, such as a health system, can report no hospital and is then not left out by
                 this rule; see{' '}
-                <a href="#rate-medical-campuses" className="underline">Medical-center campuses</a>. Sources:{' '}
+                <a href="#rate-medical-campuses" className="underline">Medical-center campuses</a>. Two more rules can
+                give no rate to an institution whose main campus shares a site with another institution's main
+                campus (
+                <a href="#rate-shared" className="underline">Shared campuses</a>). Sources:{' '}
                 <SourceLink source={SOURCES.ipedsHdDictionary}>IPEDS HD data dictionary</SourceLink>,{' '}
                 <SourceLink source={SOURCES.carnegie2021}>Carnegie Classification, 2021 Basic Classification</SourceLink>.
               </Rule>
@@ -1014,12 +1105,20 @@ export default function Methodology() {
                 <SourceLink source={SOURCES.greene2008}>Greene, 2008</SourceLink>), with g(m) = min(
                 {rr?.dispersion?.ramp.cap ?? '…'}, max(1, m / {rr?.dispersion?.ramp.start ?? '…'})): g rises from 1 at{' '}
                 {rr?.dispersion?.ramp.start ?? '…'} a year to {rr?.dispersion?.ramp.cap ?? '…'} at{' '}
-                {rr?.dispersion?.ramp.end ?? '…'} a year. The constant c is{' '}
+                {rr?.dispersion?.ramp.end ?? '…'} a year. Every value of the constant c was fitted the same way, on
+                the on-campus counts of 2015–2019 of the institutions that reported all five years with an on-campus
+                FTE of at least {num(rr?.minFte)}, none of the rules that give no rate, and a certain on-campus FTE (the method is
+                described in etl/config.py of the open-source pipeline). Fitted on each category's own counts, c is{' '}
                 {rr
-                  ? joinAnd(Object.entries(rr.dispersion.fitted).map(([code, c]) => `${c} for ${rateCodePhrase(code)}`))
+                  ? joinAnd(rateCodes(rr).filter((code) => rr.dispersion.fitted[code] !== undefined)
+                      .map((code) => `${rr.dispersion.fitted[code]} for ${rateCodePhrase(code)}`))
                   : '…'}
-                , fitted on the 2015-2019 on-campus counts of institutions with a rate; the other categories use{' '}
-                {rr?.dispersion?.other ?? '…'}, fitted on the single crime offenses together. For a window total N
+                . Fitted on the single crime offenses together, it is {rr?.dispersion?.other ?? '…'}, which the
+                categories without a fit of their own use:{' '}
+                {rr
+                  ? joinAnd(rateCodes(rr).filter((code) => rr.dispersion.fitted[code] === undefined).map(rateCodePhrase))
+                  : '…'}
+                . For a window total N
                 over T years the variance is φ·N with φ = 1 + c·g(N/T)·√(N/T), and the interval of the count is φ times
                 the gamma interval of the effective count N/φ (
                 <SourceLink source={SOURCES.fayFeuer1997}>Fay and Feuer, 1997</SourceLink>; with φ = 1 it is the exact
@@ -1046,7 +1145,9 @@ export default function Methodology() {
                     many as below by chance alone
                   </>
                 )}
-                . A comparison is with the national rate, not with another institution.
+                . A comparison is with the national rate, not with another institution. An institution with a campus
+                at a site shared with another institution may have both comparisons withheld ("
+                {VERDICT_LABELS.withheld}"; <a href="#rate-shared" className="underline">Shared campuses</a>).
               </Rule>
               <Rule id="rate-peers" title="Comparisons with institutions of the same type">
                 Each rate is also compared, the same way, with the rate of institutions of its type, computed like the
@@ -1114,14 +1215,14 @@ export default function Methodology() {
                 )}
               </Rule>
               <Rule id="rate-reasons" title="Rated but not on a list">
-                Three reasons keep a rated institution off a list while its rate and comparisons are shown: an
-                uncertain on-campus FTE (<a href="#rate-denominator" className="underline">On-campus students</a>);
-                incidents at listed medical-center campuses, outside their residence halls, of{' '}
-                {share(rr?.medicalShare)} or more of its on-campus count (
-                <a href="#rate-medical-campuses" className="underline">Medical-center campuses</a>); and figures
-                shared with another institution's campus of more than {share(rr?.sharedShare)} of its count (
-                <a href="#rate-shared" className="underline">Shared campuses</a>). Institutions with the second or
-                third reason stay in the national rate.
+                Three reasons keep a rated institution off a list: an uncertain on-campus FTE (
+                <a href="#rate-denominator" className="underline">On-campus students</a>); incidents at listed
+                medical-center campuses, outside their residence halls, of {share(rr?.medicalShare)} or more of its
+                on-campus count (<a href="#rate-medical-campuses" className="underline">Medical-center campuses</a>),
+                with its rate and comparisons shown; and a campus at a site shared with another institution whose
+                students there are not shown by a published figure to be few (
+                <a href="#rate-shared" className="underline">Shared campuses</a>), with its rate shown and its
+                comparisons withheld. Institutions with the second or third reason stay in the national rate.
                 {w && (
                   <>
                     {' '}Institutions with each reason in {latestLabel}, in that order:{' '}
@@ -1149,20 +1250,84 @@ export default function Methodology() {
                 list as a campus of its own, are not counted apart.
               </Rule>
               <Rule id="rate-shared" title="Shared campuses">
-                When DOE publishes the same figures for campuses of two institutions in a year, they count once, under
-                the host campus, while each institution's students are in its own FTE. When the other institution
-                counts no campus of its own that year and its figures count under one host institution, the host's
-                denominator adds the other's on-campus FTE ({num(iy?.pooled.shared)} institution-years). Otherwise
-                neither rate can be made exact: adding the other institution's FTE would add its students at its other
-                campuses, and not adding it would leave its students on the shared campus out. So, for each rate and
-                window, the on-campus figures concerned are measured against the institution's count: the host's
-                figures that another institution also reports, and the figures an institution reports for its own
-                campus that count under another institution's campus (and so are not in its count). When they are
-                more than {share(rr?.sharedShare)} of its count (with the figures counted elsewhere added to it), it
-                is not on a list; its rate and comparisons are shown with the numbers. A smaller number is shown as a
-                note. A shared campus can be a program of one institution on another's campus, such as the Indiana
-                University School of Medicine at Bloomington or the University of Maryland Global Campus at College
-                Park.
+                DOE's files give enrollment per institution, not per campus, so where campuses of two or more
+                institutions report the same incidents, the incidents cannot be divided among those institutions'
+                students. In each year, campuses of different institutions form a shared site when any of three
+                tests joins them: identical figures (the copies described under{' '}
+                <a href="#copies" className="underline">Figures reported by more than one campus</a>); a near-copy,
+                two campuses in the same state (in different states only when every figure is equal) where the
+                campus with the smaller on-campus total over all offenses has at least{' '}
+                {rr?.sharedNear ? rr.sharedNear.minNonzero : '…'} nonzero figures, at least{' '}
+                {rr?.sharedNear ? `${rr.sharedNear.match[0]} in ${rr.sharedNear.match[1]}` : '…'} of them equal to the
+                other campus's, and a total of at least {rr?.sharedNear ? rr.sharedNear.minTotal : '…'}; or a
+                reviewed list (etl/reference/shared_campus_overrides.csv in the open-source pipeline). Counts, totals
+                and rankings by count do not change; only rates follow these rules. A main campus is the campus whose
+                DOE ID ends in 001.
+                <ul className="list-disc ml-5 mt-2 space-y-1">
+                  <li>
+                    <span className="text-gray-900 dark:text-gray-100">One main campus at the site.</span> The
+                    institution whose main campus it is keeps the site's incidents, counted once, and is compared and
+                    listed as usual; its school page names the other institutions. They are guests: their incidents
+                    at the site are in none of their rates.
+                  </li>
+                  <li>
+                    <span className="text-gray-900 dark:text-gray-100">Main campuses of several institutions.</span>{' '}
+                    The one with the largest on-campus FTE is the owner. When the others count no campus away from
+                    the site that year, or their on-campus FTE together is at most {siteShare} of the owner's, the
+                    owner's rate counts the site once and adds their students, and they have no rate that year (
+                    {num(iy?.rules.shared_pooled?.institutionYears)} institution-years,{' '}
+                    {num(iy?.rules.shared_pooled?.withFte)} of them with a denominator of at least {num(rr?.minFte)}).
+                    Otherwise none of them has a rate that year ({num(iy?.rules.shared_campus?.institutionYears)}{' '}
+                    institution-years, {num(iy?.rules.shared_campus?.withFte)} with a denominator of at least{' '}
+                    {num(rr?.minFte)}): the incidents cannot be given to one institution's students, and a rate for
+                    any one of them would overstate it.
+                  </li>
+                  <li>
+                    <span className="text-gray-900 dark:text-gray-100">No main campus.</span> Every institution's
+                    incidents at the site are in none of its rates; each is a participant.
+                  </li>
+                </ul>
+                <span className="block mt-2">
+                  An institution whose every campus repeats one other institution's figures counts no campus of its
+                  own, and that institution's denominator adds its on-campus FTE. In all,{' '}
+                  {num(iy?.pooled.shared)} institution-years are rated with another institution's FTE added for a
+                  shared site (this case and the owners above).
+                </span>
+                <span className="block mt-2">
+                  A guest's or participant's on-campus FTE is NCES's figure for the whole institution, so it may
+                  include its students at the site, and no file says how many they are. Its rate for a window with
+                  such a year leaves out the site's incidents but may count those students, so the rate is shown
+                  without comparisons ("{VERDICT_LABELS.withheld}") and is not on a list, in every category. The
+                  exception is an institution with a published enrollment figure for its students at those sites in
+                  each such year (a count, or an upper bound such as the enrollment of every location of a program
+                  together; never an estimate, a lower bound or another year's figure), reviewed in
+                  etl/reference/shared_site_enrollment.csv: when those students add up to at most {siteShare} of its
+                  student-years in the window, it is compared and listed as usual. {siteShare} is well within the
+                  difference of up to {share(rr?.onlineUncertainRatio, true)} between the two estimates of on-campus
+                  students that the rates accept (<a href="#rate-denominator" className="underline">On-campus students</a>).
+                  Guests and participants stay in the national rate.
+                  {w?.violent && (
+                    <>
+                      {' '}In {latestLabel}, {formatNumber(w.violent.verdicts.withheld ?? 0)} rated institutions have
+                      their comparisons withheld for this reason
+                      {exemptN > 0 && (
+                        <>
+                          , and {formatNumber(exemptN)} {exemptN === 1 ? 'is' : 'are'} compared as usual because of
+                          such a figure
+                        </>
+                      )}
+                      .
+                    </>
+                  )}
+                  {bigWithheld > 0 && w?.violent && (
+                    <>
+                      {' '}Of the {formatNumber(w.violent.verdicts.withheld ?? 0)} withheld,{' '}
+                      {formatNumber(bigWithheld)} {bigWithheld === 1 ? 'is' : 'are'} large enough for the
+                      violent-crime list, so some large institutions have no comparison on this site (
+                      <a href="#limitations" className="underline">Limitations</a>).
+                    </>
+                  )}
+                </span>
               </Rule>
               <Rule id="rate-flags" title="Unusual years">
                 Every institution in DOE's data, of any size and in every year
@@ -1318,6 +1483,7 @@ export default function Methodology() {
                         <th scope="col" className="px-3 py-2 text-right font-semibold text-gray-900 dark:text-gray-100">Not distinguishable</th>
                         <th scope="col" className="px-3 py-2 text-right font-semibold text-gray-900 dark:text-gray-100">Below</th>
                         <th scope="col" className="px-3 py-2 text-right font-semibold text-gray-900 dark:text-gray-100">Not determined</th>
+                        <th scope="col" className="px-3 py-2 text-right font-semibold text-gray-900 dark:text-gray-100">Not compared (shared campus)</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
@@ -1329,6 +1495,7 @@ export default function Methodology() {
                           <td className="px-3 py-2 text-right tabular-nums text-gray-600 dark:text-gray-400">{formatNumber(w[c].verdicts.nd)}</td>
                           <td className="px-3 py-2 text-right tabular-nums text-gray-600 dark:text-gray-400">{formatNumber(w[c].verdicts.below)}</td>
                           <td className="px-3 py-2 text-right tabular-nums text-gray-600 dark:text-gray-400">{formatNumber(w[c].verdicts.undetermined)}</td>
+                          <td className="px-3 py-2 text-right tabular-nums text-gray-600 dark:text-gray-400">{formatNumber(w[c].verdicts.withheld ?? 0)}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -1344,7 +1511,7 @@ export default function Methodology() {
 
             <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 mt-8 mb-2">By year</h3>
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-              The population rules give no rate to {num(ruleTotals?.all)} institution-years in all (
+              The population, merger and shared-campus rules give no rate to {num(ruleTotals?.all)} institution-years in all (
               {num(ruleTotals?.withFte)} in the states covered with a denominator of at least {num(rr?.minFte)}).
             </p>
             <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg overflow-x-auto">
@@ -1376,8 +1543,8 @@ export default function Methodology() {
             </div>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
               Denominator {num(rr?.minFte)}+: institutions in the states covered whose denominator that year is at
-              least {num(rr?.minFte)}. Of those, Population rule: no rate under the population rules or the merger
-              rules; Single-year rate: the years charted on school pages
+              least {num(rr?.minFte)}. Of those, Population rule: no rate under the population, merger or
+              shared-campus rules; Single-year rate: the years charted on school pages
               {rr?.skipYears?.length ? ` (none in ${joinAnd(rr.skipYears.map(String))})` : ''}; Uncertain on-campus
               FTE: no population rule and an uncertain on-campus FTE, its own or added with another institution's;
               With a campus abroad: any rule.
@@ -1391,50 +1558,86 @@ export default function Methodology() {
               institution with a rate from its other years, with the variance model of the intervals, and counts how
               often the year falls inside the central {ci}% of the prediction. The expected share comes from data
               simulated under the model, so it is not exactly {ci}%. The audit fails a category and period when the
-              two differ by more than {rr?.calibration ? `${Math.round(rr.calibration.tolerance * 100)} percentage points` : '…'}{' '}
-              over institutions with at least 2 incidents a year, or by more than{' '}
-              {rr?.calibration ? `${Math.round(rr.calibration.bandTolerance * 100)} percentage points` : '…'} in a group of institutions
-              with similar counts that has at least {rr?.calibration ? formatNumber(rr.calibration.bandMinUnits) : '…'}{' '}
-              institutions; smaller groups are reported without a pass threshold. The table shows all institutions
-              and the group with the most incidents; <a href="/audit.json" className="underline">audit.json</a> has
-              every group.
+              two differ, either way, by more than {rr?.calibration ? pctPoints(rr.calibration.tolerance) : '…'} over
+              the institutions with at least {calBands[0] ?? '…'} incidents a year. In a group of institutions with
+              similar counts it fails when the share inside is below the expected share by more than{' '}
+              {rr?.calibration ? pctPoints(rr.calibration.bandToleranceBelow) : '…'}, or above it by more than{' '}
+              {rr?.calibration ? pctPoints(rr.calibration.bandToleranceAbove) : '…'}, if the group has at least{' '}
+              {rr?.calibration ? formatNumber(rr.calibration.bandMinUnits) : '…'} institutions; smaller groups are
+              reported without a pass rule. The two limits differ on purpose: intervals that hold fewer counts than
+              the model says are too narrow, so comparisons and rank ranges claim more certainty than the data give;
+              intervals that hold more are too wide, which only leaves more rates without a verdict.
             </p>
+            {calibration.length > 0 && rr?.calibration && (
+              <div className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                {calShort.length === 0 ? (
+                  <>
+                    In this build no group's share inside is below the expected share by more than{' '}
+                    {pctPoints(rr.calibration.bandToleranceBelow)}.
+                  </>
+                ) : (
+                  <>
+                    In this build, the share inside is below the expected share by more than{' '}
+                    {pctPoints(rr.calibration.bandToleranceBelow)} in {formatNumber(calShort.length)}{' '}
+                    {calShort.length === 1 ? 'group' : 'groups'}, tested or not; there the intervals may be too
+                    narrow:
+                    <CalibrationList rows={calShort} />
+                  </>
+                )}
+              </div>
+            )}
             {calibration.length > 0 ? (
               <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg overflow-x-auto">
                 <table className="w-full text-sm">
-                  <caption className="sr-only">Observed and expected coverage of the predicted ranges, by category and period</caption>
+                  <caption className="sr-only">
+                    Share of yearly counts inside the predicted range, and the share expected, by category, period and
+                    group of institutions with similar counts
+                  </caption>
                   <thead className="bg-gray-50 dark:bg-gray-800">
                     <tr>
                       <th scope="col" className="px-3 py-2 text-left font-semibold text-gray-900 dark:text-gray-100">Category</th>
                       <th scope="col" className="px-3 py-2 text-left font-semibold text-gray-900 dark:text-gray-100">Years</th>
-                      <th scope="col" className="px-3 py-2 text-right font-semibold text-gray-900 dark:text-gray-100">2+ a year: institutions</th>
-                      <th scope="col" className="px-3 py-2 text-right font-semibold text-gray-900 dark:text-gray-100">Inside (expected)</th>
-                      <th scope="col" className="px-3 py-2 text-right font-semibold text-gray-900 dark:text-gray-100">Most incidents: institutions</th>
-                      <th scope="col" className="px-3 py-2 text-right font-semibold text-gray-900 dark:text-gray-100">Inside (expected)</th>
+                      {calColumns.map((b) => (
+                        <th key={b} scope="col" className="px-3 py-2 text-right font-semibold text-gray-900 dark:text-gray-100">
+                          {b.startsWith('all') ? 'All with ' : ''}{bandLabel(b)}
+                        </th>
+                      ))}
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
-                    {calibration
-                      .filter((r) => r.band.startsWith('all'))
-                      .map((r) => {
-                        const bands = rr?.calibration?.bands
-                        const topName = bands ? `${bands[bands.length - 1]}+` : null
-                        const top = calibration.find((t) => t.code === r.code && t.period === r.period && t.band === topName)
-                        return (
-                          <tr key={`${r.code}-${r.period}`}>
-                            <th scope="row" className="px-3 py-2 text-left font-normal text-gray-700 dark:text-gray-300">{rateCodeLabel(r.code)}</th>
-                            <td className="px-3 py-2 text-left text-gray-600 dark:text-gray-400 whitespace-nowrap">{periodLabel(r.period)}</td>
-                            <td className="px-3 py-2 text-right tabular-nums text-gray-600 dark:text-gray-400">{formatNumber(r.units)}</td>
-                            <td className="px-3 py-2 text-right tabular-nums text-gray-600 dark:text-gray-400 whitespace-nowrap">
-                              {pct1(r.observed)} ({pct1(r.expected)}){r.tested && !r.ok ? ' fails' : ''}
+                    {calKeys.map(({ code, period }) => (
+                      <tr key={`${code}-${period}`}>
+                        <th scope="row" className="px-3 py-2 text-left font-normal text-gray-700 dark:text-gray-300">{rateCodeLabel(code)}</th>
+                        <td className="px-3 py-2 text-left text-gray-600 dark:text-gray-400 whitespace-nowrap">{periodLabel(period)}</td>
+                        {calColumns.map((b) => {
+                          const r = calibration.find((x) => x.code === code && x.period === period && x.band === b)
+                          if (!r) {
+                            return <td key={b} className="px-3 py-2 text-right text-gray-600 dark:text-gray-400">–</td>
+                          }
+                          const status = r.observed === null || r.expected === null
+                            ? null
+                            : !r.tested ? 'too few to test' : r.ok === false ? 'fails' : null
+                          const isShort = calShort.includes(r)
+                          return (
+                            <td key={b} className="px-3 py-2 text-right tabular-nums text-gray-600 dark:text-gray-400">
+                              {r.observed === null || r.expected === null ? (
+                                <span className="whitespace-nowrap">no institutions</span>
+                              ) : (
+                                <span className={cn('whitespace-nowrap', isShort && 'font-semibold text-gray-900 dark:text-gray-100')}>
+                                  {pct1(r.observed)} ({pct1(r.expected)}){isShort ? ' †' : ''}
+                                </span>
+                              )}
+                              {r.observed !== null && (
+                                <span className="block text-xs whitespace-nowrap">
+                                  {formatNumber(r.units)} {r.units === 1 ? 'institution' : 'institutions'}
+                                  {status ? `, ${status}` : ''}
+                                </span>
+                              )}
                             </td>
-                            <td className="px-3 py-2 text-right tabular-nums text-gray-600 dark:text-gray-400">{top ? formatNumber(top.units) : '–'}</td>
-                            <td className="px-3 py-2 text-right tabular-nums text-gray-600 dark:text-gray-400 whitespace-nowrap">
-                              {top ? `${pct1(top.observed)} (${pct1(top.expected)})${top.tested && !top.ok ? ' fails' : ''}` : '–'}
-                            </td>
-                          </tr>
-                        )
-                      })}
+                          )
+                        })}
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
@@ -1442,8 +1645,11 @@ export default function Methodology() {
               <p className="text-sm text-gray-600 dark:text-gray-400">The audit's figures are not loaded.</p>
             )}
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-              Most incidents: institutions with {rr?.calibration ? bandLabel(`${rr.calibration.bands[rr.calibration.bands.length - 1]}+`) : '…'}.
-              Years: the first five years and the latest {rr?.calibration?.latestYears ?? '…'}.
+              Each cell: the share of yearly counts inside the predicted range, the share expected in brackets, and the
+              number of institutions. Columns: institutions by their average incidents a year. † Below the expected
+              share by more than {rr?.calibration ? pctPoints(rr.calibration.bandToleranceBelow) : '…'}. Years: the
+              first five years and the latest {rr?.calibration?.latestYears ?? '…'}.{' '}
+              <a href="/audit.json" className="underline">audit.json</a> has every figure.
             </p>
           </section>
 
@@ -1698,7 +1904,7 @@ export default function Methodology() {
               {limitations(facts).map((item) => (
                 <div key={item.title} className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
                   <h3 className="font-medium text-gray-900 dark:text-gray-100 text-sm mb-1">{item.title}</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">{item.body}</p>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">{item.body}</div>
                 </div>
               ))}
             </div>
@@ -1885,7 +2091,8 @@ export default function Methodology() {
                   <a href="#rate-shared" className="underline">Shared campuses</a>),{' '}
                   <code>institution_rate_rule</code> (the rule that gives the institution no rate that year, and none
                   for a window containing it: <code>hospital</code>, <code>medical</code> or <code>listed</code> under
-                  Population rules, <code>merger</code> or <code>family</code> under Mergers; empty when none),{' '}
+                  Population rules, <code>merger</code> or <code>family</code> under Mergers,{' '}
+                  <code>shared_pooled</code> or <code>shared_campus</code> under Shared campuses; empty when none),{' '}
                   <code>institution_oncampus_fte_proportional</code> and{' '}
                   <code>institution_oncampus_fte_part_time_first</code> (the two estimates; the second is empty when
                   it cannot be computed), <code>institution_oncampus_fte_uncertain</code> (True when the on-campus FTE

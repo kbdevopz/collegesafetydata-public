@@ -19,16 +19,22 @@ export interface AuditCheck {
 }
 
 // One row of the calibration check: coverage of the intervals for one rate
-// code, period and band of yearly counts (`units` institutions)
+// code, period and band of yearly counts (`units` institutions). A band
+// with no institutions has no coverage (null). `tested` is false for a band
+// too small for the check's pass rule; `ok` is null when it is not tested.
+// toleranceBelow / toleranceAbove: the limits the check applies to the row
+// (null when the audit does not give them).
 export interface CalibrationRow {
   code: string
   period: string
   band: string
   units: number
-  observed: number
-  expected: number
+  observed: number | null
+  expected: number | null
+  toleranceBelow: number | null
+  toleranceAbove: number | null
   tested: boolean
-  ok: boolean
+  ok: boolean | null
 }
 
 export interface BuildInfo {
@@ -73,18 +79,21 @@ export function buildInfoFromAudit(a: unknown): BuildInfo | null {
   }))
   const calibrationCheck = rawChecks.find((c) => c.name === 'Interval Calibration')
   const rows = (calibrationCheck?.details as { rows?: unknown } | undefined)?.rows
+  const num = (v: unknown): number | null => (typeof v === 'number' && Number.isFinite(v) ? v : null)
   const calibration: CalibrationRow[] = Array.isArray(rows)
     ? (rows as Record<string, unknown>[])
-        .filter((r) => typeof r.code === 'string' && typeof r.observed === 'number' && typeof r.expected === 'number')
+        .filter((r) => typeof r.code === 'string')
         .map((r) => ({
           code: r.code as string,
           period: String(r.period ?? ''),
           band: String(r.band ?? ''),
-          units: typeof r.units === 'number' ? r.units : 0,
-          observed: r.observed as number,
-          expected: r.expected as number,
+          units: num(r.units) ?? 0,
+          observed: num(r.observed),
+          expected: num(r.expected),
+          toleranceBelow: num(r.toleranceBelow),
+          toleranceAbove: num(r.toleranceAbove),
           tested: r.tested === true,
-          ok: r.ok === true,
+          ok: typeof r.ok === 'boolean' ? r.ok : null,
         }))
     : []
   return {

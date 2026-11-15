@@ -1,9 +1,10 @@
 import type { ReactNode } from 'react'
-import type { InstitutionWindowCode, RateEntryFields, RateRules, SchoolProfile, Verdict } from '../lib/types'
+import type { InstitutionWindowCode, RateEntryFields, RateRules, SchoolProfile, SharedSiteNotes, Verdict } from '../lib/types'
 import {
-  compositionSentence, differSentence, entryPosition, flagSentence, FLAG_NOTE, fmtInt, fmtRate, intervalSentence,
-  isListCode, medicalSentence, nationalSentence, notListedSentence, onlineSentence, otherLocationsSentence,
-  peerSentence, rateCodeLabel, sharedSentence, windowLabel, withoutFlaggedSentence,
+  coLocatedSentence, compositionSentence, differSentence, entryPosition, flagSentence, FLAG_NOTE, fmtInt, fmtRate,
+  intervalSentence, isListCode, medicalSentence, nationalSentence, notListedSentence, onlineSentence,
+  otherLocationsSentence, peerSentence, rateCodeLabel, sharedGuestSentence, sharedHostSentence, windowLabel,
+  withoutFlaggedSentence,
 } from '../lib/rates'
 import { stateDisplayMin, VERDICT_LABELS } from '../lib/rateDisplay'
 import { cn } from '../lib/utils'
@@ -13,6 +14,7 @@ const VERDICT_TONES: Record<Verdict, string> = {
   below: 'bg-sky-50 text-sky-900 border-sky-300 dark:bg-sky-900/30 dark:text-sky-200 dark:border-sky-700',
   nd: 'bg-gray-50 text-gray-800 border-gray-300 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600',
   undetermined: 'bg-gray-50 text-gray-800 border-gray-300 border-dashed dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600',
+  withheld: 'bg-white text-gray-700 border-gray-400 border-dashed dark:bg-gray-900 dark:text-gray-300 dark:border-gray-500',
 }
 
 /** The verdict against the national rate, in words (the colour only repeats it) */
@@ -57,9 +59,12 @@ export function entryText(
     minFteYears?: number
     profile?: Pick<SchoolProfile, 'institution'> | null
     state?: string
+    // The window's shared-site notes (on a window-file entry: the entry itself)
+    notes?: SharedSiteNotes
   },
 ): EntryText {
   const { code, windowKey, rules, natl, peerType, peerRate, listN, minFteYears, profile } = opts
+  const site = opts.notes ?? {}
   const listCode = isListCode(code, rules)
   let why: string | null = null
   if (e.why === 'online' || e.verdict === 'undetermined') {
@@ -67,12 +72,19 @@ export function entryText(
     if (listCode) why = `${why} Institutions with an uncertain on-campus student count are not on the lists.`
   }
   const medical = medicalSentence(e, listCode)
-  const shared = sharedSentence(e, listCode)
+  // A guest or participant at a shared site: why it is not compared (the
+  // headline reason), or why it is compared as usual (a note)
+  const guest = sharedGuestSentence(e, site, code, listCode, rules)
+  const withheld = e.verdict === 'withheld' || e.why === 'shared'
   if (e.why === 'medical_campus') why = medical
-  if (e.why === 'shared') why = shared
+  if (withheld) why = guest
   const notes: string[] = []
   if (medical && e.why !== 'medical_campus') notes.push(medical)
-  if (shared && e.why !== 'shared') notes.push(shared)
+  if (guest && !withheld) notes.push(guest)
+  const host = sharedHostSentence(e, site, code)
+  if (host) notes.push(host)
+  const coLocated = coLocatedSentence(site)
+  if (coLocated) notes.push(coLocated)
   const other = otherLocationsSentence(e.nNoncampus, e.nPublic)
   if (other) notes.push(other)
   const minState = stateDisplayMin(rules)
@@ -105,7 +117,7 @@ function Line({ children, className }: { children: ReactNode; className?: string
  * comparisons, list position or why it is not on a list, and every note.
  */
 export function RateCodeBlock({
-  code, windowKey, entry, rules, peerType, listN, minFteYears, profile, state, headingLevel = 3,
+  code, windowKey, entry, rules, peerType, listN, minFteYears, profile, state, notes, headingLevel = 3,
 }: {
   code: string
   windowKey: string
@@ -116,10 +128,13 @@ export function RateCodeBlock({
   minFteYears?: number
   profile?: Pick<SchoolProfile, 'institution'> | null
   state?: string
+  // The window's shared-site notes (institution file: the rated window status)
+  notes?: SharedSiteNotes
   headingLevel?: 3 | 4
 }) {
   const t = entryText(entry, {
     code, windowKey, rules, natl: entry.natl, peerType, peerRate: entry.peerRate, listN, minFteYears, profile, state,
+    notes,
   })
   const Heading = headingLevel === 3 ? 'h3' : 'h4'
   const years = Object.keys(entry.nByYear).sort()

@@ -78,7 +78,7 @@ export default function RatePanel({
         <section className={card}>
           <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">Rates</h2>
           {intro}
-          <p className="mt-3 font-medium text-gray-900 dark:text-gray-100">{noRatesSentence(profile, rules)}</p>
+          <p className="mt-3 font-medium text-gray-900 dark:text-gray-100">{noRatesSentence(profile, rules, years.length > 0)}</p>
           {years.length > 0 && (
             <ul className="mt-2 text-sm text-gray-600 dark:text-gray-400 space-y-0.5">
               {years.map(([y, v]) => (
@@ -148,6 +148,7 @@ export default function RatePanel({
           minFteYears={stats[code]?.minFteYears}
           profile={profile}
           state={file.state}
+          notes={win}
           headingLevel={level}
         />
         {abroadNotes(code).map((n) => (

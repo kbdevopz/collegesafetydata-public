@@ -33,8 +33,9 @@ export default function SingleYearRates({
       if (y.fteUncertain === 'own') notes.push('two estimates of on-campus students differ')
       if (y.fteUncertain === 'pooled') notes.push('estimates of on-campus students differ for an institution counted with this one')
       if ((y.medical?.[code] ?? 0) > 0) notes.push(`${fmtInt(y.medical?.[code] ?? 0)} at a medical-center campus`)
-      if ((y.sharedIn?.[code] ?? 0) > 0) notes.push(`${fmtInt(y.sharedIn?.[code] ?? 0)} also reported by another institution's campus`)
-      if ((y.sharedOut?.[code] ?? 0) > 0) notes.push(`${fmtInt(y.sharedOut?.[code] ?? 0)} counted under another institution's campus`)
+      // Shared campus sites: a host's count includes them, once; a guest's leaves them out
+      if ((y.sharedIn?.[code] ?? 0) > 0) notes.push(`${fmtInt(y.sharedIn?.[code] ?? 0)} at a campus site shared with another institution, counted here once`)
+      if ((y.sharedOut?.[code] ?? 0) > 0) notes.push(`${fmtInt(y.sharedOut?.[code] ?? 0)} more at a campus site shared with another institution, not in this rate`)
       if (!r) {
         const excluded = profile?.institution?.byYear[String(year)]?.rateExcludedReason
         return { year, n: null, rate: null, lo: null, hi: null, note: notRatedYearText(y.notRated, rules, excluded) }

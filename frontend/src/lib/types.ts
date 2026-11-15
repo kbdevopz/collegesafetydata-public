@@ -71,8 +71,15 @@ export interface RateRules {
   // medical-center campuses outside their residence halls are at least this
   // share of the window's on-campus count ([1, 4]: a quarter)
   medicalShare: Ratio
-  // ... shared when shared figures are more than this share ([1, 20])
-  sharedShare: Ratio
+  // A guest or participant at a shared site is compared as usual only when
+  // a reviewed, published figure puts its students there at most this
+  // share of its student-years ([1, 10])
+  sharedSiteShare: Ratio
+  // Near-copies that join two campuses into a shared site: the campus with
+  // the smaller total has at least minNonzero nonzero cells, at least
+  // match[0] / match[1] of them equal to the other's, and a total of at
+  // least minTotal
+  sharedNear: { minNonzero: number; match: Ratio; minTotal: number }
   lists: {
     // The codes with ordered lists
     codes: string[]
@@ -118,8 +125,13 @@ export interface RateRules {
     simulations: number
     seed: number
     bands: number[]
+    // Overall, either way
     tolerance: number
-    bandTolerance: number
+    // A band of bandMinUnits or more institutions fails when its observed
+    // coverage is below expected by more than bandToleranceBelow, or above
+    // it by more than bandToleranceAbove
+    bandToleranceBelow: number
+    bandToleranceAbove: number
     bandMinUnits: number
   }
   testVectors?: {
@@ -139,12 +151,46 @@ export interface Dispersion {
 }
 
 // The rules that give an institution no rate (in any window containing the year)
-export type RateRule = 'hospital' | 'medical' | 'listed' | 'merger' | 'family'
+export type RateRule =
+  | 'hospital' | 'medical' | 'listed' | 'merger' | 'family' | 'shared_pooled' | 'shared_campus'
 
-// Why a rated institution is not on a list (rate and verdict still shown)
+// Why a rated institution is not on a list (its rate is still shown; with
+// "shared" its comparisons are withheld)
 export type RateWhy = 'online' | 'medical_campus' | 'shared'
 
-export type Verdict = 'above' | 'below' | 'nd' | 'undetermined'
+// "undetermined" only with why "online"; "withheld" only with why "shared"
+export type Verdict = 'above' | 'below' | 'nd' | 'undetermined' | 'withheld'
+
+// An institution named in a shared-site note
+export interface NamedInstitution {
+  id: number
+  name: string
+}
+
+// A guest or participant at a shared site: the years, its students there by
+// a reviewed published figure (summed over those years; null when a year
+// has none), whether that figure is an upper bound, and whether it is small
+// enough (students x sharedSiteShare[1] <= fteYears x sharedSiteShare[0])
+// for the institution to be compared as usual
+export interface SharedSite {
+  years: number[]
+  students: number | null
+  upperBound: boolean
+  exempt: boolean
+}
+
+// The shared-site notes of an institution and window (window-file entries;
+// the rated window status of an institution file)
+export interface SharedSiteNotes {
+  // The guests at the sites it owns
+  sharedInWith?: NamedInstitution[]
+  // The owners or other participants of the sites it is a guest or participant of
+  sharedOutWith?: NamedInstitution[]
+  sharedSite?: SharedSite
+  // Institutions whose students its rate adds, because their campuses at a
+  // shared site copy its own
+  coLocated?: NamedInstitution[]
+}
 
 export interface WindowCodeStats {
   natl: number
@@ -347,6 +393,8 @@ export interface RateEntryFields {
   peerVerdictLargerFte?: Verdict
   peerVerdictSmallerFte?: Verdict
   medical?: number
+  // A host's on-campus incidents at the shared sites it owns (in n); a
+  // guest's or participant's at its campuses at shared sites (not in n)
   sharedIn?: number
   sharedOut?: number
   // On-campus unusual-year flags of the code's offenses in the window
@@ -366,7 +414,7 @@ export interface RateEntryFields {
   composition?: Record<string, number>
 }
 
-export interface RateWindowEntry extends RateEntryFields {
+export interface RateWindowEntry extends RateEntryFields, SharedSiteNotes {
   id: number
   unitid: number
   name: string
@@ -415,12 +463,13 @@ export interface InstitutionWindowCode extends RateEntryFields {
 }
 
 export type InstitutionWindow =
-  | {
+  | ({
       status: 'rated'
+      why?: 'online' | 'shared'
       fteByYear: Record<string, number>
       fteSmallerByYear?: Record<string, number>
       codes: Record<string, InstitutionWindowCode>
-    }
+    } & SharedSiteNotes)
   | { status: 'missingYears'; years: number[] }
   | { status: 'scope' }
   | { status: 'size'; fteByYear: Record<string, number | null> }

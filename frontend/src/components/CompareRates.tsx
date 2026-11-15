@@ -136,6 +136,7 @@ export default function CompareRates({
                   minFteYears={stats?.minFteYears}
                   profile={p}
                   state={file.state}
+                  notes={w}
                 />
               ) : (
                 <p className="text-sm text-gray-600 dark:text-gray-400">No figure for this code.</p>

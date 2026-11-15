@@ -4,10 +4,12 @@ import { AlertCircle, Check, GitCompare, Info, Loader2, Plus } from 'lucide-reac
 import { fetchPresets, fetchRateWindow } from '../lib/api'
 import type { Metadata, RateRules, RateWindowEntry, RateWindowFile, Verdict } from '../lib/types'
 import {
-  entryPosition, fmtInt, fmtRate, isListCode, levelPct, listMinStudents, nationalCompositionSentence,
-  nationalSentence, offenseCount, ordinal, peerLabel, rateCodeLabel, rateCodePhrase, windowLabel,
+  entryPosition, fmtInt, fmtRate, isListCode, isWithheld, levelPct, listMinStudents, nationalCompositionSentence,
+  nationalSentence, offenseCount, ordinal, peerLabel, rateCodeLabel, rateCodePhrase, sharedShortNotes, windowLabel,
 } from '../lib/rates'
-import { RATE_IS_NOT, RATE_MEASURE, stateDisplayMin, VERDICT_ORDER, VERDICT_SHORT } from '../lib/rateDisplay'
+import {
+  PLACES_WITHOUT_PRESET, RATE_IS_NOT, RATE_MEASURE, stateDisplayMin, VERDICT_ORDER, VERDICT_SHORT,
+} from '../lib/rateDisplay'
 import { cn } from '../lib/utils'
 import { VerdictLabel } from './RateCard'
 
@@ -71,7 +73,8 @@ export default function RateRankingsView({
     }
   }, [preset, isGroup])
 
-  const presetName = metadata.presets.find((p) => p.id === preset)?.name ?? preset
+  const presetKnown = metadata.presets.some((p) => p.id === preset)
+  const presetName = metadata.presets.find((p) => p.id === preset)?.name ?? PLACES_WITHOUT_PRESET[preset] ?? preset
   const listCode = isListCode(code, rules)
 
   const scoped = useMemo(() => {
@@ -95,6 +98,25 @@ export default function RateRankingsView({
     for (const e of scoped) t[e.verdict] = (t[e.verdict] ?? 0) + 1
     return t
   }, [scoped])
+
+  // A place outside the rates' states and territories, or no known selection
+  if (preset !== 'national' && !presetKnown) {
+    return (
+      <section className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 text-sm text-blue-900 dark:text-blue-100 space-y-2">
+        <p className="flex items-start gap-2">
+          <Info className="w-4 h-4 flex-shrink-0 mt-0.5" aria-hidden="true" />
+          <span>
+            {PLACES_WITHOUT_PRESET[preset]
+              ? <><strong>{presetName}:</strong> institutions there are not rated.</>
+              : <><strong>{preset}</strong> is not a state, territory or group on this site, so no institution is shown.</>}{' '}
+            Rates cover institutions in the 50 states, the District of Columbia, Puerto Rico and the U.S. Virgin
+            Islands.{' '}
+            <Link to={`/?view=rate&window=${windowKey}&offense=${code}`} className="underline">See the national rates</Link>
+          </span>
+        </p>
+      </section>
+    )
+  }
 
   if (error) {
     return (
@@ -138,8 +160,9 @@ export default function RateRankingsView({
               <strong>Who is on the list:</strong> the {fmtInt(listN)} rated institutions expected, at the national
               rate, to have at least {file.list.minExpected} on-campus {rateCodePhrase(code)} over the three years, which
               takes about {fmtInt(minStudents ?? 0)} or more on-campus students. Institutions whose on-campus student
-              count is uncertain, or whose count includes many incidents at a medical-center campus or figures shared
-              with another institution, are not on it. The list is ordered by rate, highest first.
+              count is uncertain, whose count includes many incidents at a medical-center campus, or that are not
+              compared because they share a campus site with another institution, are not on it. The list is ordered by
+              rate, highest first.
             </p>
             <p>
               Each position comes with a range: with {level}% confidence the institution's position among these{' '}
@@ -173,7 +196,7 @@ export default function RateRankingsView({
       <div role="group" aria-label="Filter by comparison with the national rate" className="flex flex-wrap items-center gap-2">
         <span className="text-sm text-gray-600 dark:text-gray-400">Compared with the national rate:</span>
         <FilterChip pressed={verdict === null} onClick={() => onVerdict(null)}>All ({fmtInt(scoped.length)})</FilterChip>
-        {VERDICT_ORDER.filter((v) => (tally[v] ?? 0) > 0 || v !== 'undetermined').map((v) => (
+        {VERDICT_ORDER.filter((v) => (tally[v] ?? 0) > 0 || (v !== 'undetermined' && v !== 'withheld')).map((v) => (
           <FilterChip key={v} pressed={verdict === v} onClick={() => onVerdict(verdict === v ? null : v)}>
             {VERDICT_SHORT[v].charAt(0).toUpperCase() + VERDICT_SHORT[v].slice(1)} ({fmtInt(tally[v] ?? 0)})
           </FilterChip>
@@ -245,8 +268,9 @@ export default function RateRankingsView({
           <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
             Listed by name. A rate needs an institution in the 50 states, DC, Puerto Rico or the U.S. Virgin Islands
             that is in DOE's data all three years, has at least {fmtInt(rules.minFte)} on-campus students in each of
-            them and has no population rule (for example a hospital). Institutions without a rate are not in this
-            table; each one's page says why.
+            them, and is under none of the rules that give no rate (for example a hospital, or a main campus whose
+            incidents cannot be assigned to one of the institutions sharing it). Institutions without a rate are not
+            in this table; each one's page says why.
           </p>
         </div>
         {shownAll.length === 0 ? (
@@ -308,7 +332,6 @@ function FilterChip({ pressed, onClick, children }: { pressed: boolean; onClick:
 function notListedShort(e: RateWindowEntry, rules: RateRules, listN: number): string {
   if (e.why === 'online') return 'Not on the list: uncertain on-campus student count'
   if (e.why === 'medical_campus') return `Not on the list: ${fmtInt(e.medical ?? 0)} of ${fmtInt(e.n)} at a medical-center campus`
-  if (e.why === 'shared') return `Not on the list: ${fmtInt((e.sharedIn ?? 0) + (e.sharedOut ?? 0))} incidents shared with another institution's campus`
   return `Not on the list of ${fmtInt(listN)}: fewer than ${rules.lists?.minExpected ?? 20} incidents expected at the national rate`
 }
 
@@ -331,16 +354,20 @@ function EntryRow({
   const head = position === 'state' ? state : position === 'national' ? national : null
   const notes: string[] = []
   if (position === 'state' && national) notes.push(`National list: ${national}`)
-  if (position === 'status' && listCode) notes.push(e.listed && national ? `On the list: ${national}` : notListedShort(e, rules, listN))
+  // Shared campus sites: why it is not compared (first, when it is not), host and co-located notes
+  const site = sharedShortNotes(e, e, rules)
+  if (position === 'status' && listCode) {
+    if (e.listed && national) notes.push(`On the list: ${national}`)
+    else if (isWithheld(e)) notes.push(`Not on the list. ${site.shift() ?? ''}`)
+    else notes.push(notListedShort(e, rules, listN))
+  }
   if (e.verdict === 'undetermined' && e.verdictLargerFte && e.verdictSmallerFte) {
     notes.push(`Not determined: ${VERDICT_SHORT[e.verdictLargerFte]} with the larger estimate of on-campus students, ${VERDICT_SHORT[e.verdictSmallerFte]} with the smaller`)
   } else if (e.why === 'online') {
     notes.push('Two estimates of on-campus students; the comparison is the same with either')
   }
   if ((e.medical ?? 0) > 0 && !(position === 'status' && e.why === 'medical_campus')) notes.push(`${fmtInt(e.medical ?? 0)} of the ${fmtInt(e.n)} at a medical-center campus`)
-  if ((e.sharedIn ?? 0) + (e.sharedOut ?? 0) > 0 && !(position === 'status' && e.why === 'shared')) {
-    notes.push(`${fmtInt((e.sharedIn ?? 0) + (e.sharedOut ?? 0))} incidents shared with another institution's campus, so the count is not exact`)
-  }
+  notes.push(...site)
   const more = e.nNoncampus + e.nPublic
   if (more > 0) notes.push(`${fmtInt(more)} more at non-campus locations or on public property (not in the rate)`)
   if (e.composition && code === 'violent') {
@@ -379,7 +406,7 @@ function EntryRow({
           </div>
           <div className="flex flex-wrap items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
             <VerdictLabel verdict={e.verdict} />
-            {e.peerVerdict !== null && (
+            {e.peerVerdict !== null && e.peerVerdict !== 'withheld' && (
               <span>Against {peerLabel(e.peerType, rules).toLowerCase()} institutions: {VERDICT_SHORT[e.peerVerdict]}</span>
             )}
           </div>
