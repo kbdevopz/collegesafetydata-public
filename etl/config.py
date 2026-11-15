@@ -395,8 +395,14 @@ ONLINE_SHARE_YEAR = {2020: 2019, 2021: 2019}
 # every year of the window, its denominator is at least MIN_FTE_FOR_RATE in
 # every year, and its link campus is in US_STATES (the national scope;
 # other territories have counts only). Of those, in this order:
-#   excluded        a rule (hospital, medical, listed, merger, family) in any
-#                   year: no rate
+#   excluded        a rule (hospital, medical, listed, merger, family,
+#                   shared_pooled, shared_campus) in any year: no rate
+#   shared          a guest or shared-center party at a shared site (see
+#                   SHARED_SITE_MAX_SHARE) in any year of the window, unless
+#                   etl/reference/shared_site_enrollment.csv proves its
+#                   students there are at most SHARED_SITE_MAX_SHARE of its
+#                   FTE-years: a rate, verdicts withheld, never listed (every
+#                   code alike)
 #   online          an uncertain on-campus FTE in any year: a rate, compared
 #                   with the national rate only when the larger and the
 #                   smaller estimates give the same verdict; never listed
@@ -404,8 +410,6 @@ ONLINE_SHARE_YEAR = {2020: 2019, 2021: 2019}
 #                   residence halls taken out: patients, visitors and staff
 #                   are not students) are MEDICAL_CAMPUS_SHARE or more of the
 #                   window's count: a rate and a verdict, never listed
-#   shared          (sharedIn + sharedOut) / (count + sharedOut) above
-#                   SHARED_MAX_SHARE, on-campus window sums: as medical_campus
 # and the rest are rated with no reason. The national rate of a window and
 # code is the sum of the counts over the sum of the FTE-years of the rated
 # institutions without a reason and those with medical_campus or shared.
@@ -544,17 +548,61 @@ MEDICAL_SCREEN_PATTERN = (r"MEDIC|HOSPITAL|HEALTH SCI|HEALTH CENT|MED CENT|MED\.
 MEDICAL_SCREEN_SHARE = (1, 10)
 MEDICAL_SCREEN_MIN_COUNT = 5
 
-# Figures DOE published identically for campuses of two institutions (a
-# shared campus) count once, under the host, while the students are in each
-# institution's own FTE: above SHARED_MAX_SHARE of the window's count (with
-# the shared figures added for the institution whose copy is the shadow) the
-# rate is shown with a note and not listed. A campus whose figures are another
-# institution's campus figures without being identical copies is listed in
-# etl/reference/shared_campus_overrides.csv (reviewed one by one): its
-# figures stay in its institution's counts, are in none of its rates, and
-# count as shared figures (the institution's shared out, the host's shared
-# in) in the same test.
-SHARED_MAX_SHARE = (1, 20)
+# Shared sites. DOE files have no campus-level enrollment, so when campuses
+# of different institutions report the same on-campus figures, the figures
+# cannot be divided among the institutions' students. A shared site is, per
+# year, a group of campuses of two or more institutions joined by any of:
+# an identical copy (SHARED_MIN_NONZERO above; shadow blocks of 04, other
+# than two IDs of one campus), a near-copy (SHARED_NEAR_*: two campuses of
+# different institutions in one state, or in two states when every cell is
+# equal; the campus with the smaller on-campus total over the OFFENSE_ORDER
+# cells has at least SHARED_NEAR_MIN_NONZERO nonzero cells, at least
+# SHARED_NEAR_MATCH of them equal to the other's, and a total of at least
+# SHARED_NEAR_MIN_TOTAL), or the reviewed list
+# etl/reference/shared_campus_overrides.csv. Counts never change (an
+# identical copy counts once, under the host campus, as before; a near-copy
+# or listed campus keeps its figures); only the rates follow these rules.
+# The parties of a site are the institutions DOE lists that year (a
+# counting campus); an institution whose campuses all copy one host
+# institution's counts no campus and is pooled with it as before:
+#   one main campus   exactly one party's main campus (UNITID ending in 001)
+#                     is at the site: that institution keeps the figures and
+#                     is compared and listed normally (sharedIn, with the
+#                     other institutions named); every other party's campuses
+#                     at the site are in none of its rates (sharedOut) and it
+#                     is a guest
+#   several main      the owner is the party with the largest on-campus FTE.
+#   campuses          When every other institution there counts no campus
+#                     outside the site that year, or their on-campus FTE
+#                     together is at most SHARED_SITE_MAX_SHARE of the
+#                     owner's, the owner's rate counts the site once and adds
+#                     their on-campus FTE (pooled, rule shared; coLocated
+#                     names them) and the other parties have no rate that
+#                     year (rule shared_pooled); otherwise no party has a
+#                     rate that year (rule shared_campus): the incidents
+#                     cannot be assigned to one institution's students, and a
+#                     rate would overstate one of them
+#   no main campus    a shared center: every party's figures there are in
+#                     none of its rates (sharedOut); each is a participant
+#   one party         the others are pooled with it as before
+# A guest or participant in any year of a window has its rate published with
+# verdicts withheld and is not listed (why "shared"), for every code: the
+# reason is its students at the site, not the offense. The exception is an
+# institution whose students at those sites, by the reviewed
+# etl/reference/shared_site_enrollment.csv (published counts, or published
+# upper bounds such as the enrollment of every location of a program
+# together, for that year's fall term or an academic year that includes
+# it; never estimates, lower bounds or another year's figure), are at most
+# SHARED_SITE_MAX_SHARE of its FTE-years in the window (every site-year must
+# have a figure).
+# SHARED_SITE_MAX_SHARE bounds the denominator error from students who
+# cannot be located: 1 in 10 is well inside the 25% disagreement the
+# on-campus FTE rule already accepts (ONLINE_UNCERTAIN_RATIO) and small
+# against the published intervals.
+SHARED_SITE_MAX_SHARE = (1, 10)
+SHARED_NEAR_MIN_NONZERO = 6
+SHARED_NEAR_MATCH = (4, 5)
+SHARED_NEAR_MIN_TOTAL = 20
 
 # Unusual years. A cell is an institution's count of one offense
 # (FLAG_OFFENSES) at one geography (FLAG_GEOS); a cell-year is flagged when

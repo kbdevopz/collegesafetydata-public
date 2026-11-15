@@ -34,7 +34,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 from config import (CURATED_DIR, IVY_LEAGUE, GEO_FOR_ALL, US_STATES, PROCESS_ALL_SCHOOLS, OFFENSE_ORDER,
                     SHARED_MIN_NONZERO, MIN_FTE_FOR_RATE, ONLINE_SHARE_YEAR, HOSPITAL_CODE, MEDICAL_CARNEGIE,
-                    MEDICAL_CARNEGIE_LABELS, ONLINE_UNCERTAIN_RATIO, SIZE_SETTING_FIELDS, peer_type)
+                    MEDICAL_CARNEGIE_LABELS, ONLINE_UNCERTAIN_RATIO, SIZE_SETTING_FIELDS, SHARED_SITE_MAX_SHARE,
+                    SHARED_NEAR_MIN_NONZERO, SHARED_NEAR_MATCH, SHARED_NEAR_MIN_TOTAL, peer_type)
 import provenance
 
 # The one fact table that 02_transform_to_parquet.py writes
@@ -56,6 +57,11 @@ ABROAD_PATH = CURATED_DIR / "dims" / "dim_campus_abroad.parquet"
 # Campuses whose reported figures are another institution's campus figures
 # (03's reviewed list, etl/reference/shared_campus_overrides.csv)
 OVERRIDE_PATH = CURATED_DIR / "dims" / "dim_shared_campus_override.parquet"
+# Reviewed student figures of shared sites (03's list, etl/reference/shared_site_enrollment.csv)
+SITE_ENROLLMENT_PATH = CURATED_DIR / "dims" / "dim_shared_site_enrollment.parquet"
+# The shared sites of the rates and the near-copies among them (classify_shared_sites, find_near_copies)
+SITES_PATH = CURATED_DIR / "aggs" / "shared_sites.parquet"
+NEAR_PATH = CURATED_DIR / "aggs" / "near_copies.parquet"
 
 # Shared (copied) statistics. Some DOE rows repeat another campus's numbers:
 # a medical school's sites report their university's main campus figures, a
@@ -441,9 +447,10 @@ def shared_rate_rules(shared: pd.DataFrame, counting: set[tuple[int, int]], fte_
       - it counts no campus and has no IPEDS FTE: nothing to add, the host
         keeps its rate;
       - otherwise (it counts campuses of its own, or its figures count under
-        two or more host institutions): its blocks are listed, and 05 ranks
-        each institution's rate of a code only when the shared figures are
-        at most SHARED_MAX_SHARE of its count (config.py).
+        two or more host institutions): its blocks are listed, for the
+        shared figures of all geographies (shared_in, shared_out).
+    The rates of institutions that share an on-campus site follow
+    classify_shared_sites, which can take a pooled institution back out.
     """
     linked = {frozenset(p) for p in load_id_links()}
     listed = {(u // 1000, y) for u, y in counting}
@@ -466,6 +473,214 @@ def shared_rate_rules(shared: pd.DataFrame, counting: set[tuple[int, int]], fte_
             continue
         partial += [(*block, (a, y) in listed) for block in sorted(blocks[(y, a)])]
     return pooled, partial
+
+
+def find_near_copies(cells_on: dict, state_of: dict, linked: set) -> list[tuple]:
+    """
+    Near-copies (config.py, SHARED_NEAR_*): per year, two counting campuses
+    in the United States of different institutions (not two IDs of one
+    campus) whose on-campus cells (OFFENSE_ORDER, shadow blocks left out)
+    nearly agree. The campus with the smaller total (ties: the lower UNITID)
+    has at least SHARED_NEAR_MIN_NONZERO nonzero cells and a total of at
+    least SHARED_NEAR_MIN_TOTAL, and at least SHARED_NEAR_MATCH of its
+    nonzero cells equal the other's; the two campuses are in one state, or
+    every cell is equal. cells_on: {(year, unitid): {offense: count above
+    0}}. Returns [(year, smaller campus, other campus, cells equal, nonzero
+    cells, smaller total, other total)].
+    """
+    num, den = SHARED_NEAR_MATCH
+    holders = defaultdict(set)  # (year, offense, count) -> campuses with that cell
+    for (y, u), d in cells_on.items():
+        for o, c in d.items():
+            holders[(y, o, c)].add(u)
+    found = set()
+    for (y, a), d in cells_on.items():
+        k, ta = len(d), sum(d.values())
+        if k < SHARED_NEAR_MIN_NONZERO or ta < SHARED_NEAR_MIN_TOTAL:
+            continue
+        need = -(-k * num // den)
+        # A campus with `need` of a's cells equal has one of any k - need + 1 of them
+        probe = sorted(d.items(), key=lambda oc: (len(holders[(y, oc[0], oc[1])]), oc[0]))[:k - need + 1]
+        for b in set().union(*(holders[(y, o, c)] for o, c in probe)):
+            if b // 1000 == a // 1000 or frozenset((a, b)) in linked:
+                continue
+            e = cells_on[(y, b)]
+            tb = sum(e.values())
+            if (ta, a) > (tb, b):
+                continue
+            equal = sum(1 for o, c in d.items() if e.get(o) == c)
+            if equal * den < k * num:
+                continue
+            same_state = state_of.get(a) is not None and state_of.get(a) == state_of.get(b)
+            if not same_state and d != e:
+                continue
+            found.add((y, a, b, equal, k, ta, tb))
+    return sorted(found)
+
+
+def classify_shared_sites(edges: dict, counting: set, listed: set, oncampus_of: dict, pooled_today: dict,
+                          on_cells: dict, on_shadow_host: dict, base_name: dict) -> dict:
+    """
+    The shared sites of the rates (config.py, "Shared sites"). edges: {year:
+    {(campus, campus, kind)}}, kind exact, near or override; counting:
+    {(unitid, year)} of the counting campus-years; listed: {(year, base)} of
+    the institution-years (a counting campus); oncampus_of: {(base, year):
+    on-campus FTE}; pooled_today: shared_rate_rules's {(year, host base):
+    {bases}}; on_cells: {(year, unitid): {offense: count above 0}} of the
+    counted on-campus figures; on_shadow_host: {(year, unitid): host campus}
+    of the on-campus shadow blocks; base_name: {base: name}.
+
+    Per year, a site is a connected group of campuses of two or more
+    institutions. Its parties are the institutions listed that year (one
+    with no counting campus is pooled with its host by shared_rate_rules, or
+    has no rate at all). When two or more parties have their main campus
+    (UNITID ending in 001) at the site, the owner is the party with the
+    largest on-campus FTE (ties: the lower base): when every other
+    institution there counts no campus outside the site that year, or their
+    on-campus FTE together is at most SHARED_SITE_MAX_SHARE of the owner's,
+    the owner's rate adds their on-campus FTE (those with one) and the other
+    parties are left out by rule shared_pooled; otherwise every party is
+    left out by rule shared_campus. With one party, the site is pooled as
+    before. With one party's main campus, that party owns the site (its
+    counted on-campus figures there are its shared in) and the other parties
+    are guests; with none, every party is a participant of a shared center.
+    A guest's or participant's campuses at the site, and a shared_pooled
+    party's, are in none of its rates: their counted figures leave the rate
+    geographies (rate_out), and a guest's or participant's on-campus figures
+    there (its counted ones, or the host's of a shadow block) are its shared
+    out.
+
+    Returns {"rows": [shared_sites rows], "rate_out": {(unitid, year)},
+    "excluded": {(year, base): (rule, text)}, "pool_add": {(year, owner):
+    {bases}}, "pool_remove": {(year, base)} (taken out of pooled_today),
+    "out_sites", "out_with", "in_with", "co_located": {(year, base): set},
+    "in_on", "out_on": {(year, base, offense): count}, "warnings": [text]}.
+    co_located: the owner of a pooled site with several main campuses gets
+    every other institution there; an institution that shared_rate_rules
+    pools at a site of another class is co-located with its host.
+    """
+    num, den = SHARED_SITE_MAX_SHARE
+    out = {"rows": [], "rate_out": set(), "excluded": {}, "pool_add": defaultdict(set), "pool_remove": set(),
+           "out_sites": defaultdict(set), "out_with": defaultdict(set), "in_with": defaultdict(set),
+           "co_located": defaultdict(set), "in_on": defaultdict(int), "out_on": defaultdict(int), "warnings": []}
+    counting_of = defaultdict(set)
+    for u, y in counting:
+        counting_of[(y, u // 1000)].add(u)
+    pooled_into = {(y, s): h for (y, h), ss in pooled_today.items() for s in ss}
+
+    def names(bases):
+        n = [base_name.get(b, str(b)) for b in sorted(bases, key=lambda b: (base_name.get(b, str(b)), b))]
+        return n[0] if len(n) == 1 else ", ".join(n[:-1]) + " and " + n[-1]
+
+    def site_figures(y, u):
+        """A campus's on-campus figures at the site: its counted ones, or its shadow block's host's."""
+        if (y, u) in on_shadow_host:
+            return on_cells.get((y, on_shadow_host[(y, u)]), {})
+        return on_cells.get((y, u), {})
+
+    def leave_rates(y, b, campuses, shared_out):
+        for u in campuses:
+            if (u, y) in counting:
+                out["rate_out"].add((u, y))
+            if shared_out:
+                for o, c in site_figures(y, u).items():
+                    out["out_on"][(y, b, o)] += c
+
+    for y in sorted(edges):
+        adj = defaultdict(set)
+        kinds = defaultdict(set)
+        for a, b, k in edges[y]:
+            adj[a].add(b)
+            adj[b].add(a)
+            kinds[a].add(k)
+            kinds[b].add(k)
+        seen = set()
+        for start in sorted(adj):
+            if start in seen:
+                continue
+            comp, stack = set(), [start]
+            while stack:
+                x = stack.pop()
+                if x not in comp:
+                    comp.add(x)
+                    stack.extend(adj[x] - comp)
+            seen |= comp
+            bases = sorted({u // 1000 for u in comp})
+            if len(bases) < 2:
+                continue
+            at = {b: sorted(u for u in comp if u // 1000 == b) for b in bases}
+            parties = [b for b in bases if (y, b) in listed]
+            role = {b: ("pooled" if pooled_into.get((y, b)) in bases else "no_campus")
+                    for b in bases if b not in parties}
+            mains = [b for b in parties if b * 1000 + 1 in comp]
+            owner = None
+            if len(mains) >= 2:
+                owner = max(parties, key=lambda b: (oncampus_of.get((b, y), -1), -b))
+                others = [b for b in bases if b != owner]
+                whole = all(not (counting_of[(y, b)] - comp) for b in others)
+                own_fte = oncampus_of.get((owner, y))
+                theirs = sum(oncampus_of.get((b, y), 0) for b in others)
+                out["pool_remove"] |= {(y, b) for b in bases}
+                if not any(u for u in at[owner] if (y, u) in on_cells):
+                    out["warnings"].append(f"{y}: owner {owner} of site {sorted(comp)} has no counted on-campus "
+                                           "figures there")
+                if whole or (own_fte is not None and theirs * den <= own_fte * num):
+                    cls = "several_main_pooled"
+                    role = {owner: "owner"} | {b: "pooled" for b in others}
+                    out["pool_add"][(y, owner)] |= {b for b in others if (b, y) in oncampus_of}
+                    out["co_located"][(y, owner)] |= set(others)
+                    for b in others:
+                        if b in parties:
+                            out["excluded"][(y, b)] = ("shared_pooled", (
+                                f"Its main campus is shared with {names([owner])}, whose rate includes this "
+                                "institution's students and the campus's incidents. No separate rate is shown "
+                                "for that year."))
+                        leave_rates(y, b, at[b], False)
+                else:
+                    cls = "several_main_unassigned"
+                    role |= {b: "unassigned" for b in parties}
+                    for b in parties:
+                        out["excluded"][(y, b)] = ("shared_campus", (
+                            f"Its main campus is shared with {names([x for x in bases if x != b])}; the reported "
+                            "incidents cannot be assigned to one institution's students. No rate is shown for "
+                            "that year."))
+            elif len(parties) <= 1:
+                cls = "pooled"
+                owner = parties[0] if parties else None
+                if owner is not None:
+                    role[owner] = "owner"
+            else:
+                if mains:
+                    cls = "one_main"
+                    owner = mains[0]
+                    role[owner] = "owner"
+                    counted = [u for u in at[owner] if (y, u) in on_cells]
+                    if not counted:
+                        out["warnings"].append(f"{y}: owner {owner} of site {sorted(comp)} has no counted "
+                                               "on-campus figures there")
+                    for u in counted:
+                        for o, c in on_cells[(y, u)].items():
+                            out["in_on"][(y, owner, o)] += c
+                    out["in_with"][(y, owner)] |= set(parties) - {owner}
+                    sharers = [b for b in parties if b != owner]
+                else:
+                    cls = "no_main"
+                    sharers = list(parties)
+                for b in sharers:
+                    role[b] = "guest" if owner is not None else "participant"
+                    out["out_sites"][(y, b)] |= set(at[b])
+                    out["out_with"][(y, b)] |= ({owner} if owner is not None else set(parties) - {b})
+                    leave_rates(y, b, at[b], True)
+            if cls in ("pooled", "one_main", "no_main"):
+                for b, r in role.items():
+                    if r == "pooled":
+                        out["co_located"][(y, pooled_into[(y, b)])].add(b)
+            site = min(comp)
+            for u in sorted(comp):
+                b = u // 1000
+                out["rows"].append({"year": y, "site": site, "unitid": u, "base_unitid": b, "site_class": cls,
+                                    "owner_base": owner, "role": role.get(b), "links": " ".join(sorted(kinds[u]))})
+    return out
 
 
 def oncampus_estimates(fte: int, pct: int | None, heads: tuple, level: tuple | None
@@ -1393,30 +1608,52 @@ def create_institution_tables(ranked_agg: pd.DataFrame, shared: pd.DataFrame, di
         institution), rate_rule and rate_excluded (the first rule that gives
         it no rate: hospital, medical, listed
         (population_class_rules), merger (merger_rate_rules), family
-        (split_family_exclusions), and why; none when no rule does),
+        (split_family_exclusions), shared_pooled, shared_campus
+        (classify_shared_sites), and why; none when no rule does),
         pooled_with ("base:on-campus FTE" of each institution whose FTE its
         rate adds, space separated, or none), pooled_rule (the rules that
-        add them, merger and/or shared, space separated, or none) and
-        rate_fte (the rate's denominator: oncampus_fte plus those)
+        add them, merger and/or shared, space separated, or none),
+        rate_fte (the rate's denominator: oncampus_fte plus those),
+        co_located_with (the institutions whose students its rate adds, or
+        would add with an FTE, because their campuses at a shared site copy
+        its own: bases, space separated, or none), shared_in_with (the
+        guests at the shared sites it owns), shared_out_sites (its campuses
+        at shared sites it is a guest or participant of: UNITIDs) and
+        shared_out_with (the owners, or the other participants, of those
+        sites), shared_site_students (the reviewed student figure of those
+        campuses that year, dim_shared_site_enrollment; none when one has no
+        figure or there is no such campus) and shared_site_upper (whether
+        one of those figures is an upper bound)
       agg_institution_year_offense.parquet: year, base_unitid, offense,
         offense_family, count (its counting campuses in the United States,
         all geographies), count_on, count_res, count_non and count_pub (the
         same at each geography for the rates: on campus, of which in
         residence halls, non-campus, public property; without the campuses
-        of dim_shared_campus_override that year), override_count (the count
-        of those campuses: in count, in no rate; count = count_on +
-        count_non + count_pub + override_count), medical_on (of count_on,
-        at campuses of dim_medical_campus that year, residence halls taken
-        out: each such campus's on-campus count less its residence-hall
-        count, at least 0), shared_in (of the count, figures that a campus
-        of another institution also reported: shared_rate_rules, and the
-        host campus's figures of a dim_shared_campus_override campus),
-        shared_out (figures of its campuses that count under another
-        institution's campus, not in the count; and the figures of its
-        dim_shared_campus_override campuses, in the count but in no rate),
-        shared_in_on and shared_out_on (the same, on campus only),
-        abroad_count (its counting campuses abroad, not in the count); rows
-        with any of them above 0
+        of dim_shared_campus_override that year and the campuses that
+        classify_shared_sites takes out of its rates), shared_site_count
+        (the count of those campuses: in count, in no rate; count = count_on
+        + count_non + count_pub + shared_site_count), medical_on (of
+        count_on, at campuses of dim_medical_campus that year, residence
+        halls taken out: each such campus's on-campus count less its
+        residence-hall count, at least 0), shared_in (of the count, figures
+        that a campus of another institution also reported:
+        shared_rate_rules, and the host campus's figures of a
+        dim_shared_campus_override campus), shared_out (figures of its
+        campuses that count under another institution's campus, not in the
+        count; and the figures of its dim_shared_campus_override campuses,
+        in the count but in no rate), shared_in_on (of count_on, its
+        figures at the shared sites it owns, classify_shared_sites),
+        shared_out_on (its on-campus figures at the shared sites it is a
+        guest or participant of, in none of its rates), abroad_count (its
+        counting campuses abroad, not in the count); rows with any of them
+        above 0
+
+      shared_sites.parquet: year, site (its lowest UNITID), unitid,
+        base_unitid, site_class (one_main, no_main, several_main_pooled,
+        several_main_unassigned, pooled), owner_base, role (owner, guest,
+        participant, pooled, unassigned, no_campus) and links (exact, near,
+        override: how the campus is joined to the site)
+      near_copies.parquet: find_near_copies's pairs
     """
     print("\nCreating institution tables (rates are per institution)...")
     counted = ranked_agg[ranked_agg["geo"] == "All"]
@@ -1559,11 +1796,53 @@ def create_institution_tables(ranked_agg: pd.DataFrame, shared: pd.DataFrame, di
     merger_out, merger_pool = merger_rate_rules(sources, counting, fte_of, active)
     family_out = split_family_exclusions(inst_year, sources, counting, active)
     shared_pool, shared_partial = shared_rate_rules(shared, counting, fte_of)
+
+    # Shared sites (classify_shared_sites): campuses of two or more
+    # institutions joined by identical on-campus figures (shadow blocks, not
+    # two IDs of one campus), near-copies (find_near_copies) or the reviewed
+    # list (dim_shared_campus_override)
+    linked = {frozenset(p) for p in load_id_links()}
+    on_rows = ranked_agg[(ranked_agg["geo"] == "On-campus") & ranked_agg["offense"].isin(OFFENSE_ORDER)]
+    on_cells = defaultdict(dict)
+    for y, u, o, c in zip(on_rows["year"].tolist(), on_rows["unitid"].tolist(), on_rows["offense"].tolist(),
+                          on_rows["count"].tolist()):
+        if c and (int(u), int(y)) in counting and int(u) not in abroad:
+            on_cells[(int(y), int(u))][str(o)] = int(c)
+    on_shadows = shared[(shared["role"] == "shadow") & (shared["geo"] == "On-campus")]
+    on_shadow_host = {(int(y), int(u)): int(h) for y, u, h in zip(
+        on_shadows["year"].tolist(), on_shadows["unitid"].tolist(), on_shadows["host_unitid"].tolist())}
+    edges = defaultdict(set)
+    for (y, u), h in on_shadow_host.items():
+        if u // 1000 != h // 1000 and frozenset((u, h)) not in linked:
+            edges[y].add((u, h, "exact"))
+    near = find_near_copies(on_cells, state_of, linked)
+    for y, a, b, *_rest in near:
+        edges[y].add((a, b, "near"))
+    overrides = pd.read_parquet(OVERRIDE_PATH)
+    host_of = {(int(u), int(y)): int(h) for u, y, h in zip(overrides["unitid"], overrides["year"],
+                                                          overrides["host_unitid"])}
+    for (u, y), h in host_of.items():
+        if (u, y) in counting or (y, u) in on_shadow_host:
+            edges[y].add((u, h, "override"))
+    base_name = {}
+    for u, name in sorted(zip(dim_inst["unitid"].astype(int).tolist(), dim_inst["institution_name"].tolist())):
+        if u % 1000 == 1 or u // 1000 not in base_name:
+            base_name[u // 1000] = name
+    sites = classify_shared_sites(edges, counting, key_set, oncampus_of, shared_pool, on_cells, on_shadow_host,
+                                  base_name)
+    for w in sites["warnings"]:
+        print(f"  Warning: {w}")
+    shared_pool = {k: {s for s in v if (k[0], s) not in sites["pool_remove"]} for k, v in shared_pool.items()}
+    for k, v in sites["pool_add"].items():
+        shared_pool[k] = shared_pool.get(k, set()) | v
+    shared_pool = {k: v for k, v in shared_pool.items() if v}
     excluded, rule_of = {}, {}
     for rule, found in (("hospital", {k: t for k, (r, t) in classes.items() if r == "hospital"}),
                         ("medical", {k: t for k, (r, t) in classes.items() if r == "medical"}),
                         ("listed", {k: t for k, (r, t) in classes.items() if r == "listed"}),
-                        ("merger", merger_out), ("family", family_out)):
+                        ("merger", merger_out), ("family", family_out),
+                        ("shared_pooled", {k: t for k, (r, t) in sites["excluded"].items() if r == "shared_pooled"}),
+                        ("shared_campus", {k: t for k, (r, t) in sites["excluded"].items() if r == "shared_campus"})):
         for key, text in found.items():
             if key in key_set and key not in excluded:
                 excluded[key], rule_of[key] = text, rule
@@ -1596,6 +1875,30 @@ def create_institution_tables(ranked_agg: pd.DataFrame, shared: pd.DataFrame, di
         else sum(smaller_of[(s, y)] for s in (b, *pooled.get((y, b), ()))) for y, b in keys]
     peer_of = peer_types(pd.read_parquet(CLASS_PATH))
     inst_year["peer_type"] = [peer_of.get(b, "other") for _y, b in keys]
+
+    # Shared sites: who else is there, and the reviewed student figures of
+    # the campuses it is a guest or participant with
+    def joined(values):
+        return " ".join(str(v) for v in sorted(values)) if values else None
+    inst_year["co_located_with"] = [joined(sites["co_located"].get(k)) for k in keys]
+    inst_year["shared_in_with"] = [joined(sites["in_with"].get(k)) for k in keys]
+    inst_year["shared_out_sites"] = [joined(sites["out_sites"].get(k)) for k in keys]
+    inst_year["shared_out_with"] = [joined(sites["out_with"].get(k)) for k in keys]
+    site_enrollment = pd.read_parquet(SITE_ENROLLMENT_PATH)
+    figure_of = {(int(u), int(y)): (int(n), str(kind)) for u, y, n, kind in zip(
+        site_enrollment["unitid"], site_enrollment["year"], site_enrollment["students"], site_enrollment["kind"])}
+    students, upper = [], []
+    for y, b in keys:
+        campuses = sites["out_sites"].get((y, b))
+        figures = [figure_of.get((u, y)) for u in sorted(campuses or ())]
+        if not campuses or any(f is None for f in figures):
+            students.append(None)
+            upper.append(False)
+        else:
+            students.append(sum(f[0] for f in figures))
+            upper.append(any(f[1] == "upper bound" for f in figures))
+    inst_year["shared_site_students"] = students
+    inst_year["shared_site_upper"] = upper
     pooled_only = inst_year["online_uncertain"] & ~inst_year["online_uncertain_own"]
     print(f"  Uncertain on-campus FTE only through a pooled institution: {int(pooled_only.sum()):,} institution-years; "
           f"uncertain without a second estimate: {int((inst_year['online_uncertain'] & inst_year['rate_fte_smaller'].isna() & inst_year['rate_fte'].notna()).sum()):,}")
@@ -1608,7 +1911,10 @@ def create_institution_tables(ranked_agg: pd.DataFrame, shared: pd.DataFrame, di
                                   "fte_share": "Int32", "fte_part_time_first": "Int32", "fte_by_level": "bool",
                                   "oncampus_fte": "Int32", "rate_fte": "Int32", "online_uncertain": "bool",
                                   "online_uncertain_own": "bool", "oncampus_fte_smaller": "Int32",
-                                  "rate_fte_smaller": "Int32", "peer_type": "string"})
+                                  "rate_fte_smaller": "Int32", "peer_type": "string", "co_located_with": "string",
+                                  "shared_in_with": "string", "shared_out_sites": "string",
+                                  "shared_out_with": "string", "shared_site_students": "Int32",
+                                  "shared_site_upper": "bool"})
     for year in sorted(set(inst_year["year"].astype(int))):
         g = inst_year[inst_year["year"] == year]
         ok = (g["rate_fte"].fillna(0) >= MIN_FTE_FOR_RATE) & g["rate_excluded"].isna()
@@ -1641,33 +1947,33 @@ def create_institution_tables(ranked_agg: pd.DataFrame, shared: pd.DataFrame, di
     is_medical = pd.Series([(int(u), int(y)) in medical_set for u, y in zip(rows["unitid"], rows["year"])],
                            index=rows.index)
     # A campus whose reported figures are another institution's campus
-    # figures (dim_shared_campus_override): in the institution's count, never
-    # in its rates (no geography, no medical figure)
-    overrides = pd.read_parquet(OVERRIDE_PATH)
-    host_of = {(int(u), int(y)): int(h) for u, y, h in zip(overrides["unitid"], overrides["year"],
-                                                          overrides["host_unitid"])}
-    is_override = pd.Series([(int(u), int(y)) in host_of for u, y in zip(rows["unitid"], rows["year"])],
-                            index=rows.index) & ~is_abroad
+    # figures (dim_shared_campus_override), and a campus that
+    # classify_shared_sites takes out of its institution's rates: in the
+    # institution's count, never in its rates (no geography, no medical figure)
+    site_out = sites["rate_out"] | set(host_of)
+    is_site = pd.Series([(int(u), int(y)) in site_out for u, y in zip(rows["unitid"], rows["year"])],
+                        index=rows.index) & ~is_abroad
     rows = rows.assign(abroad_count=rows["us"].where(is_abroad, 0),
-                       override_count=rows["us"].where(is_override, 0),
+                       shared_site_count=rows["us"].where(is_site, 0),
                        medical_on=(rows["count_on"] - rows["count_res"]).clip(lower=0).where(
-                           is_medical & ~is_abroad & ~is_override, 0))
+                           is_medical & ~is_abroad & ~is_site, 0))
     for c in ("us", "count_on", "count_res", "count_non", "count_pub"):
         rows[c] = rows[c].where(~is_abroad, 0)
     for c in ("count_on", "count_res", "count_non", "count_pub"):
-        rows[c] = rows[c].where(~is_override, 0)
+        rows[c] = rows[c].where(~is_site, 0)
     inst_offense = rows.groupby(["year", "base_unitid", "offense", "offense_family"], as_index=False)[
-        ["us", "count_on", "count_res", "count_non", "count_pub", "override_count", "medical_on",
+        ["us", "count_on", "count_res", "count_non", "count_pub", "shared_site_count", "medical_on",
          "abroad_count"]].sum().rename(columns={"us": "count"})
     if (inst_offense["count"] != inst_offense["count_on"] + inst_offense["count_non"] + inst_offense["count_pub"]
-            + inst_offense["override_count"]).any():
+            + inst_offense["shared_site_count"]).any():
         raise RuntimeError("An institution's count is not the sum of its geographies. This is a bug in "
                            "create_institution_tables.")
 
-    # Shared figures (shared_rate_rules): a host block's figures per offense,
-    # once per host block for the host's institution (shared_in), once per
-    # shadow block for a shadow institution that counts campuses of its own
-    # (shared_out); not for a campus abroad (not in any rate)
+    # Shared figures (shared_rate_rules), all geographies: a host block's
+    # figures per offense, once per host block for the host's institution
+    # (shared_in), once per shadow block for a shadow institution that counts
+    # campuses of its own (shared_out); not for a campus abroad (not in any
+    # rate). On campus (shared_in_on, shared_out_on): classify_shared_sites
     by_geo = ranked_agg[ranked_agg["geo"].isin(GEO_FOR_ALL)]
     cells = defaultdict(dict)
     for y, u, g, o, c in zip(by_geo["year"].tolist(), by_geo["unitid"].tolist(), by_geo["geo"].tolist(),
@@ -1675,18 +1981,14 @@ def create_institution_tables(ranked_agg: pd.DataFrame, shared: pd.DataFrame, di
         if c:
             cells[(int(y), int(u), str(g))][o] = int(c)
     shared_in, shared_out = defaultdict(int), defaultdict(int)
-    shared_in_on, shared_out_on = defaultdict(int), defaultdict(int)
+    shared_in_on, shared_out_on = sites["in_on"], sites["out_on"]
     host_blocks = set()
     for y, g, u, h, shadow_listed in shared_partial:
         for o, c in cells.get((y, h, g), {}).items():
             if h not in abroad and (y, h, g) not in host_blocks:
                 shared_in[(y, h // 1000, o)] += c
-                if g == "On-campus":
-                    shared_in_on[(y, h // 1000, o)] += c
             if shadow_listed and u not in abroad:
                 shared_out[(y, u // 1000, o)] += c
-                if g == "On-campus":
-                    shared_out_on[(y, u // 1000, o)] += c
         host_blocks.add((y, h, g))
     # A dim_shared_campus_override campus's blocks that count (its shadow
     # blocks are above): its own figures for its institution (shared_out, in
@@ -1703,13 +2005,9 @@ def create_institution_tables(ranked_agg: pd.DataFrame, shared: pd.DataFrame, di
             for o, c in own.items():
                 n_override += c
                 shared_out[(y, u // 1000, o)] += c
-                if g == "On-campus":
-                    shared_out_on[(y, u // 1000, o)] += c
             if h not in abroad and (y, h, g) not in host_blocks:
                 for o, c in cells.get((y, h, g), {}).items():
                     shared_in[(y, h // 1000, o)] += c
-                    if g == "On-campus":
-                        shared_in_on[(y, h // 1000, o)] += c
                 host_blocks.add((y, h, g))
     print(f"  Campuses reporting another institution's figures (dim_shared_campus_override): {len(host_of):,} "
           f"campus-years listed, {n_override:,} counts kept in counts and out of rates")
@@ -1718,11 +2016,12 @@ def create_institution_tables(ranked_agg: pd.DataFrame, shared: pd.DataFrame, di
                            "shared_in": shared_in.get((y, b, o), 0), "shared_out": shared_out.get((y, b, o), 0),
                            "shared_in_on": shared_in_on.get((y, b, o), 0),
                            "shared_out_on": shared_out_on.get((y, b, o), 0)}
-                          for (y, b, o) in sorted(set(shared_in) | set(shared_out))],
+                          for (y, b, o) in sorted(set(shared_in) | set(shared_out) | set(shared_in_on)
+                                                  | set(shared_out_on))],
                          columns=["year", "base_unitid", "offense", "offense_family", "shared_in", "shared_out",
                                   "shared_in_on", "shared_out_on"])
     inst_offense = inst_offense.merge(extra, on=["year", "base_unitid", "offense", "offense_family"], how="outer")
-    value_cols = ["count", "count_on", "count_res", "count_non", "count_pub", "override_count", "medical_on",
+    value_cols = ["count", "count_on", "count_res", "count_non", "count_pub", "shared_site_count", "medical_on",
                   "shared_in", "shared_out", "shared_in_on", "shared_out_on", "abroad_count"]
     inst_offense[value_cols] = inst_offense[value_cols].fillna(0).astype("int64")
     if (inst_offense["shared_in"] > inst_offense["count"]).any() or (
@@ -1744,9 +2043,26 @@ def create_institution_tables(ranked_agg: pd.DataFrame, shared: pd.DataFrame, di
           f"campus: {int(inst_offense['shared_in'].sum()):,} in hosts' counts, "
           f"{int(inst_offense['shared_out'].sum()):,} under another institution")
 
+    site_rows = pd.DataFrame(sites["rows"], columns=["year", "site", "unitid", "base_unitid", "site_class",
+                                                     "owner_base", "role", "links"]).astype(
+        {"year": "int16", "site": "int32", "unitid": "int32", "base_unitid": "int32", "site_class": "string",
+         "owner_base": "Int32", "role": "string", "links": "string"})
+    near_rows = pd.DataFrame(near, columns=["year", "unitid", "other_unitid", "cells_equal", "cells_nonzero",
+                                            "total", "other_total"]).astype(
+        {"year": "int16", "unitid": "int32", "other_unitid": "int32", "cells_equal": "int16",
+         "cells_nonzero": "int16", "total": "int32", "other_total": "int32"})
+    print(f"  Near-copies (find_near_copies): {len(near_rows):,} campus pairs")
+    for cls_name, part in site_rows.drop_duplicates(["year", "site"]).groupby("site_class"):
+        print(f"  Shared sites, {cls_name}: {len(part):,} site-years "
+              f"({', '.join(f'{y}: {n}' for y, n in part.groupby('year').size().items())})")
+    print(f"  Out of rates at shared sites (and listed campuses): {int(inst_offense['shared_site_count'].sum()):,} "
+          f"counts; left out by rule shared_pooled: {sum(1 for r in rule_of.values() if r == 'shared_pooled'):,}, "
+          f"shared_campus: {sum(1 for r in rule_of.values() if r == 'shared_campus'):,} institution-years")
     campus_out.to_parquet(CAMPUS_YEAR_PATH, index=False)
     inst_year.to_parquet(INSTITUTION_YEAR_PATH, index=False)
     inst_offense.to_parquet(INSTITUTION_OFFENSE_PATH, index=False)
+    site_rows.to_parquet(SITES_PATH, index=False)
+    near_rows.to_parquet(NEAR_PATH, index=False)
 
     multi = inst_year[inst_year["campuses"] > 1]
     states_per_inst = campus_years.assign(state=campus_years["unitid"].map(state_of)).groupby(
@@ -1801,7 +2117,8 @@ def main():
     dims = CURATED_DIR / "dims"
     inputs_before = provenance.Snapshot(
         "04", [FACTS_PATH, dims / "dim_institution.parquet", dims / "dim_enrollment.parquet", SOURCES_PATH,
-               OLDER_PATH, LINKS_PATH, CLASS_PATH, MEDICAL_PATH, ABROAD_PATH, OVERRIDE_PATH])
+               OLDER_PATH, LINKS_PATH, CLASS_PATH, MEDICAL_PATH, ABROAD_PATH, OVERRIDE_PATH,
+               SITE_ENROLLMENT_PATH])
 
     # The old build record no longer describes the files about to be written
     provenance.invalidate(provenance.AGGS_MANIFEST)
@@ -1830,7 +2147,7 @@ def main():
 
     aggs = CURATED_DIR / "aggs"
     written = [aggs / "agg_school_year_offense.parquet", SHARED_PATH, aggs / "agg_ivy_rankings.parquet",
-               CAMPUS_YEAR_PATH, INSTITUTION_YEAR_PATH, INSTITUTION_OFFENSE_PATH]
+               CAMPUS_YEAR_PATH, INSTITUTION_YEAR_PATH, INSTITUTION_OFFENSE_PATH, SITES_PATH, NEAR_PATH]
     if not ivy_only:
         written += [aggs / "agg_state_rankings.parquet", aggs / "agg_national_rankings.parquet"]
     provenance.write_aggs_manifest(all_schools=not ivy_only, snapshot=inputs_before, outputs=written)
