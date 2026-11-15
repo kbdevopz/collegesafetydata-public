@@ -858,62 +858,72 @@
   ],
   "institution": {
     "id": 115755,
+    "ratesFile": "rates/institutions/115755.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 1,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 8336
       },
       "2016": {
         "campuses": 1,
         "online": 1,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 8095
       },
       "2017": {
         "campuses": 1,
         "online": 4,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 7899
       },
       "2018": {
         "campuses": 1,
         "online": 4,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 7345
       },
       "2019": {
         "campuses": 1,
         "online": 4,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 6641
       },
       "2020": {
         "campuses": 1,
         "online": 4,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 5922
       },
       "2021": {
         "campuses": 1,
         "online": 4,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 5299
       },
       "2022": {
         "campuses": 1,
         "online": 10,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 5203
       },
       "2023": {
         "campuses": 2,
         "online": 9,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 5407,
+        "flags": [
+          {
+            "offense": "stalking",
+            "geo": "On-campus",
+            "count": 16,
+            "usual": 1
+          }
+        ],
         "counts": {
           "criminal": 25,
           "violent": 10,
@@ -937,10 +947,15 @@
       "2024": {
         "campuses": 2,
         "online": 9,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 5463,
-        "spikes": [
-          "rape"
+        "flags": [
+          {
+            "offense": "rape",
+            "geo": "On-campus",
+            "count": 26,
+            "usual": 4
+          }
         ]
       }
     }

@@ -892,35 +892,44 @@
   ],
   "institution": {
     "id": 176965,
+    "ratesFile": "rates/institutions/176965.json",
     "byYear": {
       "2015": {
         "campuses": 3,
         "online": 8,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 11418
       },
       "2016": {
         "campuses": 3,
         "online": 8,
-        "rateRanked": true,
-        "rateFte": 10902
+        "rated": true,
+        "rateFte": 10902,
+        "flags": [
+          {
+            "offense": "rape",
+            "geo": "On-campus",
+            "count": 15,
+            "usual": 3
+          }
+        ]
       },
       "2017": {
         "campuses": 3,
         "online": 9,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 9547
       },
       "2018": {
         "campuses": 3,
         "online": 10,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 8908
       },
       "2019": {
         "campuses": 3,
         "online": 10,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 8495,
         "counts": {
           "criminal": 16,
@@ -944,7 +953,8 @@
       "2020": {
         "campuses": 3,
         "online": 10,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 7613,
         "counts": {
@@ -967,14 +977,14 @@
       "2021": {
         "campuses": 3,
         "online": 10,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 7829
       },
       "2022": {
         "campuses": 3,
         "online": 11,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 8358,
         "counts": {
           "criminal": 24,
@@ -997,13 +1007,13 @@
       "2023": {
         "campuses": 3,
         "online": 11,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 8971
       },
       "2024": {
         "campuses": 3,
         "online": 12,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 8296,
         "counts": {
           "criminal": 12,

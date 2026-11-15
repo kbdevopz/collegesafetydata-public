@@ -74,11 +74,12 @@
   "breakdownByGeo": [],
   "institution": {
     "id": 191126,
+    "ratesFile": "rates/institutions/191126.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 2,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 8269,
         "abroad": {
           "campuses": 2,
@@ -98,7 +99,7 @@
       "2016": {
         "campuses": 1,
         "online": 2,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 8143,
         "abroad": {
           "campuses": 2,
@@ -119,7 +120,7 @@
       "2017": {
         "campuses": 1,
         "online": 2,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 7875,
         "abroad": {
           "campuses": 2,
@@ -143,7 +144,7 @@
       "2018": {
         "campuses": 1,
         "online": 2,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 7883,
         "abroad": {
           "campuses": 3,
@@ -169,7 +170,7 @@
       "2019": {
         "campuses": 1,
         "online": 2,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 7926,
         "abroad": {
           "campuses": 3,
@@ -197,7 +198,8 @@
       "2020": {
         "campuses": 1,
         "online": 2,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 7497,
         "abroad": {
@@ -220,7 +222,7 @@
       "2021": {
         "campuses": 1,
         "online": 2,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 7429,
         "abroad": {
@@ -245,7 +247,7 @@
       "2022": {
         "campuses": 1,
         "online": 4,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 7370,
         "abroad": {
           "campuses": 3,
@@ -269,15 +271,19 @@
       "2023": {
         "campuses": 1,
         "online": 4,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 7327,
         "abroad": {
           "campuses": 3,
           "counts": {}
         },
-        "spikes": [
-          "criminal",
-          "violent"
+        "flags": [
+          {
+            "offense": "domestic_violence",
+            "geo": "Public property",
+            "count": 10,
+            "usual": 0
+          }
         ],
         "counts": {
           "criminal": 37,
@@ -303,7 +309,7 @@
       "2024": {
         "campuses": 1,
         "online": 4,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 7418,
         "abroad": {
           "campuses": 3,

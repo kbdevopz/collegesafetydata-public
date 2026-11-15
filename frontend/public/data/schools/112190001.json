@@ -622,11 +622,12 @@
   ],
   "institution": {
     "id": 112190,
+    "ratesFile": "rates/institutions/112190.json",
     "byYear": {
       "2015": {
         "campuses": 10,
         "online": 6,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 11743,
         "counts": {
           "criminal": 14,
@@ -647,8 +648,28 @@
       "2016": {
         "campuses": 10,
         "online": 6,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 10296,
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "Public property",
+            "count": 33,
+            "usual": 6
+          },
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "Public property",
+            "count": 45,
+            "usual": 6
+          },
+          {
+            "offense": "robbery",
+            "geo": "Public property",
+            "count": 44,
+            "usual": 11
+          }
+        ],
         "counts": {
           "criminal": 129,
           "violent": 78,
@@ -673,7 +694,7 @@
       "2017": {
         "campuses": 10,
         "online": 6,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 13005,
         "counts": {
           "criminal": 34,
@@ -697,11 +718,8 @@
       "2018": {
         "campuses": 9,
         "online": 8,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 13715,
-        "spikes": [
-          "drug_arrest"
-        ],
         "counts": {
           "criminal": 40,
           "violent": 22,
@@ -721,7 +739,7 @@
       "2019": {
         "campuses": 9,
         "online": 10,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 12432,
         "counts": {
           "criminal": 38,
@@ -743,11 +761,17 @@
       "2020": {
         "campuses": 6,
         "online": 10,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 10430,
-        "spikes": [
-          "burglary"
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "On-campus",
+            "count": 24,
+            "usual": 5
+          }
         ],
         "counts": {
           "criminal": 34,
@@ -768,7 +792,7 @@
       "2021": {
         "campuses": 6,
         "online": 10,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 8803,
         "counts": {
@@ -789,8 +813,16 @@
       "2022": {
         "campuses": 6,
         "online": 21,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 7388,
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "Public property",
+            "count": 45,
+            "usual": 6
+          }
+        ],
         "counts": {
           "criminal": 96,
           "violent": 36,
@@ -810,8 +842,28 @@
       "2023": {
         "campuses": 6,
         "online": 23,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 8134,
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "Public property",
+            "count": 34,
+            "usual": 6
+          },
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "Public property",
+            "count": 38,
+            "usual": 6
+          },
+          {
+            "offense": "robbery",
+            "geo": "Public property",
+            "count": 36,
+            "usual": 11
+          }
+        ],
         "counts": {
           "criminal": 123,
           "violent": 72,
@@ -835,7 +887,7 @@
       "2024": {
         "campuses": 6,
         "online": 28,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 8136,
         "counts": {
           "criminal": 57,

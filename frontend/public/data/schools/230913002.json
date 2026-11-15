@@ -260,11 +260,12 @@
   ],
   "institution": {
     "id": 230913,
+    "ratesFile": "rates/institutions/230913.json",
     "byYear": {
       "2017": {
         "campuses": 2,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2138,
         "pooledWith": [
           {
@@ -272,9 +273,6 @@
             "name": "Lyndon State College",
             "fte": 966
           }
-        ],
-        "spikes": [
-          "drug_discipline"
         ],
         "counts": {
           "criminal": 18,
@@ -298,7 +296,7 @@
       "2018": {
         "campuses": 2,
         "online": 16,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1897,
         "counts": {
           "criminal": 10,
@@ -320,7 +318,7 @@
       "2019": {
         "campuses": 2,
         "online": 17,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1704,
         "counts": {
           "criminal": 6,
@@ -342,7 +340,8 @@
       "2020": {
         "campuses": 2,
         "online": 17,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 1392,
         "counts": {
@@ -362,7 +361,7 @@
       "2021": {
         "campuses": 2,
         "online": 17,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 1176,
         "counts": {

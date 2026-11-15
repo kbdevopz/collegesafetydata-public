@@ -234,11 +234,12 @@
   ],
   "institution": {
     "id": 199786,
+    "ratesFile": "rates/institutions/199786.json",
     "byYear": {
       "2015": {
         "campuses": 2,
         "online": 13,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2547,
         "counts": {
           "all": 5,
@@ -250,13 +251,13 @@
       "2016": {
         "campuses": 2,
         "online": 13,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2421
       },
       "2017": {
         "campuses": 2,
         "online": 13,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2342,
         "counts": {
           "all": 3,
@@ -267,26 +268,27 @@
       "2018": {
         "campuses": 2,
         "online": 13,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2291
       },
       "2019": {
         "campuses": 2,
         "online": 14,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2165
       },
       "2020": {
         "campuses": 2,
         "online": 14,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 2063
       },
       "2021": {
         "campuses": 2,
         "online": 14,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 1875,
         "counts": {
@@ -301,11 +303,12 @@
       "2022": {
         "campuses": 4,
         "online": 57,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1376,
         "fteUncertain": {
           "share": 916,
-          "partTimeFirst": 1376
+          "partTimeFirst": 1376,
+          "reason": "own"
         },
         "counts": {
           "criminal": 1,
@@ -320,17 +323,18 @@
       "2023": {
         "campuses": 4,
         "online": 52,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1429,
         "fteUncertain": {
           "share": 999,
-          "partTimeFirst": 1429
+          "partTimeFirst": 1429,
+          "reason": "own"
         }
       },
       "2024": {
         "campuses": 4,
         "online": 35,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2136,
         "counts": {
           "criminal": 2,

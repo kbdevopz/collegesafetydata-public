@@ -85,11 +85,13 @@
   ],
   "institution": {
     "id": 103893,
+    "ratesFile": "rates/institutions/103893.json",
     "byYear": {
       "2018": {
         "campuses": 4,
         "online": 0,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 911,
         "pooledWith": [
           {
@@ -102,11 +104,8 @@
       "2019": {
         "campuses": 4,
         "online": 2,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1611,
-        "spikes": [
-          "all"
-        ],
         "counts": {
           "criminal": 16,
           "violent": 16,

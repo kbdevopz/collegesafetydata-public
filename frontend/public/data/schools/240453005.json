@@ -106,11 +106,12 @@
   ],
   "institution": {
     "id": 240453,
+    "ratesFile": "rates/institutions/240453.json",
     "byYear": {
       "2017": {
         "campuses": 5,
         "online": 7,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 21089,
         "counts": {
           "criminal": 48,
@@ -135,7 +136,7 @@
       "2018": {
         "campuses": 5,
         "online": 9,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 22288,
         "counts": {
           "criminal": 41,
@@ -159,7 +160,7 @@
       "2019": {
         "campuses": 5,
         "online": 9,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 21372,
         "counts": {
           "criminal": 19,
@@ -184,7 +185,8 @@
       "2020": {
         "campuses": 5,
         "online": 9,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 20466,
         "counts": {
@@ -206,7 +208,7 @@
       "2021": {
         "campuses": 5,
         "online": 9,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 19704,
         "counts": {
@@ -233,8 +235,16 @@
       "2022": {
         "campuses": 5,
         "online": 14,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 18338,
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "Public property",
+            "count": 22,
+            "usual": 1
+          }
+        ],
         "counts": {
           "criminal": 60,
           "violent": 22,
@@ -260,8 +270,16 @@
       "2023": {
         "campuses": 5,
         "online": 13,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 18273,
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "Public property",
+            "count": 23,
+            "usual": 1
+          }
+        ],
         "counts": {
           "criminal": 95,
           "violent": 38,
@@ -287,8 +305,16 @@
       "2024": {
         "campuses": 5,
         "online": 14,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 18080,
+        "flags": [
+          {
+            "offense": "domestic_violence",
+            "geo": "On-campus",
+            "count": 11,
+            "usual": 1
+          }
+        ],
         "counts": {
           "criminal": 33,
           "violent": 15,

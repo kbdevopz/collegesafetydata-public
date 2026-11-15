@@ -396,119 +396,84 @@
   ],
   "institution": {
     "id": 230418,
+    "ratesFile": "rates/institutions/230418.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1765
       },
       "2016": {
         "campuses": 1,
         "online": 2,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1672
       },
       "2017": {
         "campuses": 1,
         "online": 3,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1583
       },
       "2018": {
         "campuses": 1,
         "online": 3,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1532
       },
       "2019": {
         "campuses": 1,
         "online": 2,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1516
       },
       "2020": {
         "campuses": 1,
         "online": 2,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 1386
       },
       "2021": {
         "campuses": 1,
         "online": 2,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 1706
       },
       "2022": {
         "campuses": 1,
         "online": 62,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1309,
         "fteUncertain": {
           "share": 873,
-          "partTimeFirst": 1309
+          "partTimeFirst": 1309,
+          "reason": "own"
         }
       },
       "2023": {
         "campuses": 1,
         "online": 72,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1607,
         "fteUncertain": {
           "share": 923,
-          "partTimeFirst": 1607
+          "partTimeFirst": 1607,
+          "reason": "own"
         }
       },
       "2024": {
         "campuses": 1,
         "online": 78,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1671,
         "fteUncertain": {
           "share": 894,
-          "partTimeFirst": 1671
-        },
-        "sharedIn": {
-          "criminal": 6,
-          "property": 6,
-          "all": 14,
-          "burglary": 2,
-          "dating_violence": 1,
-          "drug_arrest": 3,
-          "motor_vehicle_theft": 4,
-          "stalking": 2,
-          "weapons_arrest": 2
-        },
-        "notRanked": {
-          "criminal": [
-            "shared"
-          ],
-          "property": [
-            "shared"
-          ],
-          "all": [
-            "shared"
-          ],
-          "burglary": [
-            "shared"
-          ],
-          "dating_violence": [
-            "shared"
-          ],
-          "drug_arrest": [
-            "shared"
-          ],
-          "motor_vehicle_theft": [
-            "shared"
-          ],
-          "stalking": [
-            "shared"
-          ],
-          "weapons_arrest": [
-            "shared"
-          ]
+          "partTimeFirst": 1671,
+          "reason": "own"
         }
       }
     }

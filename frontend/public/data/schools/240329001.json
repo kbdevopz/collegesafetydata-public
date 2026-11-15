@@ -672,73 +672,77 @@
   ],
   "institution": {
     "id": 240329,
+    "ratesFile": "rates/institutions/240329.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 2,
-        "rateRanked": true,
-        "rateFte": 9878,
-        "spikes": [
-          "drug_arrest"
-        ]
+        "rated": true,
+        "rateFte": 9878
       },
       "2016": {
         "campuses": 1,
         "online": 3,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 9886
       },
       "2017": {
         "campuses": 1,
         "online": 3,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 9797
       },
       "2018": {
         "campuses": 1,
         "online": 3,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 9829
       },
       "2019": {
         "campuses": 1,
         "online": 5,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 9722
       },
       "2020": {
         "campuses": 1,
         "online": 5,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 9554
       },
       "2021": {
         "campuses": 1,
         "online": 5,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 9445
       },
       "2022": {
         "campuses": 1,
         "online": 5,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 9357
       },
       "2023": {
         "campuses": 1,
         "online": 5,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 9439
       },
       "2024": {
         "campuses": 1,
         "online": 5,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 9589,
-        "spikes": [
-          "stalking"
+        "flags": [
+          {
+            "offense": "stalking",
+            "geo": "On-campus",
+            "count": 23,
+            "usual": 5
+          }
         ]
       }
     }

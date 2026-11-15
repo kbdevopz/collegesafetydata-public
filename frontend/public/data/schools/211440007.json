@@ -74,11 +74,12 @@
   "breakdownByGeo": [],
   "institution": {
     "id": 211440,
+    "ratesFile": "rates/institutions/211440.json",
     "byYear": {
       "2015": {
         "campuses": 4,
         "online": 1,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 12190,
         "abroad": {
           "campuses": 3,
@@ -110,7 +111,7 @@
       "2016": {
         "campuses": 4,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 12640,
         "abroad": {
           "campuses": 3,
@@ -122,6 +123,14 @@
             "stalking": 3
           }
         },
+        "flags": [
+          {
+            "offense": "dating_violence",
+            "geo": "On-campus",
+            "count": 22,
+            "usual": 5
+          }
+        ],
         "counts": {
           "criminal": 49,
           "violent": 10,
@@ -144,7 +153,7 @@
       "2017": {
         "campuses": 4,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 13317,
         "abroad": {
           "campuses": 3,
@@ -176,7 +185,7 @@
       "2018": {
         "campuses": 4,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 13495,
         "abroad": {
           "campuses": 3,
@@ -205,7 +214,7 @@
       "2019": {
         "campuses": 4,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 13649,
         "abroad": {
           "campuses": 3,
@@ -235,7 +244,8 @@
       "2020": {
         "campuses": 4,
         "online": 0,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 12781,
         "abroad": {
@@ -265,7 +275,7 @@
       "2021": {
         "campuses": 4,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 14449,
         "abroad": {
@@ -291,7 +301,7 @@
       "2022": {
         "campuses": 4,
         "online": 4,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 15183,
         "abroad": {
           "campuses": 3,
@@ -320,7 +330,7 @@
       "2023": {
         "campuses": 4,
         "online": 3,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 14740,
         "abroad": {
           "campuses": 2,
@@ -348,7 +358,7 @@
       "2024": {
         "campuses": 4,
         "online": 3,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 15067,
         "abroad": {
           "campuses": 2,

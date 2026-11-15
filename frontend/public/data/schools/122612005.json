@@ -77,11 +77,12 @@
   ],
   "institution": {
     "id": 122612,
+    "ratesFile": "rates/institutions/122612.json",
     "byYear": {
       "2015": {
         "campuses": 8,
         "online": 3,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 10037,
         "counts": {
           "criminal": 45,
@@ -106,7 +107,7 @@
       "2016": {
         "campuses": 8,
         "online": 4,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 10176,
         "counts": {
           "criminal": 29,
@@ -131,7 +132,7 @@
       "2017": {
         "campuses": 8,
         "online": 3,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 10321,
         "counts": {
           "criminal": 45,
@@ -156,7 +157,7 @@
       "2018": {
         "campuses": 8,
         "online": 2,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 10062,
         "counts": {
           "criminal": 30,
@@ -179,49 +180,8 @@
       "2019": {
         "campuses": 7,
         "online": 2,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 9007,
-        "sharedOut": {
-          "criminal": 3,
-          "violent": 2,
-          "property": 1,
-          "all": 26,
-          "burglary": 1,
-          "domestic_violence": 3,
-          "drug_arrest": 15,
-          "liquor_arrest": 2,
-          "robbery": 2,
-          "weapons_arrest": 3
-        },
-        "notRanked": {
-          "criminal": [
-            "shared"
-          ],
-          "violent": [
-            "shared"
-          ],
-          "all": [
-            "shared"
-          ],
-          "burglary": [
-            "shared"
-          ],
-          "domestic_violence": [
-            "shared"
-          ],
-          "drug_arrest": [
-            "shared"
-          ],
-          "liquor_arrest": [
-            "shared"
-          ],
-          "robbery": [
-            "shared"
-          ],
-          "weapons_arrest": [
-            "shared"
-          ]
-        },
         "counts": {
           "criminal": 32,
           "violent": 11,
@@ -243,7 +203,8 @@
       "2020": {
         "campuses": 8,
         "online": 2,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 8371,
         "counts": {
@@ -268,7 +229,7 @@
       "2021": {
         "campuses": 7,
         "online": 2,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 8539,
         "counts": {

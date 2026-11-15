@@ -612,58 +612,63 @@
   ],
   "institution": {
     "id": 211361,
+    "ratesFile": "rates/institutions/211361.json",
     "byYear": {
       "2015": {
         "campuses": 2,
         "online": 33,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 5262
       },
       "2016": {
         "campuses": 2,
         "online": 36,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 4834
       },
       "2017": {
         "campuses": 2,
         "online": 41,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 4595
       },
       "2018": {
         "campuses": 1,
         "online": 41,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 4313
       },
       "2019": {
         "campuses": 2,
         "online": 40,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 4105
       },
       "2020": {
         "campuses": 2,
         "online": 40,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 4131,
         "fteUncertain": {
           "share": 3291,
-          "partTimeFirst": 4131
+          "partTimeFirst": 4131,
+          "reason": "own"
         }
       },
       "2021": {
         "campuses": 1,
         "online": 40,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "excluded",
         "onlineYear": 2019,
         "rateExcludedReason": "In 2021 DOE counted the figures of campus 211361001 of this institution under ID 498571002 of another institution (a merger or renumbering), while IPEDS counts that campus's students in this institution's FTE. No rate is shown for that year.",
         "rateFte": 3905,
         "fteUncertain": {
           "share": 3097,
-          "partTimeFirst": 3905
+          "partTimeFirst": 3905,
+          "reason": "own"
         },
         "counts": {}
       }

@@ -650,11 +650,12 @@
   ],
   "institution": {
     "id": 237367,
+    "ratesFile": "rates/institutions/237367.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 7,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 5069,
         "pooledWith": [
           {
@@ -662,15 +663,12 @@
             "name": "Pierpont Community and Technical College",
             "fte": 1554
           }
-        ],
-        "spikes": [
-          "drug_discipline"
         ]
       },
       "2016": {
         "campuses": 1,
         "online": 8,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 4924,
         "pooledWith": [
           {
@@ -683,7 +681,7 @@
       "2017": {
         "campuses": 1,
         "online": 10,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 4625,
         "pooledWith": [
           {
@@ -696,7 +694,7 @@
       "2018": {
         "campuses": 1,
         "online": 12,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 4593,
         "pooledWith": [
           {
@@ -709,7 +707,7 @@
       "2019": {
         "campuses": 1,
         "online": 15,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 4448,
         "pooledWith": [
           {
@@ -717,12 +715,21 @@
             "name": "Pierpont Community and Technical College",
             "fte": 1323
           }
+        ],
+        "flags": [
+          {
+            "offense": "stalking",
+            "geo": "On-campus",
+            "count": 18,
+            "usual": 4
+          }
         ]
       },
       "2020": {
         "campuses": 1,
         "online": 15,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 4235,
         "pooledWith": [
@@ -736,7 +743,7 @@
       "2021": {
         "campuses": 1,
         "online": 15,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 3805,
         "pooledWith": [
@@ -750,19 +757,19 @@
       "2022": {
         "campuses": 1,
         "online": 23,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2538
       },
       "2023": {
         "campuses": 1,
         "online": 20,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2479
       },
       "2024": {
         "campuses": 1,
         "online": 25,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2402
       }
     }

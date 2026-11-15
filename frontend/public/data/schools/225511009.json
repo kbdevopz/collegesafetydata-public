@@ -77,12 +77,21 @@
   ],
   "institution": {
     "id": 225511,
+    "ratesFile": "rates/institutions/225511.json",
     "byYear": {
       "2018": {
         "campuses": 5,
         "online": 4,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 37906,
+        "flags": [
+          {
+            "offense": "stalking",
+            "geo": "On-campus",
+            "count": 92,
+            "usual": 29
+          }
+        ],
         "counts": {
           "criminal": 133,
           "violent": 42,
@@ -108,8 +117,16 @@
       "2019": {
         "campuses": 5,
         "online": 4,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 37885,
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "On-campus",
+            "count": 24,
+            "usual": 6
+          }
+        ],
         "counts": {
           "criminal": 155,
           "violent": 57,
@@ -135,7 +152,8 @@
       "2020": {
         "campuses": 5,
         "online": 4,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 38643,
         "counts": {
@@ -161,7 +179,7 @@
       "2021": {
         "campuses": 5,
         "online": 4,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 38024,
         "counts": {
@@ -188,7 +206,7 @@
       "2022": {
         "campuses": 5,
         "online": 12,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 36455,
         "counts": {
           "criminal": 85,
@@ -215,8 +233,16 @@
       "2023": {
         "campuses": 5,
         "online": 11,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 36749,
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 94,
+            "usual": 22
+          }
+        ],
         "counts": {
           "criminal": 196,
           "violent": 34,
@@ -243,8 +269,22 @@
       "2024": {
         "campuses": 5,
         "online": 12,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 38286,
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "On-campus",
+            "count": 106,
+            "usual": 41
+          },
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 69,
+            "usual": 22
+          }
+        ],
         "counts": {
           "criminal": 214,
           "violent": 31,

@@ -1020,71 +1020,120 @@
   ],
   "institution": {
     "id": 199120,
+    "ratesFile": "rates/institutions/199120.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 4,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 25488
       },
       "2016": {
         "campuses": 1,
         "online": 4,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 26263
       },
       "2017": {
         "campuses": 1,
         "online": 5,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 26321,
-        "spikes": [
-          "dating_violence"
+        "flags": [
+          {
+            "offense": "dating_violence",
+            "geo": "On-campus",
+            "count": 67,
+            "usual": 8
+          },
+          {
+            "offense": "rape",
+            "geo": "On-campus",
+            "count": 73,
+            "usual": 19
+          },
+          {
+            "offense": "stalking",
+            "geo": "On-campus",
+            "count": 71,
+            "usual": 25
+          }
         ]
       },
       "2018": {
         "campuses": 1,
         "online": 4,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 26538
       },
       "2019": {
         "campuses": 2,
         "online": 4,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 26454
       },
       "2020": {
         "campuses": 2,
         "online": 4,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 26560
       },
       "2021": {
         "campuses": 2,
         "online": 4,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 27924
+        "rateFte": 27924,
+        "flags": [
+          {
+            "offense": "dating_violence",
+            "geo": "Non-campus",
+            "count": 21,
+            "usual": 0
+          },
+          {
+            "offense": "rape",
+            "geo": "Non-campus",
+            "count": 37,
+            "usual": 5
+          }
+        ]
       },
       "2022": {
         "campuses": 2,
         "online": 6,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 28988
       },
       "2023": {
         "campuses": 3,
         "online": 5,
-        "rateRanked": true,
-        "rateFte": 30067
+        "rated": true,
+        "rateFte": 30067,
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 67,
+            "usual": 9
+          }
+        ]
       },
       "2024": {
         "campuses": 3,
         "online": 6,
-        "rateRanked": true,
-        "rateFte": 30040
+        "rated": true,
+        "rateFte": 30040,
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 43,
+            "usual": 9
+          }
+        ]
       }
     }
   }

@@ -56,15 +56,13 @@
   ],
   "institution": {
     "id": 182795,
+    "ratesFile": "rates/institutions/182795.json",
     "byYear": {
       "2015": {
         "campuses": 5,
         "online": 24,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1727,
-        "spikes": [
-          "liquor_arrest"
-        ],
         "counts": {
           "criminal": 12,
           "violent": 5,
@@ -83,7 +81,7 @@
       "2016": {
         "campuses": 5,
         "online": 23,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1842,
         "counts": {
           "criminal": 15,
@@ -106,7 +104,7 @@
       "2017": {
         "campuses": 5,
         "online": 22,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1796,
         "counts": {
           "criminal": 18,
@@ -130,8 +128,16 @@
       "2018": {
         "campuses": 5,
         "online": 21,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1721,
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "On-campus",
+            "count": 12,
+            "usual": 1
+          }
+        ],
         "counts": {
           "criminal": 19,
           "violent": 5,
@@ -154,7 +160,7 @@
       "2019": {
         "campuses": 5,
         "online": 18,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1693,
         "counts": {
           "criminal": 10,

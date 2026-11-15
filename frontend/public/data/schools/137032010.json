@@ -95,11 +95,12 @@
   ],
   "institution": {
     "id": 137032,
+    "ratesFile": "rates/institutions/137032.json",
     "byYear": {
       "2015": {
         "campuses": 11,
         "online": 58,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 6636,
         "counts": {
           "criminal": 17,
@@ -121,10 +122,21 @@
       "2016": {
         "campuses": 11,
         "online": 54,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 6739,
-        "spikes": [
-          "drug_discipline"
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "Public property",
+            "count": 11,
+            "usual": 0
+          },
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "Public property",
+            "count": 12,
+            "usual": 0
+          }
         ],
         "counts": {
           "criminal": 29,
@@ -147,8 +159,16 @@
       "2017": {
         "campuses": 11,
         "online": 61,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 5109,
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "Public property",
+            "count": 11,
+            "usual": 0
+          }
+        ],
         "counts": {
           "criminal": 21,
           "violent": 6,
@@ -172,7 +192,7 @@
       "2018": {
         "campuses": 11,
         "online": 61,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 4605,
         "counts": {
           "criminal": 12,

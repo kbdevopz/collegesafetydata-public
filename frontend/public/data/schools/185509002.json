@@ -211,11 +211,12 @@
   ],
   "institution": {
     "id": 185509,
+    "ratesFile": "rates/institutions/185509.json",
     "byYear": {
       "2015": {
         "campuses": 2,
         "online": 5,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 4589,
         "counts": {
           "criminal": 4,
@@ -232,7 +233,7 @@
       "2016": {
         "campuses": 2,
         "online": 6,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 4214,
         "counts": {
           "criminal": 8,
@@ -251,8 +252,22 @@
       "2017": {
         "campuses": 2,
         "online": 6,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 4254,
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "Non-campus",
+            "count": 15,
+            "usual": 0
+          },
+          {
+            "offense": "domestic_violence",
+            "geo": "Non-campus",
+            "count": 12,
+            "usual": 0
+          }
+        ],
         "counts": {
           "criminal": 50,
           "violent": 9,
@@ -277,10 +292,27 @@
       "2018": {
         "campuses": 2,
         "online": 6,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 4158,
-        "spikes": [
-          "burglary"
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "On-campus",
+            "count": 16,
+            "usual": 1
+          },
+          {
+            "offense": "burglary",
+            "geo": "Non-campus",
+            "count": 31,
+            "usual": 0
+          },
+          {
+            "offense": "domestic_violence",
+            "geo": "Non-campus",
+            "count": 18,
+            "usual": 0
+          }
         ],
         "counts": {
           "criminal": 64,
@@ -303,8 +335,16 @@
       "2019": {
         "campuses": 2,
         "online": 7,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 4046,
+        "flags": [
+          {
+            "offense": "domestic_violence",
+            "geo": "Non-campus",
+            "count": 17,
+            "usual": 0
+          }
+        ],
         "counts": {
           "criminal": 27,
           "violent": 8,
@@ -327,7 +367,8 @@
       "2020": {
         "campuses": 2,
         "online": 7,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 3305,
         "counts": {
@@ -345,7 +386,7 @@
       "2021": {
         "campuses": 2,
         "online": 7,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 3177,
         "counts": {
@@ -359,7 +400,7 @@
       "2022": {
         "campuses": 2,
         "online": 14,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2953,
         "counts": {
           "all": 1,
@@ -369,7 +410,7 @@
       "2023": {
         "campuses": 2,
         "online": 13,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 3165,
         "counts": {
           "all": 1,
@@ -379,7 +420,7 @@
       "2024": {
         "campuses": 2,
         "online": 10,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 3313,
         "counts": {
           "criminal": 6,

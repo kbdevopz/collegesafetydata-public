@@ -48,11 +48,12 @@
   ],
   "institution": {
     "id": 217776,
+    "ratesFile": "rates/institutions/217776.json",
     "byYear": {
       "2015": {
         "campuses": 5,
         "online": 19,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1406,
         "counts": {
           "criminal": 8,
@@ -68,7 +69,7 @@
       "2016": {
         "campuses": 5,
         "online": 20,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1143,
         "counts": {
           "criminal": 3,
@@ -86,11 +87,13 @@
       "2017": {
         "campuses": 5,
         "online": 37,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 924,
         "fteUncertain": {
           "share": 735,
-          "partTimeFirst": 924
+          "partTimeFirst": 924,
+          "reason": "own"
         },
         "counts": {
           "criminal": 5,

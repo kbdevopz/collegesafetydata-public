@@ -57,11 +57,13 @@
   ],
   "institution": {
     "id": 484862,
+    "ratesFile": "rates/institutions/484862.json",
     "byYear": {
       "2023": {
         "campuses": 2,
         "online": 0,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 174,
         "counts": {
           "criminal": 3,
@@ -75,11 +77,13 @@
       "2024": {
         "campuses": 2,
         "online": 43,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 198,
         "fteUncertain": {
           "share": 148,
-          "partTimeFirst": 198
+          "partTimeFirst": 198,
+          "reason": "own"
         }
       }
     }

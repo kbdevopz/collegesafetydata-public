@@ -1042,39 +1042,45 @@
   ],
   "institution": {
     "id": 199102,
+    "ratesFile": "rates/institutions/199102.json",
     "byYear": {
       "2015": {
         "campuses": 2,
         "online": 5,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 9752
       },
       "2016": {
         "campuses": 2,
         "online": 7,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 9936
       },
       "2017": {
         "campuses": 3,
         "online": 9,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 10465
       },
       "2018": {
         "campuses": 3,
         "online": 9,
-        "rateRanked": true,
-        "rateFte": 10687,
-        "spikes": [
-          "drug_discipline"
-        ]
+        "rated": true,
+        "rateFte": 10687
       },
       "2019": {
         "campuses": 3,
         "online": 10,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 11042,
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "Non-campus",
+            "count": 12,
+            "usual": 0
+          }
+        ],
         "counts": {
           "criminal": 63,
           "violent": 11,
@@ -1100,34 +1106,43 @@
       "2020": {
         "campuses": 3,
         "online": 10,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 11084
       },
       "2021": {
         "campuses": 3,
         "online": 10,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 11528
       },
       "2022": {
         "campuses": 3,
         "online": 12,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 11630
       },
       "2023": {
         "campuses": 3,
         "online": 11,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 12156
       },
       "2024": {
         "campuses": 3,
         "online": 12,
-        "rateRanked": true,
-        "rateFte": 12516
+        "rated": true,
+        "rateFte": 12516,
+        "flags": [
+          {
+            "offense": "stalking",
+            "geo": "On-campus",
+            "count": 23,
+            "usual": 5
+          }
+        ]
       }
     }
   }

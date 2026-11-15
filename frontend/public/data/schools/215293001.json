@@ -982,71 +982,126 @@
   ],
   "institution": {
     "id": 215293,
+    "ratesFile": "rates/institutions/215293.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 2,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 26444
       },
       "2016": {
         "campuses": 1,
         "online": 1,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 26644
       },
       "2017": {
         "campuses": 1,
         "online": 1,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 26757
       },
       "2018": {
         "campuses": 1,
         "online": 1,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 26834
       },
       "2019": {
         "campuses": 1,
         "online": 1,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 28291
       },
       "2020": {
         "campuses": 1,
         "online": 1,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 27928
       },
       "2021": {
         "campuses": 1,
         "online": 1,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 29035
+        "rateFte": 29035,
+        "flags": [
+          {
+            "offense": "stalking",
+            "geo": "On-campus",
+            "count": 19,
+            "usual": 4
+          }
+        ]
       },
       "2022": {
         "campuses": 1,
         "online": 3,
-        "rateRanked": true,
-        "rateFte": 29133
+        "rated": true,
+        "rateFte": 29133,
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "On-campus",
+            "count": 14,
+            "usual": 2
+          },
+          {
+            "offense": "stalking",
+            "geo": "On-campus",
+            "count": 21,
+            "usual": 4
+          }
+        ]
       },
       "2023": {
         "campuses": 1,
         "online": 3,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 29588,
-        "spikes": [
-          "aggravated_assault"
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "On-campus",
+            "count": 23,
+            "usual": 2
+          },
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 13,
+            "usual": 1
+          },
+          {
+            "offense": "stalking",
+            "geo": "On-campus",
+            "count": 22,
+            "usual": 4
+          }
         ]
       },
       "2024": {
         "campuses": 1,
         "online": 4,
-        "rateRanked": true,
-        "rateFte": 30109
+        "rated": true,
+        "rateFte": 30109,
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 24,
+            "usual": 1
+          },
+          {
+            "offense": "stalking",
+            "geo": "On-campus",
+            "count": 19,
+            "usual": 4
+          }
+        ]
       }
     }
   }

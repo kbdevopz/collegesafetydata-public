@@ -852,61 +852,71 @@
   ],
   "institution": {
     "id": 206604,
+    "ratesFile": "rates/institutions/206604.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 13704
       },
       "2016": {
         "campuses": 1,
         "online": 5,
-        "rateRanked": true,
-        "rateFte": 12978
+        "rated": true,
+        "rateFte": 12978,
+        "flags": [
+          {
+            "offense": "fondling",
+            "geo": "On-campus",
+            "count": 13,
+            "usual": 2
+          }
+        ]
       },
       "2017": {
         "campuses": 4,
         "online": 2,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 12643
       },
       "2018": {
         "campuses": 4,
         "online": 1,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 11491
       },
       "2019": {
         "campuses": 4,
         "online": 8,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 9571
       },
       "2020": {
         "campuses": 4,
         "online": 8,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 8482
       },
       "2021": {
         "campuses": 4,
         "online": 8,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 7768
       },
       "2022": {
         "campuses": 4,
         "online": 13,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 7154
       },
       "2023": {
         "campuses": 4,
         "online": 10,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 7504,
         "counts": {
           "criminal": 25,
@@ -930,7 +940,7 @@
       "2024": {
         "campuses": 1,
         "online": 10,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 7987
       }
     }

@@ -934,15 +934,13 @@
   ],
   "institution": {
     "id": 217882,
+    "ratesFile": "rates/institutions/217882.json",
     "byYear": {
       "2015": {
         "campuses": 5,
         "online": 4,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 20748,
-        "spikes": [
-          "drug_discipline"
-        ],
         "counts": {
           "criminal": 95,
           "violent": 18,
@@ -968,13 +966,13 @@
       "2016": {
         "campuses": 5,
         "online": 4,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 21407
       },
       "2017": {
         "campuses": 6,
         "online": 5,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 22116,
         "counts": {
           "criminal": 77,
@@ -1001,7 +999,7 @@
       "2018": {
         "campuses": 7,
         "online": 6,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 22502,
         "counts": {
           "criminal": 58,
@@ -1028,7 +1026,7 @@
       "2019": {
         "campuses": 10,
         "online": 6,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 23230,
         "counts": {
           "criminal": 39,
@@ -1053,14 +1051,15 @@
       "2020": {
         "campuses": 10,
         "online": 6,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 23659
       },
       "2021": {
         "campuses": 10,
         "online": 6,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 24587,
         "counts": {
@@ -1084,13 +1083,13 @@
       "2022": {
         "campuses": 10,
         "online": 8,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 25480
       },
       "2023": {
         "campuses": 10,
         "online": 7,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 25979,
         "counts": {
           "criminal": 44,
@@ -1113,8 +1112,16 @@
       "2024": {
         "campuses": 10,
         "online": 7,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 26392,
+        "flags": [
+          {
+            "offense": "dating_violence",
+            "geo": "On-campus",
+            "count": 10,
+            "usual": 1
+          }
+        ],
         "counts": {
           "criminal": 70,
           "violent": 15,

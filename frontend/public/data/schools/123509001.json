@@ -190,67 +190,77 @@
   ],
   "institution": {
     "id": 123509,
+    "ratesFile": "rates/institutions/123509.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 3,
-        "rateRanked": true,
-        "rateFte": 4757
+        "rated": true,
+        "rateFte": 4757,
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "On-campus",
+            "count": 10,
+            "usual": 0
+          }
+        ]
       },
       "2016": {
         "campuses": 1,
         "online": 6,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 5107
       },
       "2017": {
         "campuses": 1,
         "online": 8,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 4987
       },
       "2018": {
         "campuses": 1,
         "online": 9,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 4716
       },
       "2019": {
         "campuses": 1,
         "online": 14,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 4518
       },
       "2020": {
         "campuses": 1,
         "online": 14,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 3562
       },
       "2021": {
         "campuses": 1,
         "online": 14,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 3411
       },
       "2022": {
         "campuses": 1,
         "online": 30,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 3429
       },
       "2023": {
         "campuses": 1,
         "online": 40,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 3508
       },
       "2024": {
         "campuses": 1,
         "online": 42,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 3489
       }
     }

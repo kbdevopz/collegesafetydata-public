@@ -360,55 +360,66 @@
   ],
   "institution": {
     "id": 204468,
+    "ratesFile": "rates/institutions/204468.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 27,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1434
       },
       "2016": {
         "campuses": 1,
         "online": 26,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1339
       },
       "2017": {
         "campuses": 1,
         "online": 23,
-        "rateRanked": true,
-        "rateFte": 1313
+        "rated": true,
+        "rateFte": 1313,
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "On-campus",
+            "count": 11,
+            "usual": 0
+          }
+        ]
       },
       "2018": {
         "campuses": 1,
         "online": 20,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1240
       },
       "2019": {
         "campuses": 1,
         "online": 18,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1205
       },
       "2020": {
         "campuses": 1,
         "online": 18,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 1191
       },
       "2021": {
         "campuses": 1,
         "online": 18,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 1068
       },
       "2022": {
         "campuses": 1,
         "online": 37,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 887
       }
     }

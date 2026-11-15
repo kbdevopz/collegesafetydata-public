@@ -342,23 +342,24 @@
   ],
   "institution": {
     "id": 167525,
+    "ratesFile": "rates/institutions/167525.json",
     "byYear": {
       "2015": {
         "campuses": 2,
         "online": 3,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2766
       },
       "2016": {
         "campuses": 2,
         "online": 4,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2947
       },
       "2017": {
         "campuses": 2,
         "online": 5,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 3077,
         "counts": {
           "criminal": 2,
@@ -377,7 +378,7 @@
       "2018": {
         "campuses": 2,
         "online": 4,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2219,
         "counts": {
           "criminal": 1,
@@ -392,13 +393,14 @@
       "2019": {
         "campuses": 2,
         "online": 13,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1786
       },
       "2020": {
         "campuses": 2,
         "online": 13,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 1686,
         "counts": {
@@ -412,18 +414,20 @@
       "2021": {
         "campuses": 2,
         "online": 13,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 1415
       },
       "2022": {
         "campuses": 2,
         "online": 66,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 854,
         "fteUncertain": {
           "share": 526,
-          "partTimeFirst": 854
+          "partTimeFirst": 854,
+          "reason": "own"
         },
         "counts": {
           "criminal": 6,
@@ -444,13 +448,13 @@
       "2023": {
         "campuses": 2,
         "online": 36,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1225
       },
       "2024": {
         "campuses": 2,
         "online": 39,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1398
       }
     }

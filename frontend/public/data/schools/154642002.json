@@ -72,11 +72,12 @@
   ],
   "institution": {
     "id": 154642,
+    "ratesFile": "rates/institutions/154642.json",
     "byYear": {
       "2015": {
         "campuses": 2,
         "online": 24,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1299,
         "counts": {
           "all": 32,
@@ -88,11 +89,12 @@
       "2016": {
         "campuses": 2,
         "online": 45,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1092,
         "fteUncertain": {
           "share": 798,
-          "partTimeFirst": 1092
+          "partTimeFirst": 1092,
+          "reason": "own"
         },
         "counts": {
           "criminal": 1,
@@ -108,11 +110,12 @@
       "2017": {
         "campuses": 2,
         "online": 49,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1113,
         "fteUncertain": {
           "share": 782,
-          "partTimeFirst": 1113
+          "partTimeFirst": 1113,
+          "reason": "own"
         },
         "counts": {
           "criminal": 3,
@@ -132,11 +135,12 @@
       "2018": {
         "campuses": 2,
         "online": 54,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1076,
         "fteUncertain": {
           "share": 707,
-          "partTimeFirst": 1076
+          "partTimeFirst": 1076,
+          "reason": "own"
         },
         "counts": {
           "criminal": 1,
@@ -152,11 +156,12 @@
       "2019": {
         "campuses": 2,
         "online": 52,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1063,
         "fteUncertain": {
           "share": 712,
-          "partTimeFirst": 1063
+          "partTimeFirst": 1063,
+          "reason": "own"
         },
         "counts": {
           "all": 30,
@@ -167,12 +172,14 @@
       "2020": {
         "campuses": 2,
         "online": 52,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "onlineYear": 2019,
         "rateFte": 976,
         "fteUncertain": {
           "share": 646,
-          "partTimeFirst": 976
+          "partTimeFirst": 976,
+          "reason": "own"
         },
         "counts": {
           "all": 29,
@@ -184,12 +191,14 @@
       "2021": {
         "campuses": 2,
         "online": 52,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "onlineYear": 2019,
         "rateFte": 975,
         "fteUncertain": {
           "share": 643,
-          "partTimeFirst": 975
+          "partTimeFirst": 975,
+          "reason": "own"
         },
         "counts": {
           "criminal": 1,
@@ -204,11 +213,13 @@
       "2022": {
         "campuses": 2,
         "online": 52,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 914,
         "fteUncertain": {
           "share": 614,
-          "partTimeFirst": 914
+          "partTimeFirst": 914,
+          "reason": "own"
         },
         "counts": {
           "all": 63,
@@ -219,11 +230,13 @@
       "2023": {
         "campuses": 2,
         "online": 62,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 687,
         "fteUncertain": {
           "share": 405,
-          "partTimeFirst": 687
+          "partTimeFirst": 687,
+          "reason": "own"
         },
         "counts": {
           "criminal": 2,

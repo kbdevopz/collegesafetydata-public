@@ -79,11 +79,12 @@
   ],
   "institution": {
     "id": 182290,
+    "ratesFile": "rates/institutions/182290.json",
     "byYear": {
       "2019": {
         "campuses": 3,
         "online": 5,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 17780,
         "counts": {
           "criminal": 31,
@@ -108,7 +109,8 @@
       "2020": {
         "campuses": 4,
         "online": 5,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 17364,
         "counts": {
@@ -133,7 +135,7 @@
       "2021": {
         "campuses": 4,
         "online": 5,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 17311,
         "counts": {
@@ -160,8 +162,16 @@
       "2022": {
         "campuses": 4,
         "online": 7,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 17012,
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 28,
+            "usual": 8
+          }
+        ],
         "counts": {
           "criminal": 61,
           "violent": 10,
@@ -187,8 +197,22 @@
       "2023": {
         "campuses": 4,
         "online": 7,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 17291,
+        "flags": [
+          {
+            "offense": "dating_violence",
+            "geo": "On-campus",
+            "count": 11,
+            "usual": 1
+          },
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 49,
+            "usual": 8
+          }
+        ],
         "counts": {
           "criminal": 77,
           "violent": 10,
@@ -211,8 +235,22 @@
       "2024": {
         "campuses": 4,
         "online": 6,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 17858,
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 57,
+            "usual": 8
+          },
+          {
+            "offense": "rape",
+            "geo": "On-campus",
+            "count": 21,
+            "usual": 4
+          }
+        ],
         "counts": {
           "criminal": 95,
           "violent": 24,

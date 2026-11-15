@@ -482,72 +482,86 @@
   ],
   "institution": {
     "id": 230816,
+    "ratesFile": "rates/institutions/230816.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 11,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 713
       },
       "2016": {
         "campuses": 1,
         "online": 10,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 725
       },
       "2017": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 820
       },
       "2018": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 792
       },
       "2019": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 800
       },
       "2020": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "onlineYear": 2019,
         "rateFte": 744
       },
       "2021": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "onlineYear": 2019,
         "rateFte": 840
       },
       "2022": {
         "campuses": 1,
         "online": 12,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 742
       },
       "2023": {
         "campuses": 1,
         "online": 10,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 754
       },
       "2024": {
         "campuses": 1,
         "online": 14,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 777,
-        "spikes": [
-          "criminal",
-          "violent",
-          "rape"
+        "flags": [
+          {
+            "offense": "rape",
+            "geo": "On-campus",
+            "count": 53,
+            "usual": 2
+          }
         ]
       }
     }

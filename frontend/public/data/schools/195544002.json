@@ -83,11 +83,12 @@
   ],
   "institution": {
     "id": 195544,
+    "ratesFile": "rates/institutions/195544.json",
     "byYear": {
       "2015": {
         "campuses": 2,
         "online": 5,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 3760,
         "counts": {
           "criminal": 2,
@@ -102,7 +103,8 @@
       "2016": {
         "campuses": 1,
         "online": 8,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "excluded",
         "rateExcludedReason": "In 2016 DOE counted the figures of campus 195544002 of this institution under ID 195562002 of another institution (a merger or renumbering), while IPEDS counts that campus's students in this institution's FTE. No rate is shown for that year.",
         "rateFte": 4020,
         "counts": {

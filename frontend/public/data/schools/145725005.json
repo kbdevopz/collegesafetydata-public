@@ -57,61 +57,13 @@
   ],
   "institution": {
     "id": 145725,
+    "ratesFile": "rates/institutions/145725.json",
     "byYear": {
       "2015": {
         "campuses": 5,
         "online": 5,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 6895,
-        "sharedIn": {
-          "criminal": 15,
-          "violent": 9,
-          "property": 6,
-          "all": 31,
-          "aggravated_assault": 1,
-          "dating_violence": 4,
-          "domestic_violence": 3,
-          "drug_arrest": 7,
-          "motor_vehicle_theft": 6,
-          "murder": 1,
-          "robbery": 7,
-          "weapons_arrest": 2
-        },
-        "notRanked": {
-          "criminal": [
-            "shared"
-          ],
-          "violent": [
-            "shared"
-          ],
-          "property": [
-            "shared"
-          ],
-          "all": [
-            "shared"
-          ],
-          "aggravated_assault": [
-            "shared"
-          ],
-          "dating_violence": [
-            "shared"
-          ],
-          "domestic_violence": [
-            "shared"
-          ],
-          "drug_arrest": [
-            "shared"
-          ],
-          "motor_vehicle_theft": [
-            "shared"
-          ],
-          "robbery": [
-            "shared"
-          ],
-          "weapons_arrest": [
-            "shared"
-          ]
-        },
         "counts": {
           "criminal": 24,
           "violent": 14,
@@ -135,8 +87,16 @@
       "2016": {
         "campuses": 5,
         "online": 5,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 6860,
+        "flags": [
+          {
+            "offense": "robbery",
+            "geo": "On-campus",
+            "count": 18,
+            "usual": 1
+          }
+        ],
         "counts": {
           "criminal": 37,
           "violent": 26,

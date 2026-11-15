@@ -56,11 +56,12 @@
   ],
   "institution": {
     "id": 100858,
+    "ratesFile": "rates/institutions/100858.json",
     "byYear": {
       "2018": {
         "campuses": 10,
         "online": 5,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 26993,
         "abroad": {
           "campuses": 1,
@@ -91,7 +92,7 @@
       "2019": {
         "campuses": 10,
         "online": 6,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 26919,
         "abroad": {
           "campuses": 1,
@@ -121,7 +122,8 @@
       "2020": {
         "campuses": 12,
         "online": 6,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 27002,
         "abroad": {
@@ -153,15 +155,26 @@
       "2021": {
         "campuses": 13,
         "online": 6,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 27546,
         "abroad": {
           "campuses": 1,
           "counts": {}
         },
-        "spikes": [
-          "rape"
+        "flags": [
+          {
+            "offense": "fondling",
+            "geo": "On-campus",
+            "count": 18,
+            "usual": 3
+          },
+          {
+            "offense": "rape",
+            "geo": "On-campus",
+            "count": 42,
+            "usual": 10
+          }
         ],
         "counts": {
           "criminal": 117,
@@ -187,7 +200,7 @@
       "2022": {
         "campuses": 13,
         "online": 10,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 27351,
         "abroad": {
           "campuses": 1,

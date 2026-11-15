@@ -56,11 +56,13 @@
   ],
   "institution": {
     "id": 498571,
+    "ratesFile": "rates/institutions/498571.json",
     "byYear": {
       "2021": {
         "campuses": 5,
         "online": null,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateExcludedReason": "In 2021 DOE reported campuses of this institution and of related institutions (a merger or renumbering) under separate IDs, while IPEDS has no enrollment for 498571, so that year's incidents and enrollment may not cover the same campuses. No rate is shown for it.",
         "counts": {
           "criminal": 15,
@@ -83,7 +85,7 @@
       "2022": {
         "campuses": 7,
         "online": 35,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 8251,
         "counts": {
           "criminal": 16,

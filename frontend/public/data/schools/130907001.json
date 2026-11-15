@@ -278,11 +278,13 @@
   ],
   "institution": {
     "id": 130907,
+    "ratesFile": "rates/institutions/130907.json",
     "byYear": {
       "2015": {
         "campuses": 4,
         "online": 4,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "excluded",
         "rateExcludedReason": "In 2015 DOE reported campuses of this institution and of related institutions (a merger or renumbering) under separate IDs, while IPEDS has no enrollment for 130916, so that year's incidents and enrollment may not cover the same campuses. No rate is shown for it.",
         "rateFte": 7490,
         "counts": {
@@ -301,7 +303,7 @@
       "2016": {
         "campuses": 4,
         "online": 4,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 8724,
         "counts": {
           "criminal": 3,
@@ -320,7 +322,7 @@
       "2017": {
         "campuses": 4,
         "online": 6,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 8206,
         "counts": {
           "criminal": 1,
@@ -336,44 +338,8 @@
       "2018": {
         "campuses": 4,
         "online": 8,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 7919,
-        "sharedIn": {
-          "criminal": 1,
-          "property": 1,
-          "all": 7,
-          "domestic_violence": 2,
-          "drug_discipline": 1,
-          "liquor_discipline": 1,
-          "motor_vehicle_theft": 1,
-          "stalking": 2
-        },
-        "notRanked": {
-          "criminal": [
-            "shared"
-          ],
-          "property": [
-            "shared"
-          ],
-          "all": [
-            "shared"
-          ],
-          "domestic_violence": [
-            "shared"
-          ],
-          "drug_discipline": [
-            "shared"
-          ],
-          "liquor_discipline": [
-            "shared"
-          ],
-          "motor_vehicle_theft": [
-            "shared"
-          ],
-          "stalking": [
-            "shared"
-          ]
-        },
         "counts": {
           "criminal": 8,
           "violent": 3,
@@ -395,7 +361,7 @@
       "2019": {
         "campuses": 4,
         "online": 9,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 7468,
         "counts": {
           "criminal": 4,
@@ -414,7 +380,8 @@
       "2020": {
         "campuses": 4,
         "online": 9,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 7326,
         "counts": {
@@ -429,9 +396,17 @@
       "2021": {
         "campuses": 4,
         "online": 9,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 6657,
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "On-campus",
+            "count": 13,
+            "usual": 1
+          }
+        ],
         "counts": {
           "criminal": 17,
           "violent": 3,
@@ -449,7 +424,7 @@
       "2022": {
         "campuses": 4,
         "online": 34,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 5436,
         "counts": {
           "criminal": 7,
@@ -470,7 +445,7 @@
       "2023": {
         "campuses": 4,
         "online": 22,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 6538,
         "counts": {
           "criminal": 4,
@@ -485,7 +460,7 @@
       "2024": {
         "campuses": 4,
         "online": 14,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 7232,
         "counts": {
           "criminal": 6,

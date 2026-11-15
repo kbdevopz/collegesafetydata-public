@@ -128,75 +128,83 @@
   "breakdownByGeo": [],
   "institution": {
     "id": 199421,
+    "ratesFile": "rates/institutions/199421.json",
     "byYear": {
       "2015": {
         "campuses": 2,
         "online": 16,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1403
       },
       "2016": {
         "campuses": 2,
         "online": 19,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1355
       },
       "2017": {
         "campuses": 3,
         "online": 23,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1384
       },
       "2018": {
         "campuses": 3,
         "online": 29,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1188
       },
       "2019": {
         "campuses": 3,
         "online": 30,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1196
       },
       "2020": {
         "campuses": 3,
         "online": 30,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 1058
       },
       "2021": {
         "campuses": 3,
         "online": 30,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "onlineYear": 2019,
         "rateFte": 937
       },
       "2022": {
         "campuses": 3,
         "online": 60,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 709,
         "fteUncertain": {
           "share": 482,
-          "partTimeFirst": 709
+          "partTimeFirst": 709,
+          "reason": "own"
         }
       },
       "2023": {
         "campuses": 3,
         "online": 50,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 865,
         "fteUncertain": {
           "share": 661,
-          "partTimeFirst": 865
+          "partTimeFirst": 865,
+          "reason": "own"
         }
       },
       "2024": {
         "campuses": 3,
         "online": 52,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 721
       }
     }

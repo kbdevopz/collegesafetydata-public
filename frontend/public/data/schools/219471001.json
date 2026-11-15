@@ -662,75 +662,83 @@
   ],
   "institution": {
     "id": 219471,
+    "ratesFile": "rates/institutions/219471.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 30,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 6535
       },
       "2016": {
         "campuses": 1,
         "online": 28,
-        "rateRanked": true,
-        "rateFte": 6633,
-        "spikes": [
-          "drug_arrest"
-        ]
+        "rated": true,
+        "rateFte": 6633
       },
       "2017": {
         "campuses": 1,
         "online": 30,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 6582
       },
       "2018": {
         "campuses": 1,
         "online": 29,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 6601
       },
       "2019": {
         "campuses": 1,
         "online": 29,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 6520
       },
       "2020": {
         "campuses": 1,
         "online": 29,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 6319
       },
       "2021": {
         "campuses": 2,
         "online": 29,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 6198
       },
       "2022": {
         "campuses": 2,
         "online": 33,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 6229
       },
       "2023": {
         "campuses": 3,
         "online": 33,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 6323
       },
       "2024": {
         "campuses": 3,
         "online": 36,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 6594,
         "fteUncertain": {
           "share": 5193,
-          "partTimeFirst": 6594
+          "partTimeFirst": 6594,
+          "reason": "own"
         },
+        "flags": [
+          {
+            "offense": "stalking",
+            "geo": "On-campus",
+            "count": 13,
+            "usual": 1
+          }
+        ],
         "counts": {
           "criminal": 11,
           "violent": 8,

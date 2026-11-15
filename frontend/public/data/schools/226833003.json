@@ -68,18 +68,24 @@
   ],
   "institution": {
     "id": 226833,
+    "ratesFile": "rates/institutions/226833.json",
     "byYear": {
       "2016": {
         "campuses": 2,
         "online": 19,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 4554,
         "abroad": {
           "campuses": 1,
           "counts": {}
         },
-        "spikes": [
-          "domestic_violence"
+        "flags": [
+          {
+            "offense": "domestic_violence",
+            "geo": "On-campus",
+            "count": 25,
+            "usual": 3
+          }
         ],
         "counts": {
           "criminal": 34,
@@ -103,7 +109,7 @@
       "2017": {
         "campuses": 2,
         "online": 20,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 4588,
         "abroad": {
           "campuses": 1,
@@ -129,7 +135,7 @@
       "2018": {
         "campuses": 1,
         "online": 22,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 4614,
         "abroad": {
           "campuses": 1,
@@ -156,7 +162,7 @@
       "2019": {
         "campuses": 1,
         "online": 22,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 4456,
         "abroad": {
           "campuses": 1,
@@ -181,7 +187,7 @@
       "2021": {
         "campuses": 1,
         "online": 22,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 4156,
         "abroad": {
@@ -210,7 +216,7 @@
       "2022": {
         "campuses": 1,
         "online": 29,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 3819,
         "abroad": {
           "campuses": 1,
@@ -234,7 +240,7 @@
       "2023": {
         "campuses": 1,
         "online": 29,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 3729,
         "abroad": {
           "campuses": 1,
@@ -260,7 +266,7 @@
       "2024": {
         "campuses": 1,
         "online": 25,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 3875,
         "abroad": {
           "campuses": 1,

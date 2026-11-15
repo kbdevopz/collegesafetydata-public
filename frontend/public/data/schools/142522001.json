@@ -720,108 +720,158 @@
   ],
   "institution": {
     "id": 142522,
+    "ratesFile": "rates/institutions/142522.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 58,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 17514,
         "fteUncertain": {
           "share": 11548,
-          "partTimeFirst": 17514
-        }
+          "partTimeFirst": 17514,
+          "reason": "own"
+        },
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "On-campus",
+            "count": 13,
+            "usual": 2
+          }
+        ]
       },
       "2016": {
         "campuses": 1,
         "online": 58,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 17436,
         "fteUncertain": {
           "share": 11613,
-          "partTimeFirst": 17436
+          "partTimeFirst": 17436,
+          "reason": "own"
         }
       },
       "2017": {
         "campuses": 1,
         "online": 61,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 18410,
         "fteUncertain": {
           "share": 12029,
-          "partTimeFirst": 18410
-        }
+          "partTimeFirst": 18410,
+          "reason": "own"
+        },
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "On-campus",
+            "count": 12,
+            "usual": 2
+          }
+        ]
       },
       "2018": {
         "campuses": 1,
         "online": 50,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 19449,
         "fteUncertain": {
           "share": 13883,
-          "partTimeFirst": 19449
+          "partTimeFirst": 19449,
+          "reason": "own"
         }
       },
       "2019": {
         "campuses": 1,
         "online": 45,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 19659,
         "fteUncertain": {
           "share": 14618,
-          "partTimeFirst": 19659
+          "partTimeFirst": 19659,
+          "reason": "own"
         }
       },
       "2020": {
         "campuses": 1,
         "online": 45,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 21045,
         "fteUncertain": {
           "share": 15899,
-          "partTimeFirst": 21045
+          "partTimeFirst": 21045,
+          "reason": "own"
         }
       },
       "2021": {
         "campuses": 1,
         "online": 45,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 20451,
         "fteUncertain": {
           "share": 15556,
-          "partTimeFirst": 20451
+          "partTimeFirst": 20451,
+          "reason": "own"
         }
       },
       "2022": {
         "campuses": 1,
         "online": 52,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 18176,
         "fteUncertain": {
           "share": 12943,
-          "partTimeFirst": 18176
-        }
+          "partTimeFirst": 18176,
+          "reason": "own"
+        },
+        "flags": [
+          {
+            "offense": "fondling",
+            "geo": "On-campus",
+            "count": 26,
+            "usual": 6
+          }
+        ]
       },
       "2023": {
         "campuses": 1,
         "online": 54,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 17893,
         "fteUncertain": {
           "share": 12426,
-          "partTimeFirst": 17893
+          "partTimeFirst": 17893,
+          "reason": "own"
         }
       },
       "2024": {
         "campuses": 1,
         "online": 55,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 19238,
         "fteUncertain": {
           "share": 13090,
-          "partTimeFirst": 19238
-        }
+          "partTimeFirst": 19238,
+          "reason": "own"
+        },
+        "flags": [
+          {
+            "offense": "fondling",
+            "geo": "Non-campus",
+            "count": 10,
+            "usual": 0
+          },
+          {
+            "offense": "rape",
+            "geo": "Non-campus",
+            "count": 11,
+            "usual": 0
+          }
+        ]
       }
     }
   }

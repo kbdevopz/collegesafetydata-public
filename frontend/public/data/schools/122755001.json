@@ -1060,39 +1060,52 @@
   ],
   "institution": {
     "id": 122755,
+    "ratesFile": "rates/institutions/122755.json",
     "byYear": {
       "2015": {
         "campuses": 2,
         "online": 2,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 28072,
-        "spikes": [
-          "drug_discipline",
-          "liquor_discipline"
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "Public property",
+            "count": 14,
+            "usual": 2
+          }
         ]
       },
       "2016": {
         "campuses": 2,
         "online": 2,
-        "rateRanked": true,
-        "rateFte": 27743
+        "rated": true,
+        "rateFte": 27743,
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "Public property",
+            "count": 23,
+            "usual": 2
+          }
+        ]
       },
       "2017": {
         "campuses": 2,
         "online": 7,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 29685
       },
       "2018": {
         "campuses": 2,
         "online": 7,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 29432
       },
       "2019": {
         "campuses": 5,
         "online": 8,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 29778,
         "counts": {
           "criminal": 64,
@@ -1121,12 +1134,29 @@
       "2020": {
         "campuses": 5,
         "online": 8,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 29687,
-        "spikes": [
-          "criminal",
-          "fondling"
+        "flags": [
+          {
+            "offense": "domestic_violence",
+            "geo": "On-campus",
+            "count": 39,
+            "usual": 9
+          },
+          {
+            "offense": "fondling",
+            "geo": "On-campus",
+            "count": 299,
+            "usual": 9
+          },
+          {
+            "offense": "rape",
+            "geo": "On-campus",
+            "count": 40,
+            "usual": 5
+          }
         ],
         "counts": {
           "criminal": 406,
@@ -1150,7 +1180,7 @@
       "2021": {
         "campuses": 5,
         "online": 8,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 29957,
         "counts": {
@@ -1176,8 +1206,22 @@
       "2022": {
         "campuses": 5,
         "online": 16,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 27505,
+        "flags": [
+          {
+            "offense": "domestic_violence",
+            "geo": "On-campus",
+            "count": 32,
+            "usual": 9
+          },
+          {
+            "offense": "rape",
+            "geo": "On-campus",
+            "count": 24,
+            "usual": 5
+          }
+        ],
         "counts": {
           "criminal": 100,
           "violent": 43,
@@ -1203,10 +1247,21 @@
       "2023": {
         "campuses": 5,
         "online": 15,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 27969,
-        "spikes": [
-          "stalking"
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "On-campus",
+            "count": 15,
+            "usual": 3
+          },
+          {
+            "offense": "stalking",
+            "geo": "On-campus",
+            "count": 22,
+            "usual": 4
+          }
         ],
         "counts": {
           "criminal": 98,
@@ -1234,7 +1289,7 @@
       "2024": {
         "campuses": 5,
         "online": 16,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 29182,
         "counts": {
           "criminal": 75,

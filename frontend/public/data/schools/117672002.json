@@ -40,15 +40,18 @@
   ],
   "institution": {
     "id": 117672,
+    "ratesFile": "rates/institutions/117672.json",
     "byYear": {
       "2024": {
         "campuses": 2,
         "online": 53,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 940,
         "fteUncertain": {
           "share": 704,
-          "partTimeFirst": 940
+          "partTimeFirst": 940,
+          "reason": "own"
         }
       }
     }

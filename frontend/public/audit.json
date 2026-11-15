@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-11-15T04:49:07Z",
+  "generated_at": "2026-11-15T07:54:38Z",
   "audited_build": {
     "site_record": "frontend/public/data/build_inputs.json",
-    "site_record_sha256": "075142ebf370836b5cc0f59f0c0651d0f6c94cf7622564ca3947c7b8106b4548",
+    "site_record_sha256": "6e65d9364390d682454debc9f24c8f8fb24a6c93daded0226efc6fc42e3482c9",
     "curated_sha256": {
       "facts/incidents.parquet": "7cf7d235e64853e934a877579aed578ee275692166bb5e6b182f6e3ff4f9a2a2",
       "aggs/agg_school_year_offense.parquet": "ead11484db841122d29b52ca15826ec8dd0669e895e0d163b5ef998126a9fe6c",
@@ -12,15 +12,17 @@
       "dims/older_release_counts.parquet": "21eaa816a05c1835f513486714cbb4cc7becf7cb5b5416d8da26cfee689172bb",
       "aggs/shared_blocks.parquet": "2e21067973ad7a6be06d319f39aaaf700c6618737d3ed3c068fc9206e9e51f0a",
       "dims/campus_names.parquet": "36fe8642248c83795e61be4c3077e983fe429148bdf9916b1605f49af8dc9c0f",
-      "dims/campus_id_links.parquet": "c8684c61be2dcc025d567e526a49ee704c2cf93560f9f49234fd739a99e89110"
+      "dims/campus_id_links.parquet": "c8684c61be2dcc025d567e526a49ee704c2cf93560f9f49234fd739a99e89110",
+      "aggs/agg_institution_year.parquet": "e03737c1373a79a51cf4c6185635d36aaa1e225cf93460c96e13586a93e06bbb",
+      "aggs/agg_institution_year_offense.parquet": "31c84d9ece7824c93b45a8242223c6215c0087a822634fe308fcb8673ab216cf"
     }
   },
-  "overall_status": "PASS",
+  "overall_status": "FAIL",
   "summary": {
-    "total_checks": 12,
+    "total_checks": 14,
     "passed": 12,
-    "failed": 0,
-    "warnings": 0
+    "failed": 1,
+    "warnings": 1
   },
   "checks": [
     {
@@ -144,8 +146,10 @@
       "name": "Rate Calculation Accuracy",
       "status": "PASS",
       "details": {
-        "what_it_checks": "For every entry of every rateRankings, rateUnranked and rateNotRanked list of rankings/*.json, rate equals count / fte x 10,000 to 2 decimals (within 0.005), with the FTE of the entry's institution in the file's institutions table, which must be above 0; an entry has no rate exactly when its institution is excluded (a rule leaves it out), and then it is in rateNotRanked. Check 10 compares the counts and FTE with the facts and NCES's enrollment.",
-        "rate_entries_checked": 411778,
+        "what_it_checks": "From each file's own numbers: in every rates/{window}-{code}.json file natl = natlN / natlF x 10,000 rounded half up to 2 decimals, each peer group's rate and each entry's rate = n / fteYears x 10,000 the same way (integer arithmetic), 0 <= lo <= rate <= hi, E = natlN x fteYears / natlF rounded half up to 1 decimal, and fteYearsSmaller between 1 and fteYears; every single-year rate in rates/institutions/*.json ([n, rate, lo, hi]) with its year's fte likewise. Check 12 recomputes every figure from the incidents and NCES's enrollment.",
+        "window_files": 50,
+        "window_entries_checked": 99300,
+        "single_year_rates_checked": 187000,
         "rate_errors": 0
       },
       "errors": [],
@@ -155,9 +159,10 @@
       "name": "Ranking Order Validation",
       "status": "PASS",
       "details": {
-        "what_it_checks": "In every count ranking (one code of a rankings/*.json file's rankings, the summary codes included), entries are listed by count, largest first, ties by name (the file's campuses table), then UNITID, and each rank is 1 + the number of entries with a larger count, so tied counts share a rank (1, 2, 2, 4). Every rate ranking (rateRankings) likewise by rate, ties by institution name, then base UNITID, and every list of institutions with too few incidents to rank (rateUnranked) or not ranked (rateNotRanked, the entries without a rate last) in the same order, without ranks. It checks the order of each file's own counts and rates; check 4 checks the rates' arithmetic.",
-        "groups_validated": 34482,
-        "entries_checked": 1039435,
+        "what_it_checks": "In every count ranking (one code of a rankings/*.json file's rankings, the summary codes included), entries are listed by count, largest first, ties by name (the file's campuses table), then UNITID, and each rank is 1 + the number of entries with a larger count, so tied counts share a rank (1, 2, 2, 4). In every rates/{window}-{code}.json file the entries are listed by rate (exact n / fteYears), highest first, ties by name, then base UNITID; list.n is the number of listed entries; each listed entry's position is 1 + the listed entries with a strictly higher rate and lies inside its range (rankLo-rankHi within 1-n); a state list (2+ members) the same within the state with stateN its members; entries not listed have no position. Check 12 recomputes the lists and ranges.",
+        "groups_validated": 11267,
+        "rate_files_validated": 50,
+        "entries_checked": 726957,
         "order_violations": 0
       },
       "errors": [],
@@ -167,8 +172,11 @@
       "name": "Ranking Totals and Tables",
       "status": "PASS",
       "details": {
-        "what_it_checks": "In every rankings/*.json file, totals[code] equals the sum of rankings[code]'s counts for every code, the campuses table holds every ranked campus (and the campuses ranked with 0, which check 10 checks), and the institutions table every institution of rateRankings, rateUnranked and rateNotRanked, each with an FTE above 0; an excluded institution is only in rateNotRanked, and an institution is in at most one of the three lists per code. It checks the files' own numbers; check 8 compares the counts with the facts.",
+        "what_it_checks": "In every rankings/*.json file, totals[code] equals the sum of rankings[code]'s counts for every code, the campuses table holds every ranked campus (and the campuses ranked with 0, which check 10 checks), and the v3 rate keys (institutions, rateRankings, rateUnranked, rateNotRanked) are gone. Each rates/{window}-{code}.json file lists an institution once, summary.rated is its number of entries and stateLists the listed entries per state; each entry is in rates/institutions/{id}.json, rated in that window, with the same values (natl and peerRate as in the window file); every rated window of an institution file is in the window files; rates/flags.json holds exactly the institution files' flags; every school file names its institution's rates file (ratesFile) exactly when it exists, and every institution file is named.",
         "groups_validated": 11272,
+        "rate_files": 50,
+        "institution_files": 2584,
+        "flags": 1866,
         "problems": 0
       },
       "errors": [],
@@ -808,46 +816,34 @@
       "name": "Institution Rates",
       "status": "PASS",
       "details": {
-        "what_it_checks": "Without 04's or 05's code, from the facts without shadow blocks, the reported campus-years, dim_institution, dim_enrollment's FTE and online share, NCES's raw headcounts (DRVEF 2021 on, EF A before), etl/reference/medical_campuses.csv and the raw IPEDS HD files: the campus-years that count, the institutions (base UNITIDs) each year, counts over their counting campuses in the United States (a campus DOE lists without a state is abroad and counted apart), link campus, FTE, online share (in 2020, 2021 that of the fall ONLINE_SHARE_YEAR names when NCES has one), the two on-campus FTE estimates (proportional, and part time first, by level with the year's own share) in whole-number arithmetic, on-campus FTE = the larger rounded half up, uncertain when they differ by more than 5:4 or the headcounts do not add up; the rules that leave an institution-year out (HD HOSPITAL = 1, a Carnegie special-focus medical code, the reference list, a campus under two IDs, a merger family; the first one published), pooled institutions, and the figures at listed medical-center campuses and at shared campuses (host blocks once; shadow blocks of an institution that counts a campus of its own). Every rankings/*.json file must list exactly its preset's counting campuses; in institutions those with a denominator of at least 1,000; per code each institution in the right list (ranked, too few, or not ranked with exactly its reasons: online, medical_campus at 1/4 or more, shared above 1/20, few, or the rule), with its count, rate (within 0.005) and figures. Every school file's institution years and downloads/campus-years.csv must match too.",
+        "what_it_checks": "Without 04's or 05's code, from the facts without shadow blocks, the reported campus-years, dim_institution, dim_enrollment's FTE and online share, NCES's raw headcounts (DRVEF 2021 on, EF A before), etl/reference/medical_campuses.csv, etl/reference/campuses_abroad.csv and the raw IPEDS HD files: the campus-years that count, the institutions (base UNITIDs) each year, counts over their counting campuses in the United States (a campus DOE lists without a state, or on the reference list of campuses abroad, is counted apart), per geography (residence halls included), link campus, FTE, online share (in 2020, 2021 that of the fall ONLINE_SHARE_YEAR names when NCES has one), the two on-campus FTE estimates (proportional, and part time first, by level with the year's own share) in whole-number arithmetic, on-campus FTE = the larger rounded half up, the smaller one, uncertain when they differ by more than 5:4 or the headcounts do not add up (own, or only through a pooled institution); the rules that leave an institution-year out (HD HOSPITAL = 1, a Carnegie special-focus medical code, the reference list, a campus under two IDs, a merger family; the first one published), pooled institutions and both denominators, the Carnegie Size & Setting peer type, and the on-campus figures at listed medical-center campuses (less residence halls) and at shared campuses. Every rankings/*.json file must list exactly its preset's counting campuses; 04's institution tables, every school file's institution years, downloads/campus-years.csv and metadata.json's rateStats.institutionYears must match.",
         "by_year": [
           {
             "year": 2015,
             "institutions": 6701,
             "with_more_than_one_campus": 1418,
             "rate_listed": 2310,
-            "rate_ranked_no_rule": 2221,
+            "single_year_rate": 2216,
             "left_out_fte": 4354,
             "no_online_figure": 0,
             "online_share_own_year_used": null,
-            "with_1000_fte": 2392,
-            "with_1000_oncampus_fte": 2310,
-            "proportional_under_1000_listed": 51,
             "fte_uncertain_no_rule": 66,
-            "with_campus_abroad": 96,
+            "fte_uncertain_pooled_only": 0,
+            "no_second_estimate": 0,
+            "with_campus_abroad": 97,
             "abroad_criminal_removed": 77,
             "pooled_merger": 2,
             "pooled_shared": 5,
-            "violent_ranked": 88,
-            "violent_not_ranked_online": 41,
-            "violent_not_ranked_medical_campus": 6,
-            "violent_not_ranked_shared": 18,
-            "violent_ranked_with_medical_note": 3,
-            "violent_ranked_with_shared_note": 0,
-            "criminal_ranked": 388,
-            "criminal_not_ranked_online": 59,
-            "criminal_not_ranked_medical_campus": 6,
-            "criminal_not_ranked_shared": 19,
-            "criminal_ranked_with_medical_note": 3,
-            "criminal_ranked_with_shared_note": 0,
+            "medical_on_campus": 582,
             "rule_hospital": 82,
             "rule_hospital_1000": 67,
             "rule_hospital_first": 82,
             "rule_medical": 30,
             "rule_medical_1000": 18,
             "rule_medical_first": 30,
-            "rule_listed": 2,
-            "rule_listed_1000": 2,
-            "rule_listed_first": 2,
+            "rule_listed": 3,
+            "rule_listed_1000": 3,
+            "rule_listed_first": 3,
             "rule_merger": 2,
             "rule_merger_1000": 1,
             "rule_merger_first": 2,
@@ -860,39 +856,27 @@
             "institutions": 6500,
             "with_more_than_one_campus": 1449,
             "rate_listed": 2276,
-            "rate_ranked_no_rule": 2186,
+            "single_year_rate": 2182,
             "left_out_fte": 4195,
             "no_online_figure": 0,
             "online_share_own_year_used": null,
-            "with_1000_fte": 2364,
-            "with_1000_oncampus_fte": 2276,
-            "proportional_under_1000_listed": 61,
             "fte_uncertain_no_rule": 72,
-            "with_campus_abroad": 102,
+            "fte_uncertain_pooled_only": 0,
+            "no_second_estimate": 0,
+            "with_campus_abroad": 103,
             "abroad_criminal_removed": 67,
             "pooled_merger": 3,
             "pooled_shared": 6,
-            "violent_ranked": 91,
-            "violent_not_ranked_online": 40,
-            "violent_not_ranked_medical_campus": 5,
-            "violent_not_ranked_shared": 20,
-            "violent_ranked_with_medical_note": 1,
-            "violent_ranked_with_shared_note": 0,
-            "criminal_ranked": 413,
-            "criminal_not_ranked_online": 60,
-            "criminal_not_ranked_medical_campus": 4,
-            "criminal_not_ranked_shared": 21,
-            "criminal_ranked_with_medical_note": 4,
-            "criminal_ranked_with_shared_note": 1,
+            "medical_on_campus": 569,
             "rule_hospital": 80,
             "rule_hospital_1000": 65,
             "rule_hospital_first": 80,
             "rule_medical": 30,
             "rule_medical_1000": 19,
             "rule_medical_first": 30,
-            "rule_listed": 2,
-            "rule_listed_1000": 2,
-            "rule_listed_first": 2,
+            "rule_listed": 3,
+            "rule_listed_1000": 3,
+            "rule_listed_first": 3,
             "rule_merger": 6,
             "rule_merger_1000": 5,
             "rule_merger_first": 5,
@@ -905,39 +889,27 @@
             "institutions": 6329,
             "with_more_than_one_campus": 1481,
             "rate_listed": 2247,
-            "rate_ranked_no_rule": 2151,
+            "single_year_rate": 2146,
             "left_out_fte": 4054,
             "no_online_figure": 0,
             "online_share_own_year_used": null,
-            "with_1000_fte": 2347,
-            "with_1000_oncampus_fte": 2247,
-            "proportional_under_1000_listed": 45,
             "fte_uncertain_no_rule": 77,
-            "with_campus_abroad": 108,
+            "fte_uncertain_pooled_only": 2,
+            "no_second_estimate": 0,
+            "with_campus_abroad": 109,
             "abroad_criminal_removed": 60,
             "pooled_merger": 6,
             "pooled_shared": 6,
-            "violent_ranked": 100,
-            "violent_not_ranked_online": 53,
-            "violent_not_ranked_medical_campus": 6,
-            "violent_not_ranked_shared": 12,
-            "violent_ranked_with_medical_note": 1,
-            "violent_ranked_with_shared_note": 0,
-            "criminal_ranked": 418,
-            "criminal_not_ranked_online": 63,
-            "criminal_not_ranked_medical_campus": 5,
-            "criminal_not_ranked_shared": 16,
-            "criminal_ranked_with_medical_note": 3,
-            "criminal_ranked_with_shared_note": 0,
+            "medical_on_campus": 830,
             "rule_hospital": 85,
             "rule_hospital_1000": 70,
             "rule_hospital_first": 85,
             "rule_medical": 30,
             "rule_medical_1000": 19,
             "rule_medical_first": 30,
-            "rule_listed": 2,
-            "rule_listed_1000": 2,
-            "rule_listed_first": 2,
+            "rule_listed": 3,
+            "rule_listed_1000": 3,
+            "rule_listed_first": 3,
             "rule_merger": 7,
             "rule_merger_1000": 6,
             "rule_merger_first": 6,
@@ -950,39 +922,27 @@
             "institutions": 6090,
             "with_more_than_one_campus": 1506,
             "rate_listed": 2224,
-            "rate_ranked_no_rule": 2133,
+            "single_year_rate": 2128,
             "left_out_fte": 3833,
             "no_online_figure": 0,
             "online_share_own_year_used": null,
-            "with_1000_fte": 2329,
-            "with_1000_oncampus_fte": 2224,
-            "proportional_under_1000_listed": 50,
             "fte_uncertain_no_rule": 93,
-            "with_campus_abroad": 108,
+            "fte_uncertain_pooled_only": 0,
+            "no_second_estimate": 0,
+            "with_campus_abroad": 109,
             "abroad_criminal_removed": 60,
             "pooled_merger": 9,
             "pooled_shared": 7,
-            "violent_ranked": 89,
-            "violent_not_ranked_online": 62,
-            "violent_not_ranked_medical_campus": 6,
-            "violent_not_ranked_shared": 22,
-            "violent_ranked_with_medical_note": 3,
-            "violent_ranked_with_shared_note": 1,
-            "criminal_ranked": 362,
-            "criminal_not_ranked_online": 77,
-            "criminal_not_ranked_medical_campus": 4,
-            "criminal_not_ranked_shared": 24,
-            "criminal_ranked_with_medical_note": 5,
-            "criminal_ranked_with_shared_note": 2,
+            "medical_on_campus": 863,
             "rule_hospital": 87,
             "rule_hospital_1000": 68,
             "rule_hospital_first": 87,
             "rule_medical": 34,
             "rule_medical_1000": 22,
             "rule_medical_first": 34,
-            "rule_listed": 1,
-            "rule_listed_1000": 1,
-            "rule_listed_first": 1,
+            "rule_listed": 2,
+            "rule_listed_1000": 2,
+            "rule_listed_first": 2,
             "rule_merger": 1,
             "rule_merger_1000": 0,
             "rule_merger_first": 1,
@@ -995,39 +955,27 @@
             "institutions": 5988,
             "with_more_than_one_campus": 1506,
             "rate_listed": 2214,
-            "rate_ranked_no_rule": 2111,
-            "left_out_fte": 3722,
+            "single_year_rate": 2107,
+            "left_out_fte": 3721,
             "no_online_figure": 0,
             "online_share_own_year_used": null,
-            "with_1000_fte": 2320,
-            "with_1000_oncampus_fte": 2214,
-            "proportional_under_1000_listed": 69,
             "fte_uncertain_no_rule": 95,
-            "with_campus_abroad": 107,
+            "fte_uncertain_pooled_only": 0,
+            "no_second_estimate": 0,
+            "with_campus_abroad": 108,
             "abroad_criminal_removed": 38,
             "pooled_merger": 2,
             "pooled_shared": 5,
-            "violent_ranked": 95,
-            "violent_not_ranked_online": 56,
-            "violent_not_ranked_medical_campus": 4,
-            "violent_not_ranked_shared": 17,
-            "violent_ranked_with_medical_note": 3,
-            "violent_ranked_with_shared_note": 0,
-            "criminal_ranked": 348,
-            "criminal_not_ranked_online": 73,
-            "criminal_not_ranked_medical_campus": 4,
-            "criminal_not_ranked_shared": 16,
-            "criminal_ranked_with_medical_note": 4,
-            "criminal_ranked_with_shared_note": 1,
+            "medical_on_campus": 983,
             "rule_hospital": 94,
             "rule_hospital_1000": 73,
             "rule_hospital_first": 94,
             "rule_medical": 32,
             "rule_medical_1000": 22,
             "rule_medical_first": 32,
-            "rule_listed": 2,
+            "rule_listed": 3,
             "rule_listed_1000": 1,
-            "rule_listed_first": 2,
+            "rule_listed_first": 3,
             "rule_merger": 7,
             "rule_merger_1000": 7,
             "rule_merger_first": 7,
@@ -1040,39 +988,27 @@
             "institutions": 5923,
             "with_more_than_one_campus": 1505,
             "rate_listed": 2158,
-            "rate_ranked_no_rule": 2062,
+            "single_year_rate": 0,
             "left_out_fte": 3736,
             "no_online_figure": 0,
             "online_share_own_year_used": 66,
-            "with_1000_fte": 2264,
-            "with_1000_oncampus_fte": 2157,
-            "proportional_under_1000_listed": 74,
             "fte_uncertain_no_rule": 100,
-            "with_campus_abroad": 104,
+            "fte_uncertain_pooled_only": 2,
+            "no_second_estimate": 0,
+            "with_campus_abroad": 105,
             "abroad_criminal_removed": 12,
             "pooled_merger": 5,
             "pooled_shared": 4,
-            "violent_ranked": 50,
-            "violent_not_ranked_online": 50,
-            "violent_not_ranked_medical_campus": 5,
-            "violent_not_ranked_shared": 15,
-            "violent_ranked_with_medical_note": 1,
-            "violent_ranked_with_shared_note": 1,
-            "criminal_ranked": 204,
-            "criminal_not_ranked_online": 74,
-            "criminal_not_ranked_medical_campus": 5,
-            "criminal_not_ranked_shared": 18,
-            "criminal_ranked_with_medical_note": 2,
-            "criminal_ranked_with_shared_note": 0,
+            "medical_on_campus": 860,
             "rule_hospital": 90,
             "rule_hospital_1000": 71,
             "rule_hospital_first": 90,
             "rule_medical": 33,
             "rule_medical_1000": 23,
             "rule_medical_first": 33,
-            "rule_listed": 2,
-            "rule_listed_1000": 2,
-            "rule_listed_first": 2,
+            "rule_listed": 3,
+            "rule_listed_1000": 3,
+            "rule_listed_first": 3,
             "rule_merger": 0,
             "rule_merger_1000": 0,
             "rule_merger_first": 0,
@@ -1085,39 +1021,27 @@
             "institutions": 5861,
             "with_more_than_one_campus": 1505,
             "rate_listed": 2135,
-            "rate_ranked_no_rule": 2035,
-            "left_out_fte": 3669,
+            "single_year_rate": 2031,
+            "left_out_fte": 3668,
             "no_online_figure": 0,
             "online_share_own_year_used": 102,
-            "with_1000_fte": 2261,
-            "with_1000_oncampus_fte": 2134,
-            "proportional_under_1000_listed": 74,
             "fte_uncertain_no_rule": 89,
-            "with_campus_abroad": 101,
+            "fte_uncertain_pooled_only": 0,
+            "no_second_estimate": 0,
+            "with_campus_abroad": 102,
             "abroad_criminal_removed": 34,
             "pooled_merger": 2,
             "pooled_shared": 3,
-            "violent_ranked": 74,
-            "violent_not_ranked_online": 48,
-            "violent_not_ranked_medical_campus": 5,
-            "violent_not_ranked_shared": 16,
-            "violent_ranked_with_medical_note": 2,
-            "violent_ranked_with_shared_note": 0,
-            "criminal_ranked": 245,
-            "criminal_not_ranked_online": 72,
-            "criminal_not_ranked_medical_campus": 5,
-            "criminal_not_ranked_shared": 16,
-            "criminal_ranked_with_medical_note": 2,
-            "criminal_ranked_with_shared_note": 0,
+            "medical_on_campus": 878,
             "rule_hospital": 93,
             "rule_hospital_1000": 73,
             "rule_hospital_first": 93,
             "rule_medical": 37,
             "rule_medical_1000": 23,
             "rule_medical_first": 37,
-            "rule_listed": 1,
+            "rule_listed": 2,
             "rule_listed_1000": 1,
-            "rule_listed_first": 1,
+            "rule_listed_first": 2,
             "rule_merger": 4,
             "rule_merger_1000": 4,
             "rule_merger_first": 3,
@@ -1130,39 +1054,27 @@
             "institutions": 5776,
             "with_more_than_one_campus": 1500,
             "rate_listed": 2045,
-            "rate_ranked_no_rule": 1948,
-            "left_out_fte": 3695,
+            "single_year_rate": 1944,
+            "left_out_fte": 3694,
             "no_online_figure": 0,
             "online_share_own_year_used": null,
-            "with_1000_fte": 2236,
-            "with_1000_oncampus_fte": 2044,
-            "proportional_under_1000_listed": 110,
             "fte_uncertain_no_rule": 257,
-            "with_campus_abroad": 96,
+            "fte_uncertain_pooled_only": 1,
+            "no_second_estimate": 0,
+            "with_campus_abroad": 97,
             "abroad_criminal_removed": 37,
             "pooled_merger": 2,
             "pooled_shared": 3,
-            "violent_ranked": 97,
-            "violent_not_ranked_online": 129,
-            "violent_not_ranked_medical_campus": 4,
-            "violent_not_ranked_shared": 17,
-            "violent_ranked_with_medical_note": 3,
-            "violent_ranked_with_shared_note": 0,
-            "criminal_ranked": 283,
-            "criminal_not_ranked_online": 197,
-            "criminal_not_ranked_medical_campus": 4,
-            "criminal_not_ranked_shared": 20,
-            "criminal_ranked_with_medical_note": 4,
-            "criminal_ranked_with_shared_note": 1,
+            "medical_on_campus": 1089,
             "rule_hospital": 93,
             "rule_hospital_1000": 72,
             "rule_hospital_first": 93,
             "rule_medical": 36,
             "rule_medical_1000": 22,
             "rule_medical_first": 36,
-            "rule_listed": 1,
+            "rule_listed": 2,
             "rule_listed_1000": 1,
-            "rule_listed_first": 1,
+            "rule_listed_first": 2,
             "rule_merger": 3,
             "rule_merger_1000": 2,
             "rule_merger_first": 3,
@@ -1175,39 +1087,27 @@
             "institutions": 5670,
             "with_more_than_one_campus": 1484,
             "rate_listed": 2061,
-            "rate_ranked_no_rule": 1967,
-            "left_out_fte": 3573,
+            "single_year_rate": 1964,
+            "left_out_fte": 3572,
             "no_online_figure": 0,
             "online_share_own_year_used": null,
-            "with_1000_fte": 2243,
-            "with_1000_oncampus_fte": 2061,
-            "proportional_under_1000_listed": 108,
             "fte_uncertain_no_rule": 218,
-            "with_campus_abroad": 96,
+            "fte_uncertain_pooled_only": 1,
+            "no_second_estimate": 0,
+            "with_campus_abroad": 97,
             "abroad_criminal_removed": 46,
             "pooled_merger": 0,
             "pooled_shared": 4,
-            "violent_ranked": 80,
-            "violent_not_ranked_online": 115,
-            "violent_not_ranked_medical_campus": 5,
-            "violent_not_ranked_shared": 26,
-            "violent_ranked_with_medical_note": 1,
-            "violent_ranked_with_shared_note": 0,
-            "criminal_ranked": 302,
-            "criminal_not_ranked_online": 167,
-            "criminal_not_ranked_medical_campus": 5,
-            "criminal_not_ranked_shared": 26,
-            "criminal_ranked_with_medical_note": 2,
-            "criminal_ranked_with_shared_note": 0,
+            "medical_on_campus": 1202,
             "rule_hospital": 90,
             "rule_hospital_1000": 71,
             "rule_hospital_first": 90,
             "rule_medical": 36,
             "rule_medical_1000": 21,
             "rule_medical_first": 36,
-            "rule_listed": 1,
+            "rule_listed": 2,
             "rule_listed_1000": 1,
-            "rule_listed_first": 1,
+            "rule_listed_first": 2,
             "rule_merger": 3,
             "rule_merger_1000": 1,
             "rule_merger_first": 3,
@@ -1220,39 +1120,27 @@
             "institutions": 5582,
             "with_more_than_one_campus": 1481,
             "rate_listed": 2078,
-            "rate_ranked_no_rule": 1984,
-            "left_out_fte": 3472,
+            "single_year_rate": 1982,
+            "left_out_fte": 3471,
             "no_online_figure": 0,
             "online_share_own_year_used": null,
-            "with_1000_fte": 2268,
-            "with_1000_oncampus_fte": 2078,
-            "proportional_under_1000_listed": 91,
             "fte_uncertain_no_rule": 221,
-            "with_campus_abroad": 95,
+            "fte_uncertain_pooled_only": 1,
+            "no_second_estimate": 0,
+            "with_campus_abroad": 97,
             "abroad_criminal_removed": 32,
             "pooled_merger": 0,
             "pooled_shared": 3,
-            "violent_ranked": 79,
-            "violent_not_ranked_online": 109,
-            "violent_not_ranked_medical_campus": 3,
-            "violent_not_ranked_shared": 19,
-            "violent_ranked_with_medical_note": 3,
-            "violent_ranked_with_shared_note": 0,
-            "criminal_ranked": 293,
-            "criminal_not_ranked_online": 158,
-            "criminal_not_ranked_medical_campus": 4,
-            "criminal_not_ranked_shared": 23,
-            "criminal_ranked_with_medical_note": 2,
-            "criminal_ranked_with_shared_note": 0,
+            "medical_on_campus": 968,
             "rule_hospital": 88,
             "rule_hospital_1000": 72,
             "rule_hospital_first": 88,
             "rule_medical": 37,
             "rule_medical_1000": 21,
             "rule_medical_first": 37,
-            "rule_listed": 1,
+            "rule_listed": 2,
             "rule_listed_1000": 1,
-            "rule_listed_first": 1,
+            "rule_listed_first": 2,
             "rule_merger": 0,
             "rule_merger_1000": 0,
             "rule_merger_first": 0,
@@ -1263,7 +1151,8 @@
         ],
         "ranking_files_checked": 550,
         "campus_rows_with_0_all_files": 128312,
-        "rate_entries_checked": 411778,
+        "institution_table_rows_checked": 60420,
+        "institution_offense_rows_checked": 175944,
         "school_files_checked": 14081,
         "campus_years_csv_rows_checked": 108552,
         "problems": 0
@@ -1300,77 +1189,1795 @@
       "name": "Rate Rules",
       "status": "PASS",
       "details": {
-        "what_it_checks": "The dispersion k per group (institutions ranked without a rule in every year 2015-2019, rows with a mean of 20+, Pearson statistic of the two-way Poisson fit over the chi-square median, 1/k = median (D - 1) / mean) equals metadata.json's. Each rate's 95% interval (rateRankings, rateUnranked, rateNotRanked) equals phi x the gamma quantiles of the effective count n / phi, phi = 1 + n / k, found again through the regularized incomplete gamma function, per 10,000 of the institution's denominator (within 0.005). Each rank range equals the simulated one (2,000 draws per institution, seed [20151024, year, CRC-32 of the code, base UNITID], the middle 95% of the simulated ranks, widened to hold the rank), exactly. Spike flags mark exactly the counts of 20+ with 3+ other listed years, above 3 x their median and 2 x their largest, with a negative binomial tail (median as mean, the code's k) below 0.001. Count flags (highForSize) mark exactly the counts of 20+ whose count per 10,000 FTE is above 3 x the year's highest national ranked rate, which must equal metadata's countFlagLimits. The counts-only offenses are exactly those averaging under 1,000 incidents a year in national totals. metadata.json's rateRules and rateStats equal the values found again.",
-        "national_average_per_year": {
-          "incest": 2.5,
-          "negligent_manslaughter": 6.1,
-          "murder": 48.6,
-          "statutory_rape": 78.7,
-          "arson": 653.8,
-          "weapons_discipline": 1286.6,
-          "weapons_arrest": 2008.4,
-          "robbery": 2213.4,
-          "aggravated_assault": 4173.7,
-          "dating_violence": 4241.1,
-          "domestic_violence": 4287.6,
-          "fondling": 4868.1,
-          "rape": 6609.4,
-          "stalking": 7539.2,
-          "motor_vehicle_theft": 7576.7,
-          "burglary": 9780.9,
-          "liquor_arrest": 14422.7,
-          "drug_arrest": 17898.4,
-          "drug_discipline": 40627.8,
-          "liquor_discipline": 127820.2
-        },
-        "dispersion": {
-          "violent": {
-            "k": 13.3,
-            "estimate": 13.32354460147768,
-            "phi": 3.44,
-            "units": 89
+        "what_it_checks": "Without 04's, 05's or rates.py's code, from the institution-year data (institution-years with a counting campus, their on-campus/residence-hall/non-campus/public-property counts per offense, medical-center and shared on-campus figures, NCES FTE, the rate denominator and its smaller estimate, rules, online uncertainty, peer type) and the rule constants written out in this check: each institution's status in every 3-year window without 2020 (missingYears, scope, size, excluded, rated), the window counts, FTE-years, reason (online, medical_campus: medical share at least 1/4, shared: 20 x shared > count + sharedOut), the national and peer rates as exact fractions, phi with the ramp, the gamma interval (own incomplete gamma, bisection), rate/lo/hi/E rounded half up, the verdicts against the exact reference (online: both FTE estimates must agree), the unusual-year flags (negative binomial tail < 0.001) and the verdict without the flagged excess, the ordered lists (E >= 20 exactly, exact order, positions, pairwise z with Bonferroni critical values from an own normal quantile, ranges widened to the position, state lists from 2 members, composition), every window file's header and summary, rates/institutions (single-year T = 1 entries and notRated reasons, window statuses), rates/flags.json, the count flag (3 x P99, numpy linear percentile, count >= 20) in every rankings file, school files' ratesFile/rated/notRated/flags, metadata.json rateRules and rateStats, config.py's constants, the design's test vectors, A4 and A5.",
+        "windows": [
+          "2015-2017",
+          "2016-2018",
+          "2017-2019",
+          "2021-2023",
+          "2022-2024"
+        ],
+        "per_window_code": {
+          "2015-2017-aggravated_assault": {
+            "rated": 2083,
+            "verdicts": {
+              "above": 132,
+              "nd": 1887,
+              "undetermined": 2,
+              "below": 62
+            },
+            "natl": 1.45
           },
-          "criminal": {
-            "k": 16.5,
-            "estimate": 16.500920825238218,
-            "phi": 3.3,
-            "units": 375
+          "2015-2017-burglary": {
+            "rated": 2083,
+            "verdicts": {
+              "above": 321,
+              "nd": 1158,
+              "undetermined": 14,
+              "below": 590
+            },
+            "natl": 8.13,
+            "listed": 364,
+            "zc": 3.812189786999533,
+            "stateLists": 43,
+            "stateListsDisplayMin": 23
           },
-          "property": {
-            "k": 12.8,
-            "estimate": 12.775991298604708,
-            "phi": 3.75,
-            "units": 146
+          "2015-2017-criminal_xmvt": {
+            "rated": 2083,
+            "verdicts": {
+              "above": 391,
+              "nd": 920,
+              "undetermined": 17,
+              "below": 755
+            },
+            "natl": 17.39,
+            "listed": 814,
+            "zc": 4.006977900652645,
+            "stateLists": 49,
+            "stateListsDisplayMin": 37
           },
-          "all": {
-            "k": 13.4,
-            "estimate": 13.408578279128069,
-            "phi": 9.3,
-            "units": 1262
+          "2015-2017-dating_violence": {
+            "rated": 2083,
+            "verdicts": {
+              "above": 228,
+              "nd": 1550,
+              "undetermined": 5,
+              "below": 300
+            },
+            "natl": 3.18
           },
-          "crime_offense": {
-            "k": 7.3,
-            "estimate": 7.273132313266139,
-            "phi": 4.97,
-            "units": 212
+          "2015-2017-domestic_violence": {
+            "rated": 2083,
+            "verdicts": {
+              "above": 132,
+              "nd": 1827,
+              "undetermined": 5,
+              "below": 119
+            },
+            "natl": 2.02
           },
-          "enforcement_offense": {
-            "k": 7.7,
-            "estimate": 7.6581801186071745,
-            "phi": 9.91,
-            "units": 1877
+          "2015-2017-fondling": {
+            "rated": 2083,
+            "verdicts": {
+              "above": 173,
+              "nd": 1769,
+              "undetermined": 6,
+              "below": 135
+            },
+            "natl": 2.27
+          },
+          "2015-2017-rape": {
+            "rated": 2083,
+            "verdicts": {
+              "above": 261,
+              "nd": 1350,
+              "undetermined": 8,
+              "below": 464
+            },
+            "natl": 4.3
+          },
+          "2015-2017-robbery": {
+            "rated": 2083,
+            "verdicts": {
+              "above": 85,
+              "nd": 1983,
+              "undetermined": 3,
+              "below": 12
+            },
+            "natl": 0.76
+          },
+          "2015-2017-stalking": {
+            "rated": 2083,
+            "verdicts": {
+              "above": 193,
+              "nd": 1560,
+              "undetermined": 11,
+              "below": 319
+            },
+            "natl": 4.39
+          },
+          "2015-2017-violent": {
+            "rated": 2083,
+            "verdicts": {
+              "above": 308,
+              "nd": 1252,
+              "undetermined": 23,
+              "below": 500
+            },
+            "natl": 6.53,
+            "listed": 263,
+            "zc": 3.730843572437979,
+            "stateLists": 39,
+            "stateListsDisplayMin": 16
+          },
+          "2016-2018-aggravated_assault": {
+            "rated": 2071,
+            "verdicts": {
+              "above": 121,
+              "nd": 1884,
+              "undetermined": 2,
+              "below": 64
+            },
+            "natl": 1.44
+          },
+          "2016-2018-burglary": {
+            "rated": 2071,
+            "verdicts": {
+              "above": 301,
+              "nd": 1213,
+              "undetermined": 19,
+              "below": 538
+            },
+            "natl": 7.59,
+            "listed": 325,
+            "zc": 3.7840110170106414,
+            "stateLists": 43,
+            "stateListsDisplayMin": 21
+          },
+          "2016-2018-criminal_xmvt": {
+            "rated": 2071,
+            "verdicts": {
+              "above": 385,
+              "nd": 926,
+              "undetermined": 21,
+              "below": 739
+            },
+            "natl": 17.6,
+            "listed": 813,
+            "zc": 4.006687084454537,
+            "stateLists": 48,
+            "stateListsDisplayMin": 37
+          },
+          "2016-2018-dating_violence": {
+            "rated": 2071,
+            "verdicts": {
+              "above": 223,
+              "nd": 1536,
+              "undetermined": 9,
+              "below": 303
+            },
+            "natl": 3.33
+          },
+          "2016-2018-domestic_violence": {
+            "rated": 2071,
+            "verdicts": {
+              "above": 141,
+              "nd": 1784,
+              "undetermined": 8,
+              "below": 138
+            },
+            "natl": 2.05
+          },
+          "2016-2018-fondling": {
+            "rated": 2071,
+            "verdicts": {
+              "above": 180,
+              "nd": 1703,
+              "undetermined": 7,
+              "below": 181
+            },
+            "natl": 2.73
+          },
+          "2016-2018-rape": {
+            "rated": 2071,
+            "verdicts": {
+              "above": 270,
+              "nd": 1301,
+              "undetermined": 9,
+              "below": 491
+            },
+            "natl": 4.69
+          },
+          "2016-2018-robbery": {
+            "rated": 2071,
+            "verdicts": {
+              "above": 76,
+              "nd": 1980,
+              "undetermined": 3,
+              "below": 12
+            },
+            "natl": 0.7
+          },
+          "2016-2018-stalking": {
+            "rated": 2071,
+            "verdicts": {
+              "above": 187,
+              "nd": 1497,
+              "undetermined": 16,
+              "below": 371
+            },
+            "natl": 4.94
+          },
+          "2016-2018-violent": {
+            "rated": 2071,
+            "verdicts": {
+              "above": 317,
+              "undetermined": 17,
+              "nd": 1209,
+              "below": 528
+            },
+            "natl": 6.84,
+            "listed": 278,
+            "zc": 3.744844673099549,
+            "stateLists": 38,
+            "stateListsDisplayMin": 17
+          },
+          "2017-2019-aggravated_assault": {
+            "rated": 2042,
+            "verdicts": {
+              "above": 117,
+              "nd": 1863,
+              "undetermined": 2,
+              "below": 60
+            },
+            "natl": 1.38
+          },
+          "2017-2019-burglary": {
+            "rated": 2042,
+            "verdicts": {
+              "above": 280,
+              "nd": 1251,
+              "undetermined": 11,
+              "below": 500
+            },
+            "natl": 6.95,
+            "listed": 272,
+            "zc": 3.7393429891326235,
+            "stateLists": 39,
+            "stateListsDisplayMin": 15
+          },
+          "2017-2019-criminal_xmvt": {
+            "rated": 2042,
+            "verdicts": {
+              "above": 372,
+              "nd": 937,
+              "undetermined": 16,
+              "below": 717
+            },
+            "natl": 17.17,
+            "listed": 777,
+            "zc": 3.9959586169064547,
+            "stateLists": 47,
+            "stateListsDisplayMin": 36
+          },
+          "2017-2019-dating_violence": {
+            "rated": 2042,
+            "verdicts": {
+              "above": 212,
+              "nd": 1510,
+              "undetermined": 8,
+              "below": 312
+            },
+            "natl": 3.36
+          },
+          "2017-2019-domestic_violence": {
+            "rated": 2042,
+            "verdicts": {
+              "above": 144,
+              "nd": 1745,
+              "undetermined": 7,
+              "below": 146
+            },
+            "natl": 2.11
+          },
+          "2017-2019-fondling": {
+            "rated": 2042,
+            "verdicts": {
+              "above": 184,
+              "nd": 1656,
+              "undetermined": 10,
+              "below": 192
+            },
+            "natl": 3.03
+          },
+          "2017-2019-rape": {
+            "rated": 2042,
+            "verdicts": {
+              "above": 269,
+              "nd": 1275,
+              "undetermined": 8,
+              "below": 490
+            },
+            "natl": 4.79
+          },
+          "2017-2019-robbery": {
+            "rated": 2042,
+            "verdicts": {
+              "above": 66,
+              "nd": 1967,
+              "undetermined": 2,
+              "below": 7
+            },
+            "natl": 0.62
+          },
+          "2017-2019-stalking": {
+            "rated": 2042,
+            "verdicts": {
+              "above": 184,
+              "nd": 1446,
+              "undetermined": 13,
+              "below": 399
+            },
+            "natl": 5.41
+          },
+          "2017-2019-violent": {
+            "rated": 2042,
+            "verdicts": {
+              "above": 312,
+              "undetermined": 14,
+              "nd": 1179,
+              "below": 537
+            },
+            "natl": 6.79,
+            "listed": 261,
+            "zc": 3.7289127828960575,
+            "stateLists": 39,
+            "stateListsDisplayMin": 14
+          },
+          "2021-2023-aggravated_assault": {
+            "rated": 1862,
+            "verdicts": {
+              "above": 99,
+              "nd": 1693,
+              "undetermined": 8,
+              "below": 62
+            },
+            "natl": 1.54
+          },
+          "2021-2023-burglary": {
+            "rated": 1862,
+            "verdicts": {
+              "above": 175,
+              "nd": 1348,
+              "undetermined": 24,
+              "below": 315
+            },
+            "natl": 5.11,
+            "listed": 146,
+            "zc": 3.579063572454457,
+            "stateLists": 25,
+            "stateListsDisplayMin": 11
+          },
+          "2021-2023-criminal_xmvt": {
+            "rated": 1862,
+            "verdicts": {
+              "above": 287,
+              "nd": 913,
+              "undetermined": 27,
+              "below": 635
+            },
+            "natl": 15.69,
+            "listed": 527,
+            "zc": 3.9028744053970623,
+            "stateLists": 46,
+            "stateListsDisplayMin": 31
+          },
+          "2021-2023-dating_violence": {
+            "rated": 1862,
+            "verdicts": {
+              "above": 185,
+              "nd": 1414,
+              "undetermined": 19,
+              "below": 244
+            },
+            "natl": 2.99
+          },
+          "2021-2023-domestic_violence": {
+            "rated": 1862,
+            "verdicts": {
+              "above": 89,
+              "nd": 1603,
+              "undetermined": 7,
+              "below": 163
+            },
+            "natl": 2.23
+          },
+          "2021-2023-fondling": {
+            "rated": 1862,
+            "verdicts": {
+              "above": 178,
+              "nd": 1462,
+              "undetermined": 17,
+              "below": 205
+            },
+            "natl": 3.27
+          },
+          "2021-2023-rape": {
+            "rated": 1862,
+            "verdicts": {
+              "above": 206,
+              "nd": 1228,
+              "undetermined": 25,
+              "below": 403
+            },
+            "natl": 4.87
+          },
+          "2021-2023-robbery": {
+            "rated": 1862,
+            "verdicts": {
+              "above": 42,
+              "nd": 1817,
+              "below": 3
+            },
+            "natl": 0.4
+          },
+          "2021-2023-stalking": {
+            "rated": 1862,
+            "verdicts": {
+              "above": 164,
+              "undetermined": 34,
+              "nd": 1185,
+              "below": 479
+            },
+            "natl": 6.21
+          },
+          "2021-2023-violent": {
+            "rated": 1862,
+            "verdicts": {
+              "above": 239,
+              "nd": 1098,
+              "undetermined": 33,
+              "below": 492
+            },
+            "natl": 6.83,
+            "listed": 205,
+            "zc": 3.6673282842240864,
+            "stateLists": 34,
+            "stateListsDisplayMin": 13
+          },
+          "2022-2024-aggravated_assault": {
+            "rated": 1872,
+            "verdicts": {
+              "above": 103,
+              "nd": 1682,
+              "undetermined": 10,
+              "below": 77
+            },
+            "natl": 1.75
+          },
+          "2022-2024-burglary": {
+            "rated": 1872,
+            "verdicts": {
+              "above": 178,
+              "nd": 1347,
+              "undetermined": 30,
+              "below": 317
+            },
+            "natl": 5.17,
+            "listed": 146,
+            "zc": 3.579063572454457,
+            "stateLists": 24,
+            "stateListsDisplayMin": 11
+          },
+          "2022-2024-criminal_xmvt": {
+            "rated": 1872,
+            "verdicts": {
+              "above": 266,
+              "nd": 944,
+              "undetermined": 43,
+              "below": 619
+            },
+            "natl": 15.9,
+            "listed": 530,
+            "zc": 3.904250205169709,
+            "stateLists": 45,
+            "stateListsDisplayMin": 32
+          },
+          "2022-2024-dating_violence": {
+            "rated": 1872,
+            "verdicts": {
+              "above": 186,
+              "undetermined": 29,
+              "nd": 1372,
+              "below": 285
+            },
+            "natl": 3.35
+          },
+          "2022-2024-domestic_violence": {
+            "rated": 1872,
+            "verdicts": {
+              "above": 93,
+              "nd": 1582,
+              "undetermined": 15,
+              "below": 182
+            },
+            "natl": 2.6
+          },
+          "2022-2024-fondling": {
+            "rated": 1872,
+            "verdicts": {
+              "above": 181,
+              "nd": 1492,
+              "undetermined": 25,
+              "below": 174
+            },
+            "natl": 3.26
+          },
+          "2022-2024-rape": {
+            "rated": 1872,
+            "verdicts": {
+              "above": 203,
+              "nd": 1263,
+              "undetermined": 28,
+              "below": 378
+            },
+            "natl": 4.75
+          },
+          "2022-2024-robbery": {
+            "rated": 1872,
+            "verdicts": {
+              "above": 34,
+              "nd": 1834,
+              "undetermined": 1,
+              "below": 3
+            },
+            "natl": 0.42
+          },
+          "2022-2024-stalking": {
+            "rated": 1872,
+            "verdicts": {
+              "above": 165,
+              "nd": 1144,
+              "undetermined": 35,
+              "below": 528
+            },
+            "natl": 7.15
+          },
+          "2022-2024-violent": {
+            "rated": 1872,
+            "verdicts": {
+              "above": 231,
+              "nd": 1130,
+              "undetermined": 46,
+              "below": 465
+            },
+            "natl": 6.94,
+            "listed": 206,
+            "zc": 3.668578886587351,
+            "stateLists": 35,
+            "stateListsDisplayMin": 14
           }
         },
-        "intervals_checked": 387598,
-        "rank_ranges_checked": 67022,
-        "spike_flags_in_rate_entries": 1209,
-        "count_flags_checked": 627657,
-        "count_flags_set": 870,
-        "school_files_checked": 14081,
-        "problems": 0
+        "institution_files": 2584,
+        "single_year_entries_checked": 25105,
+        "flags": {
+          "total": 1866,
+          "byGeo": {
+            "On-campus": 1364,
+            "Public property": 274,
+            "Non-campus": 228
+          },
+          "byYear": {
+            "2024": 339,
+            "2022": 227,
+            "2023": 298,
+            "2017": 162,
+            "2021": 113,
+            "2015": 220,
+            "2016": 211,
+            "2018": 117,
+            "2019": 109,
+            "2020": 70
+          },
+          "byOffense": {
+            "motor_vehicle_theft": 489,
+            "stalking": 210,
+            "fondling": 121,
+            "burglary": 409,
+            "rape": 96,
+            "domestic_violence": 148,
+            "dating_violence": 127,
+            "aggravated_assault": 200,
+            "robbery": 66
+          }
+        },
+        "count_flags": {
+          "rankings_files": 550,
+          "flagged_entries_all_files": 1812,
+          "flagged_national": {
+            "2015": 70,
+            "2016": 50,
+            "2017": 71,
+            "2018": 65,
+            "2019": 92,
+            "2020": 94,
+            "2021": 93,
+            "2022": 123,
+            "2023": 135,
+            "2024": 113
+          },
+          "p99_violent": {
+            "2015": 72.759,
+            "2016": 79.8164,
+            "2017": 81.7941,
+            "2018": 74.1875,
+            "2019": 70.7226,
+            "2020": 59.4048,
+            "2021": 68.6244,
+            "2022": 72.4097,
+            "2023": 73.4168,
+            "2024": 61.1779
+          }
+        },
+        "school_files": {
+          "school_files": 14081,
+          "school_years_checked": 108433,
+          "without_institution": 9
+        },
+        "A4": {
+          "checked": 439,
+          "outside": 0,
+          "verdict_changes": {
+            "2015-2017": {
+              "violent": 13,
+              "criminal_xmvt": 72,
+              "burglary": 97,
+              "rape": 7,
+              "fondling": 11,
+              "robbery": 4,
+              "aggravated_assault": 4,
+              "stalking": 18,
+              "dating_violence": 22,
+              "domestic_violence": 7
+            },
+            "2016-2018": {
+              "violent": 10,
+              "criminal_xmvt": 56,
+              "burglary": 70,
+              "rape": 9,
+              "fondling": 8,
+              "robbery": 4,
+              "aggravated_assault": 3,
+              "stalking": 17,
+              "dating_violence": 23,
+              "domestic_violence": 4
+            },
+            "2017-2019": {
+              "violent": 13,
+              "criminal_xmvt": 35,
+              "burglary": 42,
+              "rape": 13,
+              "fondling": 13,
+              "robbery": 1,
+              "aggravated_assault": 3,
+              "stalking": 20,
+              "dating_violence": 20,
+              "domestic_violence": 6
+            },
+            "2021-2023": {
+              "violent": 12,
+              "criminal_xmvt": 30,
+              "burglary": 15,
+              "rape": 7,
+              "fondling": 17,
+              "robbery": 1,
+              "aggravated_assault": 8,
+              "stalking": 21,
+              "dating_violence": 10,
+              "domestic_violence": 6
+            },
+            "2022-2024": {
+              "violent": 14,
+              "criminal_xmvt": 25,
+              "burglary": 20,
+              "rape": 11,
+              "fondling": 19,
+              "robbery": 1,
+              "aggravated_assault": 8,
+              "stalking": 33,
+              "dating_violence": 16,
+              "domestic_violence": 12
+            }
+          }
+        },
+        "A5": {
+          "T3 c0.354": {
+            "lo_monotone": true,
+            "hi_monotone": true,
+            "min_step_lo": 0.013225,
+            "min_step_hi": 1.135337
+          },
+          "T3 c0.497": {
+            "lo_monotone": true,
+            "hi_monotone": true,
+            "min_step_lo": 0.01015,
+            "min_step_hi": 1.161686
+          },
+          "T3 c0.522": {
+            "lo_monotone": true,
+            "hi_monotone": true,
+            "min_step_lo": 0.009689,
+            "min_step_hi": 1.165934
+          },
+          "T3 c0.665": {
+            "lo_monotone": true,
+            "hi_monotone": true,
+            "min_step_lo": 0.007425,
+            "min_step_hi": 1.188726
+          },
+          "T1 c0.354": {
+            "lo_monotone": true,
+            "hi_monotone": true,
+            "min_step_lo": 0.008178,
+            "min_step_hi": 1.180728
+          },
+          "T1 c0.497": {
+            "lo_monotone": true,
+            "hi_monotone": true,
+            "min_step_lo": 0.005146,
+            "min_step_hi": 1.216795
+          },
+          "T1 c0.522": {
+            "lo_monotone": true,
+            "hi_monotone": true,
+            "min_step_lo": 0.004744,
+            "min_step_hi": 1.222626
+          },
+          "T1 c0.665": {
+            "lo_monotone": true,
+            "hi_monotone": true,
+            "min_step_lo": 0.002972,
+            "min_step_hi": 1.253993
+          }
+        },
+        "subchecks": {
+          "constants_config": 0,
+          "constants_metadata": 0,
+          "test_vectors": 0,
+          "window_files": 0,
+          "national_rate": 0,
+          "statuses": 0,
+          "entry_fields": 0,
+          "entry_order": 0,
+          "rate_interval": 0,
+          "verdicts": 0,
+          "unusual_year_flags": 0,
+          "flag_attachment": 0,
+          "lists": 0,
+          "summary": 0,
+          "single_year": 0,
+          "institution_files": 0,
+          "count_flags": 0,
+          "school_files": 0,
+          "A4": 0,
+          "A5": 0
+        },
+        "examples": {},
+        "problems": 0,
+        "seconds": 11.6
       },
       "errors": [],
       "warnings": []
+    },
+    {
+      "name": "Interval Calibration",
+      "status": "FAIL",
+      "details": {
+        "what_it_checks": "A1: single-year leave-one-out predictive coverage of on-campus counts under the published dispersion (c per code, ramp), observed against expected from 30 simulations (PCG64 seed 11, fresh per code and period); tolerance 0.02 over units with a mean >= 2/year, 0.03 in bands with >= 100 units.",
+        "rows": [
+          {
+            "code": "violent",
+            "c": 0.354,
+            "period": "2015-2019",
+            "band": "all>=2",
+            "units": 840,
+            "observed": 0.9667,
+            "expected": 0.9636,
+            "diff": 0.0031,
+            "tested": true,
+            "ok": true
+          },
+          {
+            "code": "violent",
+            "c": 0.354,
+            "period": "2015-2019",
+            "band": "2-5",
+            "units": 379,
+            "observed": 0.9683,
+            "expected": 0.9699,
+            "diff": -0.0015,
+            "tested": true,
+            "ok": true
+          },
+          {
+            "code": "violent",
+            "c": 0.354,
+            "period": "2015-2019",
+            "band": "5-10",
+            "units": 269,
+            "observed": 0.9636,
+            "expected": 0.9626,
+            "diff": 0.001,
+            "tested": true,
+            "ok": true
+          },
+          {
+            "code": "violent",
+            "c": 0.354,
+            "period": "2015-2019",
+            "band": "10-20",
+            "units": 145,
+            "observed": 0.9724,
+            "expected": 0.9535,
+            "diff": 0.0189,
+            "tested": true,
+            "ok": true
+          },
+          {
+            "code": "violent",
+            "c": 0.354,
+            "period": "2015-2019",
+            "band": "20+",
+            "units": 47,
+            "observed": 0.9532,
+            "expected": 0.9499,
+            "diff": 0.0033,
+            "tested": false,
+            "ok": null
+          },
+          {
+            "code": "violent",
+            "c": 0.354,
+            "period": "2022-2024",
+            "band": "all>=2",
+            "units": 699,
+            "observed": 0.9604,
+            "expected": 0.953,
+            "diff": 0.0074,
+            "tested": true,
+            "ok": true
+          },
+          {
+            "code": "violent",
+            "c": 0.354,
+            "period": "2022-2024",
+            "band": "2-5",
+            "units": 334,
+            "observed": 0.9631,
+            "expected": 0.9525,
+            "diff": 0.0105,
+            "tested": true,
+            "ok": true
+          },
+          {
+            "code": "violent",
+            "c": 0.354,
+            "period": "2022-2024",
+            "band": "5-10",
+            "units": 204,
+            "observed": 0.9608,
+            "expected": 0.9564,
+            "diff": 0.0044,
+            "tested": true,
+            "ok": true
+          },
+          {
+            "code": "violent",
+            "c": 0.354,
+            "period": "2022-2024",
+            "band": "10-20",
+            "units": 106,
+            "observed": 0.9748,
+            "expected": 0.9526,
+            "diff": 0.0222,
+            "tested": true,
+            "ok": true
+          },
+          {
+            "code": "violent",
+            "c": 0.354,
+            "period": "2022-2024",
+            "band": "20+",
+            "units": 55,
+            "observed": 0.9152,
+            "expected": 0.944,
+            "diff": -0.0289,
+            "tested": false,
+            "ok": null
+          },
+          {
+            "code": "criminal_xmvt",
+            "c": 0.497,
+            "period": "2015-2019",
+            "band": "all>=2",
+            "units": 1321,
+            "observed": 0.9679,
+            "expected": 0.959,
+            "diff": 0.0089,
+            "tested": true,
+            "ok": true
+          },
+          {
+            "code": "criminal_xmvt",
+            "c": 0.497,
+            "period": "2015-2019",
+            "band": "2-5",
+            "units": 392,
+            "observed": 0.9663,
+            "expected": 0.9688,
+            "diff": -0.0025,
+            "tested": true,
+            "ok": true
+          },
+          {
+            "code": "criminal_xmvt",
+            "c": 0.497,
+            "period": "2015-2019",
+            "band": "5-10",
+            "units": 346,
+            "observed": 0.9601,
+            "expected": 0.9615,
+            "diff": -0.0014,
+            "tested": true,
+            "ok": true
+          },
+          {
+            "code": "criminal_xmvt",
+            "c": 0.497,
+            "period": "2015-2019",
+            "band": "10-20",
+            "units": 312,
+            "observed": 0.9731,
+            "expected": 0.954,
+            "diff": 0.0191,
+            "tested": true,
+            "ok": true
+          },
+          {
+            "code": "criminal_xmvt",
+            "c": 0.497,
+            "period": "2015-2019",
+            "band": "20+",
+            "units": 271,
+            "observed": 0.9742,
+            "expected": 0.9472,
+            "diff": 0.027,
+            "tested": true,
+            "ok": true
+          },
+          {
+            "code": "criminal_xmvt",
+            "c": 0.497,
+            "period": "2022-2024",
+            "band": "all>=2",
+            "units": 1030,
+            "observed": 0.9641,
+            "expected": 0.9492,
+            "diff": 0.0149,
+            "tested": true,
+            "ok": true
+          },
+          {
+            "code": "criminal_xmvt",
+            "c": 0.497,
+            "period": "2022-2024",
+            "band": "2-5",
+            "units": 326,
+            "observed": 0.9519,
+            "expected": 0.9478,
+            "diff": 0.0042,
+            "tested": true,
+            "ok": true
+          },
+          {
+            "code": "criminal_xmvt",
+            "c": 0.497,
+            "period": "2022-2024",
+            "band": "5-10",
+            "units": 285,
+            "observed": 0.9719,
+            "expected": 0.9553,
+            "diff": 0.0166,
+            "tested": true,
+            "ok": true
+          },
+          {
+            "code": "criminal_xmvt",
+            "c": 0.497,
+            "period": "2022-2024",
+            "band": "10-20",
+            "units": 234,
+            "observed": 0.9672,
+            "expected": 0.9484,
+            "diff": 0.0189,
+            "tested": true,
+            "ok": true
+          },
+          {
+            "code": "criminal_xmvt",
+            "c": 0.497,
+            "period": "2022-2024",
+            "band": "20+",
+            "units": 185,
+            "observed": 0.9694,
+            "expected": 0.9434,
+            "diff": 0.0259,
+            "tested": true,
+            "ok": true
+          },
+          {
+            "code": "burglary",
+            "c": 0.665,
+            "period": "2015-2019",
+            "band": "all>=2",
+            "units": 955,
+            "observed": 0.9627,
+            "expected": 0.9617,
+            "diff": 0.0011,
+            "tested": true,
+            "ok": true
+          },
+          {
+            "code": "burglary",
+            "c": 0.665,
+            "period": "2015-2019",
+            "band": "2-5",
+            "units": 455,
+            "observed": 0.9675,
+            "expected": 0.9657,
+            "diff": 0.0018,
+            "tested": true,
+            "ok": true
+          },
+          {
+            "code": "burglary",
+            "c": 0.665,
+            "period": "2015-2019",
+            "band": "5-10",
+            "units": 285,
+            "observed": 0.9509,
+            "expected": 0.9633,
+            "diff": -0.0124,
+            "tested": true,
+            "ok": true
+          },
+          {
+            "code": "burglary",
+            "c": 0.665,
+            "period": "2015-2019",
+            "band": "10-20",
+            "units": 146,
+            "observed": 0.9616,
+            "expected": 0.9525,
+            "diff": 0.0091,
+            "tested": true,
+            "ok": true
+          },
+          {
+            "code": "burglary",
+            "c": 0.665,
+            "period": "2015-2019",
+            "band": "20+",
+            "units": 69,
+            "observed": 0.9826,
+            "expected": 0.9478,
+            "diff": 0.0348,
+            "tested": false,
+            "ok": null
+          },
+          {
+            "code": "burglary",
+            "c": 0.665,
+            "period": "2022-2024",
+            "band": "all>=2",
+            "units": 570,
+            "observed": 0.9368,
+            "expected": 0.9437,
+            "diff": -0.0069,
+            "tested": true,
+            "ok": true
+          },
+          {
+            "code": "burglary",
+            "c": 0.665,
+            "period": "2022-2024",
+            "band": "2-5",
+            "units": 297,
+            "observed": 0.9349,
+            "expected": 0.9385,
+            "diff": -0.0036,
+            "tested": true,
+            "ok": true
+          },
+          {
+            "code": "burglary",
+            "c": 0.665,
+            "period": "2022-2024",
+            "band": "5-10",
+            "units": 176,
+            "observed": 0.9318,
+            "expected": 0.9539,
+            "diff": -0.0221,
+            "tested": true,
+            "ok": true
+          },
+          {
+            "code": "burglary",
+            "c": 0.665,
+            "period": "2022-2024",
+            "band": "10-20",
+            "units": 62,
+            "observed": 0.957,
+            "expected": 0.9455,
+            "diff": 0.0115,
+            "tested": false,
+            "ok": null
+          },
+          {
+            "code": "burglary",
+            "c": 0.665,
+            "period": "2022-2024",
+            "band": "20+",
+            "units": 35,
+            "observed": 0.9429,
+            "expected": 0.9333,
+            "diff": 0.0095,
+            "tested": false,
+            "ok": null
+          },
+          {
+            "code": "rape",
+            "c": 0.522,
+            "period": "2015-2019",
+            "band": "all>=2",
+            "units": 644,
+            "observed": 0.9764,
+            "expected": 0.9626,
+            "diff": 0.0138,
+            "tested": true,
+            "ok": true
+          },
+          {
+            "code": "rape",
+            "c": 0.522,
+            "period": "2015-2019",
+            "band": "2-5",
+            "units": 309,
+            "observed": 0.9832,
+            "expected": 0.9669,
+            "diff": 0.0163,
+            "tested": true,
+            "ok": true
+          },
+          {
+            "code": "rape",
+            "c": 0.522,
+            "period": "2015-2019",
+            "band": "5-10",
+            "units": 217,
+            "observed": 0.9668,
+            "expected": 0.962,
+            "diff": 0.0048,
+            "tested": true,
+            "ok": true
+          },
+          {
+            "code": "rape",
+            "c": 0.522,
+            "period": "2015-2019",
+            "band": "10-20",
+            "units": 98,
+            "observed": 0.9816,
+            "expected": 0.9552,
+            "diff": 0.0265,
+            "tested": false,
+            "ok": null
+          },
+          {
+            "code": "rape",
+            "c": 0.522,
+            "period": "2015-2019",
+            "band": "20+",
+            "units": 20,
+            "observed": 0.95,
+            "expected": 0.938,
+            "diff": 0.012,
+            "tested": false,
+            "ok": null
+          },
+          {
+            "code": "rape",
+            "c": 0.522,
+            "period": "2022-2024",
+            "band": "all>=2",
+            "units": 574,
+            "observed": 0.9715,
+            "expected": 0.9503,
+            "diff": 0.0213,
+            "tested": true,
+            "ok": false
+          },
+          {
+            "code": "rape",
+            "c": 0.522,
+            "period": "2022-2024",
+            "band": "2-5",
+            "units": 313,
+            "observed": 0.9744,
+            "expected": 0.9489,
+            "diff": 0.0255,
+            "tested": true,
+            "ok": true
+          },
+          {
+            "code": "rape",
+            "c": 0.522,
+            "period": "2022-2024",
+            "band": "5-10",
+            "units": 157,
+            "observed": 0.9745,
+            "expected": 0.9559,
+            "diff": 0.0186,
+            "tested": true,
+            "ok": true
+          },
+          {
+            "code": "rape",
+            "c": 0.522,
+            "period": "2022-2024",
+            "band": "10-20",
+            "units": 77,
+            "observed": 0.9827,
+            "expected": 0.946,
+            "diff": 0.0367,
+            "tested": false,
+            "ok": null
+          },
+          {
+            "code": "rape",
+            "c": 0.522,
+            "period": "2022-2024",
+            "band": "20+",
+            "units": 27,
+            "observed": 0.8889,
+            "expected": 0.9449,
+            "diff": -0.056,
+            "tested": false,
+            "ok": null
+          },
+          {
+            "code": "aggravated_assault",
+            "c": 0.522,
+            "period": "2015-2019",
+            "band": "all>=2",
+            "units": 191,
+            "observed": 0.9476,
+            "expected": 0.9649,
+            "diff": -0.0172,
+            "tested": true,
+            "ok": true
+          },
+          {
+            "code": "aggravated_assault",
+            "c": 0.522,
+            "period": "2015-2019",
+            "band": "2-5",
+            "units": 144,
+            "observed": 0.9569,
+            "expected": 0.9667,
+            "diff": -0.0097,
+            "tested": true,
+            "ok": true
+          },
+          {
+            "code": "aggravated_assault",
+            "c": 0.522,
+            "period": "2015-2019",
+            "band": "5-10",
+            "units": 35,
+            "observed": 0.9486,
+            "expected": 0.9646,
+            "diff": -0.016,
+            "tested": false,
+            "ok": null
+          },
+          {
+            "code": "aggravated_assault",
+            "c": 0.522,
+            "period": "2015-2019",
+            "band": "10-20",
+            "units": 12,
+            "observed": 0.8333,
+            "expected": 0.9444,
+            "diff": -0.1111,
+            "tested": false,
+            "ok": null
+          },
+          {
+            "code": "aggravated_assault",
+            "c": 0.522,
+            "period": "2022-2024",
+            "band": "all>=2",
+            "units": 210,
+            "observed": 0.9365,
+            "expected": 0.9448,
+            "diff": -0.0083,
+            "tested": true,
+            "ok": true
+          },
+          {
+            "code": "aggravated_assault",
+            "c": 0.522,
+            "period": "2022-2024",
+            "band": "2-5",
+            "units": 141,
+            "observed": 0.9385,
+            "expected": 0.9426,
+            "diff": -0.004,
+            "tested": true,
+            "ok": true
+          },
+          {
+            "code": "aggravated_assault",
+            "c": 0.522,
+            "period": "2022-2024",
+            "band": "5-10",
+            "units": 42,
+            "observed": 0.9286,
+            "expected": 0.9484,
+            "diff": -0.0198,
+            "tested": false,
+            "ok": null
+          },
+          {
+            "code": "aggravated_assault",
+            "c": 0.522,
+            "period": "2022-2024",
+            "band": "10-20",
+            "units": 21,
+            "observed": 0.9365,
+            "expected": 0.9556,
+            "diff": -0.019,
+            "tested": false,
+            "ok": null
+          },
+          {
+            "code": "aggravated_assault",
+            "c": 0.522,
+            "period": "2022-2024",
+            "band": "20+",
+            "units": 6,
+            "observed": 0.9444,
+            "expected": 0.9352,
+            "diff": 0.0093,
+            "tested": false,
+            "ok": null
+          },
+          {
+            "code": "robbery",
+            "c": 0.522,
+            "period": "2015-2019",
+            "band": "all>=2",
+            "units": 95,
+            "observed": 0.9726,
+            "expected": 0.9672,
+            "diff": 0.0055,
+            "tested": true,
+            "ok": true
+          },
+          {
+            "code": "robbery",
+            "c": 0.522,
+            "period": "2015-2019",
+            "band": "2-5",
+            "units": 85,
+            "observed": 0.9765,
+            "expected": 0.9676,
+            "diff": 0.0089,
+            "tested": false,
+            "ok": null
+          },
+          {
+            "code": "robbery",
+            "c": 0.522,
+            "period": "2015-2019",
+            "band": "5-10",
+            "units": 9,
+            "observed": 0.9333,
+            "expected": 0.9689,
+            "diff": -0.0356,
+            "tested": false,
+            "ok": null
+          },
+          {
+            "code": "robbery",
+            "c": 0.522,
+            "period": "2015-2019",
+            "band": "10-20",
+            "units": 1,
+            "observed": 1.0,
+            "expected": 0.9133,
+            "diff": 0.0867,
+            "tested": false,
+            "ok": null
+          },
+          {
+            "code": "robbery",
+            "c": 0.522,
+            "period": "2022-2024",
+            "band": "all>=2",
+            "units": 37,
+            "observed": 0.955,
+            "expected": 0.9453,
+            "diff": 0.0096,
+            "tested": true,
+            "ok": true
+          },
+          {
+            "code": "robbery",
+            "c": 0.522,
+            "period": "2022-2024",
+            "band": "2-5",
+            "units": 34,
+            "observed": 0.9608,
+            "expected": 0.9435,
+            "diff": 0.0173,
+            "tested": false,
+            "ok": null
+          },
+          {
+            "code": "robbery",
+            "c": 0.522,
+            "period": "2022-2024",
+            "band": "5-10",
+            "units": 2,
+            "observed": 0.8333,
+            "expected": 0.9667,
+            "diff": -0.1333,
+            "tested": false,
+            "ok": null
+          },
+          {
+            "code": "robbery",
+            "c": 0.522,
+            "period": "2022-2024",
+            "band": "20+",
+            "units": 1,
+            "observed": 1.0,
+            "expected": 0.9667,
+            "diff": 0.0333,
+            "tested": false,
+            "ok": null
+          },
+          {
+            "code": "fondling",
+            "c": 0.522,
+            "period": "2015-2019",
+            "band": "all>=2",
+            "units": 454,
+            "observed": 0.9524,
+            "expected": 0.9658,
+            "diff": -0.0134,
+            "tested": true,
+            "ok": true
+          },
+          {
+            "code": "fondling",
+            "c": 0.522,
+            "period": "2015-2019",
+            "band": "2-5",
+            "units": 320,
+            "observed": 0.9681,
+            "expected": 0.9685,
+            "diff": -0.0004,
+            "tested": true,
+            "ok": true
+          },
+          {
+            "code": "fondling",
+            "c": 0.522,
+            "period": "2015-2019",
+            "band": "5-10",
+            "units": 105,
+            "observed": 0.96,
+            "expected": 0.9628,
+            "diff": -0.0028,
+            "tested": true,
+            "ok": true
+          },
+          {
+            "code": "fondling",
+            "c": 0.522,
+            "period": "2015-2019",
+            "band": "10-20",
+            "units": 23,
+            "observed": 0.8696,
+            "expected": 0.951,
+            "diff": -0.0814,
+            "tested": false,
+            "ok": null
+          },
+          {
+            "code": "fondling",
+            "c": 0.522,
+            "period": "2015-2019",
+            "band": "20+",
+            "units": 6,
+            "observed": 0.3,
+            "expected": 0.93,
+            "diff": -0.63,
+            "tested": false,
+            "ok": null
+          },
+          {
+            "code": "fondling",
+            "c": 0.522,
+            "period": "2022-2024",
+            "band": "all>=2",
+            "units": 478,
+            "observed": 0.9526,
+            "expected": 0.9483,
+            "diff": 0.0043,
+            "tested": true,
+            "ok": true
+          },
+          {
+            "code": "fondling",
+            "c": 0.522,
+            "period": "2022-2024",
+            "band": "2-5",
+            "units": 320,
+            "observed": 0.9583,
+            "expected": 0.9457,
+            "diff": 0.0126,
+            "tested": true,
+            "ok": true
+          },
+          {
+            "code": "fondling",
+            "c": 0.522,
+            "period": "2022-2024",
+            "band": "5-10",
+            "units": 113,
+            "observed": 0.9381,
+            "expected": 0.9552,
+            "diff": -0.0171,
+            "tested": true,
+            "ok": true
+          },
+          {
+            "code": "fondling",
+            "c": 0.522,
+            "period": "2022-2024",
+            "band": "10-20",
+            "units": 35,
+            "observed": 0.9619,
+            "expected": 0.9524,
+            "diff": 0.0095,
+            "tested": false,
+            "ok": null
+          },
+          {
+            "code": "fondling",
+            "c": 0.522,
+            "period": "2022-2024",
+            "band": "20+",
+            "units": 10,
+            "observed": 0.9,
+            "expected": 0.9378,
+            "diff": -0.0378,
+            "tested": false,
+            "ok": null
+          },
+          {
+            "code": "stalking",
+            "c": 0.522,
+            "period": "2015-2019",
+            "band": "all>=2",
+            "units": 648,
+            "observed": 0.954,
+            "expected": 0.9642,
+            "diff": -0.0102,
+            "tested": true,
+            "ok": true
+          },
+          {
+            "code": "stalking",
+            "c": 0.522,
+            "period": "2015-2019",
+            "band": "2-5",
+            "units": 370,
+            "observed": 0.9622,
+            "expected": 0.9683,
+            "diff": -0.0061,
+            "tested": true,
+            "ok": true
+          },
+          {
+            "code": "stalking",
+            "c": 0.522,
+            "period": "2015-2019",
+            "band": "5-10",
+            "units": 157,
+            "observed": 0.9401,
+            "expected": 0.9631,
+            "diff": -0.023,
+            "tested": true,
+            "ok": true
+          },
+          {
+            "code": "stalking",
+            "c": 0.522,
+            "period": "2015-2019",
+            "band": "10-20",
+            "units": 90,
+            "observed": 0.9467,
+            "expected": 0.9547,
+            "diff": -0.0081,
+            "tested": false,
+            "ok": null
+          },
+          {
+            "code": "stalking",
+            "c": 0.522,
+            "period": "2015-2019",
+            "band": "20+",
+            "units": 31,
+            "observed": 0.9484,
+            "expected": 0.9486,
+            "diff": -0.0002,
+            "tested": false,
+            "ok": null
+          },
+          {
+            "code": "stalking",
+            "c": 0.522,
+            "period": "2022-2024",
+            "band": "all>=2",
+            "units": 615,
+            "observed": 0.9631,
+            "expected": 0.9491,
+            "diff": 0.014,
+            "tested": true,
+            "ok": true
+          },
+          {
+            "code": "stalking",
+            "c": 0.522,
+            "period": "2022-2024",
+            "band": "2-5",
+            "units": 307,
+            "observed": 0.962,
+            "expected": 0.9477,
+            "diff": 0.0143,
+            "tested": true,
+            "ok": true
+          },
+          {
+            "code": "stalking",
+            "c": 0.522,
+            "period": "2022-2024",
+            "band": "5-10",
+            "units": 151,
+            "observed": 0.9448,
+            "expected": 0.9555,
+            "diff": -0.0107,
+            "tested": true,
+            "ok": true
+          },
+          {
+            "code": "stalking",
+            "c": 0.522,
+            "period": "2022-2024",
+            "band": "10-20",
+            "units": 96,
+            "observed": 0.9826,
+            "expected": 0.9459,
+            "diff": 0.0367,
+            "tested": false,
+            "ok": null
+          },
+          {
+            "code": "stalking",
+            "c": 0.522,
+            "period": "2022-2024",
+            "band": "20+",
+            "units": 61,
+            "observed": 0.9836,
+            "expected": 0.9455,
+            "diff": 0.0381,
+            "tested": false,
+            "ok": null
+          }
+        ],
+        "problems": [
+          "rape 2022-2024 all>=2: observed 0.972, expected 0.950 (diff +0.021, tolerance 0.02, 574 institutions)"
+        ],
+        "seconds": 5.0
+      },
+      "errors": [
+        "1 calibration problems (first: rape 2022-2024 all>=2: observed 0.972, expected 0.950 (diff +0.021, tolerance 0.02, 574 institutions))"
+      ],
+      "warnings": []
+    },
+    {
+      "name": "Medical-Campus Screen",
+      "status": "WARNING",
+      "details": {
+        "what_it_checks": "A3: non-main campuses whose DOE branch name + address match MEDICAL_SCREEN_PATTERN, in an institution-year with a single-year rate, with sum over criminal_xmvt offenses of max(0, on campus - residence halls) >= 5 and >= 1/10 of the institution's on-campus criminal_xmvt count, not covered for that year by medical_campuses.csv or medical_campus_reviews.csv.",
+        "matching_campuses": 220,
+        "candidate_campus_years": 75,
+        "reviewed_candidate_campus_years": 72,
+        "unreviewed_campus_years": 3,
+        "unreviewed": [
+          {
+            "unitid": 146719005,
+            "institution": "Loyola University Chicago",
+            "names": [
+              "Medical Center 2160 South First Avenue"
+            ],
+            "years": [
+              2019
+            ],
+            "figures": [
+              5
+            ],
+            "shares": [
+              0.2
+            ]
+          },
+          {
+            "unitid": 193900023,
+            "institution": "New York University",
+            "names": [
+              "NYU Grossman Long Island School of Medicine 222 Station Plaza North",
+              "NYU Long Island School of Medicine 222 Station Plaza North"
+            ],
+            "years": [
+              2024
+            ],
+            "figures": [
+              6
+            ],
+            "shares": [
+              0.136
+            ]
+          },
+          {
+            "unitid": 242972004,
+            "institution": "NUC University",
+            "names": [
+              "NUC University - Ponce Hospital San Cristobal, State Road # 506, Bo. Coto Laurel",
+              "NUC University - Ponce Hospital San Cristobal, State Road #506, Bo. Coto Laurel",
+              "Ponce Branch Campus PO Box 801243 Coto Laurel"
+            ],
+            "years": [
+              2016
+            ],
+            "figures": [
+              5
+            ],
+            "shares": [
+              0.385
+            ]
+          }
+        ],
+        "seconds": 0.5
+      },
+      "errors": [],
+      "warnings": [
+        "3 unreviewed candidate campus-years at 3 campuses (first: 146719005 Loyola University Chicago [2019]); review them and add each to etl/reference/medical_campuses.csv or medical_campus_reviews.csv."
+      ]
     }
   ],
   "schools": {

@@ -60,11 +60,12 @@
   ],
   "institution": {
     "id": 117140,
+    "ratesFile": "rates/institutions/117140.json",
     "byYear": {
       "2015": {
         "campuses": 8,
         "online": 10,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 6205,
         "counts": {
           "criminal": 12,
@@ -85,7 +86,7 @@
       "2016": {
         "campuses": 9,
         "online": 10,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 6175,
         "counts": {
           "criminal": 25,
@@ -110,7 +111,7 @@
       "2017": {
         "campuses": 9,
         "online": 10,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 6100,
         "counts": {
           "criminal": 17,
@@ -134,7 +135,7 @@
       "2018": {
         "campuses": 9,
         "online": 12,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 5936,
         "counts": {
           "criminal": 12,
@@ -157,10 +158,15 @@
       "2019": {
         "campuses": 9,
         "online": 12,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 5535,
-        "spikes": [
-          "liquor_arrest"
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "Non-campus",
+            "count": 15,
+            "usual": 0
+          }
         ],
         "counts": {
           "criminal": 35,
@@ -185,7 +191,8 @@
       "2020": {
         "campuses": 9,
         "online": 12,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 5321,
         "counts": {

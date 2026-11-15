@@ -416,17 +416,18 @@
   ],
   "institution": {
     "id": 487524,
+    "ratesFile": "rates/institutions/487524.json",
     "byYear": {
       "2015": {
         "campuses": 3,
         "online": 10,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2892
       },
       "2016": {
         "campuses": 3,
         "online": 13,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2933,
         "counts": {
           "criminal": 8,
@@ -446,7 +447,7 @@
       "2017": {
         "campuses": 3,
         "online": 15,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2889,
         "counts": {
           "criminal": 2,
@@ -466,7 +467,7 @@
       "2018": {
         "campuses": 3,
         "online": 18,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2928,
         "counts": {
           "criminal": 3,
@@ -482,7 +483,7 @@
       "2019": {
         "campuses": 2,
         "online": 18,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2924,
         "counts": {
           "criminal": 1,
@@ -498,37 +499,39 @@
       "2020": {
         "campuses": 1,
         "online": 18,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 2710
       },
       "2021": {
         "campuses": 1,
         "online": 18,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 2589
       },
       "2022": {
         "campuses": 1,
         "online": 22,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2353
       },
       "2023": {
         "campuses": 1,
         "online": 26,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2260
       },
       "2024": {
         "campuses": 1,
         "online": 34,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2151,
         "fteUncertain": {
           "share": 1720,
-          "partTimeFirst": 2151
+          "partTimeFirst": 2151,
+          "reason": "own"
         }
       }
     }

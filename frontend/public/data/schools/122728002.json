@@ -146,17 +146,26 @@
   ],
   "institution": {
     "id": 122728,
+    "ratesFile": "rates/institutions/122728.json",
     "byYear": {
       "2022": {
         "campuses": 2,
         "online": 29,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1510,
         "pooledWith": [
           {
             "id": 209287,
             "name": "Multnomah University",
             "fte": 450
+          }
+        ],
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "Public property",
+            "count": 11,
+            "usual": 0
           }
         ],
         "counts": {
@@ -173,7 +182,7 @@
       "2023": {
         "campuses": 2,
         "online": 20,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1178,
         "counts": {
           "criminal": 14,
@@ -191,7 +200,7 @@
       "2024": {
         "campuses": 2,
         "online": 23,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1431,
         "counts": {
           "criminal": 10,

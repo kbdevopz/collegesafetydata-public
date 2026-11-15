@@ -174,75 +174,82 @@
   ],
   "institution": {
     "id": 172954,
+    "ratesFile": "rates/institutions/172954.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 9,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1207
       },
       "2016": {
         "campuses": 1,
         "online": 11,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1127
       },
       "2017": {
         "campuses": 1,
         "online": 11,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1123
       },
       "2018": {
         "campuses": 1,
         "online": 11,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1101
       },
       "2019": {
         "campuses": 1,
         "online": 16,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1109
       },
       "2020": {
         "campuses": 1,
         "online": 16,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 1008
       },
       "2021": {
         "campuses": 1,
         "online": 16,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 1032
       },
       "2022": {
         "campuses": 1,
         "online": 27,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 870
       },
       "2023": {
         "campuses": 1,
         "online": 35,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 942,
         "fteUncertain": {
           "share": 751,
-          "partTimeFirst": 942
+          "partTimeFirst": 942,
+          "reason": "own"
         }
       },
       "2024": {
         "campuses": 1,
         "online": 43,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 929,
         "fteUncertain": {
           "share": 691,
-          "partTimeFirst": 929
+          "partTimeFirst": 929,
+          "reason": "own"
         }
       }
     }

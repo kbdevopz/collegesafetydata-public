@@ -908,72 +908,98 @@
   ],
   "institution": {
     "id": 159391,
+    "ratesFile": "rates/institutions/159391.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 2,
-        "rateRanked": true,
-        "rateFte": 29032,
-        "spikes": [
-          "drug_discipline",
-          "liquor_discipline"
-        ]
+        "rated": true,
+        "rateFte": 29032
       },
       "2016": {
         "campuses": 1,
         "online": 2,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 28719
       },
       "2017": {
         "campuses": 1,
         "online": 3,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 27721
       },
       "2018": {
         "campuses": 1,
         "online": 3,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 28107
       },
       "2019": {
         "campuses": 1,
         "online": 4,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 28498
       },
       "2020": {
         "campuses": 1,
         "online": 4,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 30336
       },
       "2021": {
         "campuses": 1,
         "online": 4,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 31714
       },
       "2022": {
         "campuses": 1,
         "online": 8,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 32238
       },
       "2023": {
         "campuses": 1,
         "online": 11,
-        "rateRanked": true,
-        "rateFte": 33246
+        "rated": true,
+        "rateFte": 33246,
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 68,
+            "usual": 18
+          }
+        ]
       },
       "2024": {
         "campuses": 1,
         "online": 12,
-        "rateRanked": true,
-        "rateFte": 34756
+        "rated": true,
+        "rateFte": 34756,
+        "flags": [
+          {
+            "offense": "dating_violence",
+            "geo": "On-campus",
+            "count": 30,
+            "usual": 7
+          },
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 121,
+            "usual": 18
+          },
+          {
+            "offense": "rape",
+            "geo": "On-campus",
+            "count": 39,
+            "usual": 12
+          }
+        ]
       }
     }
   }

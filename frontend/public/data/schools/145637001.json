@@ -1024,26 +1024,32 @@
   ],
   "institution": {
     "id": 145637,
+    "ratesFile": "rates/institutions/145637.json",
     "byYear": {
       "2015": {
         "campuses": 2,
         "online": 4,
-        "rateRanked": true,
-        "rateFte": 42603,
-        "spikes": [
-          "liquor_arrest"
-        ]
+        "rated": true,
+        "rateFte": 42603
       },
       "2016": {
         "campuses": 2,
         "online": 5,
-        "rateRanked": true,
-        "rateFte": 43259
+        "rated": true,
+        "rateFte": 43259,
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "On-campus",
+            "count": 32,
+            "usual": 9
+          }
+        ]
       },
       "2017": {
         "campuses": 2,
         "online": 7,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 43591,
         "counts": {
           "criminal": 112,
@@ -1069,7 +1075,7 @@
       "2018": {
         "campuses": 2,
         "online": 10,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 43837,
         "counts": {
           "criminal": 99,
@@ -1095,23 +1101,41 @@
       "2019": {
         "campuses": 2,
         "online": 13,
-        "rateRanked": false,
-        "rateExcludedReason": "IPEDS reports that this institution has a hospital (institutional characteristics, 2019). Patients, visitors and hospital staff are on its campus but not in its FTE, so a rate per student would not measure its campus population. It is left out of rate rankings; its counts are shown.",
+        "rated": false,
+        "notRated": "excluded",
+        "rateExcludedReason": "IPEDS reports that this institution has a hospital (institutional characteristics, 2019). Patients, visitors and hospital staff are on its campus but not in its FTE, so a rate per student would not measure its campus population. It has no rate; its counts are shown.",
         "rateFte": 44344
       },
       "2020": {
         "campuses": 2,
         "online": 13,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 44217
+        "rateFte": 44217,
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "Public property",
+            "count": 13,
+            "usual": 1
+          }
+        ]
       },
       "2021": {
         "campuses": 2,
         "online": 13,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 47572,
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "Non-campus",
+            "count": 12,
+            "usual": 2
+          }
+        ],
         "counts": {
           "criminal": 80,
           "violent": 42,
@@ -1136,20 +1160,44 @@
       "2022": {
         "campuses": 2,
         "online": 17,
-        "rateRanked": true,
-        "rateFte": 46677
+        "rated": true,
+        "rateFte": 46677,
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 37,
+            "usual": 4
+          }
+        ]
       },
       "2023": {
         "campuses": 2,
         "online": 16,
-        "rateRanked": true,
-        "rateFte": 47129
+        "rated": true,
+        "rateFte": 47129,
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 65,
+            "usual": 4
+          }
+        ]
       },
       "2024": {
         "campuses": 2,
         "online": 16,
-        "rateRanked": true,
-        "rateFte": 49606
+        "rated": true,
+        "rateFte": 49606,
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 60,
+            "usual": 4
+          }
+        ]
       }
     }
   }

@@ -81,11 +81,12 @@
   ],
   "institution": {
     "id": 230038,
+    "ratesFile": "rates/institutions/230038.json",
     "byYear": {
       "2015": {
         "campuses": 3,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 30950,
         "abroad": {
           "campuses": 2,
@@ -114,12 +115,20 @@
       "2016": {
         "campuses": 3,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 31674,
         "abroad": {
           "campuses": 2,
           "counts": {}
         },
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "Non-campus",
+            "count": 11,
+            "usual": 0
+          }
+        ],
         "counts": {
           "criminal": 29,
           "violent": 9,
@@ -142,7 +151,7 @@
       "2017": {
         "campuses": 3,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 31712,
         "abroad": {
           "campuses": 2,
@@ -172,7 +181,7 @@
       "2018": {
         "campuses": 3,
         "online": 1,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 31718,
         "abroad": {
           "campuses": 2,
@@ -200,7 +209,7 @@
       "2019": {
         "campuses": 3,
         "online": 1,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 31622,
         "abroad": {
           "campuses": 2,
@@ -232,7 +241,8 @@
       "2020": {
         "campuses": 3,
         "online": 1,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 33553,
         "abroad": {
@@ -261,7 +271,7 @@
       "2021": {
         "campuses": 3,
         "online": 1,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 31928,
         "abroad": {
@@ -290,12 +300,20 @@
       "2022": {
         "campuses": 3,
         "online": 2,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 31537,
         "abroad": {
           "campuses": 2,
           "counts": {}
         },
+        "flags": [
+          {
+            "offense": "dating_violence",
+            "geo": "On-campus",
+            "count": 17,
+            "usual": 3
+          }
+        ],
         "counts": {
           "criminal": 46,
           "violent": 7,

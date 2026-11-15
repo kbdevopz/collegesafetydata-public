@@ -48,11 +48,12 @@
   ],
   "institution": {
     "id": 229115,
+    "ratesFile": "rates/institutions/229115.json",
     "byYear": {
       "2021": {
         "campuses": 9,
         "online": 10,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 34633,
         "abroad": {
@@ -65,6 +66,14 @@
             "rape": 1
           }
         },
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "On-campus",
+            "count": 24,
+            "usual": 5
+          }
+        ],
         "counts": {
           "criminal": 106,
           "violent": 56,
@@ -91,7 +100,7 @@
       "2022": {
         "campuses": 10,
         "online": 11,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 34756,
         "abroad": {
           "campuses": 2,
@@ -122,7 +131,7 @@
       "2023": {
         "campuses": 8,
         "online": 12,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 35339,
         "abroad": {
           "campuses": 2,
@@ -133,6 +142,14 @@
             "burglary": 1
           }
         },
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 47,
+            "usual": 6
+          }
+        ],
         "counts": {
           "criminal": 131,
           "violent": 40,

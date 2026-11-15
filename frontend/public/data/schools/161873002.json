@@ -61,12 +61,21 @@
   ],
   "institution": {
     "id": 161873,
+    "ratesFile": "rates/institutions/161873.json",
     "byYear": {
       "2023": {
         "campuses": 2,
         "online": 26,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1864,
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "Public property",
+            "count": 14,
+            "usual": 2
+          }
+        ],
         "counts": {
           "criminal": 19,
           "violent": 4,
@@ -85,7 +94,7 @@
       "2024": {
         "campuses": 2,
         "online": 26,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1901,
         "counts": {
           "criminal": 14,

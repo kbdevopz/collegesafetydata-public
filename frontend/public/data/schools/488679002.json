@@ -70,11 +70,13 @@
   ],
   "institution": {
     "id": 488679,
+    "ratesFile": "rates/institutions/488679.json",
     "byYear": {
       "2015": {
         "campuses": 15,
         "online": null,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateExcludedReason": "In 2015 DOE reported campuses of this institution and of related institutions (a merger or renumbering) under separate IDs, while IPEDS has no enrollment for 488679, so that year's incidents and enrollment may not cover the same campuses. No rate is shown for it.",
         "counts": {
           "criminal": 2,
@@ -89,7 +91,7 @@
       "2016": {
         "campuses": 16,
         "online": 47,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 5863,
         "counts": {
           "criminal": 2,
@@ -101,7 +103,7 @@
       "2017": {
         "campuses": 15,
         "online": 86,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1509,
         "counts": {
           "criminal": 1,
@@ -115,7 +117,7 @@
       "2018": {
         "campuses": 15,
         "online": 81,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2017,
         "counts": {
           "all": 1,
@@ -125,7 +127,7 @@
       "2019": {
         "campuses": 15,
         "online": 86,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1597,
         "counts": {
           "criminal": 1,
@@ -137,7 +139,8 @@
       "2020": {
         "campuses": 15,
         "online": 86,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 1532
       }

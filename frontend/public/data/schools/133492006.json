@@ -81,16 +81,25 @@
   "breakdownByGeo": [],
   "institution": {
     "id": 133492,
+    "ratesFile": "rates/institutions/133492.json",
     "byYear": {
       "2015": {
         "campuses": 2,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1922,
         "abroad": {
           "campuses": 1,
           "counts": {}
         },
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "On-campus",
+            "count": 14,
+            "usual": 2
+          }
+        ],
         "counts": {
           "criminal": 31,
           "violent": 10,
@@ -113,7 +122,7 @@
       "2016": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1958,
         "abroad": {
           "campuses": 1,
@@ -124,6 +133,20 @@
             "burglary": 1
           }
         },
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "On-campus",
+            "count": 17,
+            "usual": 2
+          },
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 10,
+            "usual": 1
+          }
+        ],
         "counts": {
           "criminal": 39,
           "violent": 8,
@@ -144,7 +167,7 @@
       "2017": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1963,
         "abroad": {
           "campuses": 1,
@@ -171,12 +194,20 @@
       "2018": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1966,
         "abroad": {
           "campuses": 1,
           "counts": {}
         },
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "On-campus",
+            "count": 12,
+            "usual": 2
+          }
+        ],
         "counts": {
           "criminal": 30,
           "violent": 9,
@@ -198,7 +229,7 @@
       "2019": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1977,
         "abroad": {
           "campuses": 1,
@@ -225,7 +256,8 @@
       "2020": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 1787,
         "abroad": {
@@ -247,7 +279,7 @@
       "2021": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 2003,
         "abroad": {
@@ -273,7 +305,7 @@
       "2022": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1957,
         "abroad": {
           "campuses": 1,
@@ -299,7 +331,7 @@
       "2023": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1950,
         "abroad": {
           "campuses": 1,
@@ -324,7 +356,7 @@
       "2024": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1862,
         "abroad": {
           "campuses": 1,

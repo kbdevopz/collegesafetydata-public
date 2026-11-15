@@ -81,15 +81,17 @@
   "breakdownByGeo": [],
   "institution": {
     "id": 154493,
+    "ratesFile": "rates/institutions/154493.json",
     "byYear": {
       "2015": {
         "campuses": 21,
         "online": 37,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 3022,
         "fteUncertain": {
           "share": 2385,
-          "partTimeFirst": 3022
+          "partTimeFirst": 3022,
+          "reason": "own"
         },
         "counts": {
           "criminal": 7,
@@ -109,12 +111,21 @@
       "2016": {
         "campuses": 21,
         "online": 38,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2848,
         "fteUncertain": {
           "share": 2205,
-          "partTimeFirst": 2848
+          "partTimeFirst": 2848,
+          "reason": "own"
         },
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "On-campus",
+            "count": 18,
+            "usual": 0
+          }
+        ],
         "counts": {
           "criminal": 21,
           "violent": 2,
@@ -134,11 +145,12 @@
       "2017": {
         "campuses": 21,
         "online": 42,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2712,
         "fteUncertain": {
           "share": 2045,
-          "partTimeFirst": 2712
+          "partTimeFirst": 2712,
+          "reason": "own"
         },
         "abroad": {
           "campuses": 6,
@@ -165,11 +177,12 @@
       "2018": {
         "campuses": 21,
         "online": 47,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2328,
         "fteUncertain": {
           "share": 1689,
-          "partTimeFirst": 2328
+          "partTimeFirst": 2328,
+          "reason": "own"
         },
         "abroad": {
           "campuses": 6,
@@ -200,11 +213,12 @@
       "2019": {
         "campuses": 21,
         "online": 56,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1883,
         "fteUncertain": {
           "share": 1365,
-          "partTimeFirst": 1883
+          "partTimeFirst": 1883,
+          "reason": "own"
         },
         "abroad": {
           "campuses": 1,
@@ -233,12 +247,14 @@
       "2020": {
         "campuses": 21,
         "online": 56,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 1588,
         "fteUncertain": {
           "share": 1161,
-          "partTimeFirst": 1588
+          "partTimeFirst": 1588,
+          "reason": "own"
         },
         "counts": {
           "criminal": 6,
@@ -260,12 +276,13 @@
       "2021": {
         "campuses": 21,
         "online": 56,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 1334,
         "fteUncertain": {
           "share": 977,
-          "partTimeFirst": 1334
+          "partTimeFirst": 1334,
+          "reason": "own"
         },
         "counts": {
           "criminal": 1,
@@ -281,11 +298,13 @@
       "2022": {
         "campuses": 12,
         "online": 69,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 960,
         "fteUncertain": {
           "share": 697,
-          "partTimeFirst": 960
+          "partTimeFirst": 960,
+          "reason": "own"
         },
         "counts": {
           "criminal": 6,
@@ -309,11 +328,13 @@
       "2023": {
         "campuses": 12,
         "online": 75,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 762,
         "fteUncertain": {
           "share": 552,
-          "partTimeFirst": 762
+          "partTimeFirst": 762,
+          "reason": "own"
         },
         "counts": {
           "criminal": 2,
@@ -327,11 +348,13 @@
       "2024": {
         "campuses": 12,
         "online": 75,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 975,
         "fteUncertain": {
           "share": 630,
-          "partTimeFirst": 975
+          "partTimeFirst": 975,
+          "reason": "own"
         },
         "counts": {
           "criminal": 3,

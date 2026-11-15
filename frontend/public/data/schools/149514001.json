@@ -284,18 +284,27 @@
   "breakdownByGeo": [],
   "institution": {
     "id": 149514,
+    "ratesFile": "rates/institutions/149514.json",
     "byYear": {
       "2015": {
         "campuses": 2,
         "online": 3,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1525
       },
       "2016": {
         "campuses": 2,
         "online": 5,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1467,
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "On-campus",
+            "count": 15,
+            "usual": 1
+          }
+        ],
         "counts": {
           "criminal": 17,
           "violent": 2,
@@ -311,51 +320,56 @@
       "2017": {
         "campuses": 2,
         "online": 6,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1419
       },
       "2018": {
         "campuses": 2,
         "online": 9,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1191
       },
       "2019": {
         "campuses": 2,
         "online": 9,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1147
       },
       "2020": {
         "campuses": 2,
         "online": 9,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 1007
       },
       "2021": {
         "campuses": 1,
         "online": 9,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "onlineYear": 2019,
         "rateFte": 906
       },
       "2022": {
         "campuses": 1,
         "online": 18,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 795
       },
       "2023": {
         "campuses": 1,
         "online": 39,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 369
       },
       "2024": {
         "campuses": 1,
         "online": 35,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 376
       }
     }

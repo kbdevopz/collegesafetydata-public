@@ -130,64 +130,90 @@
   ],
   "institution": {
     "id": 490221,
+    "ratesFile": "rates/institutions/490221.json",
     "byYear": {
       "2017": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 5
       },
       "2018": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 15
       },
       "2019": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 15
       },
       "2020": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "onlineYear": 2019,
         "rateFte": 14
       },
       "2021": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "onlineYear": 2019,
         "rateFte": 18
       },
       "2022": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 8
       },
       "2023": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 7
       },
       "2024": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 9,
-        "spikes": [
-          "criminal",
-          "violent",
-          "property",
-          "all",
-          "aggravated_assault",
-          "burglary",
-          "motor_vehicle_theft"
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "Non-campus",
+            "count": 88,
+            "usual": 0
+          },
+          {
+            "offense": "burglary",
+            "geo": "Non-campus",
+            "count": 70,
+            "usual": 0
+          },
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "Non-campus",
+            "count": 42,
+            "usual": 0
+          },
+          {
+            "offense": "rape",
+            "geo": "Non-campus",
+            "count": 12,
+            "usual": 0
+          }
         ]
       }
     }

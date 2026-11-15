@@ -217,11 +217,12 @@
   ],
   "institution": {
     "id": 244437,
+    "ratesFile": "rates/institutions/244437.json",
     "byYear": {
       "2015": {
         "campuses": 5,
         "online": 20,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 10532,
         "counts": {
           "criminal": 3,
@@ -239,7 +240,7 @@
       "2019": {
         "campuses": 5,
         "online": 19,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 10221,
         "counts": {
           "criminal": 3,
@@ -254,7 +255,8 @@
       "2020": {
         "campuses": 5,
         "online": 19,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 9127,
         "counts": {
@@ -273,7 +275,7 @@
       "2021": {
         "campuses": 5,
         "online": 19,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 7780,
         "counts": {
@@ -290,11 +292,12 @@
       "2022": {
         "campuses": 5,
         "online": 40,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 6993,
         "fteUncertain": {
           "share": 5441,
-          "partTimeFirst": 6993
+          "partTimeFirst": 6993,
+          "reason": "own"
         },
         "counts": {
           "criminal": 7,
@@ -312,11 +315,12 @@
       "2023": {
         "campuses": 5,
         "online": 39,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 7107,
         "fteUncertain": {
           "share": 5575,
-          "partTimeFirst": 7107
+          "partTimeFirst": 7107,
+          "reason": "own"
         },
         "counts": {
           "criminal": 1,
@@ -329,11 +333,12 @@
       "2024": {
         "campuses": 5,
         "online": 40,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 7634,
         "fteUncertain": {
           "share": 5985,
-          "partTimeFirst": 7634
+          "partTimeFirst": 7634,
+          "reason": "own"
         },
         "counts": {
           "criminal": 3,

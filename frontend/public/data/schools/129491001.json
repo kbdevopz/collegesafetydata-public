@@ -150,80 +150,102 @@
   ],
   "institution": {
     "id": 129491,
+    "ratesFile": "rates/institutions/129491.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 16,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 66
       },
       "2016": {
         "campuses": 1,
         "online": 9,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 72
       },
       "2017": {
         "campuses": 1,
         "online": 18,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 66
       },
       "2018": {
         "campuses": 1,
         "online": 21,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 67
       },
       "2019": {
         "campuses": 1,
         "online": 22,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 62
       },
       "2020": {
         "campuses": 1,
         "online": 22,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "onlineYear": 2019,
         "rateFte": 52
       },
       "2021": {
         "campuses": 1,
         "online": 22,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "onlineYear": 2019,
         "rateFte": 54
       },
       "2022": {
         "campuses": 1,
         "online": 53,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 43,
         "fteUncertain": {
           "share": 29,
-          "partTimeFirst": 43
+          "partTimeFirst": 43,
+          "reason": "own"
         }
       },
       "2023": {
         "campuses": 1,
         "online": 50,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 47,
         "fteUncertain": {
           "share": 34,
-          "partTimeFirst": 47
+          "partTimeFirst": 47,
+          "reason": "own"
         }
       },
       "2024": {
         "campuses": 1,
         "online": 54,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 44,
         "fteUncertain": {
           "share": 31,
-          "partTimeFirst": 44
-        }
+          "partTimeFirst": 44,
+          "reason": "own"
+        },
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "Public property",
+            "count": 10,
+            "usual": 0
+          }
+        ]
       }
     }
   }

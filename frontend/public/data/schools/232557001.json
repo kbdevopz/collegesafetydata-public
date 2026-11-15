@@ -942,111 +942,176 @@
   ],
   "institution": {
     "id": 232557,
+    "ratesFile": "rates/institutions/232557.json",
     "byYear": {
       "2015": {
         "campuses": 3,
         "online": 82,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 14489,
         "fteUncertain": {
           "share": 9795,
-          "partTimeFirst": 14489
+          "partTimeFirst": 14489,
+          "reason": "own"
         }
       },
       "2016": {
         "campuses": 2,
         "online": 80,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 15151,
         "fteUncertain": {
           "share": 10349,
-          "partTimeFirst": 15151
+          "partTimeFirst": 15151,
+          "reason": "own"
         }
       },
       "2017": {
         "campuses": 2,
         "online": 80,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 15009,
         "fteUncertain": {
           "share": 10447,
-          "partTimeFirst": 15009
+          "partTimeFirst": 15009,
+          "reason": "own"
         }
       },
       "2018": {
         "campuses": 1,
         "online": 81,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 15039,
         "fteUncertain": {
           "share": 10692,
-          "partTimeFirst": 15039
+          "partTimeFirst": 15039,
+          "reason": "own"
         }
       },
       "2019": {
         "campuses": 1,
         "online": 82,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 15405,
         "fteUncertain": {
           "share": 11110,
-          "partTimeFirst": 15405
+          "partTimeFirst": 15405,
+          "reason": "own"
         }
       },
       "2020": {
         "campuses": 1,
         "online": 82,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 16803,
         "fteUncertain": {
           "share": 12346,
-          "partTimeFirst": 16803
+          "partTimeFirst": 16803,
+          "reason": "own"
         }
       },
       "2021": {
         "campuses": 1,
         "online": 82,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 17127,
         "fteUncertain": {
           "share": 12496,
-          "partTimeFirst": 17127
-        }
+          "partTimeFirst": 17127,
+          "reason": "own"
+        },
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 17,
+            "usual": 2
+          }
+        ]
       },
       "2022": {
         "campuses": 1,
         "online": 84,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 15606,
         "fteUncertain": {
           "share": 11281,
-          "partTimeFirst": 15606
+          "partTimeFirst": 15606,
+          "reason": "own"
         },
-        "spikes": [
-          "liquor_arrest"
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 16,
+            "usual": 2
+          }
         ]
       },
       "2023": {
         "campuses": 1,
         "online": 85,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 15791,
         "fteUncertain": {
           "share": 11208,
-          "partTimeFirst": 15791
-        }
+          "partTimeFirst": 15791,
+          "reason": "own"
+        },
+        "flags": [
+          {
+            "offense": "dating_violence",
+            "geo": "On-campus",
+            "count": 25,
+            "usual": 3
+          },
+          {
+            "offense": "fondling",
+            "geo": "On-campus",
+            "count": 27,
+            "usual": 6
+          },
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 21,
+            "usual": 2
+          }
+        ]
       },
       "2024": {
         "campuses": 1,
         "online": 85,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 15825,
         "fteUncertain": {
           "share": 11413,
-          "partTimeFirst": 15825
-        }
+          "partTimeFirst": 15825,
+          "reason": "own"
+        },
+        "flags": [
+          {
+            "offense": "dating_violence",
+            "geo": "On-campus",
+            "count": 26,
+            "usual": 3
+          },
+          {
+            "offense": "fondling",
+            "geo": "On-campus",
+            "count": 45,
+            "usual": 6
+          },
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 21,
+            "usual": 2
+          }
+        ]
       }
     }
   }

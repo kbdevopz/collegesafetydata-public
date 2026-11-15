@@ -105,11 +105,12 @@
   ],
   "institution": {
     "id": 144740,
+    "ratesFile": "rates/institutions/144740.json",
     "byYear": {
       "2015": {
         "campuses": 5,
         "online": 8,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 19887,
         "counts": {
           "criminal": 76,
@@ -135,8 +136,16 @@
       "2016": {
         "campuses": 4,
         "online": 8,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 19458,
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "On-campus",
+            "count": 41,
+            "usual": 11
+          }
+        ],
         "counts": {
           "criminal": 143,
           "violent": 82,
@@ -159,7 +168,7 @@
       "2017": {
         "campuses": 4,
         "online": 8,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 19352,
         "counts": {
           "criminal": 127,

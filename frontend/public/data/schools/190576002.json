@@ -225,11 +225,12 @@
   ],
   "institution": {
     "id": 190576,
+    "ratesFile": "rates/institutions/190576.json",
     "byYear": {
       "2015": {
         "campuses": 3,
         "online": 26,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 4529,
         "counts": {
           "criminal": 10,
@@ -246,7 +247,7 @@
       "2016": {
         "campuses": 4,
         "online": 28,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 4488,
         "counts": {
           "criminal": 5,
@@ -262,7 +263,7 @@
       "2017": {
         "campuses": 4,
         "online": 31,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 4466,
         "counts": {
           "criminal": 2,
@@ -278,11 +279,12 @@
       "2018": {
         "campuses": 4,
         "online": 37,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 4387,
         "fteUncertain": {
           "share": 3478,
-          "partTimeFirst": 4387
+          "partTimeFirst": 4387,
+          "reason": "own"
         },
         "counts": {
           "criminal": 3,
@@ -298,11 +300,12 @@
       "2019": {
         "campuses": 5,
         "online": 41,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 4447,
         "fteUncertain": {
           "share": 3407,
-          "partTimeFirst": 4447
+          "partTimeFirst": 4447,
+          "reason": "own"
         },
         "counts": {
           "all": 5,
@@ -313,12 +316,14 @@
       "2020": {
         "campuses": 5,
         "online": 41,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 4746,
         "fteUncertain": {
           "share": 3656,
-          "partTimeFirst": 4746
+          "partTimeFirst": 4746,
+          "reason": "own"
         },
         "counts": {
           "criminal": 25,
@@ -336,13 +341,22 @@
       "2021": {
         "campuses": 5,
         "online": 41,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 4605,
         "fteUncertain": {
           "share": 3544,
-          "partTimeFirst": 4605
+          "partTimeFirst": 4605,
+          "reason": "own"
         },
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "Public property",
+            "count": 29,
+            "usual": 3
+          }
+        ],
         "counts": {
           "criminal": 45,
           "violent": 44,
@@ -359,12 +373,21 @@
       "2022": {
         "campuses": 5,
         "online": 72,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2456,
         "fteUncertain": {
           "share": 1654,
-          "partTimeFirst": 2456
+          "partTimeFirst": 2456,
+          "reason": "own"
         },
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "Public property",
+            "count": 18,
+            "usual": 3
+          }
+        ],
         "counts": {
           "criminal": 38,
           "violent": 32,
@@ -381,12 +404,21 @@
       "2023": {
         "campuses": 5,
         "online": 47,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 4483,
         "fteUncertain": {
           "share": 3247,
-          "partTimeFirst": 4483
+          "partTimeFirst": 4483,
+          "reason": "own"
         },
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "Public property",
+            "count": 22,
+            "usual": 3
+          }
+        ],
         "counts": {
           "criminal": 47,
           "violent": 42,
@@ -404,12 +436,21 @@
       "2024": {
         "campuses": 5,
         "online": 55,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 4052,
         "fteUncertain": {
           "share": 2937,
-          "partTimeFirst": 4052
+          "partTimeFirst": 4052,
+          "reason": "own"
         },
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "Public property",
+            "count": 24,
+            "usual": 3
+          }
+        ],
         "counts": {
           "criminal": 43,
           "violent": 40,

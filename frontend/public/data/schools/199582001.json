@@ -704,73 +704,93 @@
   "breakdownByGeo": [],
   "institution": {
     "id": 199582,
+    "ratesFile": "rates/institutions/199582.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 803
       },
       "2016": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": false,
-        "rateFte": 929
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 929,
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "On-campus",
+            "count": 46,
+            "usual": 15
+          }
+        ]
       },
       "2017": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 966
       },
       "2018": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 757
       },
       "2019": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 933
       },
       "2020": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "onlineYear": 2019,
         "rateFte": 996
       },
       "2021": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 1024,
-        "spikes": [
-          "violent"
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "Public property",
+            "count": 15,
+            "usual": 3
+          }
         ]
       },
       "2022": {
         "campuses": 1,
         "online": 10,
-        "rateRanked": false,
-        "rateFte": 911,
-        "spikes": [
-          "liquor_discipline"
-        ]
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 911
       },
       "2023": {
         "campuses": 1,
         "online": 11,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 820
       },
       "2024": {
         "campuses": 1,
         "online": 16,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 147
       }
     }

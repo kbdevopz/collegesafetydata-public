@@ -85,11 +85,12 @@
   ],
   "institution": {
     "id": 144050,
+    "ratesFile": "rates/institutions/144050.json",
     "byYear": {
       "2016": {
         "campuses": 3,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 14256,
         "abroad": {
           "campuses": 5,
@@ -121,7 +122,7 @@
       "2017": {
         "campuses": 3,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 14729,
         "abroad": {
           "campuses": 5,
@@ -150,7 +151,7 @@
       "2018": {
         "campuses": 3,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 15744,
         "abroad": {
           "campuses": 5,
@@ -182,7 +183,7 @@
       "2019": {
         "campuses": 3,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 16149,
         "abroad": {
           "campuses": 5,
@@ -211,7 +212,8 @@
       "2020": {
         "campuses": 3,
         "online": 0,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 16460,
         "abroad": {
@@ -241,7 +243,7 @@
       "2021": {
         "campuses": 3,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 17521,
         "abroad": {
@@ -272,12 +274,20 @@
       "2022": {
         "campuses": 3,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 17136,
         "abroad": {
           "campuses": 5,
           "counts": {}
         },
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "Public property",
+            "count": 37,
+            "usual": 10
+          }
+        ],
         "counts": {
           "criminal": 72,
           "violent": 19,
@@ -300,12 +310,26 @@
       "2023": {
         "campuses": 3,
         "online": 1,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 17161,
         "abroad": {
           "campuses": 5,
           "counts": {}
         },
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 18,
+            "usual": 2
+          },
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "Public property",
+            "count": 51,
+            "usual": 10
+          }
+        ],
         "counts": {
           "criminal": 97,
           "violent": 20,
@@ -328,12 +352,20 @@
       "2024": {
         "campuses": 3,
         "online": 1,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 17534,
         "abroad": {
           "campuses": 5,
           "counts": {}
         },
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 44,
+            "usual": 2
+          }
+        ],
         "counts": {
           "criminal": 92,
           "violent": 10,

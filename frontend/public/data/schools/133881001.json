@@ -758,23 +758,24 @@
   ],
   "institution": {
     "id": 133881,
+    "ratesFile": "rates/institutions/133881.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 11,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 5203
       },
       "2016": {
         "campuses": 18,
         "online": 7,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 5170
       },
       "2017": {
         "campuses": 17,
         "online": 7,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 5092,
         "counts": {
           "criminal": 10,
@@ -798,7 +799,7 @@
       "2018": {
         "campuses": 17,
         "online": 7,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 5024,
         "counts": {
           "criminal": 10,
@@ -820,13 +821,14 @@
       "2019": {
         "campuses": 11,
         "online": 8,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 4807
       },
       "2020": {
         "campuses": 11,
         "online": 8,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 5129,
         "counts": {
@@ -851,42 +853,63 @@
       "2021": {
         "campuses": 4,
         "online": 8,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 5257
       },
       "2022": {
         "campuses": 4,
         "online": 39,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 4436,
         "fteUncertain": {
           "share": 3469,
-          "partTimeFirst": 4436
-        }
+          "partTimeFirst": 4436,
+          "reason": "own"
+        },
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "On-campus",
+            "count": 12,
+            "usual": 2
+          }
+        ]
       },
       "2023": {
         "campuses": 4,
         "online": 42,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 4493,
         "fteUncertain": {
           "share": 3392,
-          "partTimeFirst": 4493
+          "partTimeFirst": 4493,
+          "reason": "own"
         },
-        "spikes": [
-          "criminal",
-          "fondling"
+        "flags": [
+          {
+            "offense": "fondling",
+            "geo": "On-campus",
+            "count": 124,
+            "usual": 0
+          },
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 11,
+            "usual": 1
+          }
         ]
       },
       "2024": {
         "campuses": 4,
         "online": 43,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 4636,
         "fteUncertain": {
           "share": 3491,
-          "partTimeFirst": 4636
+          "partTimeFirst": 4636,
+          "reason": "own"
         }
       }
     }

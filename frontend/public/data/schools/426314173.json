@@ -48,15 +48,17 @@
   ],
   "institution": {
     "id": 426314,
+    "ratesFile": "rates/institutions/426314.json",
     "byYear": {
       "2018": {
         "campuses": 100,
         "online": 86,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1984,
         "fteUncertain": {
           "share": 1139,
-          "partTimeFirst": 1984
+          "partTimeFirst": 1984,
+          "reason": "own"
         },
         "abroad": {
           "campuses": 22,
@@ -76,11 +78,12 @@
       "2019": {
         "campuses": 91,
         "online": 82,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2479,
         "fteUncertain": {
           "share": 1443,
-          "partTimeFirst": 2479
+          "partTimeFirst": 2479,
+          "reason": "own"
         },
         "abroad": {
           "campuses": 22,
@@ -90,12 +93,14 @@
       "2020": {
         "campuses": 86,
         "online": 82,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 2503,
         "fteUncertain": {
           "share": 1502,
-          "partTimeFirst": 2503
+          "partTimeFirst": 2503,
+          "reason": "own"
         },
         "abroad": {
           "campuses": 24,

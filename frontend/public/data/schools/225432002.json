@@ -129,11 +129,12 @@
   "breakdownByGeo": [],
   "institution": {
     "id": 225432,
+    "ratesFile": "rates/institutions/225432.json",
     "byYear": {
       "2015": {
         "campuses": 4,
         "online": 15,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 8852,
         "counts": {
           "criminal": 15,
@@ -154,7 +155,7 @@
       "2016": {
         "campuses": 4,
         "online": 16,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 8619,
         "counts": {
           "criminal": 5,
@@ -173,8 +174,16 @@
       "2017": {
         "campuses": 4,
         "online": 18,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 8413,
+        "flags": [
+          {
+            "offense": "stalking",
+            "geo": "On-campus",
+            "count": 21,
+            "usual": 5
+          }
+        ],
         "counts": {
           "criminal": 19,
           "violent": 6,
@@ -194,7 +203,7 @@
       "2018": {
         "campuses": 4,
         "online": 20,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 8343,
         "counts": {
           "criminal": 13,
@@ -215,7 +224,7 @@
       "2019": {
         "campuses": 4,
         "online": 20,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 8723,
         "counts": {
           "criminal": 19,
@@ -236,7 +245,8 @@
       "2020": {
         "campuses": 4,
         "online": 20,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 9055,
         "counts": {
@@ -253,7 +263,7 @@
       "2021": {
         "campuses": 4,
         "online": 20,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 8819,
         "counts": {
@@ -274,7 +284,7 @@
       "2022": {
         "campuses": 4,
         "online": 38,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 7241,
         "counts": {
           "criminal": 6,
@@ -293,7 +303,7 @@
       "2023": {
         "campuses": 4,
         "online": 37,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 7398,
         "counts": {
           "criminal": 7,
@@ -313,7 +323,7 @@
       "2024": {
         "campuses": 4,
         "online": 36,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 7121,
         "counts": {
           "criminal": 2,

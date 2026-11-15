@@ -25,19 +25,128 @@
   },
   "rateRules": {
     "minFte": 1000,
-    "minCount": 20,
-    "countsOnly": [
-      "murder",
-      "negligent_manslaughter",
-      "incest",
-      "statutory_rape",
-      "arson"
-    ],
-    "ciLevel": 0.95,
     "onlineUncertainRatio": [
       5,
       4
     ],
+    "onlineShareYear": {
+      "2020": 2019,
+      "2021": 2019
+    },
+    "windowYears": 3,
+    "skipYears": [
+      2020
+    ],
+    "windows": [
+      [
+        2015,
+        2017
+      ],
+      [
+        2016,
+        2018
+      ],
+      [
+        2017,
+        2019
+      ],
+      [
+        2021,
+        2023
+      ],
+      [
+        2022,
+        2024
+      ]
+    ],
+    "codes": {
+      "violent": [
+        "murder",
+        "rape",
+        "robbery",
+        "aggravated_assault"
+      ],
+      "criminal_xmvt": [
+        "murder",
+        "negligent_manslaughter",
+        "rape",
+        "fondling",
+        "incest",
+        "statutory_rape",
+        "robbery",
+        "aggravated_assault",
+        "burglary",
+        "arson"
+      ],
+      "burglary": [
+        "burglary"
+      ],
+      "rape": [
+        "rape"
+      ],
+      "fondling": [
+        "fondling"
+      ],
+      "robbery": [
+        "robbery"
+      ],
+      "aggravated_assault": [
+        "aggravated_assault"
+      ],
+      "stalking": [
+        "stalking"
+      ],
+      "dating_violence": [
+        "dating_violence"
+      ],
+      "domestic_violence": [
+        "domestic_violence"
+      ]
+    },
+    "countsOnly": [
+      "all",
+      "arson",
+      "criminal",
+      "drug_arrest",
+      "drug_discipline",
+      "incest",
+      "liquor_arrest",
+      "liquor_discipline",
+      "motor_vehicle_theft",
+      "murder",
+      "negligent_manslaughter",
+      "property",
+      "statutory_rape",
+      "weapons_arrest",
+      "weapons_discipline"
+    ],
+    "ciLevel": 0.95,
+    "dispersion": {
+      "power": 1.5,
+      "c": {
+        "violent": 0.354,
+        "criminal_xmvt": 0.497,
+        "burglary": 0.665,
+        "rape": 0.522,
+        "fondling": 0.522,
+        "robbery": 0.522,
+        "aggravated_assault": 0.522,
+        "stalking": 0.522,
+        "dating_violence": 0.522,
+        "domestic_violence": 0.522
+      },
+      "fitted": {
+        "violent": 0.354,
+        "criminal_xmvt": 0.497,
+        "burglary": 0.665
+      },
+      "other": 0.522,
+      "ramp": {
+        "start": 10,
+        "end": 20,
+        "cap": 2
+      }
+    },
     "medicalShare": [
       1,
       4
@@ -46,901 +155,2483 @@
       1,
       20
     ],
-    "dispersion": {
-      "years": [
-        2015,
-        2019
+    "lists": {
+      "codes": [
+        "violent",
+        "criminal_xmvt",
+        "burglary"
       ],
-      "minMean": 20,
-      "groups": {
-        "violent": {
-          "k": 13.3,
-          "estimate": 13.323544601479497,
-          "phi": 3.44,
-          "units": 89
-        },
-        "criminal": {
-          "k": 16.5,
-          "estimate": 16.50092082524047,
-          "phi": 3.3,
-          "units": 375
-        },
-        "property": {
-          "k": 12.8,
-          "estimate": 12.775991298606707,
-          "phi": 3.75,
-          "units": 146
-        },
-        "all": {
-          "k": 13.4,
-          "estimate": 13.40857827913011,
-          "phi": 9.3,
-          "units": 1262
-        },
-        "crime_offense": {
-          "k": 7.3,
-          "estimate": 7.273132313267047,
-          "phi": 4.97,
-          "units": 212
-        },
-        "enforcement_offense": {
-          "k": 7.7,
-          "estimate": 7.658180118608102,
-          "phi": 9.91,
-          "units": 1877
-        }
+      "minExpected": 20,
+      "alpha": 0.05,
+      "stateMinMembers": 2,
+      "stateDisplayMin": 5
+    },
+    "peerTypes": {
+      "two_year": {
+        "label": "Two-year",
+        "sizeSetting": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
       },
-      "kByCode": {
-        "aggravated_assault": 7.3,
-        "arson": 7.3,
-        "burglary": 7.3,
-        "dating_violence": 7.3,
-        "domestic_violence": 7.3,
-        "drug_arrest": 7.7,
-        "drug_discipline": 7.7,
-        "fondling": 7.3,
-        "incest": 7.3,
-        "liquor_arrest": 7.7,
-        "liquor_discipline": 7.7,
-        "motor_vehicle_theft": 7.3,
-        "murder": 7.3,
-        "negligent_manslaughter": 7.3,
-        "rape": 7.3,
-        "robbery": 7.3,
-        "stalking": 7.3,
-        "statutory_rape": 7.3,
-        "weapons_arrest": 7.7,
-        "weapons_discipline": 7.7,
-        "criminal": 16.5,
-        "violent": 13.3,
-        "property": 12.8,
-        "all": 13.4
+      "nonresidential": {
+        "label": "Four-year, primarily nonresidential",
+        "sizeSetting": [
+          6,
+          9,
+          12,
+          15
+        ]
+      },
+      "residential": {
+        "label": "Four-year, primarily residential",
+        "sizeSetting": [
+          7,
+          10,
+          13,
+          16
+        ]
+      },
+      "highly_residential": {
+        "label": "Four-year, highly residential",
+        "sizeSetting": [
+          8,
+          11,
+          14,
+          17
+        ]
+      },
+      "other": {
+        "label": "Other (exclusively graduate, or not classified)",
+        "sizeSetting": []
       }
     },
-    "rankRanges": {
-      "draws": 2000,
-      "seed": 20151024
-    },
-    "spike": {
-      "minCount": 20,
-      "factor": 3,
-      "maxFactor": 2,
+    "sizeSettingFields": [
+      "C21SZSET",
+      "C18SZSET",
+      "C15SZSET"
+    ],
+    "flags": {
+      "offenses": [
+        "aggravated_assault",
+        "burglary",
+        "dating_violence",
+        "domestic_violence",
+        "fondling",
+        "motor_vehicle_theft",
+        "rape",
+        "robbery",
+        "stalking"
+      ],
+      "geos": [
+        "On-campus",
+        "Non-campus",
+        "Public property"
+      ],
+      "minCount": 10,
+      "minOtherYears": 3,
       "p": 0.001,
-      "minOtherYears": 3
+      "c": 0.52,
+      "minMean": 0.5
     },
     "countFlag": {
       "minCount": 20,
-      "factor": 3
+      "factor": 3,
+      "percentile": 99,
+      "reference": {
+        "2015": {
+          "aggravated_assault": 38.2361,
+          "all": 1888.9391,
+          "arson": 10.1317,
+          "burglary": 98.981,
+          "criminal": 166.8578,
+          "dating_violence": 41.5651,
+          "domestic_violence": 35.4461,
+          "drug_arrest": 136.7091,
+          "drug_discipline": 556.6349,
+          "fondling": 30.4847,
+          "incest": 0.0,
+          "liquor_arrest": 184.2261,
+          "liquor_discipline": 1290.5641,
+          "motor_vehicle_theft": 31.9639,
+          "murder": 0.7718,
+          "negligent_manslaughter": 0.0,
+          "property": 109.7924,
+          "rape": 55.491,
+          "robbery": 22.1579,
+          "stalking": 36.335,
+          "statutory_rape": 1.8018,
+          "violent": 72.759,
+          "weapons_arrest": 17.5288,
+          "weapons_discipline": 22.1239
+        },
+        "2016": {
+          "aggravated_assault": 31.2885,
+          "all": 1967.7613,
+          "arson": 8.595,
+          "burglary": 114.8387,
+          "criminal": 203.248,
+          "dating_violence": 42.7817,
+          "domestic_violence": 30.8647,
+          "drug_arrest": 129.8323,
+          "drug_discipline": 582.3324,
+          "fondling": 37.6475,
+          "incest": 0.0,
+          "liquor_arrest": 188.9606,
+          "liquor_discipline": 1283.4732,
+          "motor_vehicle_theft": 28.4115,
+          "murder": 0.4455,
+          "negligent_manslaughter": 0.0,
+          "property": 128.3177,
+          "rape": 61.358,
+          "robbery": 21.85,
+          "stalking": 34.0942,
+          "statutory_rape": 1.6393,
+          "violent": 79.8164,
+          "weapons_arrest": 16.4126,
+          "weapons_discipline": 23.82
+        },
+        "2017": {
+          "aggravated_assault": 30.5133,
+          "all": 1611.5961,
+          "arson": 9.3265,
+          "burglary": 91.3764,
+          "criminal": 193.3136,
+          "dating_violence": 45.1298,
+          "domestic_violence": 25.7357,
+          "drug_arrest": 146.2427,
+          "drug_discipline": 572.3914,
+          "fondling": 48.0657,
+          "incest": 0.0,
+          "liquor_arrest": 171.3898,
+          "liquor_discipline": 1079.1039,
+          "motor_vehicle_theft": 28.0816,
+          "murder": 0.4489,
+          "negligent_manslaughter": 0.0,
+          "property": 104.3238,
+          "rape": 65.256,
+          "robbery": 19.9445,
+          "stalking": 44.0022,
+          "statutory_rape": 1.5525,
+          "violent": 81.7941,
+          "weapons_arrest": 20.1153,
+          "weapons_discipline": 21.6831
+        },
+        "2018": {
+          "aggravated_assault": 26.8878,
+          "all": 1534.1472,
+          "arson": 8.2505,
+          "burglary": 87.4871,
+          "criminal": 168.4368,
+          "dating_violence": 42.2874,
+          "domestic_violence": 29.8922,
+          "drug_arrest": 129.4149,
+          "drug_discipline": 467.0187,
+          "fondling": 43.5034,
+          "incest": 0.0,
+          "liquor_arrest": 138.2755,
+          "liquor_discipline": 1056.7351,
+          "motor_vehicle_theft": 27.9756,
+          "murder": 0.0,
+          "negligent_manslaughter": 0.0,
+          "property": 94.8571,
+          "rape": 63.3975,
+          "robbery": 19.2615,
+          "stalking": 41.9234,
+          "statutory_rape": 1.706,
+          "violent": 74.1875,
+          "weapons_arrest": 17.7077,
+          "weapons_discipline": 25.7829
+        },
+        "2019": {
+          "aggravated_assault": 32.3027,
+          "all": 1446.5327,
+          "arson": 8.8424,
+          "burglary": 81.4715,
+          "criminal": 172.6664,
+          "dating_violence": 40.9448,
+          "domestic_violence": 31.8346,
+          "drug_arrest": 120.1452,
+          "drug_discipline": 470.2367,
+          "fondling": 44.8101,
+          "incest": 0.0,
+          "liquor_arrest": 138.4427,
+          "liquor_discipline": 1026.359,
+          "motor_vehicle_theft": 30.6968,
+          "murder": 0.4396,
+          "negligent_manslaughter": 0.0,
+          "property": 97.8692,
+          "rape": 53.329,
+          "robbery": 17.8476,
+          "stalking": 43.4305,
+          "statutory_rape": 2.5353,
+          "violent": 70.7226,
+          "weapons_arrest": 15.2209,
+          "weapons_discipline": 18.9482
+        },
+        "2020": {
+          "aggravated_assault": 27.8059,
+          "all": 1070.1111,
+          "arson": 8.5121,
+          "burglary": 52.6976,
+          "criminal": 147.6072,
+          "dating_violence": 26.973,
+          "domestic_violence": 26.9043,
+          "drug_arrest": 75.25,
+          "drug_discipline": 289.4906,
+          "fondling": 26.8012,
+          "incest": 0.0,
+          "liquor_arrest": 97.5382,
+          "liquor_discipline": 760.5943,
+          "motor_vehicle_theft": 27.9875,
+          "murder": 0.0,
+          "negligent_manslaughter": 0.0,
+          "property": 62.7455,
+          "rape": 36.0002,
+          "robbery": 17.2958,
+          "stalking": 28.0157,
+          "statutory_rape": 1.4926,
+          "violent": 59.4048,
+          "weapons_arrest": 15.0185,
+          "weapons_discipline": 13.8466
+        },
+        "2021": {
+          "aggravated_assault": 27.8298,
+          "all": 1168.2852,
+          "arson": 8.4379,
+          "burglary": 53.4609,
+          "criminal": 139.1825,
+          "dating_violence": 34.4389,
+          "domestic_violence": 28.3014,
+          "drug_arrest": 76.9783,
+          "drug_discipline": 277.682,
+          "fondling": 32.1003,
+          "incest": 0.0,
+          "liquor_arrest": 71.2016,
+          "liquor_discipline": 861.5153,
+          "motor_vehicle_theft": 37.7323,
+          "murder": 0.6,
+          "negligent_manslaughter": 0.0,
+          "property": 70.5855,
+          "rape": 53.3091,
+          "robbery": 14.0107,
+          "stalking": 42.0199,
+          "statutory_rape": 1.2927,
+          "violent": 68.6244,
+          "weapons_arrest": 22.7338,
+          "weapons_discipline": 18.5006
+        },
+        "2022": {
+          "aggravated_assault": 35.8411,
+          "all": 1064.4705,
+          "arson": 8.9262,
+          "burglary": 71.9157,
+          "criminal": 184.5723,
+          "dating_violence": 42.647,
+          "domestic_violence": 34.1437,
+          "drug_arrest": 66.292,
+          "drug_discipline": 291.7683,
+          "fondling": 41.01,
+          "incest": 0.0,
+          "liquor_arrest": 81.1784,
+          "liquor_discipline": 742.2478,
+          "motor_vehicle_theft": 74.6903,
+          "murder": 2.7303,
+          "negligent_manslaughter": 0.0,
+          "property": 112.6718,
+          "rape": 49.6096,
+          "robbery": 16.1,
+          "stalking": 52.1876,
+          "statutory_rape": 1.6571,
+          "violent": 72.4097,
+          "weapons_arrest": 18.2118,
+          "weapons_discipline": 26.7235
+        },
+        "2023": {
+          "aggravated_assault": 31.5766,
+          "all": 1046.8881,
+          "arson": 11.7961,
+          "burglary": 65.4475,
+          "criminal": 177.9886,
+          "dating_violence": 43.3588,
+          "domestic_violence": 32.1187,
+          "drug_arrest": 61.4232,
+          "drug_discipline": 310.0651,
+          "fondling": 36.6942,
+          "incest": 0.0,
+          "liquor_arrest": 75.5307,
+          "liquor_discipline": 734.3376,
+          "motor_vehicle_theft": 94.2742,
+          "murder": 1.959,
+          "negligent_manslaughter": 0.0,
+          "property": 126.4682,
+          "rape": 46.7081,
+          "robbery": 18.3969,
+          "stalking": 60.7795,
+          "statutory_rape": 1.1659,
+          "violent": 73.4168,
+          "weapons_arrest": 20.8277,
+          "weapons_discipline": 22.6746
+        },
+        "2024": {
+          "aggravated_assault": 29.9065,
+          "all": 1121.6981,
+          "arson": 9.9522,
+          "burglary": 50.476,
+          "criminal": 160.0794,
+          "dating_violence": 43.3907,
+          "domestic_violence": 39.6103,
+          "drug_arrest": 74.2838,
+          "drug_discipline": 287.4467,
+          "fondling": 30.5497,
+          "incest": 0.0,
+          "liquor_arrest": 77.8647,
+          "liquor_discipline": 787.1871,
+          "motor_vehicle_theft": 76.4454,
+          "murder": 1.0336,
+          "negligent_manslaughter": 0.0,
+          "property": 97.6052,
+          "rape": 39.4479,
+          "robbery": 16.1602,
+          "stalking": 56.7436,
+          "statutory_rape": 1.2151,
+          "violent": 61.1779,
+          "weapons_arrest": 23.0988,
+          "weapons_discipline": 25.1772
+        }
+      }
     },
-    "onlineShareYear": {
-      "2020": 2019,
-      "2021": 2019
+    "medicalScreen": {
+      "pattern": "MEDIC|HOSPITAL|HEALTH SCI|HEALTH CENT|MED CENT|MED\\.? CTR|CLINIC|SCHOOL OF MED|COLLEGE OF MED|HEALTH CAMPUS|MEDICAL CAMPUS|MED SCHOOL|HEALTH SYSTEM|RBHS|ANSCHUTZ",
+      "share": [
+        1,
+        10
+      ],
+      "minCount": 5
+    },
+    "calibration": {
+      "codes": [
+        "violent",
+        "criminal_xmvt",
+        "burglary",
+        "rape",
+        "aggravated_assault",
+        "robbery",
+        "fondling",
+        "stalking"
+      ],
+      "periods": [
+        [
+          2015,
+          2019
+        ],
+        "latest"
+      ],
+      "latestYears": 3,
+      "simulations": 30,
+      "seed": 11,
+      "bands": [
+        2,
+        5,
+        10,
+        20
+      ],
+      "tolerance": 0.02,
+      "bandTolerance": 0.03,
+      "bandMinUnits": 100
+    },
+    "testVectors": {
+      "counts": [
+        {
+          "c": 0.354,
+          "years": 3,
+          "n": 0,
+          "phi": 1.0,
+          "interval": [
+            0.0,
+            3.6889
+          ]
+        },
+        {
+          "c": 0.354,
+          "years": 3,
+          "n": 1,
+          "phi": 1.204382,
+          "interval": [
+            0.0132,
+            6.3521
+          ]
+        },
+        {
+          "c": 0.354,
+          "years": 3,
+          "n": 5,
+          "phi": 1.457012,
+          "interval": [
+            1.1843,
+            13.7113
+          ]
+        },
+        {
+          "c": 0.354,
+          "years": 3,
+          "n": 20,
+          "phi": 1.914024,
+          "interval": [
+            9.7732,
+            36.3132
+          ]
+        },
+        {
+          "c": 0.354,
+          "years": 3,
+          "n": 45,
+          "phi": 3.056554,
+          "interval": [
+            25.0292,
+            74.5614
+          ]
+        },
+        {
+          "c": 0.354,
+          "years": 3,
+          "n": 60,
+          "phi": 4.166272,
+          "interval": [
+            33.1237,
+            99.9595
+          ]
+        },
+        {
+          "c": 0.354,
+          "years": 3,
+          "n": 139,
+          "phi": 5.819256,
+          "interval": [
+            88.955,
+            207.0136
+          ]
+        },
+        {
+          "c": 0.354,
+          "years": 3,
+          "n": 1000,
+          "phi": 13.926252,
+          "interval": [
+            782.1644,
+            1259.723
+          ]
+        },
+        {
+          "c": 0.497,
+          "years": 3,
+          "n": 20,
+          "phi": 2.283248,
+          "interval": [
+            9.029,
+            38.2865
+          ]
+        },
+        {
+          "c": 0.497,
+          "years": 3,
+          "n": 139,
+          "phi": 7.766018,
+          "interval": [
+            82.2421,
+            219.9591
+          ]
+        },
+        {
+          "c": 0.665,
+          "years": 3,
+          "n": 20,
+          "phi": 2.717023,
+          "interval": [
+            8.2662,
+            40.5081
+          ]
+        },
+        {
+          "c": 0.665,
+          "years": 3,
+          "n": 266,
+          "phi": 13.523676,
+          "interval": [
+            161.7265,
+            412.2858
+          ]
+        },
+        {
+          "c": 0.522,
+          "years": 3,
+          "n": 5,
+          "phi": 1.673899,
+          "interval": [
+            1.0263,
+            14.6429
+          ]
+        },
+        {
+          "c": 0.522,
+          "years": 3,
+          "n": 60,
+          "phi": 5.66891,
+          "interval": [
+            29.4782,
+            108.5388
+          ]
+        }
+      ],
+      "rates": [
+        {
+          "n": 20,
+          "fteYears": 30000,
+          "c": 0.354,
+          "rate": 6.67,
+          "lo": 3.26,
+          "hi": 12.1
+        },
+        {
+          "n": 139,
+          "fteYears": 44830,
+          "c": 0.354,
+          "rate": 31.01,
+          "lo": 19.84,
+          "hi": 46.18
+        },
+        {
+          "n": 82,
+          "fteYears": 30483,
+          "c": 0.354,
+          "rate": 26.9,
+          "lo": 15.79,
+          "hi": 42.82
+        },
+        {
+          "n": 0,
+          "fteYears": 6751,
+          "c": 0.665,
+          "rate": 0.0,
+          "lo": 0.0,
+          "hi": 5.46
+        },
+        {
+          "n": 188,
+          "fteYears": 20282,
+          "c": 0.497,
+          "rate": 92.69,
+          "lo": 57.52,
+          "hi": 141.41
+        }
+      ],
+      "list": {
+        "c": 0.354,
+        "years": 3,
+        "zc": 2.497705,
+        "members": [
+          {
+            "n": 139,
+            "fteYears": 44830,
+            "position": 1,
+            "rankLo": 1,
+            "rankHi": 2
+          },
+          {
+            "n": 82,
+            "fteYears": 30483,
+            "position": 2,
+            "rankLo": 1,
+            "rankHi": 2
+          },
+          {
+            "n": 20,
+            "fteYears": 30000,
+            "position": 3,
+            "rankLo": 3,
+            "rankHi": 5
+          },
+          {
+            "n": 60,
+            "fteYears": 90000,
+            "position": 3,
+            "rankLo": 3,
+            "rankHi": 5
+          },
+          {
+            "n": 30,
+            "fteYears": 100000,
+            "position": 5,
+            "rankLo": 3,
+            "rankHi": 5
+          }
+        ]
+      },
+      "criticalZ": {
+        "5": 2.4977,
+        "146": 3.5791,
+        "208": 3.6711,
+        "531": 3.9047
+      }
     }
   },
   "rateStats": {
-    "byYear": {
-      "2015": {
-        "listed": 2306,
-        "excluded": 89,
-        "excludedBy": {
-          "hospital": 67,
-          "medical": 18,
-          "listed": 2,
-          "merger": 1,
-          "family": 1
-        },
-        "fteUncertain": 66,
-        "abroad": 96,
+    "definitions": {
+      "rated": "Institutions with a 3-year rate in the window: a campus listed by DOE in each of its years, a link campus in a U.S. state, the District of Columbia, Puerto Rico or the U.S. Virgin Islands (config.py US_STATES), a rate denominator (on-campus FTE, pooled FTE added) of at least minFte in each year, and no rule (hospital, medical, listed, merger, family) in any year. The window files list exactly these.",
+      "listed": "Rated institutions without a reason (why) whose expected count at the national rate is at least lists.minExpected: the members of the national ordered list.",
+      "stateLists": "Per state, the national list's members in that state; a state list is published (positions and ranges within the state) when it has at least lists.stateMinMembers members.",
+      "withFte": "Institution-years whose link campus is in US_STATES with a rate denominator of at least minFte, rules included (single years).",
+      "ratedYears": "Of withFte, those with a single-year rate: no rule, and not a year of skipYears."
+    },
+    "windows": {
+      "2015-2017": {
         "violent": {
-          "ranked": 88,
-          "few": 1302,
-          "notRanked": {
-            "online": 41,
-            "medical_campus": 6,
-            "shared": 18,
-            "few": 56,
-            "hospital": 62,
-            "medical": 8,
-            "listed": 1,
-            "merger": 0,
-            "family": 1
+          "natl": 6.53,
+          "rated": 2083,
+          "byWhy": {
+            "none": 1969,
+            "online": 87,
+            "medical_campus": 7,
+            "shared": 20
           },
-          "medicalNote": 3,
-          "sharedNote": 0,
-          "spikes": 2,
-          "medianRange": 49.0
-        },
-        "criminal": {
-          "ranked": 388,
-          "few": 1383,
-          "notRanked": {
-            "online": 59,
-            "medical_campus": 6,
-            "shared": 19,
-            "few": 60,
-            "hospital": 64,
-            "medical": 12,
-            "listed": 2,
-            "merger": 1,
-            "family": 1
+          "verdicts": {
+            "above": 308,
+            "below": 500,
+            "nd": 1252,
+            "undetermined": 23
           },
-          "medicalNote": 3,
-          "sharedNote": 0,
-          "spikes": 10,
-          "medianRange": 159.5
-        },
-        "property": {
-          "ranked": 183,
-          "few": 1371,
-          "notRanked": {
-            "online": 49,
-            "medical_campus": 6,
-            "shared": 16,
-            "few": 58,
-            "hospital": 61,
-            "medical": 10,
-            "listed": 2,
-            "merger": 1,
-            "family": 1
+          "verdictsNoReason": {
+            "above": 295,
+            "below": 485,
+            "nd": 1189
           },
-          "medicalNote": 3,
-          "sharedNote": 1,
-          "spikes": 12,
-          "medianRange": 80
+          "peerVerdicts": {
+            "above": 220,
+            "below": 248,
+            "nd": 1605,
+            "undetermined": 10
+          },
+          "withFlags": 29,
+          "verdictWithoutFlaggedDiffers": 13,
+          "listed": 263,
+          "minFteYears": 30647,
+          "stateLists": 39,
+          "stateListsDisplayMin": 16
         },
-        "rankedEntries": 4103,
-        "spikes": 182,
-        "countFlags": {
-          "all": 3,
-          "violent": 2,
-          "criminal": 11,
-          "property": 6
+        "criminal_xmvt": {
+          "natl": 17.39,
+          "rated": 2083,
+          "byWhy": {
+            "none": 1968,
+            "online": 87,
+            "medical_campus": 6,
+            "shared": 22
+          },
+          "verdicts": {
+            "above": 391,
+            "below": 755,
+            "nd": 920,
+            "undetermined": 17
+          },
+          "verdictsNoReason": {
+            "above": 371,
+            "below": 728,
+            "nd": 869
+          },
+          "peerVerdicts": {
+            "above": 291,
+            "below": 433,
+            "nd": 1344,
+            "undetermined": 15
+          },
+          "withFlags": 205,
+          "verdictWithoutFlaggedDiffers": 72,
+          "listed": 814,
+          "minFteYears": 11500,
+          "stateLists": 49,
+          "stateListsDisplayMin": 37
+        },
+        "burglary": {
+          "natl": 8.13,
+          "rated": 2083,
+          "byWhy": {
+            "none": 1975,
+            "online": 87,
+            "medical_campus": 3,
+            "shared": 18
+          },
+          "verdicts": {
+            "above": 321,
+            "below": 590,
+            "nd": 1158,
+            "undetermined": 14
+          },
+          "verdictsNoReason": {
+            "above": 302,
+            "below": 572,
+            "nd": 1101
+          },
+          "peerVerdicts": {
+            "above": 255,
+            "below": 390,
+            "nd": 1428,
+            "undetermined": 10
+          },
+          "withFlags": 173,
+          "verdictWithoutFlaggedDiffers": 97,
+          "listed": 364,
+          "minFteYears": 24603,
+          "stateLists": 43,
+          "stateListsDisplayMin": 23
+        },
+        "rape": {
+          "natl": 4.3,
+          "rated": 2083,
+          "byWhy": {
+            "none": 1977,
+            "online": 87,
+            "medical_campus": 1,
+            "shared": 18
+          },
+          "verdicts": {
+            "above": 261,
+            "below": 464,
+            "nd": 1350,
+            "undetermined": 8
+          },
+          "verdictsNoReason": {
+            "above": 254,
+            "below": 454,
+            "nd": 1269
+          },
+          "peerVerdicts": {
+            "above": 159,
+            "below": 206,
+            "nd": 1708,
+            "undetermined": 10
+          },
+          "withFlags": 16,
+          "verdictWithoutFlaggedDiffers": 7
+        },
+        "fondling": {
+          "natl": 2.27,
+          "rated": 2083,
+          "byWhy": {
+            "none": 1972,
+            "online": 87,
+            "medical_campus": 5,
+            "shared": 19
+          },
+          "verdicts": {
+            "above": 173,
+            "below": 135,
+            "nd": 1769,
+            "undetermined": 6
+          },
+          "verdictsNoReason": {
+            "above": 166,
+            "below": 134,
+            "nd": 1672
+          },
+          "peerVerdicts": {
+            "above": 125,
+            "below": 110,
+            "nd": 1846,
+            "undetermined": 2
+          },
+          "withFlags": 14,
+          "verdictWithoutFlaggedDiffers": 11
+        },
+        "robbery": {
+          "natl": 0.76,
+          "rated": 2083,
+          "byWhy": {
+            "none": 1971,
+            "online": 87,
+            "medical_campus": 7,
+            "shared": 18
+          },
+          "verdicts": {
+            "above": 85,
+            "below": 12,
+            "nd": 1983,
+            "undetermined": 3
+          },
+          "verdictsNoReason": {
+            "above": 82,
+            "below": 12,
+            "nd": 1877
+          },
+          "peerVerdicts": {
+            "above": 89,
+            "below": 15,
+            "nd": 1976,
+            "undetermined": 3
+          },
+          "withFlags": 6,
+          "verdictWithoutFlaggedDiffers": 4
+        },
+        "aggravated_assault": {
+          "natl": 1.45,
+          "rated": 2083,
+          "byWhy": {
+            "none": 1976,
+            "online": 87,
+            "medical_campus": 8,
+            "shared": 12
+          },
+          "verdicts": {
+            "above": 132,
+            "below": 62,
+            "nd": 1887,
+            "undetermined": 2
+          },
+          "verdictsNoReason": {
+            "above": 119,
+            "below": 61,
+            "nd": 1796
+          },
+          "peerVerdicts": {
+            "above": 113,
+            "below": 57,
+            "nd": 1911,
+            "undetermined": 2
+          },
+          "withFlags": 8,
+          "verdictWithoutFlaggedDiffers": 4
+        },
+        "stalking": {
+          "natl": 4.39,
+          "rated": 2083,
+          "byWhy": {
+            "none": 1978,
+            "online": 87,
+            "medical_campus": 2,
+            "shared": 16
+          },
+          "verdicts": {
+            "above": 193,
+            "below": 319,
+            "nd": 1560,
+            "undetermined": 11
+          },
+          "verdictsNoReason": {
+            "above": 178,
+            "below": 313,
+            "nd": 1487
+          },
+          "peerVerdicts": {
+            "above": 166,
+            "below": 283,
+            "nd": 1628,
+            "undetermined": 6
+          },
+          "withFlags": 35,
+          "verdictWithoutFlaggedDiffers": 18
+        },
+        "dating_violence": {
+          "natl": 3.18,
+          "rated": 2083,
+          "byWhy": {
+            "none": 1978,
+            "online": 87,
+            "medical_campus": 2,
+            "shared": 16
+          },
+          "verdicts": {
+            "above": 228,
+            "below": 300,
+            "nd": 1550,
+            "undetermined": 5
+          },
+          "verdictsNoReason": {
+            "above": 217,
+            "below": 295,
+            "nd": 1466
+          },
+          "peerVerdicts": {
+            "above": 182,
+            "below": 202,
+            "nd": 1693,
+            "undetermined": 6
+          },
+          "withFlags": 33,
+          "verdictWithoutFlaggedDiffers": 22
+        },
+        "domestic_violence": {
+          "natl": 2.02,
+          "rated": 2083,
+          "byWhy": {
+            "none": 1972,
+            "online": 87,
+            "medical_campus": 7,
+            "shared": 17
+          },
+          "verdicts": {
+            "above": 132,
+            "below": 119,
+            "nd": 1827,
+            "undetermined": 5
+          },
+          "verdictsNoReason": {
+            "above": 124,
+            "below": 118,
+            "nd": 1730
+          },
+          "peerVerdicts": {
+            "above": 133,
+            "below": 123,
+            "nd": 1822,
+            "undetermined": 5
+          },
+          "withFlags": 13,
+          "verdictWithoutFlaggedDiffers": 7
         }
+      },
+      "2016-2018": {
+        "violent": {
+          "natl": 6.84,
+          "rated": 2071,
+          "byWhy": {
+            "none": 1939,
+            "online": 103,
+            "medical_campus": 6,
+            "shared": 23
+          },
+          "verdicts": {
+            "above": 317,
+            "below": 528,
+            "nd": 1209,
+            "undetermined": 17
+          },
+          "verdictsNoReason": {
+            "above": 301,
+            "below": 509,
+            "nd": 1129
+          },
+          "peerVerdicts": {
+            "above": 221,
+            "below": 264,
+            "nd": 1572,
+            "undetermined": 14
+          },
+          "withFlags": 27,
+          "verdictWithoutFlaggedDiffers": 10,
+          "listed": 278,
+          "minFteYears": 29230,
+          "stateLists": 38,
+          "stateListsDisplayMin": 17
+        },
+        "criminal_xmvt": {
+          "natl": 17.6,
+          "rated": 2071,
+          "byWhy": {
+            "none": 1937,
+            "online": 103,
+            "medical_campus": 6,
+            "shared": 25
+          },
+          "verdicts": {
+            "above": 385,
+            "below": 739,
+            "nd": 926,
+            "undetermined": 21
+          },
+          "verdictsNoReason": {
+            "above": 359,
+            "below": 710,
+            "nd": 868
+          },
+          "peerVerdicts": {
+            "above": 279,
+            "below": 425,
+            "nd": 1348,
+            "undetermined": 19
+          },
+          "withFlags": 165,
+          "verdictWithoutFlaggedDiffers": 56,
+          "listed": 813,
+          "minFteYears": 11365,
+          "stateLists": 48,
+          "stateListsDisplayMin": 37
+        },
+        "burglary": {
+          "natl": 7.59,
+          "rated": 2071,
+          "byWhy": {
+            "none": 1944,
+            "online": 103,
+            "medical_campus": 3,
+            "shared": 21
+          },
+          "verdicts": {
+            "above": 301,
+            "below": 538,
+            "nd": 1213,
+            "undetermined": 19
+          },
+          "verdictsNoReason": {
+            "above": 281,
+            "below": 521,
+            "nd": 1142
+          },
+          "peerVerdicts": {
+            "above": 237,
+            "below": 366,
+            "nd": 1459,
+            "undetermined": 9
+          },
+          "withFlags": 130,
+          "verdictWithoutFlaggedDiffers": 70,
+          "listed": 325,
+          "minFteYears": 26348,
+          "stateLists": 43,
+          "stateListsDisplayMin": 21
+        },
+        "rape": {
+          "natl": 4.69,
+          "rated": 2071,
+          "byWhy": {
+            "none": 1948,
+            "online": 103,
+            "medical_campus": 0,
+            "shared": 20
+          },
+          "verdicts": {
+            "above": 270,
+            "below": 491,
+            "nd": 1301,
+            "undetermined": 9
+          },
+          "verdictsNoReason": {
+            "above": 261,
+            "below": 473,
+            "nd": 1214
+          },
+          "peerVerdicts": {
+            "above": 168,
+            "below": 210,
+            "nd": 1684,
+            "undetermined": 9
+          },
+          "withFlags": 18,
+          "verdictWithoutFlaggedDiffers": 9
+        },
+        "fondling": {
+          "natl": 2.73,
+          "rated": 2071,
+          "byWhy": {
+            "none": 1945,
+            "online": 103,
+            "medical_campus": 5,
+            "shared": 18
+          },
+          "verdicts": {
+            "above": 180,
+            "below": 181,
+            "nd": 1703,
+            "undetermined": 7
+          },
+          "verdictsNoReason": {
+            "above": 171,
+            "below": 175,
+            "nd": 1599
+          },
+          "peerVerdicts": {
+            "above": 136,
+            "below": 132,
+            "nd": 1800,
+            "undetermined": 3
+          },
+          "withFlags": 19,
+          "verdictWithoutFlaggedDiffers": 8
+        },
+        "robbery": {
+          "natl": 0.7,
+          "rated": 2071,
+          "byWhy": {
+            "none": 1945,
+            "online": 103,
+            "medical_campus": 7,
+            "shared": 16
+          },
+          "verdicts": {
+            "above": 76,
+            "below": 12,
+            "nd": 1980,
+            "undetermined": 3
+          },
+          "verdictsNoReason": {
+            "above": 70,
+            "below": 12,
+            "nd": 1863
+          },
+          "peerVerdicts": {
+            "above": 72,
+            "below": 11,
+            "nd": 1986,
+            "undetermined": 2
+          },
+          "withFlags": 5,
+          "verdictWithoutFlaggedDiffers": 4
+        },
+        "aggravated_assault": {
+          "natl": 1.44,
+          "rated": 2071,
+          "byWhy": {
+            "none": 1941,
+            "online": 103,
+            "medical_campus": 9,
+            "shared": 18
+          },
+          "verdicts": {
+            "above": 121,
+            "below": 64,
+            "nd": 1884,
+            "undetermined": 2
+          },
+          "verdictsNoReason": {
+            "above": 109,
+            "below": 63,
+            "nd": 1769
+          },
+          "peerVerdicts": {
+            "above": 110,
+            "below": 59,
+            "nd": 1900,
+            "undetermined": 2
+          },
+          "withFlags": 4,
+          "verdictWithoutFlaggedDiffers": 3
+        },
+        "stalking": {
+          "natl": 4.94,
+          "rated": 2071,
+          "byWhy": {
+            "none": 1944,
+            "online": 103,
+            "medical_campus": 2,
+            "shared": 22
+          },
+          "verdicts": {
+            "above": 187,
+            "below": 371,
+            "nd": 1497,
+            "undetermined": 16
+          },
+          "verdictsNoReason": {
+            "above": 169,
+            "below": 362,
+            "nd": 1413
+          },
+          "peerVerdicts": {
+            "above": 160,
+            "below": 317,
+            "nd": 1579,
+            "undetermined": 15
+          },
+          "withFlags": 28,
+          "verdictWithoutFlaggedDiffers": 17
+        },
+        "dating_violence": {
+          "natl": 3.33,
+          "rated": 2071,
+          "byWhy": {
+            "none": 1949,
+            "online": 103,
+            "medical_campus": 2,
+            "shared": 17
+          },
+          "verdicts": {
+            "above": 223,
+            "below": 303,
+            "nd": 1536,
+            "undetermined": 9
+          },
+          "verdictsNoReason": {
+            "above": 214,
+            "below": 293,
+            "nd": 1442
+          },
+          "peerVerdicts": {
+            "above": 170,
+            "below": 204,
+            "nd": 1691,
+            "undetermined": 6
+          },
+          "withFlags": 33,
+          "verdictWithoutFlaggedDiffers": 23
+        },
+        "domestic_violence": {
+          "natl": 2.05,
+          "rated": 2071,
+          "byWhy": {
+            "none": 1940,
+            "online": 103,
+            "medical_campus": 7,
+            "shared": 21
+          },
+          "verdicts": {
+            "above": 141,
+            "below": 138,
+            "nd": 1784,
+            "undetermined": 8
+          },
+          "verdictsNoReason": {
+            "above": 124,
+            "below": 136,
+            "nd": 1680
+          },
+          "peerVerdicts": {
+            "above": 134,
+            "below": 130,
+            "nd": 1803,
+            "undetermined": 4
+          },
+          "withFlags": 10,
+          "verdictWithoutFlaggedDiffers": 4
+        }
+      },
+      "2017-2019": {
+        "violent": {
+          "natl": 6.79,
+          "rated": 2042,
+          "byWhy": {
+            "none": 1905,
+            "online": 108,
+            "medical_campus": 6,
+            "shared": 23
+          },
+          "verdicts": {
+            "above": 312,
+            "below": 537,
+            "nd": 1179,
+            "undetermined": 14
+          },
+          "verdictsNoReason": {
+            "above": 298,
+            "below": 517,
+            "nd": 1090
+          },
+          "peerVerdicts": {
+            "above": 209,
+            "below": 245,
+            "nd": 1576,
+            "undetermined": 12
+          },
+          "withFlags": 24,
+          "verdictWithoutFlaggedDiffers": 13,
+          "listed": 261,
+          "minFteYears": 29465,
+          "stateLists": 39,
+          "stateListsDisplayMin": 14
+        },
+        "criminal_xmvt": {
+          "natl": 17.17,
+          "rated": 2042,
+          "byWhy": {
+            "none": 1902,
+            "online": 108,
+            "medical_campus": 6,
+            "shared": 26
+          },
+          "verdicts": {
+            "above": 372,
+            "below": 717,
+            "nd": 937,
+            "undetermined": 16
+          },
+          "verdictsNoReason": {
+            "above": 347,
+            "below": 683,
+            "nd": 872
+          },
+          "peerVerdicts": {
+            "above": 252,
+            "below": 425,
+            "nd": 1345,
+            "undetermined": 20
+          },
+          "withFlags": 109,
+          "verdictWithoutFlaggedDiffers": 35,
+          "listed": 777,
+          "minFteYears": 11648,
+          "stateLists": 47,
+          "stateListsDisplayMin": 36
+        },
+        "burglary": {
+          "natl": 6.95,
+          "rated": 2042,
+          "byWhy": {
+            "none": 1909,
+            "online": 108,
+            "medical_campus": 3,
+            "shared": 22
+          },
+          "verdicts": {
+            "above": 280,
+            "below": 500,
+            "nd": 1251,
+            "undetermined": 11
+          },
+          "verdictsNoReason": {
+            "above": 258,
+            "below": 481,
+            "nd": 1170
+          },
+          "peerVerdicts": {
+            "above": 218,
+            "below": 348,
+            "nd": 1465,
+            "undetermined": 11
+          },
+          "withFlags": 74,
+          "verdictWithoutFlaggedDiffers": 42,
+          "listed": 272,
+          "minFteYears": 28794,
+          "stateLists": 39,
+          "stateListsDisplayMin": 15
+        },
+        "rape": {
+          "natl": 4.79,
+          "rated": 2042,
+          "byWhy": {
+            "none": 1916,
+            "online": 108,
+            "medical_campus": 0,
+            "shared": 18
+          },
+          "verdicts": {
+            "above": 269,
+            "below": 490,
+            "nd": 1275,
+            "undetermined": 8
+          },
+          "verdictsNoReason": {
+            "above": 260,
+            "below": 473,
+            "nd": 1183
+          },
+          "peerVerdicts": {
+            "above": 162,
+            "below": 208,
+            "nd": 1665,
+            "undetermined": 7
+          },
+          "withFlags": 17,
+          "verdictWithoutFlaggedDiffers": 13
+        },
+        "fondling": {
+          "natl": 3.03,
+          "rated": 2042,
+          "byWhy": {
+            "none": 1910,
+            "online": 108,
+            "medical_campus": 5,
+            "shared": 19
+          },
+          "verdicts": {
+            "above": 184,
+            "below": 192,
+            "nd": 1656,
+            "undetermined": 10
+          },
+          "verdictsNoReason": {
+            "above": 172,
+            "below": 184,
+            "nd": 1554
+          },
+          "peerVerdicts": {
+            "above": 130,
+            "below": 150,
+            "nd": 1754,
+            "undetermined": 8
+          },
+          "withFlags": 23,
+          "verdictWithoutFlaggedDiffers": 13
+        },
+        "robbery": {
+          "natl": 0.62,
+          "rated": 2042,
+          "byWhy": {
+            "none": 1917,
+            "online": 108,
+            "medical_campus": 7,
+            "shared": 10
+          },
+          "verdicts": {
+            "above": 66,
+            "below": 7,
+            "nd": 1967,
+            "undetermined": 2
+          },
+          "verdictsNoReason": {
+            "above": 62,
+            "below": 7,
+            "nd": 1848
+          },
+          "peerVerdicts": {
+            "above": 65,
+            "below": 10,
+            "nd": 1965,
+            "undetermined": 2
+          },
+          "withFlags": 2,
+          "verdictWithoutFlaggedDiffers": 1
+        },
+        "aggravated_assault": {
+          "natl": 1.38,
+          "rated": 2042,
+          "byWhy": {
+            "none": 1907,
+            "online": 108,
+            "medical_campus": 10,
+            "shared": 17
+          },
+          "verdicts": {
+            "above": 117,
+            "below": 60,
+            "nd": 1863,
+            "undetermined": 2
+          },
+          "verdictsNoReason": {
+            "above": 96,
+            "below": 60,
+            "nd": 1751
+          },
+          "peerVerdicts": {
+            "above": 101,
+            "below": 65,
+            "nd": 1875,
+            "undetermined": 1
+          },
+          "withFlags": 5,
+          "verdictWithoutFlaggedDiffers": 3
+        },
+        "stalking": {
+          "natl": 5.41,
+          "rated": 2042,
+          "byWhy": {
+            "none": 1912,
+            "online": 108,
+            "medical_campus": 1,
+            "shared": 21
+          },
+          "verdicts": {
+            "above": 184,
+            "below": 399,
+            "nd": 1446,
+            "undetermined": 13
+          },
+          "verdictsNoReason": {
+            "above": 166,
+            "below": 389,
+            "nd": 1357
+          },
+          "peerVerdicts": {
+            "above": 161,
+            "below": 311,
+            "nd": 1553,
+            "undetermined": 17
+          },
+          "withFlags": 33,
+          "verdictWithoutFlaggedDiffers": 20
+        },
+        "dating_violence": {
+          "natl": 3.36,
+          "rated": 2042,
+          "byWhy": {
+            "none": 1914,
+            "online": 108,
+            "medical_campus": 2,
+            "shared": 18
+          },
+          "verdicts": {
+            "above": 212,
+            "below": 312,
+            "nd": 1510,
+            "undetermined": 8
+          },
+          "verdictsNoReason": {
+            "above": 199,
+            "below": 302,
+            "nd": 1413
+          },
+          "peerVerdicts": {
+            "above": 167,
+            "below": 198,
+            "nd": 1675,
+            "undetermined": 2
+          },
+          "withFlags": 28,
+          "verdictWithoutFlaggedDiffers": 20
+        },
+        "domestic_violence": {
+          "natl": 2.11,
+          "rated": 2042,
+          "byWhy": {
+            "none": 1906,
+            "online": 108,
+            "medical_campus": 7,
+            "shared": 21
+          },
+          "verdicts": {
+            "above": 144,
+            "below": 146,
+            "nd": 1745,
+            "undetermined": 7
+          },
+          "verdictsNoReason": {
+            "above": 128,
+            "below": 141,
+            "nd": 1637
+          },
+          "peerVerdicts": {
+            "above": 152,
+            "below": 146,
+            "nd": 1739,
+            "undetermined": 5
+          },
+          "withFlags": 11,
+          "verdictWithoutFlaggedDiffers": 6
+        }
+      },
+      "2021-2023": {
+        "violent": {
+          "natl": 6.83,
+          "rated": 1862,
+          "byWhy": {
+            "none": 1560,
+            "online": 273,
+            "medical_campus": 8,
+            "shared": 21
+          },
+          "verdicts": {
+            "above": 239,
+            "below": 492,
+            "nd": 1098,
+            "undetermined": 33
+          },
+          "verdictsNoReason": {
+            "above": 218,
+            "below": 414,
+            "nd": 928
+          },
+          "peerVerdicts": {
+            "above": 159,
+            "below": 222,
+            "nd": 1461,
+            "undetermined": 20
+          },
+          "withFlags": 30,
+          "verdictWithoutFlaggedDiffers": 12,
+          "listed": 205,
+          "minFteYears": 29290,
+          "stateLists": 34,
+          "stateListsDisplayMin": 13
+        },
+        "criminal_xmvt": {
+          "natl": 15.69,
+          "rated": 1862,
+          "byWhy": {
+            "none": 1560,
+            "online": 273,
+            "medical_campus": 7,
+            "shared": 22
+          },
+          "verdicts": {
+            "above": 287,
+            "below": 635,
+            "nd": 913,
+            "undetermined": 27
+          },
+          "verdictsNoReason": {
+            "above": 259,
+            "below": 540,
+            "nd": 761
+          },
+          "peerVerdicts": {
+            "above": 230,
+            "below": 355,
+            "nd": 1250,
+            "undetermined": 27
+          },
+          "withFlags": 81,
+          "verdictWithoutFlaggedDiffers": 30,
+          "listed": 527,
+          "minFteYears": 12750,
+          "stateLists": 46,
+          "stateListsDisplayMin": 31
+        },
+        "burglary": {
+          "natl": 5.11,
+          "rated": 1862,
+          "byWhy": {
+            "none": 1568,
+            "online": 273,
+            "medical_campus": 2,
+            "shared": 19
+          },
+          "verdicts": {
+            "above": 175,
+            "below": 315,
+            "nd": 1348,
+            "undetermined": 24
+          },
+          "verdictsNoReason": {
+            "above": 153,
+            "below": 285,
+            "nd": 1130
+          },
+          "peerVerdicts": {
+            "above": 155,
+            "below": 246,
+            "nd": 1442,
+            "undetermined": 19
+          },
+          "withFlags": 28,
+          "verdictWithoutFlaggedDiffers": 15,
+          "listed": 146,
+          "minFteYears": 39145,
+          "stateLists": 25,
+          "stateListsDisplayMin": 11
+        },
+        "rape": {
+          "natl": 4.87,
+          "rated": 1862,
+          "byWhy": {
+            "none": 1568,
+            "online": 273,
+            "medical_campus": 0,
+            "shared": 21
+          },
+          "verdicts": {
+            "above": 206,
+            "below": 403,
+            "nd": 1228,
+            "undetermined": 25
+          },
+          "verdictsNoReason": {
+            "above": 195,
+            "below": 336,
+            "nd": 1037
+          },
+          "peerVerdicts": {
+            "above": 130,
+            "below": 169,
+            "nd": 1551,
+            "undetermined": 12
+          },
+          "withFlags": 12,
+          "verdictWithoutFlaggedDiffers": 7
+        },
+        "fondling": {
+          "natl": 3.27,
+          "rated": 1862,
+          "byWhy": {
+            "none": 1566,
+            "online": 273,
+            "medical_campus": 5,
+            "shared": 18
+          },
+          "verdicts": {
+            "above": 178,
+            "below": 205,
+            "nd": 1462,
+            "undetermined": 17
+          },
+          "verdictsNoReason": {
+            "above": 160,
+            "below": 179,
+            "nd": 1227
+          },
+          "peerVerdicts": {
+            "above": 114,
+            "below": 116,
+            "nd": 1620,
+            "undetermined": 12
+          },
+          "withFlags": 28,
+          "verdictWithoutFlaggedDiffers": 17
+        },
+        "robbery": {
+          "natl": 0.4,
+          "rated": 1862,
+          "byWhy": {
+            "none": 1572,
+            "online": 273,
+            "medical_campus": 8,
+            "shared": 9
+          },
+          "verdicts": {
+            "above": 42,
+            "below": 3,
+            "nd": 1817,
+            "undetermined": 0
+          },
+          "verdictsNoReason": {
+            "above": 37,
+            "below": 3,
+            "nd": 1532
+          },
+          "peerVerdicts": {
+            "above": 42,
+            "below": 5,
+            "nd": 1814,
+            "undetermined": 1
+          },
+          "withFlags": 1,
+          "verdictWithoutFlaggedDiffers": 1
+        },
+        "aggravated_assault": {
+          "natl": 1.54,
+          "rated": 1862,
+          "byWhy": {
+            "none": 1566,
+            "online": 273,
+            "medical_campus": 8,
+            "shared": 15
+          },
+          "verdicts": {
+            "above": 99,
+            "below": 62,
+            "nd": 1693,
+            "undetermined": 8
+          },
+          "verdictsNoReason": {
+            "above": 85,
+            "below": 58,
+            "nd": 1423
+          },
+          "peerVerdicts": {
+            "above": 88,
+            "below": 58,
+            "nd": 1712,
+            "undetermined": 4
+          },
+          "withFlags": 18,
+          "verdictWithoutFlaggedDiffers": 8
+        },
+        "stalking": {
+          "natl": 6.21,
+          "rated": 1862,
+          "byWhy": {
+            "none": 1570,
+            "online": 273,
+            "medical_campus": 0,
+            "shared": 19
+          },
+          "verdicts": {
+            "above": 164,
+            "below": 479,
+            "nd": 1185,
+            "undetermined": 34
+          },
+          "verdictsNoReason": {
+            "above": 140,
+            "below": 407,
+            "nd": 1023
+          },
+          "peerVerdicts": {
+            "above": 157,
+            "below": 335,
+            "nd": 1347,
+            "undetermined": 23
+          },
+          "withFlags": 44,
+          "verdictWithoutFlaggedDiffers": 21
+        },
+        "dating_violence": {
+          "natl": 2.99,
+          "rated": 1862,
+          "byWhy": {
+            "none": 1570,
+            "online": 273,
+            "medical_campus": 2,
+            "shared": 17
+          },
+          "verdicts": {
+            "above": 185,
+            "below": 244,
+            "nd": 1414,
+            "undetermined": 19
+          },
+          "verdictsNoReason": {
+            "above": 163,
+            "below": 209,
+            "nd": 1198
+          },
+          "peerVerdicts": {
+            "above": 156,
+            "below": 163,
+            "nd": 1533,
+            "undetermined": 10
+          },
+          "withFlags": 20,
+          "verdictWithoutFlaggedDiffers": 10
+        },
+        "domestic_violence": {
+          "natl": 2.23,
+          "rated": 1862,
+          "byWhy": {
+            "none": 1569,
+            "online": 273,
+            "medical_campus": 3,
+            "shared": 17
+          },
+          "verdicts": {
+            "above": 89,
+            "below": 163,
+            "nd": 1603,
+            "undetermined": 7
+          },
+          "verdictsNoReason": {
+            "above": 81,
+            "below": 144,
+            "nd": 1344
+          },
+          "peerVerdicts": {
+            "above": 87,
+            "below": 155,
+            "nd": 1615,
+            "undetermined": 5
+          },
+          "withFlags": 16,
+          "verdictWithoutFlaggedDiffers": 6
+        }
+      },
+      "2022-2024": {
+        "violent": {
+          "natl": 6.94,
+          "rated": 1872,
+          "byWhy": {
+            "none": 1562,
+            "online": 279,
+            "medical_campus": 8,
+            "shared": 23
+          },
+          "verdicts": {
+            "above": 231,
+            "below": 465,
+            "nd": 1130,
+            "undetermined": 46
+          },
+          "verdictsNoReason": {
+            "above": 211,
+            "below": 401,
+            "nd": 950
+          },
+          "peerVerdicts": {
+            "above": 174,
+            "below": 246,
+            "nd": 1432,
+            "undetermined": 20
+          },
+          "withFlags": 37,
+          "verdictWithoutFlaggedDiffers": 14,
+          "listed": 206,
+          "minFteYears": 28838,
+          "stateLists": 35,
+          "stateListsDisplayMin": 14
+        },
+        "criminal_xmvt": {
+          "natl": 15.9,
+          "rated": 1872,
+          "byWhy": {
+            "none": 1564,
+            "online": 279,
+            "medical_campus": 5,
+            "shared": 24
+          },
+          "verdicts": {
+            "above": 266,
+            "below": 619,
+            "nd": 944,
+            "undetermined": 43
+          },
+          "verdictsNoReason": {
+            "above": 241,
+            "below": 516,
+            "nd": 807
+          },
+          "peerVerdicts": {
+            "above": 230,
+            "below": 364,
+            "nd": 1243,
+            "undetermined": 35
+          },
+          "withFlags": 86,
+          "verdictWithoutFlaggedDiffers": 25,
+          "listed": 530,
+          "minFteYears": 12581,
+          "stateLists": 45,
+          "stateListsDisplayMin": 32
+        },
+        "burglary": {
+          "natl": 5.17,
+          "rated": 1872,
+          "byWhy": {
+            "none": 1572,
+            "online": 279,
+            "medical_campus": 2,
+            "shared": 19
+          },
+          "verdicts": {
+            "above": 178,
+            "below": 317,
+            "nd": 1347,
+            "undetermined": 30
+          },
+          "verdictsNoReason": {
+            "above": 150,
+            "below": 288,
+            "nd": 1134
+          },
+          "peerVerdicts": {
+            "above": 173,
+            "below": 256,
+            "nd": 1426,
+            "undetermined": 17
+          },
+          "withFlags": 30,
+          "verdictWithoutFlaggedDiffers": 20,
+          "listed": 146,
+          "minFteYears": 38672,
+          "stateLists": 24,
+          "stateListsDisplayMin": 11
+        },
+        "rape": {
+          "natl": 4.75,
+          "rated": 1872,
+          "byWhy": {
+            "none": 1570,
+            "online": 279,
+            "medical_campus": 0,
+            "shared": 23
+          },
+          "verdicts": {
+            "above": 203,
+            "below": 378,
+            "nd": 1263,
+            "undetermined": 28
+          },
+          "verdictsNoReason": {
+            "above": 191,
+            "below": 319,
+            "nd": 1060
+          },
+          "peerVerdicts": {
+            "above": 125,
+            "below": 165,
+            "nd": 1568,
+            "undetermined": 14
+          },
+          "withFlags": 17,
+          "verdictWithoutFlaggedDiffers": 11
+        },
+        "fondling": {
+          "natl": 3.26,
+          "rated": 1872,
+          "byWhy": {
+            "none": 1569,
+            "online": 279,
+            "medical_campus": 5,
+            "shared": 19
+          },
+          "verdicts": {
+            "above": 181,
+            "below": 174,
+            "nd": 1492,
+            "undetermined": 25
+          },
+          "verdictsNoReason": {
+            "above": 161,
+            "below": 158,
+            "nd": 1250
+          },
+          "peerVerdicts": {
+            "above": 126,
+            "below": 102,
+            "nd": 1636,
+            "undetermined": 8
+          },
+          "withFlags": 26,
+          "verdictWithoutFlaggedDiffers": 19
+        },
+        "robbery": {
+          "natl": 0.42,
+          "rated": 1872,
+          "byWhy": {
+            "none": 1576,
+            "online": 279,
+            "medical_campus": 8,
+            "shared": 9
+          },
+          "verdicts": {
+            "above": 34,
+            "below": 3,
+            "nd": 1834,
+            "undetermined": 1
+          },
+          "verdictsNoReason": {
+            "above": 27,
+            "below": 3,
+            "nd": 1546
+          },
+          "peerVerdicts": {
+            "above": 38,
+            "below": 6,
+            "nd": 1827,
+            "undetermined": 1
+          },
+          "withFlags": 1,
+          "verdictWithoutFlaggedDiffers": 1
+        },
+        "aggravated_assault": {
+          "natl": 1.75,
+          "rated": 1872,
+          "byWhy": {
+            "none": 1571,
+            "online": 279,
+            "medical_campus": 7,
+            "shared": 15
+          },
+          "verdicts": {
+            "above": 103,
+            "below": 77,
+            "nd": 1682,
+            "undetermined": 10
+          },
+          "verdictsNoReason": {
+            "above": 87,
+            "below": 72,
+            "nd": 1412
+          },
+          "peerVerdicts": {
+            "above": 96,
+            "below": 71,
+            "nd": 1695,
+            "undetermined": 10
+          },
+          "withFlags": 21,
+          "verdictWithoutFlaggedDiffers": 8
+        },
+        "stalking": {
+          "natl": 7.15,
+          "rated": 1872,
+          "byWhy": {
+            "none": 1572,
+            "online": 279,
+            "medical_campus": 0,
+            "shared": 21
+          },
+          "verdicts": {
+            "above": 165,
+            "below": 528,
+            "nd": 1144,
+            "undetermined": 35
+          },
+          "verdictsNoReason": {
+            "above": 142,
+            "below": 458,
+            "nd": 972
+          },
+          "peerVerdicts": {
+            "above": 164,
+            "below": 368,
+            "nd": 1313,
+            "undetermined": 27
+          },
+          "withFlags": 66,
+          "verdictWithoutFlaggedDiffers": 33
+        },
+        "dating_violence": {
+          "natl": 3.35,
+          "rated": 1872,
+          "byWhy": {
+            "none": 1574,
+            "online": 279,
+            "medical_campus": 0,
+            "shared": 19
+          },
+          "verdicts": {
+            "above": 186,
+            "below": 285,
+            "nd": 1372,
+            "undetermined": 29
+          },
+          "verdictsNoReason": {
+            "above": 168,
+            "below": 254,
+            "nd": 1152
+          },
+          "peerVerdicts": {
+            "above": 163,
+            "below": 186,
+            "nd": 1514,
+            "undetermined": 9
+          },
+          "withFlags": 30,
+          "verdictWithoutFlaggedDiffers": 16
+        },
+        "domestic_violence": {
+          "natl": 2.6,
+          "rated": 1872,
+          "byWhy": {
+            "none": 1572,
+            "online": 279,
+            "medical_campus": 2,
+            "shared": 19
+          },
+          "verdicts": {
+            "above": 93,
+            "below": 182,
+            "nd": 1582,
+            "undetermined": 15
+          },
+          "verdictsNoReason": {
+            "above": 85,
+            "below": 163,
+            "nd": 1324
+          },
+          "peerVerdicts": {
+            "above": 92,
+            "below": 187,
+            "nd": 1583,
+            "undetermined": 10
+          },
+          "withFlags": 28,
+          "verdictWithoutFlaggedDiffers": 12
+        }
+      }
+    },
+    "flags": {
+      "total": 1866,
+      "byGeo": {
+        "On-campus": 1364,
+        "Non-campus": 228,
+        "Public property": 274
+      },
+      "byYear": {
+        "2015": 220,
+        "2016": 211,
+        "2017": 162,
+        "2018": 117,
+        "2019": 109,
+        "2020": 70,
+        "2021": 113,
+        "2022": 227,
+        "2023": 298,
+        "2024": 339
+      },
+      "byOffense": {
+        "aggravated_assault": 200,
+        "burglary": 409,
+        "dating_violence": 127,
+        "domestic_violence": 148,
+        "fondling": 121,
+        "motor_vehicle_theft": 489,
+        "rape": 96,
+        "robbery": 66,
+        "stalking": 210
+      }
+    },
+    "singleYear": {
+      "2015": 2216,
+      "2016": 2182,
+      "2017": 2146,
+      "2018": 2128,
+      "2019": 2107,
+      "2020": 0,
+      "2021": 2031,
+      "2022": 1944,
+      "2023": 1964,
+      "2024": 1982
+    },
+    "institutionFiles": 2584,
+    "countFlags": {
+      "2015": {
+        "criminal": 14,
+        "violent": 3,
+        "property": 7,
+        "all": 13,
+        "aggravated_assault": 2,
+        "arson": 0,
+        "burglary": 5,
+        "dating_violence": 1,
+        "domestic_violence": 2,
+        "drug_arrest": 5,
+        "drug_discipline": 8,
+        "fondling": 0,
+        "incest": 0,
+        "liquor_arrest": 0,
+        "liquor_discipline": 5,
+        "motor_vehicle_theft": 2,
+        "murder": 0,
+        "negligent_manslaughter": 0,
+        "rape": 0,
+        "robbery": 0,
+        "stalking": 0,
+        "statutory_rape": 0,
+        "weapons_arrest": 2,
+        "weapons_discipline": 1
       },
       "2016": {
-        "listed": 2273,
-        "excluded": 90,
-        "excludedBy": {
-          "hospital": 65,
-          "medical": 19,
-          "listed": 2,
-          "merger": 4,
-          "family": 0
-        },
-        "fteUncertain": 72,
-        "abroad": 102,
-        "violent": {
-          "ranked": 91,
-          "few": 1304,
-          "notRanked": {
-            "online": 40,
-            "medical_campus": 5,
-            "shared": 20,
-            "few": 54,
-            "hospital": 62,
-            "medical": 7,
-            "listed": 2,
-            "merger": 2,
-            "family": 0
-          },
-          "medicalNote": 1,
-          "sharedNote": 0,
-          "spikes": 0,
-          "medianRange": 50
-        },
-        "criminal": {
-          "ranked": 413,
-          "few": 1339,
-          "notRanked": {
-            "online": 60,
-            "medical_campus": 4,
-            "shared": 21,
-            "few": 61,
-            "hospital": 65,
-            "medical": 12,
-            "listed": 2,
-            "merger": 4,
-            "family": 0
-          },
-          "medicalNote": 4,
-          "sharedNote": 1,
-          "spikes": 4,
-          "medianRange": 165
-        },
-        "property": {
-          "ranked": 187,
-          "few": 1328,
-          "notRanked": {
-            "online": 48,
-            "medical_campus": 2,
-            "shared": 17,
-            "few": 56,
-            "hospital": 64,
-            "medical": 11,
-            "listed": 2,
-            "merger": 4,
-            "family": 0
-          },
-          "medicalNote": 5,
-          "sharedNote": 0,
-          "spikes": 7,
-          "medianRange": 82
-        },
-        "rankedEntries": 4094,
-        "spikes": 59,
-        "countFlags": {
-          "all": 6,
-          "violent": 3,
-          "criminal": 5,
-          "property": 1
-        }
+        "criminal": 8,
+        "violent": 5,
+        "property": 5,
+        "all": 10,
+        "aggravated_assault": 0,
+        "arson": 0,
+        "burglary": 3,
+        "dating_violence": 2,
+        "domestic_violence": 0,
+        "drug_arrest": 3,
+        "drug_discipline": 3,
+        "fondling": 1,
+        "incest": 0,
+        "liquor_arrest": 2,
+        "liquor_discipline": 3,
+        "motor_vehicle_theft": 0,
+        "murder": 0,
+        "negligent_manslaughter": 0,
+        "rape": 1,
+        "robbery": 1,
+        "stalking": 3,
+        "statutory_rape": 0,
+        "weapons_arrest": 0,
+        "weapons_discipline": 0
       },
       "2017": {
-        "listed": 2243,
-        "excluded": 96,
-        "excludedBy": {
-          "hospital": 70,
-          "medical": 19,
-          "listed": 2,
-          "merger": 5,
-          "family": 0
-        },
-        "fteUncertain": 77,
-        "abroad": 108,
-        "violent": {
-          "ranked": 100,
-          "few": 1296,
-          "notRanked": {
-            "online": 53,
-            "medical_campus": 6,
-            "shared": 12,
-            "few": 60,
-            "hospital": 60,
-            "medical": 11,
-            "listed": 1,
-            "merger": 3,
-            "family": 0
-          },
-          "medicalNote": 1,
-          "sharedNote": 0,
-          "spikes": 3,
-          "medianRange": 50.0
-        },
-        "criminal": {
-          "ranked": 418,
-          "few": 1318,
-          "notRanked": {
-            "online": 63,
-            "medical_campus": 5,
-            "shared": 16,
-            "few": 63,
-            "hospital": 65,
-            "medical": 13,
-            "listed": 2,
-            "merger": 5,
-            "family": 0
-          },
-          "medicalNote": 3,
-          "sharedNote": 0,
-          "spikes": 5,
-          "medianRange": 170.0
-        },
-        "property": {
-          "ranked": 154,
-          "few": 1328,
-          "notRanked": {
-            "online": 54,
-            "medical_campus": 5,
-            "shared": 13,
-            "few": 58,
-            "hospital": 61,
-            "medical": 11,
-            "listed": 2,
-            "merger": 5,
-            "family": 0
-          },
-          "medicalNote": 4,
-          "sharedNote": 0,
-          "spikes": 5,
-          "medianRange": 77.0
-        },
-        "rankedEntries": 4036,
-        "spikes": 64,
-        "countFlags": {
-          "all": 8,
-          "violent": 4,
-          "criminal": 5,
-          "property": 2
-        }
+        "criminal": 10,
+        "violent": 9,
+        "property": 5,
+        "all": 14,
+        "aggravated_assault": 5,
+        "arson": 0,
+        "burglary": 2,
+        "dating_violence": 3,
+        "domestic_violence": 3,
+        "drug_arrest": 4,
+        "drug_discipline": 1,
+        "fondling": 0,
+        "liquor_arrest": 3,
+        "liquor_discipline": 3,
+        "motor_vehicle_theft": 3,
+        "murder": 0,
+        "negligent_manslaughter": 0,
+        "rape": 2,
+        "robbery": 0,
+        "stalking": 1,
+        "statutory_rape": 1,
+        "weapons_arrest": 1,
+        "weapons_discipline": 1
       },
       "2018": {
-        "listed": 2220,
-        "excluded": 91,
-        "excludedBy": {
-          "hospital": 68,
-          "medical": 22,
-          "listed": 1,
-          "merger": 0,
-          "family": 0
-        },
-        "fteUncertain": 93,
-        "abroad": 108,
-        "violent": {
-          "ranked": 89,
-          "few": 1263,
-          "notRanked": {
-            "online": 62,
-            "medical_campus": 6,
-            "shared": 22,
-            "few": 76,
-            "hospital": 62,
-            "medical": 14,
-            "listed": 1,
-            "merger": 0,
-            "family": 0
-          },
-          "medicalNote": 3,
-          "sharedNote": 1,
-          "spikes": 0,
-          "medianRange": 49
-        },
-        "criminal": {
-          "ranked": 362,
-          "few": 1329,
-          "notRanked": {
-            "online": 77,
-            "medical_campus": 4,
-            "shared": 24,
-            "few": 81,
-            "hospital": 65,
-            "medical": 18,
-            "listed": 1,
-            "merger": 0,
-            "family": 0
-          },
-          "medicalNote": 5,
-          "sharedNote": 2,
-          "spikes": 2,
-          "medianRange": 159.0
-        },
-        "property": {
-          "ranked": 122,
-          "few": 1294,
-          "notRanked": {
-            "online": 70,
-            "medical_campus": 3,
-            "shared": 21,
-            "few": 78,
-            "hospital": 62,
-            "medical": 16,
-            "listed": 1,
-            "merger": 0,
-            "family": 0
-          },
-          "medicalNote": 4,
-          "sharedNote": 1,
-          "spikes": 1,
-          "medianRange": 60.5
-        },
-        "rankedEntries": 3720,
-        "spikes": 35,
-        "countFlags": {
-          "all": 7,
-          "violent": 3,
-          "criminal": 5,
-          "property": 3
-        }
+        "criminal": 8,
+        "violent": 7,
+        "property": 4,
+        "all": 13,
+        "aggravated_assault": 4,
+        "arson": 0,
+        "burglary": 1,
+        "dating_violence": 2,
+        "domestic_violence": 3,
+        "drug_arrest": 7,
+        "drug_discipline": 4,
+        "fondling": 3,
+        "incest": 0,
+        "liquor_arrest": 2,
+        "liquor_discipline": 2,
+        "motor_vehicle_theft": 3,
+        "murder": 0,
+        "negligent_manslaughter": 0,
+        "rape": 1,
+        "robbery": 0,
+        "stalking": 1,
+        "statutory_rape": 0,
+        "weapons_arrest": 0,
+        "weapons_discipline": 0
       },
       "2019": {
-        "listed": 2210,
-        "excluded": 103,
-        "excludedBy": {
-          "hospital": 73,
-          "medical": 22,
-          "listed": 1,
-          "merger": 7,
-          "family": 0
-        },
-        "fteUncertain": 95,
-        "abroad": 107,
-        "violent": {
-          "ranked": 95,
-          "few": 1204,
-          "notRanked": {
-            "online": 56,
-            "medical_campus": 4,
-            "shared": 17,
-            "few": 66,
-            "hospital": 64,
-            "medical": 13,
-            "listed": 1,
-            "merger": 3,
-            "family": 0
-          },
-          "medicalNote": 3,
-          "sharedNote": 0,
-          "spikes": 0,
-          "medianRange": 55
-        },
-        "criminal": {
-          "ranked": 348,
-          "few": 1317,
-          "notRanked": {
-            "online": 73,
-            "medical_campus": 4,
-            "shared": 16,
-            "few": 67,
-            "hospital": 69,
-            "medical": 18,
-            "listed": 1,
-            "merger": 4,
-            "family": 0
-          },
-          "medicalNote": 4,
-          "sharedNote": 1,
-          "spikes": 5,
-          "medianRange": 145.0
-        },
-        "property": {
-          "ranked": 117,
-          "few": 1243,
-          "notRanked": {
-            "online": 59,
-            "medical_campus": 5,
-            "shared": 13,
-            "few": 63,
-            "hospital": 67,
-            "medical": 16,
-            "listed": 1,
-            "merger": 4,
-            "family": 0
-          },
-          "medicalNote": 1,
-          "sharedNote": 1,
-          "spikes": 2,
-          "medianRange": 56
-        },
-        "rankedEntries": 3558,
-        "spikes": 50,
-        "countFlags": {
-          "all": 8,
-          "violent": 10,
-          "criminal": 8,
-          "property": 2
-        }
+        "criminal": 17,
+        "violent": 14,
+        "property": 3,
+        "all": 13,
+        "aggravated_assault": 12,
+        "arson": 1,
+        "burglary": 1,
+        "dating_violence": 2,
+        "domestic_violence": 2,
+        "drug_arrest": 8,
+        "drug_discipline": 2,
+        "fondling": 3,
+        "liquor_arrest": 2,
+        "liquor_discipline": 3,
+        "motor_vehicle_theft": 2,
+        "murder": 0,
+        "negligent_manslaughter": 0,
+        "rape": 0,
+        "robbery": 3,
+        "stalking": 4,
+        "statutory_rape": 0,
+        "weapons_arrest": 0,
+        "weapons_discipline": 0
       },
       "2020": {
-        "listed": 2154,
-        "excluded": 96,
-        "excludedBy": {
-          "hospital": 71,
-          "medical": 23,
-          "listed": 2,
-          "merger": 0,
-          "family": 0
-        },
-        "fteUncertain": 100,
-        "abroad": 104,
-        "violent": {
-          "ranked": 50,
-          "few": 1012,
-          "notRanked": {
-            "online": 50,
-            "medical_campus": 5,
-            "shared": 15,
-            "few": 62,
-            "hospital": 60,
-            "medical": 12,
-            "listed": 2,
-            "merger": 0,
-            "family": 0
-          },
-          "medicalNote": 1,
-          "sharedNote": 1,
-          "spikes": 2,
-          "medianRange": 21.0
-        },
-        "criminal": {
-          "ranked": 204,
-          "few": 1243,
-          "notRanked": {
-            "online": 74,
-            "medical_campus": 5,
-            "shared": 18,
-            "few": 75,
-            "hospital": 65,
-            "medical": 19,
-            "listed": 2,
-            "merger": 0,
-            "family": 0
-          },
-          "medicalNote": 2,
-          "sharedNote": 0,
-          "spikes": 3,
-          "medianRange": 82.0
-        },
-        "property": {
-          "ranked": 83,
-          "few": 1100,
-          "notRanked": {
-            "online": 59,
-            "medical_campus": 4,
-            "shared": 15,
-            "few": 66,
-            "hospital": 64,
-            "medical": 16,
-            "listed": 2,
-            "merger": 0,
-            "family": 0
-          },
-          "medicalNote": 3,
-          "sharedNote": 1,
-          "spikes": 0,
-          "medianRange": 41
-        },
-        "rankedEntries": 2549,
-        "spikes": 20,
-        "countFlags": {
-          "all": 2,
-          "violent": 3,
-          "criminal": 5,
-          "property": 3
-        }
+        "criminal": 15,
+        "violent": 14,
+        "property": 9,
+        "all": 11,
+        "aggravated_assault": 6,
+        "arson": 1,
+        "burglary": 3,
+        "dating_violence": 0,
+        "domestic_violence": 0,
+        "drug_arrest": 13,
+        "drug_discipline": 3,
+        "fondling": 4,
+        "incest": 0,
+        "liquor_arrest": 5,
+        "liquor_discipline": 2,
+        "motor_vehicle_theft": 4,
+        "murder": 0,
+        "negligent_manslaughter": 0,
+        "rape": 2,
+        "robbery": 1,
+        "stalking": 0,
+        "statutory_rape": 1,
+        "weapons_arrest": 0,
+        "weapons_discipline": 0
       },
       "2021": {
-        "listed": 2131,
-        "excluded": 100,
-        "excludedBy": {
-          "hospital": 73,
-          "medical": 23,
-          "listed": 1,
-          "merger": 3,
-          "family": 0
-        },
-        "fteUncertain": 89,
-        "abroad": 101,
-        "violent": {
-          "ranked": 74,
-          "few": 1050,
-          "notRanked": {
-            "online": 48,
-            "medical_campus": 5,
-            "shared": 16,
-            "few": 53,
-            "hospital": 64,
-            "medical": 14,
-            "listed": 1,
-            "merger": 0,
-            "family": 0
-          },
-          "medicalNote": 2,
-          "sharedNote": 0,
-          "spikes": 2,
-          "medianRange": 35.5
-        },
-        "criminal": {
-          "ranked": 245,
-          "few": 1239,
-          "notRanked": {
-            "online": 72,
-            "medical_campus": 5,
-            "shared": 16,
-            "few": 70,
-            "hospital": 67,
-            "medical": 20,
-            "listed": 1,
-            "merger": 0,
-            "family": 0
-          },
-          "medicalNote": 2,
-          "sharedNote": 0,
-          "spikes": 5,
-          "medianRange": 100
-        },
-        "property": {
-          "ranked": 104,
-          "few": 1097,
-          "notRanked": {
-            "online": 58,
-            "medical_campus": 5,
-            "shared": 15,
-            "few": 59,
-            "hospital": 66,
-            "medical": 19,
-            "listed": 1,
-            "merger": 0,
-            "family": 0
-          },
-          "medicalNote": 2,
-          "sharedNote": 0,
-          "spikes": 2,
-          "medianRange": 48.0
-        },
-        "rankedEntries": 2685,
-        "spikes": 30,
-        "countFlags": {
-          "all": 9,
-          "violent": 5,
-          "criminal": 11,
-          "property": 4
-        }
+        "criminal": 18,
+        "violent": 13,
+        "property": 7,
+        "all": 16,
+        "aggravated_assault": 8,
+        "arson": 0,
+        "burglary": 2,
+        "dating_violence": 0,
+        "domestic_violence": 1,
+        "drug_arrest": 8,
+        "drug_discipline": 1,
+        "fondling": 3,
+        "incest": 0,
+        "liquor_arrest": 4,
+        "liquor_discipline": 5,
+        "motor_vehicle_theft": 5,
+        "murder": 0,
+        "negligent_manslaughter": 0,
+        "rape": 1,
+        "robbery": 1,
+        "stalking": 0,
+        "statutory_rape": 0,
+        "weapons_arrest": 0,
+        "weapons_discipline": 0
       },
       "2022": {
-        "listed": 2041,
-        "excluded": 97,
-        "excludedBy": {
-          "hospital": 72,
-          "medical": 22,
-          "listed": 1,
-          "merger": 2,
-          "family": 0
-        },
-        "fteUncertain": 257,
-        "abroad": 96,
-        "violent": {
-          "ranked": 97,
-          "few": 967,
-          "notRanked": {
-            "online": 129,
-            "medical_campus": 4,
-            "shared": 17,
-            "few": 136,
-            "hospital": 64,
-            "medical": 12,
-            "listed": 1,
-            "merger": 1,
-            "family": 0
-          },
-          "medicalNote": 3,
-          "sharedNote": 0,
-          "spikes": 1,
-          "medianRange": 49
-        },
-        "criminal": {
-          "ranked": 283,
-          "few": 1071,
-          "notRanked": {
-            "online": 197,
-            "medical_campus": 4,
-            "shared": 20,
-            "few": 179,
-            "hospital": 68,
-            "medical": 16,
-            "listed": 1,
-            "merger": 1,
-            "family": 0
-          },
-          "medicalNote": 4,
-          "sharedNote": 1,
-          "spikes": 1,
-          "medianRange": 118
-        },
-        "property": {
-          "ranked": 120,
-          "few": 1005,
-          "notRanked": {
-            "online": 168,
-            "medical_campus": 4,
-            "shared": 19,
-            "few": 171,
-            "hospital": 64,
-            "medical": 15,
-            "listed": 1,
-            "merger": 1,
-            "family": 0
-          },
-          "medicalNote": 4,
-          "sharedNote": 0,
-          "spikes": 1,
-          "medianRange": 54.0
-        },
-        "rankedEntries": 2818,
-        "spikes": 18,
-        "countFlags": {
-          "all": 14,
-          "violent": 8,
-          "criminal": 13,
-          "property": 3
-        }
+        "criminal": 26,
+        "violent": 18,
+        "property": 8,
+        "all": 24,
+        "aggravated_assault": 10,
+        "arson": 0,
+        "burglary": 1,
+        "dating_violence": 1,
+        "domestic_violence": 3,
+        "drug_arrest": 8,
+        "drug_discipline": 3,
+        "fondling": 1,
+        "liquor_arrest": 3,
+        "liquor_discipline": 3,
+        "motor_vehicle_theft": 6,
+        "murder": 0,
+        "negligent_manslaughter": 0,
+        "rape": 1,
+        "robbery": 2,
+        "stalking": 2,
+        "statutory_rape": 1,
+        "weapons_arrest": 1,
+        "weapons_discipline": 1
       },
       "2023": {
-        "listed": 2058,
-        "excluded": 94,
-        "excludedBy": {
-          "hospital": 71,
-          "medical": 21,
-          "listed": 1,
-          "merger": 1,
-          "family": 0
-        },
-        "fteUncertain": 218,
-        "abroad": 96,
-        "violent": {
-          "ranked": 80,
-          "few": 1020,
-          "notRanked": {
-            "online": 115,
-            "medical_campus": 5,
-            "shared": 26,
-            "few": 130,
-            "hospital": 65,
-            "medical": 15,
-            "listed": 1,
-            "merger": 1,
-            "family": 0
-          },
-          "medicalNote": 1,
-          "sharedNote": 0,
-          "spikes": 3,
-          "medianRange": 43.5
-        },
-        "criminal": {
-          "ranked": 302,
-          "few": 1097,
-          "notRanked": {
-            "online": 167,
-            "medical_campus": 5,
-            "shared": 26,
-            "few": 161,
-            "hospital": 67,
-            "medical": 20,
-            "listed": 1,
-            "merger": 1,
-            "family": 0
-          },
-          "medicalNote": 2,
-          "sharedNote": 0,
-          "spikes": 5,
-          "medianRange": 131.5
-        },
-        "property": {
-          "ranked": 146,
-          "few": 1016,
-          "notRanked": {
-            "online": 138,
-            "medical_campus": 3,
-            "shared": 20,
-            "few": 142,
-            "hospital": 64,
-            "medical": 16,
-            "listed": 1,
-            "merger": 0,
-            "family": 0
-          },
-          "medicalNote": 2,
-          "sharedNote": 1,
-          "spikes": 3,
-          "medianRange": 63.5
-        },
-        "rankedEntries": 2860,
-        "spikes": 34,
-        "countFlags": {
-          "all": 12,
-          "violent": 3,
-          "criminal": 9,
-          "property": 10
-        }
+        "criminal": 27,
+        "violent": 13,
+        "property": 12,
+        "all": 31,
+        "aggravated_assault": 8,
+        "arson": 0,
+        "burglary": 0,
+        "dating_violence": 2,
+        "domestic_violence": 3,
+        "drug_arrest": 8,
+        "drug_discipline": 6,
+        "fondling": 2,
+        "incest": 0,
+        "liquor_arrest": 3,
+        "liquor_discipline": 5,
+        "motor_vehicle_theft": 9,
+        "murder": 0,
+        "negligent_manslaughter": 0,
+        "rape": 1,
+        "robbery": 1,
+        "stalking": 1,
+        "statutory_rape": 1,
+        "weapons_arrest": 2,
+        "weapons_discipline": 0
       },
       "2024": {
-        "listed": 2076,
-        "excluded": 94,
-        "excludedBy": {
-          "hospital": 72,
-          "medical": 21,
-          "listed": 1,
-          "merger": 0,
-          "family": 0
-        },
-        "fteUncertain": 221,
-        "abroad": 95,
-        "violent": {
-          "ranked": 79,
-          "few": 1000,
-          "notRanked": {
-            "online": 109,
-            "medical_campus": 3,
-            "shared": 19,
-            "few": 118,
-            "hospital": 62,
-            "medical": 13,
-            "listed": 1,
-            "merger": 0,
-            "family": 0
-          },
-          "medicalNote": 3,
-          "sharedNote": 0,
-          "spikes": 1,
-          "medianRange": 40
-        },
-        "criminal": {
-          "ranked": 293,
-          "few": 1088,
-          "notRanked": {
-            "online": 158,
-            "medical_campus": 4,
-            "shared": 23,
-            "few": 151,
-            "hospital": 65,
-            "medical": 16,
-            "listed": 1,
-            "merger": 0,
-            "family": 0
-          },
-          "medicalNote": 2,
-          "sharedNote": 0,
-          "spikes": 4,
-          "medianRange": 134
-        },
-        "property": {
-          "ranked": 152,
-          "few": 978,
-          "notRanked": {
-            "online": 126,
-            "medical_campus": 3,
-            "shared": 21,
-            "few": 133,
-            "hospital": 63,
-            "medical": 14,
-            "listed": 1,
-            "merger": 0,
-            "family": 0
-          },
-          "medicalNote": 3,
-          "sharedNote": 1,
-          "spikes": 7,
-          "medianRange": 69.0
-        },
-        "rankedEntries": 2839,
-        "spikes": 63,
-        "countFlags": {
-          "all": 11,
-          "violent": 6,
-          "criminal": 19,
-          "property": 7
-        }
+        "criminal": 23,
+        "violent": 10,
+        "property": 12,
+        "all": 21,
+        "aggravated_assault": 8,
+        "arson": 0,
+        "burglary": 2,
+        "dating_violence": 2,
+        "domestic_violence": 2,
+        "drug_arrest": 8,
+        "drug_discipline": 3,
+        "fondling": 3,
+        "incest": 0,
+        "liquor_arrest": 0,
+        "liquor_discipline": 2,
+        "motor_vehicle_theft": 11,
+        "murder": 0,
+        "negligent_manslaughter": 0,
+        "rape": 1,
+        "robbery": 1,
+        "stalking": 2,
+        "statutory_rape": 0,
+        "weapons_arrest": 0,
+        "weapons_discipline": 2
       }
     },
     "institutionYears": {
       "rules": {
         "hospital": {
           "institutionYears": 882,
-          "listed": 702
+          "withFte": 702
         },
         "medical": {
           "institutionYears": 335,
-          "listed": 210
+          "withFte": 210
         },
         "listed": {
-          "institutionYears": 15,
-          "listed": 14
+          "institutionYears": 25,
+          "withFte": 19
         },
         "merger": {
           "institutionYears": 30,
-          "listed": 23
+          "withFte": 23
         },
         "family": {
           "institutionYears": 57,
-          "listed": 1
+          "withFte": 1
         }
       },
       "pooled": {
@@ -949,356 +2640,105 @@
       },
       "byYear": {
         "2015": {
-          "listed": 2310,
-          "excluded": 89,
+          "withFte": 2306,
+          "excluded": 90,
+          "rated": 2216,
           "fteUncertain": 66,
-          "abroad": 96
+          "fteUncertainPooledOnly": 0,
+          "abroad": 97,
+          "outsideScopeWithFte": 4
         },
         "2016": {
-          "listed": 2276,
-          "excluded": 90,
+          "withFte": 2273,
+          "excluded": 91,
+          "rated": 2182,
           "fteUncertain": 72,
-          "abroad": 102
+          "fteUncertainPooledOnly": 0,
+          "abroad": 103,
+          "outsideScopeWithFte": 3
         },
         "2017": {
-          "listed": 2247,
-          "excluded": 96,
+          "withFte": 2243,
+          "excluded": 97,
+          "rated": 2146,
           "fteUncertain": 77,
-          "abroad": 108
+          "fteUncertainPooledOnly": 2,
+          "abroad": 109,
+          "outsideScopeWithFte": 4
         },
         "2018": {
-          "listed": 2224,
-          "excluded": 91,
+          "withFte": 2220,
+          "excluded": 92,
+          "rated": 2128,
           "fteUncertain": 93,
-          "abroad": 108
+          "fteUncertainPooledOnly": 0,
+          "abroad": 109,
+          "outsideScopeWithFte": 4
         },
         "2019": {
-          "listed": 2214,
+          "withFte": 2210,
           "excluded": 103,
+          "rated": 2107,
           "fteUncertain": 95,
-          "abroad": 107
+          "fteUncertainPooledOnly": 0,
+          "abroad": 108,
+          "outsideScopeWithFte": 4
         },
         "2020": {
-          "listed": 2158,
-          "excluded": 96,
+          "withFte": 2154,
+          "excluded": 97,
+          "rated": 0,
           "fteUncertain": 100,
-          "abroad": 104
+          "fteUncertainPooledOnly": 2,
+          "abroad": 105,
+          "outsideScopeWithFte": 4
         },
         "2021": {
-          "listed": 2135,
+          "withFte": 2131,
           "excluded": 100,
+          "rated": 2031,
           "fteUncertain": 89,
-          "abroad": 101
+          "fteUncertainPooledOnly": 0,
+          "abroad": 102,
+          "outsideScopeWithFte": 4
         },
         "2022": {
-          "listed": 2045,
+          "withFte": 2041,
           "excluded": 97,
+          "rated": 1944,
           "fteUncertain": 257,
-          "abroad": 96
+          "fteUncertainPooledOnly": 1,
+          "abroad": 97,
+          "outsideScopeWithFte": 4
         },
         "2023": {
-          "listed": 2061,
+          "withFte": 2058,
           "excluded": 94,
+          "rated": 1964,
           "fteUncertain": 218,
-          "abroad": 96
+          "fteUncertainPooledOnly": 1,
+          "abroad": 97,
+          "outsideScopeWithFte": 3
         },
         "2024": {
-          "listed": 2078,
+          "withFte": 2076,
           "excluded": 94,
+          "rated": 1982,
           "fteUncertain": 221,
-          "abroad": 95
+          "fteUncertainPooledOnly": 1,
+          "abroad": 97,
+          "outsideScopeWithFte": 2
         }
       },
       "onlineOwnYear": {
         "2020": {
           "all": 66,
-          "listed": 1
+          "withFte": 1
         },
         "2021": {
           "all": 102,
-          "listed": 2
+          "withFte": 2
         }
-      }
-    },
-    "countsOnly": {
-      "averagePerYear": {
-        "aggravated_assault": 4173.7,
-        "arson": 653.8,
-        "burglary": 9780.9,
-        "dating_violence": 4241.1,
-        "domestic_violence": 4287.6,
-        "drug_arrest": 17898.4,
-        "drug_discipline": 40627.8,
-        "fondling": 4868.1,
-        "incest": 2.5,
-        "liquor_arrest": 14422.7,
-        "liquor_discipline": 127820.2,
-        "motor_vehicle_theft": 7576.7,
-        "murder": 48.6,
-        "negligent_manslaughter": 6.1,
-        "rape": 6609.4,
-        "robbery": 2213.4,
-        "stalking": 7539.2,
-        "statutory_rape": 78.7,
-        "weapons_arrest": 2008.4,
-        "weapons_discipline": 1286.6
-      },
-      "reachingMinCount": {
-        "arson": 4,
-        "incest": 0,
-        "murder": 0,
-        "negligent_manslaughter": 0,
-        "statutory_rape": 3
-      }
-    },
-    "intervalExamples": {
-      "criminal": {
-        "0": [
-          0.0,
-          3.69
-        ],
-        "20": [
-          9.16,
-          37.91
-        ]
-      },
-      "violent": {
-        "0": [
-          0.0,
-          3.69
-        ],
-        "20": [
-          8.63,
-          39.43
-        ]
-      },
-      "property": {
-        "0": [
-          0.0,
-          3.69
-        ],
-        "20": [
-          8.53,
-          39.73
-        ]
-      },
-      "all": {
-        "0": [
-          0.0,
-          3.69
-        ],
-        "20": [
-          8.65,
-          39.37
-        ]
-      }
-    },
-    "countFlagLimits": {
-      "2015": {
-        "aggravated_assault": 126.65,
-        "all": 5529.12,
-        "burglary": 191.14,
-        "criminal": 326.09,
-        "dating_violence": 73.95,
-        "domestic_violence": 165.11,
-        "drug_arrest": 663.8,
-        "drug_discipline": 1806.63,
-        "fondling": 15.93,
-        "liquor_arrest": 452.49,
-        "liquor_discipline": 4618.54,
-        "motor_vehicle_theft": 147.76,
-        "property": 247.58,
-        "rape": 82.94,
-        "robbery": 29.21,
-        "stalking": 50.37,
-        "violent": 126.65,
-        "weapons_arrest": 272.07,
-        "weapons_discipline": 66.46
-      },
-      "2016": {
-        "aggravated_assault": 76.44,
-        "all": 3664.5,
-        "burglary": 294.81,
-        "criminal": 341.75,
-        "dating_violence": 264.66,
-        "domestic_violence": 57.09,
-        "drug_arrest": 299.63,
-        "drug_discipline": 1180.26,
-        "fondling": 171.84,
-        "liquor_arrest": 505.2,
-        "liquor_discipline": 2719.87,
-        "motor_vehicle_theft": 44.68,
-        "property": 306.6,
-        "rape": 250.36,
-        "robbery": 43.71,
-        "stalking": 156.35,
-        "violent": 250.36,
-        "weapons_arrest": 7.93,
-        "weapons_discipline": 68.91
-      },
-      "2017": {
-        "aggravated_assault": 236.29,
-        "all": 2962.14,
-        "burglary": 215.56,
-        "criminal": 558.66,
-        "dating_violence": 370.11,
-        "domestic_violence": 90.28,
-        "drug_arrest": 359.39,
-        "drug_discipline": 1061.45,
-        "fondling": 140.43,
-        "liquor_arrest": 852.8,
-        "liquor_discipline": 2183.54,
-        "motor_vehicle_theft": 176.83,
-        "property": 220.24,
-        "rape": 405.03,
-        "robbery": 36.09,
-        "stalking": 154.02,
-        "violent": 405.03,
-        "weapons_arrest": 115.27,
-        "weapons_discipline": 92.12
-      },
-      "2018": {
-        "aggravated_assault": 11.78,
-        "all": 2948.86,
-        "burglary": 168.31,
-        "criminal": 393.43,
-        "dating_violence": 98.13,
-        "domestic_violence": 76.91,
-        "drug_arrest": 342.13,
-        "drug_discipline": 954.86,
-        "fondling": 355.8,
-        "liquor_arrest": 1197.48,
-        "liquor_discipline": 2447.92,
-        "motor_vehicle_theft": 27.39,
-        "property": 168.31,
-        "rape": 221.99,
-        "robbery": 16.72,
-        "stalking": 62.39,
-        "violent": 222.02,
-        "weapons_arrest": 14.7,
-        "weapons_discipline": 57.08
-      },
-      "2019": {
-        "aggravated_assault": 92.08,
-        "all": 2397.66,
-        "burglary": 158.73,
-        "criminal": 374.22,
-        "dating_violence": 142.12,
-        "domestic_violence": 124.48,
-        "drug_arrest": 281.2,
-        "drug_discipline": 892.02,
-        "fondling": 244.79,
-        "liquor_arrest": 1182.97,
-        "liquor_discipline": 1700.79,
-        "motor_vehicle_theft": 50.86,
-        "property": 174.48,
-        "rape": 50.48,
-        "robbery": 11.75,
-        "stalking": 152.46,
-        "violent": 173.25,
-        "weapons_arrest": 34.76
-      },
-      "2020": {
-        "aggravated_assault": 297.03,
-        "all": 2752.48,
-        "burglary": 184.37,
-        "criminal": 653.47,
-        "dating_violence": 37.11,
-        "domestic_violence": 46.37,
-        "drug_arrest": 1940.59,
-        "drug_discipline": 748.09,
-        "fondling": 100.72,
-        "liquor_arrest": 492.96,
-        "liquor_discipline": 1752.99,
-        "motor_vehicle_theft": 25.11,
-        "property": 222.79,
-        "rape": 351.0,
-        "robbery": 18.39,
-        "stalking": 29.63,
-        "violent": 514.85,
-        "weapons_arrest": 9.37
-      },
-      "2021": {
-        "aggravated_assault": 240.55,
-        "all": 1987.18,
-        "burglary": 169.38,
-        "criminal": 419.92,
-        "dating_violence": 50.62,
-        "domestic_violence": 36.17,
-        "drug_arrest": 411.08,
-        "drug_discipline": 566.41,
-        "fondling": 101.62,
-        "liquor_arrest": 344.48,
-        "liquor_discipline": 1369.08,
-        "motor_vehicle_theft": 111.35,
-        "property": 260.59,
-        "rape": 83.21,
-        "robbery": 12.27,
-        "stalking": 93.72,
-        "violent": 335.05,
-        "weapons_arrest": 56.59
-      },
-      "2022": {
-        "aggravated_assault": 224.72,
-        "all": 1920.96,
-        "burglary": 261.19,
-        "criminal": 470.45,
-        "dating_violence": 131.58,
-        "domestic_violence": 61.03,
-        "drug_arrest": 267.93,
-        "drug_discipline": 677.75,
-        "fondling": 108.29,
-        "liquor_arrest": 241.31,
-        "liquor_discipline": 1397.19,
-        "motor_vehicle_theft": 381.99,
-        "property": 402.09,
-        "rape": 137.84,
-        "robbery": 33.84,
-        "stalking": 71.7,
-        "violent": 328.44,
-        "weapons_arrest": 195.47,
-        "weapons_discipline": 54.1
-      },
-      "2023": {
-        "aggravated_assault": 111.3,
-        "all": 3505.9,
-        "burglary": 116.17,
-        "criminal": 1189.83,
-        "dating_violence": 953.68,
-        "domestic_violence": 489.35,
-        "drug_arrest": 407.98,
-        "drug_discipline": 652.77,
-        "fondling": 25.87,
-        "liquor_arrest": 280.52,
-        "liquor_discipline": 1836.55,
-        "motor_vehicle_theft": 273.29,
-        "property": 323.33,
-        "rape": 1035.42,
-        "robbery": 44.26,
-        "stalking": 94.51,
-        "violent": 1108.08,
-        "weapons_arrest": 15.73
-      },
-      "2024": {
-        "aggravated_assault": 140.61,
-        "all": 2476.68,
-        "burglary": 112.49,
-        "criminal": 315.08,
-        "dating_violence": 131.0,
-        "domestic_violence": 160.77,
-        "drug_arrest": 363.29,
-        "drug_discipline": 797.29,
-        "fondling": 30.61,
-        "liquor_arrest": 198.49,
-        "liquor_discipline": 1492.09,
-        "motor_vehicle_theft": 232.14,
-        "property": 285.71,
-        "rape": 49.42,
-        "robbery": 13.73,
-        "stalking": 125.62,
-        "violent": 168.73,
-        "weapons_arrest": 9.94,
-        "weapons_discipline": 712.47
       }
     }
   },
@@ -2981,7 +4421,7 @@
       "schoolCount": 20
     }
   ],
-  "lastUpdated": "2026-11-14T22:42:34.822615",
+  "lastUpdated": "2026-11-15T01:48:56.963373",
   "dataSource": "U.S. Department of Education Campus Safety & Security",
   "dataSourceUrl": "https://ope.ed.gov/campussafety/",
   "coverage": "2015-2024",

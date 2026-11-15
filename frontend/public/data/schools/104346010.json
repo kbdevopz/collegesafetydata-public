@@ -71,14 +71,20 @@
   ],
   "institution": {
     "id": 104346,
+    "ratesFile": "rates/institutions/104346.json",
     "byYear": {
       "2015": {
         "campuses": 8,
         "online": 21,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2812,
-        "spikes": [
-          "liquor_discipline"
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "On-campus",
+            "count": 12,
+            "usual": 1
+          }
         ],
         "counts": {
           "criminal": 13,
@@ -96,8 +102,16 @@
       "2016": {
         "campuses": 8,
         "online": 21,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2701,
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "On-campus",
+            "count": 10,
+            "usual": 1
+          }
+        ],
         "counts": {
           "criminal": 18,
           "violent": 3,
@@ -120,7 +134,7 @@
       "2017": {
         "campuses": 8,
         "online": 22,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2620,
         "counts": {
           "criminal": 4,
@@ -139,7 +153,7 @@
       "2018": {
         "campuses": 8,
         "online": 21,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2476,
         "counts": {
           "criminal": 8,
@@ -161,7 +175,7 @@
       "2019": {
         "campuses": 8,
         "online": 8,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2514,
         "counts": {
           "criminal": 5,
@@ -182,7 +196,8 @@
       "2020": {
         "campuses": 8,
         "online": 8,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 2044,
         "counts": {
@@ -200,7 +215,7 @@
       "2021": {
         "campuses": 8,
         "online": 8,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 2179,
         "counts": {

@@ -60,15 +60,17 @@
   ],
   "institution": {
     "id": 139755,
+    "ratesFile": "rates/institutions/139755.json",
     "byYear": {
       "2019": {
         "campuses": 2,
         "online": 37,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 21427,
         "fteUncertain": {
           "share": 16597,
-          "partTimeFirst": 21427
+          "partTimeFirst": 21427,
+          "reason": "own"
         },
         "abroad": {
           "campuses": 2,
@@ -101,12 +103,14 @@
       "2020": {
         "campuses": 2,
         "online": 37,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 22421,
         "fteUncertain": {
           "share": 17521,
-          "partTimeFirst": 22421
+          "partTimeFirst": 22421,
+          "reason": "own"
         },
         "abroad": {
           "campuses": 2,
@@ -135,12 +139,13 @@
       "2021": {
         "campuses": 2,
         "online": 37,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 24420,
         "fteUncertain": {
           "share": 19126,
-          "partTimeFirst": 24420
+          "partTimeFirst": 24420,
+          "reason": "own"
         },
         "abroad": {
           "campuses": 2,
@@ -171,16 +176,25 @@
       "2022": {
         "campuses": 2,
         "online": 43,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 24680,
         "fteUncertain": {
           "share": 18091,
-          "partTimeFirst": 24680
+          "partTimeFirst": 24680,
+          "reason": "own"
         },
         "abroad": {
           "campuses": 2,
           "counts": {}
         },
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 60,
+            "usual": 20
+          }
+        ],
         "counts": {
           "criminal": 113,
           "violent": 15,
@@ -205,16 +219,25 @@
       "2023": {
         "campuses": 2,
         "online": 44,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 25868,
         "fteUncertain": {
           "share": 18766,
-          "partTimeFirst": 25868
+          "partTimeFirst": 25868,
+          "reason": "own"
         },
         "abroad": {
           "campuses": 2,
           "counts": {}
         },
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 103,
+            "usual": 20
+          }
+        ],
         "counts": {
           "criminal": 150,
           "violent": 7,
@@ -241,16 +264,25 @@
       "2024": {
         "campuses": 2,
         "online": 47,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 27010,
         "fteUncertain": {
           "share": 19214,
-          "partTimeFirst": 27010
+          "partTimeFirst": 27010,
+          "reason": "own"
         },
         "abroad": {
           "campuses": 2,
           "counts": {}
         },
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 98,
+            "usual": 20
+          }
+        ],
         "counts": {
           "criminal": 158,
           "violent": 15,

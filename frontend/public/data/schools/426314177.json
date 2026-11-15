@@ -56,16 +56,19 @@
   ],
   "institution": {
     "id": 426314,
+    "ratesFile": "rates/institutions/426314.json",
     "byYear": {
       "2020": {
         "campuses": 86,
         "online": 82,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 2503,
         "fteUncertain": {
           "share": 1502,
-          "partTimeFirst": 2503
+          "partTimeFirst": 2503,
+          "reason": "own"
         },
         "abroad": {
           "campuses": 24,
@@ -75,12 +78,13 @@
       "2021": {
         "campuses": 87,
         "online": 82,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 2290,
         "fteUncertain": {
           "share": 1331,
-          "partTimeFirst": 2290
+          "partTimeFirst": 2290,
+          "reason": "own"
         },
         "abroad": {
           "campuses": 24,
@@ -90,11 +94,13 @@
       "2022": {
         "campuses": 87,
         "online": 91,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 980,
         "fteUncertain": {
           "share": 627,
-          "partTimeFirst": 980
+          "partTimeFirst": 980,
+          "reason": "own"
         },
         "abroad": {
           "campuses": 24,
@@ -108,11 +114,13 @@
       "2023": {
         "campuses": 77,
         "online": 92,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 917,
         "fteUncertain": {
           "share": 588,
-          "partTimeFirst": 917
+          "partTimeFirst": 917,
+          "reason": "own"
         },
         "abroad": {
           "campuses": 24,
@@ -136,11 +144,12 @@
       "2024": {
         "campuses": 74,
         "online": 92,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1050,
         "fteUncertain": {
           "share": 626,
-          "partTimeFirst": 1050
+          "partTimeFirst": 1050,
+          "reason": "own"
         },
         "abroad": {
           "campuses": 25,

@@ -48,11 +48,12 @@
   ],
   "institution": {
     "id": 206048,
+    "ratesFile": "rates/institutions/206048.json",
     "byYear": {
       "2015": {
         "campuses": 7,
         "online": 29,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2144,
         "counts": {
           "criminal": 17,
@@ -73,11 +74,12 @@
       "2016": {
         "campuses": 5,
         "online": 41,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1904,
         "fteUncertain": {
           "share": 1437,
-          "partTimeFirst": 1904
+          "partTimeFirst": 1904,
+          "reason": "own"
         },
         "counts": {
           "criminal": 5,
@@ -96,40 +98,8 @@
       "2017": {
         "campuses": 7,
         "online": 26,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2064,
-        "sharedOut": {
-          "criminal": 2,
-          "all": 9,
-          "domestic_violence": 1,
-          "drug_arrest": 4,
-          "fondling": 2,
-          "liquor_discipline": 1,
-          "weapons_discipline": 1
-        },
-        "notRanked": {
-          "criminal": [
-            "shared"
-          ],
-          "all": [
-            "shared"
-          ],
-          "domestic_violence": [
-            "shared"
-          ],
-          "drug_arrest": [
-            "shared"
-          ],
-          "fondling": [
-            "shared"
-          ],
-          "liquor_discipline": [
-            "shared"
-          ],
-          "weapons_discipline": [
-            "shared"
-          ]
-        },
         "counts": {
           "criminal": 19,
           "violent": 7,

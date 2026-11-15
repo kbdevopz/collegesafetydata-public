@@ -74,14 +74,20 @@
   "breakdownByGeo": [],
   "institution": {
     "id": 130794,
+    "ratesFile": "rates/institutions/130794.json",
     "byYear": {
       "2015": {
         "campuses": 2,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 12302,
-        "spikes": [
-          "liquor_discipline"
+        "flags": [
+          {
+            "offense": "robbery",
+            "geo": "On-campus",
+            "count": 10,
+            "usual": 1
+          }
         ],
         "counts": {
           "criminal": 152,
@@ -108,7 +114,7 @@
       "2016": {
         "campuses": 2,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 12388,
         "counts": {
           "criminal": 113,
@@ -135,7 +141,7 @@
       "2017": {
         "campuses": 2,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 12915,
         "counts": {
           "criminal": 108,
@@ -161,7 +167,7 @@
       "2018": {
         "campuses": 2,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 13353,
         "counts": {
           "criminal": 123,
@@ -188,7 +194,7 @@
       "2019": {
         "campuses": 2,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 13522,
         "counts": {
           "criminal": 124,
@@ -214,7 +220,8 @@
       "2020": {
         "campuses": 2,
         "online": 0,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 11964,
         "counts": {
@@ -240,7 +247,7 @@
       "2021": {
         "campuses": 2,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 14439,
         "counts": {
@@ -265,7 +272,7 @@
       "2022": {
         "campuses": 2,
         "online": 1,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 14598,
         "counts": {
           "criminal": 135,
@@ -292,10 +299,39 @@
       "2023": {
         "campuses": 2,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 14941,
-        "spikes": [
-          "dating_violence"
+        "flags": [
+          {
+            "offense": "dating_violence",
+            "geo": "On-campus",
+            "count": 48,
+            "usual": 11
+          },
+          {
+            "offense": "domestic_violence",
+            "geo": "Non-campus",
+            "count": 12,
+            "usual": 0
+          },
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 53,
+            "usual": 6
+          },
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "Non-campus",
+            "count": 56,
+            "usual": 1
+          },
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "Public property",
+            "count": 60,
+            "usual": 13
+          }
         ],
         "counts": {
           "criminal": 341,
@@ -323,8 +359,34 @@
       "2024": {
         "campuses": 2,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 15291,
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 35,
+            "usual": 6
+          },
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "Non-campus",
+            "count": 48,
+            "usual": 1
+          },
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "Public property",
+            "count": 66,
+            "usual": 13
+          },
+          {
+            "offense": "stalking",
+            "geo": "On-campus",
+            "count": 48,
+            "usual": 16
+          }
+        ],
         "counts": {
           "criminal": 287,
           "violent": 63,

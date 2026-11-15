@@ -782,12 +782,21 @@
   ],
   "institution": {
     "id": 167899,
+    "ratesFile": "rates/institutions/167899.json",
     "byYear": {
       "2015": {
         "campuses": 10,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 3087,
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "On-campus",
+            "count": 18,
+            "usual": 4
+          }
+        ],
         "counts": {
           "criminal": 37,
           "violent": 12,
@@ -814,7 +823,7 @@
       "2016": {
         "campuses": 10,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 3012,
         "counts": {
           "criminal": 36,
@@ -841,51 +850,52 @@
       "2017": {
         "campuses": 5,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 3091
       },
       "2018": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2998
       },
       "2019": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2984
       },
       "2020": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 2937
       },
       "2021": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 2835
       },
       "2022": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2797
       },
       "2023": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2668
       },
       "2024": {
         "campuses": 1,
         "online": 1,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2482
       }
     }

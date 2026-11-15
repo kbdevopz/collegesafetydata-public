@@ -65,15 +65,17 @@
   ],
   "institution": {
     "id": 123961,
+    "ratesFile": "rates/institutions/123961.json",
     "byYear": {
       "2015": {
-        "campuses": 10,
+        "campuses": 9,
         "online": 11,
-        "rateRanked": false,
-        "rateExcludedReason": "IPEDS reports that this institution has a hospital (institutional characteristics, 2015). Patients, visitors and hospital staff are on its campus but not in its FTE, so a rate per student would not measure its campus population. It is left out of rate rankings; its counts are shown.",
+        "rated": false,
+        "notRated": "excluded",
+        "rateExcludedReason": "IPEDS reports that this institution has a hospital (institutional characteristics, 2015). Patients, visitors and hospital staff are on its campus but not in its FTE, so a rate per student would not measure its campus population. It has no rate; its counts are shown.",
         "rateFte": 37808,
         "abroad": {
-          "campuses": 2,
+          "campuses": 3,
           "counts": {
             "criminal": 3,
             "violent": 1,
@@ -109,13 +111,14 @@
         }
       },
       "2016": {
-        "campuses": 10,
+        "campuses": 9,
         "online": 12,
-        "rateRanked": false,
-        "rateExcludedReason": "IPEDS reports that this institution has a hospital (institutional characteristics, 2016). Patients, visitors and hospital staff are on its campus but not in its FTE, so a rate per student would not measure its campus population. It is left out of rate rankings; its counts are shown.",
+        "rated": false,
+        "notRated": "excluded",
+        "rateExcludedReason": "IPEDS reports that this institution has a hospital (institutional characteristics, 2016). Patients, visitors and hospital staff are on its campus but not in its FTE, so a rate per student would not measure its campus population. It has no rate; its counts are shown.",
         "rateFte": 38171,
         "abroad": {
-          "campuses": 2,
+          "campuses": 3,
           "counts": {}
         },
         "counts": {
@@ -142,13 +145,14 @@
         }
       },
       "2017": {
-        "campuses": 10,
+        "campuses": 9,
         "online": 13,
-        "rateRanked": false,
-        "rateExcludedReason": "IPEDS reports that this institution has a hospital (institutional characteristics, 2017). Patients, visitors and hospital staff are on its campus but not in its FTE, so a rate per student would not measure its campus population. It is left out of rate rankings; its counts are shown.",
+        "rated": false,
+        "notRated": "excluded",
+        "rateExcludedReason": "IPEDS reports that this institution has a hospital (institutional characteristics, 2017). Patients, visitors and hospital staff are on its campus but not in its FTE, so a rate per student would not measure its campus population. It has no rate; its counts are shown.",
         "rateFte": 39460,
         "abroad": {
-          "campuses": 2,
+          "campuses": 3,
           "counts": {}
         },
         "counts": {
@@ -173,17 +177,23 @@
         }
       },
       "2018": {
-        "campuses": 10,
+        "campuses": 9,
         "online": 14,
-        "rateRanked": false,
-        "rateExcludedReason": "IPEDS reports that this institution has a hospital (institutional characteristics, 2018). Patients, visitors and hospital staff are on its campus but not in its FTE, so a rate per student would not measure its campus population. It is left out of rate rankings; its counts are shown.",
+        "rated": false,
+        "notRated": "excluded",
+        "rateExcludedReason": "IPEDS reports that this institution has a hospital (institutional characteristics, 2018). Patients, visitors and hospital staff are on its campus but not in its FTE, so a rate per student would not measure its campus population. It has no rate; its counts are shown.",
         "rateFte": 40687,
         "abroad": {
-          "campuses": 2,
+          "campuses": 3,
           "counts": {}
         },
-        "spikes": [
-          "rape"
+        "flags": [
+          {
+            "offense": "rape",
+            "geo": "On-campus",
+            "count": 114,
+            "usual": 17
+          }
         ],
         "counts": {
           "criminal": 240,

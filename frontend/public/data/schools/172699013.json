@@ -97,12 +97,21 @@
   ],
   "institution": {
     "id": 172699,
+    "ratesFile": "rates/institutions/172699.json",
     "byYear": {
       "2015": {
         "campuses": 11,
         "online": 4,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 18838,
+        "flags": [
+          {
+            "offense": "dating_violence",
+            "geo": "On-campus",
+            "count": 15,
+            "usual": 0
+          }
+        ],
         "counts": {
           "criminal": 54,
           "violent": 25,
@@ -129,8 +138,16 @@
       "2016": {
         "campuses": 11,
         "online": 5,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 18436,
+        "flags": [
+          {
+            "offense": "dating_violence",
+            "geo": "On-campus",
+            "count": 14,
+            "usual": 0
+          }
+        ],
         "counts": {
           "criminal": 63,
           "violent": 33,
@@ -158,7 +175,7 @@
       "2017": {
         "campuses": 9,
         "online": 5,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 18281,
         "counts": {
           "criminal": 69,
@@ -186,7 +203,7 @@
       "2018": {
         "campuses": 8,
         "online": 5,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 18081,
         "counts": {
           "criminal": 32,
@@ -210,7 +227,7 @@
       "2019": {
         "campuses": 8,
         "online": 6,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 17283,
         "counts": {
           "criminal": 59,
@@ -234,7 +251,8 @@
       "2020": {
         "campuses": 8,
         "online": 6,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 15923,
         "abroad": {
@@ -262,7 +280,7 @@
       "2021": {
         "campuses": 8,
         "online": 6,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 14915,
         "abroad": {

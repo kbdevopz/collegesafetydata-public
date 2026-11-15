@@ -81,11 +81,12 @@
   "breakdownByGeo": [],
   "institution": {
     "id": 146719,
+    "ratesFile": "rates/institutions/146719.json",
     "byYear": {
       "2015": {
         "campuses": 5,
         "online": 6,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 14398,
         "abroad": {
           "campuses": 1,
@@ -95,20 +96,6 @@
             "all": 2,
             "rape": 2
           }
-        },
-        "medical": {
-          "criminal": 2,
-          "property": 2,
-          "all": 2,
-          "motor_vehicle_theft": 2
-        },
-        "notRanked": {
-          "property": [
-            "medical_campus"
-          ],
-          "motor_vehicle_theft": [
-            "medical_campus"
-          ]
         },
         "counts": {
           "criminal": 19,
@@ -134,7 +121,7 @@
       "2016": {
         "campuses": 5,
         "online": 6,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 14730,
         "abroad": {
           "campuses": 1,
@@ -166,7 +153,7 @@
       "2017": {
         "campuses": 5,
         "online": 6,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 15014,
         "abroad": {
           "campuses": 3,
@@ -201,15 +188,11 @@
       "2018": {
         "campuses": 5,
         "online": 7,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 15313,
         "abroad": {
           "campuses": 2,
           "counts": {}
-        },
-        "medical": {
-          "all": 2,
-          "stalking": 2
         },
         "counts": {
           "criminal": 42,
@@ -233,7 +216,7 @@
       "2019": {
         "campuses": 5,
         "online": 7,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 15566,
         "abroad": {
           "campuses": 2,
@@ -241,23 +224,6 @@
             "all": 2,
             "drug_discipline": 2
           }
-        },
-        "medical": {
-          "criminal": 5,
-          "violent": 5,
-          "all": 10,
-          "aggravated_assault": 4,
-          "domestic_violence": 3,
-          "robbery": 1,
-          "stalking": 2
-        },
-        "notRanked": {
-          "aggravated_assault": [
-            "medical_campus"
-          ],
-          "domestic_violence": [
-            "medical_campus"
-          ]
         },
         "counts": {
           "criminal": 44,
@@ -281,7 +247,8 @@
       "2020": {
         "campuses": 5,
         "online": 7,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 15245,
         "abroad": {
@@ -309,7 +276,7 @@
       "2021": {
         "campuses": 5,
         "online": 7,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 15722,
         "abroad": {
@@ -336,7 +303,7 @@
       "2022": {
         "campuses": 5,
         "online": 13,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 14509,
         "abroad": {
           "campuses": 2,
@@ -346,13 +313,6 @@
             "all": 1,
             "rape": 1
           }
-        },
-        "medical": {
-          "criminal": 2,
-          "property": 1,
-          "all": 2,
-          "fondling": 1,
-          "motor_vehicle_theft": 1
         },
         "counts": {
           "criminal": 37,
@@ -375,17 +335,11 @@
       "2023": {
         "campuses": 5,
         "online": 8,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 15397,
         "abroad": {
           "campuses": 1,
           "counts": {}
-        },
-        "medical": {
-          "criminal": 1,
-          "property": 1,
-          "all": 1,
-          "motor_vehicle_theft": 1
         },
         "counts": {
           "criminal": 33,
@@ -409,7 +363,7 @@
       "2024": {
         "campuses": 5,
         "online": 8,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 15383,
         "abroad": {
           "campuses": 1,

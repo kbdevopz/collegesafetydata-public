@@ -669,15 +669,17 @@
   ],
   "institution": {
     "id": 123961,
+    "ratesFile": "rates/institutions/123961.json",
     "byYear": {
       "2015": {
-        "campuses": 10,
+        "campuses": 9,
         "online": 11,
-        "rateRanked": false,
-        "rateExcludedReason": "IPEDS reports that this institution has a hospital (institutional characteristics, 2015). Patients, visitors and hospital staff are on its campus but not in its FTE, so a rate per student would not measure its campus population. It is left out of rate rankings; its counts are shown.",
+        "rated": false,
+        "notRated": "excluded",
+        "rateExcludedReason": "IPEDS reports that this institution has a hospital (institutional characteristics, 2015). Patients, visitors and hospital staff are on its campus but not in its FTE, so a rate per student would not measure its campus population. It has no rate; its counts are shown.",
         "rateFte": 37808,
         "abroad": {
-          "campuses": 2,
+          "campuses": 3,
           "counts": {
             "criminal": 3,
             "violent": 1,
@@ -713,13 +715,14 @@
         }
       },
       "2016": {
-        "campuses": 10,
+        "campuses": 9,
         "online": 12,
-        "rateRanked": false,
-        "rateExcludedReason": "IPEDS reports that this institution has a hospital (institutional characteristics, 2016). Patients, visitors and hospital staff are on its campus but not in its FTE, so a rate per student would not measure its campus population. It is left out of rate rankings; its counts are shown.",
+        "rated": false,
+        "notRated": "excluded",
+        "rateExcludedReason": "IPEDS reports that this institution has a hospital (institutional characteristics, 2016). Patients, visitors and hospital staff are on its campus but not in its FTE, so a rate per student would not measure its campus population. It has no rate; its counts are shown.",
         "rateFte": 38171,
         "abroad": {
-          "campuses": 2,
+          "campuses": 3,
           "counts": {}
         },
         "counts": {
@@ -746,13 +749,14 @@
         }
       },
       "2017": {
-        "campuses": 10,
+        "campuses": 9,
         "online": 13,
-        "rateRanked": false,
-        "rateExcludedReason": "IPEDS reports that this institution has a hospital (institutional characteristics, 2017). Patients, visitors and hospital staff are on its campus but not in its FTE, so a rate per student would not measure its campus population. It is left out of rate rankings; its counts are shown.",
+        "rated": false,
+        "notRated": "excluded",
+        "rateExcludedReason": "IPEDS reports that this institution has a hospital (institutional characteristics, 2017). Patients, visitors and hospital staff are on its campus but not in its FTE, so a rate per student would not measure its campus population. It has no rate; its counts are shown.",
         "rateFte": 39460,
         "abroad": {
-          "campuses": 2,
+          "campuses": 3,
           "counts": {}
         },
         "counts": {
@@ -777,17 +781,23 @@
         }
       },
       "2018": {
-        "campuses": 10,
+        "campuses": 9,
         "online": 14,
-        "rateRanked": false,
-        "rateExcludedReason": "IPEDS reports that this institution has a hospital (institutional characteristics, 2018). Patients, visitors and hospital staff are on its campus but not in its FTE, so a rate per student would not measure its campus population. It is left out of rate rankings; its counts are shown.",
+        "rated": false,
+        "notRated": "excluded",
+        "rateExcludedReason": "IPEDS reports that this institution has a hospital (institutional characteristics, 2018). Patients, visitors and hospital staff are on its campus but not in its FTE, so a rate per student would not measure its campus population. It has no rate; its counts are shown.",
         "rateFte": 40687,
         "abroad": {
-          "campuses": 2,
+          "campuses": 3,
           "counts": {}
         },
-        "spikes": [
-          "rape"
+        "flags": [
+          {
+            "offense": "rape",
+            "geo": "On-campus",
+            "count": 114,
+            "usual": 17
+          }
         ],
         "counts": {
           "criminal": 240,
@@ -814,8 +824,9 @@
       "2019": {
         "campuses": 9,
         "online": 14,
-        "rateRanked": false,
-        "rateExcludedReason": "IPEDS reports that this institution has a hospital (institutional characteristics, 2019). Patients, visitors and hospital staff are on its campus but not in its FTE, so a rate per student would not measure its campus population. It is left out of rate rankings; its counts are shown.",
+        "rated": false,
+        "notRated": "excluded",
+        "rateExcludedReason": "IPEDS reports that this institution has a hospital (institutional characteristics, 2019). Patients, visitors and hospital staff are on its campus but not in its FTE, so a rate per student would not measure its campus population. It has no rate; its counts are shown.",
         "rateFte": 41520,
         "counts": {
           "criminal": 233,
@@ -843,9 +854,10 @@
       "2020": {
         "campuses": 9,
         "online": 14,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "excluded",
         "onlineYear": 2019,
-        "rateExcludedReason": "IPEDS reports that this institution has a hospital (institutional characteristics, 2020). Patients, visitors and hospital staff are on its campus but not in its FTE, so a rate per student would not measure its campus population. It is left out of rate rankings; its counts are shown.",
+        "rateExcludedReason": "IPEDS reports that this institution has a hospital (institutional characteristics, 2020). Patients, visitors and hospital staff are on its campus but not in its FTE, so a rate per student would not measure its campus population. It has no rate; its counts are shown.",
         "rateFte": 39067,
         "counts": {
           "criminal": 168,
@@ -872,10 +884,25 @@
       "2021": {
         "campuses": 9,
         "online": 14,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "excluded",
         "onlineYear": 2019,
-        "rateExcludedReason": "IPEDS reports that this institution has a hospital (institutional characteristics, 2021). Patients, visitors and hospital staff are on its campus but not in its FTE, so a rate per student would not measure its campus population. It is left out of rate rankings; its counts are shown.",
+        "rateExcludedReason": "IPEDS reports that this institution has a hospital (institutional characteristics, 2021). Patients, visitors and hospital staff are on its campus but not in its FTE, so a rate per student would not measure its campus population. It has no rate; its counts are shown.",
         "rateFte": 42413,
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "Non-campus",
+            "count": 18,
+            "usual": 1
+          },
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "Public property",
+            "count": 11,
+            "usual": 1
+          }
+        ],
         "counts": {
           "criminal": 267,
           "violent": 101,
@@ -901,9 +928,48 @@
       "2022": {
         "campuses": 8,
         "online": 13,
-        "rateRanked": false,
-        "rateExcludedReason": "IPEDS reports that this institution has a hospital (institutional characteristics, 2022). Patients, visitors and hospital staff are on its campus but not in its FTE, so a rate per student would not measure its campus population. It is left out of rate rankings; its counts are shown.",
+        "rated": false,
+        "notRated": "excluded",
+        "rateExcludedReason": "IPEDS reports that this institution has a hospital (institutional characteristics, 2022). Patients, visitors and hospital staff are on its campus but not in its FTE, so a rate per student would not measure its campus population. It has no rate; its counts are shown.",
         "rateFte": 42414,
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "Non-campus",
+            "count": 22,
+            "usual": 1
+          },
+          {
+            "offense": "aggravated_assault",
+            "geo": "Public property",
+            "count": 29,
+            "usual": 8
+          },
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 278,
+            "usual": 34
+          },
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "Non-campus",
+            "count": 43,
+            "usual": 6
+          },
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "Public property",
+            "count": 21,
+            "usual": 1
+          },
+          {
+            "offense": "stalking",
+            "geo": "On-campus",
+            "count": 52,
+            "usual": 17
+          }
+        ],
         "counts": {
           "criminal": 593,
           "violent": 148,
@@ -930,9 +996,42 @@
       "2023": {
         "campuses": 8,
         "online": 12,
-        "rateRanked": false,
-        "rateExcludedReason": "IPEDS reports that this institution has a hospital (institutional characteristics, 2023). Patients, visitors and hospital staff are on its campus but not in its FTE, so a rate per student would not measure its campus population. It is left out of rate rankings; its counts are shown.",
+        "rated": false,
+        "notRated": "excluded",
+        "rateExcludedReason": "IPEDS reports that this institution has a hospital (institutional characteristics, 2023). Patients, visitors and hospital staff are on its campus but not in its FTE, so a rate per student would not measure its campus population. It has no rate; its counts are shown.",
         "rateFte": 41078,
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "Non-campus",
+            "count": 13,
+            "usual": 1
+          },
+          {
+            "offense": "aggravated_assault",
+            "geo": "Public property",
+            "count": 37,
+            "usual": 8
+          },
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 251,
+            "usual": 34
+          },
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "Non-campus",
+            "count": 39,
+            "usual": 6
+          },
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "Public property",
+            "count": 25,
+            "usual": 1
+          }
+        ],
         "counts": {
           "criminal": 547,
           "violent": 125,
@@ -958,9 +1057,24 @@
       "2024": {
         "campuses": 9,
         "online": 13,
-        "rateRanked": false,
-        "rateExcludedReason": "IPEDS reports that this institution has a hospital (institutional characteristics, 2024). Patients, visitors and hospital staff are on its campus but not in its FTE, so a rate per student would not measure its campus population. It is left out of rate rankings; its counts are shown.",
+        "rated": false,
+        "notRated": "excluded",
+        "rateExcludedReason": "IPEDS reports that this institution has a hospital (institutional characteristics, 2024). Patients, visitors and hospital staff are on its campus but not in its FTE, so a rate per student would not measure its campus population. It has no rate; its counts are shown.",
         "rateFte": 40325,
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 285,
+            "usual": 34
+          },
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "Non-campus",
+            "count": 40,
+            "usual": 6
+          }
+        ],
         "counts": {
           "criminal": 494,
           "violent": 75,

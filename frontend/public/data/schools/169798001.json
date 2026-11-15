@@ -986,15 +986,13 @@
   ],
   "institution": {
     "id": 169798,
+    "ratesFile": "rates/institutions/169798.json",
     "byYear": {
       "2015": {
         "campuses": 5,
         "online": 6,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 16599,
-        "spikes": [
-          "liquor_arrest"
-        ],
         "counts": {
           "criminal": 51,
           "violent": 22,
@@ -1021,57 +1019,82 @@
       "2016": {
         "campuses": 5,
         "online": 7,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 16168
       },
       "2017": {
         "campuses": 3,
         "online": 8,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 15497
       },
       "2018": {
         "campuses": 1,
         "online": 10,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 14121
       },
       "2019": {
         "campuses": 1,
         "online": 12,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 13087
       },
       "2020": {
         "campuses": 1,
         "online": 12,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 11996
+        "rateFte": 11996,
+        "flags": [
+          {
+            "offense": "rape",
+            "geo": "Non-campus",
+            "count": 21,
+            "usual": 2
+          }
+        ]
       },
       "2021": {
         "campuses": 1,
         "online": 12,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 11311
       },
       "2022": {
         "campuses": 1,
         "online": 21,
-        "rateRanked": true,
-        "rateFte": 9835
+        "rated": true,
+        "rateFte": 9835,
+        "flags": [
+          {
+            "offense": "domestic_violence",
+            "geo": "On-campus",
+            "count": 37,
+            "usual": 11
+          }
+        ]
       },
       "2023": {
         "campuses": 1,
         "online": 17,
-        "rateRanked": true,
-        "rateFte": 9627
+        "rated": true,
+        "rateFte": 9627,
+        "flags": [
+          {
+            "offense": "domestic_violence",
+            "geo": "On-campus",
+            "count": 38,
+            "usual": 11
+          }
+        ]
       },
       "2024": {
         "campuses": 1,
         "online": 17,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 9324
       }
     }

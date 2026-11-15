@@ -138,11 +138,12 @@
   ],
   "institution": {
     "id": 166647,
+    "ratesFile": "rates/institutions/166647.json",
     "byYear": {
       "2015": {
         "campuses": 3,
         "online": 10,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2563,
         "counts": {
           "criminal": 5,
@@ -155,13 +156,13 @@
       "2016": {
         "campuses": 3,
         "online": 13,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2497
       },
       "2017": {
         "campuses": 3,
         "online": 9,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2436,
         "counts": {
           "criminal": 3,
@@ -178,13 +179,13 @@
       "2018": {
         "campuses": 3,
         "online": 11,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2283
       },
       "2019": {
         "campuses": 3,
         "online": 11,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2173,
         "counts": {
           "criminal": 3,
@@ -199,7 +200,8 @@
       "2020": {
         "campuses": 3,
         "online": 11,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 1909,
         "counts": {
@@ -213,30 +215,31 @@
       "2021": {
         "campuses": 3,
         "online": 11,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 1778
       },
       "2022": {
         "campuses": 3,
         "online": 44,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1373,
         "fteUncertain": {
           "share": 1058,
-          "partTimeFirst": 1373
+          "partTimeFirst": 1373,
+          "reason": "own"
         }
       },
       "2023": {
         "campuses": 3,
         "online": 34,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1767
       },
       "2024": {
         "campuses": 3,
         "online": 31,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2015
       }
     }

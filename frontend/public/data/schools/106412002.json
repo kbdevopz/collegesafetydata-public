@@ -68,11 +68,12 @@
   ],
   "institution": {
     "id": 106412,
+    "ratesFile": "rates/institutions/106412.json",
     "byYear": {
       "2017": {
         "campuses": 2,
         "online": 2,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2448,
         "counts": {
           "criminal": 12,
@@ -92,7 +93,7 @@
       "2018": {
         "campuses": 2,
         "online": 2,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2385,
         "counts": {
           "criminal": 2,
@@ -113,7 +114,7 @@
       "2019": {
         "campuses": 2,
         "online": 3,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2313,
         "counts": {
           "criminal": 5,
@@ -128,7 +129,8 @@
       "2020": {
         "campuses": 2,
         "online": 3,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 2391,
         "counts": {
@@ -143,7 +145,7 @@
       "2021": {
         "campuses": 2,
         "online": 3,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 2367,
         "counts": {
@@ -166,7 +168,7 @@
       "2022": {
         "campuses": 2,
         "online": 10,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2036,
         "counts": {
           "criminal": 12,
@@ -189,7 +191,7 @@
       "2023": {
         "campuses": 2,
         "online": 8,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1842,
         "counts": {
           "criminal": 3,
@@ -206,8 +208,22 @@
       "2024": {
         "campuses": 2,
         "online": 7,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1786,
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "On-campus",
+            "count": 17,
+            "usual": 1
+          },
+          {
+            "offense": "dating_violence",
+            "geo": "On-campus",
+            "count": 11,
+            "usual": 0
+          }
+        ],
         "counts": {
           "criminal": 22,
           "violent": 17,

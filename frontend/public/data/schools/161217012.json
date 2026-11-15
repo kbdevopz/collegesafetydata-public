@@ -67,11 +67,12 @@
   ],
   "institution": {
     "id": 161217,
+    "ratesFile": "rates/institutions/161217.json",
     "byYear": {
       "2015": {
         "campuses": 8,
         "online": 42,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2088,
         "counts": {
           "criminal": 3,
@@ -84,11 +85,12 @@
       "2016": {
         "campuses": 8,
         "online": 45,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1837,
         "fteUncertain": {
           "share": 1451,
-          "partTimeFirst": 1837
+          "partTimeFirst": 1837,
+          "reason": "own"
         },
         "counts": {
           "criminal": 2,
@@ -100,21 +102,23 @@
       "2017": {
         "campuses": 8,
         "online": 50,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1595,
         "fteUncertain": {
           "share": 1203,
-          "partTimeFirst": 1595
+          "partTimeFirst": 1595,
+          "reason": "own"
         }
       },
       "2018": {
         "campuses": 8,
         "online": 51,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1655,
         "fteUncertain": {
           "share": 1227,
-          "partTimeFirst": 1655
+          "partTimeFirst": 1655,
+          "reason": "own"
         },
         "counts": {
           "criminal": 3,
@@ -132,11 +136,12 @@
       "2019": {
         "campuses": 8,
         "online": 54,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1653,
         "fteUncertain": {
           "share": 1197,
-          "partTimeFirst": 1653
+          "partTimeFirst": 1653,
+          "reason": "own"
         },
         "counts": {
           "all": 3,
@@ -147,12 +152,14 @@
       "2020": {
         "campuses": 8,
         "online": 54,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 1658,
         "fteUncertain": {
           "share": 1183,
-          "partTimeFirst": 1658
+          "partTimeFirst": 1658,
+          "reason": "own"
         },
         "counts": {
           "all": 7,

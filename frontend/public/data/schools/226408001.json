@@ -194,71 +194,77 @@
   "breakdownByGeo": [],
   "institution": {
     "id": 226408,
+    "ratesFile": "rates/institutions/226408.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 8,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1817,
-        "spikes": [
-          "all",
-          "domestic_violence"
+        "flags": [
+          {
+            "offense": "domestic_violence",
+            "geo": "Public property",
+            "count": 30,
+            "usual": 0
+          }
         ]
       },
       "2016": {
         "campuses": 1,
         "online": 7,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1859
       },
       "2017": {
         "campuses": 1,
         "online": 8,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2112
       },
       "2018": {
         "campuses": 1,
         "online": 10,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2153
       },
       "2019": {
         "campuses": 1,
         "online": 9,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2136
       },
       "2020": {
         "campuses": 1,
         "online": 9,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 2111
       },
       "2021": {
         "campuses": 1,
         "online": 9,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 2185
       },
       "2022": {
         "campuses": 1,
         "online": 14,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2221
       },
       "2023": {
         "campuses": 1,
         "online": 14,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2537
       },
       "2024": {
         "campuses": 1,
         "online": 16,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2778
       }
     }

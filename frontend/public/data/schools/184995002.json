@@ -185,11 +185,12 @@
   ],
   "institution": {
     "id": 184995,
+    "ratesFile": "rates/institutions/184995.json",
     "byYear": {
       "2016": {
         "campuses": 2,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 6256,
         "counts": {
           "criminal": 3,
@@ -207,7 +208,7 @@
       "2017": {
         "campuses": 2,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 6388,
         "counts": {
           "criminal": 2,
@@ -221,7 +222,7 @@
       "2018": {
         "campuses": 2,
         "online": 2,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 5925,
         "counts": {
           "criminal": 3,
@@ -238,7 +239,7 @@
       "2019": {
         "campuses": 2,
         "online": 3,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 5665,
         "counts": {
           "criminal": 3,
@@ -250,25 +251,27 @@
       "2020": {
         "campuses": 2,
         "online": 3,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 4831
       },
       "2021": {
         "campuses": 2,
         "online": 3,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 4479
       },
       "2022": {
         "campuses": 2,
         "online": 35,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 3780,
         "fteUncertain": {
           "share": 2967,
-          "partTimeFirst": 3780
+          "partTimeFirst": 3780,
+          "reason": "own"
         },
         "counts": {
           "criminal": 3,
@@ -282,7 +285,7 @@
       "2023": {
         "campuses": 2,
         "online": 31,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 4112,
         "counts": {
           "criminal": 2,
@@ -294,7 +297,7 @@
       "2024": {
         "campuses": 2,
         "online": 27,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 4550,
         "counts": {
           "all": 2,

@@ -139,14 +139,20 @@
   ],
   "institution": {
     "id": 163286,
+    "ratesFile": "rates/institutions/163286.json",
     "byYear": {
       "2015": {
         "campuses": 2,
         "online": 1,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 35119,
-        "spikes": [
-          "burglary"
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "On-campus",
+            "count": 50,
+            "usual": 12
+          }
         ],
         "counts": {
           "criminal": 114,
@@ -173,7 +179,7 @@
       "2016": {
         "campuses": 2,
         "online": 1,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 37196,
         "counts": {
           "criminal": 63,
@@ -199,7 +205,7 @@
       "2017": {
         "campuses": 2,
         "online": 2,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 37299,
         "counts": {
           "criminal": 65,
@@ -226,7 +232,7 @@
       "2018": {
         "campuses": 2,
         "online": 2,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 38045,
         "counts": {
           "criminal": 84,
@@ -252,7 +258,7 @@
       "2019": {
         "campuses": 2,
         "online": 2,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 37664,
         "counts": {
           "criminal": 128,
@@ -278,7 +284,8 @@
       "2020": {
         "campuses": 2,
         "online": 2,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 37261,
         "counts": {
@@ -301,7 +308,7 @@
       "2021": {
         "campuses": 2,
         "online": 2,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 37970,
         "counts": {
@@ -326,8 +333,16 @@
       "2022": {
         "campuses": 3,
         "online": 4,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 37339,
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "Public property",
+            "count": 12,
+            "usual": 1
+          }
+        ],
         "counts": {
           "criminal": 115,
           "violent": 40,
@@ -351,8 +366,16 @@
       "2023": {
         "campuses": 3,
         "online": 4,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 37398,
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 141,
+            "usual": 28
+          }
+        ],
         "counts": {
           "criminal": 211,
           "violent": 42,
@@ -378,79 +401,15 @@
       "2024": {
         "campuses": 3,
         "online": 4,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 38443,
-        "sharedIn": {
-          "criminal": 321,
-          "violent": 16,
-          "property": 297,
-          "all": 502,
-          "aggravated_assault": 6,
-          "burglary": 10,
-          "dating_violence": 8,
-          "domestic_violence": 4,
-          "drug_arrest": 4,
-          "drug_discipline": 35,
-          "fondling": 8,
-          "liquor_discipline": 104,
-          "motor_vehicle_theft": 287,
-          "rape": 10,
-          "stalking": 24,
-          "weapons_arrest": 2
-        },
-        "notRanked": {
-          "criminal": [
-            "shared"
-          ],
-          "violent": [
-            "shared"
-          ],
-          "property": [
-            "shared"
-          ],
-          "all": [
-            "shared"
-          ],
-          "aggravated_assault": [
-            "shared"
-          ],
-          "burglary": [
-            "shared"
-          ],
-          "dating_violence": [
-            "shared"
-          ],
-          "domestic_violence": [
-            "shared"
-          ],
-          "drug_arrest": [
-            "shared"
-          ],
-          "drug_discipline": [
-            "shared"
-          ],
-          "fondling": [
-            "shared"
-          ],
-          "liquor_discipline": [
-            "shared"
-          ],
-          "motor_vehicle_theft": [
-            "shared"
-          ],
-          "rape": [
-            "shared"
-          ],
-          "stalking": [
-            "shared"
-          ],
-          "weapons_arrest": [
-            "shared"
-          ]
-        },
-        "spikes": [
-          "drug_discipline",
-          "motor_vehicle_theft"
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 287,
+            "usual": 28
+          }
         ],
         "counts": {
           "criminal": 329,

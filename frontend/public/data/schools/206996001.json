@@ -314,75 +314,80 @@
   ],
   "institution": {
     "id": 206996,
+    "ratesFile": "rates/institutions/206996.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 7,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1622
       },
       "2016": {
         "campuses": 1,
         "online": 12,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1593
       },
       "2017": {
         "campuses": 1,
         "online": 14,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1634
       },
       "2018": {
         "campuses": 1,
         "online": 16,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1376
       },
       "2019": {
         "campuses": 2,
         "online": 19,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1371
       },
       "2020": {
         "campuses": 2,
         "online": 19,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 1299
       },
       "2021": {
         "campuses": 2,
         "online": 19,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 1164
       },
       "2022": {
         "campuses": 2,
         "online": 49,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 779,
         "fteUncertain": {
           "share": 539,
-          "partTimeFirst": 779
+          "partTimeFirst": 779,
+          "reason": "own"
         }
       },
       "2023": {
         "campuses": 2,
         "online": 39,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1073,
         "fteUncertain": {
           "share": 822,
-          "partTimeFirst": 1073
+          "partTimeFirst": 1073,
+          "reason": "own"
         }
       },
       "2024": {
         "campuses": 2,
         "online": 33,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1275
       }
     }

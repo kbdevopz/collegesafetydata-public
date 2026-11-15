@@ -68,12 +68,21 @@
   ],
   "institution": {
     "id": 126942,
+    "ratesFile": "rates/institutions/126942.json",
     "byYear": {
       "2017": {
         "campuses": 3,
         "online": 12,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 4495,
+        "flags": [
+          {
+            "offense": "stalking",
+            "geo": "On-campus",
+            "count": 19,
+            "usual": 3
+          }
+        ],
         "counts": {
           "criminal": 44,
           "violent": 7,
@@ -96,80 +105,8 @@
       "2018": {
         "campuses": 3,
         "online": 13,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 4166,
-        "sharedOut": {
-          "criminal": 35,
-          "violent": 8,
-          "property": 23,
-          "all": 93,
-          "aggravated_assault": 5,
-          "burglary": 16,
-          "dating_violence": 1,
-          "domestic_violence": 12,
-          "drug_arrest": 13,
-          "drug_discipline": 1,
-          "fondling": 4,
-          "liquor_arrest": 8,
-          "motor_vehicle_theft": 7,
-          "rape": 1,
-          "robbery": 2,
-          "stalking": 17,
-          "weapons_arrest": 6
-        },
-        "notRanked": {
-          "criminal": [
-            "shared"
-          ],
-          "violent": [
-            "shared"
-          ],
-          "property": [
-            "shared"
-          ],
-          "all": [
-            "shared"
-          ],
-          "aggravated_assault": [
-            "shared"
-          ],
-          "burglary": [
-            "shared"
-          ],
-          "dating_violence": [
-            "shared"
-          ],
-          "domestic_violence": [
-            "shared"
-          ],
-          "drug_arrest": [
-            "shared"
-          ],
-          "drug_discipline": [
-            "shared"
-          ],
-          "fondling": [
-            "shared"
-          ],
-          "liquor_arrest": [
-            "shared"
-          ],
-          "motor_vehicle_theft": [
-            "shared"
-          ],
-          "rape": [
-            "shared"
-          ],
-          "robbery": [
-            "shared"
-          ],
-          "stalking": [
-            "shared"
-          ],
-          "weapons_arrest": [
-            "shared"
-          ]
-        },
         "counts": {
           "criminal": 2,
           "violent": 1,
@@ -185,76 +122,8 @@
       "2019": {
         "campuses": 2,
         "online": 13,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 4353,
-        "sharedOut": {
-          "criminal": 44,
-          "violent": 18,
-          "property": 25,
-          "all": 113,
-          "aggravated_assault": 13,
-          "burglary": 16,
-          "dating_violence": 1,
-          "domestic_violence": 15,
-          "drug_arrest": 22,
-          "fondling": 1,
-          "liquor_arrest": 8,
-          "motor_vehicle_theft": 9,
-          "rape": 1,
-          "robbery": 4,
-          "stalking": 20,
-          "weapons_arrest": 3
-        },
-        "notRanked": {
-          "criminal": [
-            "shared"
-          ],
-          "violent": [
-            "shared"
-          ],
-          "property": [
-            "shared"
-          ],
-          "all": [
-            "shared"
-          ],
-          "aggravated_assault": [
-            "shared"
-          ],
-          "burglary": [
-            "shared"
-          ],
-          "dating_violence": [
-            "shared"
-          ],
-          "domestic_violence": [
-            "shared"
-          ],
-          "drug_arrest": [
-            "shared"
-          ],
-          "fondling": [
-            "shared"
-          ],
-          "liquor_arrest": [
-            "shared"
-          ],
-          "motor_vehicle_theft": [
-            "shared"
-          ],
-          "rape": [
-            "shared"
-          ],
-          "robbery": [
-            "shared"
-          ],
-          "stalking": [
-            "shared"
-          ],
-          "weapons_arrest": [
-            "shared"
-          ]
-        },
         "counts": {
           "criminal": 15,
           "violent": 12,
@@ -273,7 +142,8 @@
       "2020": {
         "campuses": 3,
         "online": 13,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 3776,
         "counts": {
@@ -299,65 +169,17 @@
       "2021": {
         "campuses": 3,
         "online": 13,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 3543,
-        "sharedOut": {
-          "criminal": 13,
-          "violent": 9,
-          "property": 3,
-          "all": 42,
-          "aggravated_assault": 6,
-          "dating_violence": 1,
-          "domestic_violence": 5,
-          "drug_arrest": 14,
-          "fondling": 1,
-          "liquor_arrest": 5,
-          "motor_vehicle_theft": 3,
-          "robbery": 3,
-          "weapons_arrest": 4
-        },
-        "notRanked": {
-          "criminal": [
-            "shared"
-          ],
-          "violent": [
-            "shared"
-          ],
-          "property": [
-            "shared"
-          ],
-          "all": [
-            "shared"
-          ],
-          "aggravated_assault": [
-            "shared"
-          ],
-          "dating_violence": [
-            "shared"
-          ],
-          "domestic_violence": [
-            "shared"
-          ],
-          "drug_arrest": [
-            "shared"
-          ],
-          "fondling": [
-            "shared"
-          ],
-          "liquor_arrest": [
-            "shared"
-          ],
-          "motor_vehicle_theft": [
-            "shared"
-          ],
-          "robbery": [
-            "shared"
-          ],
-          "weapons_arrest": [
-            "shared"
-          ]
-        },
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "On-campus",
+            "count": 12,
+            "usual": 1
+          }
+        ],
         "counts": {
           "criminal": 69,
           "violent": 20,
@@ -381,8 +203,22 @@
       "2022": {
         "campuses": 3,
         "online": 26,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 3220,
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "Public property",
+            "count": 10,
+            "usual": 1
+          },
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 41,
+            "usual": 11
+          }
+        ],
         "counts": {
           "criminal": 88,
           "violent": 20,
@@ -407,57 +243,8 @@
       "2023": {
         "campuses": 3,
         "online": 27,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 3399,
-        "sharedOut": {
-          "criminal": 14,
-          "violent": 1,
-          "property": 13,
-          "all": 52,
-          "aggravated_assault": 1,
-          "arson": 10,
-          "dating_violence": 1,
-          "domestic_violence": 2,
-          "drug_arrest": 20,
-          "liquor_arrest": 13,
-          "motor_vehicle_theft": 3,
-          "weapons_arrest": 2
-        },
-        "notRanked": {
-          "criminal": [
-            "shared"
-          ],
-          "violent": [
-            "shared"
-          ],
-          "property": [
-            "shared"
-          ],
-          "all": [
-            "shared"
-          ],
-          "aggravated_assault": [
-            "shared"
-          ],
-          "dating_violence": [
-            "shared"
-          ],
-          "domestic_violence": [
-            "shared"
-          ],
-          "drug_arrest": [
-            "shared"
-          ],
-          "liquor_arrest": [
-            "shared"
-          ],
-          "motor_vehicle_theft": [
-            "shared"
-          ],
-          "weapons_arrest": [
-            "shared"
-          ]
-        },
         "counts": {
           "criminal": 61,
           "violent": 15,
@@ -483,44 +270,8 @@
       "2024": {
         "campuses": 3,
         "online": 26,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 3585,
-        "sharedIn": {
-          "criminal": 3,
-          "property": 3,
-          "all": 7,
-          "domestic_violence": 1,
-          "drug_arrest": 1,
-          "liquor_arrest": 1,
-          "motor_vehicle_theft": 3,
-          "weapons_arrest": 1
-        },
-        "notRanked": {
-          "criminal": [
-            "shared"
-          ],
-          "property": [
-            "shared"
-          ],
-          "all": [
-            "shared"
-          ],
-          "domestic_violence": [
-            "shared"
-          ],
-          "drug_arrest": [
-            "shared"
-          ],
-          "liquor_arrest": [
-            "shared"
-          ],
-          "motor_vehicle_theft": [
-            "shared"
-          ],
-          "weapons_arrest": [
-            "shared"
-          ]
-        },
         "counts": {
           "criminal": 11,
           "property": 10,

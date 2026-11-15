@@ -68,11 +68,12 @@
   ],
   "institution": {
     "id": 175272,
+    "ratesFile": "rates/institutions/175272.json",
     "byYear": {
       "2017": {
         "campuses": 3,
         "online": 3,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 7070,
         "counts": {
           "criminal": 10,
@@ -92,7 +93,7 @@
       "2018": {
         "campuses": 3,
         "online": 4,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 6856,
         "counts": {
           "criminal": 9,
@@ -109,7 +110,7 @@
       "2019": {
         "campuses": 3,
         "online": 6,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 6627,
         "counts": {
           "criminal": 19,
@@ -132,7 +133,8 @@
       "2020": {
         "campuses": 3,
         "online": 6,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 6088,
         "counts": {
@@ -150,12 +152,9 @@
       "2021": {
         "campuses": 3,
         "online": 6,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 5574,
-        "spikes": [
-          "liquor_arrest"
-        ],
         "counts": {
           "criminal": 17,
           "violent": 7,
@@ -175,8 +174,16 @@
       "2022": {
         "campuses": 3,
         "online": 14,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 5041,
+        "flags": [
+          {
+            "offense": "fondling",
+            "geo": "On-campus",
+            "count": 15,
+            "usual": 2
+          }
+        ],
         "counts": {
           "criminal": 28,
           "violent": 3,
@@ -194,7 +201,7 @@
       "2023": {
         "campuses": 3,
         "online": 15,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 4897,
         "counts": {
           "criminal": 8,
@@ -213,7 +220,7 @@
       "2024": {
         "campuses": 3,
         "online": 15,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 4912,
         "counts": {
           "criminal": 12,

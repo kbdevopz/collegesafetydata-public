@@ -928,11 +928,12 @@
   ],
   "institution": {
     "id": 122931,
+    "ratesFile": "rates/institutions/122931.json",
     "byYear": {
       "2015": {
         "campuses": 2,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 7829,
         "counts": {
           "criminal": 26,
@@ -956,19 +957,19 @@
       "2016": {
         "campuses": 2,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 7659
       },
       "2017": {
         "campuses": 2,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 7861
       },
       "2018": {
         "campuses": 2,
         "online": 1,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 7947,
         "counts": {
           "criminal": 14,
@@ -995,13 +996,14 @@
       "2019": {
         "campuses": 2,
         "online": 2,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 7863
       },
       "2020": {
         "campuses": 2,
         "online": 2,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 7819,
         "counts": {
@@ -1028,20 +1030,20 @@
       "2021": {
         "campuses": 2,
         "online": 2,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 8085
       },
       "2022": {
         "campuses": 2,
         "online": 4,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 8303
       },
       "2023": {
         "campuses": 2,
         "online": 4,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 8415,
         "counts": {
           "criminal": 20,
@@ -1066,8 +1068,16 @@
       "2024": {
         "campuses": 2,
         "online": 5,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 8685,
+        "flags": [
+          {
+            "offense": "stalking",
+            "geo": "On-campus",
+            "count": 15,
+            "usual": 3
+          }
+        ],
         "counts": {
           "criminal": 26,
           "violent": 9,

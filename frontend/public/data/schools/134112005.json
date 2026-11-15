@@ -121,11 +121,12 @@
   ],
   "institution": {
     "id": 134112,
+    "ratesFile": "rates/institutions/134112.json",
     "byYear": {
       "2015": {
         "campuses": 8,
         "online": 26,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 3386,
         "counts": {
           "criminal": 2,
@@ -139,7 +140,7 @@
       "2016": {
         "campuses": 8,
         "online": 5,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 4515,
         "counts": {
           "all": 5,
@@ -152,7 +153,7 @@
       "2017": {
         "campuses": 8,
         "online": 19,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 3231,
         "counts": {
           "criminal": 3,
@@ -168,7 +169,7 @@
       "2018": {
         "campuses": 8,
         "online": 42,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2291,
         "counts": {
           "criminal": 8,
@@ -186,7 +187,8 @@
       "2019": {
         "campuses": 6,
         "online": 46,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "excluded",
         "rateExcludedReason": "In 2019 DOE counted the figures of campus 134112004 of this institution under ID 242972010 of another institution (a merger or renumbering), while IPEDS counts that campus's students in this institution's FTE. No rate is shown for that year.",
         "rateFte": 2211,
         "counts": {}

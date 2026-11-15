@@ -144,17 +144,18 @@
   ],
   "institution": {
     "id": 199731,
+    "ratesFile": "rates/institutions/199731.json",
     "byYear": {
       "2015": {
         "campuses": 4,
         "online": 22,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1278
       },
       "2016": {
         "campuses": 4,
         "online": 21,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1209,
         "counts": {
           "criminal": 1,
@@ -168,7 +169,7 @@
       "2017": {
         "campuses": 4,
         "online": 21,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1214,
         "counts": {
           "criminal": 4,
@@ -188,13 +189,13 @@
       "2018": {
         "campuses": 4,
         "online": 22,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1167
       },
       "2019": {
         "campuses": 4,
         "online": 23,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1080,
         "counts": {
           "criminal": 3,
@@ -206,7 +207,8 @@
       "2020": {
         "campuses": 4,
         "online": 23,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 1011,
         "counts": {
@@ -219,26 +221,29 @@
       "2021": {
         "campuses": 4,
         "online": 23,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 1063
       },
       "2022": {
         "campuses": 4,
         "online": 33,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 843
       },
       "2023": {
         "campuses": 4,
         "online": 31,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 850
       },
       "2024": {
         "campuses": 4,
         "online": 34,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 900,
         "counts": {
           "criminal": 1,

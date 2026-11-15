@@ -474,67 +474,77 @@
   ],
   "institution": {
     "id": 234845,
+    "ratesFile": "rates/institutions/234845.json",
     "byYear": {
       "2015": {
         "campuses": 2,
         "online": 9,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2182
       },
       "2016": {
         "campuses": 2,
         "online": 10,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2195
       },
       "2017": {
         "campuses": 2,
         "online": 11,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2126
       },
       "2018": {
         "campuses": 2,
         "online": 11,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2121
       },
       "2019": {
         "campuses": 2,
         "online": 12,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2024
       },
       "2020": {
         "campuses": 2,
         "online": 12,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 1687
       },
       "2021": {
         "campuses": 2,
         "online": 12,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 1461
       },
       "2022": {
         "campuses": 2,
         "online": 32,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1393
       },
       "2023": {
         "campuses": 2,
         "online": 27,
-        "rateRanked": true,
-        "rateFte": 1556
+        "rated": true,
+        "rateFte": 1556,
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "On-campus",
+            "count": 12,
+            "usual": 2
+          }
+        ]
       },
       "2024": {
         "campuses": 2,
         "online": 32,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1506
       }
     }

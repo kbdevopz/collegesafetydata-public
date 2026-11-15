@@ -228,74 +228,125 @@
   ],
   "institution": {
     "id": 241720,
+    "ratesFile": "rates/institutions/241720.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1320
       },
       "2016": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1382
       },
       "2017": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1333
       },
       "2018": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1044
       },
       "2019": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 927
       },
       "2020": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "onlineYear": 2019,
         "rateFte": 717
       },
       "2021": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "onlineYear": 2019,
         "rateFte": 568,
-        "spikes": [
-          "criminal",
-          "property",
-          "all",
-          "motor_vehicle_theft"
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "Public property",
+            "count": 20,
+            "usual": 0
+          },
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "Public property",
+            "count": 151,
+            "usual": 0
+          }
         ]
       },
       "2022": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": false,
-        "rateFte": 499
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 499,
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "Public property",
+            "count": 37,
+            "usual": 0
+          }
+        ]
       },
       "2023": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": false,
-        "rateFte": 448
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 448,
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "Public property",
+            "count": 11,
+            "usual": 0
+          },
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "Public property",
+            "count": 26,
+            "usual": 0
+          }
+        ]
       },
       "2024": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": false,
-        "rateFte": 401
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 401,
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "Public property",
+            "count": 33,
+            "usual": 0
+          },
+          {
+            "offense": "robbery",
+            "geo": "Public property",
+            "count": 18,
+            "usual": 0
+          }
+        ]
       }
     }
   }

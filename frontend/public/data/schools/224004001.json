@@ -354,11 +354,12 @@
   ],
   "institution": {
     "id": 224004,
+    "ratesFile": "rates/institutions/224004.json",
     "byYear": {
       "2015": {
         "campuses": 5,
         "online": 23,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1533,
         "counts": {
           "criminal": 11,
@@ -380,7 +381,7 @@
       "2016": {
         "campuses": 5,
         "online": 31,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1562,
         "counts": {
           "criminal": 11,
@@ -400,7 +401,7 @@
       "2017": {
         "campuses": 5,
         "online": 32,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1566,
         "counts": {
           "criminal": 2,
@@ -420,49 +421,51 @@
       "2018": {
         "campuses": 5,
         "online": 37,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1476,
         "fteUncertain": {
           "share": 1161,
-          "partTimeFirst": 1476
+          "partTimeFirst": 1476,
+          "reason": "own"
         }
       },
       "2019": {
         "campuses": 1,
         "online": 29,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1627
       },
       "2020": {
         "campuses": 1,
         "online": 29,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 1561
       },
       "2021": {
         "campuses": 2,
         "online": 29,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 1517
       },
       "2022": {
         "campuses": 3,
         "online": 28,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1339
       },
       "2023": {
         "campuses": 3,
         "online": 26,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1192
       },
       "2024": {
         "campuses": 3,
         "online": 27,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1019
       }
     }

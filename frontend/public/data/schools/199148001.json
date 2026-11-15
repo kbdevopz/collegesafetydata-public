@@ -1042,35 +1042,36 @@
   ],
   "institution": {
     "id": 199148,
+    "ratesFile": "rates/institutions/199148.json",
     "byYear": {
       "2015": {
         "campuses": 2,
         "online": 12,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 15829
       },
       "2016": {
         "campuses": 2,
         "online": 12,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 16315
       },
       "2017": {
         "campuses": 2,
         "online": 13,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 16383
       },
       "2018": {
         "campuses": 2,
         "online": 15,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 16321
       },
       "2019": {
         "campuses": 2,
         "online": 16,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 16146,
         "counts": {
           "criminal": 44,
@@ -1098,36 +1099,48 @@
       "2020": {
         "campuses": 2,
         "online": 16,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 15677
       },
       "2021": {
         "campuses": 2,
         "online": 16,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 14950
       },
       "2022": {
         "campuses": 2,
         "online": 23,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 13491
       },
       "2023": {
         "campuses": 2,
         "online": 24,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 13221
       },
       "2024": {
         "campuses": 2,
         "online": 26,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 13242,
-        "spikes": [
-          "domestic_violence"
+        "flags": [
+          {
+            "offense": "domestic_violence",
+            "geo": "On-campus",
+            "count": 24,
+            "usual": 2
+          },
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 15,
+            "usual": 1
+          }
         ]
       }
     }

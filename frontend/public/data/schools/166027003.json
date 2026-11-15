@@ -74,12 +74,17 @@
   "breakdownByGeo": [],
   "institution": {
     "id": 166027,
+    "ratesFile": "rates/institutions/166027.json",
     "byYear": {
       "2015": {
-        "campuses": 8,
+        "campuses": 7,
         "online": 7,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 23271,
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
         "counts": {
           "criminal": 149,
           "violent": 71,
@@ -103,12 +108,21 @@
         }
       },
       "2016": {
-        "campuses": 7,
+        "campuses": 6,
         "online": 9,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 23143,
-        "spikes": [
-          "dating_violence"
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
+        "flags": [
+          {
+            "offense": "dating_violence",
+            "geo": "On-campus",
+            "count": 27,
+            "usual": 4
+          }
         ],
         "counts": {
           "criminal": 169,
@@ -132,10 +146,14 @@
         }
       },
       "2017": {
-        "campuses": 7,
+        "campuses": 6,
         "online": 10,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 23648,
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
         "counts": {
           "criminal": 162,
           "violent": 82,
@@ -158,10 +176,14 @@
         }
       },
       "2018": {
-        "campuses": 7,
+        "campuses": 6,
         "online": 13,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 23491,
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
         "counts": {
           "criminal": 140,
           "violent": 56,
@@ -185,10 +207,14 @@
         }
       },
       "2019": {
-        "campuses": 7,
+        "campuses": 6,
         "online": 13,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 23572,
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
         "counts": {
           "criminal": 150,
           "violent": 74,
@@ -211,11 +237,16 @@
         }
       },
       "2020": {
-        "campuses": 7,
+        "campuses": 6,
         "online": 13,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 21881,
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
         "counts": {
           "criminal": 137,
           "violent": 61,
@@ -239,11 +270,15 @@
         }
       },
       "2021": {
-        "campuses": 7,
+        "campuses": 6,
         "online": 13,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 23508,
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
         "counts": {
           "criminal": 110,
           "violent": 49,
@@ -265,10 +300,22 @@
         }
       },
       "2022": {
-        "campuses": 7,
+        "campuses": 6,
         "online": 23,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 22199,
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 70,
+            "usual": 8
+          }
+        ],
         "counts": {
           "criminal": 185,
           "violent": 42,
@@ -290,10 +337,22 @@
         }
       },
       "2023": {
-        "campuses": 7,
+        "campuses": 6,
         "online": 26,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 21497,
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 137,
+            "usual": 8
+          }
+        ],
         "counts": {
           "criminal": 292,
           "violent": 104,
@@ -315,10 +374,22 @@
         }
       },
       "2024": {
-        "campuses": 7,
+        "campuses": 6,
         "online": 25,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 21484,
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 165,
+            "usual": 8
+          }
+        ],
         "counts": {
           "criminal": 264,
           "violent": 50,

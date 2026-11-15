@@ -74,17 +74,18 @@
   "breakdownByGeo": [],
   "institution": {
     "id": 229504,
+    "ratesFile": "rates/institutions/229504.json",
     "byYear": {
       "2015": {
         "campuses": 4,
         "online": 16,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1494
       },
       "2016": {
         "campuses": 4,
         "online": 20,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1468,
         "counts": {
           "all": 4,
@@ -95,7 +96,7 @@
       "2017": {
         "campuses": 4,
         "online": 11,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1601,
         "counts": {
           "all": 3,
@@ -107,11 +108,8 @@
       "2018": {
         "campuses": 4,
         "online": 14,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1501,
-        "spikes": [
-          "all"
-        ],
         "counts": {
           "all": 23,
           "dating_violence": 1,
@@ -122,7 +120,7 @@
       "2019": {
         "campuses": 4,
         "online": 16,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1423,
         "counts": {
           "all": 2,
@@ -133,14 +131,15 @@
       "2020": {
         "campuses": 4,
         "online": 16,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 1320
       },
       "2021": {
         "campuses": 4,
         "online": 16,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 1078,
         "counts": {
@@ -151,13 +150,15 @@
       "2022": {
         "campuses": 3,
         "online": 25,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 981
       },
       "2023": {
         "campuses": 3,
         "online": 31,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 943,
         "counts": {
           "all": 5,
@@ -168,7 +169,7 @@
       "2024": {
         "campuses": 3,
         "online": 31,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1020
       }
     }

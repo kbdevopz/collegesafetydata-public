@@ -40,17 +40,45 @@
   ],
   "institution": {
     "id": 230764,
+    "ratesFile": "rates/institutions/230764.json",
     "byYear": {
       "2024": {
         "campuses": 4,
         "online": 6,
-        "rateRanked": false,
-        "rateExcludedReason": "IPEDS reports that this institution has a hospital (institutional characteristics, 2024). Patients, visitors and hospital staff are on its campus but not in its FTE, so a rate per student would not measure its campus population. It is left out of rate rankings; its counts are shown.",
+        "rated": false,
+        "notRated": "excluded",
+        "rateExcludedReason": "IPEDS reports that this institution has a hospital (institutional characteristics, 2024). Patients, visitors and hospital staff are on its campus but not in its FTE, so a rate per student would not measure its campus population. It has no rate; its counts are shown.",
         "rateFte": 32174,
         "abroad": {
           "campuses": 1,
           "counts": {}
         },
+        "flags": [
+          {
+            "offense": "dating_violence",
+            "geo": "On-campus",
+            "count": 122,
+            "usual": 3
+          },
+          {
+            "offense": "fondling",
+            "geo": "On-campus",
+            "count": 76,
+            "usual": 18
+          },
+          {
+            "offense": "rape",
+            "geo": "On-campus",
+            "count": 140,
+            "usual": 15
+          },
+          {
+            "offense": "stalking",
+            "geo": "On-campus",
+            "count": 128,
+            "usual": 30
+          }
+        ],
         "counts": {
           "criminal": 319,
           "violent": 169,

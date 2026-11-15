@@ -282,41 +282,43 @@
   ],
   "institution": {
     "id": 163657,
+    "ratesFile": "rates/institutions/163657.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 8,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 6314
       },
       "2016": {
         "campuses": 1,
         "online": 8,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 6163
       },
       "2017": {
         "campuses": 1,
         "online": 8,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 5947
       },
       "2018": {
         "campuses": 1,
         "online": 8,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 5830
       },
       "2019": {
         "campuses": 1,
         "online": 9,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 5932
       },
       "2020": {
         "campuses": 5,
         "online": 9,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 5798,
         "counts": {
@@ -331,7 +333,7 @@
       "2021": {
         "campuses": 5,
         "online": 9,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 5320,
         "counts": {
@@ -348,27 +350,29 @@
       "2022": {
         "campuses": 5,
         "online": 50,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 3683,
         "fteUncertain": {
           "share": 2702,
-          "partTimeFirst": 3683
+          "partTimeFirst": 3683,
+          "reason": "own"
         }
       },
       "2023": {
         "campuses": 5,
         "online": 44,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 3986,
         "fteUncertain": {
           "share": 3102,
-          "partTimeFirst": 3986
+          "partTimeFirst": 3986,
+          "reason": "own"
         }
       },
       "2024": {
         "campuses": 5,
         "online": 41,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 4424,
         "counts": {
           "criminal": 8,

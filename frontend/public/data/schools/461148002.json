@@ -249,17 +249,13 @@
   ],
   "institution": {
     "id": 461148,
+    "ratesFile": "rates/institutions/461148.json",
     "byYear": {
       "2015": {
         "campuses": 2,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1948,
-        "spikes": [
-          "all",
-          "drug_arrest",
-          "weapons_arrest"
-        ],
         "counts": {
           "criminal": 5,
           "violent": 5,
@@ -274,8 +270,16 @@
       "2016": {
         "campuses": 3,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2061,
+        "flags": [
+          {
+            "offense": "domestic_violence",
+            "geo": "Public property",
+            "count": 15,
+            "usual": 0
+          }
+        ],
         "counts": {
           "criminal": 8,
           "violent": 4,
@@ -294,7 +298,7 @@
       "2017": {
         "campuses": 4,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1487,
         "counts": {
           "criminal": 4,
@@ -315,7 +319,7 @@
       "2018": {
         "campuses": 4,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1389,
         "counts": {
           "all": 1,
@@ -325,10 +329,15 @@
       "2019": {
         "campuses": 4,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1892,
-        "spikes": [
-          "criminal"
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "Public property",
+            "count": 10,
+            "usual": 0
+          }
         ],
         "counts": {
           "criminal": 36,
@@ -348,7 +357,8 @@
       "2020": {
         "campuses": 3,
         "online": 0,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 1271,
         "counts": {
@@ -368,7 +378,7 @@
       "2021": {
         "campuses": 3,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 1261,
         "counts": {
@@ -389,7 +399,7 @@
       "2022": {
         "campuses": 3,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1285,
         "abroad": {
           "campuses": 1,
@@ -413,7 +423,7 @@
       "2023": {
         "campuses": 3,
         "online": 1,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1237,
         "abroad": {
           "campuses": 1,
@@ -433,7 +443,7 @@
       "2024": {
         "campuses": 2,
         "online": 1,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1121,
         "abroad": {
           "campuses": 1,

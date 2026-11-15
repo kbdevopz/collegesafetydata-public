@@ -700,67 +700,85 @@
   ],
   "institution": {
     "id": 132602,
+    "ratesFile": "rates/institutions/132602.json",
     "byYear": {
       "2015": {
         "campuses": 3,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 3693
       },
       "2016": {
         "campuses": 3,
         "online": 46,
-        "rateRanked": true,
-        "rateFte": 2124
+        "rated": true,
+        "rateFte": 2124,
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "On-campus",
+            "count": 17,
+            "usual": 3
+          }
+        ]
       },
       "2017": {
         "campuses": 3,
         "online": 8,
-        "rateRanked": true,
-        "rateFte": 3812
+        "rated": true,
+        "rateFte": 3812,
+        "flags": [
+          {
+            "offense": "dating_violence",
+            "geo": "On-campus",
+            "count": 16,
+            "usual": 1
+          }
+        ]
       },
       "2018": {
         "campuses": 3,
         "online": 5,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 3584
       },
       "2019": {
         "campuses": 3,
         "online": 4,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2785
       },
       "2020": {
         "campuses": 3,
         "online": 4,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 2709
       },
       "2021": {
         "campuses": 3,
         "online": 4,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 2492
       },
       "2022": {
         "campuses": 3,
         "online": 1,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2633
       },
       "2023": {
         "campuses": 3,
         "online": 2,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2417
       },
       "2024": {
         "campuses": 3,
         "online": 3,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2731
       }
     }

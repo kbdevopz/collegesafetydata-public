@@ -279,11 +279,12 @@
   ],
   "institution": {
     "id": 197708,
+    "ratesFile": "rates/institutions/197708.json",
     "byYear": {
       "2015": {
         "campuses": 5,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 5573,
         "abroad": {
           "campuses": 1,
@@ -315,12 +316,20 @@
       "2016": {
         "campuses": 5,
         "online": 1,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 5479,
         "abroad": {
           "campuses": 1,
           "counts": {}
         },
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "Non-campus",
+            "count": 12,
+            "usual": 0
+          }
+        ],
         "counts": {
           "criminal": 34,
           "violent": 17,
@@ -343,7 +352,7 @@
       "2017": {
         "campuses": 5,
         "online": 1,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 5624,
         "abroad": {
           "campuses": 1,
@@ -369,7 +378,7 @@
       "2018": {
         "campuses": 5,
         "online": 2,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 5750,
         "abroad": {
           "campuses": 1,

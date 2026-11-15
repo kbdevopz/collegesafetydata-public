@@ -40,11 +40,12 @@
   ],
   "institution": {
     "id": 193900,
+    "ratesFile": "rates/institutions/193900.json",
     "byYear": {
       "2024": {
         "campuses": 12,
         "online": 6,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 51293,
         "abroad": {
           "campuses": 14,
@@ -59,34 +60,26 @@
             "stalking": 1
           }
         },
-        "medical": {
-          "criminal": 34,
-          "violent": 15,
-          "property": 13,
-          "all": 38,
-          "aggravated_assault": 14,
-          "burglary": 1,
-          "domestic_violence": 1,
-          "fondling": 6,
-          "motor_vehicle_theft": 12,
-          "robbery": 1,
-          "stalking": 2,
-          "weapons_arrest": 1
-        },
-        "notRanked": {
-          "aggravated_assault": [
-            "medical_campus"
-          ],
-          "fondling": [
-            "medical_campus"
-          ],
-          "motor_vehicle_theft": [
-            "medical_campus"
-          ],
-          "weapons_arrest": [
-            "medical_campus"
-          ]
-        },
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "On-campus",
+            "count": 14,
+            "usual": 1
+          },
+          {
+            "offense": "aggravated_assault",
+            "geo": "Public property",
+            "count": 23,
+            "usual": 1
+          },
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "Public property",
+            "count": 37,
+            "usual": 3
+          }
+        ],
         "counts": {
           "criminal": 145,
           "violent": 62,

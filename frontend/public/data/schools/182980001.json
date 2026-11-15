@@ -550,29 +550,38 @@
   ],
   "institution": {
     "id": 182980,
+    "ratesFile": "rates/institutions/182980.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 57,
-        "rateRanked": true,
-        "rateFte": 1082
+        "rated": true,
+        "rateFte": 1082,
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "On-campus",
+            "count": 10,
+            "usual": 1
+          }
+        ]
       },
       "2016": {
         "campuses": 1,
         "online": 52,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1335
       },
       "2017": {
         "campuses": 1,
         "online": 45,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1558
       },
       "2018": {
         "campuses": 2,
         "online": 42,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1786,
         "pooledWith": [
           {
@@ -602,7 +611,7 @@
       "2019": {
         "campuses": 2,
         "online": 25,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2645,
         "counts": {
           "criminal": 15,
@@ -627,7 +636,8 @@
       "2020": {
         "campuses": 2,
         "online": 25,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 3362,
         "counts": {
@@ -649,26 +659,26 @@
       "2021": {
         "campuses": 2,
         "online": 25,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 2855
       },
       "2022": {
         "campuses": 2,
         "online": 17,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2375
       },
       "2023": {
         "campuses": 2,
         "online": 20,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2286
       },
       "2024": {
         "campuses": 2,
         "online": 20,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2629
       }
     }

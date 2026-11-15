@@ -40,15 +40,18 @@
   ],
   "institution": {
     "id": 153861,
+    "ratesFile": "rates/institutions/153861.json",
     "byYear": {
       "2018": {
         "campuses": 2,
         "online": 54,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 731,
         "fteUncertain": {
           "share": 539,
-          "partTimeFirst": 731
+          "partTimeFirst": 731,
+          "reason": "own"
         },
         "counts": {
           "criminal": 9,

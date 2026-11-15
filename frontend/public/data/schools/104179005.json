@@ -79,11 +79,13 @@
   ],
   "institution": {
     "id": 104179,
+    "ratesFile": "rates/institutions/104179.json",
     "byYear": {
       "2020": {
         "campuses": 3,
         "online": 11,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 36845,
         "counts": {
@@ -109,7 +111,7 @@
       "2021": {
         "campuses": 3,
         "online": 11,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 38477,
         "counts": {
@@ -138,11 +140,27 @@
       "2022": {
         "campuses": 3,
         "online": 19,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 37688,
-        "spikes": [
-          "dating_violence",
-          "rape"
+        "flags": [
+          {
+            "offense": "dating_violence",
+            "geo": "On-campus",
+            "count": 78,
+            "usual": 2
+          },
+          {
+            "offense": "rape",
+            "geo": "On-campus",
+            "count": 75,
+            "usual": 15
+          },
+          {
+            "offense": "stalking",
+            "geo": "On-campus",
+            "count": 19,
+            "usual": 4
+          }
         ],
         "counts": {
           "criminal": 177,
@@ -170,7 +188,7 @@
       "2023": {
         "campuses": 4,
         "online": 21,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 41718,
         "counts": {
           "criminal": 102,
@@ -197,11 +215,21 @@
       "2024": {
         "campuses": 9,
         "online": 22,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 43535,
-        "spikes": [
-          "motor_vehicle_theft",
-          "stalking"
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 65,
+            "usual": 15
+          },
+          {
+            "offense": "stalking",
+            "geo": "On-campus",
+            "count": 43,
+            "usual": 4
+          }
         ],
         "counts": {
           "criminal": 158,

@@ -52,13 +52,22 @@
   ],
   "institution": {
     "id": 236656,
+    "ratesFile": "rates/institutions/236656.json",
     "byYear": {
       "2021": {
         "campuses": 3,
         "online": 19,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 2755,
+        "flags": [
+          {
+            "offense": "robbery",
+            "geo": "Public property",
+            "count": 10,
+            "usual": 0
+          }
+        ],
         "counts": {
           "criminal": 13,
           "violent": 11,
@@ -72,11 +81,12 @@
       "2022": {
         "campuses": 3,
         "online": 56,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1667,
         "fteUncertain": {
           "share": 1211,
-          "partTimeFirst": 1667
+          "partTimeFirst": 1667,
+          "reason": "own"
         },
         "counts": {
           "criminal": 3,
@@ -88,11 +98,12 @@
       "2023": {
         "campuses": 3,
         "online": 47,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2254,
         "fteUncertain": {
           "share": 1682,
-          "partTimeFirst": 2254
+          "partTimeFirst": 2254,
+          "reason": "own"
         },
         "counts": {
           "criminal": 1,
@@ -109,11 +120,12 @@
       "2024": {
         "campuses": 3,
         "online": 45,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2679,
         "fteUncertain": {
           "share": 2046,
-          "partTimeFirst": 2679
+          "partTimeFirst": 2679,
+          "reason": "own"
         },
         "counts": {
           "criminal": 1,

@@ -103,11 +103,12 @@
   ],
   "institution": {
     "id": 165167,
+    "ratesFile": "rates/institutions/165167.json",
     "byYear": {
       "2015": {
         "campuses": 5,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1780,
         "counts": {
           "criminal": 3,
@@ -120,14 +121,22 @@
       "2016": {
         "campuses": 5,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1381
       },
       "2017": {
         "campuses": 5,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1432,
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "Public property",
+            "count": 13,
+            "usual": 0
+          }
+        ],
         "counts": {
           "criminal": 22,
           "violent": 9,
@@ -141,8 +150,16 @@
       "2018": {
         "campuses": 5,
         "online": 4,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1365,
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "Public property",
+            "count": 13,
+            "usual": 0
+          }
+        ],
         "counts": {
           "criminal": 22,
           "violent": 9,
@@ -155,7 +172,7 @@
       "2019": {
         "campuses": 5,
         "online": 18,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1263,
         "counts": {
           "criminal": 16,
@@ -170,9 +187,18 @@
       "2020": {
         "campuses": 5,
         "online": 18,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 1341,
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "Public property",
+            "count": 28,
+            "usual": 4
+          }
+        ],
         "counts": {
           "criminal": 40,
           "violent": 40,
@@ -184,9 +210,17 @@
       "2021": {
         "campuses": 5,
         "online": 18,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 1164,
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "Public property",
+            "count": 24,
+            "usual": 4
+          }
+        ],
         "counts": {
           "criminal": 43,
           "violent": 39,
@@ -200,8 +234,17 @@
       "2022": {
         "campuses": 5,
         "online": 33,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 851,
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "Public property",
+            "count": 27,
+            "usual": 4
+          }
+        ],
         "counts": {
           "criminal": 48,
           "violent": 46,

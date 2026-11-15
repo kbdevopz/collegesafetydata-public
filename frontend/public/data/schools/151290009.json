@@ -65,16 +65,26 @@
   ],
   "institution": {
     "id": 151290,
+    "ratesFile": "rates/institutions/151290.json",
     "byYear": {
       "2015": {
         "campuses": 14,
         "online": 53,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 3545,
         "fteUncertain": {
           "share": 2691,
-          "partTimeFirst": 3545
+          "partTimeFirst": 3545,
+          "reason": "own"
         },
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "On-campus",
+            "count": 19,
+            "usual": 1
+          }
+        ],
         "counts": {
           "criminal": 19,
           "property": 19,
@@ -89,11 +99,12 @@
       "2016": {
         "campuses": 14,
         "online": 53,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 3813,
         "fteUncertain": {
           "share": 2873,
-          "partTimeFirst": 3813
+          "partTimeFirst": 3813,
+          "reason": "own"
         },
         "counts": {
           "criminal": 1,
@@ -109,11 +120,12 @@
       "2017": {
         "campuses": 14,
         "online": 58,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 3306,
         "fteUncertain": {
           "share": 2492,
-          "partTimeFirst": 3306
+          "partTimeFirst": 3306,
+          "reason": "own"
         },
         "counts": {
           "criminal": 11,

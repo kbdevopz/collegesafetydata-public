@@ -40,11 +40,12 @@
   ],
   "institution": {
     "id": 228723,
+    "ratesFile": "rates/institutions/228723.json",
     "byYear": {
       "2024": {
         "campuses": 13,
         "online": 6,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 69443,
         "abroad": {
           "campuses": 2,
@@ -53,75 +54,20 @@
             "stalking": 9
           }
         },
-        "sharedOut": {
-          "criminal": 44,
-          "violent": 13,
-          "property": 20,
-          "all": 276,
-          "aggravated_assault": 1,
-          "burglary": 7,
-          "dating_violence": 7,
-          "domestic_violence": 18,
-          "drug_arrest": 51,
-          "drug_discipline": 16,
-          "fondling": 11,
-          "liquor_arrest": 46,
-          "liquor_discipline": 54,
-          "motor_vehicle_theft": 13,
-          "rape": 12,
-          "stalking": 37,
-          "weapons_arrest": 3
-        },
-        "notRanked": {
-          "criminal": [
-            "shared"
-          ],
-          "violent": [
-            "shared"
-          ],
-          "property": [
-            "shared"
-          ],
-          "all": [
-            "shared"
-          ],
-          "burglary": [
-            "shared"
-          ],
-          "dating_violence": [
-            "shared"
-          ],
-          "domestic_violence": [
-            "shared"
-          ],
-          "drug_arrest": [
-            "shared"
-          ],
-          "drug_discipline": [
-            "shared"
-          ],
-          "fondling": [
-            "shared"
-          ],
-          "liquor_arrest": [
-            "shared"
-          ],
-          "liquor_discipline": [
-            "shared"
-          ],
-          "motor_vehicle_theft": [
-            "shared"
-          ],
-          "rape": [
-            "shared"
-          ],
-          "stalking": [
-            "shared"
-          ],
-          "weapons_arrest": [
-            "shared"
-          ]
-        },
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 190,
+            "usual": 30
+          },
+          {
+            "offense": "stalking",
+            "geo": "On-campus",
+            "count": 415,
+            "usual": 213
+          }
+        ],
         "counts": {
           "criminal": 389,
           "violent": 91,

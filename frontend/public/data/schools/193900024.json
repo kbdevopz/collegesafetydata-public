@@ -69,11 +69,13 @@
   ],
   "institution": {
     "id": 193900,
+    "ratesFile": "rates/institutions/193900.json",
     "byYear": {
       "2020": {
         "campuses": 6,
         "online": 4,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 46588,
         "abroad": {
@@ -90,33 +92,6 @@
             "rape": 1,
             "stalking": 1
           }
-        },
-        "medical": {
-          "criminal": 9,
-          "property": 9,
-          "all": 15,
-          "arson": 5,
-          "burglary": 2,
-          "dating_violence": 1,
-          "domestic_violence": 5,
-          "motor_vehicle_theft": 2
-        },
-        "notRanked": {
-          "property": [
-            "medical_campus"
-          ],
-          "burglary": [
-            "medical_campus"
-          ],
-          "dating_violence": [
-            "medical_campus"
-          ],
-          "domestic_violence": [
-            "medical_campus"
-          ],
-          "motor_vehicle_theft": [
-            "medical_campus"
-          ]
         },
         "counts": {
           "criminal": 43,
@@ -140,7 +115,7 @@
       "2021": {
         "campuses": 6,
         "online": 4,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 51889,
         "abroad": {
@@ -160,25 +135,20 @@
             "stalking": 1
           }
         },
-        "medical": {
-          "criminal": 5,
-          "violent": 1,
-          "property": 4,
-          "all": 16,
-          "dating_violence": 1,
-          "domestic_violence": 7,
-          "motor_vehicle_theft": 4,
-          "robbery": 1,
-          "stalking": 3
-        },
-        "notRanked": {
-          "dating_violence": [
-            "medical_campus"
-          ],
-          "domestic_violence": [
-            "medical_campus"
-          ]
-        },
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "Public property",
+            "count": 15,
+            "usual": 1
+          },
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "Public property",
+            "count": 20,
+            "usual": 3
+          }
+        ],
         "counts": {
           "criminal": 72,
           "violent": 29,
@@ -203,7 +173,7 @@
       "2022": {
         "campuses": 10,
         "online": 7,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 52324,
         "abroad": {
           "campuses": 13,
@@ -221,36 +191,14 @@
             "stalking": 2
           }
         },
-        "medical": {
-          "criminal": 25,
-          "violent": 8,
-          "property": 15,
-          "all": 33,
-          "aggravated_assault": 4,
-          "arson": 1,
-          "burglary": 4,
-          "dating_violence": 2,
-          "domestic_violence": 5,
-          "fondling": 2,
-          "motor_vehicle_theft": 10,
-          "rape": 1,
-          "robbery": 3,
-          "weapons_arrest": 1
-        },
-        "notRanked": {
-          "aggravated_assault": [
-            "medical_campus"
-          ],
-          "domestic_violence": [
-            "medical_campus"
-          ],
-          "rape": [
-            "medical_campus"
-          ],
-          "weapons_arrest": [
-            "medical_campus"
-          ]
-        },
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "Public property",
+            "count": 41,
+            "usual": 3
+          }
+        ],
         "counts": {
           "criminal": 117,
           "violent": 33,
@@ -277,7 +225,7 @@
       "2023": {
         "campuses": 10,
         "online": 6,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 51336,
         "abroad": {
           "campuses": 13,
@@ -297,43 +245,20 @@
             "stalking": 5
           }
         },
-        "medical": {
-          "criminal": 40,
-          "violent": 33,
-          "property": 3,
-          "all": 48,
-          "aggravated_assault": 30,
-          "dating_violence": 2,
-          "domestic_violence": 4,
-          "fondling": 4,
-          "motor_vehicle_theft": 3,
-          "robbery": 3,
-          "stalking": 1,
-          "weapons_arrest": 1
-        },
-        "notRanked": {
-          "criminal": [
-            "medical_campus"
-          ],
-          "violent": [
-            "medical_campus"
-          ],
-          "aggravated_assault": [
-            "medical_campus"
-          ],
-          "dating_violence": [
-            "medical_campus"
-          ],
-          "domestic_violence": [
-            "medical_campus"
-          ],
-          "fondling": [
-            "medical_campus"
-          ],
-          "weapons_arrest": [
-            "medical_campus"
-          ]
-        },
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "On-campus",
+            "count": 39,
+            "usual": 1
+          },
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "Public property",
+            "count": 43,
+            "usual": 3
+          }
+        ],
         "counts": {
           "criminal": 149,
           "violent": 75,
@@ -360,7 +285,7 @@
       "2024": {
         "campuses": 12,
         "online": 6,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 51293,
         "abroad": {
           "campuses": 14,
@@ -375,34 +300,26 @@
             "stalking": 1
           }
         },
-        "medical": {
-          "criminal": 34,
-          "violent": 15,
-          "property": 13,
-          "all": 38,
-          "aggravated_assault": 14,
-          "burglary": 1,
-          "domestic_violence": 1,
-          "fondling": 6,
-          "motor_vehicle_theft": 12,
-          "robbery": 1,
-          "stalking": 2,
-          "weapons_arrest": 1
-        },
-        "notRanked": {
-          "aggravated_assault": [
-            "medical_campus"
-          ],
-          "fondling": [
-            "medical_campus"
-          ],
-          "motor_vehicle_theft": [
-            "medical_campus"
-          ],
-          "weapons_arrest": [
-            "medical_campus"
-          ]
-        },
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "On-campus",
+            "count": 14,
+            "usual": 1
+          },
+          {
+            "offense": "aggravated_assault",
+            "geo": "Public property",
+            "count": 23,
+            "usual": 1
+          },
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "Public property",
+            "count": 37,
+            "usual": 3
+          }
+        ],
         "counts": {
           "criminal": 145,
           "violent": 62,

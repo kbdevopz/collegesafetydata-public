@@ -150,29 +150,32 @@
   ],
   "institution": {
     "id": 125532,
+    "ratesFile": "rates/institutions/125532.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 16,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1056
       },
       "2016": {
         "campuses": 1,
         "online": 24,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 901
       },
       "2017": {
         "campuses": 1,
         "online": 24,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 854
       },
       "2018": {
         "campuses": 7,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1638,
         "pooledWith": [
           {
@@ -197,7 +200,7 @@
       "2019": {
         "campuses": 7,
         "online": 13,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2837,
         "counts": {
           "criminal": 2,
@@ -213,14 +216,15 @@
       "2020": {
         "campuses": 2,
         "online": 13,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 1487
       },
       "2021": {
         "campuses": 2,
         "online": 13,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 1428,
         "counts": {
@@ -233,19 +237,22 @@
       "2022": {
         "campuses": 2,
         "online": 46,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 992
       },
       "2023": {
         "campuses": 2,
         "online": 57,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 984
       },
       "2024": {
         "campuses": 1,
         "online": 56,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 971
       }
     }

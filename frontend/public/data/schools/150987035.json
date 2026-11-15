@@ -75,11 +75,12 @@
   ],
   "institution": {
     "id": 150987,
+    "ratesFile": "rates/institutions/150987.json",
     "byYear": {
       "2017": {
         "campuses": 65,
         "online": 18,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 34851,
         "counts": {
           "criminal": 3,
@@ -96,7 +97,7 @@
       "2018": {
         "campuses": 65,
         "online": 21,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 32834,
         "counts": {
           "criminal": 3,
@@ -114,7 +115,7 @@
       "2019": {
         "campuses": 62,
         "online": 23,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 32902,
         "counts": {
           "criminal": 4,
@@ -134,7 +135,8 @@
       "2020": {
         "campuses": 59,
         "online": 23,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 34422,
         "counts": {
@@ -152,7 +154,7 @@
       "2021": {
         "campuses": 38,
         "online": 23,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 32710,
         "counts": {
@@ -170,7 +172,7 @@
       "2022": {
         "campuses": 37,
         "online": 16,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 36208,
         "counts": {
           "criminal": 9,
@@ -189,10 +191,15 @@
       "2023": {
         "campuses": 36,
         "online": 16,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 40259,
-        "spikes": [
-          "criminal"
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "On-campus",
+            "count": 16,
+            "usual": 0
+          }
         ],
         "counts": {
           "criminal": 21,
@@ -211,7 +218,7 @@
       "2024": {
         "campuses": 35,
         "online": 15,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 44225,
         "counts": {
           "criminal": 8,

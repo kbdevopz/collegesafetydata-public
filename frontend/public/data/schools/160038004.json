@@ -74,15 +74,17 @@
   "breakdownByGeo": [],
   "institution": {
     "id": 160038,
+    "ratesFile": "rates/institutions/160038.json",
     "byYear": {
       "2015": {
         "campuses": 4,
         "online": 36,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 5500,
         "fteUncertain": {
           "share": 4353,
-          "partTimeFirst": 5500
+          "partTimeFirst": 5500,
+          "reason": "own"
         },
         "counts": {
           "criminal": 22,
@@ -105,11 +107,12 @@
       "2016": {
         "campuses": 4,
         "online": 36,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 5785,
         "fteUncertain": {
           "share": 4598,
-          "partTimeFirst": 5785
+          "partTimeFirst": 5785,
+          "reason": "own"
         },
         "counts": {
           "criminal": 24,
@@ -132,11 +135,12 @@
       "2017": {
         "campuses": 4,
         "online": 39,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 5987,
         "fteUncertain": {
           "share": 4648,
-          "partTimeFirst": 5987
+          "partTimeFirst": 5987,
+          "reason": "own"
         },
         "counts": {
           "criminal": 20,
@@ -162,11 +166,12 @@
       "2018": {
         "campuses": 4,
         "online": 42,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 6427,
         "fteUncertain": {
           "share": 4816,
-          "partTimeFirst": 6427
+          "partTimeFirst": 6427,
+          "reason": "own"
         },
         "counts": {
           "criminal": 26,
@@ -192,12 +197,21 @@
       "2019": {
         "campuses": 4,
         "online": 42,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 6322,
         "fteUncertain": {
           "share": 4788,
-          "partTimeFirst": 6322
+          "partTimeFirst": 6322,
+          "reason": "own"
         },
+        "flags": [
+          {
+            "offense": "dating_violence",
+            "geo": "On-campus",
+            "count": 16,
+            "usual": 3
+          }
+        ],
         "counts": {
           "criminal": 36,
           "violent": 5,
@@ -222,12 +236,14 @@
       "2020": {
         "campuses": 4,
         "online": 42,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 6492,
         "fteUncertain": {
           "share": 4871,
-          "partTimeFirst": 6492
+          "partTimeFirst": 6492,
+          "reason": "own"
         },
         "counts": {
           "criminal": 31,
@@ -250,12 +266,13 @@
       "2021": {
         "campuses": 4,
         "online": 42,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 6024,
         "fteUncertain": {
           "share": 4528,
-          "partTimeFirst": 6024
+          "partTimeFirst": 6024,
+          "reason": "own"
         },
         "counts": {
           "criminal": 18,
@@ -281,11 +298,12 @@
       "2022": {
         "campuses": 4,
         "online": 57,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 4078,
         "fteUncertain": {
           "share": 2909,
-          "partTimeFirst": 4078
+          "partTimeFirst": 4078,
+          "reason": "own"
         },
         "counts": {
           "criminal": 28,
@@ -309,11 +327,12 @@
       "2023": {
         "campuses": 4,
         "online": 57,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 3826,
         "fteUncertain": {
           "share": 2741,
-          "partTimeFirst": 3826
+          "partTimeFirst": 3826,
+          "reason": "own"
         },
         "counts": {
           "criminal": 14,
@@ -337,11 +356,12 @@
       "2024": {
         "campuses": 4,
         "online": 48,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 4403,
         "fteUncertain": {
           "share": 3201,
-          "partTimeFirst": 4403
+          "partTimeFirst": 4403,
+          "reason": "own"
         },
         "counts": {
           "criminal": 17,

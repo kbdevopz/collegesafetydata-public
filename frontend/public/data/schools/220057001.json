@@ -134,11 +134,12 @@
   "breakdownByGeo": [],
   "institution": {
     "id": 220057,
+    "ratesFile": "rates/institutions/220057.json",
     "byYear": {
       "2015": {
         "campuses": 3,
         "online": 12,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1659,
         "counts": {
           "all": 3,
@@ -149,7 +150,7 @@
       "2016": {
         "campuses": 3,
         "online": 12,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1664,
         "counts": {
           "criminal": 1,
@@ -163,7 +164,7 @@
       "2017": {
         "campuses": 3,
         "online": 14,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1600,
         "counts": {
           "criminal": 5,
@@ -180,7 +181,7 @@
       "2018": {
         "campuses": 3,
         "online": 19,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1609,
         "counts": {
           "all": 1,
@@ -190,47 +191,50 @@
       "2019": {
         "campuses": 3,
         "online": 18,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1631
       },
       "2020": {
         "campuses": 3,
         "online": 18,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 1480
       },
       "2021": {
         "campuses": 3,
         "online": 18,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 1552
       },
       "2022": {
         "campuses": 3,
         "online": 35,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1375,
         "fteUncertain": {
           "share": 1099,
-          "partTimeFirst": 1375
+          "partTimeFirst": 1375,
+          "reason": "own"
         }
       },
       "2023": {
         "campuses": 2,
         "online": 36,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1511
       },
       "2024": {
         "campuses": 2,
         "online": 36,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1647,
         "fteUncertain": {
           "share": 1309,
-          "partTimeFirst": 1647
+          "partTimeFirst": 1647,
+          "reason": "own"
         }
       }
     }

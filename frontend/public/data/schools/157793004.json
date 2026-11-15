@@ -64,11 +64,13 @@
   ],
   "institution": {
     "id": 157793,
+    "ratesFile": "rates/institutions/157793.json",
     "byYear": {
       "2017": {
         "campuses": 6,
         "online": 33,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "excluded",
         "rateExcludedReason": "In 2017 the figures of campus 157793009 count for this institution, but IPEDS counts that campus's students under institution 157270 (DOE also reported it as 157270001: a merger or renumbering), which counts other campuses of its own that year. No rate is shown for that year.",
         "rateFte": 2127,
         "counts": {
@@ -83,11 +85,12 @@
       "2018": {
         "campuses": 6,
         "online": 39,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2181,
         "fteUncertain": {
           "share": 1732,
-          "partTimeFirst": 2181
+          "partTimeFirst": 2181,
+          "reason": "own"
         },
         "counts": {
           "criminal": 6,
@@ -105,11 +108,12 @@
       "2019": {
         "campuses": 6,
         "online": 42,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1924,
         "fteUncertain": {
           "share": 1517,
-          "partTimeFirst": 1924
+          "partTimeFirst": 1924,
+          "reason": "own"
         },
         "counts": {
           "criminal": 5,
@@ -124,12 +128,14 @@
       "2020": {
         "campuses": 6,
         "online": 42,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 1836,
         "fteUncertain": {
           "share": 1449,
-          "partTimeFirst": 1836
+          "partTimeFirst": 1836,
+          "reason": "own"
         },
         "counts": {
           "criminal": 6,
@@ -144,12 +150,13 @@
       "2021": {
         "campuses": 6,
         "online": 42,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 1615,
         "fteUncertain": {
           "share": 1233,
-          "partTimeFirst": 1615
+          "partTimeFirst": 1615,
+          "reason": "own"
         },
         "counts": {
           "criminal": 2,
@@ -164,7 +171,7 @@
       "2022": {
         "campuses": 6,
         "online": 56,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1022,
         "counts": {
           "criminal": 4,
@@ -181,11 +188,12 @@
       "2023": {
         "campuses": 6,
         "online": 52,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1367,
         "fteUncertain": {
           "share": 1033,
-          "partTimeFirst": 1367
+          "partTimeFirst": 1367,
+          "reason": "own"
         },
         "counts": {
           "criminal": 1,

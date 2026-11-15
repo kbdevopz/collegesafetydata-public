@@ -127,11 +127,12 @@
   ],
   "institution": {
     "id": 119553,
+    "ratesFile": "rates/institutions/119553.json",
     "byYear": {
       "2019": {
         "campuses": 10,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1216,
         "counts": {
           "criminal": 6,
@@ -149,7 +150,8 @@
       "2020": {
         "campuses": 10,
         "online": 0,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 1058,
         "counts": {
@@ -167,7 +169,7 @@
       "2021": {
         "campuses": 10,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 1187,
         "counts": {
@@ -185,7 +187,7 @@
       "2022": {
         "campuses": 10,
         "online": 16,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1006,
         "counts": {
           "criminal": 4,
@@ -202,7 +204,8 @@
       "2023": {
         "campuses": 10,
         "online": 13,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 987,
         "counts": {
           "criminal": 5,
@@ -218,7 +221,8 @@
       "2024": {
         "campuses": 10,
         "online": 23,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 969,
         "counts": {
           "criminal": 4,

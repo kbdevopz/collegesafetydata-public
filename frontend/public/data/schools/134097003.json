@@ -68,11 +68,12 @@
   ],
   "institution": {
     "id": 134097,
+    "ratesFile": "rates/institutions/134097.json",
     "byYear": {
       "2017": {
         "campuses": 2,
         "online": 6,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 36530,
         "abroad": {
           "campuses": 1,
@@ -103,7 +104,7 @@
       "2018": {
         "campuses": 2,
         "online": 7,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 36298,
         "abroad": {
           "campuses": 1,
@@ -134,7 +135,7 @@
       "2019": {
         "campuses": 2,
         "online": 8,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 37058,
         "abroad": {
           "campuses": 1,
@@ -162,7 +163,8 @@
       "2020": {
         "campuses": 2,
         "online": 8,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 37342,
         "abroad": {
@@ -193,7 +195,7 @@
       "2021": {
         "campuses": 2,
         "online": 8,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 38601,
         "abroad": {
@@ -224,7 +226,7 @@
       "2022": {
         "campuses": 2,
         "online": 12,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 36999,
         "abroad": {
           "campuses": 1,
@@ -255,7 +257,7 @@
       "2023": {
         "campuses": 5,
         "online": 12,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 36429,
         "abroad": {
           "campuses": 4,
@@ -267,6 +269,20 @@
             "liquor_discipline": 20
           }
         },
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "Non-campus",
+            "count": 16,
+            "usual": 0
+          },
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 69,
+            "usual": 22
+          }
+        ],
         "counts": {
           "criminal": 144,
           "violent": 42,
@@ -292,7 +308,7 @@
       "2024": {
         "campuses": 5,
         "online": 13,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 36799,
         "abroad": {
           "campuses": 4,
@@ -303,8 +319,13 @@
             "burglary": 1
           }
         },
-        "spikes": [
-          "drug_discipline"
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 109,
+            "usual": 22
+          }
         ],
         "counts": {
           "criminal": 157,

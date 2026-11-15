@@ -157,11 +157,12 @@
   ],
   "institution": {
     "id": 157438,
+    "ratesFile": "rates/institutions/157438.json",
     "byYear": {
       "2015": {
         "campuses": 4,
         "online": 18,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2101,
         "counts": {
           "criminal": 7,
@@ -179,7 +180,7 @@
       "2016": {
         "campuses": 4,
         "online": 18,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2104,
         "counts": {
           "criminal": 4,
@@ -194,7 +195,7 @@
       "2017": {
         "campuses": 3,
         "online": 20,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1999,
         "counts": {
           "all": 1,
@@ -204,26 +205,27 @@
       "2018": {
         "campuses": 3,
         "online": 20,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1943
       },
       "2019": {
         "campuses": 3,
         "online": 22,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2091
       },
       "2020": {
         "campuses": 3,
         "online": 22,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 1890
       },
       "2021": {
         "campuses": 3,
         "online": 22,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 1752,
         "counts": {
@@ -234,23 +236,24 @@
       "2022": {
         "campuses": 3,
         "online": 37,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1728
       },
       "2023": {
         "campuses": 3,
         "online": 42,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1731
       },
       "2024": {
         "campuses": 3,
         "online": 43,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1975,
         "fteUncertain": {
           "share": 1564,
-          "partTimeFirst": 1975
+          "partTimeFirst": 1975,
+          "reason": "own"
         }
       }
     }

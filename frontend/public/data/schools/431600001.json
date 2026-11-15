@@ -378,73 +378,102 @@
   ],
   "institution": {
     "id": 431600,
+    "ratesFile": "rates/institutions/431600.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 89
       },
       "2016": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": false,
-        "rateFte": 97
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 97,
+        "flags": [
+          {
+            "offense": "domestic_violence",
+            "geo": "On-campus",
+            "count": 16,
+            "usual": 1
+          }
+        ]
       },
       "2017": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 135,
-        "spikes": [
-          "domestic_violence"
+        "flags": [
+          {
+            "offense": "domestic_violence",
+            "geo": "On-campus",
+            "count": 32,
+            "usual": 1
+          }
         ]
       },
       "2018": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 149
       },
       "2019": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 148
       },
       "2020": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "onlineYear": 2019,
         "rateFte": 152
       },
       "2021": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "onlineYear": 2019,
         "rateFte": 133
       },
       "2022": {
         "campuses": 1,
         "online": 1,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 150
       },
       "2023": {
         "campuses": 1,
         "online": 1,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 267
       },
       "2024": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 271,
-        "spikes": [
-          "violent"
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "On-campus",
+            "count": 46,
+            "usual": 12
+          }
         ]
       }
     }

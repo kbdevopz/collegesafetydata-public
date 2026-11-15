@@ -48,11 +48,12 @@
   ],
   "institution": {
     "id": 195809,
+    "ratesFile": "rates/institutions/195809.json",
     "byYear": {
       "2018": {
         "campuses": 5,
         "online": 3,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 17042,
         "abroad": {
           "campuses": 3,
@@ -86,7 +87,7 @@
       "2019": {
         "campuses": 5,
         "online": 3,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 16974,
         "abroad": {
           "campuses": 3,
@@ -95,6 +96,14 @@
             "drug_discipline": 7
           }
         },
+        "flags": [
+          {
+            "offense": "dating_violence",
+            "geo": "On-campus",
+            "count": 15,
+            "usual": 2
+          }
+        ],
         "counts": {
           "criminal": 19,
           "violent": 9,
@@ -117,7 +126,8 @@
       "2020": {
         "campuses": 5,
         "online": 3,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 15507,
         "abroad": {

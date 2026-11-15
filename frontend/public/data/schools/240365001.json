@@ -732,23 +732,25 @@
   ],
   "institution": {
     "id": 240365,
+    "ratesFile": "rates/institutions/240365.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 6,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 10610
       },
       "2016": {
         "campuses": 1,
         "online": 5,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 10434
       },
       "2017": {
         "campuses": 3,
         "online": 6,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "excluded",
         "rateExcludedReason": "In 2017 DOE reported campus 240365003 of this institution also under ID 240055005 of another institution (a merger or renumbering), and IPEDS has an FTE for both institutions, so it cannot be told which FTE holds that campus's students. No rate is shown for that year.",
         "rateFte": 10160,
         "counts": {
@@ -774,7 +776,7 @@
       "2018": {
         "campuses": 3,
         "online": 7,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 11714,
         "counts": {
           "criminal": 13,
@@ -799,7 +801,7 @@
       "2019": {
         "campuses": 3,
         "online": 6,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 11090,
         "counts": {
           "criminal": 10,
@@ -822,7 +824,8 @@
       "2020": {
         "campuses": 3,
         "online": 6,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 10630,
         "counts": {
@@ -843,7 +846,7 @@
       "2021": {
         "campuses": 3,
         "online": 6,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 9823,
         "counts": {
@@ -865,19 +868,19 @@
       "2022": {
         "campuses": 3,
         "online": 9,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 9190
       },
       "2023": {
         "campuses": 3,
         "online": 10,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 9100
       },
       "2024": {
         "campuses": 3,
         "online": 11,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 8374
       }
     }

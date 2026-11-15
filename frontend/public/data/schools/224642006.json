@@ -56,11 +56,12 @@
   ],
   "institution": {
     "id": 224642,
+    "ratesFile": "rates/institutions/224642.json",
     "byYear": {
       "2015": {
         "campuses": 7,
         "online": 7,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 14650,
         "counts": {
           "criminal": 1,
@@ -75,10 +76,15 @@
       "2016": {
         "campuses": 7,
         "online": 7,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 15095,
-        "spikes": [
-          "all"
+        "flags": [
+          {
+            "offense": "domestic_violence",
+            "geo": "Public property",
+            "count": 15,
+            "usual": 3
+          }
         ],
         "counts": {
           "criminal": 19,
@@ -100,7 +106,7 @@
       "2017": {
         "campuses": 7,
         "online": 9,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 14569,
         "counts": {
           "criminal": 5,
@@ -117,7 +123,7 @@
       "2018": {
         "campuses": 7,
         "online": 8,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 14763,
         "counts": {
           "criminal": 5,
@@ -136,7 +142,7 @@
       "2019": {
         "campuses": 7,
         "online": 9,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 14703,
         "counts": {
           "criminal": 3,

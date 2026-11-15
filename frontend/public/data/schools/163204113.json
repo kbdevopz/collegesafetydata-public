@@ -103,15 +103,17 @@
   ],
   "institution": {
     "id": 163204,
+    "ratesFile": "rates/institutions/163204.json",
     "byYear": {
       "2015": {
         "campuses": 25,
         "online": 83,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 8542,
         "fteUncertain": {
           "share": 4237,
-          "partTimeFirst": 8542
+          "partTimeFirst": 8542,
+          "reason": "own"
         },
         "abroad": {
           "campuses": 2,
@@ -139,11 +141,12 @@
       "2016": {
         "campuses": 24,
         "online": 77,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 11041,
         "fteUncertain": {
           "share": 6533,
-          "partTimeFirst": 11041
+          "partTimeFirst": 11041,
+          "reason": "own"
         },
         "abroad": {
           "campuses": 2,
@@ -178,11 +181,12 @@
       "2017": {
         "campuses": 27,
         "online": 79,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 10846,
         "fteUncertain": {
           "share": 6139,
-          "partTimeFirst": 10846
+          "partTimeFirst": 10846,
+          "reason": "own"
         },
         "abroad": {
           "campuses": 2,
@@ -204,11 +208,12 @@
       "2018": {
         "campuses": 7,
         "online": 80,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 10653,
         "fteUncertain": {
           "share": 5938,
-          "partTimeFirst": 10653
+          "partTimeFirst": 10653,
+          "reason": "own"
         },
         "abroad": {
           "campuses": 2,
@@ -227,11 +232,12 @@
       "2019": {
         "campuses": 7,
         "online": 80,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 10385,
         "fteUncertain": {
           "share": 5744,
-          "partTimeFirst": 10385
+          "partTimeFirst": 10385,
+          "reason": "own"
         },
         "abroad": {
           "campuses": 2,
@@ -245,23 +251,38 @@
       "2020": {
         "campuses": 6,
         "online": 80,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 11011,
         "fteUncertain": {
           "share": 5889,
-          "partTimeFirst": 11011
+          "partTimeFirst": 11011,
+          "reason": "own"
         },
         "abroad": {
           "campuses": 2,
           "counts": {}
         },
-        "spikes": [
-          "criminal",
-          "property",
-          "all",
-          "burglary",
-          "motor_vehicle_theft"
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "Non-campus",
+            "count": 28,
+            "usual": 2
+          },
+          {
+            "offense": "domestic_violence",
+            "geo": "Non-campus",
+            "count": 13,
+            "usual": 0
+          },
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "Non-campus",
+            "count": 28,
+            "usual": 0
+          }
         ],
         "counts": {
           "criminal": 78,
@@ -285,17 +306,26 @@
       "2021": {
         "campuses": 6,
         "online": 80,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 10463,
         "fteUncertain": {
           "share": 5582,
-          "partTimeFirst": 10463
+          "partTimeFirst": 10463,
+          "reason": "own"
         },
         "abroad": {
           "campuses": 2,
           "counts": {}
         },
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "Non-campus",
+            "count": 14,
+            "usual": 0
+          }
+        ],
         "counts": {
           "criminal": 27,
           "violent": 15,
@@ -314,11 +344,12 @@
       "2022": {
         "campuses": 6,
         "online": 90,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 5339,
         "fteUncertain": {
           "share": 2822,
-          "partTimeFirst": 5339
+          "partTimeFirst": 5339,
+          "reason": "own"
         },
         "abroad": {
           "campuses": 2,
@@ -343,11 +374,12 @@
       "2023": {
         "campuses": 7,
         "online": 89,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 6336,
         "fteUncertain": {
           "share": 3379,
-          "partTimeFirst": 6336
+          "partTimeFirst": 6336,
+          "reason": "own"
         },
         "abroad": {
           "campuses": 2,
@@ -366,83 +398,16 @@
       "2024": {
         "campuses": 8,
         "online": 90,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 6233,
         "fteUncertain": {
           "share": 3281,
-          "partTimeFirst": 6233
+          "partTimeFirst": 6233,
+          "reason": "own"
         },
         "abroad": {
           "campuses": 2,
           "counts": {}
-        },
-        "sharedOut": {
-          "criminal": 321,
-          "violent": 16,
-          "property": 297,
-          "all": 502,
-          "aggravated_assault": 6,
-          "burglary": 10,
-          "dating_violence": 8,
-          "domestic_violence": 4,
-          "drug_arrest": 4,
-          "drug_discipline": 35,
-          "fondling": 8,
-          "liquor_discipline": 104,
-          "motor_vehicle_theft": 287,
-          "rape": 10,
-          "stalking": 24,
-          "weapons_arrest": 2
-        },
-        "notRanked": {
-          "criminal": [
-            "shared"
-          ],
-          "violent": [
-            "shared"
-          ],
-          "property": [
-            "shared"
-          ],
-          "all": [
-            "shared"
-          ],
-          "aggravated_assault": [
-            "shared"
-          ],
-          "burglary": [
-            "shared"
-          ],
-          "dating_violence": [
-            "shared"
-          ],
-          "domestic_violence": [
-            "shared"
-          ],
-          "drug_arrest": [
-            "shared"
-          ],
-          "drug_discipline": [
-            "shared"
-          ],
-          "fondling": [
-            "shared"
-          ],
-          "liquor_discipline": [
-            "shared"
-          ],
-          "motor_vehicle_theft": [
-            "shared"
-          ],
-          "rape": [
-            "shared"
-          ],
-          "stalking": [
-            "shared"
-          ],
-          "weapons_arrest": [
-            "shared"
-          ]
         },
         "counts": {
           "criminal": 8,

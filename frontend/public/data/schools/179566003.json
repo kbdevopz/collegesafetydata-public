@@ -52,16 +52,25 @@
   ],
   "institution": {
     "id": 179566,
+    "ratesFile": "rates/institutions/179566.json",
     "byYear": {
       "2016": {
         "campuses": 9,
         "online": 7,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 18750,
         "abroad": {
           "campuses": 1,
           "counts": {}
         },
+        "flags": [
+          {
+            "offense": "fondling",
+            "geo": "On-campus",
+            "count": 12,
+            "usual": 2
+          }
+        ],
         "counts": {
           "criminal": 37,
           "violent": 10,
@@ -87,7 +96,7 @@
       "2017": {
         "campuses": 10,
         "online": 8,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 18803,
         "abroad": {
           "campuses": 1,
@@ -118,15 +127,12 @@
       "2018": {
         "campuses": 12,
         "online": 9,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 18491,
         "abroad": {
           "campuses": 1,
           "counts": {}
         },
-        "spikes": [
-          "drug_discipline"
-        ],
         "counts": {
           "criminal": 55,
           "violent": 16,
@@ -150,7 +156,7 @@
       "2019": {
         "campuses": 12,
         "online": 10,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 17798,
         "abroad": {
           "campuses": 1,

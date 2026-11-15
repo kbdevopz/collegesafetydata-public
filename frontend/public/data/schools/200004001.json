@@ -986,23 +986,24 @@
   ],
   "institution": {
     "id": 200004,
+    "ratesFile": "rates/institutions/200004.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 17,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 8296
       },
       "2016": {
         "campuses": 3,
         "online": 18,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 8680
       },
       "2017": {
         "campuses": 3,
         "online": 18,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 8900,
         "counts": {
           "criminal": 43,
@@ -1028,7 +1029,7 @@
       "2018": {
         "campuses": 4,
         "online": 18,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 9444,
         "counts": {
           "criminal": 43,
@@ -1054,43 +1055,57 @@
       "2019": {
         "campuses": 4,
         "online": 20,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 9734,
-        "spikes": [
-          "fondling"
+        "flags": [
+          {
+            "offense": "fondling",
+            "geo": "On-campus",
+            "count": 47,
+            "usual": 6
+          }
         ]
       },
       "2020": {
         "campuses": 4,
         "online": 20,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 9697
       },
       "2021": {
         "campuses": 4,
         "online": 20,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 9297
       },
       "2022": {
         "campuses": 4,
         "online": 25,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 8680
       },
       "2023": {
         "campuses": 4,
         "online": 24,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 8709
       },
       "2024": {
         "campuses": 4,
         "online": 24,
-        "rateRanked": true,
-        "rateFte": 8793
+        "rated": true,
+        "rateFte": 8793,
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 17,
+            "usual": 2
+          }
+        ]
       }
     }
   }

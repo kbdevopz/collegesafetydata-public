@@ -576,29 +576,30 @@
   ],
   "institution": {
     "id": 190725,
+    "ratesFile": "rates/institutions/190725.json",
     "byYear": {
       "2015": {
         "campuses": 2,
         "online": 2,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2418
       },
       "2016": {
         "campuses": 2,
         "online": 3,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2408
       },
       "2017": {
         "campuses": 2,
         "online": 3,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2325
       },
       "2018": {
         "campuses": 2,
         "online": 7,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2190,
         "counts": {
           "criminal": 11,
@@ -620,20 +621,29 @@
       "2019": {
         "campuses": 2,
         "online": 13,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2174
       },
       "2020": {
         "campuses": 2,
         "online": 13,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 2137
+        "rateFte": 2137,
+        "flags": [
+          {
+            "offense": "domestic_violence",
+            "geo": "Public property",
+            "count": 10,
+            "usual": 0
+          }
+        ]
       },
       "2021": {
         "campuses": 2,
         "online": 13,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 2198,
         "counts": {
@@ -657,13 +667,13 @@
       "2022": {
         "campuses": 2,
         "online": 27,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1943
       },
       "2023": {
         "campuses": 2,
         "online": 27,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1935,
         "counts": {
           "criminal": 8,
@@ -683,7 +693,7 @@
       "2024": {
         "campuses": 2,
         "online": 27,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1856
       }
     }

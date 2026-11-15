@@ -74,11 +74,12 @@
   "breakdownByGeo": [],
   "institution": {
     "id": 228501,
+    "ratesFile": "rates/institutions/228501.json",
     "byYear": {
       "2015": {
         "campuses": 5,
         "online": 2,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1985,
         "counts": {
           "criminal": 12,
@@ -99,7 +100,7 @@
       "2016": {
         "campuses": 5,
         "online": 34,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1695,
         "counts": {
           "criminal": 12,
@@ -120,7 +121,7 @@
       "2017": {
         "campuses": 4,
         "online": 34,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1688,
         "counts": {
           "criminal": 7,
@@ -139,7 +140,7 @@
       "2018": {
         "campuses": 4,
         "online": 34,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1582,
         "counts": {
           "criminal": 1,
@@ -157,7 +158,7 @@
       "2019": {
         "campuses": 4,
         "online": 20,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1527,
         "counts": {
           "criminal": 5,
@@ -175,7 +176,8 @@
       "2020": {
         "campuses": 4,
         "online": 20,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 1494,
         "counts": {
@@ -192,7 +194,7 @@
       "2021": {
         "campuses": 4,
         "online": 20,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 1312,
         "counts": {
@@ -212,11 +214,12 @@
       "2022": {
         "campuses": 4,
         "online": 43,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1022,
         "fteUncertain": {
           "share": 794,
-          "partTimeFirst": 1022
+          "partTimeFirst": 1022,
+          "reason": "own"
         },
         "counts": {
           "criminal": 5,
@@ -235,11 +238,13 @@
       "2023": {
         "campuses": 4,
         "online": 46,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 977,
         "fteUncertain": {
           "share": 720,
-          "partTimeFirst": 977
+          "partTimeFirst": 977,
+          "reason": "own"
         },
         "counts": {
           "criminal": 12,
@@ -259,11 +264,12 @@
       "2024": {
         "campuses": 4,
         "online": 48,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1044,
         "fteUncertain": {
           "share": 795,
-          "partTimeFirst": 1044
+          "partTimeFirst": 1044,
+          "reason": "own"
         },
         "counts": {
           "criminal": 4,

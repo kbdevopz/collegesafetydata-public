@@ -152,17 +152,20 @@
   ],
   "institution": {
     "id": 194161,
+    "ratesFile": "rates/institutions/194161.json",
     "byYear": {
       "2015": {
         "campuses": 2,
         "online": 3,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2094,
-        "spikes": [
-          "criminal",
-          "all",
-          "drug_arrest",
-          "weapons_arrest"
+        "flags": [
+          {
+            "offense": "fondling",
+            "geo": "On-campus",
+            "count": 13,
+            "usual": 0.0
+          }
         ],
         "counts": {
           "criminal": 34,
@@ -184,7 +187,7 @@
       "2016": {
         "campuses": 2,
         "online": 6,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1918,
         "counts": {
           "criminal": 12,
@@ -198,7 +201,7 @@
       "2017": {
         "campuses": 2,
         "online": 10,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1820,
         "counts": {
           "criminal": 3,
@@ -211,7 +214,7 @@
       "2018": {
         "campuses": 2,
         "online": 15,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1707,
         "counts": {
           "criminal": 4,
@@ -228,13 +231,14 @@
       "2019": {
         "campuses": 2,
         "online": 16,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1399
       },
       "2020": {
         "campuses": 2,
         "online": 16,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 1438,
         "counts": {

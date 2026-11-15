@@ -60,15 +60,17 @@
   ],
   "institution": {
     "id": 135081,
+    "ratesFile": "rates/institutions/135081.json",
     "byYear": {
       "2019": {
         "campuses": 18,
         "online": 46,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 10566,
         "fteUncertain": {
           "share": 8110,
-          "partTimeFirst": 10566
+          "partTimeFirst": 10566,
+          "reason": "own"
         },
         "abroad": {
           "campuses": 1,
@@ -92,12 +94,14 @@
       "2020": {
         "campuses": 18,
         "online": 46,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 10978,
         "fteUncertain": {
           "share": 8452,
-          "partTimeFirst": 10978
+          "partTimeFirst": 10978,
+          "reason": "own"
         },
         "abroad": {
           "campuses": 1,
@@ -112,12 +116,13 @@
       "2021": {
         "campuses": 18,
         "online": 46,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 10725,
         "fteUncertain": {
           "share": 8042,
-          "partTimeFirst": 10725
+          "partTimeFirst": 10725,
+          "reason": "own"
         },
         "abroad": {
           "campuses": 1,
@@ -134,11 +139,12 @@
       "2022": {
         "campuses": 18,
         "online": 51,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 9437,
         "fteUncertain": {
           "share": 7038,
-          "partTimeFirst": 9437
+          "partTimeFirst": 9437,
+          "reason": "own"
         },
         "abroad": {
           "campuses": 1,
@@ -158,7 +164,7 @@
       "2023": {
         "campuses": 18,
         "online": 49,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 10139,
         "abroad": {
           "campuses": 1,
@@ -182,11 +188,12 @@
       "2024": {
         "campuses": 18,
         "online": 47,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 10977,
         "fteUncertain": {
           "share": 8766,
-          "partTimeFirst": 10977
+          "partTimeFirst": 10977,
+          "reason": "own"
         },
         "abroad": {
           "campuses": 2,

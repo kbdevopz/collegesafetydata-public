@@ -654,71 +654,100 @@
   ],
   "institution": {
     "id": 162007,
+    "ratesFile": "rates/institutions/162007.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 1,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 4533
       },
       "2016": {
         "campuses": 1,
         "online": 1,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 4838
       },
       "2017": {
         "campuses": 1,
         "online": 1,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 5296
       },
       "2018": {
         "campuses": 1,
         "online": 1,
-        "rateRanked": true,
-        "rateFte": 5416
+        "rated": true,
+        "rateFte": 5416,
+        "flags": [
+          {
+            "offense": "dating_violence",
+            "geo": "On-campus",
+            "count": 15,
+            "usual": 3
+          }
+        ]
       },
       "2019": {
         "campuses": 1,
         "online": 1,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 5313
       },
       "2020": {
         "campuses": 1,
         "online": 1,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 5386
       },
       "2021": {
         "campuses": 1,
         "online": 1,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 5373
       },
       "2022": {
         "campuses": 1,
         "online": 11,
-        "rateRanked": true,
-        "rateFte": 5089
+        "rated": true,
+        "rateFte": 5089,
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "On-campus",
+            "count": 27,
+            "usual": 3
+          }
+        ]
       },
       "2023": {
         "campuses": 1,
         "online": 12,
-        "rateRanked": true,
-        "rateFte": 5168,
-        "spikes": [
-          "drug_arrest"
-        ]
+        "rated": true,
+        "rateFte": 5168
       },
       "2024": {
         "campuses": 1,
         "online": 11,
-        "rateRanked": true,
-        "rateFte": 5131
+        "rated": true,
+        "rateFte": 5131,
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "On-campus",
+            "count": 27,
+            "usual": 3
+          },
+          {
+            "offense": "dating_violence",
+            "geo": "On-campus",
+            "count": 20,
+            "usual": 3
+          }
+        ]
       }
     }
   }

@@ -850,52 +850,52 @@
   ],
   "institution": {
     "id": 450304,
+    "ratesFile": "rates/institutions/450304.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": false,
-        "rateFte": 192
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 192,
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "On-campus",
+            "count": 17,
+            "usual": 3
+          }
+        ]
       },
       "2016": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 180,
-        "spikes": [
-          "liquor_arrest"
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "On-campus",
+            "count": 19,
+            "usual": 3
+          }
         ]
       },
       "2019": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 126
       },
       "2020": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "onlineYear": 2019,
         "rateFte": 110,
-        "sharedOut": {
-          "criminal": 33,
-          "violent": 18,
-          "property": 11,
-          "all": 1302,
-          "aggravated_assault": 1,
-          "arson": 1,
-          "burglary": 8,
-          "dating_violence": 7,
-          "drug_discipline": 137,
-          "fondling": 4,
-          "liquor_arrest": 1,
-          "liquor_discipline": 1117,
-          "motor_vehicle_theft": 2,
-          "rape": 17,
-          "stalking": 4,
-          "weapons_discipline": 3
-        },
         "counts": {
           "all": 6,
           "drug_discipline": 3,
@@ -906,32 +906,31 @@
       "2021": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "onlineYear": 2019,
-        "rateFte": 104
+        "rateFte": 104,
+        "flags": [
+          {
+            "offense": "dating_violence",
+            "geo": "On-campus",
+            "count": 17,
+            "usual": 1
+          },
+          {
+            "offense": "rape",
+            "geo": "On-campus",
+            "count": 22,
+            "usual": 4
+          }
+        ]
       },
       "2022": {
         "campuses": 1,
         "online": 10,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 73,
-        "sharedOut": {
-          "criminal": 23,
-          "violent": 12,
-          "property": 8,
-          "all": 500,
-          "arson": 1,
-          "burglary": 6,
-          "dating_violence": 5,
-          "domestic_violence": 1,
-          "drug_discipline": 52,
-          "fondling": 3,
-          "liquor_discipline": 412,
-          "motor_vehicle_theft": 1,
-          "rape": 12,
-          "stalking": 5,
-          "weapons_discipline": 2
-        },
         "counts": {
           "criminal": 1,
           "violent": 1,

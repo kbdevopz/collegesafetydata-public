@@ -239,11 +239,12 @@
   ],
   "institution": {
     "id": 209542,
+    "ratesFile": "rates/institutions/209542.json",
     "byYear": {
       "2015": {
         "campuses": 3,
         "online": 17,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 23062,
         "counts": {
           "criminal": 80,
@@ -270,32 +271,8 @@
       "2016": {
         "campuses": 3,
         "online": 19,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 23292,
-        "sharedOut": {
-          "criminal": 1,
-          "all": 60,
-          "domestic_violence": 1,
-          "drug_discipline": 2,
-          "liquor_arrest": 1,
-          "liquor_discipline": 53,
-          "stalking": 2,
-          "statutory_rape": 1
-        },
-        "notRanked": {
-          "all": [
-            "shared"
-          ],
-          "domestic_violence": [
-            "shared"
-          ],
-          "liquor_discipline": [
-            "shared"
-          ],
-          "stalking": [
-            "shared"
-          ]
-        },
         "counts": {
           "criminal": 96,
           "violent": 28,
@@ -322,7 +299,7 @@
       "2017": {
         "campuses": 3,
         "online": 20,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 23319,
         "counts": {
           "criminal": 91,
@@ -350,37 +327,8 @@
       "2018": {
         "campuses": 2,
         "online": 21,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 23060,
-        "sharedOut": {
-          "criminal": 5,
-          "violent": 4,
-          "property": 1,
-          "all": 47,
-          "aggravated_assault": 3,
-          "burglary": 1,
-          "drug_discipline": 4,
-          "liquor_discipline": 37,
-          "rape": 1,
-          "stalking": 1
-        },
-        "notRanked": {
-          "criminal": [
-            "shared"
-          ],
-          "violent": [
-            "shared"
-          ],
-          "all": [
-            "shared"
-          ],
-          "aggravated_assault": [
-            "shared"
-          ],
-          "liquor_discipline": [
-            "shared"
-          ]
-        },
         "counts": {
           "criminal": 90,
           "violent": 35,
@@ -406,8 +354,16 @@
       "2019": {
         "campuses": 3,
         "online": 24,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 22901,
+        "flags": [
+          {
+            "offense": "domestic_violence",
+            "geo": "On-campus",
+            "count": 26,
+            "usual": 5
+          }
+        ],
         "counts": {
           "criminal": 88,
           "violent": 28,
@@ -434,7 +390,8 @@
       "2020": {
         "campuses": 3,
         "online": 24,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 22740,
         "counts": {
@@ -461,7 +418,7 @@
       "2021": {
         "campuses": 3,
         "online": 24,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 23440,
         "counts": {
@@ -487,7 +444,7 @@
       "2022": {
         "campuses": 4,
         "online": 34,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 22505,
         "counts": {
           "criminal": 130,
@@ -515,8 +472,16 @@
       "2023": {
         "campuses": 4,
         "online": 35,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 23019,
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 31,
+            "usual": 6
+          }
+        ],
         "counts": {
           "criminal": 91,
           "violent": 21,
@@ -543,8 +508,16 @@
       "2024": {
         "campuses": 4,
         "online": 35,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 23882,
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 52,
+            "usual": 6
+          }
+        ],
         "counts": {
           "criminal": 135,
           "violent": 35,

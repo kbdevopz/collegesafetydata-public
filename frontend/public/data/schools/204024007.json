@@ -137,11 +137,12 @@
   ],
   "institution": {
     "id": 204024,
+    "ratesFile": "rates/institutions/204024.json",
     "byYear": {
       "2016": {
         "campuses": 6,
         "online": 3,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 18033,
         "abroad": {
           "campuses": 1,
@@ -152,9 +153,13 @@
             "burglary": 1
           }
         },
-        "spikes": [
-          "property",
-          "burglary"
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "On-campus",
+            "count": 64,
+            "usual": 7
+          }
         ],
         "counts": {
           "criminal": 122,
@@ -179,7 +184,7 @@
       "2017": {
         "campuses": 6,
         "online": 5,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 18016,
         "abroad": {
           "campuses": 1,
@@ -209,7 +214,7 @@
       "2018": {
         "campuses": 5,
         "online": 5,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 18169,
         "abroad": {
           "campuses": 1,
@@ -243,7 +248,7 @@
       "2019": {
         "campuses": 5,
         "online": 5,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 18083,
         "abroad": {
           "campuses": 1,
@@ -273,7 +278,8 @@
       "2020": {
         "campuses": 4,
         "online": 5,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 17374,
         "abroad": {
@@ -301,7 +307,7 @@
       "2021": {
         "campuses": 4,
         "online": 5,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 17837,
         "abroad": {
@@ -332,7 +338,7 @@
       "2022": {
         "campuses": 5,
         "online": 6,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 17554,
         "abroad": {
           "campuses": 1,

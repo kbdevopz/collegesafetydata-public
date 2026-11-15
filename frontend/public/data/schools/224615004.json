@@ -207,11 +207,13 @@
   ],
   "institution": {
     "id": 224615,
+    "ratesFile": "rates/institutions/224615.json",
     "byYear": {
       "2020": {
         "campuses": 12,
         "online": 27,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 33224,
         "counts": {
@@ -233,7 +235,7 @@
       "2021": {
         "campuses": 12,
         "online": 27,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 29411,
         "counts": {
@@ -257,49 +259,16 @@
       "2022": {
         "campuses": 12,
         "online": 41,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 24120,
-        "sharedIn": {
-          "criminal": 3,
-          "property": 1,
-          "all": 16,
-          "arson": 1,
-          "drug_arrest": 4,
-          "drug_discipline": 1,
-          "fondling": 2,
-          "liquor_arrest": 1,
-          "stalking": 6,
-          "weapons_discipline": 1
-        },
-        "notRanked": {
-          "criminal": [
-            "shared"
-          ],
-          "property": [
-            "shared"
-          ],
-          "all": [
-            "shared"
-          ],
-          "drug_arrest": [
-            "shared"
-          ],
-          "drug_discipline": [
-            "shared"
-          ],
-          "fondling": [
-            "shared"
-          ],
-          "liquor_arrest": [
-            "shared"
-          ],
-          "stalking": [
-            "shared"
-          ],
-          "weapons_discipline": [
-            "shared"
-          ]
-        },
+        "flags": [
+          {
+            "offense": "stalking",
+            "geo": "On-campus",
+            "count": 21,
+            "usual": 2
+          }
+        ],
         "counts": {
           "criminal": 18,
           "violent": 3,
@@ -323,8 +292,16 @@
       "2023": {
         "campuses": 12,
         "online": 39,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 26409,
+        "flags": [
+          {
+            "offense": "stalking",
+            "geo": "On-campus",
+            "count": 20,
+            "usual": 2
+          }
+        ],
         "counts": {
           "criminal": 11,
           "violent": 3,
@@ -347,8 +324,16 @@
       "2024": {
         "campuses": 16,
         "online": 39,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 28142,
+        "flags": [
+          {
+            "offense": "stalking",
+            "geo": "On-campus",
+            "count": 22,
+            "usual": 2
+          }
+        ],
         "counts": {
           "criminal": 15,
           "violent": 2,

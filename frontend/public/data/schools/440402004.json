@@ -133,11 +133,12 @@
   ],
   "institution": {
     "id": 440402,
+    "ratesFile": "rates/institutions/440402.json",
     "byYear": {
       "2017": {
         "campuses": 5,
         "online": 14,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1416,
         "counts": {
           "criminal": 1,
@@ -152,7 +153,7 @@
       "2018": {
         "campuses": 5,
         "online": 14,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1345,
         "counts": {
           "all": 2,
@@ -162,7 +163,7 @@
       "2019": {
         "campuses": 5,
         "online": 27,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1194,
         "counts": {
           "all": 1,
@@ -172,7 +173,8 @@
       "2020": {
         "campuses": 5,
         "online": 27,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "onlineYear": 2019,
         "rateFte": 985,
         "counts": {
@@ -185,7 +187,8 @@
       "2021": {
         "campuses": 5,
         "online": 27,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "onlineYear": 2019,
         "rateFte": 932,
         "counts": {
@@ -197,7 +200,8 @@
       "2022": {
         "campuses": 5,
         "online": 29,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 755,
         "counts": {
           "criminal": 3,
@@ -211,7 +215,8 @@
       "2023": {
         "campuses": 5,
         "online": 31,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 852,
         "counts": {
           "criminal": 3,
@@ -227,11 +232,13 @@
       "2024": {
         "campuses": 5,
         "online": 41,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 833,
         "fteUncertain": {
           "share": 643,
-          "partTimeFirst": 833
+          "partTimeFirst": 833,
+          "reason": "own"
         },
         "counts": {
           "all": 7,
