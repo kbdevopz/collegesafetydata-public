@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from 'react'
+import { useState, useEffect, useRef, useMemo, useId } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Search, X, Loader2, GitCompare, Check } from 'lucide-react'
 import { fetchSchoolIndex } from '../lib/api'
@@ -88,6 +88,14 @@ export default function SchoolSearch({ className, variant = 'header', compareSch
   const [loading, setLoading] = useState(false)
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [isFocused, setIsFocused] = useState(false)
+  // False after Escape closed the list; typing or an arrow key opens it again
+  const [listOpen, setListOpen] = useState(true)
+
+  // Combobox (WAI-ARIA combobox pattern): the input keeps focus and points
+  // at the highlighted option with aria-activedescendant
+  const baseId = useId()
+  const listboxId = `${baseId}-listbox`
+  const optionId = (index: number) => `${baseId}-option-${index}`
 
   const isHero = variant === 'hero'
 
@@ -132,16 +140,19 @@ export default function SchoolSearch({ className, variant = 'header', compareSch
     }
   }, [isOpen, isHero, isFocused])
 
-  // Close on escape
+  // Escape outside the input (in the input, handleKeyDown handles it): close
+  // the list; from a button in the list, focus goes back to the input
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        if (!isHero) {
-          setIsOpen(false)
-        }
+      if (e.key !== 'Escape') return
+      const inside = !!containerRef.current?.contains(e.target as Node)
+      if (!isHero) {
+        setIsOpen(false)
         setQuery('')
-        inputRef.current?.blur()
+        return
       }
+      setListOpen(false)
+      if (inside) inputRef.current?.focus()
     }
 
     if (isOpen || isFocused) {
@@ -160,20 +171,6 @@ export default function SchoolSearch({ className, variant = 'header', compareSch
     setSelectedIndex(0)
   }, [filteredSchools.length])
 
-  // Handle keyboard navigation
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'ArrowDown') {
-      e.preventDefault()
-      setSelectedIndex((prev) => Math.min(prev + 1, filteredSchools.length - 1))
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault()
-      setSelectedIndex((prev) => Math.max(prev - 1, 0))
-    } else if (e.key === 'Enter' && filteredSchools[selectedIndex]) {
-      e.preventDefault()
-      navigateToSchool(filteredSchools[selectedIndex])
-    }
-  }
-
   // Navigate to school profile
   const navigateToSchool = (school: School) => {
     if (!isHero) {
@@ -183,7 +180,65 @@ export default function SchoolSearch({ className, variant = 'header', compareSch
     navigate(`/school/${school.unitid}`)
   }
 
-  const showResults = query.trim() && (isFocused || isOpen)
+  const showResults = !!query.trim() && (isFocused || isOpen) && listOpen
+  // The listbox is shown (the input's aria-expanded)
+  const expanded = showResults && filteredSchools.length > 0
+
+  const changeQuery = (value: string) => {
+    setQuery(value)
+    setListOpen(true)
+  }
+
+  // Keyboard: arrows move the highlight (and open a closed list), Enter opens
+  // the highlighted school, Escape closes the list (a second Escape clears
+  // the text; in the header variant, then closes the search)
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault()
+      if (!listOpen) {
+        setListOpen(true)
+        return
+      }
+      if (filteredSchools.length === 0) return
+      setSelectedIndex((prev) =>
+        e.key === 'ArrowDown' ? Math.min(prev + 1, filteredSchools.length - 1) : Math.max(prev - 1, 0)
+      )
+    } else if (e.key === 'Enter') {
+      if (expanded && filteredSchools[selectedIndex]) {
+        e.preventDefault()
+        navigateToSchool(filteredSchools[selectedIndex])
+      }
+    } else if (e.key === 'Escape') {
+      e.preventDefault()
+      // Not also the document listener above
+      e.stopPropagation()
+      if (showResults) setListOpen(false)
+      else if (query) setQuery('')
+      else if (!isHero) setIsOpen(false)
+    }
+  }
+
+  // The input's combobox attributes (both variants)
+  const comboboxProps = {
+    role: 'combobox',
+    'aria-expanded': expanded,
+    'aria-controls': listboxId,
+    'aria-autocomplete': 'list' as const,
+    'aria-activedescendant': expanded && filteredSchools[selectedIndex] ? optionId(selectedIndex) : undefined,
+    'aria-label': 'Search for a school',
+    autoComplete: 'off',
+  }
+
+  // An option: the whole row opens the school. Pressing the mouse on it
+  // keeps focus in the input.
+  const optionProps = (school: School, index: number) => ({
+    id: optionId(index),
+    role: 'option',
+    'aria-selected': index === selectedIndex,
+    onClick: () => navigateToSchool(school),
+    onMouseDown: (e: React.MouseEvent) => e.preventDefault(),
+    onMouseEnter: () => setSelectedIndex(index),
+  })
 
   // Hero variant - always visible large input
   if (isHero) {
@@ -201,8 +256,9 @@ export default function SchoolSearch({ className, variant = 'header', compareSch
           <input
             ref={inputRef}
             type="text"
+            {...comboboxProps}
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => changeQuery(e.target.value)}
             onKeyDown={handleKeyDown}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setTimeout(() => setIsFocused(false), 150)}
@@ -265,66 +321,85 @@ export default function SchoolSearch({ className, variant = 'header', compareSch
                 )}
               </div>
             ) : (
-              <ul className="py-1" role="listbox">
-                {matches.map(({ school, alias }, index) => {
-                  const isComparing = compareSchools?.includes(school.unitid)
-                  return (
+              // The listbox holds only the options. The compare buttons are
+              // in a column of their own beside it (not inside an option,
+              // where a button is not allowed), on the same grid rows, so
+              // each sits on its school's row.
+              <div className="grid grid-cols-[minmax(0,1fr)_auto] py-1">
+                <ul
+                  id={listboxId}
+                  role="listbox"
+                  aria-label="Schools"
+                  className="col-start-1 grid grid-rows-subgrid"
+                  style={{ gridRow: `1 / span ${matches.length}` }}
+                >
+                  {matches.map(({ school, alias }, index) => (
                     <li
                       key={school.unitid}
-                      role="option"
-                      aria-selected={index === selectedIndex}
+                      {...optionProps(school, index)}
                       className={cn(
-                        'flex items-center transition-colors',
+                        'px-4 py-2.5 cursor-pointer transition-colors',
                         index === selectedIndex
                           ? 'bg-primary-50 dark:bg-primary-900/30'
                           : 'hover:bg-gray-50 dark:hover:bg-gray-700/50'
                       )}
                     >
-                      <button
-                        type="button"
-                        onClick={() => navigateToSchool(school)}
-                        onMouseEnter={() => setSelectedIndex(index)}
-                        className="flex-1 text-left px-4 py-2.5"
-                      >
-                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                          {displayName(school)}
-                          {school.isMainCampus === false && !school.campus && (
-                            <span className="ml-2 text-xs font-normal text-gray-500 dark:text-gray-400">(Branch)</span>
-                          )}
-                        </div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                          {detailLine(school)}
-                        </div>
-                        {alias && (
-                          <div className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">also: {alias}</div>
+                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                        {displayName(school)}
+                        {school.isMainCampus === false && !school.campus && (
+                          <span className="ml-2 text-xs font-normal text-gray-500 dark:text-gray-400">(Branch)</span>
                         )}
-                      </button>
-                      {onToggleCompare && (
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            onToggleCompare(school.unitid, displayName(school))
-                          }}
-                          className={cn(
-                            'mr-3 p-1.5 rounded-md transition-colors',
-                            isComparing
-                              ? 'bg-primary-100 dark:bg-primary-900/50 text-primary-600 dark:text-primary-400'
-                              : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                          )}
-                          title={isComparing ? 'Remove from compare' : 'Add to compare'}
-                        >
-                          {isComparing ? (
-                            <Check className="w-4 h-4" />
-                          ) : (
-                            <GitCompare className="w-4 h-4" />
-                          )}
-                        </button>
+                      </div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                        {detailLine(school)}
+                      </div>
+                      {alias && (
+                        <div className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">also: {alias}</div>
                       )}
                     </li>
-                  )
-                })}
-              </ul>
+                  ))}
+                </ul>
+                {onToggleCompare && (
+                  <div
+                    className="col-start-2 grid grid-rows-subgrid"
+                    style={{ gridRow: `1 / span ${matches.length}` }}
+                  >
+                    {matches.map(({ school }, index) => {
+                      const isComparing = compareSchools?.includes(school.unitid)
+                      const name = displayName(school)
+                      return (
+                        <div
+                          key={school.unitid}
+                          onMouseEnter={() => setSelectedIndex(index)}
+                          className={cn(
+                            'flex items-center pr-3 transition-colors',
+                            index === selectedIndex && 'bg-primary-50 dark:bg-primary-900/30'
+                          )}
+                        >
+                          <button
+                            type="button"
+                            onClick={() => onToggleCompare(school.unitid, name)}
+                            className={cn(
+                              'p-1.5 rounded-md transition-colors',
+                              isComparing
+                                ? 'bg-primary-100 dark:bg-primary-900/50 text-primary-600 dark:text-primary-400'
+                                : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                            )}
+                            aria-label={isComparing ? `Remove ${name} from comparison` : `Add ${name} to comparison`}
+                            title={isComparing ? 'Remove from comparison' : 'Add to comparison'}
+                          >
+                            {isComparing ? (
+                              <Check className="w-4 h-4" />
+                            ) : (
+                              <GitCompare className="w-4 h-4" />
+                            )}
+                          </button>
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
+              </div>
             )}
 
             {filteredSchools.length > 0 && (
@@ -369,8 +444,9 @@ export default function SchoolSearch({ className, variant = 'header', compareSch
             <input
               ref={inputRef}
               type="text"
+              {...comboboxProps}
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              onChange={(e) => changeQuery(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Search schools..."
               className="w-64 sm:w-80 pl-10 pr-10 py-2 text-sm border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
@@ -395,40 +471,37 @@ export default function SchoolSearch({ className, variant = 'header', compareSch
       )}
 
       {/* Results Dropdown */}
-      {isOpen && query.trim() && (
+      {isOpen && showResults && (
         <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50 overflow-hidden">
           {filteredSchools.length === 0 ? (
             <div className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400 text-center">
               {loading ? 'Loading schools...' : 'No schools found'}
             </div>
           ) : (
-            <ul className="py-1" role="listbox">
+            <ul id={listboxId} className="py-1" role="listbox" aria-label="Schools">
               {matches.map(({ school, alias }, index) => (
-                <li key={school.unitid} role="option" aria-selected={index === selectedIndex}>
-                  <button
-                    type="button"
-                    onClick={() => navigateToSchool(school)}
-                    onMouseEnter={() => setSelectedIndex(index)}
-                    className={cn(
-                      'w-full text-left px-4 py-3 transition-colors',
-                      index === selectedIndex
-                        ? 'bg-primary-50 dark:bg-primary-900/30'
-                        : 'hover:bg-gray-50 dark:hover:bg-gray-800'
+                <li
+                  key={school.unitid}
+                  {...optionProps(school, index)}
+                  className={cn(
+                    'px-4 py-3 cursor-pointer transition-colors',
+                    index === selectedIndex
+                      ? 'bg-primary-50 dark:bg-primary-900/30'
+                      : 'hover:bg-gray-50 dark:hover:bg-gray-800'
+                  )}
+                >
+                  <div className="font-medium text-gray-900 dark:text-gray-100 text-sm">
+                    {displayName(school)}
+                    {school.isMainCampus === false && !school.campus && (
+                      <span className="ml-1.5 text-xs font-normal text-gray-500 dark:text-gray-400">(Branch)</span>
                     )}
-                  >
-                    <div className="font-medium text-gray-900 dark:text-gray-100 text-sm">
-                      {displayName(school)}
-                      {school.isMainCampus === false && !school.campus && (
-                        <span className="ml-1.5 text-xs font-normal text-gray-500 dark:text-gray-400">(Branch)</span>
-                      )}
-                    </div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">
-                      {detailLine(school)}
-                    </div>
-                    {alias && (
-                      <div className="text-xs text-gray-400 dark:text-gray-500">also: {alias}</div>
-                    )}
-                  </button>
+                  </div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">
+                    {detailLine(school)}
+                  </div>
+                  {alias && (
+                    <div className="text-xs text-gray-400 dark:text-gray-500">also: {alias}</div>
+                  )}
                 </li>
               ))}
             </ul>

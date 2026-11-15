@@ -173,7 +173,7 @@ export default function About() {
                 { text: "Publish Annual Security Reports with 3 years of crime data" },
                 { text: "Report specific crime categories for campus areas" },
                 { text: "Issue timely warnings about safety threats" },
-                { text: "Maintain a public daily crime log" },
+                { text: "Keep a daily crime log open to the public, if the institution has a campus police or security department (34 CFR 668.46(f))" },
               ].map((item, i) => (
                 <div key={i} className="flex items-start gap-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3">
                   <CheckCircle className="w-5 h-5 text-green-500 dark:text-green-400 flex-shrink-0 mt-0.5" />

@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, useSearchParams, Link } from 'react-router-dom'
 import {
   LineChart,
   Line,
@@ -29,13 +29,17 @@ import {
   calculateYoYChange,
   displayName,
   compactYears,
+  withParams,
 } from '../lib/utils'
 import {
   fteFor, latestFte, institutionRate, rateNote, pooledNote, onlineNote, campusesPhrase, rateInterval, intervalText,
   rateTier, SPIKE_NOTE,
 } from '../lib/rates'
-import { ALL, CRIMINAL, PROPERTY, SUMMARY_LABELS, VIOLENT, inSelection, isSummary, selectionCode, selectionLabel } from '../lib/selection'
+import {
+  ALL, CRIMINAL, PROPERTY, SUMMARY_LABELS, VIOLENT, inSelection, isSummary, selectionCode, selectionFromParam, selectionLabel,
+} from '../lib/selection'
 import { useTheme } from '../hooks/useTheme'
+import { useMediaQuery } from '../hooks/useMediaQuery'
 import SeriesNotes, { ReportYearNote } from '../components/SeriesNotes'
 import CiteThisData from '../components/CiteThisData'
 import { SERIES_NOTES } from '../data/seriesNotes'
@@ -49,14 +53,13 @@ function joinWithAnd(items: string[]): string {
 
 export default function SchoolProfile() {
   const { unitid } = useParams<{ unitid: string }>()
+  const [searchParams, setSearchParams] = useSearchParams()
   const { resolvedTheme } = useTheme()
+  // Phone width: the year axis labels are angled so that every year fits
+  const narrow = useMediaQuery('(max-width: 639px)')
   const [profile, setProfile] = useState<SchoolProfileType | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [selectedYear, setSelectedYear] = useState<number | null>(null)
-  // 'criminal' (default), 'all' (every category) or one offense name
-  const [selectedOffense, setSelectedOffense] = useState<string>(CRIMINAL)
-  const [showRate, setShowRate] = useState(false)
   // Who rate rankings list (metadata.json), for the note on a left-out rate
   const [rateRules, setRateRules] = useState<RateRules | null>(null)
 
@@ -80,11 +83,7 @@ export default function SchoolProfile() {
     setError(null)
 
     fetchSchoolProfile(parseInt(unitid))
-      .then((data) => {
-        setProfile(data)
-        // Default to latest year
-        setSelectedYear(data.summary.latestYear)
-      })
+      .then((data) => setProfile(data))
       .catch(() => setError('Failed to load school data. Please try again.'))
       .finally(() => setLoading(false))
   }, [unitid])
@@ -113,6 +112,25 @@ export default function SchoolProfile() {
     profile.trends.forEach(t => offenses.add(t.offense))
     return Array.from(offenses).sort()
   }, [profile])
+
+  // The selections are in the address, so a view of the page can be cited
+  // or shared: ?year= (a reported year; default the latest), ?offense= (a
+  // summary or an offense code such as motor_vehicle_theft; default all
+  // criminal offenses) and ?view=rate (default counts). They are changed in
+  // place, without a new history entry for each change.
+  const yearParam = Number(searchParams.get('year'))
+  const selectedYear = profile
+    ? (availableYears.includes(yearParam) ? yearParam : profile.summary.latestYear)
+    : null
+  // 'criminal' (default), 'all' (every category) or one offense name
+  const selectedOffense = selectionFromParam(searchParams.get('offense'), availableOffenses, CRIMINAL)
+  const showRate = searchParams.get('view') === 'rate'
+  const setSelection = (changes: Record<string, string | null>) =>
+    setSearchParams((prev) => withParams(prev, changes), { replace: true })
+  const setSelectedYear = (year: number) => setSelection({ year: String(year) })
+  const setSelectedOffense = (offense: string) =>
+    setSelection({ offense: offense === CRIMINAL ? null : selectionCode(offense) })
+  const setShowRate = (rate: boolean) => setSelection({ view: rate ? 'rate' : null })
 
   // The selection's count in one year: the sum of its trend rows (0 when it
   // has none; a reported year without the selection had 0)
@@ -287,6 +305,17 @@ export default function SchoolProfile() {
   const chartBorderColor = resolvedTheme === 'dark' ? '#374151' : '#e5e7eb'
   const barFillColor = resolvedTheme === 'dark' ? '#60a5fa' : '#3b82f6'
   const noteBandColor = resolvedTheme === 'dark' ? '#fbbf24' : '#d97706'
+  // Year axis of the trend charts: every year labelled (interval 0), the
+  // labels angled at phone width so they do not overlap
+  const yearAxisProps = {
+    dataKey: 'year',
+    interval: 0,
+    tick: { fill: chartTextColor, fontSize: narrow ? 11 : 12 },
+    angle: narrow ? -45 : 0,
+    textAnchor: narrow ? ('end' as const) : ('middle' as const),
+    height: narrow ? 44 : 30,
+    axisLine: { stroke: chartGridColor },
+  }
 
   if (loading) {
     return (
@@ -456,10 +485,11 @@ export default function SchoolProfile() {
             {/* Rate Toggle */}
             <div className="flex items-center gap-1 ml-auto">
               <span className="text-sm text-gray-500 dark:text-gray-400 hidden sm:inline mr-1">View:</span>
-              <div className="flex gap-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
+              <div role="group" aria-label="View" className="flex gap-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
                 <button
                   type="button"
                   onClick={() => setShowRate(false)}
+                  aria-pressed={!showRate}
                   className={cn(
                     'px-3 py-1 text-sm font-medium rounded-md transition-colors',
                     !showRate
@@ -473,6 +503,7 @@ export default function SchoolProfile() {
                   type="button"
                   onClick={() => setShowRate(true)}
                   disabled={!selectedYearFte}
+                  aria-pressed={showRate}
                   title={!selectedYearFte ? `FTE data not available for ${selectedYear ?? 'this year'}` : 'Show rate per 10,000 on-campus students'}
                   className={cn(
                     'px-3 py-1 text-sm font-medium rounded-md transition-colors',
@@ -692,11 +723,7 @@ export default function SchoolProfile() {
                 {noteBands.map((b) => (
                   <ReferenceArea key={b.x1} x1={b.x1} x2={b.x2} fill={noteBandColor} fillOpacity={0.12} ifOverflow="extendDomain" />
                 ))}
-                <XAxis
-                  dataKey="year"
-                  tick={{ fill: chartTextColor, fontSize: 12 }}
-                  axisLine={{ stroke: chartGridColor }}
-                />
+                <XAxis {...yearAxisProps} />
                 <YAxis
                   tick={{ fill: chartTextColor, fontSize: 12 }}
                   axisLine={{ stroke: chartGridColor }}
@@ -756,11 +783,7 @@ export default function SchoolProfile() {
                 {noteBands.map((b) => (
                   <ReferenceArea key={b.x1} x1={b.x1} x2={b.x2} fill={noteBandColor} fillOpacity={0.12} ifOverflow="extendDomain" />
                 ))}
-                  <XAxis
-                    dataKey="year"
-                    tick={{ fill: chartTextColor, fontSize: 12 }}
-                    axisLine={{ stroke: chartGridColor }}
-                  />
+                  <XAxis {...yearAxisProps} />
                   <YAxis
                     tick={{ fill: chartTextColor, fontSize: 12 }}
                     axisLine={{ stroke: chartGridColor }}
@@ -801,11 +824,7 @@ export default function SchoolProfile() {
                 {noteBands.map((b) => (
                   <ReferenceArea key={b.x1} x1={b.x1} x2={b.x2} fill={noteBandColor} fillOpacity={0.12} ifOverflow="extendDomain" />
                 ))}
-                  <XAxis
-                    dataKey="year"
-                    tick={{ fill: chartTextColor, fontSize: 12 }}
-                    axisLine={{ stroke: chartGridColor }}
-                  />
+                  <XAxis {...yearAxisProps} />
                   <YAxis
                     tick={{ fill: chartTextColor, fontSize: 12 }}
                     axisLine={{ stroke: chartGridColor }}
@@ -861,6 +880,7 @@ export default function SchoolProfile() {
                       key={item.offense}
                       type="button"
                       onClick={() => setSelectedOffense(item.offense === selectedOffense ? CRIMINAL : item.offense)}
+                      aria-pressed={isSelected}
                       className={cn(
                         'w-full flex items-center gap-4 p-2 -mx-2 rounded-lg transition-colors',
                         isSelected

@@ -265,6 +265,19 @@ export function getRankingsUrl(params?: {
   return query ? `/?${query}` : '/'
 }
 
+/**
+ * A copy of `params` with `changes` applied (a null value removes the
+ * parameter), for pages that keep their selections in the address.
+ */
+export function withParams(params: URLSearchParams, changes: Record<string, string | null>): URLSearchParams {
+  const next = new URLSearchParams(params)
+  for (const [key, value] of Object.entries(changes)) {
+    if (value === null) next.delete(key)
+    else next.set(key, value)
+  }
+  return next
+}
+
 // =============================================================================
 // Date Utilities
 // =============================================================================

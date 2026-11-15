@@ -29,12 +29,15 @@ import {
 } from 'lucide-react'
 import { fetchSchoolProfile, fetchSchoolIndex, fetchPresets, getMetadata } from '../lib/api'
 import type { SchoolProfile, School, PresetDetail, SchoolIndex, RateRules } from '../lib/types'
-import { cn, formatNumber, calculateYoYChange, displayName as titleOf } from '../lib/utils'
+import { cn, formatNumber, calculateYoYChange, displayName as titleOf, withParams } from '../lib/utils'
 import {
   fteFor, latestFte, institutionRate, rateNote, campusesPhrase, rateInterval, intervalText, rateTier, SPIKE_NOTE,
 } from '../lib/rates'
-import { ALL, CRIMINAL, PROPERTY, SUMMARY_LABELS, VIOLENT, inSelection, isSummary, selectionCode, selectionLabel } from '../lib/selection'
+import {
+  ALL, CRIMINAL, PROPERTY, SUMMARY_LABELS, VIOLENT, inSelection, isSummary, selectionCode, selectionFromParam, selectionLabel,
+} from '../lib/selection'
 import { useTheme } from '../hooks/useTheme'
+import { useMediaQuery } from '../hooks/useMediaQuery'
 import SeriesNotes, { ReportYearNote } from '../components/SeriesNotes'
 import { SERIES_NOTES } from '../data/seriesNotes'
 
@@ -51,23 +54,41 @@ function selectionCount(p: SchoolProfile, year: number, selection: string): numb
     .reduce((sum, t) => sum + t.count, 0)
 }
 
+// The UNITIDs in ?schools= (at most 2)
+function parseSchoolIds(value: string | null): number[] {
+  return (value ?? '')
+    .split(',')
+    .map((id) => parseInt(id))
+    .filter((id) => !isNaN(id))
+    .slice(0, 2)
+}
+
 export default function Compare() {
   const [searchParams, setSearchParams] = useSearchParams()
   const { resolvedTheme } = useTheme()
+  // Phone width: the year axis labels are angled so that every year fits
+  const narrow = useMediaQuery('(max-width: 639px)')
 
   // State
   const [schools, setSchools] = useState<School[]>([])
-  const [selectedIds, setSelectedIds] = useState<number[]>([])
   const [profiles, setProfiles] = useState<SchoolProfile[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
 
-  // Filter state
-  const [selectedYear, setSelectedYear] = useState<string>('all')
-  const [selectedOffense, setSelectedOffense] = useState<string>(CRIMINAL)
-  const [showRate, setShowRate] = useState(false)
+  // The schools compared: ?schools=<UNITID>,<UNITID>. Adding or removing one
+  // adds a history entry.
+  const schoolsParam = searchParams.get('schools')
+  const selectedIds = useMemo(() => parseSchoolIds(schoolsParam), [schoolsParam])
+  const setSchoolIds = (ids: number[]) =>
+    setSearchParams((prev) => withParams(prev, { schools: ids.length > 0 ? ids.join(',') : null }))
+
+  // The other selections, changed in place: ?year=, ?offense= and ?view=rate
+  const setSelection = (changes: Record<string, string | null>) =>
+    setSearchParams((prev) => withParams(prev, changes), { replace: true })
+  const showRate = searchParams.get('view') === 'rate'
+  const setShowRate = (rate: boolean) => setSelection({ view: rate ? 'rate' : null })
   // Who rate rankings list (metadata.json), for the note on a left-out rate
   const [rateRules, setRateRules] = useState<RateRules | null>(null)
 
@@ -96,15 +117,6 @@ export default function Compare() {
       })
   }, [])
 
-  // Initialize from URL params
-  useEffect(() => {
-    const schoolsParam = searchParams.get('schools')
-    if (schoolsParam) {
-      const ids = schoolsParam.split(',').map((id) => parseInt(id)).filter((id) => !isNaN(id))
-      setSelectedIds(ids.slice(0, 2)) // Max 2
-    }
-  }, [searchParams])
-
   // Load profiles when selection changes
   useEffect(() => {
     if (selectedIds.length === 0) {
@@ -126,26 +138,17 @@ export default function Compare() {
       })
   }, [selectedIds])
 
-  // Update URL when selection changes
-  useEffect(() => {
-    if (selectedIds.length > 0) {
-      setSearchParams({ schools: selectedIds.join(',') })
-    } else {
-      setSearchParams({})
-    }
-  }, [selectedIds, setSearchParams])
-
   // Add a school
   const addSchool = (unitid: number) => {
     if (selectedIds.length < 2 && !selectedIds.includes(unitid)) {
-      setSelectedIds([...selectedIds, unitid])
+      setSchoolIds([...selectedIds, unitid])
     }
     setIsDropdownOpen(false)
   }
 
   // Remove a school
   const removeSchool = (unitid: number) => {
-    setSelectedIds(selectedIds.filter((id) => id !== unitid))
+    setSchoolIds(selectedIds.filter((id) => id !== unitid))
   }
 
   // Get available years from all profiles (union)
@@ -163,6 +166,17 @@ export default function Compare() {
     profiles.forEach(p => p.trends.forEach(t => offenses.add(t.offense)))
     return Array.from(offenses).sort()
   }, [profiles])
+
+  // ?year=: a year either school reported, or 'all' (default). ?offense=: a
+  // summary or an offense code such as motor_vehicle_theft (default all
+  // criminal offenses).
+  const yearParam = searchParams.get('year')
+  const selectedYear = yearParam !== null && availableYears.includes(Number(yearParam)) ? String(Number(yearParam)) : 'all'
+  const setSelectedYear = (year: string) => setSelection({ year: year === 'all' ? null : year })
+  // 'criminal' (default), 'all' (every category) or one offense name
+  const selectedOffense = selectionFromParam(searchParams.get('offense'), availableOffenses, CRIMINAL)
+  const setSelectedOffense = (offense: string) =>
+    setSelection({ offense: offense === CRIMINAL ? null : selectionCode(offense) })
 
   // Track which years have data for each profile (for the selected offense)
   const yearDataByProfile = useMemo(() => {
@@ -433,7 +447,7 @@ export default function Compare() {
                   type="button"
                   onClick={() => removeSchool(id)}
                   className="ml-1 p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                  aria-label={`Remove ${school?.name || 'school'}`}
+                  aria-label={`Remove ${school ? titleOf(school) : profile?.name || 'school'} from comparison`}
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -570,10 +584,11 @@ export default function Compare() {
             <div className="hidden sm:block w-px h-5 bg-gray-200 dark:bg-gray-700" />
 
             {/* Rate Toggle */}
-            <div className="flex items-center gap-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
+            <div role="group" aria-label="View" className="flex items-center gap-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
               <button
                 type="button"
                 onClick={() => setShowRate(false)}
+                aria-pressed={!showRate}
                 className={cn(
                   'px-3 py-1.5 text-sm font-medium rounded-md transition-colors',
                   !showRate
@@ -586,6 +601,7 @@ export default function Compare() {
               <button
                 type="button"
                 onClick={() => setShowRate(true)}
+                aria-pressed={showRate}
                 className={cn(
                   'px-3 py-1.5 text-sm font-medium rounded-md transition-colors',
                   showRate
@@ -601,10 +617,9 @@ export default function Compare() {
             {(selectedYear !== 'all' || selectedOffense !== CRIMINAL) && (
               <button
                 type="button"
-                onClick={() => {
-                  setSelectedYear('all')
-                  setSelectedOffense(CRIMINAL)
-                }}
+                // One change of the address for both (two would each start
+                // from the same address, and the second would undo the first)
+                onClick={() => setSelection({ year: null, offense: null })}
                 className="text-xs text-primary-600 dark:text-primary-400 hover:underline"
               >
                 Clear filters
@@ -1043,9 +1058,14 @@ export default function Compare() {
                 {noteBands.map((b) => (
                   <ReferenceArea key={b.x1} x1={b.x1} x2={b.x2} fill={noteBandColor} fillOpacity={0.12} ifOverflow="extendDomain" />
                 ))}
+                {/* Every year labelled (interval 0), angled at phone width so they do not overlap */}
                 <XAxis
                   dataKey="year"
-                  tick={{ fill: chartTextColor, fontSize: 12 }}
+                  interval={0}
+                  tick={{ fill: chartTextColor, fontSize: narrow ? 11 : 12 }}
+                  angle={narrow ? -45 : 0}
+                  textAnchor={narrow ? 'end' : 'middle'}
+                  height={narrow ? 44 : 30}
                   axisLine={{ stroke: chartGridColor }}
                 />
                 <YAxis

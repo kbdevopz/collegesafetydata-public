@@ -11,7 +11,7 @@ import {
 import { ChevronUp, ChevronDown, ExternalLink, AlertCircle, Loader2, MapPin, Calendar, AlertTriangle, Plus, Check, GitCompare, X, ChevronRight, Info } from 'lucide-react'
 import { fetchRankings, getMetadata } from '../lib/api'
 import type { RankingsData, Metadata, Offense } from '../lib/types'
-import { cn, formatNumber, formatPercent, groupOffensesByFamily } from '../lib/utils'
+import { cn, formatNumber, formatPercent, groupOffensesByFamily, withParams } from '../lib/utils'
 import { VIOLENT, compareText, countHeader, countPhrase, noneOfPhrase } from '../lib/selection'
 import { intervalText, rateInterval, SPIKE_NOTE } from '../lib/rates'
 import SchoolSearch from '../components/SchoolSearch'
@@ -61,8 +61,13 @@ export default function Rankings() {
   const [error, setError] = useState<string | null>(null)
   const [isSummaryExpanded, setIsSummaryExpanded] = useState(false)
   const [compareSchools, setCompareSchools] = useState<{ unitid: number; name: string }[]>([])
-  const [sortByRate, setSortByRate] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
+
+  // Total or rate view, in the address so a view can be cited: ?view=rate
+  // (absent: counts). Changed in place, without a new history entry.
+  const sortByRate = searchParams.get('view') === 'rate'
+  const setSortByRate = (rate: boolean) =>
+    setSearchParams((prev) => withParams(prev, { view: rate ? 'rate' : null }), { replace: true })
 
   // Toggle school in comparison list (max 2)
   const toggleCompare = (unitid: number, name: string, e?: React.MouseEvent) => {
@@ -468,7 +473,9 @@ export default function Rankings() {
                 ? 'bg-primary-100 dark:bg-primary-900/50 text-primary-600 dark:text-primary-400'
                 : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
             )}
-            aria-label={isInCompare(info.row.original.unitid) ? 'Remove from comparison' : 'Add to comparison'}
+            aria-label={isInCompare(info.row.original.unitid)
+              ? `Remove ${info.row.original.campus ?? info.row.original.name} from comparison`
+              : `Add ${info.row.original.campus ?? info.row.original.name} to comparison`}
             title={isInCompare(info.row.original.unitid) ? 'Remove from comparison' : 'Add to comparison'}
           >
             {isInCompare(info.row.original.unitid) ? (
@@ -603,12 +610,13 @@ export default function Rankings() {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-5">
-        {/* Compact Filter Bar - Sticky */}
-        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 mb-4 transition-colors duration-200 sticky top-16 z-40">
+        {/* Compact Filter Bar - Sticky from the sm breakpoint up (on a phone
+            it would cover much of the screen) */}
+        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 mb-4 transition-colors duration-200 sm:sticky sm:top-16 sm:z-40">
           <div className="p-3 sm:p-4">
-            {/* Compact Search - shows when scrolled past hero */}
+            {/* Compact Search - shows when scrolled past hero (sticky bar only) */}
             {isScrolled && (
-              <div className="pb-3 mb-3 border-b border-gray-200 dark:border-gray-700">
+              <div className="hidden sm:block pb-3 mb-3 border-b border-gray-200 dark:border-gray-700">
                 <SchoolSearch
                   variant="hero"
                   compareSchools={compareSchools.map(s => s.unitid)}
@@ -625,6 +633,7 @@ export default function Rankings() {
                 {/* Preset */}
                 <div className="flex items-center gap-1.5">
                   <MapPin className="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0" />
+                  <label htmlFor="preset-select" className="sr-only">Schools</label>
                   <select
                     id="preset-select"
                     value={selectedPreset}
@@ -645,6 +654,7 @@ export default function Rankings() {
                 {/* Year */}
                 <div className="flex items-center gap-1.5">
                   <Calendar className="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0" />
+                  <label htmlFor="year-select" className="sr-only">Year</label>
                   <select
                     id="year-select"
                     value={selectedYear}
@@ -668,6 +678,7 @@ export default function Rankings() {
                 {/* Offense */}
                 <div className="flex items-center gap-1.5">
                   <AlertTriangle className="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0" />
+                  <label htmlFor="offense-select" className="sr-only">Offense</label>
                   <select
                     id="offense-select"
                     value={selectedOffense}
@@ -693,10 +704,11 @@ export default function Rankings() {
               {/* Sort Toggle - outlined pill style */}
               {hasRateData && (
                 <div className="flex items-center gap-2 ml-2 pl-3 border-l border-gray-200 dark:border-gray-700">
-                  <div className="flex items-center gap-1 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-0.5">
+                  <div role="group" aria-label="View" className="flex items-center gap-1 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-0.5">
                     <button
                       type="button"
                       onClick={() => setSortByRate(false)}
+                      aria-pressed={!rateView}
                       className={cn(
                         'px-2.5 py-1 text-xs font-medium rounded-md transition-colors',
                         !rateView
@@ -710,6 +722,7 @@ export default function Rankings() {
                       type="button"
                       onClick={() => canShowRate && setSortByRate(true)}
                       disabled={!canShowRate || countsOnly}
+                      aria-pressed={rateView}
                       title={countsOnly ? 'Counts only: too rare nationally for a rate ranking' : undefined}
                       className={cn(
                         'px-2.5 py-1 text-xs font-medium rounded-md transition-colors',
@@ -753,7 +766,9 @@ export default function Rankings() {
               <div className="flex items-center gap-2">
                 <div className="flex items-center gap-1.5 flex-1">
                   <MapPin className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                  <label htmlFor="preset-select-mobile" className="sr-only">Schools</label>
                   <select
+                    id="preset-select-mobile"
                     value={selectedPreset}
                     onChange={(e) => updateFilters(e.target.value)}
                     className="flex-1 text-sm font-medium bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1.5"
@@ -767,7 +782,9 @@ export default function Rankings() {
                 </div>
                 <div className="flex items-center gap-1.5">
                   <Calendar className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                  <label htmlFor="year-select-mobile" className="sr-only">Year</label>
                   <select
+                    id="year-select-mobile"
                     value={selectedYear}
                     onChange={(e) => updateFilters(undefined, parseInt(e.target.value))}
                     className="w-20 text-sm font-medium bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1.5"
@@ -788,7 +805,9 @@ export default function Rankings() {
               <div className="flex items-center gap-2">
                 <div className="flex items-center gap-1.5 flex-1 min-w-0">
                   <AlertTriangle className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                  <label htmlFor="offense-select-mobile" className="sr-only">Offense</label>
                   <select
+                    id="offense-select-mobile"
                     value={selectedOffense}
                     onChange={(e) => updateFilters(undefined, undefined, e.target.value)}
                     className="flex-1 min-w-0 text-sm font-medium bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1.5"
@@ -808,10 +827,11 @@ export default function Rankings() {
                   )}
                 </div>
                 {hasRateData && (
-                  <div className="flex items-center gap-1 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-0.5 flex-shrink-0">
+                  <div role="group" aria-label="View" className="flex items-center gap-1 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-0.5 flex-shrink-0">
                     <button
                       type="button"
                       onClick={() => setSortByRate(false)}
+                      aria-pressed={!rateView}
                       className={cn(
                         'px-2 py-1 text-xs font-medium rounded-md transition-colors',
                         !rateView
@@ -825,6 +845,7 @@ export default function Rankings() {
                       type="button"
                       onClick={() => canShowRate && setSortByRate(true)}
                       disabled={!canShowRate || countsOnly}
+                      aria-pressed={rateView}
                       title={countsOnly ? 'Counts only: too rare nationally for a rate ranking' : undefined}
                       className={cn(
                         'px-2 py-1 text-xs font-medium rounded-md transition-colors',
@@ -1040,7 +1061,9 @@ export default function Rankings() {
                           ? 'bg-primary-50 dark:bg-primary-900/30 border-primary-200 dark:border-primary-800 text-primary-600 dark:text-primary-400'
                           : 'border-gray-100 dark:border-gray-800 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/50'
                       )}
-                      aria-label={isInCompare(item.unitid) ? 'Remove from comparison' : 'Add to comparison'}
+                      aria-label={isInCompare(item.unitid)
+                        ? `Remove ${item.campus ?? item.name} from comparison`
+                        : `Add ${item.campus ?? item.name} to comparison`}
                     >
                       {isInCompare(item.unitid) ? (
                         <Check className="w-5 h-5" />
@@ -1179,7 +1202,7 @@ export default function Rankings() {
                           type="button"
                           onClick={() => toggleCompare(school.unitid, school.name)}
                           className="ml-0.5 p-0.5 hover:bg-primary-100 dark:hover:bg-primary-800/50 rounded"
-                          aria-label={`Remove ${school.name}`}
+                          aria-label={`Remove ${school.name} from comparison`}
                         >
                           <X className="w-3 h-3" />
                         </button>
