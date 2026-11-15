@@ -27,7 +27,8 @@ from config import (
     OFFENSE_DESCRIPTIONS, OFFENSE_FAMILIES, DATA_YEARS,
     US_STATES, PROCESS_ALL_SCHOOLS,
     SUMMARY_FAMILIES, MIN_FTE_FOR_RATE, ONLINE_SHARE_YEAR, RATE_CI_LEVEL, ONLINE_UNCERTAIN_RATIO,
-    MEDICAL_CAMPUS_SHARE, SHARED_SITE_MAX_SHARE, SHARED_NEAR_MIN_NONZERO, SHARED_NEAR_MATCH, SHARED_NEAR_MIN_TOTAL,
+    MEDICAL_CAMPUS_SHARE, SHARED_SITE_MAX_SHARE, SHARED_SITE_FIGURE_YEARS, SHARED_NEAR_MIN_NONZERO, SHARED_NEAR_MATCH,
+    SHARED_NEAR_MIN_TOTAL,
     COUNT_FLAG_MIN_COUNT, COUNT_FLAG_FACTOR, COUNT_FLAG_PERCENTILE,
     RATE_WINDOW_YEARS, RATE_SKIP_YEARS, RATE_CODES, RATE_DISPERSION, RATE_DISPERSION_OTHER, RATE_RAMP, LIST_CODES,
     LIST_MIN_EXPECTED, LIST_ALPHA, STATE_LIST_MIN_MEMBERS, STATE_LIST_DISPLAY_MIN, PEER_TYPES, SIZE_SETTING_FIELDS,
@@ -85,6 +86,7 @@ def required_inputs() -> list[Path]:
         CURATED_DIR / "dims" / "campus_year_sources.parquet",
         CURATED_DIR / "dims" / "campus_id_links.parquet",
         CURATED_DIR / "dims" / "dim_medical_campus.parquet",
+        CURATED_DIR / "dims" / "dim_shared_site_enrollment.parquet",
     ]
     if PROCESS_ALL_SCHOOLS:
         paths += [
@@ -1127,6 +1129,7 @@ def rate_rules(years: list[int], references: dict[int, dict[str, Fraction]]) -> 
                        "ramp": {"start": start, "end": start * cap, "cap": cap}},
         "medicalShare": list(MEDICAL_CAMPUS_SHARE),
         "sharedSiteShare": list(SHARED_SITE_MAX_SHARE),
+        "sharedSiteFigureYears": SHARED_SITE_FIGURE_YEARS,
         "sharedNear": {"minNonzero": SHARED_NEAR_MIN_NONZERO, "match": list(SHARED_NEAR_MATCH),
                        "minTotal": SHARED_NEAR_MIN_TOTAL},
         "lists": {"codes": list(LIST_CODES), "minExpected": LIST_MIN_EXPECTED, "alpha": LIST_ALPHA,

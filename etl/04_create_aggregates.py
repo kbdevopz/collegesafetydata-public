@@ -1620,10 +1620,11 @@ def create_institution_tables(ranked_agg: pd.DataFrame, shared: pd.DataFrame, di
         guests at the shared sites it owns), shared_out_sites (its campuses
         at shared sites it is a guest or participant of: UNITIDs) and
         shared_out_with (the owners, or the other participants, of those
-        sites), shared_site_students (the reviewed student figure of those
-        campuses that year, dim_shared_site_enrollment; none when one has no
-        figure or there is no such campus) and shared_site_upper (whether
-        one of those figures is an upper bound)
+        sites), shared_site_students (the sum of the reviewed student
+        figures that cover those campuses that year, dim_shared_site_enrollment:
+        the year's own, or one within config.py's SHARED_SITE_FIGURE_YEARS;
+        none when one has no figure or there is no such campus) and
+        shared_site_upper (whether one of those figures is an upper bound)
       agg_institution_year_offense.parquet: year, base_unitid, offense,
         offense_family, count (its counting campuses in the United States,
         all geographies), count_on, count_res, count_non and count_pub (the

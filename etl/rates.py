@@ -286,6 +286,12 @@ class RateInputs:
         for y, b in sorted(self.rec):
             self.years_of[b].append(y)
         self.data_years = sorted({y for y, _b in self.rec if y in DATA_YEARS})
+        # The reviewed student figure that covers a shared-site campus in a year (03's table):
+        # {(campus, year): (students, kind, figure_year, derived)}
+        site = pd.read_parquet(CURATED_DIR / "dims" / "dim_shared_site_enrollment.parquet")
+        self.site_figure: dict[tuple[int, int], tuple[int, str, int, bool]] = {
+            (int(u), int(y)): (int(n), str(k), int(fy), bool(d)) for u, y, n, k, fy, d in zip(
+                site["unitid"], site["year"], site["students"], site["kind"], site["figure_year"], site["derived"])}
         dim_inst = pd.read_parquet(CURATED_DIR / "dims" / "dim_institution.parquet",
                                    columns=["unitid", "institution_name"])
         self.base_name: dict[int, str] = {}
@@ -394,15 +400,19 @@ def named(inp: RateInputs, recs: list[dict], column: str) -> list[dict]:
     return [{"id": i, "name": inp.base_name.get(i)} for i in ids]
 
 
-def shared_site(recs: list[dict], years: range) -> dict | None:
+def shared_site(inp: RateInputs, recs: list[dict], years: range) -> dict | None:
     """
     A guest's or participant's shared sites in a window (04's
     shared_out_sites; config.py, SHARED_SITE_MAX_SHARE), or None: years (the
     window's years it has such a campus), students (the sum of 04's
     shared_site_students over those years; None when a year has no reviewed
-    figure), upperBound (a figure is an upper bound) and exempt (students at
+    figure), upperBound (a figure is an upper bound), exempt (students at
     most SHARED_SITE_MAX_SHARE of the window's FTE-years, the sum of
-    rate_fte: compared and listed as usual).
+    rate_fte: compared and listed as usual) and figures (each such campus
+    and year, by year and campus: {year, unitid, students, figureYear (the
+    figure's own year: the year itself, or one within
+    SHARED_SITE_FIGURE_YEARS), upperBound, derived}; students and
+    figureYear None without a figure).
     """
     site_years = [(y, r) for y, r in zip(years, recs) if opt(r.get("shared_out_sites")) is not None]
     if not site_years:
@@ -411,9 +421,16 @@ def shared_site(recs: list[dict], years: range) -> dict | None:
     students = None if any(f is None for f in figures) else sum(int(f) for f in figures)
     num, den = SHARED_SITE_MAX_SHARE
     fte_years = sum(int(r["rate_fte"]) for r in recs)
+    each = []
+    for y, r in site_years:
+        for u in sorted(int(x) for x in str(r["shared_out_sites"]).split()):
+            f = inp.site_figure.get((u, y))
+            each.append({"year": y, "unitid": u, "students": None if f is None else f[0],
+                         "figureYear": None if f is None else f[2],
+                         "upperBound": f is not None and f[1] == "upper bound", "derived": f is not None and f[3]})
     return {"years": [y for y, _r in site_years], "students": students,
             "upperBound": students is not None and any(bool(r.get("shared_site_upper")) for _y, r in site_years),
-            "exempt": students is not None and students * den <= fte_years * num}
+            "exempt": students is not None and students * den <= fte_years * num, "figures": each}
 
 
 def window_status(inp: RateInputs, base: int, window: tuple[int, int]) -> dict:
@@ -445,7 +462,7 @@ def window_status(inp: RateInputs, base: int, window: tuple[int, int]) -> dict:
     rules = {str(y): str(r["rate_rule"]) for y, r in zip(years, recs) if opt(r.get("rate_excluded")) is not None}
     if rules:
         return {"status": "excluded", "rules": rules}
-    site = shared_site(recs, years)
+    site = shared_site(inp, recs, years)
     if site is not None and not site["exempt"]:
         why = "shared"
     else:
