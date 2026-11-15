@@ -450,11 +450,25 @@ RATE_CODES = {
 # max(1, m / start)): RATE_RAMP = (start, cap), so g rises from 1 at 10 a year
 # to 2 at 20 a year, where counts vary more than the exponent alone allows.
 # For a window total N over T years the variance-to-mean ratio is phi(N) = 1
-# + c g(N/T) sqrt(N/T). c was fitted on 2015-2019 on-campus counts of
-# institutions with a rate; 07 checks every build that the intervals cover
-# as they should (RATE_CALIBRATION). A code without its own c uses
-# RATE_DISPERSION_OTHER (the fit pooled over the single crime offenses).
-RATE_DISPERSION = {"violent": 0.354, "criminal_xmvt": 0.497, "burglary": 0.665}
+# + c g(N/T) sqrt(N/T). 07 checks every build that the intervals cover as
+# they should (RATE_CALIBRATION).
+#
+# Where each c comes from. Every value was fitted on the on-campus counts of
+# 2015-2019, by one method: institutions with an on-campus FTE of 1,000 or
+# more, no rate rule and no uncertain on-campus FTE, that reported all five
+# years; each institution's yearly counts compared with its five-year total
+# shared out in proportion to FTE times that year's rate over all of them
+# (Pearson variance-to-mean ratio); institutions grouped into bands by mean yearly
+# count (1-2, 2-5, 5-10, 10-20, 20-50, 50-100, 100+; bands of 15 or more
+# institutions with a ratio above 1); c fitted to the bands by least squares
+# on the log scale, weighted by institutions, with the exponent fixed at 1.5.
+# RATE_DISPERSION holds each code fitted on its own counts this way: violent
+# (0.354), criminal_xmvt (0.497), burglary (0.665), rape (0.295), aggravated
+# assault (0.585). RATE_DISPERSION_OTHER (0.522) is the same fit pooled over
+# the single crime offenses; it is used for the codes without a fit of their
+# own: fondling, robbery, stalking, dating violence, domestic violence.
+RATE_DISPERSION = {"violent": 0.354, "criminal_xmvt": 0.497, "burglary": 0.665,
+                   "rape": 0.295, "aggravated_assault": 0.585}
 RATE_DISPERSION_OTHER = 0.522
 RATE_RAMP = (10, 2)
 
@@ -534,7 +548,12 @@ MEDICAL_SCREEN_MIN_COUNT = 5
 # shared campus) count once, under the host, while the students are in each
 # institution's own FTE: above SHARED_MAX_SHARE of the window's count (with
 # the shared figures added for the institution whose copy is the shadow) the
-# rate is shown with a note and not listed.
+# rate is shown with a note and not listed. A campus whose figures are another
+# institution's campus figures without being identical copies is listed in
+# etl/reference/shared_campus_overrides.csv (reviewed one by one): its
+# figures stay in its institution's counts, are in none of its rates, and
+# count as shared figures (the institution's shared out, the host's shared
+# in) in the same test.
 SHARED_MAX_SHARE = (1, 20)
 
 # Unusual years. A cell is an institution's count of one offense

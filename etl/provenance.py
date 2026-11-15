@@ -106,6 +106,7 @@ CURATED_WRITERS = {
     "dims/dim_institution_class.parquet": "03",
     "dims/dim_medical_campus.parquet": "03",
     "dims/dim_campus_abroad.parquet": "03",
+    "dims/dim_shared_campus_override.parquet": "03",
 }
 
 # Records each step reads, and where 04's record keeps the ones it used

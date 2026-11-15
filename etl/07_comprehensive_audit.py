@@ -2073,6 +2073,28 @@ def medical_campus_years() -> set:
     return out
 
 
+def shared_campus_overrides() -> dict:
+    """
+    {(campus UNITID, year): host campus UNITID} of
+    etl/reference/shared_campus_overrides.csv (campuses whose reported
+    figures are another institution's campus figures), read here (not 03's
+    table).
+    """
+    out = {}
+    with open(PROJECT_ROOT / "etl" / "reference" / "shared_campus_overrides.csv", encoding="utf-8", newline="") as f:
+        for r in csv.DictReader(f):
+            u, h = int(r["unitid"]), int(r["host_unitid"])
+            if u // 1000 == h // 1000:
+                raise RuntimeError(f"etl/reference/shared_campus_overrides.csv: {u} and its host {h} are campuses "
+                                   "of one institution")
+            for y in range(int(r["first_year"]), int(r["last_year"]) + 1):
+                if y in DATA_YEARS:
+                    if (u, y) in out:
+                        raise RuntimeError(f"etl/reference/shared_campus_overrides.csv lists {u} twice for {y}")
+                    out[(u, y)] = h
+    return out
+
+
 def oncampus_estimates(fte: int, share: Optional[int], heads: Optional[tuple], by_level: bool) -> dict:
     """
     config.py's two on-campus FTE estimates in whole-number arithmetic (no
@@ -2179,8 +2201,10 @@ class Expected:
       institutions {(year, base): rec}, counts {(year, base, code): count at
       its counting campuses in the United States}, abroad, shared_in,
       shared_out (the same keys), geo {(year, base, DOE offense): [on campus,
-      residence halls, non-campus, public property]}, medical_on, shared_in_on,
-      shared_out_on {(year, base, DOE offense): count}, campus_geo {(year,
+      residence halls, non-campus, public property]} (for the rates: without
+      the campuses of etl/reference/shared_campus_overrides.csv), medical_on,
+      shared_in_on, shared_out_on, override_count {(year, base, DOE offense):
+      count}, campus_geo {(year,
       campus, DOE offense): [on campus, residence halls]} (counting campuses
       in the United States), campus_years {(year, unitid): {name, state}},
       campus_codes {(year, unitid): {code: count}} (shadow blocks left out),
@@ -2236,7 +2260,14 @@ def expected_institutions() -> Expected:
     block's figures are the host institution's shared_in (each host block
     once), and the shadow institution's shared_out when it counts a campus
     of its own that year (each shadow block); neither for a campus abroad;
-    shared_in_on and shared_out_on the same of on-campus blocks. medical_on:
+    shared_in_on and shared_out_on the same of on-campus blocks. A campus of
+    etl/reference/shared_campus_overrides.csv (its figures are another
+    institution's campus figures): in its institution's counts (counts, and
+    override_count per DOE offense), in no geography of the rates and no
+    medical_on; each of its blocks that is not a shadow block adds its own
+    figures to its institution's shared_out (shared_out_on for on campus)
+    and the host campus's block, once, to the host institution's shared_in
+    (shared_in_on). medical_on:
     per DOE offense, at campuses of the reference list in its years, the
     campus's on-campus count less its residence-hall count, not below 0.
     peer_type: the institution's Carnegie Size & Setting type
@@ -2255,6 +2286,7 @@ def expected_institutions() -> Expected:
                               ["unitid", "year", "fte", "pctdeexc"])
     heads = raw_headcounts()
     medical_years = medical_campus_years()
+    override_host = shared_campus_overrides()
     size_settings = hd_size_settings()
 
     name = dict(zip(inst["unitid"].astype(int).tolist(), inst["institution_name"].tolist()))
@@ -2319,9 +2351,12 @@ def expected_institutions() -> Expected:
         y, u, c = int(y), int(u), int(c)
         if c > 0 and (u, y) in counting_set:
             campus_geo_all.setdefault((y, u, o), [0, 0, 0, 0])[1] += c
-    geo, medical_on = {}, {}
+    geo, medical_on, override_count = {}, {}, {}
     for (y, u, o), v in campus_geo_all.items():
         if u in abroad_campus or (u, y) not in counting_set:
+            continue
+        if (u, y) in override_host:
+            override_count[(y, u // 1000, o)] = override_count.get((y, u // 1000, o), 0) + v[0] + v[2] + v[3]
             continue
         campus_geo[(y, u, o)] = [v[0], v[1]]
         g = geo.setdefault((y, u // 1000, o), [0, 0, 0, 0])
@@ -2468,8 +2503,15 @@ def expected_institutions() -> Expected:
                 pooled_rules.setdefault((y, min(hosts)), set()).add("shared")
             continue
         partial += [(y, g, u, h, (y, a) in institutions) for g, u, h in shadow_blocks[(y, a)]]
+    # The blocks with counts (not shadow blocks) of the campuses of
+    # shared_campus_overrides.csv, in the United States, that count that year
+    override_blocks = [(y, g, u, h) for (u, y), h in sorted(override_host.items())
+                       if (u, y) in counting_set and u not in abroad_campus
+                       for g in GEO_FOR_ALL if block_offenses.get((y, u, g))]
+    host_set = ({(y, h, g) for (y, g, _u, h, _l) in partial if h not in abroad_campus}
+                | {(y, h, g) for (y, g, _u, h) in override_blocks if h not in abroad_campus})
     shared_in, shared_out, shared_in_on, shared_out_on = {}, {}, {}, {}
-    for y, h, g in {(y, h, g) for (y, g, _u, h, _l) in partial if h not in abroad_campus}:
+    for y, h, g in host_set:
         for code, c in block_codes.get((y, h, g), {}).items():
             shared_in[(y, h // 1000, code)] = shared_in.get((y, h // 1000, code), 0) + c
         if g == "On-campus":
@@ -2482,6 +2524,12 @@ def expected_institutions() -> Expected:
             if g == "On-campus":
                 for o, c in block_offenses.get((y, h, g), {}).items():
                     shared_out_on[(y, u // 1000, o)] = shared_out_on.get((y, u // 1000, o), 0) + c
+    for y, g, u, _h in override_blocks:
+        for code, c in block_codes.get((y, u, g), {}).items():
+            shared_out[(y, u // 1000, code)] = shared_out.get((y, u // 1000, code), 0) + c
+        if g == "On-campus":
+            for o, c in block_offenses[(y, u, g)].items():
+                shared_out_on[(y, u // 1000, o)] = shared_out_on.get((y, u // 1000, o), 0) + c
     # The population rule: a hospital, a special-focus medical school, or listed
     for key, rule in hd_classes().items():
         if key in institutions:
@@ -2528,6 +2576,7 @@ def expected_institutions() -> Expected:
     e.institutions, e.counts, e.campus_years = institutions, counts, campus_years
     e.abroad, e.shared_in, e.shared_out = abroad_counts, shared_in, shared_out
     e.geo, e.medical_on, e.shared_in_on, e.shared_out_on = geo, medical_on, shared_in_on, shared_out_on
+    e.override_count = override_count
     e.campus_geo, e.campus_codes, e.family_of = campus_geo, campus_codes, family_of
     e.medical_years, e.abroad_campuses = medical_years, abroad_campus
     _EXPECTED_INSTITUTIONS = e
@@ -2612,8 +2661,8 @@ def audit_institution_rates(verbose: bool = False) -> AuditResult:
         result.details["what_it_checks"] = (
             "Without 04's or 05's code, from the facts without shadow blocks, the reported campus-years, "
             "dim_institution, dim_enrollment's FTE and online share, NCES's raw headcounts (DRVEF 2021 on, EF A "
-            "before), etl/reference/medical_campuses.csv, etl/reference/campuses_abroad.csv and the raw IPEDS HD "
-            "files: the campus-years that count, the institutions (base UNITIDs) each year, counts over their "
+            "before), etl/reference/medical_campuses.csv, etl/reference/campuses_abroad.csv, "
+            "etl/reference/shared_campus_overrides.csv and the raw IPEDS HD files: the campus-years that count, the institutions (base UNITIDs) each year, counts over their "
             "counting campuses in the United States (a campus DOE lists without a state, or on the reference list "
             "of campuses abroad, is counted apart), per geography (residence halls included), link campus, FTE, "
             f"online share (in {', '.join(str(y) for y in sorted(ONLINE_SHARE_YEAR))} that of the fall "
@@ -2625,7 +2674,9 @@ def audit_institution_rates(verbose: bool = False) -> AuditResult:
             f"{HOSPITAL_CODE}, a Carnegie special-focus medical code, the reference list, a campus under two IDs, "
             "a merger family; the first one published), pooled institutions and both denominators, the Carnegie "
             "Size & Setting peer type, and the on-campus figures at listed medical-center campuses (less "
-            "residence halls) and at shared campuses. Every rankings/*.json file must list exactly its preset's "
+            "residence halls) and at shared campuses (copies identical to another institution's campus, and the "
+            "campuses of the reviewed override list, whose figures are in the counts and in none of the rates). "
+            "Every rankings/*.json file must list exactly its preset's "
             "counting campuses; 04's institution tables, every school file's institution years, "
             "downloads/campus-years.csv and metadata.json's rateStats.institutionYears must match.")
         E = expected_institutions()
@@ -2702,7 +2753,7 @@ def audit_institution_rates(verbose: bool = False) -> AuditResult:
         for (y, b, o), v in E.geo.items():
             want_off.setdefault((y, b, o), {})["geo"] = tuple(v)
         for name_, source in (("medical_on", E.medical_on), ("shared_in_on", E.shared_in_on),
-                              ("shared_out_on", E.shared_out_on)):
+                              ("shared_out_on", E.shared_out_on), ("override_count", E.override_count)):
             for k, v in source.items():
                 want_off.setdefault(k, {})[name_] = v
         offense_rows = 0
@@ -2715,7 +2766,8 @@ def audit_institution_rates(verbose: bool = False) -> AuditResult:
             w = want_off.get((y, b, o), {})
             want = {"geo": w.get("geo", (0, 0, 0, 0)), "count": counts.get((y, b, code), 0),
                     "medical_on": w.get("medical_on", 0), "shared_in_on": w.get("shared_in_on", 0),
-                    "shared_out_on": w.get("shared_out_on", 0), "shared_in": E.shared_in.get((y, b, code), 0),
+                    "shared_out_on": w.get("shared_out_on", 0), "override_count": w.get("override_count", 0),
+                    "shared_in": E.shared_in.get((y, b, code), 0),
                     "shared_out": E.shared_out.get((y, b, code), 0), "abroad_count": E.abroad.get((y, b, code), 0)}
             got = {"geo": (int(r["count_on"]), int(r["count_res"]), int(r["count_non"]), int(r["count_pub"])),
                    **{k: int(r[k]) for k in want if k != "geo"}}
@@ -2966,7 +3018,7 @@ SPEC = {
         "dating_violence": ("Dating Violence",),
         "domestic_violence": ("Domestic Violence",),
     },
-    "c": {"violent": 0.354, "criminal_xmvt": 0.497, "burglary": 0.665},
+    "c": {"violent": 0.354, "criminal_xmvt": 0.497, "burglary": 0.665, "rape": 0.295, "aggravated_assault": 0.585},
     "c_other": 0.522,
     "power": 1.5,
     "ramp_start": 10, "ramp_end": 20, "ramp_cap": 2,

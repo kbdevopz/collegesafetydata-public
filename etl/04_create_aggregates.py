@@ -53,6 +53,9 @@ CLASS_PATH = CURATED_DIR / "dims" / "dim_institution_class.parquet"
 MEDICAL_PATH = CURATED_DIR / "dims" / "dim_medical_campus.parquet"
 # Campuses abroad that DOE gives a state (03's reviewed list)
 ABROAD_PATH = CURATED_DIR / "dims" / "dim_campus_abroad.parquet"
+# Campuses whose reported figures are another institution's campus figures
+# (03's reviewed list, etl/reference/shared_campus_overrides.csv)
+OVERRIDE_PATH = CURATED_DIR / "dims" / "dim_shared_campus_override.parquet"
 
 # Shared (copied) statistics. Some DOE rows repeat another campus's numbers:
 # a medical school's sites report their university's main campus figures, a
@@ -1398,17 +1401,22 @@ def create_institution_tables(ranked_agg: pd.DataFrame, shared: pd.DataFrame, di
       agg_institution_year_offense.parquet: year, base_unitid, offense,
         offense_family, count (its counting campuses in the United States,
         all geographies), count_on, count_res, count_non and count_pub (the
-        same at each geography: on campus, of which in residence halls,
-        non-campus, public property; count = count_on + count_non +
-        count_pub), medical_on (of count_on, at campuses of
-        dim_medical_campus that year, residence halls taken out: each such
-        campus's on-campus count less its residence-hall count, at least 0),
-        shared_in (of the count, figures that a campus of another
-        institution also reported, shared_rate_rules), shared_out (figures
-        of its campuses that count under another institution's campus, not
-        in the count), shared_in_on and shared_out_on (the same, on campus
-        only), abroad_count (its counting campuses abroad, not in the
-        count); rows with any of them above 0
+        same at each geography for the rates: on campus, of which in
+        residence halls, non-campus, public property; without the campuses
+        of dim_shared_campus_override that year), override_count (the count
+        of those campuses: in count, in no rate; count = count_on +
+        count_non + count_pub + override_count), medical_on (of count_on,
+        at campuses of dim_medical_campus that year, residence halls taken
+        out: each such campus's on-campus count less its residence-hall
+        count, at least 0), shared_in (of the count, figures that a campus
+        of another institution also reported: shared_rate_rules, and the
+        host campus's figures of a dim_shared_campus_override campus),
+        shared_out (figures of its campuses that count under another
+        institution's campus, not in the count; and the figures of its
+        dim_shared_campus_override campuses, in the count but in no rate),
+        shared_in_on and shared_out_on (the same, on campus only),
+        abroad_count (its counting campuses abroad, not in the count); rows
+        with any of them above 0
     """
     print("\nCreating institution tables (rates are per institution)...")
     counted = ranked_agg[ranked_agg["geo"] == "All"]
@@ -1632,14 +1640,27 @@ def create_institution_tables(ranked_agg: pd.DataFrame, shared: pd.DataFrame, di
     is_abroad = rows["unitid"].isin(abroad)
     is_medical = pd.Series([(int(u), int(y)) in medical_set for u, y in zip(rows["unitid"], rows["year"])],
                            index=rows.index)
+    # A campus whose reported figures are another institution's campus
+    # figures (dim_shared_campus_override): in the institution's count, never
+    # in its rates (no geography, no medical figure)
+    overrides = pd.read_parquet(OVERRIDE_PATH)
+    host_of = {(int(u), int(y)): int(h) for u, y, h in zip(overrides["unitid"], overrides["year"],
+                                                          overrides["host_unitid"])}
+    is_override = pd.Series([(int(u), int(y)) in host_of for u, y in zip(rows["unitid"], rows["year"])],
+                            index=rows.index) & ~is_abroad
     rows = rows.assign(abroad_count=rows["us"].where(is_abroad, 0),
-                       medical_on=(rows["count_on"] - rows["count_res"]).clip(lower=0).where(is_medical & ~is_abroad, 0))
+                       override_count=rows["us"].where(is_override, 0),
+                       medical_on=(rows["count_on"] - rows["count_res"]).clip(lower=0).where(
+                           is_medical & ~is_abroad & ~is_override, 0))
     for c in ("us", "count_on", "count_res", "count_non", "count_pub"):
         rows[c] = rows[c].where(~is_abroad, 0)
+    for c in ("count_on", "count_res", "count_non", "count_pub"):
+        rows[c] = rows[c].where(~is_override, 0)
     inst_offense = rows.groupby(["year", "base_unitid", "offense", "offense_family"], as_index=False)[
-        ["us", "count_on", "count_res", "count_non", "count_pub", "medical_on", "abroad_count"]].sum().rename(
-        columns={"us": "count"})
-    if (inst_offense["count"] != inst_offense["count_on"] + inst_offense["count_non"] + inst_offense["count_pub"]).any():
+        ["us", "count_on", "count_res", "count_non", "count_pub", "override_count", "medical_on",
+         "abroad_count"]].sum().rename(columns={"us": "count"})
+    if (inst_offense["count"] != inst_offense["count_on"] + inst_offense["count_non"] + inst_offense["count_pub"]
+            + inst_offense["override_count"]).any():
         raise RuntimeError("An institution's count is not the sum of its geographies. This is a bug in "
                            "create_institution_tables.")
 
@@ -1667,6 +1688,31 @@ def create_institution_tables(ranked_agg: pd.DataFrame, shared: pd.DataFrame, di
                 if g == "On-campus":
                     shared_out_on[(y, u // 1000, o)] += c
         host_blocks.add((y, h, g))
+    # A dim_shared_campus_override campus's blocks that count (its shadow
+    # blocks are above): its own figures for its institution (shared_out, in
+    # the count, in no rate), the host block's once for the host's institution
+    # (shared_in)
+    n_override = 0
+    for (u, y), h in sorted(host_of.items()):
+        if u in abroad or (u, y) not in counting:
+            continue
+        for g in GEO_FOR_ALL:
+            own = cells.get((y, u, g), {})
+            if not own:
+                continue
+            for o, c in own.items():
+                n_override += c
+                shared_out[(y, u // 1000, o)] += c
+                if g == "On-campus":
+                    shared_out_on[(y, u // 1000, o)] += c
+            if h not in abroad and (y, h, g) not in host_blocks:
+                for o, c in cells.get((y, h, g), {}).items():
+                    shared_in[(y, h // 1000, o)] += c
+                    if g == "On-campus":
+                        shared_in_on[(y, h // 1000, o)] += c
+                host_blocks.add((y, h, g))
+    print(f"  Campuses reporting another institution's figures (dim_shared_campus_override): {len(host_of):,} "
+          f"campus-years listed, {n_override:,} counts kept in counts and out of rates")
     family = dict(zip(rows["offense"], rows["offense_family"]))
     extra = pd.DataFrame([{"year": y, "base_unitid": b, "offense": o, "offense_family": family[o],
                            "shared_in": shared_in.get((y, b, o), 0), "shared_out": shared_out.get((y, b, o), 0),
@@ -1676,8 +1722,8 @@ def create_institution_tables(ranked_agg: pd.DataFrame, shared: pd.DataFrame, di
                          columns=["year", "base_unitid", "offense", "offense_family", "shared_in", "shared_out",
                                   "shared_in_on", "shared_out_on"])
     inst_offense = inst_offense.merge(extra, on=["year", "base_unitid", "offense", "offense_family"], how="outer")
-    value_cols = ["count", "count_on", "count_res", "count_non", "count_pub", "medical_on", "shared_in", "shared_out",
-                  "shared_in_on", "shared_out_on", "abroad_count"]
+    value_cols = ["count", "count_on", "count_res", "count_non", "count_pub", "override_count", "medical_on",
+                  "shared_in", "shared_out", "shared_in_on", "shared_out_on", "abroad_count"]
     inst_offense[value_cols] = inst_offense[value_cols].fillna(0).astype("int64")
     if (inst_offense["shared_in"] > inst_offense["count"]).any() or (
             inst_offense["shared_in_on"] > inst_offense["count_on"]).any():
@@ -1755,7 +1801,7 @@ def main():
     dims = CURATED_DIR / "dims"
     inputs_before = provenance.Snapshot(
         "04", [FACTS_PATH, dims / "dim_institution.parquet", dims / "dim_enrollment.parquet", SOURCES_PATH,
-               OLDER_PATH, LINKS_PATH, CLASS_PATH, MEDICAL_PATH, ABROAD_PATH])
+               OLDER_PATH, LINKS_PATH, CLASS_PATH, MEDICAL_PATH, ABROAD_PATH, OVERRIDE_PATH])
 
     # The old build record no longer describes the files about to be written
     provenance.invalidate(provenance.AGGS_MANIFEST)
