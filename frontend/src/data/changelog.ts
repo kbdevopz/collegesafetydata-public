@@ -22,6 +22,20 @@ export interface ChangeEntry {
 
 export const CHANGES: ChangeEntry[] = [
   {
+    date: '2026-11-15',
+    kind: 'method',
+    title: 'Three-year rates of on-campus incidents, compared with the national rate',
+    body: [
+      'A rate now counts the incidents reported on campus over three years, per 10,000 on-campus students a year. No rate includes 2020. Incidents at non-campus locations and on public property are shown beside the rate as counts, not in it.',
+      'Rankings by rate for single years are replaced by comparisons. Each rate is compared with the national rate and with the rate of institutions of its type, from its 95% interval: above, below or not distinguishable. For violent crimes, criminal offenses except motor-vehicle theft, and burglary, the institutions large enough to expect at least 20 incidents at the national rate are placed on an ordered list, each with the range of positions its rate allows. School pages still chart each year\'s rate, without comparisons.',
+      'Motor-vehicle theft, "All criminal offenses", "Property crimes", "All categories", arrests and disciplinary referrals are shown as counts only, with the reason, as the rare offenses already were.',
+      'Intervals use a new model of how much institutions\' counts vary, with one constant per category, and the audit now tests that model against the data on every build. Rank ranges come from comparing each listed institution with every other, not from simulation.',
+      'Years that are unusually high for an institution are flagged at each location and never removed; when a flagged year changes a comparison, the school page says so. Counts flagged as very high for an institution\'s size are now measured against the 99th percentile of institution rates, not the highest ranked rate.',
+      'More medical-center campuses are counted apart, from a list reviewed campus by campus, and AdventHealth University has no rate because its main campus includes a hospital. No count changed.',
+    ],
+    methodology: 'rates',
+  },
+  {
     date: '2026-11-14',
     kind: 'method',
     title: 'Rate rules revised: on-campus estimate, medical-center campuses, campuses abroad, wider intervals',
@@ -32,6 +46,7 @@ export const CHANGES: ChangeEntry[] = [
       'Rates leave out incidents at campuses abroad, because NCES\'s fall enrollment leaves out their students (95 institutions in 2024). Those incidents stay on each campus\'s own page.',
       'Intervals now allow for how much institutions\' counts vary from year to year beyond chance (a negative binomial interval), so they are wider, most of all for large counts, and rank ranges are simulated. Unusually high years are marked under a stricter test, and rankings by count flag counts that are very high for an institution\'s size.',
       'In the 2024 national rate rankings 2,076 institutions are listed, 94 of them left out by a rule; 293 are ranked for all criminal offenses and 79 for violent crimes. Of the previous top 25 by all criminal offenses, 20 are still in it: Grand Canyon University, Metropolitan State University and the CUNY Graduate Center are not ranked because of an uncertain on-campus FTE, Johns Hopkins University because of that and its medical-center campuses, and Harvard University is 26th. No count changed.',
+      'The figures in this entry are those of this change. The change above replaced rankings by rate for single years with three-year rates and comparisons, so they no longer hold; Methodology has the current rules.',
     ],
     methodology: 'rate-rules',
   },

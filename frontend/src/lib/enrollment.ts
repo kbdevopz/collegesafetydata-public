@@ -67,12 +67,16 @@ export function describeEnrollmentStatus(summary: EnrollmentStatusSummary | null
  * Short wording for which falls have NCES enrollment (FTE) for rates, e.g.
  * "Rate calculations use IPEDS FTE enrollment data, available for 2015-2024
  * (2024 is provisional)." With no summary (metadata without
- * "enrollmentStatus") the wording names no year.
+ * "enrollmentStatus") the wording names no year. `skipYears` are the years
+ * no rate window contains (metadata.json rateRules.skipYears).
  */
-export function describeFteAvailability(summary: EnrollmentStatusSummary | null): string {
+export function describeFteAvailability(summary: EnrollmentStatusSummary | null, skipYears: number[] = []): string {
   const lead = 'Rate calculations use IPEDS FTE enrollment data'
+  const skipped = skipYears.length > 0
+    ? ` No rate includes ${formatYearRanges(skipYears)} (see the Methodology page).`
+    : ''
   if (!summary) {
-    return `${lead}. A year whose fall enrollment NCES has not published yet has no rates.`
+    return `${lead}. A year whose fall enrollment NCES has not published yet has no rates.${skipped}`
   }
   const available = [...summary.final, ...summary.provisional]
   let text = available.length > 0 ? `${lead}, available for ${formatYearRanges(available)}` : lead
@@ -86,7 +90,7 @@ export function describeFteAvailability(summary: EnrollmentStatusSummary | null)
     const one = summary.missing.length === 1
     text += ` NCES has not published fall ${ranges} enrollment yet, so ${ranges} ${one ? 'has' : 'have'} no rates.`
   }
-  return text
+  return text + skipped
 }
 
 /**

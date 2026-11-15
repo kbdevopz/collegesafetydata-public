@@ -1,73 +1,38 @@
 /**
- * Per-10,000-FTE rates, computed exactly the way the pipeline computes the
- * rates it publishes in rankings/*.json (etl/05_generate_json.py):
+ * The 3-year on-campus rates, as the pipeline publishes them in rates/*.json
+ * (etl/rates.py): every figure, verdict, list position and range is read
+ * from the data and never recomputed here. This module only names windows,
+ * formats numbers and turns the published fields into plain sentences.
  *
- *   rate = round(count / fte * 10000, 2)   using that year's denominator
- *
- * and no rate at all when that year has no FTE. Another year's FTE is never
- * used. Display rounding (toFixed) is left to the pages.
- *
- * Rates are institution rates: NCES publishes FTE per institution (all
- * campuses with the same first six UNITID digits), not per campus, so the
- * count is that of all the institution's campuses in the United States
- * (institutionRate).
- *
- * Whether a rate is ranked is decided by the pipeline and read here
- * (rateStanding); rank ranges are the pipeline's (simulated) and are never
- * recomputed in the browser.
+ * A rate is the on-campus incidents of an institution (all its campuses in
+ * the United States) in a window's three years, per 10,000 of its on-campus
+ * students (FTE) summed over the same years. Rates, interval bounds and the
+ * national and peer rates are published to 2 decimals and shown that way.
  */
 
 import type {
-  FteUncertain, InstitutionYear, NotRankedReason, PooledInstitution, RankingsData, RateEntry, RateInstitution,
-  RateNoteCounts, RateNotRankedEntry, RateRule, RateRules, RateUnrankedEntry, SchoolProfile,
+  FteUncertain, InstitutionFlag, InstitutionWindow, Metadata, NotRatedReason, PooledInstitution, RateEntryFields,
+  RateFlag, RateRules, RateRule, SchoolProfile, Verdict,
 } from './types'
-import { selectionCode } from './selection'
+import {
+  COUNTS_ONLY_REASONS, OFFENSE_NOUNS, RATE_CODE_LABELS, RATE_CODE_ORDER, RATE_CODE_PHRASES, VERDICT_LABELS,
+  VERDICT_SHORT,
+} from './rateDisplay'
+
+// =============================================================================
+// NCES FTE of a school's institution (count views)
+// =============================================================================
 
 type FteSource = Pick<SchoolProfile, 'fteByYear'> | null | undefined
 
-/**
- * FTE for one year from the profile's fteByYear, or null when that year has
- * no FTE above 0.
- */
+/** FTE for one year from the profile's fteByYear, or null when that year has none above 0. */
 export function fteFor(profile: FteSource, year: number | null | undefined): number | null {
   if (!profile || year === null || year === undefined || !Number.isFinite(year)) return null
   const value = profile.fteByYear?.[String(year)]
   return typeof value === 'number' && Number.isFinite(value) && value > 0 ? value : null
 }
 
-/**
- * Round to 2 decimals the way numpy/pandas round(2) does: scale by 100,
- * round half to even, scale back.
- */
-export function round2(x: number): number {
-  const scaled = x * 100
-  const floor = Math.floor(scaled)
-  const diff = scaled - floor
-  let rounded: number
-  if (diff > 0.5) rounded = floor + 1
-  else if (diff < 0.5) rounded = floor
-  else rounded = floor % 2 === 0 ? floor : floor + 1
-  return rounded / 100
-}
-
-/**
- * Rate per 10,000 FTE for `count` incidents in `year`, or null when that year
- * has no FTE (or there is no count).
- */
-export function rateFor(
-  profile: FteSource,
-  year: number | null | undefined,
-  count: number | null | undefined
-): number | null {
-  const fte = fteFor(profile, year)
-  if (fte === null || count === null || count === undefined || !Number.isFinite(count)) return null
-  return round2((count / fte) * 10000)
-}
-
-/**
- * The newest year in fteByYear and its FTE (the value 05 also writes as
- * profile.fte), or null when there is none above 0.
- */
+/** The newest year in fteByYear and its FTE, or null when there is none above 0. */
 export function latestFte(profile: FteSource): { year: number; fte: number } | null {
   if (!profile || !profile.fteByYear) return null
   let newest: number | null = null
@@ -80,177 +45,34 @@ export function latestFte(profile: FteSource): { year: number; fte: number } | n
   return fte === null ? null : { year: newest, fte }
 }
 
-/** A school's institution in one year and one selection, as its rate counts it. */
-export interface InstitutionRate extends Omit<InstitutionYear, 'counts'> {
-  year: number
-  code: string // the selection's code ("violent", "motor_vehicle_theft", ...)
-  count: number // incidents of all its campuses in the United States
-  fte: number | null
-  rate: number | null // per 10,000 FTE; null without an FTE
-  // Its institution is in a state or territory without rankings files
-  // (Guam, the Northern Mariana Islands, ...): no rate ranking lists it
-  outsideRankings?: boolean
-}
-
-/**
- * The states and territories that have rankings files (the presets with a
- * two-letter id): the 50 states, DC, Puerto Rico and the U.S. Virgin
- * Islands. State and national rankings list only institutions in them.
- */
-export function rankingStates(presets: { id: string }[] | undefined): Set<string> {
-  return new Set((presets ?? []).map((p) => p.id).filter((id) => /^[A-Z]{2}$/.test(id)))
-}
-
-/**
- * The rate of the school's institution for `selection` (a summary code or
- * an offense name) in `year`: the count of all the institution's campuses
- * (institution.byYear counts, or `ownCount`, the school's own count, when
- * the file leaves them out because they are the same) per 10,000 of its
- * denominator. Null when the institution has no entry that year; the rate
- * is null in a year the pipeline leaves out (rateExcludedReason).
- */
-export function institutionRate(
-  profile: Pick<SchoolProfile, 'fteByYear' | 'institution'> | null | undefined,
-  year: number | null | undefined,
-  selection: string,
-  ownCount: number
-): InstitutionRate | null {
-  if (!profile || year === null || year === undefined) return null
-  const entry = profile.institution?.byYear[String(year)]
-  if (!entry) return null
-  const code = selectionCode(selection)
-  const { counts, ...rest } = entry
-  const count = counts ? counts[code] ?? 0 : ownCount
-  // The rate's denominator: the on-campus FTE of the year, plus that of the
-  // institutions whose campus figures count here (rateFte); none at 0
-  const denominator = entry.rateFte ?? fteFor(profile, year)
-  const fte = denominator !== null && denominator > 0 ? denominator : null
-  return {
-    ...rest,
-    year,
-    code,
-    count,
-    fte,
-    // No rate for a year whose incidents and FTE may not cover the same campuses
-    rate: entry.rateExcludedReason || fte === null ? null : round2((count / fte) * 10000),
-  }
-}
-
 // =============================================================================
-// Intervals: negative binomial (gamma-Poisson)
+// Numbers and words
 // =============================================================================
 
-// Lanczos approximation (g = 7, 9 terms): log Γ(x) for x > 0
-const LANCZOS = [
-  0.99999999999980993, 676.5203681218851, -1259.1392167224028, 771.32342877765313, -176.61502916214059,
-  12.507343278686905, -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7,
-]
+export const fmtInt = (n: number) => n.toLocaleString('en-US')
 
-function logGamma(x: number): number {
-  if (x < 0.5) return Math.log(Math.PI / Math.sin(Math.PI * x)) - logGamma(1 - x)
-  const z = x - 1
-  let sum = LANCZOS[0]
-  for (let i = 1; i < LANCZOS.length; i++) sum += LANCZOS[i] / (z + i)
-  const t = z + 7.5
-  return 0.5 * Math.log(2 * Math.PI) + (z + 0.5) * Math.log(t) - t + Math.log(sum)
+/** A published rate (2 decimals) as published: "31.01" */
+export function fmtRate(x: number): string {
+  return x.toFixed(2)
 }
 
-/** P(a, x): the regularized lower incomplete gamma function (shape a > 0, scale 1). */
-export function gammaP(a: number, x: number): number {
-  if (x <= 0) return 0
-  const logPrefix = a * Math.log(x) - x - logGamma(a)
-  if (x < a + 1) {
-    // Series: sum of x^n / (a (a+1) ... (a+n))
-    let term = 1 / a
-    let sum = term
-    for (let n = 1; n < 1000; n++) {
-      term *= x / (a + n)
-      sum += term
-      if (Math.abs(term) < Math.abs(sum) * 1e-16) break
-    }
-    return Math.min(1, sum * Math.exp(logPrefix))
-  }
-  // Continued fraction for Q(a, x) (modified Lentz)
-  const tiny = 1e-300
-  let b = x + 1 - a
-  let c = 1 / tiny
-  let d = 1 / b
-  let h = d
-  for (let i = 1; i < 1000; i++) {
-    const an = -i * (i - a)
-    b += 2
-    d = an * d + b
-    if (Math.abs(d) < tiny) d = tiny
-    c = b + an / c
-    if (Math.abs(c) < tiny) c = tiny
-    d = 1 / d
-    const delta = d * c
-    h *= delta
-    if (Math.abs(delta - 1) < 1e-16) break
-  }
-  return Math.max(0, 1 - Math.exp(logPrefix) * h)
+/** "1st", "2nd", "3rd", "11th", "12th", "21st", "101st", "111th" */
+export function ordinal(n: number): string {
+  const mod100 = n % 100
+  const suffix = mod100 >= 11 && mod100 <= 13 ? 'th' : ({ 1: 'st', 2: 'nd', 3: 'rd' } as Record<number, string>)[n % 10] ?? 'th'
+  return `${fmtInt(n)}${suffix}`
 }
 
-/** The x with P(a, x) = q (0 < q < 1): the gamma quantile (shape a, scale 1), by bisection. */
-export function gammaInv(q: number, a: number): number {
-  let lo = 0
-  let hi = Math.max(1, a + 10 * Math.sqrt(a) + 10)
-  while (gammaP(a, hi) < q) hi *= 2
-  for (let i = 0; i < 300; i++) {
-    const mid = (lo + hi) / 2
-    if (gammaP(a, mid) < q) lo = mid
-    else hi = mid
-    if (hi - lo <= 1e-15 * hi) break
-  }
-  return (lo + hi) / 2
+/** "A", "A and B", "A, B and C" */
+export function joinAnd(items: string[]): string {
+  return items.length > 1 ? `${items.slice(0, -1).join(', ')} and ${items[items.length - 1]}` : items[0] ?? ''
 }
 
-const countIntervalCache = new Map<string, [number, number]>()
-
-/**
- * The `level` (0.95) interval of a count n under a negative binomial
- * (gamma-Poisson) model with overdispersion k, as etl/config.py defines it:
- * phi = 1 + n / k, effective count m = n / phi; lower phi x G(alpha/2; m)
- * (0 for n = 0), upper phi x G(1 - alpha/2; m + 1), G the gamma quantile.
- * With phi = 1 it is the exact Poisson (Garwood) interval.
- */
-export function countInterval(n: number, k: number, level: number): [number, number] {
-  const key = `${n}|${k}|${level}`
-  const cached = countIntervalCache.get(key)
-  if (cached) return cached
-  const alpha = 1 - level
-  const phi = 1 + n / k
-  const m = n / phi
-  const lower = n === 0 ? 0 : phi * gammaInv(alpha / 2, m)
-  const upper = phi * gammaInv(1 - alpha / 2, m + 1)
-  const out: [number, number] = [lower, upper]
-  countIntervalCache.set(key, out)
-  return out
+/** "1 rape" / "3 rapes" for an offense code */
+export function offenseCount(n: number, offense: string): string {
+  const [one, many] = OFFENSE_NOUNS[offense] ?? [offense.replace(/_/g, ' '), `${offense.replace(/_/g, ' ')} incidents`]
+  return `${fmtInt(n)} ${n === 1 ? one : many}`
 }
-
-/**
- * The interval of a rate per 10,000 for `count` incidents of `code` over
- * `fte`: countInterval with the code's k (rules.dispersion.kByCode) / fte x
- * 10,000, each bound rounded to 2 decimals. Null without the rules or a k
- * for the code.
- */
-export function rateInterval(
-  count: number, fte: number, code: string, rules: RateRules | null | undefined
-): { lo: number; hi: number } | null {
-  const k = rules?.dispersion?.kByCode?.[code]
-  if (!rules || k === undefined || !(fte > 0)) return null
-  const [lower, upper] = countInterval(count, k, rules.ciLevel)
-  return { lo: round2((lower / fte) * 10000), hi: round2((upper / fte) * 10000) }
-}
-
-/** "8.1–17.9": a rate interval's bounds to 1 decimal. */
-export function intervalText(lo: number, hi: number): string {
-  return `${lo.toFixed(1)}–${hi.toFixed(1)}`
-}
-
-// =============================================================================
-// Where a rate stands under the rate rules
-// =============================================================================
 
 /** "25%": a ratio [a, b] as a percentage of a / b (or of a / b - 1 with `above`). */
 export function ratioPercent(ratio: [number, number], above = false): string {
@@ -258,411 +80,436 @@ export function ratioPercent(ratio: [number, number], above = false): string {
   return `${Math.round(value * 100)}%`
 }
 
-/**
- * Where an institution-year's rate of one code stands:
- * - 'excluded': a rule leaves the institution out that year; no rate
- *   (rateExcludedReason says why)
- * - 'noRate': no denominator that year
- * - 'unlisted': listed in no rate ranking (denominator under rules.minFte)
- * - 'outside': listed in no rate ranking (its institution's state or
- *   territory has no rankings files)
- * - 'countsOnly': the code has rankings by count only
- * - 'notRanked': shown, not ranked, for `reasons` (online, medical_campus,
- *   shared, and few together with another)
- * - 'few': fewer than rules.minCount incidents and no other reason
- * - 'ranked': in the rate ranking of the code
- * As the data contract has it: a code is ranked only when rateRanked is
- * true, fteUncertain is absent, notRanked[code] is absent, the count is at
- * least minCount and the code is not counts-only.
- */
-export type RateStanding =
-  | { kind: 'excluded' | 'noRate' | 'unlisted' | 'outside' | 'countsOnly' | 'few' | 'ranked' }
-  | { kind: 'notRanked'; reasons: NotRankedReason[] }
+/** "95" from RateRules.ciLevel */
+export function levelPct(rules: RateRules | null | undefined): number {
+  return Math.round((rules?.ciLevel ?? 0.95) * 100)
+}
 
-export function rateStanding(inst: InstitutionRate | null, rules: RateRules | null | undefined): RateStanding {
-  if (!inst) return { kind: 'noRate' }
-  if (inst.rateExcludedReason) return { kind: 'excluded' }
-  if (inst.fte === null || inst.rate === null) return { kind: 'noRate' }
-  if (!inst.rateRanked) return { kind: 'unlisted' }
-  if (inst.outsideRankings) return { kind: 'outside' }
-  if (rules?.countsOnly?.includes(inst.code)) return { kind: 'countsOnly' }
-  const minCount = rules?.minCount ?? 20
-  const reasons: NotRankedReason[] = []
-  if (inst.fteUncertain) reasons.push('online')
-  for (const r of inst.notRanked?.[inst.code] ?? []) reasons.push(r)
-  if (reasons.length > 0) {
-    if (inst.count < minCount) reasons.push('few')
-    return { kind: 'notRanked', reasons }
-  }
-  return inst.count < minCount ? { kind: 'few' } : { kind: 'ranked' }
+/** "1 in 40": the chance of each one-sided verdict for an institution at the national rate */
+export function oneSidedChance(rules: RateRules | null | undefined): string {
+  const level = rules?.ciLevel ?? 0.95
+  return `1 in ${Math.round(2 / (1 - level))}`
 }
 
 // =============================================================================
-// Notes (plain sentences shown with a rate)
+// Windows and codes
 // =============================================================================
 
-const fmt = (n: number) => n.toLocaleString('en-US')
+export const windowKey = (w: readonly [number, number]) => `${w[0]}-${w[1]}`
 
-/** "A", "A and B", "A, B and C" */
-export function joinAnd(items: string[]): string {
-  return items.length > 1 ? `${items.slice(0, -1).join(', ')} and ${items[items.length - 1]}` : items[0] ?? ''
+/** The windows' keys ("2015-2017", ...), oldest first */
+export function windowKeys(rules: RateRules | null | undefined): string[] {
+  return (rules?.windows ?? []).map(windowKey)
 }
 
-function pooledNames(pooled: PooledInstitution[] | undefined): string | null {
-  if (!pooled || pooled.length === 0) return null
-  return joinAnd(pooled.map((p) => p.name ?? `institution ${p.id}`))
+export function latestWindowKey(rules: RateRules | null | undefined): string | null {
+  const keys = windowKeys(rules)
+  return keys.length > 0 ? keys[keys.length - 1] : null
+}
+
+/** [first year, last year] of a window key */
+export function windowYears(key: string): [number, number] {
+  const [a, b] = key.split('-').map(Number)
+  return [a, b]
+}
+
+/** "2022-2024" written for reading: "2022–2024" */
+export function windowLabel(key: string): string {
+  const [a, b] = windowYears(key)
+  return `${a}–${b}`
 }
 
 /**
- * Why an institution's on-campus FTE is uncertain, from its two estimates
- * (rounded, as published) and the institutions whose FTE its rate adds.
- * The flag is set on unrounded estimates, and also when a pooled
- * institution's on-campus FTE is uncertain, so the text never claims a gap
- * the published figures do not show.
- * `short`: a phrase for a list; else a clause for a sentence.
+ * The window to show: `param` when it is a window; else the window ending
+ * in `year` (a year chosen in the count view); else the latest.
  */
-export function fteUncertainText(
-  fu: FteUncertain, pooled: PooledInstitution[] | undefined, rules: RateRules | null | undefined, short = false
+export function chooseWindow(rules: RateRules | null | undefined, param: string | null, year?: number | null): string | null {
+  const keys = windowKeys(rules)
+  if (param && keys.includes(param)) return param
+  if (year) {
+    const ending = keys.find((k) => windowYears(k)[1] === year)
+    if (ending) return ending
+  }
+  return keys.length > 0 ? keys[keys.length - 1] : null
+}
+
+/** The rate codes in display order (those in RateRules.codes) */
+export function rateCodes(rules: RateRules | null | undefined): string[] {
+  const codes = Object.keys(rules?.codes ?? {})
+  return [...RATE_CODE_ORDER.filter((c) => codes.includes(c)), ...codes.filter((c) => !(RATE_CODE_ORDER as readonly string[]).includes(c))]
+}
+
+export function isListCode(code: string, rules: RateRules | null | undefined): boolean {
+  return !!rules?.lists?.codes?.includes(code)
+}
+
+export function rateCodeLabel(code: string): string {
+  return RATE_CODE_LABELS[code] ?? code.replace(/_/g, ' ')
+}
+
+export function rateCodePhrase(code: string): string {
+  return RATE_CODE_PHRASES[code] ?? `${code.replace(/_/g, ' ')} incidents`
+}
+
+/**
+ * The rate code for a count selection (lib/selection.ts code): criminal
+ * becomes criminal offenses except motor-vehicle theft, property becomes
+ * burglary; a rate code stays; anything else has no rate (null).
+ */
+export function rateCodeForSelection(code: string, rules: RateRules | null | undefined): string | null {
+  const codes = rules?.codes ?? {}
+  if (code === 'criminal') return 'criminal_xmvt' in codes ? 'criminal_xmvt' : null
+  if (code === 'property') return 'burglary' in codes ? 'burglary' : null
+  return code in codes ? code : null
+}
+
+/** Why a count code has no rate, in one sentence */
+export function countsOnlyReason(code: string, label?: string): string {
+  return COUNTS_ONLY_REASONS[code] ?? `${label ?? code.replace(/_/g, ' ')} has no rate on this site; it is shown as counts only.`
+}
+
+// =============================================================================
+// Sentences about one rated institution, window and code
+// =============================================================================
+
+/** "12th; could be anywhere from 3rd to 61st of 206" */
+export function positionText(position: number, lo: number, hi: number, n: number): string {
+  if (lo === hi) return `${ordinal(position)} of ${fmtInt(n)}; the range is that position alone`
+  return `${ordinal(position)}; could be anywhere from ${ordinal(lo)} to ${ordinal(hi)} of ${fmtInt(n)}`
+}
+
+/** The list position of an entry, national or within its state, or null when not listed there */
+export function entryPosition(e: RateEntryFields, listN: number | null, state = false): string | null {
+  if (!e.listed) return null
+  if (state) {
+    if (e.statePosition === undefined || e.stateRankLo === undefined || e.stateRankHi === undefined || !e.stateN) return null
+    return positionText(e.statePosition, e.stateRankLo, e.stateRankHi, e.stateN)
+  }
+  if (e.position === undefined || e.rankLo === undefined || e.rankHi === undefined || listN === null) return null
+  return positionText(e.position, e.rankLo, e.rankHi, listN)
+}
+
+export function intervalSentence(e: Pick<RateEntryFields, 'lo' | 'hi'>, rules: RateRules | null | undefined): string {
+  return `${levelPct(rules)}% interval ${fmtRate(e.lo)} to ${fmtRate(e.hi)}. This range allows for how much an ` +
+    "institution's yearly counts vary. It does not allow for differences in how institutions record and report " +
+    'incidents.'
+}
+
+/** What the national rate is and what "above" means */
+export function nationalSentence(natl: number, key: string, rules: RateRules | null | undefined): string {
+  const chance = oneSidedChance(rules)
+  return `National rate ${fmtRate(natl)} for ${windowLabel(key)}: the on-campus incidents of all rated ` +
+    'institutions whose on-campus student count is certain, per 10,000 of their on-campus students a year. ' +
+    `"Above" means the whole ${levelPct(rules)}% interval is above the national rate. If the intervals have their ` +
+    `intended coverage, about ${chance} institutions whose underlying rate equals the national rate are shown as ` +
+    `above by chance, and ${chance} as below.`
+}
+
+export function peerLabel(peerType: string, rules: RateRules | null | undefined): string {
+  return rules?.peerTypes?.[peerType]?.label ?? peerType.replace(/_/g, ' ')
+}
+
+/** "Compared with Four-year, highly residential institutions (12.55): above." */
+export function peerSentence(
+  e: Pick<RateEntryFields, 'peerVerdict' | 'peerVerdictLargerFte' | 'peerVerdictSmallerFte'>,
+  peerType: string, peerRate: number | null, rules: RateRules | null | undefined,
+): string | null {
+  if (e.peerVerdict === null || peerRate === null) return null
+  const label = peerLabel(peerType, rules)
+  let verdict: string = VERDICT_SHORT[e.peerVerdict]
+  if (e.peerVerdict === 'undetermined' && e.peerVerdictLargerFte && e.peerVerdictSmallerFte) {
+    verdict += ` (${VERDICT_SHORT[e.peerVerdictLargerFte]} with the larger student count, ` +
+      `${VERDICT_SHORT[e.peerVerdictSmallerFte]} with the smaller)`
+  }
+  return `Compared with institutions of its type (${label}; their rate ${fmtRate(peerRate)}): ${verdict}.`
+}
+
+/** One sentence on why the national and peer comparisons differ, or null when they agree */
+export function differSentence(
+  verdict: Verdict, peerVerdict: Verdict | null, natl: number, peerType: string, peerRate: number | null,
+  rules: RateRules | null | undefined,
+): string | null {
+  if (peerVerdict === null || peerRate === null || peerVerdict === verdict) return null
+  if (verdict === 'undetermined' || peerVerdict === 'undetermined') return null
+  const label = peerLabel(peerType, rules)
+  const direction = peerRate > natl ? 'higher' : peerRate < natl ? 'lower' : 'the same as'
+  return `The two comparisons differ because institutions of its type (${label}) together have an on-campus ` +
+    `rate of ${fmtRate(peerRate)}, ${direction}${direction === 'the same as' ? '' : ' than'} the national ` +
+    `${fmtRate(natl)}.`
+}
+
+export function otherLocationsSentence(nNoncampus: number, nPublic: number): string | null {
+  const more = nNoncampus + nPublic
+  if (more <= 0) return null
+  return `This rate counts only incidents on campus. ${fmtInt(more)} more ${more === 1 ? 'was' : 'were'} reported ` +
+    `in these years at non-campus locations (${fmtInt(nNoncampus)}) or on public property in or next to campus ` +
+    `(${fmtInt(nPublic)}).`
+}
+
+const GEO_PHRASES: Record<string, string> = {
+  'On-campus': 'on campus',
+  'Non-campus': 'at non-campus locations',
+  'Public property': 'on public property',
+}
+
+/** An unusual-year flag in words (`usual` is the median of the other years) */
+export function flagSentence(f: RateFlag | InstitutionFlag, geo = 'On-campus'): string {
+  const where = GEO_PHRASES[('geo' in f && f.geo) || geo] ?? 'on campus'
+  return `${f.year}: ${offenseCount(f.count, f.offense)} reported ${where}, compared with a median of ` +
+    `${f.usual.toLocaleString('en-US')} a year in this institution's other years. DOE counts incidents in the ` +
+    'year they are reported, so a single investigation or series of reports can add many to one year.'
+}
+
+export const FLAG_NOTE =
+  'Flags never change counts or rates: the rate above includes the flagged year as reported.'
+
+export function withoutFlaggedSentence(v: Verdict): string {
+  return 'Counting each flagged year at its median instead, the comparison with the national rate would be: ' +
+    `${VERDICT_SHORT[v]}.`
+}
+
+/** Names of the institutions whose students are counted with this one in the window's years */
+function pooledNames(profile: Pick<SchoolProfile, 'institution'> | null | undefined, years: number[]): string | null {
+  const seen = new Map<number, string>()
+  for (const y of years) {
+    for (const p of profile?.institution?.byYear[String(y)]?.pooledWith ?? []) {
+      seen.set(p.id, p.name ?? `institution ${p.id}`)
+    }
+  }
+  return seen.size > 0 ? joinAnd(Array.from(seen.values())) : null
+}
+
+/**
+ * The sentence for an institution whose on-campus student count is
+ * uncertain (why "online"): the two estimates and whether the comparison
+ * holds with both.
+ */
+export function onlineSentence(
+  e: RateEntryFields, key: string, profile?: Pick<SchoolProfile, 'institution'> | null,
 ): string {
-  const ratio = rules?.onlineUncertainRatio ?? [5, 4]
-  const pct = ratioPercent(ratio, true)
-  const names = pooledNames(pooled)
-  const a = fu.share
-  const b = fu.partTimeFirst
-  if (b === null) {
-    return short
-      ? `Uncertain on-campus FTE: the second estimate cannot be computed (first ${fmt(a)})`
-      : `the second of its two estimates of on-campus FTE (part-time students counted after full-time ones) ` +
-        `cannot be computed from NCES's headcounts, so its on-campus FTE (${fmt(a)}, from the online share alone) ` +
-        'is uncertain'
-  }
-  const hi = Math.max(a, b)
-  const lo = Math.min(a, b)
-  const [num, den] = ratio
-  // The published estimates show the gap
-  const apart = hi * den > lo * num
-  // Rounding to whole numbers could hide a gap just over the threshold
-  const nearLimit = !apart && (hi + 0.5) * den > (lo - 0.5) * num
-  if (apart) {
-    return short
-      ? `Uncertain on-campus FTE: estimates ${fmt(a)} and ${fmt(b)}`
-      : `two estimates of its on-campus FTE from NCES's figures differ by more than ${pct} ` +
-        `(${fmt(a)} and ${fmt(b)}); the rate uses the larger`
-  }
-  if (names && !nearLimit) {
-    return short
-      ? `Uncertain on-campus FTE of ${names}, which this rate adds`
-      : `its own two estimates of on-campus FTE are within ${pct} of each other (${fmt(a)} and ${fmt(b)}), but ` +
-        `those of ${names}, whose on-campus FTE this rate adds, differ by more than ${pct} or cannot both be computed`
-  }
-  if (names) {
-    return short
-      ? `Uncertain on-campus FTE: estimates ${fmt(a)} and ${fmt(b)}, or those of ${names}`
-      : `two estimates of its on-campus FTE (${fmt(a)} and ${fmt(b)}, rounded), or those of ${names}, whose ` +
-        `on-campus FTE this rate adds, differ by more than ${pct}`
-  }
-  if (nearLimit) {
-    return short
-      ? `Uncertain on-campus FTE: estimates ${fmt(a)} and ${fmt(b)} (rounded)`
-      : `two estimates of its on-campus FTE differ by more than ${pct} before rounding (${fmt(a)} and ${fmt(b)} ` +
-        'rounded); the rate uses the larger'
-  }
-  return short
-    ? `Uncertain on-campus FTE (estimates ${fmt(a)} and ${fmt(b)})`
-    : `its on-campus FTE is uncertain (estimates ${fmt(a)} and ${fmt(b)})`
-}
-
-function percentOf(part: number, whole: number): string {
-  return whole > 0 ? `${Math.round((part / whole) * 100)}%` : '—'
-}
-
-/** The note counts (medical, sharedIn, sharedOut) of one code of an institution-year */
-export function noteCounts(inst: InstitutionRate): RateNoteCounts {
-  return {
-    medical: inst.medical?.[inst.code],
-    sharedIn: inst.sharedIn?.[inst.code],
-    sharedOut: inst.sharedOut?.[inst.code],
-  }
-}
-
-export interface ReasonContext extends RateNoteCounts {
-  count: number
-  fteUncertain?: FteUncertain
-  pooled?: PooledInstitution[]
-}
-
-/**
- * One reason a rate is shown but not ranked, or a rule leaves it out:
- * `short` for a list row (Rankings), else a clause for a sentence.
- */
-export function reasonText(
-  reason: NotRankedReason | RateRule, ctx: ReasonContext, rules: RateRules | null | undefined, short = false
-): string {
-  const minCount = rules?.minCount ?? 20
-  switch (reason) {
-    case 'online':
-      return ctx.fteUncertain
-        ? fteUncertainText(ctx.fteUncertain, ctx.pooled, rules, short)
-        : short ? 'Uncertain on-campus FTE' : 'its on-campus FTE is uncertain'
-    case 'medical_campus': {
-      const m = ctx.medical ?? 0
-      const share = ratioPercent(rules?.medicalShare ?? [1, 4])
-      return short
-        ? `Medical-center campuses: ${fmt(m)} of ${fmt(ctx.count)} incidents (${percentOf(m, ctx.count)})`
-        : `${fmt(m)} of its ${fmt(ctx.count)} incidents (${percentOf(m, ctx.count)}) were at medical-center ` +
-          'campuses, whose patients, visitors and hospital staff are not in the enrollment the rate divides by ' +
-          `(${share} or more is not ranked)`
+  const both = e.fteYearsSmaller !== undefined
+    ? `(${fmtInt(e.fteYears)} and ${fmtInt(e.fteYearsSmaller)} student-years)`
+    : `(${fmtInt(e.fteYears)} student-years)`
+  const pooledOnly = Object.values(e.fteUncertain ?? {}).length > 0 &&
+    Object.values(e.fteUncertain ?? {}).every((r) => r === 'pooled')
+  const names = pooledOnly ? pooledNames(profile, Object.keys(e.fteUncertain ?? {}).map(Number)) : null
+  const because = pooledOnly
+    ? ` (because of ${names ?? 'another institution'}, whose students are counted with this institution's)`
+    : ''
+  if (e.verdict === 'undetermined') {
+    if (e.undeterminedReason === 'noSecondEstimate') {
+      return `Not determined: NCES's figures give only one estimate of on-campus students${because}.`
     }
-    case 'shared': {
-      const sIn = ctx.sharedIn ?? 0
-      const sOut = ctx.sharedOut ?? 0
-      const whole = ctx.count + sOut
-      const share = ratioPercent(rules?.sharedShare ?? [1, 20])
-      if (short) return `Shared figures: ${fmt(sIn + sOut)} of ${fmt(whole)} incidents (${percentOf(sIn + sOut, whole)})`
-      const parts: string[] = []
-      if (sIn > 0) parts.push(`${fmt(sIn)} of its incidents are also reported, identically, by another institution's campus`)
-      if (sOut > 0) parts.push(`${fmt(sOut)} incidents it reports count under another institution's campus and are not in its count`)
-      return `${joinAnd(parts)}: more than ${share} of its incidents (${fmt(sIn + sOut)} of ${fmt(whole)}) are ` +
-        `figures shared with another institution, so its count could be off by more than ${share}`
-    }
-    case 'few':
-      return short ? `Fewer than ${minCount} incidents` : `it has fewer than ${minCount} incidents`
-    case 'hospital':
-      return short
-        ? 'Left out: IPEDS reports that it has a hospital'
-        : 'IPEDS reports that it has a hospital, whose patients, visitors and staff are not in its enrollment'
-    case 'medical':
-      return short
-        ? 'Left out: special-focus medical school or research institution (Carnegie)'
-        : 'its Carnegie classification is a special-focus medical school or research institution'
-    case 'listed':
-      return short
-        ? 'Left out: on the reviewed list (its campus holds people its FTE does not count)'
-        : 'it is on the reviewed list of institutions whose campus holds a population its FTE does not count'
-    case 'merger':
-      return short
-        ? 'Left out: a merger or renumbering (incidents and enrollment may not cover the same campuses)'
-        : 'a merger or renumbering means its incidents and enrollment may not cover the same campuses'
-    case 'family':
-      return short
-        ? 'Left out: merged institutions (incidents and enrollment may not cover the same campuses)'
-        : 'a merger means the incidents and enrollment of its group may not cover the same campuses'
+    const larger = e.verdictLargerFte ? VERDICT_SHORT[e.verdictLargerFte] : 'unknown'
+    const smaller = e.verdictSmallerFte ? VERDICT_SHORT[e.verdictSmallerFte] : 'unknown'
+    return `Not determined: NCES's figures give two estimates of on-campus students ${both}${because}. With the ` +
+      `larger the comparison with the national rate is "${larger}", with the smaller "${smaller}".`
   }
+  return `NCES's figures give two estimates of on-campus students ${both}${because}; the rate uses the larger. ` +
+    `The comparison with the national rate (${windowLabel(key)}) is the same with either.`
 }
 
-/** "Not ranked by rate: A; B; and it has fewer than 20 incidents." */
-export function notRankedSentence(
-  reasons: NotRankedReason[], ctx: ReasonContext, rules: RateRules | null | undefined
-): string {
-  const main = reasons.filter((r) => r !== 'few').map((r) => reasonText(r, ctx, rules))
-  const few = reasons.includes('few') ? `; and ${reasonText('few', ctx, rules)}` : ''
-  return `Not ranked by rate: ${main.join('; ')}${few}.`
+/** Medical-center incidents of an entry (why medical_campus, or a smaller share) */
+export function medicalSentence(e: RateEntryFields, listCode: boolean): string | null {
+  const m = e.medical ?? 0
+  if (m <= 0) return null
+  const fact = `${fmtInt(m)} of these ${fmtInt(e.n)} incidents were at a medical-center campus outside its ` +
+    'residence halls, whose patients, visitors and staff are not students.'
+  if (e.why === 'medical_campus') return listCode ? `Not on the list: ${fact}` : fact
+  return fact
 }
 
-/**
- * Notes for incidents a ranked (or too-few) rate counts or leaves out:
- * medical-center campuses and shared figures below the thresholds. A
- * reason that keeps the rate from being ranked is not repeated here.
- */
-export function countNotes(
-  ctx: ReasonContext, reasons: NotRankedReason[], rules: RateRules | null | undefined, short = false
-): string[] {
-  const notes: string[] = []
-  const m = ctx.medical ?? 0
-  if (m > 0 && !reasons.includes('medical_campus')) {
-    notes.push(short
-      ? `Includes ${fmt(m)} incidents (${percentOf(m, ctx.count)}) at medical-center campuses.`
-      : `${fmt(m)} of these ${fmt(ctx.count)} incidents (${percentOf(m, ctx.count)}) were at medical-center ` +
-        'campuses, whose patients, visitors and hospital staff are not in the enrollment the rate divides by. ' +
-        `A rate is not ranked when such incidents are ${ratioPercent(rules?.medicalShare ?? [1, 4])} or more.`)
+/** Figures shared with another institution's campus (why shared, or a smaller share) */
+export function sharedSentence(e: RateEntryFields, listCode: boolean): string | null {
+  const sIn = e.sharedIn ?? 0
+  const sOut = e.sharedOut ?? 0
+  if (sIn + sOut <= 0) return null
+  const parts: string[] = []
+  if (sIn > 0) parts.push(`${fmtInt(sIn)} of the incidents in this count ${sIn === 1 ? 'is' : 'are'} also reported by a campus of another institution`)
+  if (sOut > 0) parts.push(`${fmtInt(sOut)} ${sOut === 1 ? 'incident' : 'incidents'} it reported for one of its campuses ${sOut === 1 ? 'repeats' : 'repeat'} another institution's campus figures and ${sOut === 1 ? 'is' : 'are'} counted there, not here`)
+  const fact = `${joinAnd(parts)}, so this institution's count is not exact.`
+  const sentence = fact.charAt(0).toUpperCase() + fact.slice(1)
+  if (e.why === 'shared') return listCode ? `Not on the list: ${fact}` : sentence
+  return sentence
+}
+
+/** About how many on-campus students the list needs: student-years for E = minExpected, a year, to 100 */
+export function listMinStudents(minFteYears: number, rules: RateRules | null | undefined): number {
+  const years = rules?.windowYears ?? 3
+  return Math.round(minFteYears / years / 100) * 100
+}
+
+export function notListedSentence(minFteYears: number | undefined, rules: RateRules | null | undefined): string {
+  const minExpected = rules?.lists?.minExpected ?? 20
+  const fmin = minFteYears !== undefined ? ` (the list needs about ${fmtInt(listMinStudents(minFteYears, rules))} or more on-campus students)` : ''
+  return `Not on the list: fewer than ${minExpected} incidents expected at the national rate${fmin}.`
+}
+
+/** The composition of a violent or criminal_xmvt count */
+export function compositionSentence(code: string, composition: Record<string, number> | undefined, n: number, key: string): string | null {
+  if (!composition) return null
+  if (code === 'violent') {
+    const order = ['rape', 'aggravated_assault', 'robbery', 'murder']
+    const parts = order.filter((o) => composition[o] !== undefined).map((o) => offenseCount(composition[o], o))
+    const lead = 'Violent crimes here are murder, rape, robbery and aggravated assault.'
+    return n > 0 && parts.length > 0 ? `${lead} By offense: ${joinAnd(parts)}.` : lead
   }
-  if (!reasons.includes('shared')) {
-    const sIn = ctx.sharedIn ?? 0
-    const sOut = ctx.sharedOut ?? 0
-    if (sIn > 0) {
-      notes.push(`${fmt(sIn)} of these incidents ${sIn === 1 ? 'is' : 'are'} also reported, identically, by another institution's campus.`)
-    }
-    if (sOut > 0) {
-      notes.push(`${fmt(sOut)} ${sOut === 1 ? 'incident' : 'incidents'} it reports ${sOut === 1 ? 'counts' : 'count'} under another institution's campus and ${sOut === 1 ? 'is' : 'are'} not in this count.`)
-    }
-  }
-  return notes
-}
-
-/** The visible note of an unusually high count (Metadata.rateRules.spike). */
-export const SPIKE_NOTE = 'Unusually high for this institution; DOE counts crimes in the year reported.'
-
-/** What the spike flag means, from rules.spike */
-export function spikeDetail(rules: RateRules | null | undefined): string {
-  const s = rules?.spike
-  if (!s) return ''
-  return `The count is at least ${s.minCount}, more than ${s.factor} times the median of the institution's counts ` +
-    `in its other years with figures (at least ${s.minOtherYears}; a year without an incident counts as 0) and more ` +
-    `than ${s.maxFactor} times the largest of them, ` +
-    `and a negative binomial count with that median as its mean (and the overdispersion of the rate's interval) ` +
-    `reaches it with a probability under ${s.p}. The flag does not take a rate out of rate rankings.`
-}
-
-/**
- * "Its 2015 rate also counts the 457 on-campus FTE of School of the Museum
- * of Fine Arts at Tufts, whose campus figures count under this institution
- * that year (a merger, a renumbering or a shared campus)." for a rate with
- * other institutions' FTE added, else null.
- */
-export function pooledNote(inst: InstitutionRate | null): string | null {
-  if (!inst || !inst.pooledWith || inst.pooledWith.length === 0) return null
-  const parts = inst.pooledWith.map(
-    (p) => `the ${p.fte.toLocaleString()} on-campus FTE of ${p.name ?? `institution ${p.id}`}`
-  )
-  return `Its ${inst.year} rate also counts ${joinAnd(parts)}, whose campus figures count under this institution that year (a merger, a renumbering or a shared campus).`
-}
-
-/**
- * Why an institution-year has no rate or is in no rate ranking, as a plain
- * sentence, or null when it is listed (or `rules` are not loaded yet).
- */
-export function rateNote(inst: InstitutionRate | null, rules: RateRules | null | undefined): string | null {
-  if (!inst || inst.rateRanked) return null
-  // A reason the pipeline gives (population, merger) comes first
-  if (inst.rateExcludedReason) return inst.rateExcludedReason
-  if (!rules) return null
-  if (inst.fte !== null && inst.fte < rules.minFte) {
-    return `Its on-campus FTE is under ${rules.minFte.toLocaleString()}, so rate rankings do not list it.`
+  if (code === 'criminal_xmvt' && composition.motor_vehicle_theft !== undefined) {
+    return 'Motor-vehicle theft is shown as counts only and is not in this rate: ' +
+      `${offenseCount(composition.motor_vehicle_theft, 'motor_vehicle_theft')} on campus here in ${windowLabel(key)}.`
   }
   return null
 }
 
-/**
- * How the on-campus FTE was found, as a plain sentence: from NCES's FTE and
- * its share of students studying exclusively online (in a pandemic year of
- * rules.onlineShareYear, which fall's share), or null.
- */
-export function onlineNote(inst: InstitutionRate | null, rules: RateRules | null | undefined): string | null {
-  if (!inst || inst.online === null || inst.online === 0) return null
-  const shareYear = rules?.onlineShareYear?.[String(inst.year)]
-  const fall = shareYear !== undefined && inst.onlineYear !== undefined && inst.onlineYear !== inst.year
-    ? `in fall ${inst.onlineYear}, before the pandemic (the share used for ${inst.year})`
-    : `in fall ${inst.onlineYear ?? inst.year}`
-  return `On-campus FTE is estimated from NCES's FTE and the ${inst.online}% of students who studied exclusively ` +
-    `online ${fall}: the larger of two estimates (see Rate Rules).`
-}
-
-/**
- * Not included in the rate: the institution's campuses abroad and their
- * incidents of the code, or null without a campus abroad that year.
- */
-export function abroadNote(inst: InstitutionRate | null): string | null {
-  const abroad = inst?.abroad
-  if (!inst || !abroad || abroad.campuses <= 0) return null
-  const n = abroad.counts?.[inst.code] ?? 0
-  const where = `its ${abroad.campuses} ${abroad.campuses === 1 ? 'campus' : 'campuses'} abroad`
-  const why = 'NCES fall enrollment leaves out students at branch campuses abroad'
-  return n > 0
-    ? `Not included: ${fmt(n)} ${n === 1 ? 'incident' : 'incidents'} at ${where}, because ${why}.`
-    : `Not included: ${where} (none of these incidents), because ${why}.`
-}
-
-/**
- * The institutions of a rankings file's rate view of `code`, in the file's
- * order: ranked (rateRankings), too few incidents (rateUnranked), shown but
- * not ranked or left out by a rule (rateNotRanked), and those with none of
- * the code: `zero` (with a rate of 0) and `excludedZero` (left out by a rule,
- * so no rate). Every institution of the file is in exactly one group.
- */
-export interface RateViewGroups {
-  ranked: RateEntry[]
-  few: RateUnrankedEntry[]
-  notRanked: RateNotRankedEntry[]
-  zero: { id: number; inst: RateInstitution }[]
-  excludedZero: { id: number; inst: RateInstitution }[]
-}
-
-export function rateViewGroups(
-  data: Pick<RankingsData, 'institutions' | 'rateRankings' | 'rateUnranked' | 'rateNotRanked'>,
-  code: string,
-  compareNames: (a: string, b: string) => number
-): RateViewGroups {
-  const ranked = data.rateRankings[code] ?? []
-  const few = data.rateUnranked?.[code] ?? []
-  const notRanked = data.rateNotRanked?.[code] ?? []
-  const listed = new Set([...ranked, ...few, ...notRanked].map((e) => e.id))
-  const rest = Object.entries(data.institutions)
-    .map(([id, inst]) => ({ id: Number(id), inst }))
-    .filter(({ id }) => !listed.has(id))
-    .sort((a, b) => compareNames(a.inst.name, b.inst.name) || a.id - b.id)
-  return {
-    ranked,
-    few,
-    notRanked,
-    zero: rest.filter(({ inst }) => !inst.excluded),
-    excludedZero: rest.filter(({ inst }) => !!inst.excluded),
+/** National composition from a window file, as shares of its on-campus count */
+export function nationalCompositionSentence(code: string, composition: Record<string, number> | undefined, key: string): string | null {
+  if (!composition) return null
+  if (code === 'violent') {
+    const total = Object.values(composition).reduce((a, b) => a + b, 0)
+    if (total <= 0) return null
+    const pct = (o: string) => `${((composition[o] ?? 0) / total * 100).toFixed(1)}%`
+    return 'Violent crimes are murder, rape, robbery and aggravated assault. In ' +
+      `${windowLabel(key)}, of the ${fmtInt(total)} on-campus violent crimes at the institutions in the national rate, ${pct('rape')} ` +
+      `were rapes, ${pct('aggravated_assault')} aggravated assaults, ${pct('robbery')} robberies and ` +
+      `${pct('murder')} murders.`
   }
-}
-
-/** "all 3 campuses combined" for an institution of more than one campus, else null. */
-export function campusesPhrase(campuses: number): string | null {
-  return campuses > 1 ? `all ${campuses} campuses combined` : null
-}
-
-/**
- * Everything the school page and Compare say about one institution-year
- * rate: its standing, its interval, and the notes to show with it, in
- * reading order (each a plain sentence).
- */
-export interface RateSummary {
-  standing: RateStanding
-  interval: { lo: number; hi: number } | null
-  // Where the rate stands (not ranked and why, too few, counts only, not listed)
-  status: string | null
-  // Other notes: incidents counted or left out, the denominator, spikes
-  notes: string[]
-  spike: boolean
-}
-
-export function rateSummary(inst: InstitutionRate | null, rules: RateRules | null | undefined): RateSummary {
-  const standing = rateStanding(inst, rules)
-  const interval = inst && inst.rate !== null && inst.fte !== null ? rateInterval(inst.count, inst.fte, inst.code, rules) : null
-  const spike = !!inst?.spikes?.includes(inst.code)
-  if (!inst) return { standing, interval, status: null, notes: [], spike }
-  const ctx: ReasonContext = { count: inst.count, ...noteCounts(inst), fteUncertain: inst.fteUncertain, pooled: inst.pooledWith }
-  const reasons = standing.kind === 'notRanked' ? standing.reasons : []
-  const minCount = rules?.minCount ?? 20
-  let status: string | null = null
-  switch (standing.kind) {
-    case 'excluded':
-    case 'unlisted':
-      status = rateNote(inst, rules)
-      break
-    case 'outside':
-      status = 'Rate rankings list institutions in the 50 states, the District of Columbia, Puerto Rico and the ' +
-        'U.S. Virgin Islands, so they do not list this one. The rate is shown with its interval.'
-      break
-    case 'countsOnly':
-      status = 'This offense is too rare nationally for rates to be compared, so rate rankings leave it out (counts only).'
-      break
-    case 'notRanked':
-      status = notRankedSentence(standing.reasons, ctx, rules)
-      break
-    case 'few':
-      status = `${fmt(inst.count)} ${inst.count === 1 ? 'incident is' : 'incidents are'} too few to rank by rate ` +
-        `(rate rankings rank institutions with at least ${minCount}); the rate is shown with its interval.`
-      break
-    case 'ranked':
-      status = `Ranked in rate rankings (at least ${minCount} incidents, and no reason not to rank it).`
-      break
+  if (code === 'criminal_xmvt' && composition.motor_vehicle_theft !== undefined) {
+    return 'Motor-vehicle theft is shown as counts only and is not in this rate ' +
+      `(${fmtInt(composition.motor_vehicle_theft)} on campus at the institutions in the national rate in ${windowLabel(key)}).`
   }
-  const notes: string[] = []
-  if (standing.kind !== 'excluded' && standing.kind !== 'noRate') {
-    notes.push(...countNotes(ctx, reasons, rules))
-    const abroad = abroadNote(inst)
-    if (abroad) notes.push(abroad)
-    // The denominator: an uncertain on-campus FTE not already given as the reason
-    if (inst.fteUncertain && !reasons.includes('online')) {
-      const text = fteUncertainText(inst.fteUncertain, inst.pooledWith, rules)
-      notes.push(`Its on-campus FTE is uncertain: ${text}.`)
+  return null
+}
+
+// =============================================================================
+// Institutions and years without a rate
+// =============================================================================
+
+export function scopeSentence(): string {
+  return 'Not rated: rates cover institutions in the 50 states, the District of Columbia, Puerto Rico and the ' +
+    'U.S. Virgin Islands.'
+}
+
+/** Why a window has no rate for this institution, or null when it is rated */
+export function windowStatusSentence(
+  w: InstitutionWindow, key: string, rules: RateRules | null | undefined,
+  profile?: Pick<SchoolProfile, 'institution'> | null,
+): string | null {
+  const minFte = fmtInt(rules?.minFte ?? 1000)
+  switch (w.status) {
+    case 'rated':
+      return null
+    case 'missingYears':
+      return `Not rated for ${windowLabel(key)}: not in DOE's data all three years (only ${joinAnd(w.years.map(String))}).`
+    case 'scope':
+      return scopeSentence()
+    case 'size': {
+      const years = Object.entries(w.fteByYear)
+        .map(([y, f]) => `${y}: ${f === null ? 'no figure' : fmtInt(f)}`)
+      return `Not rated for ${windowLabel(key)}: fewer than ${minFte} on-campus students in at least one year ` +
+        `(${years.join('; ')}).`
     }
-    const pooled = pooledNote(inst)
-    if (pooled) notes.push(pooled)
+    case 'excluded': {
+      const first = Object.keys(w.rules).sort()[0]
+      const reason = first ? profile?.institution?.byYear[first]?.rateExcludedReason : undefined
+      return `Not rated for ${windowLabel(key)}: ${reason ?? ruleText(w.rules[first])}`
+    }
   }
-  return { standing, interval, status, notes, spike }
 }
+
+/** A population rule in words, when the school file gives no reason */
+export function ruleText(rule: RateRule | undefined): string {
+  switch (rule) {
+    case 'hospital':
+      return 'IPEDS reports that it has a hospital, whose patients, visitors and staff are not students.'
+    case 'medical':
+      return 'its Carnegie classification is a special-focus medical school or research institution.'
+    case 'listed':
+      return 'it is on the reviewed list of institutions whose campus holds people its enrollment does not count.'
+    case 'merger':
+    case 'family':
+      return 'a merger or renumbering means its incidents and enrollment may not cover the same campuses.'
+    default:
+      return 'a population rule leaves it out.'
+  }
+}
+
+/** Why a single year has no rate, short (chart and table) */
+export function notRatedYearText(reason: NotRatedReason | undefined, rules: RateRules | null | undefined, excluded?: string): string {
+  switch (reason) {
+    case 'skippedYear':
+      return "Not shown: that year's student counts do not measure who was on campus"
+    case 'size':
+      return `Fewer than ${fmtInt(rules?.minFte ?? 1000)} on-campus students`
+    case 'scope':
+      return 'Outside the states and territories rates cover'
+    case 'excluded':
+      return excluded ?? 'Left out by a population rule'
+    default:
+      return 'No rate'
+  }
+}
+
+/**
+ * For an institution without a rates file: one sentence on why it has no
+ * rate, from its years' notRated reasons.
+ */
+export function noRatesSentence(profile: Pick<SchoolProfile, 'institution'> | null | undefined, rules: RateRules | null | undefined): string {
+  const years = Object.values(profile?.institution?.byYear ?? {})
+  const reasons = new Set(years.map((y) => y.notRated).filter((r) => r && r !== 'skippedYear'))
+  if (reasons.size === 1 && reasons.has('size')) {
+    return `No rate: fewer than ${fmtInt(rules?.minFte ?? 1000)} on-campus students in every year.`
+  }
+  if (reasons.size === 1 && reasons.has('scope')) return `No rate. ${scopeSentence()}`
+  if (reasons.size === 1 && reasons.has('excluded')) {
+    const reason = years.find((y) => y.rateExcludedReason)?.rateExcludedReason
+    return `No rate: ${reason ?? 'a population rule leaves this institution out.'}`
+  }
+  if (years.length === 0) return 'No rate: NCES enrollment figures do not cover this institution.'
+  return 'No rate in any window. Each year\'s reason is below.'
+}
+
+/**
+ * Not included in counts or rates: the institution's campuses abroad in a
+ * year and their incidents of `code`, or null.
+ */
+export function abroadNote(abroad: { campuses: number; counts: Record<string, number> } | undefined, code: string, year: number): string | null {
+  if (!abroad || abroad.campuses <= 0) return null
+  const n = abroad.counts?.[code] ?? 0
+  const where = `its ${abroad.campuses} ${abroad.campuses === 1 ? 'campus' : 'campuses'} abroad`
+  const what = n > 0
+    ? `${fmtInt(n)} ${n === 1 ? 'incident' : 'incidents'} at ${where} ${n === 1 ? 'is' : 'are'} not included`
+    : `${where} ${abroad.campuses === 1 ? 'is' : 'are'} not included (no incident of this kind was reported there)`
+  return `${year}: ${what}, because NCES fall enrollment leaves out students at branch campuses abroad.`
+}
+
+/** Pooled partners of an institution-year, for the denominator note */
+export function pooledNote(pooled: PooledInstitution[] | undefined, year: number): string | null {
+  if (!pooled || pooled.length === 0) return null
+  const parts = pooled.map((p) => `the ${fmtInt(p.fte)} on-campus students of ${p.name ?? `institution ${p.id}`}`)
+  return `${year}: the denominator also counts ${joinAnd(parts)}, whose campus figures count under this ` +
+    'institution that year (a merger, a renumbering or a shared campus).'
+}
+
+/** The two on-campus FTE estimates of a year with an uncertain count */
+export function fteUncertainNote(fu: FteUncertain | undefined, year: number): string | null {
+  if (!fu) return null
+  const second = fu.partTimeFirst === null ? 'a second estimate cannot be computed' : `${fmtInt(fu.partTimeFirst)}`
+  const own = fu.reason === 'pooled'
+    ? ' Only the estimates of an institution whose students are counted with this one differ.'
+    : ''
+  return `${year}: two estimates of on-campus students from NCES's figures, ${fmtInt(fu.share)} and ${second}.${own}`
+}
+
+/** The highForSize note of a count ranking (RateRules.countFlag) */
+export function highForSizeNote(perTenK: number, code: string, year: number, metadata: Pick<Metadata, 'rateRules'> | null): string {
+  const flag = metadata?.rateRules?.countFlag
+  const reference = flag?.reference?.[String(year)]?.[code]
+  const factor = flag?.factor ?? 3
+  const pct = flag?.percentile ?? 99
+  const ref = reference !== undefined ? `${reference.toFixed(2)}, ` : ''
+  return `Very high for its institution's size: ${perTenK.toFixed(1)} per 10,000 of its institution's FTE, more ` +
+    `than ${factor} times ${ref}the ${pct}th percentile of ${year} institution rates of this category. Shown as ` +
+    "reported; check the institution's Annual Security Report."
+}
+
+export { VERDICT_LABELS }

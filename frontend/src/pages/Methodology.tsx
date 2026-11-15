@@ -15,141 +15,405 @@ import {
   Users,
   Calendar,
 } from 'lucide-react'
-import { cachedMetadata, getMetadata } from '../lib/api'
-import type { Metadata } from '../lib/types'
+import { cachedMetadata, fetchRateWindow, getMetadata } from '../lib/api'
+import type { Metadata, RateWindowEntry, RateWindowFile } from '../lib/types'
 import { formatDate, formatNumber } from '../lib/utils'
 import { summarizeEnrollmentStatus, describeEnrollmentStatus } from '../lib/enrollment'
 import { summarizeDataYears } from '../lib/coverage'
-import { countInterval, ratioPercent } from '../lib/rates'
+import {
+  fmtRate, joinAnd, latestWindowKey, levelPct, listMinStudents, nationalCompositionSentence, oneSidedChance,
+  peerLabel, rateCodeLabel, rateCodePhrase, rateCodes, ratioPercent, windowKeys, windowLabel, windowYears,
+} from '../lib/rates'
+import { VERDICT_LABELS } from '../lib/rateDisplay'
 import SourceLink from '../components/SourceLink'
 import CiteThisData from '../components/CiteThisData'
 import { useBuildInfo } from '../lib/build'
+import type { AuditCheck, BuildInfo, CalibrationRow } from '../lib/build'
 import { SERIES_NOTES, SERIES_CONTEXT } from '../data/seriesNotes'
 import { Link, useLocation } from 'react-router-dom'
+import {
+  SOURCES,
+  CRIMINAL_DEFINITIONS,
+  VAWA_DEFINITIONS,
+  LAW_VIOLATION_DEFINITIONS,
+  GEOGRAPHY_DEFINITIONS,
+} from '../data/sources'
+
+// "1,234", or "…" while the figure is not loaded
+const num = (v: number | null | undefined) => (v === null || v === undefined ? '…' : formatNumber(v))
+// "29.3%"
+const pct1 = (x: number) => `${(x * 100).toFixed(1)}%`
+// "2015-2019" written for reading: "2015–2019"
+const periodLabel = (p: string) => p.replace(/(\d{4})-(\d{4})/, '$1–$2')
+
+// What the figures on this page are drawn from: metadata.json, the window
+// files of the latest window (violent crimes, criminal offenses except
+// motor-vehicle theft) and of the first (criminal offenses except
+// motor-vehicle theft), and the audit
+interface RateFacts {
+  metadata: Metadata | null
+  latest: string | null
+  first: string | null
+  violent: RateWindowFile | null
+  criminalLatest: RateWindowFile | null
+  criminalFirst: RateWindowFile | null
+  build: BuildInfo | null
+}
+
+// On-campus motor-vehicle thefts of a criminal_xmvt window file and their
+// share of on-campus criminal offenses (the same institutions: rated, with
+// a certain on-campus FTE)
+function mvtShare(f: RateWindowFile | null): { mvt: number; share: number } | null {
+  const mvt = f?.composition?.motor_vehicle_theft
+  if (!f || mvt === undefined || mvt + f.natlN <= 0) return null
+  return { mvt, share: mvt / (mvt + f.natlN) }
+}
+
+// Where a window's incidents were reported: on campus, or elsewhere
+function locationFacts(f: RateWindowFile | null) {
+  if (!f || f.entries.length === 0) return null
+  let on = 0
+  let other = 0
+  let more = 0
+  let top: RateWindowEntry | null = null
+  const gap = (e: RateWindowEntry) => e.nNoncampus + e.nPublic - e.n
+  for (const e of f.entries) {
+    on += e.n
+    other += e.nNoncampus + e.nPublic
+    if (gap(e) > 0) more += 1
+    if (!top || gap(e) > gap(top)) top = e
+  }
+  return { rated: f.entries.length, more, onShare: on + other > 0 ? on / (on + other) : null, top: top && gap(top) > 0 ? top : null }
+}
+
+// The peer types of a window file, in metadata order, with their rates
+function peerRows(f: RateWindowFile | null, metadata: Metadata | null) {
+  const types = Object.keys(metadata?.rateRules?.peerTypes ?? {})
+  return types
+    .filter((t) => f?.peer?.[t])
+    .map((t) => ({ key: t, label: peerLabel(t, metadata?.rateRules), ...f!.peer[t] }))
+}
+
+// The median width (positions) of the list members' rank ranges
+function medianRange(f: RateWindowFile | null): { width: number; n: number } | null {
+  const n = f?.list?.n
+  if (!f || !n) return null
+  const widths = f.entries
+    .filter((e) => e.listed && e.rankLo !== undefined && e.rankHi !== undefined)
+    .map((e) => e.rankHi! - e.rankLo! + 1)
+    .sort((a, b) => a - b)
+  if (widths.length === 0) return null
+  const mid = Math.floor(widths.length / 2)
+  const width = widths.length % 2 ? widths[mid] : (widths[mid - 1] + widths[mid]) / 2
+  return { width, n }
+}
+
+// The audit check of that name, if the audit has it
+const auditCheck = (build: BuildInfo | null, name: string): AuditCheck | null =>
+  build?.checks.find((c) => c.name === name) ?? null
+
+// Calibration rows whose coverage misses what the model expects by more
+// than the audit's band tolerance, in the band of the most incidents
+function shortTopBand(rows: CalibrationRow[], metadata: Metadata | null): CalibrationRow[] {
+  const bands = metadata?.rateRules?.calibration?.bands
+  const tol = metadata?.rateRules?.calibration?.bandTolerance
+  if (!bands || tol === undefined) return []
+  const top = `${bands[bands.length - 1]}+`
+  return rows.filter((r) => r.band === top && r.observed < r.expected - tol)
+}
+
+// A calibration band in words: "all>=2", "2-5", "20+"
+function bandLabel(band: string): string {
+  let m = band.match(/^all>=(\d+)$/)
+  if (m) return `${m[1]} or more a year on average`
+  m = band.match(/^(\d+)-(\d+)$/)
+  if (m) return `${m[1]} to ${m[2]} a year`
+  m = band.match(/^(\d+)\+$/)
+  if (m) return `${m[1]} or more a year`
+  return band
+}
+
+const calibrationText = (r: CalibrationRow) =>
+  `${rateCodeLabel(r.code).toLowerCase()} in ${periodLabel(r.period)}, ${pct1(r.observed)} against ${pct1(r.expected)} ` +
+  `(${formatNumber(r.units)} ${r.units === 1 ? 'institution' : 'institutions'})`
+
+// The medical-campus screen's result, in a sentence
+function screenSentence(build: BuildInfo | null): string {
+  const check = auditCheck(build, 'Medical-Campus Screen')
+  if (!check) return ''
+  if (check.status === 'PASS') return "This build's screen found no campus that is in neither file."
+  // The audit's own messages, without the instruction to maintainers that
+  // follows a semicolon
+  const text = [...check.warnings, ...check.errors].map((m) => m.split(';')[0].trim().replace(/\.$/, '')).join('; ')
+  return `This build's screen reports ${text}.`
+}
 
 // The Limitations section, in reading order
-const LIMITATIONS: { title: string; body: React.ReactNode }[] = [
-  {
-    title: 'Reports, not how often crimes happen',
-    body: (
-      <>
-        Clery figures count crimes reported to campus security authorities or police, not victimization. Many
-        crimes are never reported: in the Bureau of Justice Statistics' analysis of the National Crime
-        Victimization Survey, 80% of rape and sexual assault victimizations of female college students aged 18-24
-        (1995-2013) were not reported to police (
-        <SourceLink source={SOURCES.bjsCollege2014}>BJS, NCJ 248471</SourceLink>). That survey does not measure
-        reports to campus officials, which Clery figures include, so the share is not a Clery figure. A higher count
-        can mean more crime, more reporting, or both; a lower count does not show that a campus is safer.
-      </>
-    ),
-  },
-  {
-    title: 'Counted by the year reported',
-    body: (
-      <>
-        A year's figure is the crimes reported that year, including some that happened earlier. Many reports of
-        past abuse at one institution can make one year jump (see{' '}
-        <a href="#year-reported" className="underline">How Institutions Count</a>).
-      </>
-    ),
-  },
-  {
-    title: 'Institutions classify, count and map differently',
-    body: (
-      <>
-        Each institution decides which incidents fit which category, who its campus security authorities are,
-        and which buildings and streets are its campus, noncampus and public property. ED's 2020 Appendix says ED
-        will accept an institution's reasonable interpretation of terms and applies no measurable distance to a
-        campus's "reasonably contiguous geographic area". Two institutions with the same incidents can report
-        different figures, and public property next to a city campus is not comparable with a rural one.
-      </>
-    ),
-  },
-  {
-    title: 'Rates are per enrolled student, not per person on campus',
-    body: (
-      <>
-        Rates divide by an estimate of the institution's on-campus FTE, made from NCES's FTE, headcounts and
-        share of students enrolled exclusively online; when its two estimates differ by more than 25%, the rate
-        is not ranked. Rates do not count residents who are not students, employees, visitors or patients, or how
-        many students live on campus, and FTE is per institution, not per campus. For this reason rate rankings
-        leave out institutions with a hospital and special-focus medical and research institutions, and do not
-        rank a rate when a quarter or more of its incidents were at one of 13 listed medical-center campuses
-        (see <a href="#rate-rules" className="underline">Rate Rules</a>). Other institutions' Clery geography
-        can also include places used mostly by people who are not their students, such as a clinic or a medical
-        center not on that list, and there the rate per student says little about risk to a student.
-      </>
-    ),
-  },
-  {
-    title: 'Small numbers swing',
-    body: (
-      <>
-        Rate rankings rank only rates built on at least 20 incidents, and show each rate's 95% interval and the
-        range of ranks it allows (see <a href="#rate-rules" className="underline">Rate Rules</a>). A rate on fewer
-        incidents is shown but not ranked: one or two incidents more or less change it a lot, and a small
-        institution's rate can change several-fold from one year to the next. Large counts are uncertain too:
-        institutions' yearly counts vary more than chance alone would make them vary, so the interval of 1,000
-        violent crimes runs from 534 to 1,706 (Rate Rules 6). Treat ranks inside one range as ties.
-      </>
-    ),
-  },
-  {
-    title: 'A rate of 0 is a reported zero',
-    body: (
-      <>
-        An institution listed with rate 0 reported no incident of that category that year at any of its
-        campuses; its interval still runs above 0, and it is listed after the ranked rates, not ranked. A zero
-        can reflect how an institution classifies or reports incidents, not only how safe it is, and a small
-        institution can have 0 by chance. A year a campus did not report is not 0: it has no figures and is
-        not in rankings.
-      </>
-    ),
-  },
-  {
-    title: 'Rates leave out campuses abroad',
-    body: (
-      <>
-        NCES's fall enrollment excludes students enrolled at an institution's branch campuses in foreign
-        countries (<SourceLink source={SOURCES.ncesFallEnrollment2024}>NCES, Fall Enrollment instructions</SourceLink>),
-        so an institution's rate leaves out the incidents at its campuses abroad (see{' '}
-        <a href="#rate-rules" className="underline">Rate Rules</a>). Those incidents are on each such campus's
-        own school page.
-      </>
-    ),
-  },
-  {
-    title: 'Totals add unlike crimes',
-    body: (
-      <>
-        "All criminal offenses" adds the 11 offenses with equal weight: a murder and a motor vehicle theft each
-        count 1. In this data, motor vehicle theft was about 15% of the national total in 2015 and about 37% in
-        2024, so much of the recent rise in that total is vehicle theft. For this reason rankings open on violent
-        crimes. Look at single offenses before drawing conclusions from a total.
-      </>
-    ),
-  },
-  {
-    title: 'Reported by institutions, not audited here',
-    body: (
-      <>
-        The figures are what institutions submitted to ED's survey, as ED publishes them. This site does not check
-        them against institutions' records or Annual Security Reports. Its audit checks that the published files
-        are consistent with the pipeline's tables built from DOE's and NCES's files; it does not verify what
-        institutions reported.
-      </>
-    ),
-  },
-  {
-    title: 'Not every Clery category is shown',
-    body: (
-      <>
-        Hate crimes, unfounded reports and fire statistics are not shown (see{' '}
-        <a href="#not-shown" className="underline">What This Site Does Not Show</a>).
-      </>
-    ),
-  },
-]
+function limitations(d: RateFacts): { title: string; body: React.ReactNode }[] {
+  const rr = d.metadata?.rateRules
+  const rs = d.metadata?.rateStats
+  const latest = d.latest
+  const latestLabel = latest ? windowLabel(latest) : '…'
+  const loc = locationFacts(d.violent)
+  const peers = peerRows(d.violent, d.metadata)
+  const peer = (key: string) => peers.find((p) => p.key === key)
+  const residential = ['nonresidential', 'residential', 'highly_residential'].map(peer)
+  const rising = residential.every((p) => p) && residential[0]!.rate < residential[1]!.rate && residential[1]!.rate < residential[2]!.rate
+  const range = medianRange(d.violent)
+  const cal = d.build?.calibration ?? []
+  const short = shortTopBand(cal, d.metadata)
+  const failing = cal.filter((r) => r.tested && !r.ok)
+  const tol = rr?.calibration?.bandTolerance
+  const topBand = rr?.calibration?.bands ? rr.calibration.bands[rr.calibration.bands.length - 1] : null
+  const minUnits = rr?.calibration?.bandMinUnits
+  const mvtFirst = mvtShare(d.criminalFirst)
+  const mvtLatest = mvtShare(d.criminalLatest)
+  const listCodes = rr?.lists?.codes ?? []
+  const listSizes = latest
+    ? listCodes
+        .map((code) => ({ code, f: rs?.windows?.[latest]?.[code]?.minFteYears }))
+        .filter((x): x is { code: string; f: number } => x.f !== undefined)
+        .map((x) => `${formatNumber(listMinStudents(x.f, rr))} for ${rateCodePhrase(x.code)}`)
+    : []
+  const chance = oneSidedChance(rr)
+
+  return [
+    {
+      title: 'Reports, not how often crimes happen',
+      body: (
+        <>
+          Clery figures count crimes reported to campus security authorities or police, not victimization. Many
+          crimes are never reported: in the Bureau of Justice Statistics' analysis of the National Crime
+          Victimization Survey, 80% of rape and sexual assault victimizations of female college students aged
+          18-24 (1995-2013) were not reported to police (
+          <SourceLink source={SOURCES.bjsCollege2014}>BJS, NCJ 248471</SourceLink>). That survey does not measure
+          reports to campus officials, which Clery figures include, so the share is not a Clery figure. Reporting
+          also depends on the institution: universities reported about 44% more sexual assaults while the
+          Department of Education was auditing them, and the numbers fell back after the audits (
+          <SourceLink source={SOURCES.yung2015}>Yung, 2015</SourceLink>). Nothing on this site corrects for
+          differences in reporting. A higher count or rate can mean more crime, more reporting, or both; a lower
+          one does not show that a campus is safer.
+        </>
+      ),
+    },
+    {
+      title: 'Counted by the year reported',
+      body: (
+        <>
+          A year's figure is the crimes reported that year, including some that happened earlier. Many reports of
+          past abuse at one institution can make one year jump, and that year raises the rate of every window
+          containing it (see <a href="#year-reported" className="underline">How Institutions Count</a>). The site
+          flags such years and leaves the figures as reported (
+          <a href="#rate-flags" className="underline">Unusual years</a>).
+        </>
+      ),
+    },
+    {
+      title: 'Institutions classify, count and map differently',
+      body: (
+        <>
+          Each institution decides which incidents fit which category, who its campus security authorities are,
+          and which buildings and streets are its campus, noncampus and public property. ED's 2020 Appendix says ED
+          will accept an institution's reasonable interpretation of terms and applies no measurable distance to a
+          campus's "reasonably contiguous geographic area". Two institutions with the same incidents can report
+          different figures, and public property next to a city campus is not comparable with a rural one.
+        </>
+      ),
+    },
+    {
+      title: 'Rates count only incidents on campus',
+      body: (
+        <>
+          A rate counts the incidents DOE lists as on campus (residence halls included). Incidents at non-campus
+          locations and on public property in or next to campus are shown beside it as counts, not in it, and how many
+          there are depends on the streets and buildings around a campus.{' '}
+          {loc ? (
+            <>
+              In {latestLabel}, {formatNumber(loc.more)} of the {formatNumber(loc.rated)} institutions with a
+              violent-crime rate had more violent crimes reported at those locations than on campus
+              {loc.top && (
+                <>
+                  ; the largest difference was at {loc.top.name}: {formatNumber(loc.top.n)} on campus,{' '}
+                  {formatNumber(loc.top.nNoncampus + loc.top.nPublic)} elsewhere
+                </>
+              )}
+              .{' '}
+            </>
+          ) : null}
+          Counting every location would change the order of the lists.
+        </>
+      ),
+    },
+    {
+      title: 'Rates are per enrolled student, not per person on campus',
+      body: (
+        <>
+          Rates divide by an estimate of the institution's students on campus (FTE). Residents who are not
+          students, employees, visitors and patients are not in it, and incidents involving them are counted.
+          Because so many people at a hospital or medical center are not students, institutions that IPEDS
+          reports have a hospital, special-focus medical institutions and a reviewed list have no rate, and an
+          institution whose incidents at listed medical-center campuses are{' '}
+          {rr ? ratioPercent(rr.medicalShare) : '…'} or more of its on-campus count is not on a list (
+          <a href="#rate-population-rules" className="underline">Population rules</a>,{' '}
+          <a href="#rate-medical-campuses" className="underline">Medical-center campuses</a>). Two gaps remain.
+          The hospital rule depends on what the institution reports to IPEDS: a university next to a medical
+          center run by a separate organization, such as a health system, can report no hospital and then has a
+          rate. And the list of medical-center campuses was reviewed by hand, campus by campus: incidents at a
+          medical center that is not on it, or that DOE does not list as a campus of its own, count as ordinary
+          campus incidents.{' '}
+          {screenSentence(d.build)}
+          {peers.length > 0 && (
+            <>
+              {' '}On-campus rates also differ by type of institution. In {latestLabel} the violent-crime rate was:{' '}
+              {peers.filter((p) => p.key !== 'other').map((p) => `${p.label} ${fmtRate(p.rate)}`).join('; ')}
+              {rising ? '. Among four-year institutions it rises from primarily nonresidential to highly residential ones' : ''}.
+            </>
+          )}
+        </>
+      ),
+    },
+    {
+      title: 'Intervals rest on a model fitted to all institutions',
+      body: (
+        <>
+          Each interval allows for year-to-year variation with one variance model per category, fitted to
+          institutions' counts together, not to each institution (
+          <a href="#rate-interval" className="underline">Intervals</a>). The audit tests the model on every build
+          by predicting each year's count from the institution's other years (
+          <a href="#calibration" className="underline">How well the intervals fit</a>).
+          {short.length > 0 && topBand !== null && tol !== undefined && (
+            <>
+              {' '}At the institutions with the most incidents ({topBand} or more a year), fewer counts fall inside
+              the predicted range than the model expects, by more than {Math.round(tol * 100)} percentage points,
+              for {joinAnd(short.map(calibrationText))}. The model understates how much these institutions' counts
+              vary, so their intervals may be too narrow, and an "above" or "below" among them can be due to chance
+              more often than {chance}.
+              {minUnits !== undefined && short.some((r) => r.units < minUnits) && (
+                <> Groups of fewer than {formatNumber(minUnits)} institutions are reported by the audit without a pass threshold.</>
+              )}
+            </>
+          )}
+          {failing.length > 0 && (
+            <>
+              {' '}The audit reports a failure for{' '}
+              {joinAnd(failing.map((r) => `${rateCodeLabel(r.code).toLowerCase()} in ${periodLabel(r.period)} (institutions with ${bandLabel(r.band)})`))}:{' '}
+              {failing.every((r) => r.observed > r.expected)
+                ? 'more counts fall inside the predicted range than expected, so those intervals are wider than they need to be on average'
+                : 'coverage differs from what the model expects by more than its tolerance'}{' '}
+              (<a href="#audit" className="underline">Data Quality Audit</a>).
+            </>
+          )}
+        </>
+      ),
+    },
+    {
+      title: 'A position is a range',
+      body: (
+        <>
+          A listed institution's range holds its position among the list's members with{' '}
+          {levelPct(rr)}% confidence, for that institution on its own, not for every range of a list at once.
+          Two institutions whose ranges overlap may still differ, and ranges that do not overlap are not a test of
+          those two institutions against each other.
+          {range && latest && (
+            <>
+              {' '}For violent crimes in {latestLabel}, the median member's range covers{' '}
+              {Number.isInteger(range.width) ? '' : 'about '}{formatNumber(Math.round(range.width))} of the{' '}
+              {formatNumber(range.n)} positions.
+            </>
+          )}{' '}
+          Positions in windows five years apart can differ substantially.
+        </>
+      ),
+    },
+    {
+      title: 'The lists hold only large institutions',
+      body: (
+        <>
+          {listSizes.length > 0 ? (
+            <>
+              In {latestLabel} a list needs about this many on-campus students or more: {listSizes.join('; ')}.{' '}
+            </>
+          ) : null}
+          At the national rate, a smaller institution would expect fewer than {rr?.lists?.minExpected ?? '…'}{' '}
+          incidents in three years, too few to place. Smaller institutions have rates and comparisons, not
+          positions (<a href="#rate-lists" className="underline">Ordered lists</a>).
+        </>
+      ),
+    },
+    {
+      title: 'A rate of 0 is a reported zero',
+      body: (
+        <>
+          A rate of 0 means that no incident of the category was reported on campus at any of the institution's
+          campuses in the three years. Its interval still runs above 0, and a large institution with 0 can be on a
+          list. A zero can reflect how an institution classifies or reports incidents, not only how safe it is,
+          and a small institution can have 0 by chance. A year a campus did not report is not 0: it has no
+          figures, and an institution missing from DOE's data in a year has no rate for the windows containing it.
+        </>
+      ),
+    },
+    {
+      title: 'Rates leave out campuses abroad',
+      body: (
+        <>
+          NCES's fall enrollment excludes students enrolled at an institution's branch campuses in foreign
+          countries (<SourceLink source={SOURCES.ncesFallEnrollment2024}>NCES, Fall Enrollment instructions</SourceLink>),
+          so an institution's rate leaves out the incidents at its campuses abroad (see{' '}
+          <a href="#rate-abroad" className="underline">Campuses abroad</a>). Those incidents are on each such
+          campus's own school page.
+        </>
+      ),
+    },
+    {
+      title: 'Totals add unlike crimes',
+      body: (
+        <>
+          "All criminal offenses" adds the 11 offenses with equal weight: a murder and a motor-vehicle theft each
+          count 1.
+          {mvtFirst && mvtLatest && d.first && latest && (
+            <>
+              {' '}On campus, at the institutions in the national rate, motor-vehicle theft was{' '}
+              {pct1(mvtFirst.share)} of criminal offenses in {windowLabel(d.first)} and {pct1(mvtLatest.share)} in{' '}
+              {windowLabel(latest)}.
+            </>
+          )}{' '}
+          For this reason the criminal-offense rate leaves motor-vehicle theft out, and rankings open on violent
+          crimes. Look at single offenses before drawing conclusions from a total.
+        </>
+      ),
+    },
+    {
+      title: 'Some years and categories have no rate',
+      body: (
+        <>
+          {rr?.skipYears?.length ? `${joinAnd(rr.skipYears.map(String))} has counts but no rate. ` : ''}
+          Motor-vehicle theft, arrests, disciplinary referrals and several rare offenses are shown as counts only (
+          <a href="#rate-codes" className="underline">Categories without a rate</a>).
+        </>
+      ),
+    },
+    {
+      title: 'Reported by institutions, not audited here',
+      body: (
+        <>
+          The figures are what institutions submitted to ED's survey, as ED publishes them. This site does not check
+          them against institutions' records or Annual Security Reports. Its audit checks that the published files
+          are consistent with each other and with the pipeline's tables built from DOE's and NCES's files, and
+          tests the rate model; it does not verify what institutions reported.
+        </>
+      ),
+    },
+    {
+      title: 'Not every Clery category is shown',
+      body: (
+        <>
+          Hate crimes, unfounded reports and fire statistics are not shown (see{' '}
+          <a href="#not-shown" className="underline">What This Site Does Not Show</a>).
+        </>
+      ),
+    },
+  ]
+}
 
 // Campuses whose figures for `year` come from a release with a known DOE
 // file error (metadata.json "knownDefects"), or null when not published
@@ -158,13 +422,39 @@ function defectCampuses(metadata: Metadata | null, year: number): number | null 
   if (!ds || ds.length === 0) return null
   return new Set(ds.flatMap((d) => d.unitids)).size
 }
-import {
-  SOURCES,
-  CRIMINAL_DEFINITIONS,
-  VAWA_DEFINITIONS,
-  LAW_VIOLATION_DEFINITIONS,
-  GEOGRAPHY_DEFINITIONS,
-} from '../data/sources'
+
+// One rule of Rate Rules, with an anchor
+function Rule({ id, title, children }: { id: string; title: string; children: React.ReactNode }) {
+  return (
+    <li id={id} className="scroll-mt-20">
+      <strong className="text-gray-900 dark:text-gray-100">{title}.</strong> {children}
+    </li>
+  )
+}
+
+// What each audit check verifies, by its name in audit.json
+const CHECK_DESCRIPTIONS: Record<string, string> = {
+  'School Completeness': 'every campus that reported a year, zeros included, has a published file and is in the search',
+  'Incident Total Accuracy': 'each school file has exactly the years the campus reported, and its yearly totals match the aggregate table',
+  'FTE Coverage': 'enrollment coverage by year',
+  'Rate Calculation Accuracy': 'every published rate, of three-year windows and single years, is its count per 10,000 student-years to 2 decimals and lies inside its interval',
+  'Ranking Order Validation': 'ranks by count are shared on ties (1, 2, 2, 4); rate files are in rate order, and list positions and ranges agree with it',
+  'Ranking Totals and Tables': "each ranking's totals and tables agree with its entries, and the rate files agree with each other and with the school files",
+  'Aggregate Consistency': 'the aggregate tables match the fact table they are built from, per year and location',
+  'Shared Statistics Counted Once': 'figures two campuses, or one campus under its old and new DOE ID, report identically are counted once in totals and rankings',
+  'Enrollment Matches NCES': "every FTE, online share and headcount the rates use is NCES's own published figure",
+  'Institution Rates': 'the figures rates are made of: U.S. campuses, both on-campus FTE estimates, the rules that give no rate, pooled institutions, counts per location, medical-center and shared figures, and the peer type',
+  'Campus Identity': 'the reviewed list of renumbered campuses matches the DOE files, linked pages name each other, and every school is in the search under its campus name',
+  'Rate Rules': 'every three-year rate, interval, comparison, list, position, range, state list, unusual-year flag, single-year rate and count flag recomputed with a separate implementation, and the rules in metadata.json checked against the design',
+  'Interval Calibration': "how often each year's count falls inside the range the interval model predicts from the institution's other years, against how often it should",
+  'Medical-Campus Screen': "campuses whose DOE name or address suggests a medical center, and that hold a material share of an institution's on-campus count, are on the medical-center campus list or recorded as reviewed (a warning otherwise, never a failure)",
+}
+
+const STATUS_STYLES: Record<string, string> = {
+  PASS: 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300',
+  WARNING: 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300',
+  FAIL: 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300',
+}
 
 export default function Methodology() {
   const [metadata, setMetadata] = React.useState<Metadata | null>(cachedMetadata)
@@ -192,31 +482,86 @@ export default function Methodology() {
   const coverageText = metadata ? metadata.coverage || summarizeDataYears(metadata).span : null
 
   // The rate rules and what they did (metadata.json rateRules and
-  // rateStats), for Rate Rules; "…" until metadata.json is loaded
+  // rateStats); "…" until metadata.json is loaded
   const rr = metadata?.rateRules
   const rs = metadata?.rateStats
   const iy = rs?.institutionYears
-  const y24 = rs?.byYear['2024']
-  const ci = Math.round((rr?.ciLevel ?? 0.95) * 100)
-  const num = (v: number | null | undefined) => (v === null || v === undefined ? '…' : formatNumber(v))
+  const keys = windowKeys(rr)
+  const latest = latestWindowKey(rr)
+  const first = keys.length > 0 ? keys[0] : null
+  const latestLabel = latest ? windowLabel(latest) : '…'
+  const latestYear = latest ? String(windowYears(latest)[1]) : null
+  const w = latest ? rs?.windows?.[latest] : undefined
+  const ci = levelPct(rr)
   const share = (r: [number, number] | undefined, above = false) => (r ? ratioPercent(r, above) : '…')
-  const group = (g: string) => rr?.dispersion.groups[g]
-  const example = (code: string, n: number) => rs?.intervalExamples[code]?.[String(n)]
-  // "8.6 to 39.4": a count's interval to 1 decimal ("0" for 0)
-  const oneDecimal = (x: number) => (x === 0 ? '0' : x.toFixed(1))
-  const intervalPair = (p: [number, number] | undefined) => (p ? `${oneDecimal(p[0])} to ${oneDecimal(p[1])}` : '…')
-  // The interval of 1,000 incidents of `code`, and how far it runs below and above
-  const wide = (code: string) => {
-    const k = rr?.dispersion.kByCode[code]
-    if (!rr || k === undefined) return '…'
-    const [lo, hi] = countInterval(1000, k, rr.ciLevel)
-    const pct = (x: number) => Math.round((x / 1000 - 1) * 100)
-    return `${formatNumber(Math.round(lo))} to ${formatNumber(Math.round(hi))} (−${-pct(lo)}% to +${pct(hi)}%)`
+  const offenseName = (code: string) => {
+    const o = metadata?.offenses.find((x) => x.code === code)
+    return o ? o.display.toLowerCase() : code.replace(/_/g, ' ')
   }
+  const listCodes = rr?.lists?.codes ?? []
+  const codesWithRate = rateCodes(rr)
+
+  // The window files the text draws on (fetched here; the figures show "…" until they arrive)
+  const [files, setFiles] = React.useState<Record<string, RateWindowFile>>({})
+  React.useEffect(() => {
+    if (!latest || !rr) return
+    let live = true
+    const wanted: [string, string][] = [[latest, 'violent'], [latest, 'criminal_xmvt']]
+    if (first && first !== latest) wanted.push([first, 'criminal_xmvt'])
+    wanted
+      .filter(([, code]) => code in rr.codes)
+      .forEach(([key, code]) => {
+        fetchRateWindow(key, code)
+          .then((f) => live && setFiles((prev) => ({ ...prev, [`${key}-${code}`]: f })))
+          .catch(() => {})
+      })
+    return () => {
+      live = false
+    }
+  }, [latest, first, rr])
+  const facts: RateFacts = {
+    metadata,
+    latest,
+    first,
+    violent: latest ? files[`${latest}-violent`] ?? null : null,
+    criminalLatest: latest ? files[`${latest}-criminal_xmvt`] ?? null : null,
+    criminalFirst: first ? files[`${first}-criminal_xmvt`] ?? null : null,
+    build,
+  }
+  const peers = peerRows(facts.violent, metadata)
+  const range = medianRange(facts.violent)
+  const mvtFirst = mvtShare(facts.criminalFirst)
+  const mvtLatest = mvtShare(facts.criminalLatest)
+
+  // Interval examples: the published test vectors of a code's c over a window
+  const vector = (code: string, n: number) => {
+    const c = rr?.dispersion?.c?.[code]
+    return rr?.testVectors?.counts.find((v) => v.c === c && v.years === rr.windowYears && v.n === n) ?? null
+  }
+  const interval = (code: string, n: number, digits: number) => {
+    const v = vector(code, n)
+    if (!v) return '…'
+    const [lo, hi] = v.interval
+    const f =(x: number) => (x === 0 ? '0' : x.toLocaleString('en-US', { minimumFractionDigits: digits, maximumFractionDigits: digits }))
+    return `${f(lo)} to ${f(hi)}`
+  }
+
+  const yearRows = iy ? Object.entries(iy.byYear).sort(([a], [b]) => a.localeCompare(b)) : []
   const ruleTotals = iy
-    ? Object.values(iy.rules).reduce((a, r) => ({ all: a.all + r.institutionYears, listed: a.listed + r.listed }), { all: 0, listed: 0 })
+    ? Object.values(iy.rules).reduce((a, r) => ({ all: a.all + r.institutionYears, withFte: a.withFte + r.withFte }), { all: 0, withFte: 0 })
     : null
-  const yearRows = rs ? Object.entries(rs.byYear).sort(([a], [b]) => a.localeCompare(b)) : []
+  // The first year after the years that use another fall's online share,
+  // and whether more institutions have an uncertain on-campus FTE in it
+  const shareYears = Object.keys(rr?.onlineShareYear ?? {}).map(Number)
+  const lastShared = shareYears.length > 0 ? Math.max(...shareYears) : null
+  const ownAgain = lastShared !== null ? iy?.byYear[String(lastShared + 1)] : undefined
+  const before = lastShared !== null ? iy?.byYear[String(lastShared)] : undefined
+  const uncertainRises = !!ownAgain && !!before && ownAgain.fteUncertain > before.fteUncertain
+  // Counts-only categories counted inside the criminal-offense rate (rare offenses)
+  const rareCodes = (rr?.countsOnly ?? []).filter((c) => rr?.codes?.criminal_xmvt?.includes(c) && c !== 'motor_vehicle_theft')
+  const checks = build?.checks ?? []
+  const statusCount = (s: string) => checks.filter((c) => c.status === s).length
+  const calibration = build?.calibration ?? []
 
   return (
     <div className="min-h-screen">
@@ -281,7 +626,7 @@ export default function Methodology() {
                       <div className="flex items-start gap-2">
                         <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
                         <span className="min-w-0 text-gray-600 dark:text-gray-400">
-                          <strong className="text-gray-900 dark:text-gray-200">Zero is not the same as not reported:</strong> A campus reported a year when its row in that release has at least one figure that is not blank. A reported year without incidents shows as 0 on the school page and in its charts, and in rankings by count the campus is ranked with 0, after the campuses with incidents, sharing one rank, by name. In rate rankings an institution with no incident at any of its campuses is listed with rate 0 and its interval, not ranked. A year a campus did not report has no figures at all: its page lists it as not reported and its charts leave a gap there, not a 0. Campuses that reported but never had an incident have school pages too.
+                          <strong className="text-gray-900 dark:text-gray-200">Zero is not the same as not reported:</strong> A campus reported a year when its row in that release has at least one figure that is not blank. A reported year without incidents shows as 0 on the school page and in its charts, and in rankings by count the campus is ranked with 0, after the campuses with incidents, sharing one rank, by name. An institution with no incident on campus at any of its campuses in a rate's three years has a rate of 0, with an interval above 0. A year a campus did not report has no figures at all: its page lists it as not reported and its charts leave a gap there, not a 0. Campuses that reported but never had an incident have school pages too.
                         </span>
                       </div>
                       <div className="flex items-start gap-2">
@@ -376,7 +721,7 @@ export default function Methodology() {
             </div>
 
             <p className="text-gray-600 dark:text-gray-400 mb-6">
-              FTE is the basis of the per-student rates: full-time students count fully and part-time students count in part, so schools of different sizes and mixes can be compared. We use the FTE that NCES publishes for each institution and fall, for every year; we do not calculate it. Rates divide by an estimate of the part of it on campus, made from NCES's FTE, its fall headcounts and its share of students enrolled exclusively in distance education (see <a href="#rate-rules" className="underline">Rate Rules</a>).
+              FTE is the basis of the per-student rates: full-time students count fully and part-time students count in part, so schools of different sizes and mixes can be compared. We use the FTE that NCES publishes for each institution and fall, for every year; we do not calculate it. Rates divide by an estimate of the part of it on campus, made from NCES's FTE, its fall headcounts and its share of students enrolled exclusively in distance education, added over a rate's three years (see <a href="#rate-denominator" className="underline">On-campus students</a>).
             </p>
 
             <dl className="space-y-3 text-sm text-gray-600 dark:text-gray-400 mb-6">
@@ -397,7 +742,7 @@ export default function Methodology() {
                   Students enrolled only in distance education courses, divided by all students enrolled, as of the
                   institution's official fall reporting date or October 15. Rates use it, with NCES's fall headcounts
                   of full-time and part-time students, to estimate on-campus FTE (see{' '}
-                  <a href="#rate-rules" className="underline">Rate Rules</a>).
+                  <a href="#rate-denominator" className="underline">On-campus students</a>).
                 </dd>
               </div>
               <div>
@@ -432,62 +777,88 @@ export default function Methodology() {
             </p>
           </section>
 
-          {/* Crime Rate Calculation */}
+          {/* Crime rates */}
           <section id="rates" className="scroll-mt-20">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/50 rounded-xl flex items-center justify-center">
                 <BarChart3 className="w-5 h-5 text-primary-600 dark:text-primary-400" />
               </div>
               <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                Crime Rate Calculation
+                Crime Rates
               </h2>
             </div>
 
             <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 rounded-xl p-6 border border-green-100 dark:border-green-900/50 mb-6">
-              <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">Per 10,000 Students on Campus</h4>
-              <code className="block bg-white dark:bg-gray-900 rounded-lg p-4 text-sm text-gray-800 dark:text-gray-200 font-mono mb-3">
-                Rate = (Incident Count / On-campus FTE) × 10,000
+              <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">In plain words</h3>
+              <ul className="list-disc ml-5 space-y-2 text-sm text-gray-700 dark:text-gray-300 mb-4">
+                <li>
+                  A rate is the number of incidents reported on campus over {rr?.windowYears ?? '…'} years, per 10,000
+                  on-campus students a year. The years are {keys.length > 0 ? joinAnd(keys.map(windowLabel)) : '…'}
+                  {rr?.skipYears?.length ? <>; no rate includes {joinAnd(rr.skipYears.map(String))}</> : null}.
+                </li>
+                <li>
+                  Each rate has a {ci}% interval: the underlying rates its counts are consistent with, given how much
+                  an institution's counts vary from year to year. It does not allow for differences in how
+                  institutions record and report incidents.
+                </li>
+                <li>
+                  Each rate is compared with the national rate: "{VERDICT_LABELS.above}" or "{VERDICT_LABELS.below}"
+                  when its whole interval is on one side, otherwise "{VERDICT_LABELS.nd}". It is also compared, the
+                  same way, with institutions of its type.
+                </li>
+                <li>
+                  For {listCodes.length > 0 ? joinAnd(listCodes.map(rateCodePhrase)) : '…'}, institutions large enough
+                  to expect at least {rr?.lists?.minExpected ?? '…'} incidents at the national rate are placed on an
+                  ordered list. Each position is given with a range: positions closer together than the ranges
+                  cannot be told apart.
+                </li>
+                <li>
+                  A year that is unusually high for an institution is flagged, not removed.
+                </li>
+                <li>
+                  Arrests, disciplinary referrals, motor-vehicle theft and several rare offenses are shown as counts
+                  only.
+                </li>
+              </ul>
+              <code className="block bg-white dark:bg-gray-900 rounded-lg p-4 text-sm text-gray-800 dark:text-gray-200 font-mono mb-3 whitespace-normal break-words">
+                Rate = on-campus incidents in the {rr?.windowYears ?? '…'} years ÷ (on-campus FTE of each of the{' '}
+                {rr?.windowYears ?? '…'} years, added) × 10,000
               </code>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                A size-adjusted figure: it removes the effect of enrollment size on counts, not the other
-                differences between institutions listed under Limitations. On-campus FTE and every other rule rates
-                follow are under <a href="#rate-rules" className="underline">Rate Rules</a> below.
+                A size-adjusted figure: it removes the effect of enrollment size on counts, not the other differences
+                between institutions listed under <a href="#limitations" className="underline">Limitations</a>. Every
+                rule, with its threshold, is under <a href="#rate-rules" className="underline">Rate Rules</a> below.
               </p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4 sm:col-span-2">
-                <h5 className="font-medium text-gray-900 dark:text-gray-100 text-sm mb-2">Rates Are Per Institution</h5>
+                <h3 className="font-medium text-gray-900 dark:text-gray-100 text-sm mb-2">Rates Are Per Institution</h3>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
                   NCES publishes enrollment (FTE) for each institution, not for each campus, and every campus of an
                   institution (all campuses whose UNITID starts with the same six digits) carries the same FTE. So a
-                  rate divides the incidents of all the institution's campuses in the United States that year
-                  (campuses abroad are left out: Rate Rules 12) by the institution's on-campus FTE. Rate rankings
-                  list institutions, one row each, under the institution's name and linked to its main campus (or,
-                  when the main campus did not report, its campus with the most incidents that year); school pages
-                  and Compare label such a rate "all N campuses combined".
-                  Rankings by count still list each campus. The incidents are counted as in rankings: residence
-                  halls are not added (they are part of on-campus), and figures also reported by another campus
-                  count once.
+                  rate adds the on-campus incidents of all the institution's campuses in the United States (campuses
+                  abroad are left out: <a href="#rate-abroad" className="underline">Campuses abroad</a>) and divides
+                  them by the institution's on-campus FTE. Rate lists name the institution as of the window's last
+                  year and link to its main campus (or, when the main campus did not report that year, to its campus
+                  with the most incidents); the school page of any of its campuses shows the institution's rates.
+                  Rankings by count still list each campus.
                 </p>
               </div>
               <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
-                <h5 className="font-medium text-gray-900 dark:text-gray-100 text-sm mb-2">Total Counts</h5>
+                <h3 className="font-medium text-gray-900 dark:text-gray-100 text-sm mb-2">Total Counts</h3>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
                   Sum of on-campus + non-campus + public property (excluding residence halls to avoid double-counting).
                   Figures reported identically by two campuses count once, under the host campus, in state and national totals and rankings.
                 </p>
               </div>
               <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
-                <h5 className="font-medium text-gray-900 dark:text-gray-100 text-sm mb-2">Ties in Rankings</h5>
+                <h3 className="font-medium text-gray-900 dark:text-gray-100 text-sm mb-2">Ties</h3>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Schools with the same count (or the same rate) share a rank, and the next rank skips the places
-                  the tie takes: 1, 2, 2, 4. Tied schools are listed by name. By count, campuses that reported the
-                  year but had none of the selected category come last, with 0, sharing one rank. By rate, only
-                  institutions with at least 20 incidents and no reason not to rank them are ranked (Rate Rules
-                  below); those with 1 to 19 incidents follow, then those with none, and a separate list shows the
-                  rates shown but not ranked and the institutions a rule leaves out. A reported zero can reflect how
-                  an institution classifies or reports incidents, not only how safe it is.
+                  In rankings by count, campuses with the same count share a rank, and the next rank skips the places
+                  the tie takes: 1, 2, 2, 4. Tied campuses are listed by name, and campuses that reported the year but
+                  had none of the selected category come last, with 0, sharing one rank. On rate lists, institutions
+                  with the same rate share a position the same way and are listed by name.
                 </p>
               </div>
             </div>
@@ -496,297 +867,583 @@ export default function Methodology() {
               Rate Rules
             </h3>
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-              Every rule that rates and rate rankings follow, with its threshold. None of them changes a count or the
-              order of a ranking by count; rule 13 adds a flag to rankings by count. In a rate ranking an
-              institution's rate is ranked; shown but not ranked, with the reason (rules 1, 9 and 11); listed as
-              too few incidents to rank (rule 4); or, in a year rule 3 or 8 leaves the institution out, listed under
-              "Not ranked by rate" with the rule and no rate. School pages and Compare say the same, and also show
-              the rate of an institution under the floor of rule 2, with a note. The numbers cover 2015-2024; an
-              institution-year is one institution in one year, and "the 2024 national rate rankings" are the
-              national rankings file for 2024.
+              Every rule the rates follow, with the thresholds published in <code>metadata.json</code> (
+              <code>rateRules</code>). None of them changes a count or the order of a ranking by count; the last one
+              adds a flag to rankings by count. Figures that depend on the data are this build's. An institution-year
+              is one institution in one year; a window is one of the {rr?.windowYears ?? '…'}-year periods rates
+              cover.
             </p>
             <ol className="list-decimal pl-5 space-y-4 text-sm text-gray-600 dark:text-gray-400">
-              <li>
-                <strong className="text-gray-900 dark:text-gray-100">Denominator: on-campus FTE.</strong>{' '}
-                Clery figures cover the campus, so rates divide by an estimate of the institution's FTE without its
-                students enrolled exclusively in distance education. NCES gives their share of the fall headcount
-                (PCTDEEXC), not of FTE, and the part of FTE they make up depends on how many of them study
-                part-time, so there are two estimates: (a)
+              <Rule id="rate-windows" title="Windows">
+                Rates are {rr?.windowYears ?? '…'}-year averages, for {keys.length > 0 ? joinAnd(keys.map(windowLabel)) : '…'}.
+                {rr?.skipYears?.length ? (
+                  <>
+                    {' '}No window contains {joinAnd(rr.skipYears.map(String))}: in fall 2020 many institutions taught
+                    remotely for the pandemic, and NCES's fall enrollment does not show who was on campus, so{' '}
+                    {joinAnd(rr.skipYears.map(String))} has counts but no rate.
+                  </>
+                ) : null}{' '}
+                A window holds more incidents than one year, so its interval is narrower. There are no comparisons
+                or lists for single years (<a href="#rate-single-years" className="underline">Single years</a>).
+              </Rule>
+              <Rule id="rate-numerator" title="Incidents">
+                The incidents DOE lists as on campus (its On-campus figures, which include residence halls), at every
+                campus of the institution in the United States, added over the window's years. Incidents at
+                non-campus locations and on public property are shown beside the rate as counts, not in it. Figures
+                reported identically by two campuses count once, as in totals (
+                <a href="#rate-shared" className="underline">Shared campuses</a>). The categories with a rate and the
+                offenses each adds:
+                <ul className="list-disc ml-5 mt-2 space-y-1">
+                  {codesWithRate.map((code) => (
+                    <li key={code}>
+                      <span className="text-gray-900 dark:text-gray-100">{rateCodeLabel(code)}</span>:{' '}
+                      {joinAnd((rr?.codes[code] ?? []).map(offenseName))}
+                    </li>
+                  ))}
+                </ul>
+                <span className="block mt-2">
+                  Violent crimes are the four offenses of the FBI's violent crime (
+                  <SourceLink source={SOURCES.fbiViolent2019}>FBI, Crime in the United States 2019: Violent Crime</SourceLink>).
+                  The other categories are under{' '}
+                  <a href="#rate-codes" className="underline">Categories without a rate</a>.
+                </span>
+              </Rule>
+              <Rule id="rate-denominator" title="On-campus students">
+                The denominator is student-years: the institution's on-campus FTE in each year of the window, added.
+                Clery figures cover the campus, so the on-campus FTE leaves out students enrolled exclusively in
+                distance education. NCES gives their share of the fall headcount (PCTDEEXC), not of FTE, and the part
+                of FTE they make up depends on how many of them study part-time, so there are two estimates: (a)
                 proportional, FTE × (1 − PCTDEEXC / 100); (b) part-time first: the on-campus headcount, headcount ×
                 (1 − PCTDEEXC / 100), holds all the full-time students it can, and the rest are part-time students,
                 each counting the institution's FTE per part-time student, (FTE − full-time students) / part-time
-                students. Estimate (b) is made for undergraduates and graduate students separately when NCES gives
-                the year's own share for each level (2021 on), else from the totals. The on-campus FTE is the larger
-                estimate, rounded half up to a whole number. A student who takes some courses online counts as on
-                campus. When the larger estimate is more than {share(rr?.onlineUncertainRatio, true)} above the
-                smaller, or (b) cannot be computed because NCES's headcounts do not add up, the on-campus FTE is
-                uncertain: the rate is shown with the larger estimate and not ranked, for every offense that year
-                (Grand Canyon University in 2024: 12,503 and 23,110). The same holds when rule 8 or 9 adds the
-                on-campus FTE of another institution and that institution's estimates are uncertain. The 2024
-                national rate rankings list {num(y24?.fteUncertain)} institutions with an uncertain on-campus FTE
-                that rules 3 and 8 do not leave out. For 2020 and 2021, when many institutions taught remotely for the
-                pandemic, the estimates use the institution's fall 2019 share, so those years divide by the same
-                kind of enrollment as the others (the year's own share when NCES has no 2019 share:{' '}
-                {num(iy?.onlineOwnYear['2020']?.all)} institutions in 2020, {num(iy?.onlineOwnYear['2021']?.all)} in
-                2021). The number of uncertain institutions rises in 2022 (table below), the first year after 2020
-                and 2021 that uses each fall's own share. Every institution with an NCES FTE in these years has a
-                PCTDEEXC. Sources:{' '}
-                <SourceLink source={SOURCES.drvefDictionary}>NCES, DRVEF data dictionary</SourceLink>.
-              </li>
-              <li>
-                <strong className="text-gray-900 dark:text-gray-100">At least {num(rr?.minFte)} on-campus FTE.</strong>{' '}
-                Rate rankings list an institution only in a year its denominator (its on-campus FTE, with any FTE
-                added under rules 8 and 9) is at least {num(rr?.minFte)}, because with fewer students a few incidents
-                move the rate far. The 2024 national rate rankings list {num(y24?.listed)} institutions. State and
-                national rankings cover the 50 states, the District of Columbia, Puerto Rico and the U.S. Virgin
-                Islands; school pages of institutions elsewhere, such as Guam, show their rate with a note that no
-                rate ranking lists it.
-              </li>
-              <li>
-                <strong className="text-gray-900 dark:text-gray-100">Campuses whose population is not mostly students.</strong>{' '}
-                A rate per student says little where many people on campus are not in FTE. Rate rankings leave out
-                an institution in a year IPEDS reports that it has a hospital (HD variable HOSPITAL = 1: patients,
-                visitors and hospital staff; {num(iy?.rules.hospital.institutionYears)} institution-years,{' '}
-                {num(iy?.rules.hospital.listed)} of them with a denominator of at least {num(rr?.minFte)},{' '}
-                {num(y24?.excludedBy.hospital)} in the 2024 national rate rankings); else one whose Carnegie basic
-                classification in IPEDS is "Special Focus Four-Year: Medical Schools &amp; Centers" (code 25 of
-                C15BASIC, C18BASIC and C21BASIC) or the 2021 category "Special Focus Research Institution" (C21BASIC
-                27; 20 of its 22 institutions in 2024 were medical schools and centers in the 2018 classification):{' '}
-                {num(iy?.rules.medical.institutionYears)} institution-years, {num(iy?.rules.medical.listed)} with a
-                denominator of at least {num(rr?.minFte)}, {num(y24?.excludedBy.medical)} in 2024; and the
-                institutions of a reviewed list with a sourced reason ({num(iy?.rules.listed.institutionYears)}{' '}
-                institution-years): Gallaudet University for 2015-2024, whose campus also holds the Clerc Center's
-                Kendall Demonstration Elementary School and Model Secondary School for the Deaf, whose pupils are not
-                in its FTE (<SourceLink source={SOURCES.clercCenter}>Laurent Clerc National Deaf Education Center</SourceLink>),
-                and The University of Tennessee Health Science Center for 2015-2017 and Albert Einstein College of
-                Medicine for 2019-2020, the years IPEDS gives them no Carnegie basic classification. In the 2024
-                national rate rankings the median rate of all criminal offenses per 10,000 of the denominator was
-                79.1 at research universities with very high research activity (Carnegie R1, C21BASIC 15) with a
-                hospital (37 institutions) and 33.3 at those without one (109). Limitation: IPEDS reports HOSPITAL =
-                1 only when the institution itself runs the hospital. A university whose medical center is a
-                separate legal entity is not left out by this rule; rule 11 covers the medical-center campuses DOE
-                lists for such universities. Sources:{' '}
+                students. Estimate (b) is made for undergraduates and graduate students separately when NCES gives the
+                year's own share for each level (2021 on), else from the totals. The on-campus FTE is the larger
+                estimate, rounded half up to a whole number; an institution without a PCTDEEXC keeps its full FTE. A
+                student who takes some courses online counts as on campus.
+                {rr?.onlineShareYear && Object.keys(rr.onlineShareYear).length > 0 && (
+                  <>
+                    {' '}For {joinAnd(Object.keys(rr.onlineShareYear))}, when many institutions taught remotely for the
+                    pandemic, the estimates use the institution's fall{' '}
+                    {joinAnd(Array.from(new Set(Object.values(rr.onlineShareYear))).map(String))} share (its own year's
+                    share when NCES has none for that fall:{' '}
+                    {joinAnd(Object.keys(rr.onlineShareYear).map((y) => `${num(iy?.onlineOwnYear[y]?.all)} institutions in ${y}`))}).
+                  </>
+                )}{' '}
+                When the larger estimate is more than {share(rr?.onlineUncertainRatio, true)} above the smaller, or
+                (b) cannot be computed because NCES's headcounts do not add up, the on-campus FTE is uncertain. The
+                rate then uses the larger estimate, each comparison is made with both, and when the two give
+                different results the comparison is "{VERDICT_LABELS.undetermined}". Such an institution is never on
+                a list, and the national and peer rates leave it out. The same holds when the denominator adds the
+                on-campus FTE of another institution (
+                <a href="#rate-mergers" className="underline">Mergers</a>,{' '}
+                <a href="#rate-shared" className="underline">Shared campuses</a>) whose estimates are uncertain.
+                {w?.violent && (
+                  <>
+                    {' '}In {latestLabel}, {num(w.violent.byWhy.online)} of the {num(w.violent.rated)} rated
+                    institutions have an uncertain on-campus FTE in at least one year; for violent crimes,{' '}
+                    {num(w.violent.verdicts.undetermined)} of them are "{VERDICT_LABELS.undetermined}".
+                  </>
+                )}
+                {uncertainRises && lastShared !== null && (
+                  <>
+                    {' '}More institution-years have an uncertain on-campus FTE from {lastShared + 1} on (table below),
+                    the first year after {joinAnd(shareYears.map(String))} that uses each fall's own share.
+                  </>
+                )}{' '}
+                Sources: <SourceLink source={SOURCES.drvefDictionary}>NCES, DRVEF data dictionary</SourceLink>.
+              </Rule>
+              <Rule id="rate-population" title="Who has a rate">
+                An institution has a rate for a window when DOE's data has it in every year of the window; the campus
+                its rates link to in the window's last year is in one of the 50 states, the District of Columbia,
+                Puerto Rico or the U.S. Virgin Islands; its denominator is at least {num(rr?.minFte)} in every year,
+                because with fewer students a few incidents move the rate far; and none of the population rules below
+                applies in any year of the window. Otherwise its school page says which of these it fails (the first,
+                in this order). Institutions elsewhere, such as in Guam, have counts but no rate.
+                {w?.violent && <> In {latestLabel}, {num(w.violent.rated)} institutions have a rate.</>}
+              </Rule>
+              <Rule id="rate-population-rules" title="Population rules: campuses whose population is not mostly students">
+                A rate per student says little where many people on campus are not in FTE. An institution has no rate
+                for any window containing a year in which IPEDS reports that it has a hospital (HD variable HOSPITAL =
+                1: patients, visitors and hospital staff; {num(iy?.rules.hospital.institutionYears)} institution-years,{' '}
+                {num(iy?.rules.hospital.withFte)} of them in the states covered with a denominator of at least{' '}
+                {num(rr?.minFte)}); else whose Carnegie basic classification in IPEDS is "Special Focus Four-Year:
+                Medical Schools &amp; Centers" (code 25 of C15BASIC, C18BASIC and C21BASIC) or the 2021 category
+                "Special Focus Research Institution" (C21BASIC 27; 20 of its 22 institutions in 2024 were medical
+                schools and centers in the 2018 classification) ({num(iy?.rules.medical.institutionYears)}{' '}
+                institution-years, {num(iy?.rules.medical.withFte)}); else that is on a reviewed list with a sourced
+                reason, etl/reference/rate_population_exclusions.csv in the open-source pipeline (
+                {num(iy?.rules.listed.institutionYears)} institution-years, {num(iy?.rules.listed.withFte)}): Gallaudet
+                University, whose campus also holds the Clerc Center's Kendall Demonstration Elementary School and
+                Model Secondary School for the Deaf, whose pupils are not in its FTE (
+                <SourceLink source={SOURCES.clercCenter}>Laurent Clerc National Deaf Education Center</SourceLink>);
+                AdventHealth University, whose main campus's Clery geography includes a hospital that IPEDS does not
+                flag (<SourceLink source={SOURCES.adventHealthAsr2018}>AdventHealth University, Annual Security Report 2018</SourceLink>);
+                and The University of Tennessee Health Science Center and Albert Einstein College of Medicine in the
+                years IPEDS gives them no Carnegie basic classification. Such a year also has no single-year rate.
+                HOSPITAL is what the institution reports to IPEDS, so a university next to a medical center run by a
+                separate organization, such as a health system, can report no hospital and is then not left out by
+                this rule; see{' '}
+                <a href="#rate-medical-campuses" className="underline">Medical-center campuses</a>. Sources:{' '}
                 <SourceLink source={SOURCES.ipedsHdDictionary}>IPEDS HD data dictionary</SourceLink>,{' '}
                 <SourceLink source={SOURCES.carnegie2021}>Carnegie Classification, 2021 Basic Classification</SourceLink>.
-              </li>
-              <li>
-                <strong className="text-gray-900 dark:text-gray-100">At least {num(rr?.minCount)} incidents for a rank.</strong>{' '}
-                A rate gets a rank only when it is built on at least {num(rr?.minCount)} incidents. Taking a year's
-                count as a Poisson count, its relative standard error is 1/√count: 22.4% at 20, 31.6% at 10, 50% at
-                4 (more with the year-to-year variation of rule 6). CDC WONDER flags rates based on fewer than 20
-                deaths as unreliable for the same reason (a relative standard error of 23% or more;{' '}
-                <SourceLink source={SOURCES.cdcWonderUnreliable}>CDC WONDER</SourceLink>). Institutions with 1 to{' '}
-                {rr ? rr.minCount - 1 : '…'} incidents and no other reason not to rank them follow the ranked ones as
-                "too few incidents to rank by rate", in order of rate, with the rate and its interval shown. In the
-                2024 national rate rankings ({num(y24?.listed)} institutions), {num(y24?.criminal?.ranked)} are ranked
-                for all criminal offenses, {num(y24?.violent?.ranked)} for violent crimes and{' '}
-                {num(y24?.property?.ranked)} for property crimes; {num(y24?.criminal?.few)},{' '}
-                {num(y24?.violent?.few)} and {num(y24?.property?.few)} have too few incidents.
-              </li>
-              <li>
-                <strong className="text-gray-900 dark:text-gray-100">Counts only for rare offenses.</strong>{' '}
-                An offense with fewer than 1,000 incidents a year on average in national totals (the 50 states, DC,
-                Puerto Rico and the U.S. Virgin Islands) has rankings by count only: incest (
-                {num(rs?.countsOnly.averagePerYear.incest)} a year), negligent manslaughter (
-                {num(rs?.countsOnly.averagePerYear.negligent_manslaughter)}), murder (
-                {num(rs?.countsOnly.averagePerYear.murder)}), statutory rape (
-                {num(rs?.countsOnly.averagePerYear.statutory_rape)}) and arson (
-                {num(rs?.countsOnly.averagePerYear.arson)}). Across 2015-2024 only{' '}
-                {rs ? num(Object.values(rs.countsOnly.reachingMinCount).reduce((a, b) => a + b, 0)) : '…'}{' '}
-                institution-years in rate rankings reached {num(rr?.minCount)} incidents of any of them (statutory
-                rape {num(rs?.countsOnly.reachingMinCount.statutory_rape)}, arson{' '}
-                {num(rs?.countsOnly.reachingMinCount.arson)}), so a rate ranking would rank almost no one. The next
-                rarest offense, robbery, averages{' '}
-                {rs ? num(Math.round(rs.countsOnly.averagePerYear.robbery)) : '…'} a year.
-              </li>
-              <li>
-                <strong className="text-gray-900 dark:text-gray-100">{ci}% intervals and rank ranges.</strong>{' '}
-                Each rate is shown with a {ci}% interval for the institution's underlying yearly rate. Institutions'
-                yearly counts vary more than chance alone (a Poisson count) would make them vary: in{' '}
-                {rr ? `${rr.dispersion.years[0]}-${rr.dispersion.years[1]}` : '…'}, among institutions in rate
-                rankings without a rule in every year and with at least {num(rr?.dispersion.minMean)} incidents a
-                year on average, the variance of an institution's yearly counts around a model with an institution
-                and a year effect was, at the median, {num(group('violent')?.phi)} times that of a Poisson count for
-                violent crimes ({num(group('violent')?.units)} institutions), {num(group('criminal')?.phi)} times for
-                all criminal offenses ({num(group('criminal')?.units)}) and {num(group('property')?.phi)} times for
-                property crimes ({num(group('property')?.units)}). So the interval is that of a negative binomial
-                (gamma-Poisson) count whose variance is n(1 + n/k), with k fitted on those years: {num(group('violent')?.k)}{' '}
-                for violent crimes, {num(group('criminal')?.k)} for all criminal offenses, {num(group('property')?.k)}{' '}
-                for property crimes, {num(group('all')?.k)} for all categories, {num(group('crime_offense')?.k)} for
-                each single criminal or VAWA offense and {num(group('enforcement_offense')?.k)} for each arrest or
-                disciplinary referral category. For a count n, φ = 1 + n/k, and the interval is φ times the gamma
-                interval of the effective count n/φ (
-                <SourceLink source={SOURCES.fayFeuer1997}>Fay and Feuer, 1997</SourceLink>; with φ = 1 it is the exact
-                Poisson interval, <SourceLink source={SOURCES.garwood1936}>Garwood, 1936</SourceLink>), divided by the
-                denominator and multiplied by 10,000. For a count of 20 the interval of the count is{' '}
-                {intervalPair(example('violent', 20))} for violent crimes and {intervalPair(example('criminal', 20))}{' '}
-                for all criminal offenses; for a count of 0 it is {intervalPair(example('violent', 0))}. Because k is
-                fixed, the interval stays wide for large counts: for 1,000 violent crimes it runs from{' '}
-                {wide('violent')}, for 1,000 criminal offenses from {wide('criminal')}. It does not cover differences
-                in reporting or classification between institutions. A ranked institution's rank range comes from{' '}
-                {num(rr?.rankRanges.draws)} simulated rankings: each draws every ranked institution's rate from a gamma
-                distribution around its count, with the same k, and ranks them. The range is the middle {ci}% of the
-                institution's simulated ranks, widened to hold its rank; the draws use a fixed seed, so every build
-                gives the same ranges. Ranks inside one range are not clearly different. In the 2024 national rate
-                rankings the median ranked institution's range spans {num(y24?.violent?.medianRange)} ranks (of{' '}
-                {num(y24?.violent?.ranked)}) for violent crimes, {num(y24?.criminal?.medianRange)} (of{' '}
-                {num(y24?.criminal?.ranked)}) for all criminal offenses and {num(y24?.property?.medianRange)} (of{' '}
-                {num(y24?.property?.ranked)}) for property crimes.
-              </li>
-              <li>
-                <strong className="text-gray-900 dark:text-gray-100">Violent and property crimes.</strong>{' '}
-                "Violent crimes" adds murder (non-negligent manslaughter included), rape, robbery and aggravated
-                assault, the four offenses of the FBI's violent crime (
-                <SourceLink source={SOURCES.fbiViolent2019}>FBI, Crime in the United States 2019: Violent Crime</SourceLink>).
-                "Property crimes" adds burglary, motor vehicle theft and arson, the FBI's property crime offenses
-                without larceny-theft, which Clery does not collect (
-                <SourceLink source={SOURCES.fbiProperty2019}>FBI, Property Crime</SourceLink>). Fondling, incest,
-                statutory rape and negligent manslaughter are in neither; all 11 offenses are in "All criminal
-                offenses", which is still offered. Rankings open on violent crimes because motor vehicle theft was
-                37% of all criminal offenses in 2024 (15% in 2015) and so decides much of that total's order.
-              </li>
-              <li>
-                <strong className="text-gray-900 dark:text-gray-100">Mergers and renumbered campuses.</strong>{' '}
+              </Rule>
+              <Rule id="rate-mergers" title="Mergers and renumbered campuses">
                 In a year DOE reported a campus under two institutions (its old and its new ID, from different
-                releases), the institution whose NCES FTE holds the campus's students is the only one of the two
-                with an FTE or, when both have one, the one whose every campus that year is such a linked campus.
-                When the other institution counts the campus and the students' institution counts no campus of its
-                own that year, the other's rate adds the students' institution's on-campus FTE (both institutions'
-                students over both institutions' incidents). An institution gets no rate that year, and is left out
-                of rate rankings with a note on its school page, only when a campus with at least one incident that
-                year has its incidents counted under one institution and its students under another, when it cannot
-                be told which FTE holds the students, or when those students' FTE would be split among several
-                institutions. In a year a merged institution's campuses count under several institutions and one of
-                them has no NCES FTE while counting a campus with incidents that no institution with an FTE also
-                counts, every institution of the group is left out. A campus with no incident that year needs none
-                of this: whichever FTE holds its students, every rate is the same. In all, these rules leave out{' '}
+                releases), the institution whose NCES FTE holds the campus's students is the only one of the two with
+                an FTE or, when both have one, the one whose every campus that year is such a linked campus. When the
+                other institution counts the campus and the students' institution counts no campus of its own that
+                year, the other's denominator adds the students' institution's on-campus FTE (both institutions'
+                students over both institutions' incidents). An institution has no rate for a window containing that
+                year, and no single-year rate that year, only when a campus with at least one incident that year has
+                its incidents counted under one institution and its students under another, when it cannot be told
+                which FTE holds the students, or when those students' FTE would be split among several institutions.
+                In a year a merged institution's campuses count under several institutions and one of them has no
+                NCES FTE while counting a campus with incidents that no institution with an FTE also counts, every
+                institution of the group has no rate. A campus with no incident that year needs none of this:
+                whichever FTE holds its students, every rate is the same. These rules give no rate to{' '}
                 {iy ? num(iy.rules.merger.institutionYears + iy.rules.family.institutionYears) : '…'} institution-years
-                that rule 3 does not already leave out ({iy ? num(iy.rules.merger.listed + iy.rules.family.listed) : '…'}{' '}
-                with a denominator of at least {num(rr?.minFte)}; before this rule was narrowed, 295, 97 of them with
-                at least 1,000 FTE), and {num(iy?.pooled.merger)} are rated with another institution's FTE added.
-              </li>
-              <li>
-                <strong className="text-gray-900 dark:text-gray-100">Shared campuses.</strong>{' '}
-                When DOE publishes the same figures for campuses of two institutions in a year, they count once,
-                under the host campus, while each institution's students are in its own FTE. When the other
-                institution counts no campus of its own that year and its figures count under one host institution,
-                the host's rate adds the other's on-campus FTE ({num(iy?.pooled.shared)} institution-years).
-                Otherwise neither rate can be made exact: adding the other institution's FTE would add its students
-                at its other campuses, and not adding it would leave its students on the shared campus out. So, for
-                each offense, the shared figures are measured against the institution's count: the host's figures
-                that another institution also reports, and the figures an institution reports for its own campus
-                that count under another institution's campus (and so are not in its count). When they are more than{' '}
-                {share(rr?.sharedShare)} of its count (with the figures counted elsewhere added to it), the rate is
-                shown, not ranked; at {share(rr?.sharedShare)} or less it is ranked with a note. In the 2024 national
-                rate rankings this leaves {num(y24?.violent?.notRanked.shared)} institutions' violent-crime rates,{' '}
-                {num(y24?.criminal?.notRanked.shared)} for all criminal offenses and{' '}
-                {num(y24?.property?.notRanked.shared)} for property crimes not ranked (some also for another
-                reason), among them, for all criminal
-                offenses, Texas A&amp;M University-College Station, Indiana University-Bloomington and Purdue
-                University-Main Campus; ranked with a note are {num(y24?.violent?.sharedNote)},{' '}
-                {num(y24?.criminal?.sharedNote)} and {num(y24?.property?.sharedNote)}. Most shared campuses are a
-                program of one institution on another's campus, such as the Indiana University School of Medicine at
-                Bloomington or the University of Maryland Global Campus at College Park.
-              </li>
-              <li>
-                <strong className="text-gray-900 dark:text-gray-100">Unusually high years.</strong>{' '}
-                A rate is marked "Unusually high for this institution; DOE counts crimes in the year reported" when
-                its count is at least {num(rr?.spike.minCount)}, the institution has figures for at least{' '}
-                {num(rr?.spike.minOtherYears)} other years (a year without an incident counts as 0), the count is
-                more than {num(rr?.spike.factor)} times the median of its counts of that category in those years and
-                more than{' '}
-                {num(rr?.spike.maxFactor)} times the largest of them, and a negative binomial count with that median
-                as its mean and the k of rule 6 reaches it with a probability below {rr ? rr.spike.p : '…'}. It
-                stays ranked: a year's figure is the crimes reported that year, and one report of many past incidents
-                can raise one year (see <a href="#year-reported" className="underline">How Institutions Count</a>).
-                In the 2024 national rate rankings {num(y24?.violent?.spikes)} rate is marked for violent crimes,{' '}
-                {num(y24?.criminal?.spikes)} for all criminal offenses and {num(y24?.property?.spikes)} for property
-                crimes; over every offense and total, {num(y24?.spikes)} of {num(y24?.rankedEntries)} ranked rates.
-              </li>
-              <li>
-                <strong className="text-gray-900 dark:text-gray-100">Medical-center campuses.</strong>{' '}
-                The hospital test of rule 3 catches only institutions that run a hospital themselves. Some
-                universities' Clery geography
-                includes a medical-center campus whose hospital another entity runs, where many people are patients,
-                visitors and hospital staff, not students. The incidents at 13 medical-center campuses that DOE lists
-                are counted apart; each was
-                reviewed from DOE's campus name and address (etl/reference/medical_campuses.csv in the open-source
-                pipeline): Johns Hopkins University's East Baltimore medical campus and Bayview Medical Center; the
-                Boston University Medical Campus; the University of Kansas Medical Center; Washington University in
-                St. Louis's Medical School campus; Columbia University Medical Center; New York University's NYU
-                Langone medical center campus and NYU Langone Hospital - Brooklyn; Wake Forest University's Medical
-                Center campus (2015-2018); the University of Florida's UF Health Jacksonville campus; Loyola
-                University Chicago's Medical Center campus; the University of the District of Columbia's United
-                Medical Center site; and the College of Our Lady of the Elms's site at Berkshire Medical Center. Each
-                is still part of its institution's count. When incidents at these campuses
-                are {share(rr?.medicalShare)} or more of an institution's count of an offense, its rate is shown, not
-                ranked; below that it is ranked with a note giving the number. In 2024, 97 of Johns Hopkins
-                University's 144 violent crimes were at its medical campuses. In the 2024 national rate rankings this
-                leaves {num(y24?.violent?.notRanked.medical_campus)} violent-crime rates,{' '}
-                {num(y24?.criminal?.notRanked.medical_campus)} for all criminal offenses and{' '}
-                {num(y24?.property?.notRanked.medical_campus)} for property crimes not ranked (some also for another
-                reason), and {num(y24?.violent?.medicalNote)}, {num(y24?.criminal?.medicalNote)} and{' '}
-                {num(y24?.property?.medicalNote)} ranked with a note. Incidents at a medical center that is not on
-                this list, or that DOE does not list as a campus of its own, are not counted apart.
-              </li>
-              <li>
-                <strong className="text-gray-900 dark:text-gray-100">Campuses abroad.</strong>{' '}
-                A campus DOE lists without a state is abroad. NCES's fall enrollment excludes "students enrolled in
-                any branch campus located in a foreign country" (
+                that the population rules do not already cover (
+                {iy ? num(iy.rules.merger.withFte + iy.rules.family.withFte) : '…'} in the states covered with a
+                denominator of at least {num(rr?.minFte)}), and {num(iy?.pooled.merger)} institution-years have
+                another institution's FTE added.
+              </Rule>
+              <Rule id="rate-interval" title="Intervals">
+                Each rate has a {ci}% interval. Institutions' yearly counts vary more than chance alone (a Poisson
+                count) would make them vary, and more so where counts are larger. For a yearly mean m the variance is
+                m + c·g(m)·m<sup>{rr?.dispersion?.power ?? '…'}</sup>, the NB-P form (
+                <SourceLink source={SOURCES.greene2008}>Greene, 2008</SourceLink>), with g(m) = min(
+                {rr?.dispersion?.ramp.cap ?? '…'}, max(1, m / {rr?.dispersion?.ramp.start ?? '…'})): g rises from 1 at{' '}
+                {rr?.dispersion?.ramp.start ?? '…'} a year to {rr?.dispersion?.ramp.cap ?? '…'} at{' '}
+                {rr?.dispersion?.ramp.end ?? '…'} a year. The constant c is{' '}
+                {rr
+                  ? joinAnd(Object.entries(rr.dispersion.fitted).map(([code, c]) => `${c} for ${rateCodePhrase(code)}`))
+                  : '…'}
+                , fitted on the 2015-2019 on-campus counts of institutions with a rate; the other categories use{' '}
+                {rr?.dispersion?.other ?? '…'}, fitted on the single crime offenses together. For a window total N
+                over T years the variance is φ·N with φ = 1 + c·g(N/T)·√(N/T), and the interval of the count is φ times
+                the gamma interval of the effective count N/φ (
+                <SourceLink source={SOURCES.fayFeuer1997}>Fay and Feuer, 1997</SourceLink>; with φ = 1 it is the exact
+                Poisson interval, <SourceLink source={SOURCES.garwood1936}>Garwood, 1936</SourceLink>), with a lower end
+                of 0 when N is 0. Divided by the student-years and multiplied by 10,000, it is the rate's interval.
+                For violent crimes over {rr?.windowYears ?? '…'} years, the interval of a count of 20 is{' '}
+                {interval('violent', 20, 1)}, of 1,000 it is {interval('violent', 1000, 0)}, and of 0 it is{' '}
+                {interval('violent', 0, 1)}. The interval does not allow for differences in how institutions record
+                and report incidents. Whether the model fits is tested on every build (
+                <a href="#calibration" className="underline">How well the intervals fit</a>).
+              </Rule>
+              <Rule id="rate-verdicts" title="Comparisons with the national rate">
+                The national rate of a window and category is the on-campus incidents of the rated institutions,
+                divided by their student-years and multiplied by 10,000, leaving out the institutions whose on-campus
+                FTE is uncertain. A rate is "{VERDICT_LABELS.above}" when the lower end of its interval is above the
+                national rate, "{VERDICT_LABELS.below}" when the upper end is below it, and otherwise "
+                {VERDICT_LABELS.nd}"; the test uses unrounded figures. If the intervals have their intended coverage,
+                an institution whose underlying rate equals the national rate is shown as above with a chance of about{' '}
+                {oneSidedChance(rr)}, and as below with the same chance
+                {w?.violent && rr && (
+                  <>
+                    : if all {num(w.violent.rated)} institutions rated in {latestLabel} had the national rate, about{' '}
+                    {formatNumber(Math.round(w.violent.rated * (1 - rr.ciLevel) / 2))} would be shown as above and as
+                    many as below by chance alone
+                  </>
+                )}
+                . A comparison is with the national rate, not with another institution.
+              </Rule>
+              <Rule id="rate-peers" title="Comparisons with institutions of the same type">
+                Each rate is also compared, the same way, with the rate of institutions of its type, computed like the
+                national rate within the type. The type comes from the Carnegie Size &amp; Setting classification in
+                IPEDS (the newest of {rr ? joinAnd(rr.sizeSettingFields) : '…'} that classifies the institution):{' '}
+                {rr
+                  ? Object.values(rr.peerTypes)
+                      .map((t) => (t.sizeSetting.length > 0 ? `${t.label} (codes ${t.sizeSetting.join(', ')})` : t.label))
+                      .join('; ')
+                  : '…'}
+                .
+                {peers.length > 0 && (
+                  <>
+                    {' '}Violent-crime rates by type in {latestLabel}:{' '}
+                    {peers.map((p) => `${p.label} ${fmtRate(p.rate)} (${formatNumber(p.members)} institutions)`).join('; ')}.
+                  </>
+                )}{' '}
+                When the two comparisons differ, the school page says why.
+              </Rule>
+              <Rule id="rate-lists" title="Ordered lists">
+                For {listCodes.length > 0 ? joinAnd(listCodes.map(rateCodePhrase)) : '…'}, the rated institutions
+                that none of the reasons below keeps off are placed on an ordered list when they are large enough that
+                at least {rr?.lists?.minExpected ?? '…'} incidents would be expected at the national rate (the
+                national rate times their student-years). That depends on size only, never on the count. Rates on
+                fewer than 20 events are marked unreliable by CDC WONDER (
+                <SourceLink source={SOURCES.cdcWonderUnreliable}>CDC WONDER</SourceLink>).
+                {w && latest && (
+                  <>
+                    {' '}In {latestLabel},{' '}
+                    {joinAnd(listCodes.filter((c) => w[c]?.listed !== undefined).map((c) =>
+                      `the list of ${rateCodePhrase(c)} has ${formatNumber(w[c].listed!)} members (about ${formatNumber(listMinStudents(w[c].minFteYears ?? 0, rr))} or more on-campus students)`))}
+                    .
+                  </>
+                )}{' '}
+                Members are ordered by rate, highest first; equal rates share a position (1, 2, 2, 4) and are listed
+                by name. Each member's rate is compared with every other member's by a z-test of the difference,
+                with the variance of the interval model at their pooled rate, at the level{' '}
+                {rr?.lists?.alpha ?? '…'} / (2(n − 1)) for a list of n members (Bonferroni). The range runs from 1 +
+                the number of members whose rate is significantly higher to n − the number whose rate is significantly
+                lower, widened to hold its position. With {ci}% confidence the institution's position among the n
+                members lies in its range (
+                <SourceLink source={SOURCES.mogstad2024}>Mogstad, Romano, Shaikh and Wilhelm, 2024</SourceLink>). This
+                holds for each institution on its own, not for all ranges of a list at once; two institutions whose
+                ranges overlap may still differ.
+                {range && (
+                  <>
+                    {' '}For violent crimes in {latestLabel}, the median member's range covers{' '}
+                    {Number.isInteger(range.width) ? '' : 'about '}{formatNumber(Math.round(range.width))} of the{' '}
+                    {formatNumber(range.n)} positions.
+                  </>
+                )}{' '}
+                League tables of institutions have these limits in general (
+                <SourceLink source={SOURCES.goldsteinSpiegelhalter1996}>Goldstein and Spiegelhalter, 1996</SourceLink>).
+              </Rule>
+              <Rule id="rate-state-lists" title="Positions within a state">
+                A state's positions are the national list's members in that state, with positions and ranges
+                recomputed among them alone. The data has them for every state with at least{' '}
+                {rr?.lists?.stateMinMembers ?? '…'} members; this site shows them for states with at least{' '}
+                {rr?.lists?.stateDisplayMin ?? '…'}, and for a state with fewer it shows its members' national positions.
+                {w?.violent?.stateListsDisplayMin !== undefined && rr?.lists?.stateDisplayMin !== undefined && (
+                  <>
+                    {' '}In {latestLabel}, {formatNumber(w.violent.stateListsDisplayMin)} states have at least{' '}
+                    {rr.lists.stateDisplayMin} members on the violent-crime list.
+                  </>
+                )}
+              </Rule>
+              <Rule id="rate-reasons" title="Rated but not on a list">
+                Three reasons keep a rated institution off a list while its rate and comparisons are shown: an
+                uncertain on-campus FTE (<a href="#rate-denominator" className="underline">On-campus students</a>);
+                incidents at listed medical-center campuses, outside their residence halls, of{' '}
+                {share(rr?.medicalShare)} or more of its on-campus count (
+                <a href="#rate-medical-campuses" className="underline">Medical-center campuses</a>); and figures
+                shared with another institution's campus of more than {share(rr?.sharedShare)} of its count (
+                <a href="#rate-shared" className="underline">Shared campuses</a>). Institutions with the second or
+                third reason stay in the national rate.
+                {w && (
+                  <>
+                    {' '}Institutions with each reason in {latestLabel}, in that order:{' '}
+                    {listCodes.filter((c) => w[c]).map((c) =>
+                      `${rateCodePhrase(c)} ${formatNumber(w[c].byWhy.online)}, ${formatNumber(w[c].byWhy.medical_campus)} and ${formatNumber(w[c].byWhy.shared)}`).join('; ')}
+                    .
+                  </>
+                )}
+              </Rule>
+              <Rule id="rate-medical-campuses" title="Medical-center campuses">
+                Some universities' Clery geography includes a medical-center campus whose hospital another
+                organization runs, where many people are patients, visitors and hospital staff, not students. The
+                campuses of a hand-reviewed list (etl/reference/medical_campuses.csv in the open-source pipeline, each
+                with its evidence) are counted apart: for each rate, the on-campus incidents at those campuses outside
+                their residence halls. When they are {share(rr?.medicalShare)} or more of the institution's on-campus
+                count in the window, it is not on a list; its rate and comparisons are shown with the number. A
+                smaller number is shown as a note. Campuses that were reviewed and not listed are in
+                etl/reference/medical_campus_reviews.csv. On every build the audit screens DOE's campus names and
+                addresses (words such as medical, hospital, health science or clinic) for campuses other than main
+                campuses that hold at least {rr?.medicalScreen?.minCount ?? '…'} of an institution's on-campus
+                criminal offenses (motor-vehicle theft and residence halls left out) and at least{' '}
+                {share(rr?.medicalScreen?.share)} of them in a year with a single-year rate, and reports any such
+                campus-year that is in neither file as a warning; it adds nothing to the list itself.{' '}
+                {screenSentence(build)} Incidents at a medical center that is not on the list, or that DOE does not
+                list as a campus of its own, are not counted apart.
+              </Rule>
+              <Rule id="rate-shared" title="Shared campuses">
+                When DOE publishes the same figures for campuses of two institutions in a year, they count once, under
+                the host campus, while each institution's students are in its own FTE. When the other institution
+                counts no campus of its own that year and its figures count under one host institution, the host's
+                denominator adds the other's on-campus FTE ({num(iy?.pooled.shared)} institution-years). Otherwise
+                neither rate can be made exact: adding the other institution's FTE would add its students at its other
+                campuses, and not adding it would leave its students on the shared campus out. So, for each rate and
+                window, the on-campus figures concerned are measured against the institution's count: the host's
+                figures that another institution also reports, and the figures an institution reports for its own
+                campus that count under another institution's campus (and so are not in its count). When they are
+                more than {share(rr?.sharedShare)} of its count (with the figures counted elsewhere added to it), it
+                is not on a list; its rate and comparisons are shown with the numbers. A smaller number is shown as a
+                note. A shared campus can be a program of one institution on another's campus, such as the Indiana
+                University School of Medicine at Bloomington or the University of Maryland Global Campus at College
+                Park.
+              </Rule>
+              <Rule id="rate-flags" title="Unusual years">
+                Every institution in DOE's data, of any size and in every year
+                {rr?.skipYears?.length ? ` (${joinAnd(rr.skipYears.map(String))} included)` : ''}, is checked for years
+                that stand out from its own other years, for{' '}
+                {rr ? joinAnd(rr.flags.offenses.map(offenseName)) : '…'} at each location (
+                {rr ? joinAnd(rr.flags.geos.map((g) => g.toLowerCase())) : '…'}). A year is flagged when its count is
+                at least {rr?.flags.minCount ?? '…'}, the institution has figures for at least{' '}
+                {rr?.flags.minOtherYears ?? '…'} other years (a year without an incident counts as 0), and a negative
+                binomial count with the median of those years as its mean (at least {rr?.flags.minMean ?? '…'}) and
+                variance μ + {rr?.flags.c ?? '…'}·μ<sup>1.5</sup> would reach that count with a probability below{' '}
+                {rr?.flags.p ?? '…'}. A flag never changes a count or a rate: DOE counts incidents in the year they
+                are reported, and one investigation or series of reports can add many to one year (
+                <a href="#year-reported" className="underline">How Institutions Count</a>). When on-campus flags of a
+                rate's offenses fall in a window, the comparison with the national rate is also made with each flagged
+                year counted at its median, and the school page shows that result when it differs.
+                {rs?.flags && (
+                  <>
+                    {' '}This build has {formatNumber(rs.flags.total)} flags (
+                    {Object.entries(rs.flags.byGeo).map(([g, n]) => `${g.toLowerCase()} ${formatNumber(n)}`).join(', ')}).
+                  </>
+                )}
+                {w?.violent && (
+                  <>
+                    {' '}In {latestLabel}, {formatNumber(w.violent.withFlags)} institutions' violent-crime rates contain
+                    a flagged year, and for {formatNumber(w.violent.verdictWithoutFlaggedDiffers)} of them the comparison
+                    would differ without the excess.
+                  </>
+                )}
+              </Rule>
+              <Rule id="rate-single-years" title="Single years">
+                School pages also chart each year's rate with a one-year interval (the same model with T = 1, so
+                wider), for the years in which the institution meets the rules above
+                {rr?.skipYears?.length ? `; ${joinAnd(rr.skipYears.map(String))} has none` : ''}. Single years have no
+                comparisons and no positions.
+              </Rule>
+              <Rule id="rate-codes" title="Categories without a rate">
+                These are shown as counts only:{' '}
+                {rr ? joinAnd(rr.countsOnly.map((c) => metadata?.offenses.find((o) => o.code === c)?.display ?? c)) : '…'}
+                . Arrests and disciplinary referrals count people arrested or referred, a measure of enforcement
+                activity, not of incidents, and "All categories" adds them to crimes. "All criminal offenses" is
+                replaced by {rateCodePhrase('criminal_xmvt')}, and "Property crimes" (burglary, motor-vehicle theft and
+                arson) by burglary. Motor-vehicle theft has no rate and is left out of the criminal-offense rate
+                {mvtFirst && mvtLatest && first && latest ? (
+                  <>
+                    : on campus, at the institutions in the national rate, there were {formatNumber(mvtFirst.mvt)}{' '}
+                    motor-vehicle thefts in {windowLabel(first)} ({pct1(mvtFirst.share)} of criminal offenses) and{' '}
+                    {formatNumber(mvtLatest.mvt)} in {windowLabel(latest)} ({pct1(mvtLatest.share)}), so they would
+                    decide much of the order of a criminal-offense rate
+                  </>
+                ) : null}
+                {rs?.flags?.byOffense?.motor_vehicle_theft !== undefined && (
+                  <>
+                    ; {formatNumber(rs.flags.byOffense.motor_vehicle_theft)} of the {formatNumber(rs.flags.total)}{' '}
+                    unusual-year flags are motor-vehicle thefts
+                  </>
+                )}
+                .{' '}
+                {rareCodes.length > 0 && (
+                  <>
+                    {joinAnd(rareCodes.map((c) => metadata?.offenses.find((o) => o.code === c)?.display ?? c))} are
+                    rare, so rates of their own would rest on very few incidents; they are counted in the rate of{' '}
+                    {rateCodePhrase('criminal_xmvt')}
+                    {rr?.codes?.violent?.includes('murder') ? ', and murder also in violent crimes' : ''}.
+                  </>
+                )}{' '}
+                Rankings by count open on violent crimes.
+              </Rule>
+              <Rule id="rate-abroad" title="Campuses abroad">
+                A campus DOE lists without a state is abroad, and so are the foreign sites DOE lists with a U.S. state
+                (etl/reference/campuses_abroad.csv). NCES's fall enrollment excludes "students enrolled in any branch
+                campus located in a foreign country" (
                 <SourceLink source={SOURCES.ncesFallEnrollment2024}>NCES, Fall Enrollment instructions, Who to Exclude</SourceLink>),
-                so an institution's count and rate leave out the incidents at its campuses abroad; they stay on each
-                such campus's own school page. Campuses in Puerto Rico, Guam and other U.S. territories are not
-                abroad, and state and national rankings by count never included campuses abroad. In the 2024
-                national rate rankings {num(y24?.abroad)} institutions have a campus abroad; the 32 criminal
-                offenses at those campuses that year are not in their rates (audit.json, check Institution Rates).
-              </li>
-              <li>
-                <strong className="text-gray-900 dark:text-gray-100">Counts very high for an institution's size.</strong>{' '}
-                Rankings by count rank campuses whatever their size. A count is flagged "very high for an institution
-                of this size" when it is at least {num(rr?.countFlag.minCount)} and its number per 10,000 of the
-                institution's FTE (NCES's FTE of the whole institution) is more than {num(rr?.countFlag.factor)} times
-                the highest rate in that year's national rate ranking of the offense. The count is shown as reported;
-                the flag says to check the institution's Annual Security Report. In the 2024 national rankings by
-                count {num(y24?.countFlags.violent)} counts of violent crimes, {num(y24?.countFlags.criminal)} of all
-                criminal offenses, {num(y24?.countFlags.property)} of property crimes and {num(y24?.countFlags.all)}{' '}
-                of all categories are flagged.
-              </li>
+                so an institution's rates leave out the incidents at its campuses abroad; they stay on each such
+                campus's own school page, and the institution's school pages say how many there were. Campuses in
+                Puerto Rico, Guam and other U.S. territories are not abroad, and state and national rankings by count
+                never included campuses abroad.
+                {latestYear && iy?.byYear[latestYear] && (
+                  <>
+                    {' '}In {latestYear}, {formatNumber(iy.byYear[latestYear].abroad)} institutions in the states covered
+                    with a denominator of at least {num(rr?.minFte)} had a campus abroad.
+                  </>
+                )}
+              </Rule>
+              <Rule id="count-flag" title="Counts very high for an institution's size">
+                Rankings by count rank campuses whatever their size. A count is flagged "very high for its
+                institution's size" when it is at least {rr?.countFlag.minCount ?? '…'} and its number per 10,000 of
+                the institution's FTE (NCES's FTE of the whole institution) is more than {rr?.countFlag.factor ?? '…'}{' '}
+                times a reference: the {rr?.countFlag.percentile ?? '…'}th percentile of that year's institution rates
+                of the category, counting every location, per 10,000 of the rate denominator, over the institutions in
+                the states covered with a denominator of at least {num(rr?.minFte)}, no population rule and a certain
+                on-campus FTE (zeros included). No count is flagged where the reference is 0. The count is shown as
+                reported; the flag says to check the institution's Annual Security Report.
+                {latestYear && rs?.countFlags?.[latestYear] && (
+                  <>
+                    {' '}In the {latestYear} national rankings by count, the flagged counts are{' '}
+                    {joinAnd(['violent', 'criminal', 'property', 'all']
+                      .filter((c) => rs.countFlags[latestYear][c] !== undefined)
+                      .map((c) => `${formatNumber(rs.countFlags[latestYear][c])} for ${(metadata?.offenses.find((o) => o.code === c)?.display ?? c).toLowerCase()}`))}
+                    .
+                  </>
+                )}
+              </Rule>
             </ol>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-4">
-              Rules 3 and 8 leave out {num(ruleTotals?.all)} institution-years ({num(ruleTotals?.listed)} with a
-              denominator of at least {num(rr?.minFte)}). By year, in the national rate rankings:
-            </p>
-            <div className="mt-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg overflow-x-auto">
+
+            <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 mt-8 mb-2">By window</h3>
+            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg overflow-x-auto">
               <table className="w-full text-sm">
-                <caption className="sr-only">Institutions in the national rate rankings by year</caption>
+                <caption className="sr-only">Rated institutions, national rate and list members by window</caption>
                 <thead className="bg-gray-50 dark:bg-gray-800">
                   <tr>
-                    <th scope="col" className="px-3 py-2 text-left font-semibold text-gray-900 dark:text-gray-100">Year</th>
-                    <th scope="col" className="px-3 py-2 text-right font-semibold text-gray-900 dark:text-gray-100">Listed</th>
-                    <th scope="col" className="px-3 py-2 text-right font-semibold text-gray-900 dark:text-gray-100">Left out by a rule</th>
-                    <th scope="col" className="px-3 py-2 text-right font-semibold text-gray-900 dark:text-gray-100">Uncertain on-campus FTE</th>
-                    <th scope="col" className="px-3 py-2 text-right font-semibold text-gray-900 dark:text-gray-100">With a campus abroad</th>
+                    <th scope="col" className="px-3 py-2 text-left font-semibold text-gray-900 dark:text-gray-100">Window</th>
+                    <th scope="col" className="px-3 py-2 text-right font-semibold text-gray-900 dark:text-gray-100">Rated</th>
+                    <th scope="col" className="px-3 py-2 text-right font-semibold text-gray-900 dark:text-gray-100">National rate, violent crimes</th>
+                    {listCodes.map((c) => (
+                      <th key={c} scope="col" className="px-3 py-2 text-right font-semibold text-gray-900 dark:text-gray-100">
+                        On the list: {rateCodeLabel(c).toLowerCase()}
+                      </th>
+                    ))}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
-                  {yearRows.map(([y, s]) => {
+                  {keys.slice().reverse().map((key) => {
+                    const s = rs?.windows?.[key]
                     return (
-                      <tr key={y}>
-                        <th scope="row" className="px-3 py-2 text-left font-normal text-gray-700 dark:text-gray-300">{y}</th>
-                        <td className="px-3 py-2 text-right tabular-nums text-gray-600 dark:text-gray-400">{formatNumber(s.listed)}</td>
-                        <td className="px-3 py-2 text-right tabular-nums text-gray-600 dark:text-gray-400">{formatNumber(s.excluded)}</td>
-                        <td className="px-3 py-2 text-right tabular-nums text-gray-600 dark:text-gray-400">{formatNumber(s.fteUncertain)}</td>
-                        <td className="px-3 py-2 text-right tabular-nums text-gray-600 dark:text-gray-400">{formatNumber(s.abroad)}</td>
+                      <tr key={key}>
+                        <th scope="row" className="px-3 py-2 text-left font-normal text-gray-700 dark:text-gray-300 whitespace-nowrap">{windowLabel(key)}</th>
+                        <td className="px-3 py-2 text-right tabular-nums text-gray-600 dark:text-gray-400">{num(s?.violent?.rated)}</td>
+                        <td className="px-3 py-2 text-right tabular-nums text-gray-600 dark:text-gray-400">{s?.violent ? fmtRate(s.violent.natl) : '…'}</td>
+                        {listCodes.map((c) => (
+                          <td key={c} className="px-3 py-2 text-right tabular-nums text-gray-600 dark:text-gray-400">{num(s?.[c]?.listed)}</td>
+                        ))}
                       </tr>
                     )
                   })}
                 </tbody>
               </table>
             </div>
+
+            {w && latest && (
+              <>
+                <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 mt-8 mb-2">
+                  Comparisons in {latestLabel}, by category
+                </h3>
+                <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <caption className="sr-only">National rate and comparisons of rated institutions in {latestLabel}</caption>
+                    <thead className="bg-gray-50 dark:bg-gray-800">
+                      <tr>
+                        <th scope="col" className="px-3 py-2 text-left font-semibold text-gray-900 dark:text-gray-100">Category</th>
+                        <th scope="col" className="px-3 py-2 text-right font-semibold text-gray-900 dark:text-gray-100">National rate</th>
+                        <th scope="col" className="px-3 py-2 text-right font-semibold text-gray-900 dark:text-gray-100">Above</th>
+                        <th scope="col" className="px-3 py-2 text-right font-semibold text-gray-900 dark:text-gray-100">Not distinguishable</th>
+                        <th scope="col" className="px-3 py-2 text-right font-semibold text-gray-900 dark:text-gray-100">Below</th>
+                        <th scope="col" className="px-3 py-2 text-right font-semibold text-gray-900 dark:text-gray-100">Not determined</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
+                      {codesWithRate.filter((c) => w[c]).map((c) => (
+                        <tr key={c}>
+                          <th scope="row" className="px-3 py-2 text-left font-normal text-gray-700 dark:text-gray-300">{rateCodeLabel(c)}</th>
+                          <td className="px-3 py-2 text-right tabular-nums text-gray-600 dark:text-gray-400">{fmtRate(w[c].natl)}</td>
+                          <td className="px-3 py-2 text-right tabular-nums text-gray-600 dark:text-gray-400">{formatNumber(w[c].verdicts.above)}</td>
+                          <td className="px-3 py-2 text-right tabular-nums text-gray-600 dark:text-gray-400">{formatNumber(w[c].verdicts.nd)}</td>
+                          <td className="px-3 py-2 text-right tabular-nums text-gray-600 dark:text-gray-400">{formatNumber(w[c].verdicts.below)}</td>
+                          <td className="px-3 py-2 text-right tabular-nums text-gray-600 dark:text-gray-400">{formatNumber(w[c].verdicts.undetermined)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                  Rates per 10,000 on-campus students a year. Each category's columns add up to the{' '}
+                  {num(w.violent?.rated)} rated institutions.{' '}
+                  {nationalCompositionSentence('violent', facts.violent?.composition, latest) ?? ''}
+                </p>
+              </>
+            )}
+
+            <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 mt-8 mb-2">By year</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+              The population rules give no rate to {num(ruleTotals?.all)} institution-years in all (
+              {num(ruleTotals?.withFte)} in the states covered with a denominator of at least {num(rr?.minFte)}).
+            </p>
+            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg overflow-x-auto">
+              <table className="w-full text-sm">
+                <caption className="sr-only">Institutions by year: denominator, population rules, single-year rates, uncertain on-campus FTE, campuses abroad</caption>
+                <thead className="bg-gray-50 dark:bg-gray-800">
+                  <tr>
+                    <th scope="col" className="px-3 py-2 text-left font-semibold text-gray-900 dark:text-gray-100">Year</th>
+                    <th scope="col" className="px-3 py-2 text-right font-semibold text-gray-900 dark:text-gray-100">Denominator {num(rr?.minFte)}+</th>
+                    <th scope="col" className="px-3 py-2 text-right font-semibold text-gray-900 dark:text-gray-100">Population rule</th>
+                    <th scope="col" className="px-3 py-2 text-right font-semibold text-gray-900 dark:text-gray-100">Single-year rate</th>
+                    <th scope="col" className="px-3 py-2 text-right font-semibold text-gray-900 dark:text-gray-100">Uncertain on-campus FTE</th>
+                    <th scope="col" className="px-3 py-2 text-right font-semibold text-gray-900 dark:text-gray-100">With a campus abroad</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
+                  {yearRows.map(([y, s]) => (
+                    <tr key={y}>
+                      <th scope="row" className="px-3 py-2 text-left font-normal text-gray-700 dark:text-gray-300">{y}</th>
+                      <td className="px-3 py-2 text-right tabular-nums text-gray-600 dark:text-gray-400">{formatNumber(s.withFte)}</td>
+                      <td className="px-3 py-2 text-right tabular-nums text-gray-600 dark:text-gray-400">{formatNumber(s.excluded)}</td>
+                      <td className="px-3 py-2 text-right tabular-nums text-gray-600 dark:text-gray-400">{formatNumber(s.rated)}</td>
+                      <td className="px-3 py-2 text-right tabular-nums text-gray-600 dark:text-gray-400">{formatNumber(s.fteUncertain)}</td>
+                      <td className="px-3 py-2 text-right tabular-nums text-gray-600 dark:text-gray-400">{formatNumber(s.abroad)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-              Listed: institutions with a denominator of at least {num(rr?.minFte)}. Left out by a rule: rule 3 or 8,
-              no rate. Uncertain on-campus FTE: rule 1, shown but not ranked (institutions not left out by a rule).
-              With a campus abroad: rule 12.
+              Denominator {num(rr?.minFte)}+: institutions in the states covered whose denominator that year is at
+              least {num(rr?.minFte)}. Of those, Population rule: no rate under the population rules or the merger
+              rules; Single-year rate: the years charted on school pages
+              {rr?.skipYears?.length ? ` (none in ${joinAnd(rr.skipYears.map(String))})` : ''}; Uncertain on-campus
+              FTE: no population rule and an uncertain on-campus FTE, its own or added with another institution's;
+              With a campus abroad: any rule.
+            </p>
+
+            <h3 id="calibration" className="scroll-mt-20 text-base font-semibold text-gray-900 dark:text-gray-100 mt-8 mb-2">
+              How well the intervals fit
+            </h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+              On every build the audit (check Interval Calibration) predicts each year's on-campus count of every
+              institution with a rate from its other years, with the variance model of the intervals, and counts how
+              often the year falls inside the central {ci}% of the prediction. The expected share comes from data
+              simulated under the model, so it is not exactly {ci}%. The audit fails a category and period when the
+              two differ by more than {rr?.calibration ? `${Math.round(rr.calibration.tolerance * 100)} percentage points` : '…'}{' '}
+              over institutions with at least 2 incidents a year, or by more than{' '}
+              {rr?.calibration ? `${Math.round(rr.calibration.bandTolerance * 100)} percentage points` : '…'} in a group of institutions
+              with similar counts that has at least {rr?.calibration ? formatNumber(rr.calibration.bandMinUnits) : '…'}{' '}
+              institutions; smaller groups are reported without a pass threshold. The table shows all institutions
+              and the group with the most incidents; <a href="/audit.json" className="underline">audit.json</a> has
+              every group.
+            </p>
+            {calibration.length > 0 ? (
+              <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg overflow-x-auto">
+                <table className="w-full text-sm">
+                  <caption className="sr-only">Observed and expected coverage of the predicted ranges, by category and period</caption>
+                  <thead className="bg-gray-50 dark:bg-gray-800">
+                    <tr>
+                      <th scope="col" className="px-3 py-2 text-left font-semibold text-gray-900 dark:text-gray-100">Category</th>
+                      <th scope="col" className="px-3 py-2 text-left font-semibold text-gray-900 dark:text-gray-100">Years</th>
+                      <th scope="col" className="px-3 py-2 text-right font-semibold text-gray-900 dark:text-gray-100">2+ a year: institutions</th>
+                      <th scope="col" className="px-3 py-2 text-right font-semibold text-gray-900 dark:text-gray-100">Inside (expected)</th>
+                      <th scope="col" className="px-3 py-2 text-right font-semibold text-gray-900 dark:text-gray-100">Most incidents: institutions</th>
+                      <th scope="col" className="px-3 py-2 text-right font-semibold text-gray-900 dark:text-gray-100">Inside (expected)</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
+                    {calibration
+                      .filter((r) => r.band.startsWith('all'))
+                      .map((r) => {
+                        const bands = rr?.calibration?.bands
+                        const topName = bands ? `${bands[bands.length - 1]}+` : null
+                        const top = calibration.find((t) => t.code === r.code && t.period === r.period && t.band === topName)
+                        return (
+                          <tr key={`${r.code}-${r.period}`}>
+                            <th scope="row" className="px-3 py-2 text-left font-normal text-gray-700 dark:text-gray-300">{rateCodeLabel(r.code)}</th>
+                            <td className="px-3 py-2 text-left text-gray-600 dark:text-gray-400 whitespace-nowrap">{periodLabel(r.period)}</td>
+                            <td className="px-3 py-2 text-right tabular-nums text-gray-600 dark:text-gray-400">{formatNumber(r.units)}</td>
+                            <td className="px-3 py-2 text-right tabular-nums text-gray-600 dark:text-gray-400 whitespace-nowrap">
+                              {pct1(r.observed)} ({pct1(r.expected)}){r.tested && !r.ok ? ' fails' : ''}
+                            </td>
+                            <td className="px-3 py-2 text-right tabular-nums text-gray-600 dark:text-gray-400">{top ? formatNumber(top.units) : '–'}</td>
+                            <td className="px-3 py-2 text-right tabular-nums text-gray-600 dark:text-gray-400 whitespace-nowrap">
+                              {top ? `${pct1(top.observed)} (${pct1(top.expected)})${top.tested && !top.ok ? ' fails' : ''}` : '–'}
+                            </td>
+                          </tr>
+                        )
+                      })}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <p className="text-sm text-gray-600 dark:text-gray-400">The audit's figures are not loaded.</p>
+            )}
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+              Most incidents: institutions with {rr?.calibration ? bandLabel(`${rr.calibration.bands[rr.calibration.bands.length - 1]}+`) : '…'}.
+              Years: the first five years and the latest {rr?.calibration?.latestYears ?? '…'}.
             </p>
           </section>
 
@@ -879,7 +1536,8 @@ export default function Methodology() {
                 one campus by count of criminal offenses was Ohio State University in 2018, 2019 and 2021 (mostly
                 fondling) and the University of Michigan in 2020 (fondling and rape), and Michigan State
                 University's 1,012 rapes in 2018 are about 12% of that year's national total. These are the
-                figures the institutions reported; this site does not mark or remove them.
+                figures the institutions reported, and the site does not change them; it flags years that stand out
+                from an institution's other years (<a href="#rate-flags" className="underline">Unusual years</a>).
               </li>
               <li>
                 <strong className="text-gray-900 dark:text-gray-200">One offense per incident, with exceptions.</strong>{' '}
@@ -926,8 +1584,9 @@ export default function Methodology() {
             <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
               <p>
                 <strong className="text-gray-900 dark:text-gray-100">All criminal offenses</strong> (what school
-                pages and Compare open on; rankings open on violent crimes, Rate Rules 7): the 11 criminal offenses
-                above, added up.
+                pages and Compare open on; rankings by count open on violent crimes): the 11 criminal offenses above,
+                added up. It has no rate; rates use criminal offenses except motor-vehicle theft (see{' '}
+                <a href="#rate-codes" className="underline">Categories without a rate</a>).
               </p>
               <p>
                 <strong className="text-gray-900 dark:text-gray-100">All categories (crimes, arrests,
@@ -1036,7 +1695,7 @@ export default function Methodology() {
             </p>
 
             <div className="space-y-4">
-              {LIMITATIONS.map((item) => (
+              {limitations(facts).map((item) => (
                 <div key={item.title} className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
                   <h3 className="font-medium text-gray-900 dark:text-gray-100 text-sm mb-1">{item.title}</h3>
                   <p className="text-sm text-gray-600 dark:text-gray-400">{item.body}</p>
@@ -1073,8 +1732,8 @@ export default function Methodology() {
               </li>
               <li>
                 <strong className="text-gray-900 dark:text-gray-200">Enrollment is NCES's own FTE</strong> for every
-                year. The on-campus part of it that rates divide by is an estimate made from NCES's figures (Rate
-                Rules 1).
+                year. The on-campus part of it that rates divide by is an estimate made from NCES's figures (
+                <a href="#rate-denominator" className="underline">On-campus students</a>).
               </li>
               <li>
                 <strong className="text-gray-900 dark:text-gray-200">Not corrected:</strong> the figures themselves.
@@ -1087,7 +1746,7 @@ export default function Methodology() {
           </section>
 
           {/* Data Audit Download */}
-          <section>
+          <section id="audit" className="scroll-mt-20">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/50 rounded-xl flex items-center justify-center">
                 <FileText className="w-5 h-5 text-primary-600 dark:text-primary-400" />
@@ -1098,9 +1757,12 @@ export default function Methodology() {
             </div>
 
             <p className="text-gray-600 dark:text-gray-400 mb-6">
-              Each build runs an audit of internal consistency over {schoolCount !== undefined ? `all ${formatNumber(schoolCount)} campus pages` : 'every campus page'}:
-              the published files must agree with each other and with the pipeline's tables. It does not show
-              that institutions' figures are accurate; they are published as reported to the Department of Education.
+              Each build runs an audit over {schoolCount !== undefined ? `all ${formatNumber(schoolCount)} campus pages` : 'every campus page'}.
+              Most of its checks test that the published files agree with each other and with the pipeline's tables;
+              one re-reads NCES's enrollment figures, one recomputes every published rate figure with a separate
+              implementation of the rules, one tests the interval model against the data, and one screens for
+              medical-center campuses not yet reviewed. It does not show that institutions' figures are accurate;
+              they are published as reported to the Department of Education.
             </p>
 
             <p className="text-gray-600 dark:text-gray-400 mb-6">
@@ -1139,28 +1801,34 @@ export default function Methodology() {
             </div>
 
             <div className="mt-4 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
-              <h5 className="font-medium text-gray-900 dark:text-gray-100 text-sm mb-3">Audit Checks Performed:</h5>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
-                {[
-                  "School completeness (every campus that reported a year, zeros included, has a published file and is in the search)",
-                  "Incident total accuracy (each school file has exactly the years the campus reported, and its yearly totals match the aggregate table)",
-                  "FTE coverage by year",
-                  "Rate calculation verification",
-                  "Ranking order validation (ties share a rank: 1, 2, 2, 4)",
-                  "Ranking totals (each ranking's total and tables agree with its entries)",
-                  "Aggregate consistency (the school-year aggregate table matches the fact table it is built from)",
-                  "Shared figures (figures two campuses, or one campus under its old and new DOE ID, report identically are counted once in totals and rankings)",
-                  "Enrollment matches NCES (every FTE is NCES's own published figure)",
-                  "Institution rates (recomputed from the facts: the incidents of all campuses in the United States per on-campus FTE, both on-campus FTE estimates, the institutions each rule leaves out, and the reasons each rate is shown but not ranked)",
-                  "Campus identity (the reviewed list of renumbered campuses matches the DOE files, linked pages name each other, every school is in the search with its campus name, and merger years follow the merger rate rule)",
-                  "Rate rules (the overdispersion k fitted again, each 95% interval recomputed another way, the simulated rank ranges, unusually high years, counts flagged as very high for an institution's size, and the counts-only offenses)",
-                ].map((check, i) => (
-                  <div key={i} className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-                    <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
-                    <span>{check}</span>
-                  </div>
-                ))}
-              </div>
+              <h3 className="font-medium text-gray-900 dark:text-gray-100 text-sm mb-1">The checks and this build's results</h3>
+              {checks.length > 0 ? (
+                <>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                    {formatNumber(checks.length)} checks: {formatNumber(statusCount('PASS'))} passed,{' '}
+                    {formatNumber(statusCount('FAIL'))} failed, {formatNumber(statusCount('WARNING'))} with a warning.
+                    A warning never fails the audit.
+                  </p>
+                  <ol className="space-y-3 text-sm list-decimal pl-5">
+                    {checks.map((c) => (
+                      <li key={c.name} className="text-gray-600 dark:text-gray-400">
+                        <span className="font-medium text-gray-900 dark:text-gray-100">{c.name}</span>{' '}
+                        <span className={`inline-block px-1.5 py-0.5 rounded text-xs font-semibold ${STATUS_STYLES[c.status] ?? 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200'}`}>
+                          {c.status}
+                        </span>
+                        {CHECK_DESCRIPTIONS[c.name] && <>: {CHECK_DESCRIPTIONS[c.name]}.</>}
+                        {[...c.errors, ...c.warnings].map((t, i) => (
+                          <span key={i} className="block mt-1 text-gray-800 dark:text-gray-200">{t}</span>
+                        ))}
+                      </li>
+                    ))}
+                  </ol>
+                </>
+              ) : (
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  The audit's results are in <a href="/audit.json" className="underline">audit.json</a>.
+                </p>
+              )}
             </div>
           </section>
 
@@ -1211,18 +1879,22 @@ export default function Methodology() {
                   campus reported that year is counted under another campus), <code>institution_fte</code> (NCES FTE
                   of the whole institution), <code>institution_online_pct</code> (percent of students enrolled
                   exclusively in distance education), <code>online_pct_fall</code> (the fall that share is from),{' '}
-                  <code>institution_rate_fte</code> (the denominator of the institution's rates: its on-campus FTE,
-                  the larger of the two estimates of Rate Rules 1, with any FTE added under Rate Rules 8 and 9),{' '}
-                  <code>institution_rate_rule</code> (the rule that leaves the institution out of rate rankings that
-                  year: <code>hospital</code>, <code>medical</code> or <code>listed</code> for rule 3,{' '}
-                  <code>merger</code> or <code>family</code> for rule 8; empty when none),{' '}
+                  <code>institution_rate_fte</code> (the institution's denominator that year: its on-campus FTE, the
+                  larger of the two estimates of <a href="#rate-denominator" className="underline">On-campus students</a>,
+                  with any FTE added under <a href="#rate-mergers" className="underline">Mergers</a> or{' '}
+                  <a href="#rate-shared" className="underline">Shared campuses</a>),{' '}
+                  <code>institution_rate_rule</code> (the rule that gives the institution no rate that year, and none
+                  for a window containing it: <code>hospital</code>, <code>medical</code> or <code>listed</code> under
+                  Population rules, <code>merger</code> or <code>family</code> under Mergers; empty when none),{' '}
                   <code>institution_oncampus_fte_proportional</code> and{' '}
-                  <code>institution_oncampus_fte_part_time_first</code> (the two estimates of rule 1; the second is
-                  empty when it cannot be computed), <code>institution_oncampus_fte_uncertain</code> (True when the
-                  on-campus FTE is uncertain under rule 1: its own estimates, or those of an institution whose FTE
-                  its rate adds) and{' '}
-                  <code>medical_center_campus</code> (True when the campus is one of the medical-center campuses of
-                  rule 11 that year).
+                  <code>institution_oncampus_fte_part_time_first</code> (the two estimates; the second is empty when
+                  it cannot be computed), <code>institution_oncampus_fte_uncertain</code> (True when the on-campus FTE
+                  is uncertain: its own estimates, or those of an institution whose FTE its denominator adds; empty
+                  when the institution has no on-campus FTE),{' '}
+                  <code>institution_oncampus_fte_uncertain_reason</code> (<code>own</code>, or <code>pooled</code>{' '}
+                  when only an added institution's estimates are uncertain; empty otherwise) and{' '}
+                  <code>medical_center_campus</code> (True when the campus is on the list of{' '}
+                  <a href="#rate-medical-campuses" className="underline">Medical-center campuses</a> that year).
                 </dd>
               </div>
               <div>
@@ -1237,6 +1909,26 @@ export default function Methodology() {
                       <a key={y} href={`/data/downloads/counts-${y}.csv`} className="underline font-mono">{y}</a>
                     ))}
                   </div>
+                </dd>
+              </div>
+              <div>
+                <dt className="font-medium text-gray-900 dark:text-gray-100">Rate files</dt>
+                <dd>
+                  <code>/data/rates/</code>, listed in the build record.{' '}
+                  {latest ? (
+                    <a href={`/data/rates/${latest}-violent.json`} className="underline font-mono break-all">{`${latest}-violent.json`}</a>
+                  ) : (
+                    <code>{'{first year}-{last year}-violent.json'}</code>
+                  )}{' '}
+                  and the other files named by window and category: every rated institution, ordered by rate, with
+                  its on-campus count (<code>n</code>), its counts at non-campus locations and on public property
+                  (<code>nNoncampus</code>, <code>nPublic</code>), student-years (<code>fteYears</code>), rate and
+                  interval (<code>rate</code>, <code>lo</code>, <code>hi</code>), the count expected at the national
+                  rate (<code>E</code>), the comparisons (<code>verdict</code>, <code>peerVerdict</code>), the reason
+                  it is not on a list (<code>why</code>), its unusual-year flags and, for the list categories, its
+                  position and range; the file's header has the national rate and the rates by type.{' '}
+                  <code>rates/institutions/</code> has one file per institution with its windows and single years,
+                  and <code>rates/flags.json</code> every unusual-year flag.
                 </dd>
               </div>
               <div>
@@ -1330,6 +2022,7 @@ python 07_comprehensive_audit.py`}</pre>
                 <div>etl/03_build_dimensions.py — Build school and offense tables</div>
                 <div>etl/04_create_aggregates.py — Create aggregated tables</div>
                 <div>etl/05_generate_json.py — Generate JSON outputs</div>
+                <div>etl/rates.py — Build the 3-year rates, comparisons, lists and flags (used by 05)</div>
                 <div>etl/06_validate.py — Validate the generated data</div>
                 <div>etl/07_comprehensive_audit.py — Run data quality audit</div>
               </div>

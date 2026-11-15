@@ -27,12 +27,14 @@ import {
   AlertTriangle,
   Info,
 } from 'lucide-react'
-import { fetchSchoolProfile, fetchSchoolIndex, fetchPresets, getMetadata, inRankingStates } from '../lib/api'
-import type { SchoolProfile, School, PresetDetail, SchoolIndex, RateRules } from '../lib/types'
+import { fetchSchoolProfile, fetchSchoolIndex, fetchPresets, getMetadata } from '../lib/api'
+import type { SchoolProfile, School, PresetDetail, SchoolIndex, Metadata } from '../lib/types'
 import { cn, formatNumber, calculateYoYChange, displayName as titleOf, withParams } from '../lib/utils'
 import {
-  fteFor, latestFte, institutionRate, campusesPhrase, intervalText, rateSummary, SPIKE_NOTE, rankingStates,
+  chooseWindow, countsOnlyReason, fteFor, latestFte, rateCodeForSelection, rateCodeLabel, rateCodes, windowKeys,
+  windowLabel,
 } from '../lib/rates'
+import CompareRates from '../components/CompareRates'
 import {
   ALL, CRIMINAL, PROPERTY, SUMMARY_LABELS, VIOLENT, inSelection, isSummary, selectionCode, selectionFromParam, selectionLabel,
 } from '../lib/selection'
@@ -89,20 +91,14 @@ export default function Compare() {
     setSearchParams((prev) => withParams(prev, changes), { replace: true })
   const showRate = searchParams.get('view') === 'rate'
   const setShowRate = (rate: boolean) => setSelection({ view: rate ? 'rate' : null })
-  // Who rate rankings list (metadata.json), for the note on a left-out rate
-  const [rateRules, setRateRules] = useState<RateRules | null>(null)
-  // The states and territories with rankings files, and the selected
-  // schools whose institution is outside them (no rate ranking lists it)
-  const [rankedStates, setRankedStates] = useState<Set<string> | null>(null)
-  const [outsideRankings, setOutsideRankings] = useState<Set<number>>(new Set())
+  // metadata.json: the rate rules and figures
+  const [metadata, setMetadata] = useState<Metadata | null>(null)
+  const rateRules = metadata?.rateRules ?? null
 
   useEffect(() => {
     getMetadata()
-      .then((m) => {
-        setRateRules(m.rateRules)
-        setRankedStates(rankingStates(m.presets))
-      })
-      .catch(() => setRateRules(null))
+      .then(setMetadata)
+      .catch(() => setMetadata(null))
   }, [])
 
   // Load school list on mount - try school index first, fallback to Ivy preset
@@ -145,17 +141,6 @@ export default function Compare() {
       })
   }, [selectedIds])
 
-  // Which selected schools' institutions no rate ranking can list
-  useEffect(() => {
-    if (!rankedStates) return
-    let current = true
-    Promise.all(profiles.map((p) => inRankingStates(p, rankedStates)))
-      .then((inside) => {
-        if (current) setOutsideRankings(new Set(profiles.filter((_, i) => inside[i] === false).map((p) => p.unitid)))
-      })
-    return () => { current = false }
-  }, [profiles, rankedStates])
-
   // Add a school
   const addSchool = (unitid: number) => {
     if (selectedIds.length < 2 && !selectedIds.includes(unitid)) {
@@ -195,6 +180,17 @@ export default function Compare() {
   const selectedOffense = selectionFromParam(searchParams.get('offense'), availableOffenses, CRIMINAL)
   const setSelectedOffense = (offense: string) =>
     setSelection({ offense: offense === CRIMINAL ? null : selectionCode(offense) })
+  // Rate view: ?window= (a 3-year window; default the one ending in ?year=,
+  // else the latest) and ?offense= read as a rate code (criminal: criminal
+  // offenses except motor-vehicle theft; property: burglary)
+  const selectedWindow = chooseWindow(rateRules, searchParams.get('window'), yearParam ? Number(yearParam) : null)
+  const rawOffense = searchParams.get('offense')?.trim().toLowerCase() ?? null
+  const rateCode = rateRules
+    ? (rawOffense && rawOffense in rateRules.codes ? rawOffense : rateCodeForSelection(selectionCode(selectedOffense), rateRules))
+    : null
+  const countsOnlyNote = rateRules && rateCode === null
+    ? countsOnlyReason(selectionCode(selectedOffense), selectionLabel(selectedOffense))
+    : null
 
   // Track which years have data for each profile (for the selected offense)
   const yearDataByProfile = useMemo(() => {
@@ -334,46 +330,14 @@ export default function Compare() {
         }
       }
 
-      // Rate per 10k on-campus FTE - only for a single year, with that
-      // year's FTE (no rate when that year has no FTE). It is the
-      // institution's rate: the incidents of all its campuses per its
-      // on-campus FTE, as NCES publishes FTE per institution.
-      const year = selectedYear !== 'all' ? parseInt(selectedYear) : null
-      const fte = year !== null ? fteFor(profile, year) : null
-      const inst = year !== null && totalIncidents !== null
-        ? institutionRate(profile, year, selectedOffense, totalIncidents)
-        : null
-      const rateCount = inst?.count ?? totalIncidents ?? 0
-      const rate = inst?.rate ?? null
-      // Where the rate stands under the rate rules (ranked; shown, not ranked,
-      // and why; too few; counts only; not listed; no rate), its interval and
-      // its notes (lib/rates.ts)
-      const summary = rateSummary(
-        inst && outsideRankings.has(profile.unitid) ? { ...inst, outsideRankings: true } : inst, rateRules
-      )
-      const status = summary.standing.kind === 'countsOnly'
-        ? 'Counts only: too rare nationally for rates to be compared.'
-        : summary.status
-
       return {
         unitid: profile.unitid,
         totalIncidents,
         yoyChange,
         hasData: totalIncidents !== null,
-        fte,
-        rate,
-        rateFte: inst?.fte ?? null,
-        rateCount,
-        interval: summary.interval ? intervalText(summary.interval.lo, summary.interval.hi) : null,
-        campuses: campusesPhrase(inst?.campuses ?? 1),
-        // With a rate: its standing and notes; without one: why not
-        status,
-        notes: summary.notes,
-        spike: summary.spike,
-        abroadCampus: !profile.state,
       }
     })
-  }, [profiles, selectedYear, selectedOffense, rateRules, outsideRankings])
+  }, [profiles, selectedYear, selectedOffense])
 
   // FTE label for each school, with the year it belongs to: the selected
   // year's FTE, or with "All Years" the newest FTE. The FTE is the whole
@@ -553,6 +517,46 @@ export default function Compare() {
       {profiles.length === 2 && (
         <div className="sticky top-16 z-40 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg shadow-sm mb-8">
           <div className="flex flex-wrap items-center gap-4 p-4">
+            {showRate && rateRules ? (
+              <>
+                {/* Window (rate view) */}
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0" aria-hidden="true" />
+                  <label htmlFor="compare-window-select" className="text-sm text-gray-500 dark:text-gray-400 hidden sm:inline">
+                    Years:
+                  </label>
+                  <select
+                    id="compare-window-select"
+                    value={selectedWindow ?? ''}
+                    onChange={(e) => setSelection({ window: e.target.value })}
+                    className="w-32 text-sm font-medium bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1.5 cursor-pointer focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  >
+                    {windowKeys(rateRules).slice().reverse().map((key) => (
+                      <option key={key} value={key}>{windowLabel(key)}</option>
+                    ))}
+                  </select>
+                </div>
+                {/* Rate code (rate view) */}
+                <div className="flex items-center gap-2 min-w-0 max-w-full">
+                  <AlertTriangle className="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0" aria-hidden="true" />
+                  <label htmlFor="compare-rate-code-select" className="text-sm text-gray-500 dark:text-gray-400 hidden sm:inline">
+                    Rate:
+                  </label>
+                  <select
+                    id="compare-rate-code-select"
+                    value={rateCode ?? ''}
+                    onChange={(e) => setSelection({ offense: e.target.value })}
+                    className="w-56 max-w-full text-sm font-medium bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1.5 cursor-pointer focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  >
+                    {rateCode === null && <option value="">Choose a rate</option>}
+                    {rateCodes(rateRules).map((code) => (
+                      <option key={code} value={code}>{rateCodeLabel(code)}</option>
+                    ))}
+                  </select>
+                </div>
+              </>
+            ) : (
+              <>
             {/* Year Dropdown */}
             <div className="flex items-center gap-2">
               <Calendar className="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0" />
@@ -598,6 +602,8 @@ export default function Compare() {
                 ))}
               </select>
             </div>
+              </>
+            )}
 
             {/* Divider */}
             <div className="hidden sm:block w-px h-5 bg-gray-200 dark:bg-gray-700" />
@@ -633,7 +639,7 @@ export default function Compare() {
             </div>
 
             {/* Clear filters */}
-            {(selectedYear !== 'all' || selectedOffense !== CRIMINAL) && (
+            {!showRate && (selectedYear !== 'all' || selectedOffense !== CRIMINAL) && (
               <button
                 type="button"
                 // One change of the address for both (two would each start
@@ -649,32 +655,40 @@ export default function Compare() {
       )}
 
       {/* Comparability note for the selected year (data/seriesNotes.ts) */}
-      {profiles.length === 2 && selectedYear !== 'all' && (
+      {profiles.length === 2 && !showRate && selectedYear !== 'all' && (
         <SeriesNotes years={[parseInt(selectedYear)]} className="mb-4" />
       )}
 
-      {/* Comparison Context Banner */}
-      {profiles.length === 2 && (
+      {/* Comparison Context Banner (counts) */}
+      {profiles.length === 2 && !showRate && (
         <div className="bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-3 mb-4 flex items-start gap-2">
-          <Info className="w-4 h-4 text-gray-500 flex-shrink-0 mt-0.5" />
+          <Info className="w-4 h-4 text-gray-500 flex-shrink-0 mt-0.5" aria-hidden="true" />
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            {showRate ? (
-              <>
-                Per 10,000 on-campus FTE students of the whole institution (its campuses in the United States), with
-                {' '}{Math.round((rateRules?.ciLevel ?? 0.95) * 100)}% intervals that allow for year-to-year variation
-                beyond chance. Rate rankings rank a rate only with at least {rateRules?.minCount ?? 20} incidents and
-                no other reason not to; each rate below says where it stands.{' '}
-                <Link to="/methodology#rate-rules" className="underline">Rate Rules</Link>
-              </>
-            ) : (
-              <>Comparing counts of {selectionLabel(selectedOffense).toLowerCase()}. Toggle "Rate" for per-student comparison.</>
-            )}
+            Comparing counts of {selectionLabel(selectedOffense).toLowerCase()}. Larger institutions report more
+            incidents because they are larger; "Rate" shows 3-year rates per 10,000 on-campus students.
           </p>
         </div>
       )}
 
+      {/* Rate view */}
+      {profiles.length === 2 && showRate && metadata && selectedWindow && !loading && (
+        rateCode ? (
+          <CompareRates
+            profiles={profiles}
+            metadata={metadata}
+            windowKey={selectedWindow}
+            code={rateCode}
+            colors={SCHOOL_COLORS}
+          />
+        ) : (
+          <p role="note" className="mb-8 text-sm bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 text-blue-800 dark:text-blue-200">
+            {countsOnlyNote} Choose a rate above.
+          </p>
+        )
+      )}
+
       {/* No Data Message */}
-      {profiles.length === 2 && !anyProfileHasData && (selectedYear !== 'all' || !isSummary(selectedOffense)) && (
+      {profiles.length === 2 && !showRate && !anyProfileHasData && (selectedYear !== 'all' || !isSummary(selectedOffense)) && (
         <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-6 mb-8">
           <div className="flex items-start gap-3">
             <AlertCircle className="w-5 h-5 text-amber-500 dark:text-amber-400 flex-shrink-0 mt-0.5" />
@@ -712,7 +726,7 @@ export default function Compare() {
       )}
 
       {/* Comparison Content */}
-      {!loading && profiles.length === 2 && (
+      {!loading && !showRate && profiles.length === 2 && (
         <>
           {/* Key Metrics */}
           <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden mb-8">
@@ -759,70 +773,13 @@ export default function Compare() {
                   {/* Total Incidents / Rate */}
                   <tr>
                     <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
-                      {showRate ? `${selectionLabel(selectedOffense)}: rate (per 10k)` : selectionLabel(selectedOffense)}
+                      {selectionLabel(selectedOffense)}
                     </td>
                     {profiles.map((profile) => {
                       const metrics = filteredMetrics.find(m => m.unitid === profile.unitid)
                       return (
                         <td key={profile.unitid} className="px-6 py-4 text-center">
-                          {showRate ? (
-                            metrics?.rate !== null && metrics?.rate !== undefined ? (
-                              <div>
-                                <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                                  {metrics.rate.toFixed(1)}
-                                </span>
-                                <span className="text-sm font-normal text-gray-500 dark:text-gray-400 ml-1">
-                                  per 10k
-                                </span>
-                                {metrics.interval && (
-                                  <div className="text-xs text-gray-600 dark:text-gray-400 mt-1 tabular-nums">
-                                    {Math.round((rateRules?.ciLevel ?? 0.95) * 100)}% interval {metrics.interval}
-                                  </div>
-                                )}
-                                {metrics.rateFte !== null && (
-                                  <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                    {formatNumber(metrics.rateCount)} per {formatNumber(metrics.rateFte)} on-campus FTE
-                                  </div>
-                                )}
-                                {metrics.campuses && (
-                                  <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                    Institution rate, {metrics.campuses}
-                                  </div>
-                                )}
-                                {metrics.status && (
-                                  <div className="text-xs text-gray-600 dark:text-gray-300 mt-1 max-w-xs mx-auto">
-                                    {metrics.status}
-                                  </div>
-                                )}
-                                {metrics.spike && (
-                                  <div className="text-xs text-amber-700 dark:text-amber-400 mt-1 max-w-xs mx-auto">
-                                    {SPIKE_NOTE}
-                                  </div>
-                                )}
-                                {metrics.notes.map((note) => (
-                                  <div key={note} className="text-xs text-gray-500 dark:text-gray-400 mt-1 max-w-xs mx-auto">
-                                    {note}
-                                  </div>
-                                ))}
-                                {metrics.abroadCampus && (
-                                  <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 max-w-xs mx-auto">
-                                    This campus is outside the United States; its incidents are not in its institution's rate.
-                                  </div>
-                                )}
-                              </div>
-                            ) : (
-                              <div>
-                                <span className="text-xl text-gray-400 dark:text-gray-500">N/A</span>
-                                {/* Why a rate rule leaves this institution-year without a rate */}
-                                {metrics?.status && (
-                                  <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 max-w-xs mx-auto">
-                                    {metrics.status}
-                                  </div>
-                                )}
-                              </div>
-                            )
-                          ) : (
-                            metrics?.totalIncidents !== null && metrics?.totalIncidents !== undefined ? (
+                          {metrics?.totalIncidents !== null && metrics?.totalIncidents !== undefined ? (
                               <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                                 {formatNumber(metrics.totalIncidents)}
                               </span>
@@ -831,8 +788,7 @@ export default function Compare() {
                               <span className="text-xl text-gray-400 dark:text-gray-500">
                                 {selectedYear === 'all' ? 'N/A' : 'Not reported'}
                               </span>
-                            )
-                          )}
+                            )}
                         </td>
                       )
                     })}
@@ -900,7 +856,7 @@ export default function Compare() {
               {/* Total Incidents / Rate */}
               <div className="p-4">
                 <div className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">
-                  {showRate ? `${selectionLabel(selectedOffense)}: rate (per 10k)` : selectionLabel(selectedOffense)}
+                  {selectionLabel(selectedOffense)}
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   {profiles.map((profile, index) => {
@@ -921,63 +877,7 @@ export default function Compare() {
                             {fteLabels.get(profile.unitid)}
                           </div>
                         )}
-                        {showRate ? (
-                          metrics?.rate !== null && metrics?.rate !== undefined ? (
-                            <div>
-                              <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                                {metrics.rate.toFixed(1)}
-                                <span className="text-xs font-normal text-gray-500 dark:text-gray-400 ml-1">
-                                  per 10k
-                                </span>
-                              </div>
-                              {metrics.interval && (
-                                <div className="text-xs text-gray-600 dark:text-gray-400 mt-1 tabular-nums">
-                                  {Math.round((rateRules?.ciLevel ?? 0.95) * 100)}% interval {metrics.interval}
-                                </div>
-                              )}
-                              {metrics.rateFte !== null && (
-                                <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                  per {formatNumber(metrics.rateFte)} on-campus FTE
-                                </div>
-                              )}
-                              {metrics.campuses && (
-                                <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                  Institution rate, {metrics.campuses}
-                                </div>
-                              )}
-                              {metrics.status && (
-                                <div className="text-xs text-gray-600 dark:text-gray-300 mt-1">
-                                  {metrics.status}
-                                </div>
-                              )}
-                              {metrics.spike && (
-                                <div className="text-xs text-amber-700 dark:text-amber-400 mt-1">
-                                  {SPIKE_NOTE}
-                                </div>
-                              )}
-                              {metrics.notes.map((note) => (
-                                <div key={note} className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                  {note}
-                                </div>
-                              ))}
-                              {metrics.abroadCampus && (
-                                <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                  This campus is outside the United States; its incidents are not in its institution's rate.
-                                </div>
-                              )}
-                            </div>
-                          ) : (
-                            <div>
-                              <div className="text-xl text-gray-400 dark:text-gray-500">N/A</div>
-                              {metrics?.status && (
-                                <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                  {metrics.status}
-                                </div>
-                              )}
-                            </div>
-                          )
-                        ) : (
-                          metrics?.totalIncidents !== null && metrics?.totalIncidents !== undefined ? (
+                        {metrics?.totalIncidents !== null && metrics?.totalIncidents !== undefined ? (
                             <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                               {formatNumber(metrics.totalIncidents)}
                             </div>
@@ -986,8 +886,7 @@ export default function Compare() {
                             <div className="text-xl text-gray-400 dark:text-gray-500">
                               {selectedYear === 'all' ? 'N/A' : 'Not reported'}
                             </div>
-                          )
-                        )}
+                          )}
                       </div>
                     )
                   })}

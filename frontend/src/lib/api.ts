@@ -9,6 +9,8 @@ import type {
   SchoolProfile,
   SchoolIndex,
   ApiResult,
+  RateWindowFile,
+  InstitutionRatesFile,
 } from './types'
 
 const BASE_URL = '/data'
@@ -132,6 +134,43 @@ export async function fetchRankings(
 }
 
 // =============================================================================
+// Rates (rates/{window}-{code}.json and rates/institutions/{id}.json)
+// =============================================================================
+
+const rateWindowCache = new Map<string, Promise<RateWindowFile>>()
+
+/** Every rated institution of a window ("2022-2024") and rate code */
+export function fetchRateWindow(window: string, code: string): Promise<RateWindowFile> {
+  const key = `${window}-${code}`
+  let request = rateWindowCache.get(key)
+  if (!request) {
+    request = fetchJson<RateWindowFile>(`/rates/${key}.json`).then((result) => {
+      if (!result.success) throw new Error(result.error.message)
+      return result.data
+    })
+    request.catch(() => rateWindowCache.delete(key))
+    rateWindowCache.set(key, request)
+  }
+  return request
+}
+
+const institutionRatesCache = new Map<string, Promise<InstitutionRatesFile>>()
+
+/** An institution's rates file: `path` is institution.ratesFile ("rates/institutions/130794.json") */
+export function fetchInstitutionRates(path: string): Promise<InstitutionRatesFile> {
+  let request = institutionRatesCache.get(path)
+  if (!request) {
+    request = fetchJson<InstitutionRatesFile>(`/${path.replace(/^\/+/, '')}`).then((result) => {
+      if (!result.success) throw new Error(result.error.message)
+      return result.data
+    })
+    request.catch(() => institutionRatesCache.delete(path))
+    institutionRatesCache.set(path, request)
+  }
+  return request
+}
+
+// =============================================================================
 // School Profiles
 // =============================================================================
 
@@ -159,29 +198,6 @@ export async function fetchSchoolProfile(
     .finally(() => schoolRequests.delete(unitid))
   schoolRequests.set(unitid, request)
   return request
-}
-
-/**
- * Whether rankings files can list a campus's institution: they cover the
- * states and territories in `rankingStates` (lib/rates.ts). A campus outside
- * them (abroad, Guam, American Samoa, ...) can belong to an institution in
- * one of them, so the institution's main campus (UNITID ending 001) decides.
- * Null when that cannot be told (no file of the main campus).
- */
-export async function inRankingStates(
-  profile: SchoolProfile,
-  rankingStates: ReadonlySet<string>
-): Promise<boolean | null> {
-  if (rankingStates.has(profile.state)) return true
-  const id = profile.institution?.id
-  if (id === undefined) return null
-  const main = id * 1000 + 1
-  if (main === profile.unitid) return false
-  try {
-    return rankingStates.has((await fetchSchoolProfile(main)).state)
-  } catch {
-    return null
-  }
 }
 
 // =============================================================================

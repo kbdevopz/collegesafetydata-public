@@ -125,6 +125,31 @@ export const SOURCES = {
     url: 'https://ucr.fbi.gov/crime-in-the-u.s/2019/crime-in-the-u.s.-2019/topic-pages/property-crime',
     publisher: 'Federal Bureau of Investigation, Uniform Crime Reporting Program',
   },
+  adventHealthAsr2018: {
+    label: 'AdventHealth University, Annual Security Report, Orlando campus, 2018',
+    url: 'https://my.adu.edu/sites/default/files/ASRorlando2018.pdf',
+    publisher: 'AdventHealth University',
+  },
+  greene2008: {
+    label: 'Greene, W. (2008). Functional forms for the negative binomial model for count data. Economics Letters 99(3), 585-590',
+    url: 'https://doi.org/10.1016/j.econlet.2007.10.015',
+    publisher: 'Economics Letters',
+  },
+  mogstad2024: {
+    label: 'Mogstad, M., Romano, J. P., Shaikh, A. M. and Wilhelm, D. (2024). Inference for ranks with applications to mobility across neighbourhoods and academic achievement across countries. Review of Economic Studies 91(1), 476-518',
+    url: 'https://doi.org/10.1093/restud/rdad006',
+    publisher: 'Review of Economic Studies',
+  },
+  goldsteinSpiegelhalter1996: {
+    label: 'Goldstein, H. and Spiegelhalter, D. J. (1996). League tables and their limitations: statistical issues in comparisons of institutional performance. Journal of the Royal Statistical Society, Series A 159(3), 385-443',
+    url: 'https://doi.org/10.2307/2983325',
+    publisher: 'Journal of the Royal Statistical Society, Series A',
+  },
+  yung2015: {
+    label: 'Yung, C. R. (2015). Concealing campus sexual assault: an empirical examination. Psychology, Public Policy, and Law 21(1), 1-9',
+    url: 'https://doi.org/10.1037/law0000037',
+    publisher: 'Psychology, Public Policy, and Law',
+  },
   bjsCollege2014: {
     label: 'Rape and Sexual Assault Victimization Among College-Age Females, 1995-2013 (NCJ 248471, December 2014)',
     url: 'https://bjs.ojp.gov/content/pub/pdf/rsavcaf9513.pdf',

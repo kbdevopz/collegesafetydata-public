@@ -120,7 +120,7 @@ export default function About() {
   // FTE availability from "enrollmentStatus" and the school count from the
   // national preset (wording that names no year or count when absent)
   const dataYears = summarizeDataYears(metadata)
-  const fteAvailabilityText = describeFteAvailability(summarizeEnrollmentStatus(metadata))
+  const fteAvailabilityText = describeFteAvailability(summarizeEnrollmentStatus(metadata), metadata?.rateRules?.skipYears)
   const schoolCount = metadata?.presets?.find((p) => p.id === 'national')?.schoolCount
 
   return (
@@ -378,11 +378,12 @@ export default function About() {
                 <div>
                   <h4 className="font-medium text-gray-900 dark:text-gray-100 text-sm">Per 10k Rates</h4>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Incidents at all of an institution's campuses in the United States per 10,000 of its on-campus
-                    FTE, an estimate of its FTE without students enrolled only online: a size-adjusted figure, not a
-                    measure of risk. How the estimate is made, and which institutions rate rankings list and rank, is
-                    described on the{' '}
-                    <Link to="/methodology#rate-rules" className="text-primary-600 dark:text-primary-400 underline">Methodology page</Link>.
+                    Incidents reported on campus at all of an institution's campuses in the United States over three
+                    years, per 10,000 of its on-campus FTE a year (an estimate of its FTE without students enrolled
+                    only online): a size-adjusted figure, not a measure of risk. Each rate has an interval and is
+                    compared with the national rate; the largest institutions are also placed on ordered lists. How
+                    all of this is done is described on the{' '}
+                    <Link to="/methodology#rates" className="text-primary-600 dark:text-primary-400 underline">Methodology page</Link>.
                   </p>
                 </div>
               </div>
@@ -491,7 +492,13 @@ export default function About() {
               <LimitationCard
                 icon={BarChart3}
                 title="Small Numbers Swing"
-                description="Rates on fewer than 20 incidents are shown but not ranked, and every rate has a 95% interval (Methodology page). One incident more or less can move a small school's rate a lot."
+                description={
+                  'Rates average three years, and every rate has an interval (Methodology page). One incident more or less can still move a small school\'s rate a lot, so only institutions large enough to expect ' +
+                  (metadata?.rateRules?.lists?.minExpected !== undefined
+                    ? `at least ${metadata.rateRules.lists.minExpected} incidents at the national rate`
+                    : 'enough incidents at the national rate') +
+                  ' are placed on the ordered lists.'
+                }
               />
               <LimitationCard
                 icon={MapPin}
