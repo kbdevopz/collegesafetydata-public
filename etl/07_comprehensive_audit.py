@@ -2087,6 +2087,45 @@ def hd_classes() -> dict:
     return out
 
 
+def hd_research_category() -> dict:
+    """
+    From the raw IPEDS HD files of DATA_YEARS (not 03's table): year, the
+    newest with a C21BASIC column; institutions, those it codes with a
+    MEDICAL_CARNEGIE code of C21BASIC that C18BASIC does not have (27,
+    "Special Focus Research Institution"); c18Year, the newest file with a
+    C18BASIC column; c18Medical, of those institutions the ones that file
+    codes with a MEDICAL_CARNEGIE code of C18BASIC (25).
+    """
+    new_codes = {c for c in MEDICAL_CARNEGIE["C21BASIC"] if c not in MEDICAL_CARNEGIE["C18BASIC"]}
+    files = {}
+    for y in DATA_YEARS:
+        path = PROJECT_ROOT / "data" / "raw" / "ipeds" / str(y) / f"hd{y}.csv"
+        if not path.is_file():
+            continue
+        raw = path.read_bytes()
+        try:
+            text = raw.decode("utf-8-sig")
+        except UnicodeDecodeError:
+            text = raw.decode("cp1252")
+        rows = csv.DictReader(io.StringIO(text))
+        rows.fieldnames = [f.strip().upper() for f in rows.fieldnames]
+        files[y] = (rows.fieldnames, list(rows))
+
+    def codes(y, field):
+        out = {}
+        for r in files[y][1]:
+            u, v = r["UNITID"].strip(), r[field].strip()
+            if u.isdigit() and v.lstrip("-").isdigit():
+                out[int(u)] = int(v)
+        return out
+    y21 = max(y for y, (fields, _rows) in files.items() if "C21BASIC" in fields)
+    y18 = max(y for y, (fields, _rows) in files.items() if "C18BASIC" in fields)
+    members = {u for u, v in codes(y21, "C21BASIC").items() if v in new_codes}
+    c18 = codes(y18, "C18BASIC")
+    medical = sum(1 for u in members if c18.get(u) in MEDICAL_CARNEGIE["C18BASIC"])
+    return {"year": y21, "institutions": len(members), "c18Year": y18, "c18Medical": medical}
+
+
 def whole(text: str) -> Optional[int]:
     """A raw NCES cell as a whole number: None when blank or "." (not applicable)."""
     text = str(text).strip()
@@ -2905,6 +2944,34 @@ def expected_institutions() -> Expected:
     e.campus_geo, e.campus_codes, e.family_of = campus_geo, campus_codes, family_of
     e.campus_label = campus_label
     e.medical_years, e.abroad_campuses = medical_years, abroad_campus
+    # Why an institution with an institution-year in some data year has none in another (the institution
+    # files' absentYears): none of its campuses reported that year ("notReported"), or every campus that did
+    # has only shadow blocks then ("countedElsewhere", under the hosts of those blocks, each with its
+    # institution). Anything else ("unexplained": a reported campus-year with no shadow block, or a host of
+    # the institution's own) cannot happen by the rule above and is published by no rule.
+    reported_by_inst = defaultdict(set)
+    for u, y in zip(sources["unitid"].tolist(), sources["year"].tolist()):
+        reported_by_inst[(int(y), int(u) // 1000)].add(int(u))
+    shadow_host = defaultdict(set)
+    for y, u, role, h in zip(shared["year"].tolist(), shared["unitid"].tolist(), shared["role"].tolist(),
+                             shared["host_unitid"].tolist()):
+        if role == "shadow":
+            shadow_host[(int(y), int(u))].add(int(h))
+    e.absent = {}
+    for b in sorted({b for (_y, b) in institutions}):
+        for y in DATA_YEARS:
+            if (y, b) in institutions:
+                continue
+            campuses = sorted(reported_by_inst.get((y, b), ()))
+            hosts = sorted({h for u in campuses for h in shadow_host.get((y, u), ())})
+            if not campuses:
+                e.absent[(y, b)] = {"reason": "notReported"}
+            elif any(not shadow_host.get((y, u)) for u in campuses) or any(h // 1000 == b for h in hosts):
+                e.absent[(y, b)] = {"reason": "unexplained", "campuses": campuses}
+            else:
+                e.absent[(y, b)] = {"reason": "countedElsewhere",
+                                    "under": [{"id": h // 1000, "name": e.base_name.get(h // 1000), "unitid": h}
+                                              for h in hosts]}
     _EXPECTED_INSTITUTIONS = e
     return e
 
@@ -2942,7 +3009,9 @@ def rate_inputs(E: Optional[Expected] = None) -> dict:
     non-campus, public property)}; medical_on, shared_in_on, shared_out_on
     {(year, base, DOE offense): count}; count_all {(year, base, count code):
     count over all geographies}; campus_on_res {(year, campus, DOE offense):
-    (on campus, residence halls)}. Zeros are left out.
+    (on campus, residence halls)}; absent {(year, base): why the institution
+    has no institution-year that data year (expected_institutions)}. Zeros
+    are left out.
     """
     E = E or expected_institutions()
     keys = ("name", "link", "state", "fte", "rate_fte", "rate_fte_smaller", "rule", "uncertain", "uncertain_own",
@@ -2959,6 +3028,7 @@ def rate_inputs(E: Optional[Expected] = None) -> dict:
         "shared_out_on": {k: v for k, v in E.shared_out_on.items() if v},
         "count_all": {k: v for k, v in E.counts.items() if v},
         "campus_on_res": {k: tuple(v) for k, v in E.campus_geo.items() if any(v)},
+        "absent": dict(E.absent),
     }
 
 
@@ -3037,7 +3107,9 @@ def audit_institution_rates(verbose: bool = False) -> AuditResult:
             "aggs/near_copies.parquet. "
             "Every rankings/*.json file must list exactly its preset's "
             "counting campuses; 04's institution tables, every school file's institution years, "
-            "downloads/campus-years.csv and metadata.json's rateStats.institutionYears must match.")
+            "downloads/campus-years.csv and metadata.json's rateStats.institutionYears must match, and "
+            "rateStats.carnegieResearch the raw HD files' count of C21BASIC 27 institutions in the newest file "
+            "with C21BASIC and of those coded 25 in the newest file with C18BASIC.")
         E = expected_institutions()
         institutions, counts = E.institutions, E.counts
         problems = []
@@ -3299,6 +3371,12 @@ def audit_institution_rates(verbose: bool = False) -> AuditResult:
         if published_stats != stats:
             problem(f"metadata.json rateStats.institutionYears is {json.dumps(published_stats)[:300]}, expected "
                     f"{json.dumps(stats)[:300]}")
+        # metadata.json rateStats.carnegieResearch, from the raw HD files
+        research = hd_research_category()
+        published_research = (metadata.get("rateStats") or {}).get("carnegieResearch")
+        if published_research != research:
+            problem(f"metadata.json rateStats.carnegieResearch is {published_research}, expected {research}")
+        result.details["carnegie_research"] = research
 
         by_year = []
         for y in sorted({y for (y, _b) in institutions}):
@@ -4225,6 +4303,11 @@ def derive(inputs, spec, cfg, bank):
         f = {"id": b, "name": last["name"], "unitid": last["link"], "state": last["state"],
              "peerType": last["peer_type"], "years": {str(y): single_entries[(y, b)] for y in ys}, "windows": {},
              "flags": flags.get(b, [])}
+        # every data year without an institution-year, with why (inputs "absent"); none: left out
+        absent = {str(y): inputs.get("absent", {}).get((y, b), {"reason": "unknown"})
+                  for y in cfg.DATA_YEARS if (y, b) not in inst}
+        if absent:
+            f["absentYears"] = absent
         if b in hospital_note:
             f["hospitalUnresolved"] = [dict(hospital_note[b])]
         for (y0, y1) in windows:
@@ -4392,7 +4475,8 @@ def diff_paths(exp, pub, path=""):
 
 SUBS_12 = ("constants_config", "constants_metadata", "test_vectors", "window_files", "national_rate", "statuses",
            "entry_fields", "entry_order", "rate_interval", "verdicts", "unusual_year_flags", "flag_attachment",
-           "lists", "summary", "single_year", "institution_files", "count_flags", "school_files", "A4", "A5")
+           "lists", "summary", "single_year", "institution_files", "absent_years", "count_flags", "school_files", "A4",
+           "A5")
 
 
 def expected_rate_rules_meta(spec, cfg, windows):
@@ -4419,6 +4503,8 @@ def expected_rate_rules_meta(spec, cfg, windows):
         "sharedSiteFigureYears": spec["shared_site_figure_years"],
         "sharedNear": {"minNonzero": spec["near_min_nonzero"], "match": list(spec["near_match"]),
                        "minTotal": spec["near_min_total"]},
+        # the constants check 8 finds the copies (shadow blocks) again with
+        "sharedCopies": {"minNonzero": SHARED_MIN_NONZERO, "cityMinTotal": SHARED_CITY_MIN_TOTAL},
         "lists": {"codes": list(spec["list_codes"]), "minExpected": spec["list_min_expected"],
                   "alpha": spec["list_alpha"], "stateMinMembers": spec["state_min_members"],
                   "stateDisplayMin": spec["state_display_min"], "typeMinMembers": spec["type_min_members"],
@@ -4610,7 +4696,10 @@ def audit_rate_rules(verbose: bool = False, inputs=None, data=None, spec=None, c
             "and T s^2 and Bonferroni critical values from an own normal quantile, ranges widened to the "
             "position, state and type lists from 2 members, composition), every window file's header "
             "(compositionShare, typeLists) and summary, rates/institutions (single-year T = 1 entries and "
-            "notRated reasons, window statuses), rates/flags.json, the count flag (3 x P99, numpy linear "
+            "notRated reasons, window statuses, absentYears: each data year without an institution-year, either "
+            "no campus of it reported that year or each campus that did has only shadow blocks, whose host "
+            "campuses and institutions it names, found from the reported campus-years and shadow blocks; every "
+            "missing year of a missingYears window has one), rates/flags.json, the count flag (3 x P99, numpy linear "
             "percentile, count >= 20) in every rankings file, school files' ratesFile/rated/notRated/flags, "
             "metadata.json rateRules and rateStats, config.py's constants, the design's test vectors, A4 (no "
             "placed entry has a flag, every notPlaced one has one) and A5 (the model's bounds rise with N).")
@@ -4777,6 +4866,7 @@ def audit_rate_rules(verbose: bool = False, inputs=None, data=None, spec=None, c
         for b in sorted(set(pub_files) - set(map(str, exp_files)), key=lambda s: int(s) if s.isdigit() else 0):
             P.add("institution_files", f"rates/institutions/{b}.json not expected")
         n_single = 0
+        absent_reasons, missing_window_years = Counter(), Counter()
         for b, ef in exp_files.items():
             pf = pub_files.get(str(b))
             if pf is None:
@@ -4784,6 +4874,23 @@ def audit_rate_rules(verbose: bool = False, inputs=None, data=None, spec=None, c
             for key in ("id", "name", "unitid", "state", "peerType", "hospitalUnresolved"):
                 if not same(ef.get(key), pf.get(key)):
                     P.add("institution_files", f"{b}.json: {key} published {pf.get(key)!r}, expected {ef.get(key)!r}")
+            # absentYears: why each data year without an institution-year has none; every missing year of a
+            # missingYears window (2020 aside) must be one of them
+            ea, pa = ef.get("absentYears", {}), pf.get("absentYears", {})
+            for y in sorted(set(ea) | set(pa)):
+                if not same(ea.get(y, "missing"), pa.get(y, "missing")):
+                    P.add("absent_years", f"{b}.json absentYears.{y}: published {pa.get(y, 'missing')!r}, "
+                                          f"expected {ea.get(y, 'missing')!r}")
+                absent_reasons[str(ea.get(y, {}).get("reason"))] += 1
+            for w, st in (pf.get("windows") or {}).items():
+                if isinstance(st, dict) and st.get("status") == "missingYears":
+                    y0, y1 = (int(x) for x in w.split("-"))
+                    gone = [y for y in range(y0, y1 + 1) if y not in st.get("years", []) and y not in spec["skip_years"]]
+                    if not gone or any(str(y) not in pa for y in gone):
+                        P.add("absent_years", f"{b}.json windows.{w}: missing years {gone} without a reason in "
+                                              f"absentYears {sorted(pa)}")
+                    for y in gone:
+                        missing_window_years[str(pa.get(str(y), {}).get("reason"))] += 1
             if not same(norm_flags(ef["flags"]), norm_flags(pf.get("flags"))):
                 P.add("unusual_year_flags", f"{b}.json: flags published {pf.get('flags')}, expected {ef['flags']}")
             py = pf.get("years", {})
@@ -4878,6 +4985,8 @@ def audit_rate_rules(verbose: bool = False, inputs=None, data=None, spec=None, c
         result.details["per_window_code"] = per_window
         result.details["institution_files"] = len(exp_files)
         result.details["single_year_entries_checked"] = n_single
+        result.details["absent_years"] = {"byReason": dict(absent_reasons),
+                                          "missingWindowYearsByReason": dict(missing_window_years)}
         result.details["flags"] = fstats
         result.details["count_flags"] = cf_details
         result.details["school_files"] = sch_details
