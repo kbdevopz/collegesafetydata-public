@@ -227,6 +227,16 @@ export default function RowNote({
   )
 }
 
+/**
+ * Put between a name and a RowNote that follows it in the line: a word joiner
+ * the line cannot wrap after, so the button stays on the line of the name's
+ * last word instead of wrapping alone onto a line of its own. (A word joiner
+ * that can wrap does not stop Chrome from breaking before the button.)
+ */
+export function NoteJoiner() {
+  return <span className="whitespace-nowrap">{'\u2060'}</span>
+}
+
 function NoteLine({ item }: { item: RowNoteItem }) {
   const Icon = item.kind === 'attention' ? Flag : Info
   return (
