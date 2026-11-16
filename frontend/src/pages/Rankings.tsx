@@ -8,7 +8,7 @@ import {
   flexRender,
   SortingState,
 } from '@tanstack/react-table'
-import { ChevronUp, ChevronDown, ExternalLink, AlertCircle, Loader2, MapPin, Calendar, AlertTriangle, Plus, Check, GitCompare, X, ChevronRight } from 'lucide-react'
+import { ChevronUp, ChevronDown, X, ChevronRight } from 'lucide-react'
 import { fetchRankings, getMetadata } from '../lib/api'
 import type { RankingsData, Metadata, Offense, Verdict } from '../lib/types'
 import { cn, formatNumber, formatPercent, groupOffensesByFamily, withParams } from '../lib/utils'
@@ -23,6 +23,7 @@ import OffensePopover from '../components/OffensePopover'
 import SeriesNotes from '../components/SeriesNotes'
 import RateRankingsView from '../components/RateRankingsView'
 import RowNote, { type RowNoteItem } from '../components/RowNote'
+import { CompareButton, Loading } from '../components/ui'
 
 // One row of the count table: a campus
 interface Row {
@@ -252,7 +253,7 @@ export default function Rankings() {
         header: 'Rank',
         cell: (info) => (
           // The published rank by count (ties share a rank)
-          <span className="font-medium text-gray-500 dark:text-gray-400">#{info.getValue()}</span>
+          <span className="text-ink-3">#{info.getValue()}</span>
         ),
         size: 80,
       }),
@@ -260,25 +261,27 @@ export default function Rankings() {
         header: 'School',
         cell: (info) => (
           <div className="flex items-start gap-1">
-            <Link
-              to={`/school/${info.row.original.unitid}`}
-              className="group flex items-center gap-2 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 font-medium"
-            >
-              <span className="flex flex-col">
-                <span>{info.row.original.campus ?? info.getValue()}</span>
-                {info.row.original.campus && (
-                  <span className="text-xs font-normal text-gray-500 dark:text-gray-400">{info.getValue()}</span>
+            <span className="min-w-0">
+              {/* One link holds the name, the institution and "(Branch)", as before */}
+              <Link
+                to={`/school/${info.row.original.unitid}`}
+                className="group inline-block py-0.5"
+              >
+                <span className="link-name group-hover:text-accent group-hover:decoration-current">
+                  {info.row.original.campus ?? info.getValue()}
+                </span>
+                {info.row.original.branch && !info.row.original.campus && (
+                  <span className="ml-1.5 text-meta text-ink-3">(Branch)</span>
                 )}
-              </span>
-              {info.row.original.branch && !info.row.original.campus && (
-                <span className="text-xs font-normal text-gray-500 dark:text-gray-400">(Branch)</span>
-              )}
-              <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-            </Link>
+                {info.row.original.campus && (
+                  <span className="block text-meta text-ink-3">{info.getValue()}</span>
+                )}
+              </Link>
+            </span>
             <RowNote
               subject={info.row.original.campus ?? info.getValue()}
               notes={countRowNotes(info.row.original)}
-              className="-mt-0.5"
+              className="mt-0.5"
             />
           </div>
         ),
@@ -286,7 +289,7 @@ export default function Rankings() {
       columnHelper.accessor('count', {
         header: countLabel,
         cell: (info) => (
-          <span className="font-semibold tabular-nums">
+          <span className="font-semibold text-ink">
             {formatNumber(info.getValue())}
           </span>
         ),
@@ -301,7 +304,7 @@ export default function Rankings() {
           cell: (info) => {
             const fte = info.getValue()
             return (
-              <span className="text-gray-600 dark:text-gray-400 tabular-nums text-sm">
+              <span className="text-ink-2">
                 {fte !== null ? formatNumber(fte) : '—'}
               </span>
             )
@@ -311,49 +314,25 @@ export default function Rankings() {
         columnHelper.accessor('pct', {
           header: '% of Total',
           cell: (info) => (
-            <div className="flex items-center gap-2">
-              <div className="w-24 h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-primary-500 dark:bg-primary-400 rounded-full"
-                  style={{ width: `${Math.min(info.getValue(), 100)}%` }}
-                />
-              </div>
-              <span className="text-gray-600 dark:text-gray-400 tabular-nums text-sm">
-                {formatPercent(info.getValue())}
-              </span>
-            </div>
+            <span className="text-ink-2">
+              {formatPercent(info.getValue())}
+            </span>
           ),
           size: 180,
         }),
       columnHelper.display({
         id: 'compare',
         header: () => (
-          <span className="flex items-center gap-1 text-xs">
-            <GitCompare className="w-3.5 h-3.5" />
-            <span className="hidden lg:inline">Compare</span>
-          </span>
+          <span>Compare</span>
         ),
         cell: (info) => (
-          <button
-            type="button"
+          <CompareButton
+            selected={isInCompare(info.row.original.unitid)}
+            name={info.row.original.campus ?? info.row.original.name}
             onClick={(e) => toggleCompare(info.row.original.unitid, info.row.original.campus ?? info.row.original.name, e)}
-            className={cn(
-              'p-1.5 rounded-md transition-colors',
-              isInCompare(info.row.original.unitid)
-                ? 'bg-primary-100 dark:bg-primary-900/50 text-primary-600 dark:text-primary-400'
-                : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-            )}
-            aria-label={isInCompare(info.row.original.unitid)
-              ? `Remove ${info.row.original.campus ?? info.row.original.name} from comparison`
-              : `Add ${info.row.original.campus ?? info.row.original.name} to comparison`}
-            title={isInCompare(info.row.original.unitid) ? 'Remove from comparison' : 'Add to comparison'}
-          >
-            {isInCompare(info.row.original.unitid) ? (
-              <Check className="w-4 h-4" />
-            ) : (
-              <GitCompare className="w-4 h-4" />
-            )}
-          </button>
+            withTitle
+            className="-my-1"
+          />
         ),
         size: 50,
       }),
@@ -391,175 +370,173 @@ export default function Rankings() {
     return nationalPreset?.schoolCount || 0
   }, [metadata])
 
+  // The filter bar sticks below the site header from sm up; the table's
+  // header sticks below the bar, so it needs the bar's height (which changes
+  // when the bar wraps or shows the compact search)
+  const [filterBar, setFilterBar] = useState<HTMLDivElement | null>(null)
+  const [filterBarHeight, setFilterBarHeight] = useState(0)
+  useEffect(() => {
+    if (!filterBar || typeof ResizeObserver === 'undefined') return
+    const observer = new ResizeObserver(() => setFilterBarHeight(filterBar.offsetHeight))
+    observer.observe(filterBar)
+    return () => observer.disconnect()
+  }, [filterBar])
+
   if (error && !metadata) {
     return (
-      <div className="container mx-auto px-4 py-12">
-        <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg p-6 flex items-start gap-4">
-          <AlertCircle className="w-6 h-6 text-red-500 dark:text-red-400 flex-shrink-0" />
-          <div>
-            <h3 className="font-semibold text-red-800 dark:text-red-300">Error Loading Data</h3>
-            <p className="text-red-700 dark:text-red-400 mt-1">{error}</p>
-            <p className="text-red-600 dark:text-red-500 text-sm mt-2">
-              Make sure the ETL pipeline has been run to generate the JSON data files.
-            </p>
-          </div>
+      <div className="wrap py-12">
+        <div className="border-l-2 border-danger pl-4">
+          <h3 className="h3 text-danger">Error Loading Data</h3>
+          <p className="mt-1 text-body text-ink-2">{error}</p>
+          <p className="mt-2 text-meta text-ink-3">
+            Make sure the ETL pipeline has been run to generate the JSON data files.
+          </p>
         </div>
       </div>
     )
   }
 
   if (!metadata) {
-    return (
-      <div className="container mx-auto px-4 py-12 flex flex-col justify-center items-center min-h-[60vh]">
-        <Loader2 className="w-8 h-8 text-primary-600 dark:text-primary-400 animate-spin" />
-        <span className="mt-3 text-sm text-gray-500 dark:text-gray-400">Loading...</span>
-      </div>
-    )
+    return <Loading className="min-h-[60vh]">Loading...</Loading>
   }
+
+  const selectClass = 'control min-w-0 max-w-full'
+  const fieldClass = 'flex min-w-0 max-w-full flex-col gap-1'
+  const labelClass = 'sr-only sm:not-sr-only label'
 
   return (
     <div>
-      {/* Hero Section */}
-      <section className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-950 border-b border-gray-200 dark:border-gray-700 transition-colors duration-200">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 text-center">
-          {/* Headline */}
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-1 sm:mb-2">
-            Campus Crime Statistics
-          </h1>
-          <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mb-4 sm:mb-5 max-w-2xl mx-auto">
-            Explore safety data for{' '}
-            <span className="font-semibold text-gray-900 dark:text-gray-100">
-              {formatNumber(totalSchoolCount)}
-            </span>{' '}
-            college campuses
-          </p>
+      {/* Masthead */}
+      <section className="wrap pt-8 pb-5 sm:pt-10 sm:pb-6">
+        <h1 className="h1">
+          Campus Crime Statistics
+        </h1>
+        <p className="lede mt-2">
+          Explore safety data for{' '}
+          <span className="tabular font-semibold text-ink">
+            {formatNumber(totalSchoolCount)}
+          </span>{' '}
+          college campuses
+        </p>
 
-          {/* Hero Search */}
-          <div className="mb-2 sm:mb-4 px-4">
-            <SchoolSearch
-              variant="hero"
-              compareSchools={compareSchools.map(s => s.unitid)}
-              onToggleCompare={toggleCompare}
-            />
-          </div>
-
+        {/* Hero Search */}
+        <div className="mt-5">
+          <SchoolSearch
+            variant="hero"
+            compareSchools={compareSchools.map(s => s.unitid)}
+            onToggleCompare={toggleCompare}
+          />
         </div>
       </section>
 
-      {/* Main Content */}
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-5">
-        {/* Compact Filter Bar - Sticky from the sm breakpoint up (on a phone
-            it would cover much of the screen) */}
-        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 mb-4 transition-colors duration-200 sm:sticky sm:top-16 sm:z-40">
-          <div className="p-3 sm:p-4">
-            {/* Compact Search - shows when scrolled past hero (sticky bar only) */}
-            {isScrolled && (
-              <div className="hidden sm:block pb-3 mb-3 border-b border-gray-200 dark:border-gray-700">
-                <SchoolSearch
-                  variant="hero"
-                  compareSchools={compareSchools.map(s => s.unitid)}
-                  onToggleCompare={toggleCompare}
-                  compact
-                />
-              </div>
-            )}
-            {/* One row that wraps on narrow screens */}
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-              {/* Preset */}
-              <div className="flex items-center gap-1.5 min-w-0 max-w-full">
-                <MapPin className="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0" aria-hidden="true" />
-                <label htmlFor="preset-select" className="sr-only">Schools</label>
-                <select
-                  id="preset-select"
-                  value={selectedPreset}
-                  onChange={(e) => updateFilters(e.target.value)}
-                  className="min-w-0 max-w-full text-sm font-medium bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1.5 cursor-pointer focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                >
-                  {metadata.presets.map((preset) => (
-                    <option key={preset.id} value={preset.id}>
-                      {preset.name}
-                    </option>
-                  ))}
-                  {/* A place asked for in the address that has no preset (?preset=GU): named, not replaced */}
-                  {!metadata.presets.some((p) => p.id === selectedPreset) && (
-                    <option value={selectedPreset}>
-                      {(PLACES_WITHOUT_PRESET[selectedPreset] ?? selectedPreset).replace(/^the /, 'The ')}
-                    </option>
-                  )}
-                </select>
-              </div>
+      {/* Compact Filter Bar - Sticky from the sm breakpoint up (on a phone
+          it would cover much of the screen) */}
+      <div ref={setFilterBar} className="border-b border-rule bg-paper sm:sticky sm:top-header sm:z-40">
+        <div className="wrap py-3">
+          {/* Compact Search - shows when scrolled past hero (sticky bar only) */}
+          {isScrolled && (
+            <div className="hidden sm:block pb-3 mb-3 border-b border-rule">
+              <SchoolSearch
+                variant="hero"
+                compareSchools={compareSchools.map(s => s.unitid)}
+                onToggleCompare={toggleCompare}
+                compact
+              />
+            </div>
+          )}
+          {/* One row that wraps on narrow screens */}
+          <div className="flex flex-wrap items-end gap-x-3 gap-y-2">
+            {/* Preset */}
+            <div className={fieldClass}>
+              <label htmlFor="preset-select" className={labelClass}>Schools</label>
+              <select
+                id="preset-select"
+                value={selectedPreset}
+                onChange={(e) => updateFilters(e.target.value)}
+                className={selectClass}
+              >
+                {metadata.presets.map((preset) => (
+                  <option key={preset.id} value={preset.id}>
+                    {preset.name}
+                  </option>
+                ))}
+                {/* A place asked for in the address that has no preset (?preset=GU): named, not replaced */}
+                {!metadata.presets.some((p) => p.id === selectedPreset) && (
+                  <option value={selectedPreset}>
+                    {(PLACES_WITHOUT_PRESET[selectedPreset] ?? selectedPreset).replace(/^the /, 'The ')}
+                  </option>
+                )}
+              </select>
+            </div>
 
-              {rateView && rules ? (
-                <>
-                  {/* Window */}
-                  <div className="flex items-center gap-1.5">
-                    <Calendar className="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0" aria-hidden="true" />
-                    <label htmlFor="window-select" className="sr-only">Years</label>
-                    <select
-                      id="window-select"
-                      value={selectedWindow ?? ''}
-                      onChange={(e) => setRateParams({ window: e.target.value })}
-                      className="text-sm font-medium bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1.5 cursor-pointer focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                    >
-                      {windowKeys(rules).slice().reverse().map((key) => (
-                        <option key={key} value={key}>{windowLabel(key)}</option>
+            {rateView && rules ? (
+              <>
+                {/* Window */}
+                <div className={fieldClass}>
+                  <label htmlFor="window-select" className={labelClass}>Years</label>
+                  <select
+                    id="window-select"
+                    value={selectedWindow ?? ''}
+                    onChange={(e) => setRateParams({ window: e.target.value })}
+                    className={selectClass}
+                  >
+                    {windowKeys(rules).slice().reverse().map((key) => (
+                      <option key={key} value={key}>{windowLabel(key)}</option>
+                    ))}
+                  </select>
+                </div>
+                {/* Rate code */}
+                <div className={fieldClass}>
+                  <label htmlFor="rate-code-select" className={labelClass}>Offense</label>
+                  <select
+                    id="rate-code-select"
+                    value={rateCode ?? ''}
+                    onChange={(e) => setRateParams({ offense: e.target.value })}
+                    className={selectClass}
+                  >
+                    <optgroup label="With an ordered list">
+                      {rateCodes(rules).filter((c) => isListCode(c, rules)).map((c) => (
+                        <option key={c} value={c}>{rateCodeLabel(c)}</option>
                       ))}
-                    </select>
-                  </div>
-                  {/* Rate code */}
-                  <div className="flex items-center gap-1.5 min-w-0 max-w-full">
-                    <AlertTriangle className="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0" aria-hidden="true" />
-                    <label htmlFor="rate-code-select" className="sr-only">Offense</label>
-                    <select
-                      id="rate-code-select"
-                      value={rateCode ?? ''}
-                      onChange={(e) => setRateParams({ offense: e.target.value })}
-                      className="min-w-0 max-w-full text-sm font-medium bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1.5 cursor-pointer focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                    >
-                      <optgroup label="With an ordered list">
-                        {rateCodes(rules).filter((c) => isListCode(c, rules)).map((c) => (
-                          <option key={c} value={c}>{rateCodeLabel(c)}</option>
-                        ))}
-                      </optgroup>
-                      <optgroup label="Rates without a list">
-                        {rateCodes(rules).filter((c) => !isListCode(c, rules)).map((c) => (
-                          <option key={c} value={c}>{rateCodeLabel(c)}</option>
-                        ))}
-                      </optgroup>
-                    </select>
-                  </div>
-                </>
-              ) : (
-                <>
-                  {/* Year */}
-                  <div className="flex items-center gap-1.5">
-                    <Calendar className="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0" aria-hidden="true" />
-                    <label htmlFor="year-select" className="sr-only">Year</label>
-                    <select
-                      id="year-select"
-                      value={selectedYear}
-                      onChange={(e) => updateFilters(undefined, parseInt(e.target.value))}
-                      className="text-sm font-medium bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1.5 cursor-pointer focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                    >
-                      {metadata.years
-                        .slice()
-                        .reverse()
-                        .map((year) => (
-                          <option key={year} value={year}>
-                            {year}
-                          </option>
-                        ))}
-                    </select>
-                  </div>
-                  {/* Offense */}
-                  <div className="flex items-center gap-1.5 min-w-0 max-w-full">
-                    <AlertTriangle className="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0" aria-hidden="true" />
-                    <label htmlFor="offense-select" className="sr-only">Offense</label>
+                    </optgroup>
+                    <optgroup label="Rates without a list">
+                      {rateCodes(rules).filter((c) => !isListCode(c, rules)).map((c) => (
+                        <option key={c} value={c}>{rateCodeLabel(c)}</option>
+                      ))}
+                    </optgroup>
+                  </select>
+                </div>
+              </>
+            ) : (
+              <>
+                {/* Year */}
+                <div className={fieldClass}>
+                  <label htmlFor="year-select" className={labelClass}>Year</label>
+                  <select
+                    id="year-select"
+                    value={selectedYear}
+                    onChange={(e) => updateFilters(undefined, parseInt(e.target.value))}
+                    className={selectClass}
+                  >
+                    {metadata.years
+                      .slice()
+                      .reverse()
+                      .map((year) => (
+                        <option key={year} value={year}>
+                          {year}
+                        </option>
+                      ))}
+                  </select>
+                </div>
+                {/* Offense */}
+                <div className={fieldClass}>
+                  <label htmlFor="offense-select" className={labelClass}>Offense</label>
+                  <div className="flex min-w-0 max-w-full items-center gap-1">
                     <select
                       id="offense-select"
                       value={selectedOffense}
                       onChange={(e) => updateFilters(undefined, undefined, e.target.value)}
-                      className="min-w-0 max-w-full text-sm font-medium bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1.5 cursor-pointer focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                      className={selectClass}
                     >
                       {Array.from(offenseGroups.entries()).map(([family, offenses]) => (
                         <optgroup key={family} label={family}>
@@ -575,101 +552,91 @@ export default function Rankings() {
                       <OffensePopover offense={currentOffense} />
                     )}
                   </div>
-                </>
-              )}
+                </div>
+              </>
+            )}
 
-              {/* Total or rate */}
-              <div role="group" aria-label="View" className="flex items-center gap-1 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-0.5 flex-shrink-0">
-                <button
-                  type="button"
-                  onClick={() => setSortByRate(false)}
-                  aria-pressed={!rateView}
-                  className={cn(
-                    'px-2.5 py-1 text-xs font-medium rounded-md transition-colors',
-                    !rateView
-                      ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm border border-gray-200 dark:border-gray-600'
-                      : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
-                  )}
-                >
-                  Total
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setSortByRate(true)}
-                  disabled={rateCode === null}
-                  aria-pressed={rateView}
-                  aria-describedby={countsOnlyNote ? 'counts-only-note' : undefined}
-                  className={cn(
-                    'px-2.5 py-1 text-xs font-medium rounded-md transition-colors',
-                    rateView
-                      ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm border border-gray-200 dark:border-gray-600'
-                      : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300',
-                    rateCode === null && 'opacity-50 cursor-not-allowed'
-                  )}
-                >
-                  Rate
-                </button>
-              </div>
-
-              {/* Spacer */}
-              <div className="hidden sm:block flex-1" />
-
-              {/* Summary Toggle (counts) */}
-              {!rateView && (
-                <button
-                  type="button"
-                  onClick={() => setIsSummaryExpanded(!isSummaryExpanded)}
-                  aria-expanded={isSummaryExpanded}
-                  aria-controls="rankings-summary"
-                  className="hidden sm:flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
-                >
-                  <span>{formatNumber(currentTotal)} total</span>
-                  <ChevronRight aria-hidden="true" className={cn(
-                    'w-4 h-4 transition-transform',
-                    isSummaryExpanded && 'rotate-90'
-                  )} />
-                </button>
-              )}
+            {/* Total or rate */}
+            <div role="group" aria-label="View" className="segmented h-9 items-stretch">
+              <button
+                type="button"
+                onClick={() => setSortByRate(false)}
+                aria-pressed={!rateView}
+              >
+                Total
+              </button>
+              <button
+                type="button"
+                onClick={() => setSortByRate(true)}
+                disabled={rateCode === null}
+                aria-pressed={rateView}
+                aria-describedby={countsOnlyNote ? 'counts-only-note' : undefined}
+              >
+                Rate
+              </button>
             </div>
-            {countsOnlyNote && (
-              <p id="counts-only-note" className="mt-2 text-xs text-gray-600 dark:text-gray-400">
-                No rate: {countsOnlyNote}
-              </p>
+
+            {/* Spacer */}
+            <div className="hidden sm:block flex-1" />
+
+            {/* Summary Toggle (counts) */}
+            {!rateView && (
+              <button
+                type="button"
+                onClick={() => setIsSummaryExpanded(!isSummaryExpanded)}
+                aria-expanded={isSummaryExpanded}
+                aria-controls="rankings-summary"
+                className="hidden sm:inline-flex h-9 items-center gap-1 rounded px-2 text-meta text-ink-2 hover:bg-subtle hover:text-ink"
+              >
+                <span className="tabular">{formatNumber(currentTotal)} total</span>
+                <ChevronRight aria-hidden="true" className={cn(
+                  'w-4 h-4 transition-transform',
+                  isSummaryExpanded && 'rotate-90'
+                )} />
+              </button>
             )}
           </div>
+          {countsOnlyNote && (
+            <p id="counts-only-note" className="mt-2 text-meta text-ink-2">
+              No rate: {countsOnlyNote}
+            </p>
+          )}
 
           {/* Expandable Summary - Desktop only */}
           {isSummaryExpanded && !rateView && (
-            <div id="rankings-summary" className="hidden sm:block border-t border-gray-100 dark:border-gray-800 px-4 py-3 bg-gray-50 dark:bg-gray-800/50 rounded-b-xl">
-              <div className="flex items-center gap-6 text-sm">
+            <div id="rankings-summary" className="hidden sm:block mt-3 border-t border-rule pt-2">
+              <div className="flex items-center gap-6 text-meta">
                 <div>
-                  <span className="text-gray-500 dark:text-gray-400">Showing: </span>
-                  <span className="font-medium text-gray-900 dark:text-gray-100">{formatNumber(sortedRankings.length)} {rowUnit}</span>
+                  <span className="text-ink-3">Showing: </span>
+                  <span className="tabular font-semibold text-ink">{formatNumber(sortedRankings.length)} {rowUnit}</span>
                 </div>
                 <div>
-                  <span className="text-gray-500 dark:text-gray-400">{countLabel === 'Total' ? 'Total' : `Total ${countLabel.toLowerCase()}`}: </span>
-                  <span className="font-medium text-gray-900 dark:text-gray-100">{formatNumber(currentTotal)}</span>
+                  <span className="text-ink-3">{countLabel === 'Total' ? 'Total' : `Total ${countLabel.toLowerCase()}`}: </span>
+                  <span className="tabular font-semibold text-ink">{formatNumber(currentTotal)}</span>
                 </div>
               </div>
             </div>
           )}
         </div>
+      </div>
 
-        {/* Size-bias warning banner (shown when viewing by Total) */}
+      {/* Main Content */}
+      <div
+        className="wrap pt-4 sm:pt-5"
+        style={{ '--table-top': `calc(var(--header-h) + ${filterBarHeight}px)` } as React.CSSProperties}
+      >
+        {/* Size-bias note (shown when viewing by Total) */}
         {!rateView && (
-          <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3 mb-4 flex items-center gap-2">
-            <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 flex-shrink-0" aria-hidden="true" />
-            <p className="text-sm text-amber-700 dark:text-amber-300">
-              Larger schools report more incidents because they are larger
-              {rateCode !== null && <> (use "Rate" for 3-year rates per 10,000 on-campus students)</>}. Lower numbers
-              may reflect reporting differences, not safety.
-              {' '}<Link to="/about" className="underline hover:text-amber-800 dark:hover:text-amber-200">Learn more</Link>
-            </p>
-          </div>
+          <p className="mb-3 max-w-prose text-meta text-ink-2">
+            Larger schools report more incidents because they are larger
+            {rateCode !== null && <> (use "Rate" for 3-year rates per 10,000 on-campus students)</>}. Lower numbers
+            may reflect reporting differences, not safety.
+            {' '}<Link to="/about" className="link">Learn more</Link>
+          </p>
         )}
 
         {/* Comparability note for the selected year (data/seriesNotes.ts) */}
-        {!rateView && <SeriesNotes years={[selectedYear]} className="mb-4" />}
+        {!rateView && <SeriesNotes years={[selectedYear]} className="mb-3" />}
         {/* Rate view (rates/*.json) */}
         {rateView && rateCode && selectedWindow ? (
           <RateRankingsView
@@ -686,123 +653,90 @@ export default function Rankings() {
           />
         ) : (<>
         {/* Rankings Table (Desktop) / Cards (Mobile) */}
-        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden transition-colors duration-200">
+        <div>
           {!metadata.presets.some((p) => p.id === selectedPreset) ? (
-            <p className="p-6 text-sm text-gray-700 dark:text-gray-300">
+            <p className="border-t border-rule py-6 text-body text-ink-2">
               {PLACES_WITHOUT_PRESET[selectedPreset]
-                ? <><strong>{PLACES_WITHOUT_PRESET[selectedPreset].replace(/^the /, 'The ')}</strong> has no ranking on this site.</>
-                : <><strong>{selectedPreset}</strong> is not a state, territory or group on this site.</>}{' '}
+                ? <><strong className="font-semibold text-ink">{PLACES_WITHOUT_PRESET[selectedPreset].replace(/^the /, 'The ')}</strong> has no ranking on this site.</>
+                : <><strong className="font-semibold text-ink">{selectedPreset}</strong> is not a state, territory or group on this site.</>}{' '}
               Rankings and rates cover institutions in the 50 states, the District of Columbia, Puerto Rico and the
               U.S. Virgin Islands.{' '}
-              <Link to="/" className="text-primary-600 dark:text-primary-400 underline">See all schools</Link>
+              <Link to="/" className="link">See all schools</Link>
             </p>
           ) : loading ? (
-            <div className="flex flex-col items-center justify-center py-16 min-h-[400px]">
-              <Loader2 className="w-8 h-8 text-primary-600 dark:text-primary-400 animate-spin" />
-              <span className="mt-3 text-sm text-gray-500 dark:text-gray-400">Loading rankings...</span>
-            </div>
+            <Loading className="min-h-[400px]">Loading rankings...</Loading>
           ) : error ? (
-            <div className="p-6 text-center">
-              <AlertCircle className="w-8 h-8 text-red-500 dark:text-red-400 mx-auto mb-2" />
-              <p className="text-red-700 dark:text-red-400">{error}</p>
-            </div>
+            <p className="border-t border-rule py-6 text-body text-danger">{error}</p>
           ) : sortedRankings.length === 0 ? (
-            <div className="p-6 text-center text-gray-500 dark:text-gray-400">
+            <p className="border-t border-rule py-6 text-body text-ink-2">
               No data available for {currentOffense?.display || selectedOffense} in{' '}
               {selectedYear}
-            </div>
+            </p>
           ) : (
             <>
               {/* Mobile Card View */}
               <div className="sm:hidden">
                 {/* Mobile header row */}
-                <div className="flex items-center justify-between px-4 py-2 bg-gray-50 dark:bg-gray-800 border-b dark:border-gray-700">
-                  <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                <div className="flex items-end justify-between border-b border-ink/70 pb-1.5 text-meta text-ink-2">
+                  <span className="tabular">
                     Showing {formatNumber(displayedRankings.length)} of {formatNumber(sortedRankings.length)} {rowUnit}
                   </span>
-                  <span className="flex items-center gap-1 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
-                    <GitCompare className="w-3.5 h-3.5" />
+                  <span className="w-12 text-center">
                     Compare
                   </span>
                 </div>
-                <div className="divide-y divide-gray-100 dark:divide-gray-800">
+                <div className="divide-y divide-rule border-b border-rule">
                 {displayedRankings.map((item) => (
                   <Fragment key={item.key}>
                   <div className="flex items-stretch">
                     {/* The name's link covers the whole card (its ::after), so the
                         card is one tap target and the note button can sit beside
                         the name without being inside the link */}
-                    <div className="relative flex-1 min-w-0 p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                      <div className="flex items-start justify-between gap-3 mb-2">
-                        <div className="flex items-center gap-3 min-w-0">
-                          <span className="flex-shrink-0 w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300 text-sm font-bold flex items-center justify-center">
-                            {item.rank}
+                    <div className="relative flex min-w-0 flex-1 gap-3 py-3 pr-2 hover:bg-subtle">
+                      <span className="tabular w-8 flex-shrink-0 pt-px text-right text-meta text-ink-3">
+                        {item.rank}
+                      </span>
+                      <div className="min-w-0">
+                        <span className="min-w-0 font-semibold text-ink">
+                          <Link
+                            to={`/school/${item.unitid}`}
+                            className="after:absolute after:inset-0 focus:outline-none focus-visible:after:outline focus-visible:after:outline-2 focus-visible:after:-outline-offset-2 focus-visible:after:outline-accent"
+                          >
+                            {item.campus ?? item.name}
+                          </Link>
+                          {item.branch && !item.campus && (
+                            <span className="ml-1.5 text-meta font-normal text-ink-3">(Branch)</span>
+                          )}
+                          <RowNote subject={item.campus ?? item.name} notes={countRowNotes(item)} className="z-10 ml-1" />
+                          {item.campus && (
+                            <span className="block text-meta font-normal text-ink-3">{item.name}</span>
+                          )}
+                        </span>
+                        <div className="tabular mt-1 flex flex-wrap items-baseline gap-x-2 text-meta text-ink-2">
+                          <span className="font-semibold text-ink">
+                            {countPhrase(item.count, currentOffense, formatNumber(item.count))}
                           </span>
-                          <span className="min-w-0 font-medium text-gray-900 dark:text-gray-100">
-                            <Link
-                              to={`/school/${item.unitid}`}
-                              className="after:absolute after:inset-0 focus:outline-none focus-visible:after:ring-2 focus-visible:after:ring-inset focus-visible:after:ring-primary-500"
-                            >
-                              {item.campus ?? item.name}
-                            </Link>
-                            {item.branch && !item.campus && (
-                              <span className="ml-1.5 text-xs font-normal text-gray-500 dark:text-gray-400">(Branch)</span>
-                            )}
-                            <RowNote subject={item.campus ?? item.name} notes={countRowNotes(item)} className="z-10 ml-1" />
-                            {item.campus && (
-                              <span className="block text-xs font-normal text-gray-500 dark:text-gray-400">{item.name}</span>
-                            )}
+                          {item.fte && (
+                            <>
+                              <span className="text-ink-3" aria-hidden="true">&middot;</span>
+                              <span>
+                                {formatNumber(item.fte)} FTE (institution)
+                              </span>
+                            </>
+                          )}
+                          <span className="text-ink-3" aria-hidden="true">&middot;</span>
+                          <span>
+                            {formatPercent(item.pct)}
                           </span>
                         </div>
-                        <ExternalLink className="w-4 h-4 text-gray-400 flex-shrink-0 mt-1" aria-hidden="true" />
-                      </div>
-                      <div className="ml-11">
-                          <>
-                            <div className="flex items-center flex-wrap gap-x-3 gap-y-1 text-sm mb-2">
-                              <span className="font-semibold text-gray-900 dark:text-gray-100 tabular-nums">
-                                {countPhrase(item.count, currentOffense, formatNumber(item.count))}
-                              </span>
-                              {item.fte && (
-                                <>
-                                  <span className="text-gray-400">&middot;</span>
-                                  <span className="text-gray-500 dark:text-gray-500 tabular-nums text-xs">
-                                    {formatNumber(item.fte)} FTE (institution)
-                                  </span>
-                                </>
-                              )}
-                              <span className="text-gray-400">&middot;</span>
-                              <span className="text-gray-600 dark:text-gray-400 tabular-nums">
-                                {formatPercent(item.pct)}
-                              </span>
-                            </div>
-                            <div className="w-full h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
-                              <div
-                                className="h-full bg-primary-500 dark:bg-primary-400 rounded-full"
-                                style={{ width: `${Math.min(item.pct, 100)}%` }}
-                              />
-                            </div>
-                          </>
                       </div>
                     </div>
-                    <button
-                      type="button"
+                    <CompareButton
+                      variant="column"
+                      selected={isInCompare(item.unitid)}
+                      name={item.campus ?? item.name}
                       onClick={(e) => toggleCompare(item.unitid, item.campus ?? item.name, e)}
-                      className={cn(
-                        'flex items-center justify-center w-12 border-l transition-colors',
-                        isInCompare(item.unitid)
-                          ? 'bg-primary-50 dark:bg-primary-900/30 border-primary-200 dark:border-primary-800 text-primary-600 dark:text-primary-400'
-                          : 'border-gray-100 dark:border-gray-800 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/50'
-                      )}
-                      aria-label={isInCompare(item.unitid)
-                        ? `Remove ${item.campus ?? item.name} from comparison`
-                        : `Add ${item.campus ?? item.name} to comparison`}
-                    >
-                      {isInCompare(item.unitid) ? (
-                        <Check className="w-5 h-5" />
-                      ) : (
-                        <GitCompare className="w-5 h-5" />
-                      )}
-                    </button>
+                    />
                   </div>
                   </Fragment>
                 ))}
@@ -812,23 +746,21 @@ export default function Rankings() {
               {/* Desktop Table View */}
               <div className="hidden sm:block">
                 {/* Desktop header row */}
-                <div className="flex items-center justify-between px-4 py-2 bg-gray-50 dark:bg-gray-800 border-b dark:border-gray-700">
-                  <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
-                    Showing {formatNumber(displayedRankings.length)} of {formatNumber(sortedRankings.length)} {rowUnit}
-                  </span>
-                </div>
-                <div className="overflow-x-auto">
-                <table className="table">
+                <p className="tabular mb-1 text-meta text-ink-3">
+                  Showing {formatNumber(displayedRankings.length)} of {formatNumber(sortedRankings.length)} {rowUnit}
+                </p>
+                <div className="overflow-x-auto lg:overflow-visible">
+                <table className="data-table">
                   <thead>
                     {table.getHeaderGroups().map((headerGroup) => (
                       <tr key={headerGroup.id}>
                         {headerGroup.headers.map((header) => (
                           <th
                             key={header.id}
-                            style={{ width: header.getSize() }}
                             className={cn(
-                              'cursor-pointer select-none hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors',
-                              header.column.getIsSorted() && 'bg-gray-100 dark:bg-gray-700'
+                              COLUMN_CLASS[header.column.id],
+                              'cursor-pointer select-none hover:text-ink',
+                              header.column.getIsSorted() && 'text-ink'
                             )}
                             onClick={header.column.getToggleSortingHandler()}
                             aria-sort={
@@ -837,18 +769,22 @@ export default function Rankings() {
                                 : undefined
                             }
                           >
-                            <div className="flex items-center gap-2">
+                            <div className={cn(
+                              'flex items-center gap-1',
+                              NUMERIC_COLUMNS.has(header.column.id) && 'flex-row-reverse',
+                              header.column.id === 'compare' && 'justify-center'
+                            )}>
                               {flexRender(
                                 header.column.columnDef.header,
                                 header.getContext()
                               )}
                               {header.column.getIsSorted() === 'asc' ? (
-                                <ChevronUp className="w-4 h-4" />
+                                <ChevronUp className="w-4 h-4" aria-hidden="true" />
                               ) : header.column.getIsSorted() === 'desc' ? (
-                                <ChevronDown className="w-4 h-4" />
-                              ) : (
+                                <ChevronDown className="w-4 h-4" aria-hidden="true" />
+                              ) : header.column.id !== 'compare' ? (
                                 <div className="w-4 h-4" />
-                              )}
+                              ) : null}
                             </div>
                           </th>
                         ))}
@@ -858,9 +794,9 @@ export default function Rankings() {
                   <tbody>
                     {tableRows.slice(0, displayCount).map((row) => (
                       <Fragment key={row.id}>
-                        <tr className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                        <tr>
                           {row.getVisibleCells().map((cell) => (
-                            <td key={cell.id}>
+                            <td key={cell.id} className={COLUMN_CLASS[cell.column.id]}>
                               {flexRender(cell.column.columnDef.cell, cell.getContext())}
                             </td>
                           ))}
@@ -874,15 +810,14 @@ export default function Rankings() {
 
               {/* Load More Button */}
               {hasMoreToLoad && (
-                <div className="p-4 border-t border-gray-100 dark:border-gray-800 text-center">
+                <div className="py-5 text-center">
                   <button
                     type="button"
                     onClick={loadMore}
-                    className="inline-flex items-center gap-2 px-6 py-2.5 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg font-medium transition-colors"
+                    className="btn"
                   >
-                    <Plus className="w-4 h-4" />
                     Load {formatNumber(Math.min(LOAD_MORE_INCREMENT, remainingCount))} More
-                    <span className="text-gray-500 dark:text-gray-400 text-sm">
+                    <span className="tabular font-normal text-ink-3">
                       ({formatNumber(remainingCount)} remaining)
                     </span>
                   </button>
@@ -891,9 +826,9 @@ export default function Rankings() {
 
               {/* Showing count footer */}
               {!hasMoreToLoad && sortedRankings.length > 25 && (
-                <div className="p-4 border-t border-gray-100 dark:border-gray-800 text-center text-sm text-gray-500 dark:text-gray-400">
+                <p className="tabular py-5 text-center text-meta text-ink-3">
                   Showing all {formatNumber(sortedRankings.length)} {rowUnit}
-                </div>
+                </p>
               )}
             </>
           )}
@@ -901,40 +836,37 @@ export default function Rankings() {
         </>)}
 
         {/* Data Note */}
-        <div className="mt-6 p-4 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 rounded-lg">
-          <p className="text-sm text-amber-800 dark:text-amber-300">
-            <span className="font-medium">Note:</span> {metadata.note}
-          </p>
-        </div>
+        <p className="mt-6 max-w-prose text-meta text-ink-3">
+          <span className="font-semibold text-ink-2">Note:</span> {metadata.note}
+        </p>
       </div>
 
       {/* Floating Compare Bar */}
       {compareSchools.length > 0 && (
-        <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 shadow-lg z-50 animate-in slide-in-from-bottom-4 duration-200">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-3">
+        <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-rule-strong/60 bg-surface shadow-pop">
+          <div className="wrap py-2.5">
             <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3 min-w-0 flex-1">
-                <GitCompare className="w-5 h-5 text-primary-600 dark:text-primary-400 flex-shrink-0" />
-                <div className="flex items-center gap-2 min-w-0 overflow-x-auto">
+              <div className="flex min-w-0 flex-1 items-center gap-3">
+                <div className="flex min-w-0 items-center gap-2 overflow-x-auto">
                   {compareSchools.map((school, idx) => (
-                    <div key={school.unitid} className="flex items-center gap-1.5">
-                      {idx > 0 && <span className="text-gray-400 dark:text-gray-500">vs</span>}
-                      <span className="inline-flex items-center gap-1 px-2 py-1 bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 rounded-md text-sm font-medium whitespace-nowrap">
+                    <div key={school.unitid} className="flex items-center gap-2">
+                      {idx > 0 && <span className="text-meta text-ink-3">vs</span>}
+                      <span className="inline-flex items-center gap-0.5 whitespace-nowrap rounded border border-rule-strong/60 py-0.5 pl-2 pr-0.5 text-meta font-semibold text-ink">
                         {school.name.length > 20 ? school.name.slice(0, 20) + '...' : school.name}
                         <button
                           type="button"
                           onClick={() => toggleCompare(school.unitid, school.name)}
-                          className="ml-0.5 p-0.5 hover:bg-primary-100 dark:hover:bg-primary-800/50 rounded"
+                          className="inline-flex h-6 w-6 items-center justify-center rounded-sm text-ink-3 hover:bg-subtle hover:text-ink"
                           aria-label={`Remove ${school.name} from comparison`}
                         >
-                          <X className="w-3 h-3" />
+                          <X className="w-3.5 h-3.5" aria-hidden="true" />
                         </button>
                       </span>
                     </div>
                   ))}
                 </div>
                 {compareSchools.length === 1 && (
-                  <span className="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                  <span className="whitespace-nowrap text-meta text-ink-3">
                     Select 1 more
                   </span>
                 )}
@@ -943,15 +875,9 @@ export default function Rankings() {
                 type="button"
                 onClick={goToCompare}
                 disabled={compareSchools.length < 2}
-                className={cn(
-                  'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors flex-shrink-0',
-                  compareSchools.length >= 2
-                    ? 'bg-primary-600 hover:bg-primary-700 text-white'
-                    : 'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 cursor-not-allowed'
-                )}
+                className="btn-primary flex-shrink-0"
               >
-                <span className="hidden sm:inline">Compare</span>
-                <GitCompare className="w-4 h-4 sm:hidden" />
+                Compare
               </button>
             </div>
           </div>
@@ -959,4 +885,16 @@ export default function Rankings() {
       )}
     </div>
   )
+}
+
+// Column widths and alignment of the count table; the school column takes
+// the rest of the width
+const NUMERIC_COLUMNS = new Set(['rank', 'count', 'fte', 'pct'])
+const COLUMN_CLASS: Record<string, string> = {
+  rank: 'num w-[4.5rem]',
+  name: 'min-w-[16rem]',
+  count: 'num w-[7.5rem]',
+  fte: 'num w-[8.5rem]',
+  pct: 'num w-[7rem]',
+  compare: 'w-[5.5rem] text-center',
 }
