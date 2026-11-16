@@ -4,7 +4,7 @@ import { AlertCircle, Check, GitCompare, Info, Loader2, Plus } from 'lucide-reac
 import { fetchPresets, fetchRateWindow } from '../lib/api'
 import type { Metadata, PeerRate, RateRules, RateWindowEntry, RateWindowFile, Verdict } from '../lib/types'
 import {
-  entryPosition, fmtInt, fmtRate, fmtRateAt, hospitalNote, isListCode, isWithheld, levelPct, listMinStudents,
+  entryPosition, fmtInt, fmtRate, fmtRateAt, hospitalNote, isListCode, isWithheld, joinAnd, levelPct, listMinStudents,
   nationalCompositionSentence, nationalSentence, offenseCount, ordinal, peerLabel, positionText, rateCodeLabel,
   rateCodePhrase, sharedShortNotes, tieDigits, windowLabel,
 } from '../lib/rates'
@@ -14,6 +14,7 @@ import {
 } from '../lib/rateDisplay'
 import { cn, formatNumber } from '../lib/utils'
 import { VerdictLabel } from './RateCard'
+import RowNote, { type RowNoteItem } from './RowNote'
 
 const PAGE = 50
 
@@ -470,12 +471,19 @@ function FilterChip({ pressed, onClick, children }: { pressed: boolean; onClick:
   )
 }
 
-/** Why a rated entry is not on the list, short */
+/** Why a rated entry has no position, in a few words shown in its row (the notes say more) */
 function notListedShort(e: RateWindowEntry, rules: RateRules): string {
+  if (isWithheld(e)) return 'Not on the list: shared campus site'
   if (e.why === 'online') return 'Not on the list: uncertain on-campus student count'
-  if (e.why === 'medical_campus') return `Not on the list: ${fmtInt(e.medical ?? 0)} of ${fmtInt(e.n)} at a medical-center campus`
+  if (e.why === 'medical_campus') return 'Not on the list: incidents at a medical-center campus'
   if (e.notPlaced) return 'Not placed: an unusual year in this period'
   return `Not on the list: fewer than ${rules.lists?.minExpected ?? 20} incidents expected at the national rate`
+}
+
+/** A note as a sentence: capitalized, with a full stop */
+const sentence = (s: string) => {
+  const t = s.trim()
+  return `${t.charAt(0).toUpperCase()}${t.slice(1)}${/[.!?]$/.test(t) ? '' : '.'}`
 }
 
 function EntryRow({
@@ -501,38 +509,53 @@ function EntryRow({
     ? positionText(e.typePosition, e.typeRankLo, e.typeRankHi, e.typeN)
     : null
   const head = position === 'state' ? state : position === 'national' ? national : position === 'type' ? typePos : null
-  const notes: string[] = []
-  if ((position === 'state' || position === 'type') && national) notes.push(`National list: ${national}`)
+  // Its national range under a state's or a type's (shown with the position)
+  const nationalToo = (position === 'state' || position === 'type') && national ? national : null
+  // Why it has no position, in a few words (shown in the row)
+  const status = (position === 'status' && listCode) || position === 'notPlaced' ? notListedShort(e, rules) : null
+
+  // The row's notes, behind its note button: first the ones that question a
+  // figure (unusual years), then the ones that explain it
+  const notes: RowNoteItem[] = []
+  const info = (text: string) => notes.push({ kind: 'info', text: sentence(text) })
+  for (const f of e.flags ?? []) {
+    notes.push({
+      kind: 'attention',
+      text: `Unusual year ${f.year}: ${offenseCount(f.count, f.offense)} on campus (median of its other years ` +
+        `${fmtInt(f.usual)}).`,
+    })
+  }
+  if (e.verdictWithoutFlagged) {
+    notes.push({
+      kind: 'attention',
+      text: `Counting the flagged ${(e.flags ?? []).length === 1 ? 'year' : 'years'} at the median: ` +
+        `${VERDICT_SHORT[e.verdictWithoutFlagged]}.`,
+    })
+  }
   // Shared campus sites: why it is not compared (first, when it is not), host and co-located notes
   const site = sharedShortNotes(e, e, rules)
-  if (position === 'status' && listCode) {
-    if (isWithheld(e)) notes.push(`Not on the list. ${site.shift() ?? ''}`)
-    else notes.push(notListedShort(e, rules))
-  }
+  if (isWithheld(e) && site.length > 0) info(site.shift() ?? '')
   if (e.verdict === 'undetermined' && e.verdictLargerFte && e.verdictSmallerFte) {
-    notes.push(`Not determined: ${VERDICT_SHORT[e.verdictLargerFte]} with the larger estimate of on-campus students, ${VERDICT_SHORT[e.verdictSmallerFte]} with the smaller`)
+    info(`Not determined: ${VERDICT_SHORT[e.verdictLargerFte]} with the larger estimate of on-campus students, ${VERDICT_SHORT[e.verdictSmallerFte]} with the smaller`)
   } else if (e.why === 'online') {
-    notes.push('Two estimates of on-campus students; the comparison is the same with either')
+    info('Two estimates of on-campus students; the comparison is the same with either')
   }
-  if ((e.medical ?? 0) > 0 && !(position === 'status' && e.why === 'medical_campus')) notes.push(`${fmtInt(e.medical ?? 0)} of the ${fmtInt(e.n)} at a medical-center campus`)
-  notes.push(...site)
+  if ((e.medical ?? 0) > 0) info(`${fmtInt(e.medical ?? 0)} of the ${fmtInt(e.n)} at a medical-center campus`)
+  site.forEach(info)
   const hospital = hospitalNote(e.hospitalUnresolved, file.years.length, true)
-  if (hospital) notes.push(hospital)
+  if (hospital) info(hospital)
   if (e.phiFrom === 'years') {
-    notes.push('Its yearly counts vary more than is usual for an institution with this many incidents, so its interval is based on their own spread and is wider')
+    info('Its yearly counts vary more than is usual for an institution with this many incidents, so its interval is based on their own spread and is wider')
   }
-  const more = e.nNoncampus + e.nPublic
-  if (more > 0) notes.push(`${fmtInt(more)} more at non-campus locations or on public property (not in the rate)`)
   if (e.composition && code === 'violent') {
-    notes.push(['rape', 'aggravated_assault', 'robbery', 'murder'].filter((o) => e.composition?.[o] !== undefined)
-      .map((o) => offenseCount(e.composition?.[o] ?? 0, o)).join(', '))
+    info(`On campus, by offense: ${joinAnd(['rape', 'aggravated_assault', 'robbery', 'murder'].filter((o) => e.composition?.[o] !== undefined)
+      .map((o) => offenseCount(e.composition?.[o] ?? 0, o)))}`)
   }
   if (e.composition && code === 'criminal_xmvt' && e.composition.motor_vehicle_theft !== undefined) {
-    notes.push(`Not in the rate: ${offenseCount(e.composition.motor_vehicle_theft, 'motor_vehicle_theft')} on campus`)
+    info(`Not in the rate: ${offenseCount(e.composition.motor_vehicle_theft, 'motor_vehicle_theft')} on campus`)
   }
-  const flags = (e.flags ?? []).map((f) =>
-    `Unusual year ${f.year}: ${offenseCount(f.count, f.offense)} on campus (median of its other years ${fmtInt(f.usual)})`)
-  if (e.verdictWithoutFlagged) flags.push(`Counting the flagged ${flags.length === 1 ? 'year' : 'years'} at the median: ${VERDICT_SHORT[e.verdictWithoutFlagged]}`)
+  const more = e.nNoncampus + e.nPublic
+  if (more > 0) info(`${fmtInt(more)} more at non-campus locations or on public property (not in the rate)`)
 
   // An interval end that prints as the rate it is compared with: both to 4 decimals
   const peer = file.peer?.[e.peerType]
@@ -543,6 +566,7 @@ function EntryRow({
     dNatl === 4 && file.natl4 !== undefined ? `the national rate ${formatNumber(file.natl4, 4)}` : null,
     dPeer === 4 && peer?.rate4 !== undefined ? `the rate of ${peerLabel(e.peerType, rules).toLowerCase()} institutions ${formatNumber(peer.rate4, 4)}` : null,
   ].filter((s): s is string => s !== null)
+  if (digits === 4 && refs4.length > 0) info(`Interval to 4 decimals, because to 2 an end prints the same as ${joinAnd(refs4)}`)
 
   const inCompare = isInCompare(e.unitid)
   return (
@@ -552,14 +576,20 @@ function EntryRow({
           <div className="sm:w-48 flex-shrink-0 text-sm text-gray-900 dark:text-gray-100">
             <span className="font-semibold">{head.split(';')[0]}</span>
             {head.includes(';') && <span className="text-gray-600 dark:text-gray-400">;{head.slice(head.indexOf(';') + 1)}</span>}
+            {nationalToo && (
+              <span className="block text-xs text-gray-600 dark:text-gray-400">National list: {nationalToo}</span>
+            )}
           </div>
         )}
         <div className="flex-1 min-w-0 space-y-1">
-          <div>
-            <Link to={`/school/${e.unitid}`} className="font-medium text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300">
-              {e.name}
-            </Link>
-            <span className="ml-1.5 text-xs text-gray-500 dark:text-gray-400">{e.state}</span>
+          <div className="flex items-start gap-1">
+            <span className="min-w-0">
+              <Link to={`/school/${e.unitid}`} className="font-medium text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300">
+                {e.name}
+              </Link>
+              <span className="ml-1.5 text-xs text-gray-500 dark:text-gray-400">{e.state}</span>
+            </span>
+            <RowNote subject={e.name} notes={notes} className="-mt-0.5" />
           </div>
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-gray-700 dark:text-gray-300">
             <span>
@@ -571,19 +601,13 @@ function EntryRow({
             </span>
             <span className="tabular-nums">{fmtInt(e.n)} on campus in {windowLabel(windowKey)}</span>
           </div>
-          {digits === 4 && refs4.length > 0 && (
-            <p className="text-xs text-gray-600 dark:text-gray-400">
-              Interval to 4 decimals, because to 2 an end prints the same as {refs4.join(' and ')}.
-            </p>
-          )}
           <div className="flex flex-wrap items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
             <VerdictLabel verdict={e.verdict} />
             {e.peerVerdict !== null && e.peerVerdict !== 'withheld' && (
               <span>Against {peerLabel(e.peerType, rules).toLowerCase()} institutions: {VERDICT_SHORT[e.peerVerdict]}</span>
             )}
           </div>
-          {notes.map((n) => <p key={n} className="text-xs text-gray-600 dark:text-gray-400">{n}</p>)}
-          {flags.map((f) => <p key={f} className="text-xs text-amber-800 dark:text-amber-300">{f}</p>)}
+          {status && <p className="text-xs font-medium text-gray-700 dark:text-gray-300">{status}</p>}
         </div>
       </div>
       <button

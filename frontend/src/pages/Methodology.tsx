@@ -1444,7 +1444,8 @@ export default function Methodology() {
                 list category's offenses in a window keeps the institution off that window's order (
                 <a href="#rate-lists" className="underline">Ordered lists</a>). When on-campus flags of a
                 rate's offenses fall in a window, the comparison with the national rate is also made with each flagged
-                year counted at its median, and the school page shows that result when it differs.
+                year counted at its median, and the school page shows that result when it differs. On the rate
+                lists, a flag icon beside an institution's name gives its flagged years.
                 {rs?.flags && (
                   <>
                     {' '}This build has {formatNumber(rs.flags.total)} flags (
@@ -1525,7 +1526,9 @@ export default function Methodology() {
                 on-campus FTE (zeros included). No count is flagged where the reference is 0. The count is shown as
                 reported and keeps its place in the ranking; the flag says only that it is high for the
                 institution's size, not why (DOE counts each incident in the year it is reported, so some may have
-                happened earlier).
+                happened earlier). In a ranking by count, a flag icon beside the campus's name gives the count per
+                10,000 of the institution's FTE and the reference; the campus's school page, with that year and
+                category selected, gives the note in full.
                 {latestYear && rs?.countFlags?.[latestYear] && (
                   <>
                     {' '}In the {latestYear} national rankings by count, the flagged counts are{' '}

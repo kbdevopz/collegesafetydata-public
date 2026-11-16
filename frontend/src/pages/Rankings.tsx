@@ -22,6 +22,7 @@ import SchoolSearch from '../components/SchoolSearch'
 import OffensePopover from '../components/OffensePopover'
 import SeriesNotes from '../components/SeriesNotes'
 import RateRankingsView from '../components/RateRankingsView'
+import RowNote, { type RowNoteItem } from '../components/RowNote'
 
 // One row of the count table: a campus
 interface Row {
@@ -204,10 +205,13 @@ export default function Rankings() {
     return rows
   }, [data, selectedOffense])
 
-  // The note of a count flagged as very high for the institution's size
-  // (highForSize), with the reference it is over (metadata.rateRules.countFlag)
-  const highForSizeNote = useCallback(
-    (perTenK: number) => countFlagNote(perTenK, selectedOffense, selectedYear, metadata),
+  // A row's notes (behind its note button): a count flagged as very high for
+  // the institution's size (highForSize), with the reference it is over
+  // (metadata.rateRules.countFlag)
+  const countRowNotes = useCallback(
+    (row: Row): RowNoteItem[] => (row.highForSize !== null
+      ? [{ kind: 'attention', text: countFlagNote(row.highForSize, selectedOffense, selectedYear, metadata) }]
+      : []),
     [selectedOffense, selectedYear, metadata]
   )
 
@@ -255,27 +259,27 @@ export default function Rankings() {
       columnHelper.accessor('name', {
         header: 'School',
         cell: (info) => (
-          <div>
-          <Link
-            to={`/school/${info.row.original.unitid}`}
-            className="group flex items-center gap-2 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 font-medium"
-          >
-            <span className="flex flex-col">
-              <span>{info.row.original.campus ?? info.getValue()}</span>
-              {info.row.original.campus && (
-                <span className="text-xs font-normal text-gray-500 dark:text-gray-400">{info.getValue()}</span>
+          <div className="flex items-start gap-1">
+            <Link
+              to={`/school/${info.row.original.unitid}`}
+              className="group flex items-center gap-2 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 font-medium"
+            >
+              <span className="flex flex-col">
+                <span>{info.row.original.campus ?? info.getValue()}</span>
+                {info.row.original.campus && (
+                  <span className="text-xs font-normal text-gray-500 dark:text-gray-400">{info.getValue()}</span>
+                )}
+              </span>
+              {info.row.original.branch && !info.row.original.campus && (
+                <span className="text-xs font-normal text-gray-500 dark:text-gray-400">(Branch)</span>
               )}
-            </span>
-            {info.row.original.branch && !info.row.original.campus && (
-              <span className="text-xs font-normal text-gray-500 dark:text-gray-400">(Branch)</span>
-            )}
-            <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-          </Link>
-          {info.row.original.highForSize !== null && (
-            <span className="block text-xs text-amber-700 dark:text-amber-400 mt-0.5 max-w-xl">
-              {highForSizeNote(info.row.original.highForSize)}
-            </span>
-          )}
+              <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+            </Link>
+            <RowNote
+              subject={info.row.original.campus ?? info.getValue()}
+              notes={countRowNotes(info.row.original)}
+              className="-mt-0.5"
+            />
           </div>
         ),
       }),
@@ -354,7 +358,7 @@ export default function Rankings() {
         size: 50,
       }),
     ],
-    [columnHelper, isInCompare, countLabel, highForSizeNote]
+    [columnHelper, isInCompare, countLabel, countRowNotes]
   )
 
   // The table gets the full list so a column sort orders every campus, not
@@ -725,31 +729,32 @@ export default function Rankings() {
                 {displayedRankings.map((item) => (
                   <Fragment key={item.key}>
                   <div className="flex items-stretch">
-                    <Link
-                      to={`/school/${item.unitid}`}
-                      className="flex-1 min-w-0 p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
-                    >
+                    {/* The name's link covers the whole card (its ::after), so the
+                        card is one tap target and the note button can sit beside
+                        the name without being inside the link */}
+                    <div className="relative flex-1 min-w-0 p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
                       <div className="flex items-start justify-between gap-3 mb-2">
                         <div className="flex items-center gap-3 min-w-0">
                           <span className="flex-shrink-0 w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300 text-sm font-bold flex items-center justify-center">
                             {item.rank}
                           </span>
-                          <span className="font-medium text-gray-900 dark:text-gray-100">
-                            {item.campus ?? item.name}
+                          <span className="min-w-0 font-medium text-gray-900 dark:text-gray-100">
+                            <Link
+                              to={`/school/${item.unitid}`}
+                              className="after:absolute after:inset-0 focus:outline-none focus-visible:after:ring-2 focus-visible:after:ring-inset focus-visible:after:ring-primary-500"
+                            >
+                              {item.campus ?? item.name}
+                            </Link>
                             {item.branch && !item.campus && (
                               <span className="ml-1.5 text-xs font-normal text-gray-500 dark:text-gray-400">(Branch)</span>
                             )}
+                            <RowNote subject={item.campus ?? item.name} notes={countRowNotes(item)} className="z-10 ml-1" />
                             {item.campus && (
                               <span className="block text-xs font-normal text-gray-500 dark:text-gray-400">{item.name}</span>
                             )}
-                            {item.highForSize !== null && (
-                              <span className="block text-xs font-normal text-amber-700 dark:text-amber-400">
-                                {highForSizeNote(item.highForSize)}
-                              </span>
-                            )}
                           </span>
                         </div>
-                        <ExternalLink className="w-4 h-4 text-gray-400 flex-shrink-0 mt-1" />
+                        <ExternalLink className="w-4 h-4 text-gray-400 flex-shrink-0 mt-1" aria-hidden="true" />
                       </div>
                       <div className="ml-11">
                           <>
@@ -778,7 +783,7 @@ export default function Rankings() {
                             </div>
                           </>
                       </div>
-                    </Link>
+                    </div>
                     <button
                       type="button"
                       onClick={(e) => toggleCompare(item.unitid, item.campus ?? item.name, e)}

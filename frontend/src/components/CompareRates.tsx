@@ -9,6 +9,7 @@ import {
 import { RATE_IS_NOT, RATE_MEASURE } from '../lib/rateDisplay'
 import { RateCodeBlock } from './RateCard'
 import LinkedText from './LinkedText'
+import RowNote from './RowNote'
 
 type Loaded = { file: InstitutionRatesFile | null; failed: boolean }
 
@@ -104,10 +105,15 @@ export default function CompareRates({
               <p className="text-sm font-medium" style={{ color: colors[i] }}>
                 {file?.name ?? p.name}
                 {(p.campus || p.isMainCampus === false) && (
-                  <span className="block text-xs font-normal text-gray-500 dark:text-gray-400">
-                    Rates are the institution's (all its campuses in the United States); this page is one of its campuses
-                    {!p.state ? ', outside the United States, so its incidents are not in them' : ''}.
-                  </span>
+                  <RowNote
+                    subject={file?.name ?? p.name}
+                    notes={[{
+                      kind: 'info',
+                      text: "Rates are the institution's (all its campuses in the United States); the school " +
+                        `compared here is one of its campuses${!p.state ? ', outside the United States, so its incidents are not in them' : ''}.`,
+                    }]}
+                    className="ml-1"
+                  />
                 )}
               </p>
               {!state ? (

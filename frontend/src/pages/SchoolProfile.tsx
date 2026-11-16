@@ -17,7 +17,7 @@ import {
   Cell,
 } from 'recharts'
 import { ArrowLeft, MapPin, AlertCircle, Loader2, TrendingUp, TrendingDown, Calendar, AlertTriangle, Users, Info } from 'lucide-react'
-import { fetchSchoolProfile, getMetadata } from '../lib/api'
+import { fetchRankings, fetchSchoolProfile, getMetadata } from '../lib/api'
 import type { SchoolProfile as SchoolProfileType, OffenseBreakdown } from '../lib/types'
 import {
   cn,
@@ -32,8 +32,8 @@ import {
   withParams,
 } from '../lib/utils'
 import {
-  chooseWindow, countsOnlyReason, flagSentence, latestFte, rateCodeForSelection, rateCodeLabel, rateCodes,
-  windowKeys, windowLabel,
+  chooseWindow, countsOnlyReason, flagSentence, highForSizeParagraph, latestFte, rateCodeForSelection, rateCodeLabel,
+  rateCodes, windowKeys, windowLabel,
 } from '../lib/rates'
 import RatePanel from '../components/RatePanel'
 import {
@@ -188,6 +188,35 @@ export default function SchoolProfile() {
   }, [profile, selectedYear, selectedOffense, metadata])
   // Flags are the institution's: all its campuses together
   const institutionCampuses = selectedYear ? profile?.institution?.byYear[String(selectedYear)]?.campuses ?? 1 : 1
+
+  // The selection's count in the selected year when the rankings by count
+  // flag it as very high for the institution's size (highForSize), read from
+  // the state's rankings file (every rankings file of a year flags a campus's
+  // count the same way, and every ranked campus is in its state's file)
+  const [sizeFlag, setSizeFlag] = useState<{
+    year: number; code: string; count: number; fte: number; campuses: number
+  } | null>(null)
+  useEffect(() => {
+    setSizeFlag(null)
+    const state = profile?.state
+    if (!profile || !selectedYear || showRate || !state || !metadata?.presets.some((p) => p.id === state)) return
+    const code = selectionCode(selectedOffense)
+    let live = true
+    fetchRankings(state, selectedYear)
+      .then((file) => {
+        const entry = file.rankings[code]?.find((e) => e.unitid === profile.unitid)
+        const campus = file.campuses[String(profile.unitid)]
+        if (live && entry?.highForSize && campus?.fte) {
+          setSizeFlag({ year: selectedYear, code, count: entry.count, fte: campus.fte, campuses: campus.campuses })
+        }
+      })
+      .catch(() => {
+        // Without the file the page shows no size note; the counts are unaffected
+      })
+    return () => {
+      live = false
+    }
+  }, [profile, selectedYear, selectedOffense, showRate, metadata])
 
   // Number of campuses of the institution in the header FTE's year
   const headerCampuses = headerFte
@@ -680,6 +709,19 @@ export default function SchoolProfile() {
             <p className="text-sm text-amber-900 dark:text-amber-200">
               Flags never change counts.{' '}
               <Link to="/methodology#rate-flags" className="underline">How flags work</Link>
+            </p>
+          </div>
+        )}
+
+        {/* A count very high for the institution's size (rankings by count, highForSize) */}
+        {sizeFlag && (
+          <div role="note" className="-mt-2 mb-6 rounded-lg border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 p-3 space-y-1">
+            <p className="text-sm font-medium text-amber-900 dark:text-amber-200">
+              Very high for its institution's size
+            </p>
+            <p className="text-sm text-amber-900 dark:text-amber-200">
+              {highForSizeParagraph(sizeFlag.count, sizeFlag.fte, sizeFlag.campuses, sizeFlag.code, sizeFlag.year, metadata)}{' '}
+              <Link to="/methodology#count-flag" className="underline">How this flag works</Link>
             </p>
           </div>
         )}

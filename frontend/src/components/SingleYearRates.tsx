@@ -2,6 +2,7 @@ import type { InstitutionRatesFile, RateRules, SchoolProfile } from '../lib/type
 import { fmtInt, fmtRate, joinAnd, levelPct, notRatedYearText, rateCodeLabel } from '../lib/rates'
 import LinkedText from './LinkedText'
 import { formatNumber } from '../lib/utils'
+import RowNote, { type RowNoteItem } from './RowNote'
 
 interface YearRow {
   year: number
@@ -9,7 +10,8 @@ interface YearRow {
   rate: number | null
   lo: number | null
   hi: number | null
-  note: string | null
+  // Why the year has no rate, or the rated year's notes (behind its note button)
+  notes: RowNoteItem[]
 }
 
 /**
@@ -41,10 +43,15 @@ export default function SingleYearRates({
       if (!r) {
         // The reason without its source (the sources are listed below the table)
         const excluded = profile?.institution?.byYear[String(year)]?.rateExcludedReason?.split(' Source: ')[0]
-        return { year, n: null, rate: null, lo: null, hi: null, note: notRatedYearText(y.notRated, rules, excluded) }
+        const why = notRatedYearText(y.notRated, rules, excluded)
+        return { year, n: null, rate: null, lo: null, hi: null, notes: [{ kind: 'info' as const, text: /[.!?]$/.test(why) ? why : `${why}.` }] }
       }
       const [n, rate, lo, hi] = r
-      return { year, n, rate, lo, hi, note: notes.length > 0 ? joinAnd(notes) : null }
+      const text = notes.length > 0 ? joinAnd(notes) : null
+      return {
+        year, n, rate, lo, hi,
+        notes: text ? [{ kind: 'info' as const, text: `${text.charAt(0).toUpperCase()}${text.slice(1)}.` }] : [],
+      }
     })
   const rated = rows.filter((r) => r.rate !== null)
   // The sources of the reasons in the table, with the years that cite each
@@ -108,7 +115,7 @@ export default function SingleYearRates({
         Each year's rate (dot) with its {level}% interval (line). Single years vary more than 3-year averages;
         comparisons and lists use 3-year averages only.
         {skip.length > 0 && <> {joinAnd(skip.map(String))} {skip.length === 1 ? 'is' : 'are'} left out: student counts that year do not measure who was on campus.</>}
-        {' '}A dash is a year without a rate; the table gives the reason.
+        {' '}A dash is a year without a rate; its note in the table gives the reason.
       </p>
       <div className="overflow-x-auto">
         <table className="w-full text-xs sm:text-sm">
@@ -131,7 +138,12 @@ export default function SingleYearRates({
                   {r.lo !== null && r.hi !== null ? `${fmtRate(r.lo)} to ${fmtRate(r.hi)}` : '–'}
                 </td>
                 <td className="py-1 pr-2 tabular-nums">{r.n !== null ? fmtInt(r.n) : '–'}</td>
-                <td className="py-1 text-gray-600 dark:text-gray-400">{r.note ?? ''}</td>
+                <td className="py-1 text-gray-600 dark:text-gray-400">
+                  <span className="inline-flex items-center gap-1">
+                    {r.rate === null && <span>No rate</span>}
+                    <RowNote subject={String(r.year)} notes={r.notes} />
+                  </span>
+                </td>
               </tr>
             ))}
           </tbody>

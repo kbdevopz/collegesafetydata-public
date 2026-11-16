@@ -19,6 +19,7 @@ import {
   VERDICT_LABELS, VERDICT_SHORT,
 } from './rateDisplay'
 import { formatNumber } from './format'
+import { noneOfPhrase } from './selection'
 
 // =============================================================================
 // NCES FTE of a school's institution (count views)
@@ -850,17 +851,64 @@ export function fteUncertainNote(fu: FteUncertain | undefined, year: number): st
   return `${year}: two estimates of on-campus students from NCES's figures, ${fmtInt(fu.share)} and ${second}.${own}`
 }
 
-/** The highForSize note of a count ranking (RateRules.countFlag) */
-export function highForSizeNote(perTenK: number, code: string, year: number, metadata: Pick<Metadata, 'rateRules'> | null): string {
+type CountFlagMetadata = Pick<Metadata, 'rateRules' | 'offenses'> | null
+
+/**
+ * The two figures of a count flagged very high for its institution's size:
+ * its count per 10,000 of the institution's FTE and the reference rate it is
+ * more than `factor` times. A figure of 1,000 or more gets at most one
+ * decimal (the count per 10,000 none); more decimals are used only where the
+ * rounded figures would not show the first as more than `factor` times the
+ * second.
+ */
+function countFlagFigures(perTenK: number, reference: number | undefined, factor: number): { value: string; ref: string | null } {
+  if (reference === undefined) return { value: formatNumber(perTenK, perTenK >= 1000 ? 0 : 1), ref: null }
+  const tries: [number, number][] = [[perTenK >= 1000 ? 0 : 1, reference >= 1000 ? 1 : 2], [1, 2], [2, 2], [4, 4]]
+  const shown = (x: number, d: number) => Number(x.toFixed(d))
+  const [dv, dr] = tries.find(([v, r]) => shown(perTenK, v) > factor * shown(reference, r)) ?? tries[tries.length - 1]
+  return { value: formatNumber(perTenK, dv), ref: formatNumber(reference, dr) }
+}
+
+/** The category of a count ranking in running text: "violent crimes", "burglary", "drug arrests" */
+function countCategory(code: string, metadata: CountFlagMetadata): string {
+  return noneOfPhrase(code, metadata?.offenses.find((o) => o.code === code))
+}
+
+/**
+ * The note of a count ranking's row flagged very high for its institution's
+ * size (highForSize; RateRules.countFlag), short. `perTenK`: the count per
+ * 10,000 of the institution's FTE.
+ */
+export function highForSizeNote(perTenK: number, code: string, year: number, metadata: CountFlagMetadata): string {
   const flag = metadata?.rateRules?.countFlag
-  const reference = flag?.reference?.[String(year)]?.[code]
   const factor = flag?.factor ?? 3
-  const pct = flag?.percentile ?? 99
-  const ref = reference !== undefined ? `${reference.toFixed(2)}, ` : ''
-  return `Very high for its institution's size: ${perTenK.toFixed(1)} per 10,000 of its institution's FTE, more ` +
-    `than ${factor} times ${ref}the ${pct}th percentile of ${year} institution rates of this category. The count ` +
-    'is shown as reported. DOE counts each incident in the year it is reported, so some may have happened ' +
-    'earlier, and the figures do not say why a count is high.'
+  const { value, ref } = countFlagFigures(perTenK, flag?.reference?.[String(year)]?.[code], factor)
+  return `Very high for its institution's size: ${value} per 10,000 students (the institution's FTE), more than ` +
+    `${factor} times the ${flag?.percentile ?? 99}th-percentile institution rate for ${countCategory(code, metadata)} ` +
+    `in ${year}${ref !== null ? ` (${ref})` : ''}. The count is shown as DOE reports it; the figures do not say why ` +
+    'it is high.'
+}
+
+/**
+ * The same note in full, for the school page: the count, the institution's
+ * FTE (`campuses`: its campuses that year) and why the year's count may
+ * include incidents of earlier years.
+ */
+export function highForSizeParagraph(
+  count: number, fte: number, campuses: number, code: string, year: number, metadata: CountFlagMetadata,
+): string {
+  const flag = metadata?.rateRules?.countFlag
+  const factor = flag?.factor ?? 3
+  const { value, ref } = countFlagFigures((count / fte) * 10000, flag?.reference?.[String(year)]?.[code], factor)
+  const category = countCategory(code, metadata)
+  const counted = code in OFFENSE_NOUNS ? offenseCount(count, code) : `${fmtInt(count)} ${category}`
+  const all = campuses > 1 ? `, all ${fmtInt(campuses)} of its campuses` : ''
+  return `${year}: ${counted} reported by this campus, ${value} per 10,000 of its institution's ` +
+    `full-time-equivalent students (NCES's FTE for the whole institution: ${fmtInt(fte)}${all}). That is more than ${factor} times ` +
+    `${ref !== null ? `${ref}, ` : ''}the ${flag?.percentile ?? 99}th percentile of ${year} institution rates of ` +
+    `${category}. The count is shown as reported and keeps its place in the rankings by count. DOE counts each ` +
+    'incident in the year it is reported, so some may have happened earlier, and the figures do not say why a ' +
+    'count is high.'
 }
 
 export { VERDICT_LABELS }
