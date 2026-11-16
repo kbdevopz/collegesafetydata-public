@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom'
-import { Info } from 'lucide-react'
 import { notesForYears } from '../data/seriesNotes'
 import { cn } from '../lib/utils'
 
@@ -20,17 +19,14 @@ export default function SeriesNotes({
   return (
     <div role="note" className={cn('space-y-1', className)}>
       {notes.map((n) => (
-        <p key={n.id} className="flex items-start gap-1.5 text-xs text-gray-600 dark:text-gray-400 text-left">
-          <Info className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" aria-hidden="true" />
-          <span>
-            <strong className="font-medium text-gray-700 dark:text-gray-300">{n.label}:</strong> {n.short}{' '}
-            <Link
-              to={`/methodology#${n.id}`}
-              className="text-primary-600 dark:text-primary-400 underline whitespace-nowrap"
-            >
-              Details
-            </Link>
-          </span>
+        <p key={n.id} className="text-meta text-ink-2 text-left">
+          <strong className="font-semibold text-ink">{n.label}:</strong> {n.short}{' '}
+          <Link
+            to={`/methodology#${n.id}`}
+            className="link whitespace-nowrap"
+          >
+            Details
+          </Link>
         </p>
       ))}
     </div>
@@ -40,14 +36,11 @@ export default function SeriesNotes({
 // One line for trend charts: what a year's figure counts
 export function ReportYearNote({ className }: { className?: string }) {
   return (
-    <p className={cn('flex items-start gap-1.5 text-xs text-gray-600 dark:text-gray-400 text-left', className)}>
-      <Info className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" aria-hidden="true" />
-      <span>
-        Each year counts crimes reported that year, which can include incidents from earlier years.{' '}
-        <Link to="/methodology#year-reported" className="text-primary-600 dark:text-primary-400 underline whitespace-nowrap">
-          Details
-        </Link>
-      </span>
+    <p className={cn('text-meta text-ink-2 text-left', className)}>
+      Each year counts crimes reported that year, which can include incidents from earlier years.{' '}
+      <Link to="/methodology#year-reported" className="link whitespace-nowrap">
+        Details
+      </Link>
     </p>
   )
 }

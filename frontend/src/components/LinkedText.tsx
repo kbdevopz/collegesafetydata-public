@@ -24,7 +24,7 @@ export default function LinkedText({ text }: { text: string }) {
         typeof p === 'string'
           ? p
           : (
-            <a key={i} href={p.url} className="underline break-all" rel="noopener noreferrer" target="_blank">
+            <a key={i} href={p.url} className="link break-all" rel="noopener noreferrer" target="_blank">
               {p.url}
             </a>
           ),

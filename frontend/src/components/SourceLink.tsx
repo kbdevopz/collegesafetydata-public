@@ -17,13 +17,10 @@ export default function SourceLink({
       href={source.url}
       target="_blank"
       rel="noopener noreferrer"
-      className={cn(
-        'inline-flex items-baseline gap-1 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 underline break-words',
-        className
-      )}
+      className={cn('link break-words', className)}
     >
-      <span>{children ?? source.label}</span>
-      <ExternalLink className="w-3 h-3 flex-shrink-0 self-center" aria-hidden="true" />
+      {children ?? source.label}
+      <ExternalLink className="ml-0.5 inline-block h-3 w-3 align-[-0.05em]" aria-hidden="true" />
     </a>
   )
 }

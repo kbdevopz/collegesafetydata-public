@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef, useMemo, useId } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Search, X, Loader2, GitCompare, Check } from 'lucide-react'
+import { Search, X, Loader2 } from 'lucide-react'
 import { fetchSchoolIndex } from '../lib/api'
 import type { School } from '../lib/types'
 import { cn, displayName, searchText } from '../lib/utils'
+import { CompareButton } from './ui'
 
 // A school prepared for matching: its names as search text
 interface Searchable {
@@ -248,15 +249,12 @@ export default function SchoolSearch({ className, variant = 'header', compareSch
   if (isHero) {
     return (
       <div ref={containerRef} className={cn(
-        'relative w-full mx-auto',
-        compact ? 'max-w-md' : 'max-w-lg',
+        'relative w-full',
+        compact ? 'max-w-md' : 'max-w-xl',
         className
       )}>
         <div className="relative">
-          <Search className={cn(
-            'absolute top-1/2 -translate-y-1/2 text-gray-400',
-            compact ? 'left-3 w-4 h-4' : 'left-4 w-4 h-4 sm:w-5 sm:h-5'
-          )} />
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-3" aria-hidden="true" />
           <input
             ref={inputRef}
             type="text"
@@ -268,58 +266,35 @@ export default function SchoolSearch({ className, variant = 'header', compareSch
             onBlur={() => setTimeout(() => setIsFocused(false), 150)}
             placeholder="Search for any school..."
             className={cn(
-              'w-full',
-              compact
-                ? 'pl-10 pr-10 py-2.5 text-sm rounded-lg shadow-sm border'
-                : 'pl-11 pr-11 py-3 text-sm sm:text-base rounded-xl shadow-md border',
-              'bg-white dark:bg-gray-800',
-              'border-gray-200 dark:border-gray-700',
-              'text-gray-900 dark:text-gray-100',
-              'placeholder-gray-400 dark:placeholder-gray-500',
-              compact
-                ? 'focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/30'
-                : 'focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/30',
-              'transition-all duration-200'
+              'control w-full pl-9 pr-10',
+              compact ? 'h-9' : 'h-11 text-body'
             )}
           />
           {loading && (
-            <Loader2 className={cn(
-              'absolute top-1/2 -translate-y-1/2 text-gray-400 animate-spin',
-              compact ? 'right-3 w-4 h-4' : 'right-4 w-4 h-4'
-            )} />
+            <Loader2 className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-ink-3" aria-hidden="true" />
           )}
           {query && !loading && (
             <button
               type="button"
               onClick={() => setQuery('')}
-              className={cn(
-                'absolute top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors',
-                compact ? 'right-2' : 'right-3'
-              )}
+              className="absolute right-1.5 top-1/2 inline-flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded text-ink-3 hover:bg-subtle hover:text-ink"
               aria-label="Clear search"
             >
-              <X className={compact ? 'w-4 h-4' : 'w-4 h-4'} />
+              <X className="w-4 h-4" aria-hidden="true" />
             </button>
           )}
         </div>
 
         {/* Results Dropdown - Hero style */}
         {showResults && (
-          <div className={cn(
-            'absolute top-full left-0 right-0 mt-2',
-            'bg-white dark:bg-gray-800',
-            'rounded-lg shadow-lg',
-            'border border-gray-200 dark:border-gray-700',
-            'z-50 overflow-hidden',
-            'animate-in fade-in-0 slide-in-from-top-2 duration-150'
-          )}>
+          <div className="absolute left-0 right-0 top-full z-50 mt-1 overflow-hidden rounded border border-rule-strong/60 bg-surface shadow-pop">
             {filteredSchools.length === 0 ? (
-              <div className="px-4 py-4 text-center">
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+              <div className="px-4 py-4">
+                <p className="text-meta text-ink-2">
                   {loading ? 'Loading schools...' : 'No schools found'}
                 </p>
                 {!loading && query.length < 3 && (
-                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                  <p className="text-meta text-ink-3 mt-1">
                     Try a school or campus name, a former name, an abbreviation, a city, or a state
                   </p>
                 )}
@@ -342,23 +317,23 @@ export default function SchoolSearch({ className, variant = 'header', compareSch
                       key={school.unitid}
                       {...optionProps(school, index)}
                       className={cn(
-                        'px-4 py-2.5 cursor-pointer transition-colors',
+                        'cursor-pointer border-l-2 px-3.5 py-2',
                         index === selectedIndex
-                          ? 'bg-primary-50 dark:bg-primary-900/30'
-                          : 'hover:bg-gray-50 dark:hover:bg-gray-700/50'
+                          ? 'border-accent bg-accent-tint'
+                          : 'border-transparent hover:bg-subtle'
                       )}
                     >
-                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                      <div className="text-ui font-semibold text-ink">
                         {displayName(school)}
                         {school.isMainCampus === false && !school.campus && (
-                          <span className="ml-2 text-xs font-normal text-gray-500 dark:text-gray-400">(Branch)</span>
+                          <span className="ml-2 text-meta font-normal text-ink-3">(Branch)</span>
                         )}
                       </div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                      <div className="text-meta text-ink-3">
                         {detailLine(school)}
                       </div>
                       {alias && (
-                        <div className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">also: {alias}</div>
+                        <div className="text-meta text-ink-3">also: {alias}</div>
                       )}
                     </li>
                   ))}
@@ -369,35 +344,23 @@ export default function SchoolSearch({ className, variant = 'header', compareSch
                     style={{ gridRow: `1 / span ${matches.length}` }}
                   >
                     {matches.map(({ school }, index) => {
-                      const isComparing = compareSchools?.includes(school.unitid)
+                      const isComparing = !!compareSchools?.includes(school.unitid)
                       const name = displayName(school)
                       return (
                         <div
                           key={school.unitid}
                           onMouseEnter={() => setSelectedIndex(index)}
                           className={cn(
-                            'flex items-center pr-3 transition-colors',
-                            index === selectedIndex && 'bg-primary-50 dark:bg-primary-900/30'
+                            'flex items-center pr-2',
+                            index === selectedIndex && 'bg-accent-tint'
                           )}
                         >
-                          <button
-                            type="button"
+                          <CompareButton
+                            selected={isComparing}
+                            name={name}
                             onClick={() => onToggleCompare(school.unitid, name)}
-                            className={cn(
-                              'p-1.5 rounded-md transition-colors',
-                              isComparing
-                                ? 'bg-primary-100 dark:bg-primary-900/50 text-primary-600 dark:text-primary-400'
-                                : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                            )}
-                            aria-label={isComparing ? `Remove ${name} from comparison` : `Add ${name} to comparison`}
-                            title={isComparing ? 'Remove from comparison' : 'Add to comparison'}
-                          >
-                            {isComparing ? (
-                              <Check className="w-4 h-4" />
-                            ) : (
-                              <GitCompare className="w-4 h-4" />
-                            )}
-                          </button>
+                            withTitle
+                          />
                         </div>
                       )
                     })}
@@ -407,15 +370,15 @@ export default function SchoolSearch({ className, variant = 'header', compareSch
             )}
 
             {filteredSchools.length > 0 && (
-              <div className="px-4 py-2 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-100 dark:border-gray-700">
-                <div className="flex items-center justify-between text-xs text-gray-400 dark:text-gray-500">
+              <div className="border-t border-rule bg-subtle px-3.5 py-1.5">
+                <div className="flex items-center justify-between text-label text-ink-3">
                   <span>
                     {filteredSchools.length} result{filteredSchools.length !== 1 && 's'}
                   </span>
                   <span className="hidden sm:flex items-center gap-1">
-                    <kbd className="px-1 py-0.5 bg-gray-200 dark:bg-gray-700 rounded text-[10px] font-mono">↑↓</kbd>
+                    <kbd className="rounded-sm border border-rule px-1 font-sans">↑↓</kbd>
                     <span className="ml-1">navigate</span>
-                    <kbd className="px-1 py-0.5 bg-gray-200 dark:bg-gray-700 rounded text-[10px] font-mono ml-2">↵</kbd>
+                    <kbd className="ml-2 rounded-sm border border-rule px-1 font-sans">↵</kbd>
                     <span className="ml-1">select</span>
                   </span>
                 </div>
@@ -435,16 +398,16 @@ export default function SchoolSearch({ className, variant = 'header', compareSch
         <button
           type="button"
           onClick={() => setIsOpen(true)}
-          className="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-100 dark:hover:bg-gray-800 transition-colors"
+          className="flex h-9 items-center gap-2 rounded px-3 text-ink-2 hover:bg-subtle hover:text-ink"
           aria-label="Search schools"
         >
-          <Search className="w-5 h-5" />
-          <span className="hidden lg:inline text-sm">Search schools...</span>
+          <Search className="w-4 h-4" aria-hidden="true" />
+          <span className="hidden lg:inline text-ui">Search schools...</span>
         </button>
       ) : (
         <div className="flex items-center">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-3" aria-hidden="true" />
             <input
               ref={inputRef}
               type="text"
@@ -453,10 +416,10 @@ export default function SchoolSearch({ className, variant = 'header', compareSch
               onChange={(e) => changeQuery(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Search schools..."
-              className="w-64 sm:w-80 pl-10 pr-10 py-2 text-sm border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              className="control w-64 sm:w-80 pl-9 pr-10"
             />
             {loading ? (
-              <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 animate-spin" />
+              <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-3 animate-spin" aria-hidden="true" />
             ) : (
               <button
                 type="button"
@@ -464,10 +427,10 @@ export default function SchoolSearch({ className, variant = 'header', compareSch
                   setIsOpen(false)
                   setQuery('')
                 }}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                className="absolute right-1.5 top-1/2 inline-flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded text-ink-3 hover:bg-subtle hover:text-ink"
                 aria-label="Close search"
               >
-                <X className="w-4 h-4" />
+                <X className="w-4 h-4" aria-hidden="true" />
               </button>
             )}
           </div>
@@ -476,9 +439,9 @@ export default function SchoolSearch({ className, variant = 'header', compareSch
 
       {/* Results Dropdown */}
       {isOpen && showResults && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50 overflow-hidden">
+        <div className="absolute top-full left-0 right-0 mt-1 z-50 overflow-hidden rounded border border-rule-strong/60 bg-surface shadow-pop">
           {filteredSchools.length === 0 ? (
-            <div className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400 text-center">
+            <div className="px-4 py-3 text-meta text-ink-2">
               {loading ? 'Loading schools...' : 'No schools found'}
             </div>
           ) : (
@@ -488,23 +451,23 @@ export default function SchoolSearch({ className, variant = 'header', compareSch
                   key={school.unitid}
                   {...optionProps(school, index)}
                   className={cn(
-                    'px-4 py-3 cursor-pointer transition-colors',
+                    'cursor-pointer border-l-2 px-3.5 py-2',
                     index === selectedIndex
-                      ? 'bg-primary-50 dark:bg-primary-900/30'
-                      : 'hover:bg-gray-50 dark:hover:bg-gray-800'
+                      ? 'border-accent bg-accent-tint'
+                      : 'border-transparent hover:bg-subtle'
                   )}
                 >
-                  <div className="font-medium text-gray-900 dark:text-gray-100 text-sm">
+                  <div className="text-ui font-semibold text-ink">
                     {displayName(school)}
                     {school.isMainCampus === false && !school.campus && (
-                      <span className="ml-1.5 text-xs font-normal text-gray-500 dark:text-gray-400">(Branch)</span>
+                      <span className="ml-1.5 text-meta font-normal text-ink-3">(Branch)</span>
                     )}
                   </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">
+                  <div className="text-meta text-ink-3">
                     {detailLine(school)}
                   </div>
                   {alias && (
-                    <div className="text-xs text-gray-400 dark:text-gray-500">also: {alias}</div>
+                    <div className="text-meta text-ink-3">also: {alias}</div>
                   )}
                 </li>
               ))}
@@ -512,16 +475,16 @@ export default function SchoolSearch({ className, variant = 'header', compareSch
           )}
 
           {filteredSchools.length > 0 && (
-            <div className="px-4 py-2 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-100 dark:border-gray-800">
-              <div className="flex items-center justify-between text-xs text-gray-400 dark:text-gray-500">
+            <div className="border-t border-rule bg-subtle px-3.5 py-1.5">
+              <div className="flex items-center justify-between text-label text-ink-3">
                 <span>
                   {filteredSchools.length} result{filteredSchools.length !== 1 && 's'}
                 </span>
                 <span className="hidden sm:inline">
-                  <kbd className="px-1 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-[10px]">↑</kbd>
-                  <kbd className="px-1 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-[10px] ml-1">↓</kbd>
+                  <kbd className="rounded-sm border border-rule px-1 font-sans">↑</kbd>
+                  <kbd className="ml-1 rounded-sm border border-rule px-1 font-sans">↓</kbd>
                   <span className="ml-1">to navigate</span>
-                  <kbd className="px-1 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-[10px] ml-2">↵</kbd>
+                  <kbd className="ml-2 rounded-sm border border-rule px-1 font-sans">↵</kbd>
                   <span className="ml-1">to select</span>
                 </span>
               </div>

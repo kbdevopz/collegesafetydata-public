@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
-import { Check, Copy, Quote } from 'lucide-react'
 import { cachedMetadata, getMetadata } from '../lib/api'
 import { useBuildInfo } from '../lib/build'
 import { SITE_ORIGIN } from '../lib/seo'
@@ -51,10 +50,9 @@ function CopyButton({ text, label }: { text: string; label: string }) {
     <button
       type="button"
       onClick={copy}
-      className="inline-flex items-center gap-1 text-xs text-primary-600 dark:text-primary-400 hover:underline"
+      className="inline-flex min-h-[1.5rem] items-center rounded-sm px-1.5 text-meta font-semibold text-accent hover:bg-subtle hover:text-accent-strong"
       aria-label={`Copy ${label} citation`}
     >
-      {done ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
       {done ? 'Copied' : 'Copy'}
     </button>
   )
@@ -123,38 +121,35 @@ export default function CiteThisData({ school, className }: Props) {
   ].join('\n')
 
   return (
-    <section id="cite" className={`scroll-mt-20 ${className ?? ''}`}>
-      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-5">
-        <h3 className="flex items-center gap-2 font-semibold text-gray-900 dark:text-gray-100 mb-1">
-          <Quote className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-          Cite this data
-        </h3>
-        <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
-          The build identifier names the exact published files (see <a href="/methodology#data" className="underline">Data and
-          downloads</a>). Cite the original sources too; the figures are theirs.
-        </p>
+    <section id="cite" className={`scroll-mt-24 section-rule ${className ?? ''}`}>
+      <h3 className="h3 mb-1">
+        Cite this data
+      </h3>
+      <p className="text-meta text-ink-3 mb-4 max-w-prose">
+        The build identifier names the exact published files (see <a href="/methodology#data" className="link">Data and
+        downloads</a>). Cite the original sources too; the figures are theirs.
+      </p>
 
-        <div className="space-y-4 text-sm">
-          <div>
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">APA</span>
-              <CopyButton text={[apaSite, apaDoe, apaNces].join('\n\n')} label="APA" />
-            </div>
-            <div className="space-y-2 text-gray-700 dark:text-gray-300 break-words">
-              <p className="pl-6 -indent-6">{apaSite}</p>
-              <p className="pl-6 -indent-6">{apaDoe}</p>
-              <p className="pl-6 -indent-6">{apaNces}</p>
-            </div>
+      <div className="grid gap-6 text-meta lg:grid-cols-2">
+        <div className="min-w-0">
+          <div className="flex items-center justify-between mb-1.5 border-b border-rule pb-1">
+            <span className="label">APA</span>
+            <CopyButton text={[apaSite, apaDoe, apaNces].join('\n\n')} label="APA" />
           </div>
-          <div>
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">BibTeX</span>
-              <CopyButton text={bibtex} label="BibTeX" />
-            </div>
-            <pre className="bg-gray-50 dark:bg-gray-800/60 rounded-lg p-3 text-xs text-gray-800 dark:text-gray-200 overflow-x-auto whitespace-pre">
-              {bibtex}
-            </pre>
+          <div className="space-y-2 text-ink-2 break-words">
+            <p className="pl-6 -indent-6">{apaSite}</p>
+            <p className="pl-6 -indent-6">{apaDoe}</p>
+            <p className="pl-6 -indent-6">{apaNces}</p>
           </div>
+        </div>
+        <div className="min-w-0">
+          <div className="flex items-center justify-between mb-1.5 border-b border-rule pb-1">
+            <span className="label">BibTeX</span>
+            <CopyButton text={bibtex} label="BibTeX" />
+          </div>
+          <pre className="bg-subtle rounded p-3 text-label text-ink-2 overflow-x-auto whitespace-pre">
+            {bibtex}
+          </pre>
         </div>
       </div>
     </section>
