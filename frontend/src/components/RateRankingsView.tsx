@@ -13,7 +13,7 @@ import {
 } from '../lib/rateDisplay'
 import { formatNumber } from '../lib/utils'
 import { VerdictLabel } from './RateCard'
-import RowNote, { type RowNoteItem } from './RowNote'
+import RowNote, { NoteJoiner, type RowNoteItem } from './RowNote'
 import { CompareButton, Disclosure, Loading } from './ui'
 
 const PAGE = 50
@@ -572,14 +572,18 @@ function EntryRow({
           </div>
         )}
         <div className="flex-1 min-w-0 space-y-1">
-          <div className="flex items-start gap-1">
-            <span className="min-w-0">
+          {/* On a phone the note button follows the name in the line, with the state on the line of
+              the name's last word; from sm up it sits beside the name */}
+          <div className="sm:flex sm:items-start sm:gap-1">
+            <span className="sm:min-w-0">
               <Link to={`/school/${e.unitid}`} className="link-name">
                 {e.name}
               </Link>
+              {'\u2060'}
               <span className="ml-1.5 text-meta text-ink-3">{e.state}</span>
+              <NoteJoiner />
             </span>
-            <RowNote subject={e.name} notes={notes} className="mt-0.5" />
+            <RowNote subject={e.name} notes={notes} className="ml-1 sm:ml-0 sm:mt-0.5" />
           </div>
           <div className="tabular flex flex-wrap items-baseline gap-x-4 gap-y-0.5 text-meta text-ink-2">
             <span>

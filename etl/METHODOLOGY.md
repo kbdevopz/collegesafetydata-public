@@ -112,7 +112,9 @@ answer):
    shadow of that campus.
 4. **Block, in an older release:** the same for one block of such a
    campus-year (all 20 counts equal).
-5. **Whole year, same city** (`SHARED_CITY_MIN_TOTAL` = 20; rule
+5. **Whole year, same city** (`SHARED_CITY_MIN_TOTAL` = 20,
+   `rateRules.sharedCopies.cityMinTotal`, with `SHARED_MIN_NONZERO` as
+   `rateRules.sharedCopies.minNonzero`; rule
    `whole_year_city`): campus-years of two or more institutions (different
    base UNITIDs) in the same state and city (`dim_institution` city,
    compared without case and extra spaces) have all 60 counts equal, with a
@@ -141,7 +143,7 @@ shadow; the older releases' figures the last two rules compare are in
 - **Source:** IPEDS (Integrated Postsecondary Education Data System)
 - **URL:** https://nces.ed.gov/ipeds/
 - **Files Used:**
-  - 2021-2024: DRVEF (Derived Fall Enrollment) files, with NCES's FTE and the percent of students enrolled exclusively in distance education (fall 2024 is provisional release data)
+  - 2021-2024: DRVEF (Derived Fall Enrollment) files, with NCES's FTE and the percent of students enrolled exclusively in distance education (a fall whose final revised file NCES has not published yet comes from its provisional release file; `metadata.json` `enrollmentStatus` gives each year's)
   - 2015-2020: the DRVEF tables of NCES's final IPEDS Access databases, copied into `etl/reference/ipeds_official_fte.csv` (see below); the EF (Fall Enrollment) files only for headcounts
 
 ## FTE (Full-Time Equivalent) Enrollment
@@ -274,10 +276,10 @@ build are named below by the field that holds them, in `metadata.json`
    2020 has no rate, so the 2019 share enters the 2021 rates and the count
    flag's reference for 2020 and 2021 (rule 15). The number of institutions
    with an uncertain on-campus FTE
-   (`rateStats.institutionYears.byYear[y].fteUncertain`) rises in 2022, the
-   first year after 2020-2021 that uses each fall's own share. An
-   institution without PCTDEEXC would keep its full FTE (none with an FTE
-   lacks it in 2015-2024).
+   (`rateStats.institutionYears.byYear[y].fteUncertain`) rises in 2022 in
+   the November 2026 build, the first year after 2020-2021 that uses each
+   fall's own share. An institution without PCTDEEXC would keep its full
+   FTE (in that build none with an FTE lacks it in 2015-2024).
 
    A year's denominator adds another institution's on-campus FTE in two
    cases (`rateStats.institutionYears.pooled` counts them):
@@ -320,7 +322,10 @@ build are named below by the field that holds them, in `metadata.json`
      classification, in the IPEDS HD file of any data year, is "Special
      Focus Four-Year: Medical Schools & Centers" (25 in C15BASIC, C18BASIC
      or C21BASIC) or the 2021 "Special Focus Research Institution" category
-     (C21BASIC 27; 20 of its 22 institutions in HD2024 were 25 in C18BASIC).
+     (C21BASIC 27; 20 of its 22 institutions in HD2024 were 25 in C18BASIC
+     of HD2023; `rateStats.carnegieResearch` gives these counts from each
+     build's newest HD files: `year`, `institutions`, `c18Year`,
+     `c18Medical`).
      An institution an older edition codes as a medical school is medical
      even in the years whose own newest field no longer does (Loma Linda
      University: C15BASIC and C18BASIC 25, C21BASIC 16), and one a newer
@@ -371,11 +376,16 @@ build are named below by the field that holds them, in `metadata.json`
    An institution that is not rated in a window has no rate for it. Its
    institution file (`rates/institutions/{base}.json`, when it has one)
    gives the first status that applies, in this order: `missingYears` (no
-   figures of its own in each of the 3 years: not in DOE's data, or every
-   figure of that year counts under another institution's campus, as a
-   shadow of copies rule 5 or an older shared block; `years` lists the
-   years it has figures, and the school file's `sharedFigures` names the
-   host of a shadow year),
+   figures of its own in each of the 3 years; `years` lists the years it
+   has figures, and the file's `absentYears` gives each other year's
+   reason, `etl/rates.py` `absent_year`: `notReported`, none of its
+   campuses has figures in DOE's data that year, or `countedElsewhere`,
+   each of its campuses with figures that year has all of them counted
+   under another institution's campus, as shadow blocks of the copies
+   rules, and `under` names those host campuses (`unitid`) and their
+   institutions (`id`, `name`); 04 lists an institution-year whenever one
+   of its campuses counts, so there is no other cause, and a missing NCES
+   figure gives `size`, not `missingYears`),
    `scope` (link campus outside the 50 states, DC, PR and VI), `size`
    (denominator under 1,000, or none, in at least one year; `fteByYear`),
    `excluded` (a population rule in at least one year; `rules` gives each
@@ -663,16 +673,17 @@ build are named below by the field that holds them, in `metadata.json`
     - "all": it adds criminal offenses, VAWA offenses, arrests and
       referrals, which are different kinds of counts (see Totals shown on
       the site);
-    - motor vehicle theft: on-campus vehicle thefts in national totals more
-      than tripled from 2021 to 2024, and the 100 institutions with the
-      largest increases account for most of the rise
-      (`downloads/counts-2021.csv`, `counts-2024.csv`);
+    - motor vehicle theft: in the November 2026 build, on-campus vehicle
+      thefts in national totals more than tripled from 2021 to 2024, and
+      the 100 institutions with the largest increases account for most of
+      the rise (`downloads/counts-2021.csv`, `counts-2024.csv`);
     - "criminal" (all criminal offenses) and "property" (burglary, motor
       vehicle theft, arson): both include motor vehicle theft, so
       `criminal_xmvt` and `burglary` carry the rates instead;
     - murder, negligent manslaughter, incest, statutory rape and arson: they
       are rare; each averaged fewer than 1,000 incidents a year in national
-      totals in 2015-2024 (the national rankings files' `totals`).
+      totals in 2015-2024 (the national rankings files' `totals`, November
+      2026 build).
 
     "violent" is the FBI's violent crime (murder and nonnegligent
     manslaughter, rape, robbery, aggravated assault); "property" is the
@@ -681,7 +692,8 @@ build are named below by the field that holds them, in `metadata.json`
     the United States 2019, Violent Crime and Property Crime,
     https://ucr.fbi.gov/crime-in-the-u.s/2019/crime-in-the-u.s.-2019/topic-pages/violent-crime
     and .../property-crime. Rankings by count open on "violent": motor
-    vehicle theft was 37% of all criminal offenses in 2024 (15% in 2015).
+    vehicle theft was 37% of all criminal offenses in 2024 (15% in 2015) in
+    the November 2026 build.
     "criminal" and "all" are still offered.
 15. **Count flag** (`COUNT_FLAG_MIN_COUNT` = 20, `COUNT_FLAG_FACTOR` = 3,
     `COUNT_FLAG_PERCENTILE` = 99; `rateRules.countFlag`). In rankings by
@@ -747,8 +759,9 @@ build are named below by the field that holds them, in `metadata.json`
     with those campuses apart (`details.by_year`). A campus abroad that DOE
     lists under a U.S. state is a counting campus, so it is in the
     rankings files' `campuses` (national and its state) like any other and
-    would be ranked by count if it reported an incident; none of them
-    reported one in 2015-2024. Its incidents are never in an institution's
+    would be ranked by count if it reported an incident; in the November
+    2026 build none of them reported one in 2015-2024. Its incidents are
+    never in an institution's
     totals or rates.
 18. **Shared sites** (`shared_rate_rules`, `find_near_copies` and
     `classify_shared_sites` in `04_create_aggregates.py`;
@@ -869,7 +882,9 @@ build are named below by the field that holds them, in `metadata.json`
   and criminal_xmvt, the entry's own `composition`.
 - `rates/institutions/{base}.json`, one per institution with a rated
   window, a single-year rate or a flag: `id`, `unitid`, `name`, `state`,
-  `peerType`; `years` (rule 13); `windows`, for each window in which DOE has
+  `peerType`; `years` (rule 13); `absentYears` (each data year without an
+  entry in `years`, with its reason: rule 4, `missingYears`; left out when
+  there is none); `windows`, for each window in which DOE has
   the institution in at least one year: its status (rule 4) and, when
   rated, `fteByYear`, `why` (`online` or `shared`), `fteSmallerByYear` for
   `online`, the shared-site notes of rule 18 (once for the window, not in
@@ -889,9 +904,11 @@ build are named below by the field that holds them, in `metadata.json`
   `partTimeFirst`, `reason`), `pooledWith`, `abroad`, `flags` (that year's
   unusual-year flags) and `counts`.
 - `metadata.json`: `rateRules` (the constants of the rules above, with
-  `testVectors`, `calibration` and `medicalScreen`) and `rateStats`
+  `testVectors`, `calibration`, `medicalScreen` and `sharedCopies`, the
+  copies rules' `minNonzero` and `cityMinTotal`) and `rateStats`
   (`definitions` of each set it counts, `windows[w][code]`, `flags`,
-  `singleYear`, `institutionFiles`, `countFlags`, `institutionYears`).
+  `singleYear`, `institutionFiles`, `countFlags`, `institutionYears`,
+  `carnegieResearch`: rule 4's C21BASIC 27 counts).
 
 ### Institution-years
 `rateStats.institutionYears` counts institution-years ("institution-years":
@@ -1117,7 +1134,7 @@ the window's 3 years; it can reflect classification or chance, and incidents
 at the institution's other locations are published beside it (`nNoncampus`,
 `nPublic`). "All criminal offenses" adds unlike crimes with equal weight;
 motor vehicle theft was about 15% of the national criminal total in 2015 and
-about 37% in 2024, which is why rankings by count open on violent crimes and
+about 37% in 2024 in the November 2026 build, which is why rankings by count open on violent crimes and
 why the rates use criminal offenses except motor vehicle theft.
 
 ### Limitations of the rates

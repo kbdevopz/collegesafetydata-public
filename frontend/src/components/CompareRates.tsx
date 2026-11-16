@@ -8,7 +8,7 @@ import {
 import { RATE_IS_NOT, RATE_MEASURE } from '../lib/rateDisplay'
 import { RateCodeBlock } from './RateCard'
 import LinkedText from './LinkedText'
-import RowNote from './RowNote'
+import RowNote, { NoteJoiner } from './RowNote'
 import { Loading, SchoolSwatch } from './ui'
 
 type Loaded = { file: InstitutionRatesFile | null; failed: boolean }
@@ -103,18 +103,24 @@ export default function CompareRates({
             >
               <p className="flex items-center gap-2 text-ui font-semibold text-ink">
                 <SchoolSwatch color={colors[i]} hatched={i === 1} />
-                {file?.name ?? p.name}
-                {(p.campus || p.isMainCampus === false) && (
-                  <RowNote
-                    subject={file?.name ?? p.name}
-                    notes={[{
-                      kind: 'info',
-                      text: "Rates are the institution's (all its campuses in the United States); the school " +
-                        `compared here is one of its campuses${!p.state ? ', outside the United States, so its incidents are not in them' : ''}.`,
-                    }]}
-                    className="ml-1"
-                  />
-                )}
+                {/* One flex item, so the note button stays on the line of the name's last word */}
+                <span className="min-w-0">
+                  {file?.name ?? p.name}
+                  {(p.campus || p.isMainCampus === false) && (
+                    <>
+                      <NoteJoiner />
+                      <RowNote
+                        subject={file?.name ?? p.name}
+                        notes={[{
+                          kind: 'info',
+                          text: "Rates are the institution's (all its campuses in the United States); the school " +
+                            `compared here is one of its campuses${!p.state ? ', outside the United States, so its incidents are not in them' : ''}.`,
+                        }]}
+                        className="ml-1"
+                      />
+                    </>
+                  )}
+                </span>
               </p>
               {!state ? (
                 <Loading className="justify-start py-2">Loading rates…</Loading>
@@ -124,11 +130,11 @@ export default function CompareRates({
                 <p className="text-ui font-semibold text-ink">{noRatesSentence(p, rules)}</p>
               ) : !w ? (
                 <p className="text-ui font-semibold text-ink">
-                  {missingYearsSentence(windowKey, [], rules, p)}
+                  {missingYearsSentence(windowKey, [], rules, file.absentYears)}
                 </p>
               ) : w.status !== 'rated' ? (
                 <p className="text-ui font-semibold text-ink break-words">
-                  <LinkedText text={windowStatusSentence(w, windowKey, rules, p) ?? ''} />
+                  <LinkedText text={windowStatusSentence(w, windowKey, rules, p, file.absentYears) ?? ''} />
                 </p>
               ) : entry ? (
                 <RateCodeBlock

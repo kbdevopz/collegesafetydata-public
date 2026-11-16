@@ -344,6 +344,19 @@ class RateInputs:
             int(u): {"name": str(h), "firstYear": int(a), "lastYear": int(b), "known": str(k), "source": str(s)}
             for u, a, b, h, k, s in zip(hosp["unitid"], hosp["first_year"], hosp["last_year"], hosp["hospital"],
                                         hosp["known"], hosp["source"])}
+        # Why an institution has no institution-year (absent_year): the campuses with figures in DOE's
+        # data each year (02's campus_year_sources), {(year, base): [campus]}, and the host campuses of
+        # each campus-year's shadow blocks (04's shared_blocks), {(year, campus): {host}}
+        src = pd.read_parquet(CURATED_DIR / "dims" / "campus_year_sources.parquet", columns=["unitid", "year"])
+        self.reported: dict[tuple[int, int], list[int]] = defaultdict(list)
+        for u, y in sorted(set(zip(src["unitid"].astype(int).tolist(), src["year"].astype(int).tolist()))):
+            self.reported[(y, u // 1000)].append(u)
+        blocks = pd.read_parquet(CURATED_DIR / "aggs" / "shared_blocks.parquet",
+                                 columns=["year", "unitid", "role", "host_unitid"])
+        blocks = blocks[blocks["role"] == "shadow"]
+        self.shadow_hosts: dict[tuple[int, int], set[int]] = defaultdict(set)
+        for y, u, h in zip(blocks["year"].tolist(), blocks["unitid"].tolist(), blocks["host_unitid"].tolist()):
+            self.shadow_hosts[(int(y), int(u))].add(int(h))
 
     def values(self, code: str, year: int, base: int) -> tuple:
         """The VALUES of a rate code (RATE_CODES: the sum over its offenses) in an institution-year."""
@@ -394,6 +407,43 @@ def year_status(rec: dict | None, year: int) -> str:
     if year in RATE_SKIP_YEARS:
         return "skippedYear"
     return ""
+
+
+def absent_year(inp: RateInputs, base: int, year: int) -> dict:
+    """
+    Why an institution has no institution-year (no row in
+    agg_institution_year: 04 lists an institution-year when one of its
+    campuses counts that year): {"reason": "notReported"} when none of its
+    campuses has figures in DOE's data that year (campus_year_sources);
+    otherwise {"reason": "countedElsewhere", "under": [{id, name, unitid}]}:
+    each of its campuses with figures that year has them all counted under
+    another institution's campus (04 leaves out a campus-year whose every
+    block with counts is a shadow block), and under lists the host campuses
+    of those shadow blocks (unitid) with their institutions (id: base
+    UNITID, name), by campus. There is no other cause: a campus-year with
+    figures and a block that is not a shadow block counts, and a host
+    campus counts for its own institution; a contradiction stops the build.
+    """
+    campuses = inp.reported.get((year, base), [])
+    if not campuses:
+        return {"reason": "notReported"}
+    hosts = set()
+    for u in campuses:
+        found = inp.shadow_hosts.get((year, u))
+        if not found:
+            raise RuntimeError(f"Institution {base} has no institution-year {year}, but its campus {u} has figures "
+                               "then and no shadow block. Re-run 04_create_aggregates.py, then 05.")
+        hosts |= found
+    if any(h // 1000 == base for h in hosts):
+        raise RuntimeError(f"Institution {base} has no institution-year {year}, but a campus of its own hosts its "
+                           "shadow blocks then. Re-run 04_create_aggregates.py, then 05.")
+    return {"reason": "countedElsewhere",
+            "under": [{"id": h // 1000, "name": inp.base_name.get(h // 1000), "unitid": h} for h in sorted(hosts)]}
+
+
+def absent_years(inp: RateInputs, base: int) -> dict[str, dict]:
+    """{year: absent_year} for each year of DATA_YEARS in which the institution has no institution-year."""
+    return {str(y): absent_year(inp, base, y) for y in DATA_YEARS if (y, base) not in inp.rec}
 
 
 def uncertain_reason(rec: dict) -> str | None:

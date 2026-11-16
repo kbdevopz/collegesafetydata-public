@@ -1,8 +1,11 @@
 import type { InstitutionRatesFile, RateRules, SchoolProfile } from '../lib/types'
-import { fmtInt, fmtRate, joinAnd, levelPct, notRatedYearText, rateCodeLabel } from '../lib/rates'
+import {
+  absentYearClause, absentYearShort, fmtInt, fmtRate, joinAnd, levelPct, notRatedYearShort, notRatedYearText,
+  rateCodeLabel,
+} from '../lib/rates'
 import LinkedText from './LinkedText'
 import { formatNumber } from '../lib/utils'
-import RowNote, { type RowNoteItem } from './RowNote'
+import RowNote, { NoteJoiner, type RowNoteItem } from './RowNote'
 
 interface YearRow {
   year: number
@@ -10,28 +13,58 @@ interface YearRow {
   rate: number | null
   lo: number | null
   hi: number | null
+  // Why the year has no rate, in a few words (null: rated)
+  short: string | null
   // Why the year has no rate, or the rated year's notes (behind its note button)
   notes: RowNoteItem[]
 }
 
 /**
+ * The rate denominator of a year without a rate, as far as the files say:
+ * a number, null when NCES has no figure, undefined when they do not say
+ * (the school file's institution years, else a window's fteByYear).
+ */
+function yearFte(file: InstitutionRatesFile, profile: Pick<SchoolProfile, 'institution'> | null, year: number) {
+  const iy = profile?.institution?.byYear[String(year)]
+  if (iy) return iy.rateFte ?? null
+  for (const w of Object.values(file.windows)) {
+    if ((w.status === 'size' || w.status === 'rated') && String(year) in w.fteByYear) return w.fteByYear[String(year)]
+  }
+  return undefined
+}
+
+/**
  * The institution's single-year rates of one code, each with its 1-year
  * interval: a trend only. No verdicts, positions or comparisons are made
- * from single years (none are published).
+ * from single years (none are published). Every data year has a row; a year
+ * without a rate says why: its notRated reason, or why the institution has
+ * no figures of its own that year (absentYears).
  */
 export default function SingleYearRates({
-  file, code, rules, profile,
+  file, code, rules, profile, dataYears,
 }: {
   file: InstitutionRatesFile
   code: string
   rules: RateRules | null | undefined
   profile: Pick<SchoolProfile, 'institution'> | null
+  // The site's data years (metadata.years)
+  dataYears?: number[]
 }) {
-  const rows: YearRow[] = Object.keys(file.years)
-    .map(Number)
-    .sort((a, b) => a - b)
+  const allYears = Array.from(new Set([
+    ...(dataYears ?? []), ...Object.keys(file.years).map(Number), ...Object.keys(file.absentYears ?? {}).map(Number),
+  ])).sort((a, b) => a - b)
+  const rows: YearRow[] = allYears
     .map((year) => {
       const y = file.years[String(year)]
+      if (!y) {
+        // No figures of its own that year
+        const a = file.absentYears?.[String(year)]
+        const clause = absentYearClause(a)
+        return {
+          year, n: null, rate: null, lo: null, hi: null, short: absentYearShort(a),
+          notes: [{ kind: 'info' as const, text: `In ${year} ${clause}.` }],
+        }
+      }
       const r = y.rates?.[code]
       const notes: string[] = []
       if (y.fteUncertain === 'own') notes.push('two estimates of on-campus students differ')
@@ -43,13 +76,30 @@ export default function SingleYearRates({
       if (!r) {
         // The reason without its source (the sources are listed below the table)
         const excluded = profile?.institution?.byYear[String(year)]?.rateExcludedReason?.split(' Source: ')[0]
-        const why = notRatedYearText(y.notRated, rules, excluded)
-        return { year, n: null, rate: null, lo: null, hi: null, notes: [{ kind: 'info' as const, text: /[.!?]$/.test(why) ? why : `${why}.` }] }
+        let why = notRatedYearText(y.notRated, rules, excluded)
+        let short = notRatedYearShort(y.notRated, rules)
+        if (y.notRated === 'size') {
+          // Under the minimum, or no NCES figure at all; this page's files do
+          // not always say which (a year this campus is not in DOE's data)
+          const min = fmtInt(rules?.minFte ?? 1000)
+          const fte = yearFte(file, profile, year)
+          if (fte === null) {
+            short = 'No NCES enrollment figure'
+            why = `NCES has no enrollment figure for it that year${excluded ? `. ${excluded}` : ''}`
+          } else if (fte === undefined) {
+            short = `No NCES figure of ${min} or more`
+            why = `NCES has no figure of ${min} or more on-campus students for it that year, the least a rate needs`
+          }
+        }
+        return {
+          year, n: null, rate: null, lo: null, hi: null, short,
+          notes: [{ kind: 'info' as const, text: /[.!?]$/.test(why) ? why : `${why}.` }],
+        }
       }
       const [n, rate, lo, hi] = r
       const text = notes.length > 0 ? joinAnd(notes) : null
       return {
-        year, n, rate, lo, hi,
+        year, n, rate, lo, hi, short: null,
         notes: text ? [{ kind: 'info' as const, text: `${text.charAt(0).toUpperCase()}${text.slice(1)}.` }] : [],
       }
     })
@@ -115,7 +165,7 @@ export default function SingleYearRates({
         Each year's rate (dot) with its {level}% interval (line). Single years vary more than 3-year averages;
         comparisons and lists use 3-year averages only.
         {skip.length > 0 && <> {joinAnd(skip.map(String))} {skip.length === 1 ? 'is' : 'are'} left out: student counts that year do not measure who was on campus.</>}
-        {' '}A dash is a year without a rate; its note in the table gives the reason.
+        {' '}A dash is a year without a rate; the table gives the reason.
       </p>
       <div className="overflow-x-auto">
         <table className="w-full text-xs sm:text-sm">
@@ -134,16 +184,24 @@ export default function SingleYearRates({
               <tr key={r.year}>
                 <th scope="row" className="py-1 pr-2 font-medium tabular-nums">{r.year}</th>
                 <td className="py-1 pr-2 tabular-nums">{r.rate !== null ? fmtRate(r.rate) : '–'}</td>
-                <td className="py-1 pr-2 tabular-nums whitespace-nowrap">
-                  {r.lo !== null && r.hi !== null ? `${fmtRate(r.lo)} to ${fmtRate(r.hi)}` : '–'}
-                </td>
-                <td className="py-1 pr-2 tabular-nums">{r.n !== null ? fmtInt(r.n) : '–'}</td>
-                <td className="py-1 text-gray-600 dark:text-gray-400">
-                  <span className="inline-flex items-center gap-1">
-                    {r.rate === null && <span>No rate</span>}
-                    <RowNote subject={String(r.year)} notes={r.notes} />
-                  </span>
-                </td>
+                {r.short !== null ? (
+                  // No rate: the reason takes the row's other cells, so it can wrap on a phone
+                  <td colSpan={3} className="py-1 text-gray-600 dark:text-gray-400">
+                    {r.short}
+                    <NoteJoiner />
+                    <RowNote subject={String(r.year)} notes={r.notes} className="ml-1" />
+                  </td>
+                ) : (
+                  <>
+                    <td className="py-1 pr-2 tabular-nums whitespace-nowrap">
+                      {r.lo !== null && r.hi !== null ? `${fmtRate(r.lo)} to ${fmtRate(r.hi)}` : '–'}
+                    </td>
+                    <td className="py-1 pr-2 tabular-nums">{r.n !== null ? fmtInt(r.n) : '–'}</td>
+                    <td className="py-1 text-gray-600 dark:text-gray-400">
+                      <RowNote subject={String(r.year)} notes={r.notes} />
+                    </td>
+                  </>
+                )}
               </tr>
             ))}
           </tbody>

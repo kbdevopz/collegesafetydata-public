@@ -7,6 +7,7 @@ import {
   createColumnHelper,
   flexRender,
   SortingState,
+  type Cell,
 } from '@tanstack/react-table'
 import { ChevronUp, ChevronDown, X, ChevronRight } from 'lucide-react'
 import { fetchRankings, getMetadata } from '../lib/api'
@@ -22,7 +23,7 @@ import SchoolSearch from '../components/SchoolSearch'
 import OffensePopover from '../components/OffensePopover'
 import SeriesNotes from '../components/SeriesNotes'
 import RateRankingsView from '../components/RateRankingsView'
-import RowNote, { type RowNoteItem } from '../components/RowNote'
+import RowNote, { NoteJoiner, type RowNoteItem } from '../components/RowNote'
 import { CompareButton, Loading } from '../components/ui'
 
 // One row of the count table: a campus
@@ -40,6 +41,17 @@ interface Row {
   // The count per 10,000 of its institution's FTE when the pipeline flags it
   // as very high for the institution's size (highForSize)
   highForSize: number | null
+}
+
+const columnHelper = createColumnHelper<Row>()
+
+// A table cell's content, rendered in place. flexRender would mount each cell
+// function as a component of its own, so a new `columns` (the compare list or
+// the offense changed) would make React replace every cell, and with it the
+// focused link or button: keyboard focus would fall to the page body.
+function cellContent(cell: Cell<Row, unknown>) {
+  const render = cell.column.columnDef.cell
+  return typeof render === 'function' ? render(cell.getContext()) : flexRender(render, cell.getContext())
 }
 
 export default function Rankings() {
@@ -245,8 +257,6 @@ export default function Rankings() {
   const countLabel = countHeader(currentOffense)
 
   // Table setup
-  const columnHelper = createColumnHelper<Row>()
-
   const columns = useMemo(
     () => [
       columnHelper.accessor('rank', {
@@ -337,7 +347,7 @@ export default function Rankings() {
         size: 50,
       }),
     ],
-    [columnHelper, isInCompare, countLabel, countRowNotes]
+    [isInCompare, countLabel, countRowNotes]
   )
 
   // The table gets the full list so a column sort orders every campus, not
@@ -704,9 +714,11 @@ export default function Rankings() {
                           >
                             {item.campus ?? item.name}
                           </Link>
+                          {/* "(Branch)" and the note button stay on the line of the name's last word */}
                           {item.branch && !item.campus && (
-                            <span className="ml-1.5 text-meta font-normal text-ink-3">(Branch)</span>
+                            <>{'\u2060'}<span className="ml-1.5 text-meta font-normal text-ink-3">(Branch)</span></>
                           )}
+                          <NoteJoiner />
                           <RowNote subject={item.campus ?? item.name} notes={countRowNotes(item)} className="z-10 ml-1" />
                           {item.campus && (
                             <span className="block text-meta font-normal text-ink-3">{item.name}</span>
@@ -797,7 +809,7 @@ export default function Rankings() {
                         <tr>
                           {row.getVisibleCells().map((cell) => (
                             <td key={cell.id} className={COLUMN_CLASS[cell.column.id]}>
-                              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                              {cellContent(cell)}
                             </td>
                           ))}
                         </tr>

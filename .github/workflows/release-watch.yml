@@ -1,0 +1,74 @@
+name: Release watch
+
+# Once a week (and on demand): does DOE or NCES publish data newer than, or
+# re-issued from, the files the committed build record
+# (frontend/public/data/build_inputs.json) names? Runs
+# etl/00_check_for_updates.py --upstream-only from a plain checkout. It needs no
+# raw files and no secrets, and makes only the checker's read-only requests to
+# DOE's and NCES's public sites. The job fails when something is new or changed
+# (exit 1), and separately when a check could not be completed (exit 2), so a
+# green run always means DOE and NCES were read and list nothing new. The
+# checker's lines are in the job summary.
+
+on:
+  schedule:
+    - cron: '17 13 * * 1'  # Mondays, 13:17 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-watch
+  cancel-in-progress: false
+
+jobs:
+  watch:
+    name: DOE and NCES releases
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.12'
+
+      - name: Install the packages the checker imports (versions from etl/requirements.txt)
+        run: |
+          grep -E '^(requests|pandas|numpy|tqdm)==' etl/requirements.txt > "$RUNNER_TEMP/watch-requirements.txt"
+          test "$(wc -l < "$RUNNER_TEMP/watch-requirements.txt")" -eq 4
+          python -m pip install -r "$RUNNER_TEMP/watch-requirements.txt"
+
+      - name: Test the upstream check (offline)
+        run: python -I -B -m unittest discover -s etl/tests
+
+      - name: Ask DOE and NCES
+        run: |
+          code=0
+          python -I -B etl/00_check_for_updates.py --upstream-only > "$RUNNER_TEMP/watch.txt" 2>&1 || code=$?
+          cat "$RUNNER_TEMP/watch.txt"
+          case $code in
+            0) title="Nothing new upstream" ;;
+            1) title="New or changed data upstream" ;;
+            2) title="The upstream check could not be completed" ;;
+            *) title="The checker failed (exit $code)" ;;
+          esac
+          {
+            echo "## $title"
+            echo
+            echo '```'
+            cat "$RUNNER_TEMP/watch.txt"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          case $code in
+            0) ;;
+            1) echo "::error title=$title::DOE or NCES publishes data newer than, or re-issued from, the build record. See the job summary."
+               exit 1 ;;
+            2) echo "::error title=$title::Whether there is new data is unknown. See the job summary."
+               exit 2 ;;
+            *) echo "::error title=$title::See the log."
+               exit 1 ;;
+          esac
