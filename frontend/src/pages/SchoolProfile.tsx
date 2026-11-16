@@ -400,7 +400,7 @@ export default function SchoolProfile() {
           {profile.campus && (
             <p className="mt-1 text-body text-ink-2">Campus of {profile.name}</p>
           )}
-          <div className="mt-3 flex flex-wrap items-baseline gap-x-5 gap-y-1 text-ui text-ink-2">
+          <div className="mt-3 flex flex-col gap-y-1 text-ui text-ink-2 sm:flex-row sm:flex-wrap sm:items-baseline sm:gap-x-5">
             <span>
               {[profile.city, profile.state].filter(Boolean).join(', ')}
             </span>

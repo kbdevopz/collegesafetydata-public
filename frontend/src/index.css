@@ -6,8 +6,9 @@
  * Fonts, self-hosted from /fonts (see public/fonts/README.txt): subsets of
  * IBM Plex Sans (text and interface) and Source Serif 4 Subhead (headings).
  * index.html preloads the three faces the first paint uses. The fallback
- * faces are local fonts scaled to the same widths and line metrics, so text
- * keeps its place when the web fonts arrive.
+ * faces are local fonts scaled to the same widths (measured on the site's own
+ * headings and text) and line metrics, so text keeps its place when the web
+ * fonts arrive.
  */
 @font-face {
   font-family: 'CSD Sans';
@@ -41,18 +42,18 @@
   font-family: 'CSD Sans Fallback';
   src: local('Arial'), local('ArialMT');
   font-weight: 400;
-  size-adjust: 102.33%;
-  ascent-override: 100.16%;
-  descent-override: 26.87%;
+  size-adjust: 100.73%;
+  ascent-override: 101.75%;
+  descent-override: 27.3%;
   line-gap-override: 0%;
 }
 @font-face {
   font-family: 'CSD Sans Fallback';
   src: local('Arial Bold'), local('Arial-BoldMT');
   font-weight: 500 700;
-  size-adjust: 98.97%;
-  ascent-override: 103.56%;
-  descent-override: 27.78%;
+  size-adjust: 96.78%;
+  ascent-override: 105.9%;
+  descent-override: 28.41%;
   line-gap-override: 0%;
 }
 @font-face {
