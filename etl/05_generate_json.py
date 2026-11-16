@@ -28,7 +28,7 @@ from config import (
     US_STATES, PROCESS_ALL_SCHOOLS,
     SUMMARY_FAMILIES, MIN_FTE_FOR_RATE, ONLINE_SHARE_YEAR, RATE_CI_LEVEL, ONLINE_UNCERTAIN_RATIO,
     MEDICAL_CAMPUS_SHARE, SHARED_SITE_MAX_SHARE, SHARED_SITE_FIGURE_YEARS, SHARED_NEAR_MIN_NONZERO, SHARED_NEAR_MATCH,
-    SHARED_NEAR_MIN_TOTAL,
+    SHARED_NEAR_MIN_TOTAL, SHARED_MIN_NONZERO, SHARED_CITY_MIN_TOTAL, MEDICAL_CARNEGIE,
     COUNT_FLAG_MIN_COUNT, COUNT_FLAG_FACTOR, COUNT_FLAG_PERCENTILE,
     RATE_WINDOW_YEARS, RATE_SKIP_YEARS, RATE_CODES, RATE_DISPERSION, RATE_DISPERSION_OTHER, RATE_RAMP, RATE_SPREAD,
     LIST_CODES, LIST_MIN_EXPECTED, LIST_ALPHA, STATE_LIST_MIN_MEMBERS, STATE_LIST_DISPLAY_MIN, TYPE_LIST_MIN_MEMBERS,
@@ -89,6 +89,7 @@ def required_inputs() -> list[Path]:
         CURATED_DIR / "dims" / "dim_medical_campus.parquet",
         CURATED_DIR / "dims" / "dim_shared_site_enrollment.parquet",
         CURATED_DIR / "dims" / "dim_hospital_unresolved.parquet",
+        CURATED_DIR / "dims" / "dim_institution_class.parquet",
     ]
     if PROCESS_ALL_SCHOOLS:
         paths += [
@@ -853,6 +854,33 @@ def institution_year_stats(institutions: Institutions) -> dict:
     return {"rules": rules, "pooled": pooled, "byYear": by_year, "onlineOwnYear": own_year}
 
 
+def carnegie_research_category() -> dict:
+    """
+    metadata rateStats.carnegieResearch, from 03's table of the IPEDS HD
+    files of DATA_YEARS: the medical code of MEDICAL_CARNEGIE that only the
+    2021 edition has (C21BASIC 27, "Special Focus Research Institution")
+    against the 2018 edition's medical-school code (C18BASIC 25). year: the
+    newest HD file with C21BASIC; institutions: those it codes 27;
+    c18Year: the newest HD file with C18BASIC; c18Medical: of those
+    institutions, the ones that file codes 25.
+    """
+    cls = pd.read_parquet(CURATED_DIR / "dims" / "dim_institution_class.parquet",
+                          columns=["unitid", "year", "c21basic", "c18basic"])
+    cls = cls[cls["year"].isin(DATA_YEARS)]
+    new_codes = [c for c in MEDICAL_CARNEGIE["C21BASIC"] if c not in MEDICAL_CARNEGIE["C18BASIC"]]
+    if not new_codes or cls["c21basic"].notna().sum() == 0 or cls["c18basic"].notna().sum() == 0:
+        raise SiteDataError("dim_institution_class.parquet has no C21BASIC or C18BASIC value, or MEDICAL_CARNEGIE "
+                            "has no C21BASIC-only code. Re-run 03_build_dimensions.py, then 05.")
+    year = int(cls.loc[cls["c21basic"].notna(), "year"].max())
+    members = set(cls.loc[(cls["year"] == year) & cls["c21basic"].isin(new_codes), "unitid"].astype(int).tolist())
+    c18_year = int(cls.loc[cls["c18basic"].notna(), "year"].max())
+    c18 = cls[(cls["year"] == c18_year) & cls["unitid"].isin(members)]
+    medical = int(c18["c18basic"].isin(list(MEDICAL_CARNEGIE["C18BASIC"])).sum())
+    print(f"  C21BASIC {new_codes} in HD{year}: {len(members)} institutions, {medical} of them "
+          f"{list(MEDICAL_CARNEGIE['C18BASIC'])} in C18BASIC of HD{c18_year}")
+    return {"year": year, "institutions": len(members), "c18Year": c18_year, "c18Medical": medical}
+
+
 def generate_rankings_json(references: dict[int, dict[str, Fraction]]) -> dict:
     """
     Generate rankings JSON files for each year and preset (schema: rankings_output).
@@ -1035,7 +1063,10 @@ def write_rates(result: dict) -> tuple[set[int], dict]:
     rates/institutions/{base UNITID}.json, per institution with a rated
         window, a single-year rate or an unusual-year flag: id, name, unitid
         (link campus), state, peerType, years {year: single-year entry
-        (rates.single_year)}, windows {window: status (rates.window_status,
+        (rates.single_year)}, absentYears {year: why the institution has no
+        institution-year in that year of DATA_YEARS (rates.absent_year:
+        reason "notReported", or "countedElsewhere" with under [{id, name,
+        unitid}]); left out when there is none}, windows {window: status (rates.window_status,
         with the shared-site notes of a rated one), and for a rated one
         fteByYear, fteSmallerByYear (an uncertain on-campus FTE), codes
         {code: entry with nByYear, natl, peerRate}}, flags (every unusual
@@ -1084,6 +1115,7 @@ def write_rates(result: dict) -> tuple[set[int], dict]:
 
     flags, single = result["flags"], result["singleYear"]
     rate_files = set()
+    absent_reasons = {"notReported": 0, "countedElsewhere": 0}
     bases = sorted(set(single) | set(flags) | {b for st in statuses.values() for b in st})
     for base in bases:
         rated_windows = [w for w, st in statuses.items() if st.get(base, {}).get("status") == "rated"]
@@ -1093,7 +1125,14 @@ def write_rates(result: dict) -> tuple[set[int], dict]:
         latest = inp.rec[(max(inp.years_of[base]), base)]
         obj = {"id": base, "name": str(latest["institution_name"]), "unitid": int(latest["link_unitid"]),
                "state": opt(latest.get("state")), "peerType": str(latest["peer_type"]),
-               "years": single.get(base, {}), "windows": {}}
+               "years": single.get(base, {})}
+        # The data years without an institution-year, and why (rates.absent_years)
+        absent = rates.absent_years(inp, base)
+        if absent:
+            obj["absentYears"] = absent
+            for a in absent.values():
+                absent_reasons[a["reason"]] += 1
+        obj["windows"] = {}
         for window, st in statuses.items():
             if base not in st:
                 continue
@@ -1127,6 +1166,7 @@ def write_rates(result: dict) -> tuple[set[int], dict]:
     stats["institutionFiles"] = len(rate_files)
     print(f"  Institution rate files: {len(rate_files):,}; unusual-year flags: {len(all_flags):,} "
           f"({stats['flags']['byGeo']})")
+    print(f"  Data years without an institution-year in those files (absentYears), by reason: {absent_reasons}")
     return rate_files, stats
 
 
@@ -1176,6 +1216,9 @@ def rate_rules(years: list[int], references: dict[int, dict[str, Fraction]]) -> 
         "sharedSiteFigureYears": SHARED_SITE_FIGURE_YEARS,
         "sharedNear": {"minNonzero": SHARED_NEAR_MIN_NONZERO, "match": list(SHARED_NEAR_MATCH),
                        "minTotal": SHARED_NEAR_MIN_TOTAL},
+        # Identical figures counted once (04's shadow blocks): the nonzero cells a copy needs, and the
+        # least total of the whole-year same-city rule
+        "sharedCopies": {"minNonzero": SHARED_MIN_NONZERO, "cityMinTotal": SHARED_CITY_MIN_TOTAL},
         "lists": {"codes": list(LIST_CODES), "minExpected": LIST_MIN_EXPECTED, "alpha": LIST_ALPHA,
                   "stateMinMembers": STATE_LIST_MIN_MEMBERS, "stateDisplayMin": STATE_LIST_DISPLAY_MIN,
                   "typeMinMembers": TYPE_LIST_MIN_MEMBERS, "notPlaced": ["unusual_year"]},
@@ -1739,6 +1782,7 @@ def main() -> int:
         count_stats = generate_rankings_json(result["countFlagReference"])
         rate_stats["countFlags"] = count_stats["countFlags"]
         rate_stats["institutionYears"] = count_stats["institutionYears"]
+        rate_stats["carnegieResearch"] = carnegie_research_category()
         metadata = generate_metadata(inputs_before.records["04"], rate_stats,
                                      rate_rules(result["inputs"].data_years, result["countFlagReference"]))
         generate_school_profiles(result["flags"], rate_files)

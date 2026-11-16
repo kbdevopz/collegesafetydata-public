@@ -83,6 +83,9 @@ export interface RateRules {
   // match[0] / match[1] of them equal to the other's, and a total of at
   // least minTotal
   sharedNear: { minNonzero: number; match: Ratio; minTotal: number }
+  // Identical figures counted once: the nonzero figures a copy needs, and the
+  // least total of a whole year filed by institutions in one city
+  sharedCopies?: { minNonzero: number; cityMinTotal: number }
   lists: {
     // The codes with ordered lists
     codes: string[]
@@ -278,6 +281,11 @@ export interface RateStats {
     // Pandemic years whose own online share was used (no fall 2019 share)
     onlineOwnYear: Record<string, { all: number; withFte: number }>
   }
+  // The 2021 Carnegie category "Special Focus Research Institution" (C21BASIC
+  // 27): its institutions in the newest IPEDS HD file with C21BASIC (year),
+  // and how many of them the newest file with C18BASIC (c18Year) codes as
+  // medical schools and centers (25)
+  carnegieResearch?: { year: number; institutions: number; c18Year: number; c18Medical: number }
 }
 
 // "final": NCES final revised file; "provisional": NCES provisional release;
@@ -551,6 +559,14 @@ export interface InstitutionRateYear {
   notRated?: NotRatedReason
 }
 
+// A data year in which the institution has no figures of its own, and why:
+// none of its campuses is in DOE's data that year, or each one that is has
+// all its figures counted under another institution's campus (`under`: those
+// host campuses, with their institutions)
+export type AbsentYear =
+  | { reason: 'notReported' }
+  | { reason: 'countedElsewhere'; under: (NamedInstitution & { unitid: number })[] }
+
 // rates/institutions/{base}.json
 export interface InstitutionRatesFile {
   id: number
@@ -559,6 +575,8 @@ export interface InstitutionRatesFile {
   state: string
   peerType: string
   years: Record<string, InstitutionRateYear>
+  // Every data year without an entry in `years` (none: left out)
+  absentYears?: Record<string, AbsentYear>
   windows: Record<string, InstitutionWindow>
   flags: InstitutionFlag[]
   // The reviewed rows: a hospital adjoins or lies inside the main campus;

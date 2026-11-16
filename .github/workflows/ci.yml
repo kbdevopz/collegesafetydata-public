@@ -69,3 +69,6 @@ jobs:
 
       - name: Import ETL modules
         run: python .github/scripts/etl_import_check.py
+
+      - name: Test the upstream check (offline)
+        run: python -I -B -m unittest discover -s etl/tests

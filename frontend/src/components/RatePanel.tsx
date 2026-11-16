@@ -119,7 +119,7 @@ export default function RatePanel({
   }
 
   const win = file.windows[windowKey]
-  const status = win ? windowStatusSentence(win, windowKey, rules, profile) : null
+  const status = win ? windowStatusSentence(win, windowKey, rules, profile, file.absentYears) : null
   const stats = metadata.rateStats?.windows?.[windowKey] ?? {}
   const codes = rateCodes(rules)
   const main = codes.filter((c) => (MAIN_RATE_CODES as readonly string[]).includes(c))
@@ -180,7 +180,7 @@ export default function RatePanel({
         {status && <p className="mt-3 font-medium text-gray-900 dark:text-gray-100 break-words"><LinkedText text={status} /></p>}
         {!win && (
           <p className="mt-3 font-medium text-gray-900 dark:text-gray-100 break-words">
-            {missingYearsSentence(windowKey, [], rules, profile)}
+            {missingYearsSentence(windowKey, [], rules, file.absentYears)}
           </p>
         )}
         {win?.status === 'rated' && (
@@ -240,7 +240,7 @@ export default function RatePanel({
       )}
 
       <section className={card}>
-        <SingleYearRates file={file} code={trendCode} rules={rules} profile={profile} />
+        <SingleYearRates file={file} code={trendCode} rules={rules} profile={profile} dataYears={metadata.years} />
       </section>
 
       {file.flags.length > 0 && (

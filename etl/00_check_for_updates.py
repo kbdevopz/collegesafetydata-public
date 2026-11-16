@@ -100,10 +100,26 @@ Exit code: 0 = everything is current, 1 = something is new, changed or not
 yet rebuilt, 2 = a check could not be completed, so the answer is unknown.
 WAITING and INFO lines do not change the exit code.
 
+Upstream only (--upstream-only): whether DOE or NCES publishes data newer
+than, or re-issued from, the files the site data's build record names
+(frontend/public/data/build_inputs.json, which is committed), without the raw
+files, a local build, git or the live sites, so it can run from a plain
+checkout. DOE: the listing, the next release by name, DATA_YEARS, and each
+release the build read, downloaded and compared with the record's CRC-32 and
+size of every crime file the transform reads from it. NCES: each year's
+enrollment ZIP must still be listed and hold the CSV the build read (its
+final version in the ZIP, another CSV, another version listed next to it, or
+fall enrollment for a year the build has none for is NEW), fall enrollment
+for the next year, and the IPEDS Access databases. The record has each
+enrollment CSV's SHA-256, not its CRC-32, so a change to an NCES file's
+contents under the same name is not seen in this mode (the full check sees
+it). It sends the requests library's User-Agent, which names no project.
+
 Usage:
     python 00_check_for_updates.py
-    python 00_check_for_updates.py --local-only   # no network for the release check: origin and the
-                                                  # live sites are not asked
+    python 00_check_for_updates.py --local-only     # no network for the release check: origin and the
+                                                    # live sites are not asked
+    python 00_check_for_updates.py --upstream-only  # DOE and NCES against the build record only
 """
 
 import sys
@@ -456,6 +472,40 @@ def reissue_line(name: str, release: int, zip_path: Path, theirs: dict) -> tuple
                        f"run 01_download_raw_data.py --release {release} --force")
 
 
+def probe_next_release(years) -> None:
+    """Ask DOE for the release after the newest of `years` (None entries ignored) by its predicted name."""
+    known_years = [y for y in years if y]
+    if not known_years:
+        return
+    probe_year = max(known_years) + 1
+    probe = f"Crime{probe_year}SAS.zip"
+    try:
+        lacks = probe_release(probe, probe_year)
+        if lacks is None:
+            report("OK", f"{probe} does not exist yet (404)")
+        elif lacks:
+            report("NEW", f"{probe} exists upstream, but lacks crime files the transform expects "
+                          f"({short(lacks)}); DOE may have renamed them, so the pipeline may need an update")
+        else:
+            report("NEW", f"{probe} exists upstream")
+    except BadDownload as e:
+        report("NEW", f"{probe} may exist upstream: DOE answers for it, but {e}; "
+                      "check https://ope.ed.gov/campussafety/")
+    except requests.RequestException as e:
+        report("ERROR", f"Could not probe {probe}: {e}")
+
+
+def report_data_years(releases) -> None:
+    """Whether DATA_YEARS reaches the newest calendar year of the newest of `releases` (None entries ignored)."""
+    newest_release = max((y for y in releases if y), default=None)
+    if newest_release and newest_release - 1 > max(DATA_YEARS):
+        report("NEW", f"Crime{newest_release}SAS.zip covers calendar {newest_release - 1}, but "
+                      f"config.DATA_YEARS ends at {max(DATA_YEARS)}; extend DATA_YEARS and rebuild. Rates also "
+                      "need NCES's fall enrollment for each year added: until NCES publishes it, the site "
+                      "shows that year's counts without rates, and this check reports the year as WAITING "
+                      f"(the NCES section below says whether fall {max(DATA_YEARS) + 1} enrollment is out)")
+
+
 def check_doe() -> None:
     print("\nDOE Campus Safety crime releases")
     first = len(findings)
@@ -497,33 +547,9 @@ def check_doe() -> None:
         report("NEW", f"DOE's listing mentions a {newest_any} release that is not listed as "
                       f"Crime{newest_any}SAS.zip; check https://ope.ed.gov/campussafety/")
 
-    known_years = [y for y in (newest_listed, newest_local, newest_any) if y]
-    if known_years:
-        probe_year = max(known_years) + 1
-        probe = f"Crime{probe_year}SAS.zip"
-        try:
-            lacks = probe_release(probe, probe_year)
-            if lacks is None:
-                report("OK", f"{probe} does not exist yet (404)")
-            elif lacks:
-                report("NEW", f"{probe} exists upstream, but lacks crime files the transform expects "
-                              f"({short(lacks)}); DOE may have renamed them, so the pipeline may need an update")
-            else:
-                report("NEW", f"{probe} exists upstream")
-        except BadDownload as e:
-            report("NEW", f"{probe} may exist upstream: DOE answers for it, but {e}; "
-                          "check https://ope.ed.gov/campussafety/")
-        except requests.RequestException as e:
-            report("ERROR", f"Could not probe {probe}: {e}")
-
+    probe_next_release([newest_listed, newest_local, newest_any])
     # Does DATA_YEARS reach the newest calendar year we have or DOE offers?
-    newest_release = max(y for y in (newest_listed, newest_local) if y) if (newest_listed or newest_local) else None
-    if newest_release and newest_release - 1 > max(DATA_YEARS):
-        report("NEW", f"Crime{newest_release}SAS.zip covers calendar {newest_release - 1}, but "
-                      f"config.DATA_YEARS ends at {max(DATA_YEARS)}; extend DATA_YEARS and rebuild. Rates also "
-                      "need NCES's fall enrollment for each year added: until NCES publishes it, the site "
-                      "shows that year's counts without rates, and this check reports the year as WAITING "
-                      f"(the NCES section below says whether fall {max(DATA_YEARS) + 1} enrollment is out)")
+    report_data_years([newest_listed, newest_local])
 
     if newest_listed and newest_listed == newest_local:
         newer = any(kind in ("NEW", "ERROR") for kind, _ in findings[first:])
@@ -825,6 +851,11 @@ def check_ipeds() -> None:
         for kind, message in csv_lines + version_lines:
             report(kind, message)
 
+    check_next_enrollment()
+
+
+def check_next_enrollment() -> None:
+    """Whether NCES has published fall enrollment for the year after DATA_YEARS (its listing only)."""
     next_year = max(DATA_YEARS) + 1
     links, conflicts, problem = read_listing(next_year)
     if problem:
@@ -1931,13 +1962,298 @@ def check_release() -> None:
     LIVE_OK = serving == len(LIVE_SITES)
 
 
+# --------------------------------------------------------------------------
+# --upstream-only: is there newer or re-issued data upstream than the build
+# record lists? Needs no raw files, local build, git or live sites, so it can
+# run from a plain checkout (the scheduled release watch does).
+# --------------------------------------------------------------------------
+
+UPSTREAM_ONLY = False  # --upstream-only
+# --upstream-only sends the requests library's own User-Agent, which names no
+# project; the other modes send HEADERS' as before
+GENERIC_USER_AGENT = requests.utils.default_user_agent()
+
+
+def crime_members(members: dict) -> dict:
+    """The members of a release zip that start like a crime file the transform reads (geography + category)."""
+    return {m: v for m, v in members.items() if m.endswith(".sas7bdat")
+            and any(m.startswith(g + c) for g in transform.GEOGRAPHY_MAP for c in transform.CATEGORY_MAP)}
+
+
+def built_inputs(published) -> tuple[dict, dict]:
+    """
+    From the site data's build record (step 05's, which carries 04's and
+    through it 02's and 02a's): the crime files step 02 read, by DOE release
+    {release: {member: (CRC-32, size)}}, and the enrollment CSV the
+    transforms read for each year {"YYYY": {file, final, sha256}}. Raises
+    ValueError when the record does not hold them.
+    """
+    if not isinstance(published, dict):
+        raise ValueError(f"there is no build record ({SITE_RECORD})")
+    aggs = published.get("aggregates")
+    inputs = aggs.get("inputs") if isinstance(aggs, dict) else None
+    crime = inputs.get("crime") if isinstance(inputs, dict) else None
+    enrollment = inputs.get("enrollment") if isinstance(inputs, dict) else None
+    files = crime.get("files") if isinstance(crime, dict) else None
+    used = enrollment.get("inputs") if isinstance(enrollment, dict) else None
+    if not isinstance(files, dict) or not files:
+        raise ValueError(f"{SITE_RECORD} lists no crime files read by step 02")
+    if not isinstance(used, dict):
+        raise ValueError(f"{SITE_RECORD} lists no enrollment files read by step 02a")
+    releases: dict[int, dict[str, tuple[int, int]]] = {}
+    for name, rec in files.items():
+        parsed = transform.parse_filename(str(name))
+        try:
+            entry = (int(rec["crc32"]), int(rec["size"]))
+        except (KeyError, TypeError, ValueError):
+            entry = None
+        if parsed is None or entry is None:
+            raise ValueError(f"{SITE_RECORD} lists {name!r} as a crime file read by step 02, which this check "
+                             "cannot read")
+        releases.setdefault(transform.release_year(parsed[2]), {})[str(name).lower()] = entry
+    return releases, used
+
+
+def check_doe_upstream(built: dict[int, dict[str, tuple[int, int]]]) -> None:
+    """
+    --upstream-only, DOE: the listing (every row classified, as check_doe
+    does), a release newer than the newest one the build read, the next
+    release by its predicted name, DATA_YEARS, and each release the build
+    read or DOE offers that the pipeline needs. Each such release is
+    downloaded, as check_doe does, and the crime files the transform reads
+    from it are compared with the build record by CRC-32 and size: the
+    record lists exactly those files, so a re-issue that changes, adds or
+    removes one is found.
+    """
+    print("\nDOE Campus Safety crime releases (compared with the build record)")
+    first = len(findings)
+    listed: dict[int, dict] = {}
+    known, unknown, newest_any = [], [], None
+    try:
+        listed, known, unknown, newest_any = doe_listing()
+    except (requests.RequestException, ValueError) as e:
+        report("ERROR", f"Could not read DOE's file listing: {e}")
+    for row in unknown:
+        UNRECOGNIZED.append(describe_row(row))
+        report("NEW", f"DOE lists a file this checker does not recognize: {describe_row(row)}. "
+                      "Check whether it is newer or corrected data")
+    for release, row in known:
+        check_calendar_years(release, row)
+
+    newest_built = max(built)
+    newest_listed = max(listed) if listed else None
+    report("INFO", f"Newest release the build read: Crime{newest_built}SAS.zip "
+                   f"(calendar {newest_built - 3}-{newest_built - 1})")
+    if newest_listed and newest_listed > newest_built:
+        report("NEW", f"DOE lists Crime{newest_listed}SAS.zip (calendar {newest_listed - 3}-{newest_listed - 1}), "
+                      "newer than the newest release the build read")
+    if newest_any and newest_any > max(newest_listed or 0, newest_built):
+        report("NEW", f"DOE's listing mentions a {newest_any} release that is not listed as "
+                      f"Crime{newest_any}SAS.zip; check https://ope.ed.gov/campussafety/")
+    probe_next_release([newest_listed, newest_built, newest_any])
+    report_data_years([newest_listed, newest_built])
+    if newest_listed and newest_listed == newest_built:
+        newer = any(kind in ("NEW", "ERROR") for kind, _ in findings[first:])
+        report("INFO" if newer else "OK", f"DOE's newest listed release is Crime{newest_listed}SAS.zip, the newest "
+                                          "the build read")
+
+    needed = {r for r in downloader.needed_release_years() if newest_listed and r <= newest_listed}
+    for year in sorted(needed | set(built)):
+        name = f"Crime{year}SAS.zip"
+        # Newer than anything DOE's listing names: DOE may serve it before listing it
+        lags = bool(listed) and year in built and year not in listed and year > max(newest_listed or 0,
+                                                                                    newest_any or 0)
+        if listed and year not in listed and not lags:
+            report("ERROR", f"{name} is not on DOE's listing")
+        try:
+            upstream = doe_release(name, year, None)
+        except (requests.RequestException, BadDownload) as e:
+            report("ERROR", f"Could not verify {name} against DOE: {e}")
+            continue
+        if upstream is None:
+            report("ERROR", f"{name} returns 404 at DOE")
+            continue
+        if year not in built:
+            report("NEW", f"{name} is offered by DOE, and the build did not read it")
+            continue
+        if lags:
+            report("INFO", f"{name} is not on DOE's listing yet, but DOE serves it")
+        ours, theirs = built[year], crime_members(upstream[1])
+        diff = ipeds_files.describe_difference(ours, theirs)
+        if diff == "no difference":
+            report("OK", f"{name}: the {len(ours)} crime files the transform reads are the ones the build read "
+                         "(CRC-32 and size)")
+        else:
+            report("CHANGED", f"{name} was re-issued: DOE's copy differs from the files the build read ({diff}); "
+                              f"run 01_download_raw_data.py --release {year} --force and rebuild")
+
+
+def linked_entries(year: int, zip_name: str, urls: list[str]) -> tuple[dict | None, tuple[str, str] | None]:
+    """
+    The member list of a pipeline ZIP NCES's listing links (one address, or
+    several that must all hold the same members) by the file name each is
+    extracted to, or None with the line that says why it cannot be read.
+    """
+    found = []
+    for url in urls:
+        try:
+            remote = ipeds_files.remote_entries(url)
+        except (requests.RequestException, ValueError) as e:
+            return None, ("ERROR", f"Could not read {zip_name} at {url}: {e}")
+        if remote is None:
+            return None, ("ERROR", f"NCES lists {zip_name} but {url} returns 404")
+        found.append(remote[0])
+    if any(f != found[0] for f in found[1:]):
+        return None, ("CHANGED", f"NCES's {year} listing links {zip_name} at more than one address "
+                                 f"({' and '.join(urls)}), and the copies differ. Find out which copy is current")
+    flat: dict[str, tuple[int, int]] = {}
+    for member, entry in found[0].items():
+        base = ipeds_files.member_file_name(member)
+        if base in flat:
+            return None, ("ERROR", f"{year}: {zip_name} has two members named {base}; cannot tell which one the "
+                                   "transforms read")
+        flat[base] = entry
+    return flat, None
+
+
+def check_ipeds_upstream(used: dict) -> None:
+    """
+    --upstream-only, NCES: for each year of DATA_YEARS, the enrollment ZIP
+    the transforms read from must still be on NCES's listing and hold the
+    CSV the build read; the final {stem}_rv.csv in it when the build read
+    the provisional file, another CSV in it, or another version listed next
+    to it is NEW. A year the build has no enrollment for (NCES had not
+    published it) is NEW once the listing has the file, else WAITING. Then
+    fall enrollment for the year after DATA_YEARS (check_next_enrollment).
+    The ZIPs' member lists are read as check_ipeds reads them (their central
+    directory). The record holds each CSV's SHA-256, not its CRC-32, so a
+    change to a file's contents under the same name is not seen here.
+    """
+    print("\nNCES IPEDS enrollment files (compared with the build record)")
+    WAITING_YEARS.clear()
+    for year in DATA_YEARS:
+        stem = ipeds.pipeline_stem(year)
+        key, zip_name = stem.upper(), f"{stem.upper()}.zip"
+        links, conflicts, problem = read_listing(year)
+        if problem:
+            report("ERROR", problem)
+            continue
+        rec = used.get(str(year))
+        if not isinstance(rec, dict):
+            if links is not None and (key in links or key in conflicts or ipeds_files.listing_mentions(year, key)):
+                report("NEW", f"{zip_name} (fall {year} enrollment) is on NCES's {year} listing, and the build has "
+                              f"no enrollment for {year}: run 01b_download_ipeds.py and rebuild")
+            else:
+                WAITING_YEARS.add(year)
+                report("WAITING", f"Rates for {year} cannot be computed until NCES publishes fall {year} "
+                                  "enrollment; the site shows counts without rates. Checked again on every run")
+            continue
+        if links is None:
+            report("ERROR", f"NCES has no Complete Data Files page for {year}")
+            continue
+        for other in ipeds_files.other_versions(stem, [*links, *conflicts]):
+            UNRECOGNIZED.append(f"{other}.zip")
+            url = links.get(other) or " and ".join(conflicts[other])
+            report("NEW", f"{other}.zip is listed next to {zip_name}; check whether it holds final or corrected "
+                          f"data (the pipeline does not read it): {url}")
+        urls = conflicts.get(key) or ([links[key]] if key in links else [])
+        if not urls:
+            if ipeds_files.listing_mentions(year, key):
+                report("ERROR", f"{zip_name} appears on NCES's {year} listing, but its link could not be read; "
+                                "the page format may have changed")
+            else:
+                report("ERROR", f"{zip_name} is not on NCES's {year} listing")
+            continue
+        flat, line = linked_entries(year, zip_name, urls)
+        if line:
+            report(*line)
+            continue
+        built_file = str(rec.get("file") or "").lower()
+        final_name = f"{stem}_rv.csv"
+        lines = []
+        if built_file not in flat:
+            lines.append(("CHANGED", f"{year}: {zip_name} no longer has {built_file or 'the CSV'}, the file the "
+                                     "build read; run 01b_download_ipeds.py and rebuild"))
+        elif built_file != final_name and final_name in flat:
+            lines.append(("NEW", f"{year}: {zip_name} now has the final {final_name}; the build read the "
+                                 f"provisional {built_file}. Run 01b_download_ipeds.py and rebuild"))
+        other = sorted(n for n in flat if n.endswith(".csv") and n not in (f"{stem}.csv", final_name))
+        if other:
+            UNRECOGNIZED.extend(other)
+            lines.append(("NEW", f"{year}: {zip_name} has {short(other)}, which the transforms do not read. It may "
+                                 "be NCES's final or corrected data under a new name: check it, and update the "
+                                 "pipeline if it is"))
+        for kind, message in lines or [("OK", f"{year}: {zip_name} is listed and holds {built_file}, the file "
+                                              "the build read")]:
+            report(kind, message)
+    report("INFO", "Not checked in this mode: whether NCES changed an enrollment file's contents under the same "
+                   "name (the build record has its SHA-256, which needs the file itself). The full check, with "
+                   "the raw files, compares every member's CRC-32 and size")
+    check_next_enrollment()
+
+
+def upstream_main() -> int:
+    """--upstream-only: DOE and NCES against the build record. Exit code as main's."""
+    HEADERS["User-Agent"] = GENERIC_USER_AGENT
+    ipeds_files.session().headers["User-Agent"] = GENERIC_USER_AGENT
+    print("=" * 60)
+    print("Checking DOE and NCES for data newer than, or re-issued from, the build record")
+    print(f"({SITE_RECORD}); raw files, the local build, git and the live sites are not used")
+    print("=" * 60)
+    built, used = None, None
+    try:
+        built, used = built_inputs(provenance.read(provenance.PUBLISHED_MANIFEST))
+    except (OSError, ValueError) as e:
+        report("ERROR", f"The build record cannot be used: {e}")
+    checks = [check_ipeds_official]
+    if built is not None:
+        checks = [lambda: check_doe_upstream(built), lambda: check_ipeds_upstream(used), check_ipeds_official]
+    for check in checks:
+        try:
+            check()
+        except Exception as e:  # never let an unexpected failure read as "nothing new"
+            report("ERROR", f"the upstream check stopped unexpectedly: {e!r}")
+            traceback.print_exc()
+
+    kinds = [k for k, _ in findings]
+    print("\n" + "=" * 60)
+    if "ERROR" in kinds:
+        print(f"RESULT: {kinds.count('ERROR')} check(s) could not be completed, so whether DOE or NCES has newer "
+              "or re-issued data is UNKNOWN.")
+        print_waiting()
+        return 2
+    if "NEW" in kinds or "CHANGED" in kinds:
+        print(f"RESULT: {kinds.count('NEW')} new and {kinds.count('CHANGED')} changed item(s) upstream, compared "
+              "with the build record.")
+        print("Next: on the machine with the raw files, run 00_check_for_updates.py, download what it names")
+        print("      (01_download_raw_data.py, 01b_download_ipeds.py), rebuild, and release.")
+        if UNRECOGNIZED:
+            print("      First look at the file(s) this checker does not recognize: the pipeline may")
+            print("      need a change to read them.")
+        print_waiting()
+        return 1
+    print("RESULT: DOE and NCES list nothing newer than, or re-issued from, the files the build record names")
+    print("        (apart from the contents of NCES files under the same name; see the INFO line above).")
+    print("        Not checked in this mode: the raw files, the local build, git and the live sites.")
+    print_waiting()
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
-    global LOCAL_ONLY
+    global LOCAL_ONLY, UPSTREAM_ONLY
     parser = argparse.ArgumentParser(description="Check for newer DOE and NCES data, and whether the "
                                                  "site data was built from it and released.")
-    parser.add_argument("--local-only", action="store_true",
-                        help="do not ask origin or the live sites (the release check uses no network)")
-    LOCAL_ONLY = parser.parse_args([] if argv is None else argv).local_only
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument("--local-only", action="store_true",
+                      help="do not ask origin or the live sites (the release check uses no network)")
+    mode.add_argument("--upstream-only", action="store_true",
+                      help="only ask DOE and NCES whether they publish data newer than, or re-issued from, the "
+                           "files the build record (frontend/public/data/build_inputs.json) names; needs no raw "
+                           "files, local build, git or live sites")
+    args = parser.parse_args([] if argv is None else argv)
+    LOCAL_ONLY, UPSTREAM_ONLY = args.local_only, args.upstream_only
+    if UPSTREAM_ONLY:
+        return upstream_main()
 
     print("=" * 60)
     print("Checking upstream sources for newer data")

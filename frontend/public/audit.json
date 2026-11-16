@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-11-16T12:27:53Z",
+  "generated_at": "2026-11-16T17:04:30Z",
   "audited_build": {
     "site_record": "frontend/public/data/build_inputs.json",
-    "site_record_sha256": "9e16aa7a490b2965d5bd28cc6e73aa5ffa177cb461e49cd029a46a81d9436679",
+    "site_record_sha256": "06116b24907b67c6d483867e68e4411330ba67b6d2e2229e1f35ad8000248c18",
     "curated_sha256": {
       "facts/incidents.parquet": "7cf7d235e64853e934a877579aed578ee275692166bb5e6b182f6e3ff4f9a2a2",
       "aggs/agg_school_year_offense.parquet": "ead11484db841122d29b52ca15826ec8dd0669e895e0d163b5ef998126a9fe6c",
@@ -820,7 +820,13 @@
       "name": "Institution Rates",
       "status": "PASS",
       "details": {
-        "what_it_checks": "Without 04's or 05's code, from the facts without shadow blocks, the reported campus-years, dim_institution, dim_enrollment's FTE and online share, NCES's raw headcounts (DRVEF 2021 on, EF A before), etl/reference/medical_campuses.csv, etl/reference/campuses_abroad.csv, etl/reference/shared_campus_overrides.csv and the raw IPEDS HD files: the campus-years that count, the institutions (base UNITIDs) each year, counts over their counting campuses in the United States (a campus DOE lists without a state, or on the reference list of campuses abroad, is counted apart), per geography (residence halls included), link campus, FTE, online share (in 2020, 2021 that of the fall ONLINE_SHARE_YEAR names when NCES has one), the two on-campus FTE estimates (proportional, and part time first, by level with the year's own share) in whole-number arithmetic, on-campus FTE = the larger rounded half up, the smaller one, uncertain when they differ by more than 5:4 or the headcounts do not add up (own, or only through a pooled institution); the rules that leave an institution-year out (HD HOSPITAL = 1, a Carnegie special-focus medical code, the reference list, a campus under two IDs, a merger family; the first one published), pooled institutions and both denominators, the Carnegie Size & Setting peer type, and the on-campus figures at listed medical-center campuses (less residence halls); the shared sites (identical on-campus copies, near-copies found again pair by pair, the reviewed override list; joined with union-find), their class, owner and roles, the rules shared_pooled and shared_campus, the pooled FTE, the campuses whose figures are in the counts and in none of the rates, the shared figures on campus and the reviewed site student figures (etl/reference/shared_site_enrollment.csv: a site-year takes its own year's figure, else the largest whose own year is at most 3 years away; derived figures upper bounds); aggs/shared_sites.parquet and aggs/near_copies.parquet. Every rankings/*.json file must list exactly its preset's counting campuses; 04's institution tables, every school file's institution years, downloads/campus-years.csv and metadata.json's rateStats.institutionYears must match.",
+        "what_it_checks": "Without 04's or 05's code, from the facts without shadow blocks, the reported campus-years, dim_institution, dim_enrollment's FTE and online share, NCES's raw headcounts (DRVEF 2021 on, EF A before), etl/reference/medical_campuses.csv, etl/reference/campuses_abroad.csv, etl/reference/shared_campus_overrides.csv and the raw IPEDS HD files: the campus-years that count, the institutions (base UNITIDs) each year, counts over their counting campuses in the United States (a campus DOE lists without a state, or on the reference list of campuses abroad, is counted apart), per geography (residence halls included), link campus, FTE, online share (in 2020, 2021 that of the fall ONLINE_SHARE_YEAR names when NCES has one), the two on-campus FTE estimates (proportional, and part time first, by level with the year's own share) in whole-number arithmetic, on-campus FTE = the larger rounded half up, the smaller one, uncertain when they differ by more than 5:4 or the headcounts do not add up (own, or only through a pooled institution); the rules that leave an institution-year out (HD HOSPITAL = 1, a Carnegie special-focus medical code, the reference list, a campus under two IDs, a merger family; the first one published), pooled institutions and both denominators, the Carnegie Size & Setting peer type, and the on-campus figures at listed medical-center campuses (less residence halls); the shared sites (identical on-campus copies, near-copies found again pair by pair, the reviewed override list; joined with union-find), their class, owner and roles, the rules shared_pooled and shared_campus, the pooled FTE, the campuses whose figures are in the counts and in none of the rates, the shared figures on campus and the reviewed site student figures (etl/reference/shared_site_enrollment.csv: a site-year takes its own year's figure, else the largest whose own year is at most 3 years away; derived figures upper bounds); aggs/shared_sites.parquet and aggs/near_copies.parquet. Every rankings/*.json file must list exactly its preset's counting campuses; 04's institution tables, every school file's institution years, downloads/campus-years.csv and metadata.json's rateStats.institutionYears must match, and rateStats.carnegieResearch the raw HD files' count of C21BASIC 27 institutions in the newest file with C21BASIC and of those coded 25 in the newest file with C18BASIC.",
+        "carnegie_research": {
+          "year": 2024,
+          "institutions": 22,
+          "c18Year": 2023,
+          "c18Medical": 20
+        },
         "by_year": [
           {
             "year": 2015,
@@ -1265,7 +1271,7 @@
       "name": "Rate Rules",
       "status": "PASS",
       "details": {
-        "what_it_checks": "Without 04's, 05's or rates.py's code, from the institution-year data (institution-years with a counting campus, their on-campus/residence-hall/non-campus/public-property counts per offense, medical-center and shared on-campus figures, NCES FTE, the rate denominator and its smaller estimate, rules, online uncertainty, peer type) and the rule constants written out in this check: each institution's status in every 3-year window without 2020 (missingYears, scope, size, excluded, rated), the window counts, FTE-years, reason (shared: a guest or participant at a shared site in a year of the window unless its reviewed site students (each site-year its own year's figure, else the largest within 3 years; sharedSite.figures gives each campus's name, each figure's own year and whether derived; upperBound when any figure is an upper bound) are at most 1/10 of its FTE-years, then verdicts withheld; online; medical_campus: medical share at least 1/4) and the shared-site notes (sharedInWith, sharedOutWith, sharedSite, coLocated), the unresolved-hospital note (hospitalUnresolved {name, years} from etl/reference/hospital_unresolved.csv, read here, and the institution file's full row), the national and peer rates as exact fractions (2 and 4 decimals), phi with the ramp, raised to T s^2 / N when the window's yearly counts spread more (s^2 their sample variance; phiFrom), the gamma interval (own incomplete gamma, bisection), rate/lo/hi/lo4/hi4/E rounded half up, the verdicts against the exact reference (online: both FTE estimates must agree), the unusual-year flags (negative binomial tail < 0.001) and the verdict without the flagged excess (the yearly counts less each flagged year's excess, their spread), the ordered lists (E >= 20 exactly; an on-campus unusual-year flag of the code in the window: not placed; exact order, positions, pairwise z with each member's variance the larger of the model's and T s^2 and Bonferroni critical values from an own normal quantile, ranges widened to the position, state and type lists from 2 members, composition), every window file's header (compositionShare, typeLists) and summary, rates/institutions (single-year T = 1 entries and notRated reasons, window statuses), rates/flags.json, the count flag (3 x P99, numpy linear percentile, count >= 20) in every rankings file, school files' ratesFile/rated/notRated/flags, metadata.json rateRules and rateStats, config.py's constants, the design's test vectors, A4 (no placed entry has a flag, every notPlaced one has one) and A5 (the model's bounds rise with N).",
+        "what_it_checks": "Without 04's, 05's or rates.py's code, from the institution-year data (institution-years with a counting campus, their on-campus/residence-hall/non-campus/public-property counts per offense, medical-center and shared on-campus figures, NCES FTE, the rate denominator and its smaller estimate, rules, online uncertainty, peer type) and the rule constants written out in this check: each institution's status in every 3-year window without 2020 (missingYears, scope, size, excluded, rated), the window counts, FTE-years, reason (shared: a guest or participant at a shared site in a year of the window unless its reviewed site students (each site-year its own year's figure, else the largest within 3 years; sharedSite.figures gives each campus's name, each figure's own year and whether derived; upperBound when any figure is an upper bound) are at most 1/10 of its FTE-years, then verdicts withheld; online; medical_campus: medical share at least 1/4) and the shared-site notes (sharedInWith, sharedOutWith, sharedSite, coLocated), the unresolved-hospital note (hospitalUnresolved {name, years} from etl/reference/hospital_unresolved.csv, read here, and the institution file's full row), the national and peer rates as exact fractions (2 and 4 decimals), phi with the ramp, raised to T s^2 / N when the window's yearly counts spread more (s^2 their sample variance; phiFrom), the gamma interval (own incomplete gamma, bisection), rate/lo/hi/lo4/hi4/E rounded half up, the verdicts against the exact reference (online: both FTE estimates must agree), the unusual-year flags (negative binomial tail < 0.001) and the verdict without the flagged excess (the yearly counts less each flagged year's excess, their spread), the ordered lists (E >= 20 exactly; an on-campus unusual-year flag of the code in the window: not placed; exact order, positions, pairwise z with each member's variance the larger of the model's and T s^2 and Bonferroni critical values from an own normal quantile, ranges widened to the position, state and type lists from 2 members, composition), every window file's header (compositionShare, typeLists) and summary, rates/institutions (single-year T = 1 entries and notRated reasons, window statuses, absentYears: each data year without an institution-year, either no campus of it reported that year or each campus that did has only shadow blocks, whose host campuses and institutions it names, found from the reported campus-years and shadow blocks; every missing year of a missingYears window has one), rates/flags.json, the count flag (3 x P99, numpy linear percentile, count >= 20) in every rankings file, school files' ratesFile/rated/notRated/flags, metadata.json rateRules and rateStats, config.py's constants, the design's test vectors, A4 (no placed entry has a flag, every notPlaced one has one) and A5 (the model's bounds rise with N).",
         "windows": [
           "2015-2017",
           "2016-2018",
@@ -1916,6 +1922,16 @@
         },
         "institution_files": 2578,
         "single_year_entries_checked": 25046,
+        "absent_years": {
+          "byReason": {
+            "notReported": 675,
+            "countedElsewhere": 59
+          },
+          "missingWindowYearsByReason": {
+            "notReported": 259,
+            "countedElsewhere": 57
+          }
+        },
         "flags": {
           "total": 1847,
           "byGeo": {
@@ -2138,6 +2154,7 @@
           "summary": 0,
           "single_year": 0,
           "institution_files": 0,
+          "absent_years": 0,
           "count_flags": 0,
           "school_files": 0,
           "A4": 0,
@@ -2145,7 +2162,7 @@
         },
         "examples": {},
         "problems": 0,
-        "seconds": 14.4
+        "seconds": 22.9
       },
       "errors": [],
       "warnings": []
@@ -3278,7 +3295,7 @@
           }
         ],
         "problems": [],
-        "seconds": 99.1
+        "seconds": 158.6
       },
       "errors": [],
       "warnings": []
