@@ -1,20 +1,5 @@
 import React from 'react'
-import {
-  ExternalLink,
-  Database,
-  Calculator,
-  MapPin,
-  BarChart3,
-  FileText,
-  Shield,
-  CheckCircle,
-  BookOpen,
-  Download,
-  AlertTriangle,
-  Info,
-  Users,
-  Calendar,
-} from 'lucide-react'
+import { ExternalLink, Download } from 'lucide-react'
 import { cachedMetadata, fetchRateWindow, getMetadata } from '../lib/api'
 import type { Metadata, RateWindowEntry, RateWindowFile } from '../lib/types'
 import { cn, formatDate, formatNumber } from '../lib/utils'
@@ -228,9 +213,9 @@ function limitations(d: RateFacts): { title: string; body: React.ReactNode }[] {
         <>
           A year's figure is the crimes reported that year, including some that happened earlier. Many reports of
           past abuse at one institution can make one year jump, and that year raises the rate of every window
-          containing it (see <a href="#year-reported" className="underline">How Institutions Count</a>). The site
+          containing it (see <a href="#year-reported" className="link">How Institutions Count</a>). The site
           flags such years and leaves the figures as reported (
-          <a href="#rate-flags" className="underline">Unusual years</a>).
+          <a href="#rate-flags" className="link">Unusual years</a>).
         </>
       ),
     },
@@ -280,14 +265,14 @@ function limitations(d: RateFacts): { title: string; body: React.ReactNode }[] {
           reports have a hospital, special-focus medical institutions and the institutions of a reviewed list
           have no rate, and an institution whose incidents at listed medical-center campuses are{' '}
           {rr ? ratioPercent(rr.medicalShare) : '…'} or more of its on-campus count is not on a list (
-          <a href="#rate-population-rules" className="underline">Population rules</a>,{' '}
-          <a href="#rate-medical-campuses" className="underline">Medical-center campuses</a>). Gaps remain. The
+          <a href="#rate-population-rules" className="link">Population rules</a>,{' '}
+          <a href="#rate-medical-campuses" className="link">Medical-center campuses</a>). Gaps remain. The
           hospital rule depends on what the institution reports to IPEDS: a university next to a hospital run by
           a separate organization, such as a health system, can report no hospital. The reviewed list adds the
           universities whose annual security reports say that their figures count incidents at such a hospital,
           and a second reviewed list marks the universities with a hospital next to or inside the main campus
           whose reports do not say whether its incidents are counted; those keep their rates and their places on
-          the lists, with a note on their pages (<a href="#rate-hospital-notes" className="underline">Hospital notes</a>). Only
+          the lists, with a note on their pages (<a href="#rate-hospital-notes" className="link">Hospital notes</a>). Only
           the reports of universities near the top of the ordered lists were read for these two lists, so a
           university elsewhere can count hospital incidents in its figures without a note. And the list of
           medical-center campuses was reviewed by hand, campus by campus: incidents at a medical center that is
@@ -310,7 +295,7 @@ function limitations(d: RateFacts): { title: string; body: React.ReactNode }[] {
           DOE's files give no enrollment per campus. Where campuses of different institutions are at one site and
           report the same incidents, the site's incidents are in one institution's rate or in none, and an
           institution whose students there cannot be counted is shown without a comparison and is not on a list (
-          <a href="#rate-shared" className="underline">Shared campuses</a>). The figures that let a guest be
+          <a href="#rate-shared" className="link">Shared campuses</a>). The figures that let a guest be
           compared count only the students of the programs their sources cover (the Texas A&amp;M pharmacy
           college's PharmD students, not its PhD students; the Indiana University School of Medicine's MD
           students), and a figure may be another year's, or an upper bound computed from class sizes or a cap per
@@ -353,11 +338,11 @@ function limitations(d: RateFacts): { title: string; body: React.ReactNode }[] {
         <>
           Each interval allows for year-to-year variation with one variance model per category, fitted to
           institutions' counts together, or with the institution's own spread over the window's three years when
-          that is larger (<a href="#rate-interval" className="underline">Intervals</a>). Three yearly counts say
+          that is larger (<a href="#rate-interval" className="link">Intervals</a>). Three yearly counts say
           little about an institution's own variation, so the model sets the least width an interval can have.
           The audit tests the intervals on every build
           by predicting each year's count from the institution's other years (
-          <a href="#calibration" className="underline">How well the intervals fit</a>).
+          <a href="#calibration" className="link">How well the intervals fit</a>).
           {short.length > 0 && tolBelow !== undefined && (
             <>
               {' '}In {formatNumber(short.length)} {short.length === 1 ? 'group' : 'groups'} of institutions with
@@ -380,7 +365,7 @@ function limitations(d: RateFacts): { title: string; body: React.ReactNode }[] {
                     : `${formatNumber(short.filter((r) => r.tested && r.ok !== false && (r.toleranceBelow ?? 0) > (tolBelow ?? 0)).length)} of them are`}{' '}
                   the group with the most incidents of a category the audit tests whatever its size, with limits
                   widened for its number of institutions (
-                  <a href="#calibration" className="underline">How well the intervals fit</a>), and pass.
+                  <a href="#calibration" className="link">How well the intervals fit</a>), and pass.
                 </>
               )}
             </>
@@ -392,7 +377,7 @@ function limitations(d: RateFacts): { title: string; body: React.ReactNode }[] {
               {failing.every((r) => r.observed !== null && r.expected !== null && r.observed > r.expected)
                 ? 'more counts fall inside the predicted range than expected, so those intervals are wider than they need to be on average'
                 : 'coverage differs from what the model expects by more than its limit'}{' '}
-              (<a href="#audit" className="underline">Data Quality Audit</a>).
+              (<a href="#audit" className="link">Data Quality Audit</a>).
             </>
           )}
         </>
@@ -428,7 +413,7 @@ function limitations(d: RateFacts): { title: string; body: React.ReactNode }[] {
           ) : null}
           At the national rate, a smaller institution would expect fewer than {rr?.lists?.minExpected ?? '…'}{' '}
           incidents in three years, too few to place. Smaller institutions have rates and comparisons, not
-          positions (<a href="#rate-lists" className="underline">Ordered lists</a>).
+          positions (<a href="#rate-lists" className="link">Ordered lists</a>).
         </>
       ),
     },
@@ -451,7 +436,7 @@ function limitations(d: RateFacts): { title: string; body: React.ReactNode }[] {
           NCES's fall enrollment excludes students enrolled at an institution's branch campuses in foreign
           countries (<SourceLink source={SOURCES.ncesFallEnrollment2024}>NCES, Fall Enrollment instructions</SourceLink>),
           so an institution's rate leaves out the incidents at its campuses abroad (see{' '}
-          <a href="#rate-abroad" className="underline">Campuses abroad</a>). Those incidents are on each such
+          <a href="#rate-abroad" className="link">Campuses abroad</a>). Those incidents are on each such
           campus's own school page.
         </>
       ),
@@ -480,7 +465,7 @@ function limitations(d: RateFacts): { title: string; body: React.ReactNode }[] {
         <>
           {rr?.skipYears?.length ? `${joinAnd(rr.skipYears.map(String))} has counts but no rate. ` : ''}
           Motor-vehicle theft, arrests, disciplinary referrals and several rare offenses are shown as counts only (
-          <a href="#rate-codes" className="underline">Categories without a rate</a>).
+          <a href="#rate-codes" className="link">Categories without a rate</a>).
         </>
       ),
     },
@@ -501,7 +486,7 @@ function limitations(d: RateFacts): { title: string; body: React.ReactNode }[] {
       body: (
         <>
           Hate crimes, unfounded reports and fire statistics are not shown (see{' '}
-          <a href="#not-shown" className="underline">What This Site Does Not Show</a>).
+          <a href="#not-shown" className="link">What This Site Does Not Show</a>).
         </>
       ),
     },
@@ -520,7 +505,7 @@ function defectCampuses(metadata: Metadata | null, year: number): number | null 
 function Rule({ id, title, children }: { id: string; title: string; children: React.ReactNode }) {
   return (
     <li id={id} className="scroll-mt-20">
-      <strong className="text-gray-900 dark:text-gray-100">{title}.</strong> {children}
+      <strong className="text-ink">{title}.</strong> {children}
     </li>
   )
 }
@@ -543,11 +528,27 @@ const CHECK_DESCRIPTIONS: Record<string, string> = {
   'Medical-Campus Screen': "campuses whose DOE name or address suggests a medical center, and that hold a material share of an institution's on-campus count, are on the medical-center campus list or recorded as reviewed (a warning otherwise, never a failure)",
 }
 
+// The status is in words; the outline only repeats it
 const STATUS_STYLES: Record<string, string> = {
-  PASS: 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300',
-  WARNING: 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300',
-  FAIL: 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300',
+  PASS: 'border-rule-strong text-ink-2',
+  WARNING: 'border-attention text-attention',
+  FAIL: 'border-danger text-danger',
 }
+
+// The page's sections, for its contents list: [id, the section's heading]
+const CONTENTS: [string, string][] = [
+  ['data-sources', 'Data Sources'],
+  ['fte', 'FTE (Full-Time Equivalent) Enrollment'],
+  ['rates', 'Crime Rates'],
+  ['definitions', 'Definitions'],
+  ['series-breaks', 'Comparing Years'],
+  ['limitations', 'Limitations'],
+  ['audit', 'Data Quality Audit'],
+  ['data', 'Data and Downloads'],
+  ['cite', 'Cite this data'],
+  ['sources', 'Official Sources'],
+  ['source-code', 'Source Code'],
+]
 
 export default function Methodology() {
   const [metadata, setMetadata] = React.useState<Metadata | null>(cachedMetadata)
@@ -676,86 +677,82 @@ export default function Methodology() {
 
   return (
     <div className="min-h-screen">
-      {/* Hero Section */}
-      <div className="bg-gradient-to-b from-primary-50 to-white dark:from-gray-900 dark:to-gray-950 border-b border-gray-200 dark:border-gray-800">
-        <div className="container mx-auto px-4 sm:px-6 lg:8 py-12 sm:py-16">
-          <div className="max-w-3xl mx-auto text-center">
-            <div className="flex items-center justify-center gap-3 mb-4">
-              <BookOpen className="w-8 h-8 text-primary-600 dark:text-primary-400" />
-              <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-gray-100">
-                Data Methodology
-              </h1>
-            </div>
-            <p className="text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
-              Detailed information about our data sources, calculations, and quality assurance processes.
-            </p>
-          </div>
-        </div>
-      </div>
+      {/* Header */}
+      <header className="wrap pt-8 pb-8 sm:pt-10">
+        <h1 className="h1">
+          Data Methodology
+        </h1>
+        <p className="lede mt-2">
+          Detailed information about our data sources, calculations, and quality assurance processes.
+        </p>
+      </header>
 
-      {/* Main Content */}
-      <div className="container mx-auto px-4 sm:px-6 lg:8 py-12">
-        <div className="max-w-3xl mx-auto space-y-16">
+      {/* Main Content: the sections, with their contents beside them from lg up */}
+      <div className="wrap pb-12">
+        <div className="lg:grid lg:grid-cols-[12.5rem_minmax(0,1fr)] lg:gap-14">
+          <nav aria-label="On this page" className="mb-10 lg:mb-0">
+            <div className="border-y border-rule py-4 lg:sticky lg:top-[calc(var(--header-h)+1.5rem)] lg:max-h-[calc(100vh-var(--header-h)-3rem)] lg:overflow-y-auto lg:border-y-0 lg:py-0">
+              <p className="label mb-2">On this page</p>
+              <ol className="grid grid-cols-1 gap-x-6 text-meta sm:grid-cols-2 lg:grid-cols-1 lg:border-l lg:border-rule">
+                {CONTENTS.map(([id, label]) => (
+                  <li key={id}>
+                    <a href={`#${id}`} className="block py-1 text-ink-2 hover:text-accent lg:-ml-px lg:border-l-2 lg:border-transparent lg:pl-3 lg:hover:border-rule-strong">
+                      {label}
+                    </a>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </nav>
+
+        <div className="min-w-0 max-w-[46rem] space-y-16">
 
           {/* Data Sources */}
-          <section>
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/50 rounded-xl flex items-center justify-center">
-                <Database className="w-5 h-5 text-primary-600 dark:text-primary-400" />
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                Data Sources
-              </h2>
-            </div>
+          <section id="data-sources" className="scroll-mt-20">
+            <h2 className="section-head">
+              Data Sources
+            </h2>
 
             <div className="space-y-4">
               {/* Campus Crime Data */}
-              <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-6">
+              <div className="border-t border-rule pt-5">
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center flex-shrink-0">
-                    <Shield className="w-6 h-6 text-red-600 dark:text-red-400" />
-                  </div>
                   <div className="flex-1 min-w-0 break-words">
-                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">
+                    <h3 className="h3 mb-1">
                       Campus Crime Data
                     </h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                    <p className="text-ui text-ink-2 mb-3">
                       U.S. Department of Education Campus Safety and Security Data
                     </p>
-                    <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-600 dark:text-gray-400 mb-3">
-                      <span>Source: <strong className="text-gray-900 dark:text-gray-200">DOE OPE</strong></span>
-                      <span>Legal Basis: <strong className="text-gray-900 dark:text-gray-200">Clery Act</strong></span>
-                      <span>Coverage: <strong className="text-gray-900 dark:text-gray-200">{metadata ? coverageText || '—' : 'Loading...'}</strong></span>
+                    <div className="flex flex-wrap gap-x-6 gap-y-2 text-ui text-ink-2 mb-3">
+                      <span>Source: <strong className="text-ink">DOE OPE</strong></span>
+                      <span>Legal Basis: <strong className="text-ink">Clery Act</strong></span>
+                      <span>Coverage: <strong className="text-ink">{metadata ? coverageText || '—' : 'Loading...'}</strong></span>
                     </div>
-                    <div className="space-y-3 text-sm mb-3">
+                    <div className="space-y-3 text-ui mb-3">
                       <div className="flex items-start gap-2">
-                        <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
-                        <span className="min-w-0 text-gray-600 dark:text-gray-400">
-                          <strong className="text-gray-900 dark:text-gray-200">One release per campus-year:</strong> Each yearly DOE release covers three calendar years, and a campus that reports in one release is sometimes missing from the next. For each campus and year we use the newest release that reports that campus for that year (any figure, including zero), and take all of that campus-year's figures from that one release. Releases are never mixed, and a blank figure is never filled in from another release.
+                        <span className="min-w-0 text-ink-2">
+                          <strong className="text-ink">One release per campus-year:</strong> Each yearly DOE release covers three calendar years, and a campus that reports in one release is sometimes missing from the next. For each campus and year we use the newest release that reports that campus for that year (any figure, including zero), and take all of that campus-year's figures from that one release. Releases are never mixed, and a blank figure is never filled in from another release.
                         </span>
                       </div>
                       <div className="flex items-start gap-2">
-                        <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
-                        <span className="min-w-0 text-gray-600 dark:text-gray-400">
-                          <strong className="text-gray-900 dark:text-gray-200">Zero is not the same as not reported:</strong> A campus reported a year when its row in that release has at least one figure that is not blank. A reported year without incidents shows as 0 on the school page and in its charts, and in rankings by count the campus is ranked with 0, after the campuses with incidents, sharing one rank, by name. An institution with no incident on campus at any of its campuses in a rate's three years has a rate of 0, with an interval above 0. A year a campus did not report has no figures at all: its page lists it as not reported and its charts leave a gap there, not a 0. Campuses that reported but never had an incident have school pages too.
+                        <span className="min-w-0 text-ink-2">
+                          <strong className="text-ink">Zero is not the same as not reported:</strong> A campus reported a year when its row in that release has at least one figure that is not blank. A reported year without incidents shows as 0 on the school page and in its charts, and in rankings by count the campus is ranked with 0, after the campuses with incidents, sharing one rank, by name. An institution with no incident on campus at any of its campuses in a rate's three years has a rate of 0, with an interval above 0. A year a campus did not report has no figures at all: its page lists it as not reported and its charts leave a gap there, not a 0. Campuses that reported but never had an incident have school pages too.
                         </span>
                       </div>
                       <div className="flex items-start gap-2">
-                        <Info className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
-                        <span className="min-w-0 text-gray-600 dark:text-gray-400">
-                          <strong className="text-gray-900 dark:text-gray-200">Known errors in DOE files:</strong> In the 2021-2023 release (Crime2024SAS.zip), the residence-hall disciplinary file repeats the on-campus figures for 2022 and 2023, and the residence-hall arrest file has no 2022 liquor-law column. For campuses whose 2022 or 2023 figures come from that release, 2022 residence-hall disciplinary actions and liquor-law arrests come from the 2020-2022 release, and 2023 residence-hall disciplinary actions are left blank.
+                        <span className="min-w-0 text-ink-2">
+                          <strong className="text-ink">Known errors in DOE files:</strong> In the 2021-2023 release (Crime2024SAS.zip), the residence-hall disciplinary file repeats the on-campus figures for 2022 and 2023, and the residence-hall arrest file has no 2022 liquor-law column. For campuses whose 2022 or 2023 figures come from that release, 2022 residence-hall disciplinary actions and liquor-law arrests come from the 2020-2022 release, and 2023 residence-hall disciplinary actions are left blank.
                         </span>
                       </div>
                       <div id="copies" className="flex items-start gap-2 scroll-mt-20">
-                        <Info className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
-                        <span className="min-w-0 text-gray-600 dark:text-gray-400">
-                          <strong className="text-gray-900 dark:text-gray-200">Figures reported by more than one campus:</strong> Some campuses report exactly the same 20 figures for a location (on-campus, non-campus or public property) as another campus in the same state and year, at least six of them nonzero, usually because a branch repeats its parent's statistics. When a campus's whole year (all three locations, at least six figures nonzero) matches another campus's, all of its locations count as copies. For a campus-year taken from an older release, a match with another campus in that same release counts too, even if that campus has since corrected its figures. School pages show the figures as DOE publishes them; state and national totals and rankings count them once, under one host campus, which the school page names. The host is the campus whose figures come from the newest release for that year, then the main campus, then the one with more students (FTE), then the larger total, then the lower IPEDS ID. One more case: when DOE reported a campus under a new ID (see below) and both IDs have the same whole year (every figure, at least one nonzero) from different releases, the older release's copy counts under the newer ID, whatever the number of nonzero figures. And when campuses of different institutions in the same city have the same whole year (all three locations), with figures adding up to at least 20, they count as one report filed by each (for example by the schools of one hospital, or by institutions on one shared campus), whatever the number of nonzero figures, and count once under the host chosen as above. The rates treat such a campus as described under <a href="#rate-shared" className="underline">Shared campuses</a>: an institution with no other campus counting that year has no figures of its own that year, and its students are added to the host's rate.
+                        <span className="min-w-0 text-ink-2">
+                          <strong className="text-ink">Figures reported by more than one campus:</strong> Some campuses report exactly the same 20 figures for a location (on-campus, non-campus or public property) as another campus in the same state and year, at least six of them nonzero, usually because a branch repeats its parent's statistics. When a campus's whole year (all three locations, at least six figures nonzero) matches another campus's, all of its locations count as copies. For a campus-year taken from an older release, a match with another campus in that same release counts too, even if that campus has since corrected its figures. School pages show the figures as DOE publishes them; state and national totals and rankings count them once, under one host campus, which the school page names. The host is the campus whose figures come from the newest release for that year, then the main campus, then the one with more students (FTE), then the larger total, then the lower IPEDS ID. One more case: when DOE reported a campus under a new ID (see below) and both IDs have the same whole year (every figure, at least one nonzero) from different releases, the older release's copy counts under the newer ID, whatever the number of nonzero figures. And when campuses of different institutions in the same city have the same whole year (all three locations), with figures adding up to at least 20, they count as one report filed by each (for example by the schools of one hospital, or by institutions on one shared campus), whatever the number of nonzero figures, and count once under the host chosen as above. The rates treat such a campus as described under <a href="#rate-shared" className="link">Shared campuses</a>: an institution with no other campus counting that year has no figures of its own that year, and its students are added to the host's rate.
                         </span>
                       </div>
                       <div className="flex items-start gap-2">
-                        <Info className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
-                        <span className="min-w-0 text-gray-600 dark:text-gray-400">
-                          <strong className="text-gray-900 dark:text-gray-200">Campus names and IDs:</strong> A campus that is not an institution's main campus is titled with its own DOE campus name (the BRANCH field), with its institution's name under it. Search matches campus names, institution names, cities and the names DOE and IPEDS have used for a campus before (IPEDS IALIAS and former DOE names). When a campus was renumbered or moved to another institution (a merger), DOE lists it under a new ID and its years are split across two pages. We link the two pages when the IDs never appear in the same DOE release, one follows the other, and they are in the same city with the same address or the same campus name; each pair was reviewed by hand and is listed with its evidence in etl/reference/campus_id_changes.csv in the open-source pipeline. The pages are linked, not merged: each keeps the years DOE reported under its own ID.
+                        <span className="min-w-0 text-ink-2">
+                          <strong className="text-ink">Campus names and IDs:</strong> A campus that is not an institution's main campus is titled with its own DOE campus name (the BRANCH field), with its institution's name under it. Search matches campus names, institution names, cities and the names DOE and IPEDS have used for a campus before (IPEDS IALIAS and former DOE names). When a campus was renumbered or moved to another institution (a merger), DOE lists it under a new ID and its years are split across two pages. We link the two pages when the IDs never appear in the same DOE release, one follows the other, and they are in the same city with the same address or the same campus name; each pair was reviewed by hand and is listed with its evidence in etl/reference/campus_id_changes.csv in the open-source pipeline. The pages are linked, not merged: each keeps the years DOE reported under its own ID.
                         </span>
                       </div>
                     </div>
@@ -763,45 +760,39 @@ export default function Methodology() {
                       href="https://ope.ed.gov/campussafety/"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 text-sm font-medium text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300"
+                      className="link inline-flex min-h-[1.5rem] items-center gap-1 text-ui font-semibold"
                     >
                       ope.ed.gov/campussafety
-                      <ExternalLink className="w-4 h-4" />
+                      <ExternalLink className="w-3.5 h-3.5" aria-hidden="true" />
                     </a>
                   </div>
                 </div>
               </div>
 
               {/* Enrollment Data */}
-              <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-6">
+              <div className="border-t border-rule pt-5">
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
-                    <Users className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-                  </div>
                   <div className="flex-1 min-w-0 break-words">
-                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">
+                    <h3 className="h3 mb-1">
                       Enrollment Data (FTE)
                     </h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                    <p className="text-ui text-ink-2 mb-3">
                       IPEDS (Integrated Postsecondary Education Data System)
                     </p>
-                    <div className="space-y-3 text-sm">
+                    <div className="space-y-3 text-ui">
                       <div className="flex items-start gap-2">
-                        <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
-                        <span className="min-w-0 text-gray-600 dark:text-gray-400">
-                          <strong className="text-gray-900 dark:text-gray-200">2021 onward:</strong> NCES's own FTE from its published DRVEF (Derived Fall Enrollment) files.
+                        <span className="min-w-0 text-ink-2">
+                          <strong className="text-ink">2021 onward:</strong> NCES's own FTE from its published DRVEF (Derived Fall Enrollment) files.
                         </span>
                       </div>
                       <div className="flex items-start gap-2">
-                        <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
-                        <span className="min-w-0 text-gray-600 dark:text-gray-400">
-                          <strong className="text-gray-900 dark:text-gray-200">2015-2020:</strong> NCES's own FTE as well, from the DRVEF tables of its final IPEDS databases for those years (NCES publishes them only inside those databases). We do not calculate FTE ourselves.
+                        <span className="min-w-0 text-ink-2">
+                          <strong className="text-ink">2015-2020:</strong> NCES's own FTE as well, from the DRVEF tables of its final IPEDS databases for those years (NCES publishes them only inside those databases). We do not calculate FTE ourselves.
                         </span>
                       </div>
                       <div className="flex items-start gap-2">
-                        <Info className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
-                        <span className="min-w-0 text-gray-600 dark:text-gray-400">
-                          <strong className="text-gray-900 dark:text-gray-200">Status by year:</strong> {enrollmentStatusText.join(' ')}
+                        <span className="min-w-0 text-ink-2">
+                          <strong className="text-ink">Status by year:</strong> {enrollmentStatusText.join(' ')}
                         </span>
                       </div>
                     </div>
@@ -809,10 +800,10 @@ export default function Methodology() {
                       href="https://nces.ed.gov/ipeds/"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 text-sm font-medium text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 mt-3"
+                      className="link inline-flex min-h-[1.5rem] items-center gap-1 text-ui font-semibold mt-3"
                     >
                       nces.ed.gov/ipeds
-                      <ExternalLink className="w-4 h-4" />
+                      <ExternalLink className="w-3.5 h-3.5" aria-hidden="true" />
                     </a>
                   </div>
                 </div>
@@ -822,22 +813,17 @@ export default function Methodology() {
 
           {/* FTE Calculation */}
           <section id="fte" className="scroll-mt-20">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/50 rounded-xl flex items-center justify-center">
-                <Calculator className="w-5 h-5 text-primary-600 dark:text-primary-400" />
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                FTE (Full-Time Equivalent) Enrollment
-              </h2>
-            </div>
+            <h2 className="section-head">
+              FTE (Full-Time Equivalent) Enrollment
+            </h2>
 
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
-              FTE is the basis of the per-student rates: full-time students count fully and part-time students count in part, so schools of different sizes and mixes can be compared. We use the FTE that NCES publishes for each institution and fall, for every year; we do not calculate it. Rates divide by an estimate of the part of it on campus, made from NCES's FTE, its fall headcounts and its share of students enrolled exclusively in distance education, added over a rate's three years (see <a href="#rate-denominator" className="underline">On-campus students</a>).
+            <p className="text-ink-2 mb-6">
+              FTE is the basis of the per-student rates: full-time students count fully and part-time students count in part, so schools of different sizes and mixes can be compared. We use the FTE that NCES publishes for each institution and fall, for every year; we do not calculate it. Rates divide by an estimate of the part of it on campus, made from NCES's FTE, its fall headcounts and its share of students enrolled exclusively in distance education, added over a rate's three years (see <a href="#rate-denominator" className="link">On-campus students</a>).
             </p>
 
-            <dl className="space-y-3 text-sm text-gray-600 dark:text-gray-400 mb-6">
+            <dl className="space-y-3 text-ui text-ink-2 mb-6">
               <div>
-                <dt className="font-medium text-gray-900 dark:text-gray-100">FTE (DRVEF variable FTE, "Full-time equivalent fall enrollment")</dt>
+                <dt className="font-semibold text-ink">FTE (DRVEF variable FTE, "Full-time equivalent fall enrollment")</dt>
                 <dd>
                   NCES adds the institution's full-time fall enrollment to an estimate of the full-time equivalent of
                   its part-time enrollment: part-time students multiplied by factors that depend on the institution's
@@ -848,12 +834,12 @@ export default function Methodology() {
                 </dd>
               </div>
               <div>
-                <dt className="font-medium text-gray-900 dark:text-gray-100">PCTDEEXC ("Percent of students enrolled exclusively in distance education courses")</dt>
+                <dt className="font-semibold text-ink">PCTDEEXC ("Percent of students enrolled exclusively in distance education courses")</dt>
                 <dd>
                   Students enrolled only in distance education courses, divided by all students enrolled, as of the
                   institution's official fall reporting date or October 15. Rates use it, with NCES's fall headcounts
                   of full-time and part-time students, to estimate on-campus FTE (see{' '}
-                  <a href="#rate-denominator" className="underline">On-campus students</a>).
+                  <a href="#rate-denominator" className="link">On-campus students</a>).
                 </dd>
               </div>
               <div>
@@ -862,46 +848,41 @@ export default function Methodology() {
               </div>
             </dl>
 
-            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden mb-6">
+            <div className="overflow-x-auto border-y border-rule mb-6">
               <table className="w-full text-sm">
-                <thead className="bg-gray-50 dark:bg-gray-800">
+                <thead className="border-b border-ink/60">
                   <tr>
-                    <th className="px-4 py-3 text-left font-semibold text-gray-900 dark:text-gray-100">Years</th>
-                    <th className="px-4 py-3 text-left font-semibold text-gray-900 dark:text-gray-100">Where NCES's FTE comes from</th>
+                    <th className="px-4 py-3 text-left font-semibold text-ink">Years</th>
+                    <th className="px-4 py-3 text-left font-semibold text-ink">Where NCES's FTE comes from</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
+                <tbody className="divide-y divide-rule">
                   <tr>
-                    <td className="px-4 py-3 text-gray-700 dark:text-gray-300 whitespace-nowrap">2021-2024</td>
-                    <td className="px-4 py-3 text-gray-600 dark:text-gray-400">The DRVEF (Derived Fall Enrollment) data file of each year, the final revised version once NCES publishes it</td>
+                    <td className="px-4 py-3 text-ink-2 whitespace-nowrap">2021-2024</td>
+                    <td className="px-4 py-3 text-ink-2">The DRVEF (Derived Fall Enrollment) data file of each year, the final revised version once NCES publishes it</td>
                   </tr>
                   <tr>
-                    <td className="px-4 py-3 text-gray-700 dark:text-gray-300 whitespace-nowrap">2015-2020</td>
-                    <td className="px-4 py-3 text-gray-600 dark:text-gray-400">The DRVEF table inside NCES's final IPEDS database of each collection year (IPEDS_2015-16_Final.zip to IPEDS_2020-21_Final.zip). NCES publishes these years' FTE only there, so we copied it, with each database's checksum, into the open-source pipeline</td>
+                    <td className="px-4 py-3 text-ink-2 whitespace-nowrap">2015-2020</td>
+                    <td className="px-4 py-3 text-ink-2">The DRVEF table inside NCES's final IPEDS database of each collection year (IPEDS_2015-16_Final.zip to IPEDS_2020-21_Final.zip). NCES publishes these years' FTE only there, so we copied it, with each database's checksum, into the open-source pipeline</td>
                   </tr>
                 </tbody>
               </table>
             </div>
 
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-ui text-ink-2">
               Earlier versions of this site estimated 2015-2020 FTE with one formula for every school (part-time undergraduates × 0.403543, part-time graduate students × 0.361702). That matched NCES's figure exactly for only about 58% of institutions, and was off by more than 5% for about 830 institutions a year, so it is no longer used.
             </p>
           </section>
 
           {/* Crime rates */}
           <section id="rates" className="scroll-mt-20">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/50 rounded-xl flex items-center justify-center">
-                <BarChart3 className="w-5 h-5 text-primary-600 dark:text-primary-400" />
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                Crime Rates
-              </h2>
-            </div>
+            <h2 className="section-head">
+              Crime Rates
+            </h2>
 
-            <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 rounded-xl p-6 border border-green-100 dark:border-green-900/50 mb-6">
-              <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">In plain words</h3>
-              <ul className="list-disc ml-5 space-y-2 text-sm text-gray-700 dark:text-gray-300 mb-4">
+            <div className="mb-8 border-l-2 border-accent pl-5">
+              <h3 className="h3 mb-3">In plain words</h3>
+              <ul className="list-disc ml-5 space-y-2 text-ui text-ink-2 mb-4">
                 <li>
                   A rate is the number of incidents reported on campus over {rr?.windowYears ?? '…'} years, per 10,000
                   on-campus students a year. The years are {keys.length > 0 ? joinAnd(keys.map(windowLabel)) : '…'}
@@ -935,41 +916,41 @@ export default function Methodology() {
                   only.
                 </li>
               </ul>
-              <code className="block bg-white dark:bg-gray-900 rounded-lg p-4 text-sm text-gray-800 dark:text-gray-200 font-mono mb-3 whitespace-normal break-words">
+              <code className="block bg-subtle rounded p-4 text-meta text-ink font-mono mb-3 whitespace-normal break-words">
                 Rate = on-campus incidents in the {rr?.windowYears ?? '…'} years ÷ (on-campus FTE of each of the{' '}
                 {rr?.windowYears ?? '…'} years, added) × 10,000
               </code>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-ui text-ink-2">
                 A size-adjusted figure: it removes the effect of enrollment size on counts, not the other differences
-                between institutions listed under <a href="#limitations" className="underline">Limitations</a>. Every
-                rule, with its threshold, is under <a href="#rate-rules" className="underline">Rate Rules</a> below.
+                between institutions listed under <a href="#limitations" className="link">Limitations</a>. Every
+                rule, with its threshold, is under <a href="#rate-rules" className="link">Rate Rules</a> below.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4 sm:col-span-2">
-                <h3 className="font-medium text-gray-900 dark:text-gray-100 text-sm mb-2">Rates Are Per Institution</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6">
+              <div className="border-t border-rule pt-4 sm:col-span-2">
+                <h3 className="h3 mb-2">Rates Are Per Institution</h3>
+                <p className="text-ui text-ink-2">
                   NCES publishes enrollment (FTE) for each institution, not for each campus, and every campus of an
                   institution (all campuses whose UNITID starts with the same six digits) carries the same FTE. So a
                   rate adds the on-campus incidents of all the institution's campuses in the United States (campuses
-                  abroad are left out: <a href="#rate-abroad" className="underline">Campuses abroad</a>) and divides
+                  abroad are left out: <a href="#rate-abroad" className="link">Campuses abroad</a>) and divides
                   them by the institution's on-campus FTE. Rate lists name the institution as of the window's last
                   year and link to its main campus (or, when the main campus did not report that year, to its campus
                   with the most incidents); the school page of any of its campuses shows the institution's rates.
                   Rankings by count still list each campus.
                 </p>
               </div>
-              <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
-                <h3 className="font-medium text-gray-900 dark:text-gray-100 text-sm mb-2">Total Counts</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+              <div className="border-t border-rule pt-4">
+                <h3 className="h3 mb-2">Total Counts</h3>
+                <p className="text-ui text-ink-2">
                   Sum of on-campus + non-campus + public property (excluding residence halls to avoid double-counting).
                   Figures reported identically by two campuses count once, under the host campus, in state and national totals and rankings.
                 </p>
               </div>
-              <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
-                <h3 className="font-medium text-gray-900 dark:text-gray-100 text-sm mb-2">Ties</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+              <div className="border-t border-rule pt-4">
+                <h3 className="h3 mb-2">Ties</h3>
+                <p className="text-ui text-ink-2">
                   In rankings by count, campuses with the same count share a rank, and the next rank skips the places
                   the tie takes: 1, 2, 2, 4. Tied campuses are listed by name, and campuses that reported the year but
                   had none of the selected category come last, with 0, sharing one rank. On rate lists, institutions
@@ -978,17 +959,17 @@ export default function Methodology() {
               </div>
             </div>
 
-            <h3 id="rate-rules" className="scroll-mt-20 text-lg font-semibold text-gray-900 dark:text-gray-100 mt-8 mb-3">
+            <h3 id="rate-rules" className="scroll-mt-20 h-sub mt-10 mb-3">
               Rate Rules
             </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+            <p className="text-ui text-ink-2 mb-4">
               Every rule the rates follow, with the thresholds published in <code>metadata.json</code> (
               <code>rateRules</code>). None of them changes a count or the order of a ranking by count; the last one
               adds a flag to rankings by count. Figures that depend on the data are this build's. An institution-year
               is one institution in one year; a window is one of the {rr?.windowYears ?? '…'}-year periods rates
               cover.
             </p>
-            <ol className="list-decimal pl-5 space-y-4 text-sm text-gray-600 dark:text-gray-400">
+            <ol className="list-decimal pl-5 space-y-4 text-ui text-ink-2">
               <Rule id="rate-windows" title="Windows">
                 Rates are {rr?.windowYears ?? '…'}-year averages, for {keys.length > 0 ? joinAnd(keys.map(windowLabel)) : '…'}.
                 {rr?.skipYears?.length ? (
@@ -999,19 +980,19 @@ export default function Methodology() {
                   </>
                 ) : null}{' '}
                 A window holds more incidents than one year, so its interval is narrower. There are no comparisons
-                or lists for single years (<a href="#rate-single-years" className="underline">Single years</a>).
+                or lists for single years (<a href="#rate-single-years" className="link">Single years</a>).
               </Rule>
               <Rule id="rate-numerator" title="Incidents">
                 The incidents DOE lists as on campus (its On-campus figures, which include residence halls), at every
                 campus of the institution in the United States, added over the window's years. Incidents at
                 non-campus locations and on public property are shown beside the rate as counts, not in it. The
                 incidents of a campus site that campuses of two or more institutions report are in one institution's
-                rate at most (<a href="#rate-shared" className="underline">Shared campuses</a>). The categories with a
+                rate at most (<a href="#rate-shared" className="link">Shared campuses</a>). The categories with a
                 rate and the offenses each adds:
                 <ul className="list-disc ml-5 mt-2 space-y-1">
                   {codesWithRate.map((code) => (
                     <li key={code}>
-                      <span className="text-gray-900 dark:text-gray-100">{rateCodeLabel(code)}</span>:{' '}
+                      <span className="text-ink">{rateCodeLabel(code)}</span>:{' '}
                       {joinAnd((rr?.codes[code] ?? []).map(offenseName))}
                     </li>
                   ))}
@@ -1020,7 +1001,7 @@ export default function Methodology() {
                   Violent crimes are the four offenses of the FBI's violent crime (
                   <SourceLink source={SOURCES.fbiViolent2019}>FBI, Crime in the United States 2019: Violent Crime</SourceLink>).
                   The other categories are under{' '}
-                  <a href="#rate-codes" className="underline">Categories without a rate</a>.
+                  <a href="#rate-codes" className="link">Categories without a rate</a>.
                 </span>
               </Rule>
               <Rule id="rate-denominator" title="On-campus students">
@@ -1054,8 +1035,8 @@ export default function Methodology() {
                 different results the comparison is "{VERDICT_LABELS.undetermined}". Such an institution is never on
                 a list, and the national and peer rates leave it out. The same holds when the denominator adds the
                 on-campus FTE of another institution (
-                <a href="#rate-mergers" className="underline">Mergers</a>,{' '}
-                <a href="#rate-shared" className="underline">Shared campuses</a>) whose estimates are uncertain.
+                <a href="#rate-mergers" className="link">Mergers</a>,{' '}
+                <a href="#rate-shared" className="link">Shared campuses</a>) whose estimates are uncertain.
                 {w?.violent && (
                   <>
                     {' '}In {latestLabel}, {num(w.violent.byWhy.online)} of the {num(w.violent.rated)} rated
@@ -1074,7 +1055,7 @@ export default function Methodology() {
               <Rule id="rate-population" title="Who has a rate">
                 An institution has a rate for a window when DOE's data has figures of its own for it in every year of
                 the window (a year whose figures all count under another institution's campus has none:{' '}
-                <a href="#copies" className="underline">Figures reported by more than one campus</a>); the campus
+                <a href="#copies" className="link">Figures reported by more than one campus</a>); the campus
                 its rates link to in the window's last year is in one of the 50 states, the District of Columbia,
                 Puerto Rico or the U.S. Virgin Islands; its denominator is at least {num(rr?.minFte)} in every year,
                 because with fewer students a few incidents move the rate far; and none of the population rules below
@@ -1107,11 +1088,11 @@ export default function Methodology() {
                 Such a year also has no single-year rate. HOSPITAL is what the institution reports to IPEDS, so a
                 university next to a hospital run by a separate organization, such as a health system, can report no
                 hospital; see{' '}
-                <a href="#rate-hospital-notes" className="underline">Hospital notes</a> and{' '}
-                <a href="#rate-medical-campuses" className="underline">Medical-center campuses</a>. Two more rules can
+                <a href="#rate-hospital-notes" className="link">Hospital notes</a> and{' '}
+                <a href="#rate-medical-campuses" className="link">Medical-center campuses</a>. Two more rules can
                 give no rate to an institution whose main campus shares a site with another institution's main
                 campus (
-                <a href="#rate-shared" className="underline">Shared campuses</a>). Sources:{' '}
+                <a href="#rate-shared" className="link">Shared campuses</a>). Sources:{' '}
                 <SourceLink source={SOURCES.ipedsHdDictionary}>IPEDS HD data dictionary</SourceLink>,{' '}
                 <SourceLink source={SOURCES.carnegie2021}>Carnegie Classification, 2021 Basic Classification</SourceLink>.
               </Rule>
@@ -1174,7 +1155,7 @@ export default function Methodology() {
                 {interval('violent', 20, 1)}, of 1,000 it is {interval('violent', 1000, 0)}, and of 0 it is{' '}
                 {interval('violent', 0, 1)}. The interval does not allow for differences in how institutions record
                 and report incidents. Whether the model fits is tested on every build (
-                <a href="#calibration" className="underline">How well the intervals fit</a>).
+                <a href="#calibration" className="link">How well the intervals fit</a>).
               </Rule>
               <Rule id="rate-verdicts" title="Comparisons with the national rate">
                 The national rate of a window and category is the on-campus incidents of the rated institutions,
@@ -1196,7 +1177,7 @@ export default function Methodology() {
                 )}
                 . A comparison is with the national rate, not with another institution. An institution with a campus
                 at a site shared with another institution may have both comparisons withheld ("
-                {VERDICT_LABELS.withheld}"; <a href="#rate-shared" className="underline">Shared campuses</a>).
+                {VERDICT_LABELS.withheld}"; <a href="#rate-shared" className="link">Shared campuses</a>).
               </Rule>
               <Rule id="rate-peers" title="Comparisons with institutions of the same type">
                 Each rate is also compared, the same way, with the rate of institutions of its type, computed like the
@@ -1223,7 +1204,7 @@ export default function Methodology() {
                 national rate times their student-years). That depends on size only, never on the count. Rates on
                 fewer than 20 events are marked unreliable by CDC WONDER (
                 <SourceLink source={SOURCES.cdcWonderUnreliable}>CDC WONDER</SourceLink>). An institution that meets
-                these conditions but has an unusual year (<a href="#rate-flags" className="underline">Unusual years</a>)
+                these conditions but has an unusual year (<a href="#rate-flags" className="link">Unusual years</a>)
                 on campus, of one of the category's offenses, in the window is not placed, so that one year's count
                 does not set its place; the list page shows it in a group of its own, with its rate and comparisons.
                 {w && latest && (
@@ -1238,7 +1219,7 @@ export default function Methodology() {
                 Members are ordered by rate, highest first; equal rates share a position (1, 2, 2, 4) and are listed
                 by name.{SHOW_POINT_POSITION ? '' : ' The pages show each member\'s range, not its position; the data have both.'} Each member's rate is compared with every other member's by a z-test of the difference,
                 with each member's variance the larger of the interval model's at their pooled rate and its own
-                yearly spread (<a href="#rate-interval" className="underline">Intervals</a>), at the level{' '}
+                yearly spread (<a href="#rate-interval" className="link">Intervals</a>), at the level{' '}
                 {rr?.lists?.alpha ?? '…'} / (2(n − 1)) for a list of n members (Bonferroni). The range runs from 1 +
                 the number of members whose rate is significantly higher to n − the number whose rate is significantly
                 lower, widened to hold its position. With {ci}% confidence the institution's position among the n
@@ -1271,7 +1252,7 @@ export default function Methodology() {
               </Rule>
               <Rule id="rate-type-lists" title="Positions within a type">
                 A type's positions are the national list's members of one type of institution (
-                <a href="#rate-peers" className="underline">Comparisons with institutions of the same type</a>), with
+                <a href="#rate-peers" className="link">Comparisons with institutions of the same type</a>), with
                 positions and ranges recomputed among them alone, like a state's. The data has them for every type
                 with at least {rr?.lists?.typeMinMembers ?? '…'} members, and the list page and school pages show
                 {SHOW_POINT_POSITION ? ' them' : ' their ranges'}. On-campus rates differ by type, and a position within a type compares an institution only with
@@ -1285,14 +1266,14 @@ export default function Methodology() {
               </Rule>
               <Rule id="rate-reasons" title="Rated but not on a list">
                 Three reasons keep a rated institution off a list: an uncertain on-campus FTE (
-                <a href="#rate-denominator" className="underline">On-campus students</a>); incidents at listed
+                <a href="#rate-denominator" className="link">On-campus students</a>); incidents at listed
                 medical-center campuses, outside their residence halls, of {share(rr?.medicalShare)} or more of its
-                on-campus count (<a href="#rate-medical-campuses" className="underline">Medical-center campuses</a>),
+                on-campus count (<a href="#rate-medical-campuses" className="link">Medical-center campuses</a>),
                 with its rate and comparisons shown; and a campus at a site shared with another institution whose
                 students there are not shown by a published figure to be few (
-                <a href="#rate-shared" className="underline">Shared campuses</a>), with its rate shown and its
+                <a href="#rate-shared" className="link">Shared campuses</a>), with its rate shown and its
                 comparisons withheld. Institutions with the second or third reason stay in the national rate. An
-                institution not placed for an unusual year (<a href="#rate-lists" className="underline">Ordered lists</a>)
+                institution not placed for an unusual year (<a href="#rate-lists" className="link">Ordered lists</a>)
                 has none of these reasons and stays in the national rate too.
                 {w && (
                   <>
@@ -1334,7 +1315,7 @@ export default function Methodology() {
                 institutions report the same incidents, the incidents cannot be divided among those institutions'
                 students. In each year, campuses of different institutions form a shared site when any of three
                 tests joins them: identical figures (the copies described under{' '}
-                <a href="#copies" className="underline">Figures reported by more than one campus</a>); a near-copy,
+                <a href="#copies" className="link">Figures reported by more than one campus</a>); a near-copy,
                 two campuses in the same state (in different states only when every figure is equal) where the
                 campus with the smaller on-campus total over all offenses has at least{' '}
                 {rr?.sharedNear ? rr.sharedNear.minNonzero : '…'} nonzero figures, at least{' '}
@@ -1345,13 +1326,13 @@ export default function Methodology() {
                 DOE ID ends in 001.
                 <ul className="list-disc ml-5 mt-2 space-y-1">
                   <li>
-                    <span className="text-gray-900 dark:text-gray-100">One main campus at the site.</span> The
+                    <span className="text-ink">One main campus at the site.</span> The
                     institution whose main campus it is keeps the site's incidents, counted once, and is compared and
                     listed as usual; its school page names the other institutions. They are guests: their incidents
                     at the site are in none of their rates.
                   </li>
                   <li>
-                    <span className="text-gray-900 dark:text-gray-100">Main campuses of several institutions.</span>{' '}
+                    <span className="text-ink">Main campuses of several institutions.</span>{' '}
                     The one with the largest on-campus FTE is the owner. When the others count no campus away from
                     the site that year, or their on-campus FTE together is at most {siteShare} of the owner's, the
                     owner's rate counts the site once and adds their students, and they have no rate that year (
@@ -1363,7 +1344,7 @@ export default function Methodology() {
                     any one of them would overstate it.
                   </li>
                   <li>
-                    <span className="text-gray-900 dark:text-gray-100">No main campus.</span> Every institution's
+                    <span className="text-ink">No main campus.</span> Every institution's
                     incidents at the site are in none of its rates; each is a participant.
                   </li>
                 </ul>
@@ -1403,7 +1384,7 @@ export default function Methodology() {
                   students only, not its PhD students, and those for the Indiana University School of Medicine count
                   MD students only. {siteShare} is well within the difference of up to{' '}
                   {share(rr?.onlineUncertainRatio, true)} between the two estimates of on-campus students that the
-                  rates accept (<a href="#rate-denominator" className="underline">On-campus students</a>). Guests
+                  rates accept (<a href="#rate-denominator" className="link">On-campus students</a>). Guests
                   and participants stay in the national rate.
                   {w?.violent && (
                     <>
@@ -1424,7 +1405,7 @@ export default function Methodology() {
                       {formatNumber(bigWithheld)} {bigWithheld === 1 ? 'is' : 'are'} large enough for the
                       violent-crime list, so {bigWithheld === 1 ? 'a large institution has' : 'some large institutions have'}{' '}
                       no comparison on this site (
-                      <a href="#limitations" className="underline">Limitations</a>).
+                      <a href="#limitations" className="link">Limitations</a>).
                     </>
                   )}
                 </span>
@@ -1442,9 +1423,9 @@ export default function Methodology() {
                 {rr?.flags.p ?? '…'}. A flag never changes a count or a rate. It says only that the year's count is
                 far above the institution's other years; DOE counts each incident in the year it is reported, so the
                 incidents may have happened earlier, and the figures do not say why the count is high (
-                <a href="#year-reported" className="underline">How Institutions Count</a>). An on-campus flag of a
+                <a href="#year-reported" className="link">How Institutions Count</a>). An on-campus flag of a
                 list category's offenses in a window keeps the institution off that window's order (
-                <a href="#rate-lists" className="underline">Ordered lists</a>). When on-campus flags of a
+                <a href="#rate-lists" className="link">Ordered lists</a>). When on-campus flags of a
                 rate's offenses fall in a window, the comparison with the national rate is also made with each flagged
                 year counted at its median, and the school page shows that result when it differs. On the rate
                 lists, a flag icon beside an institution's name gives its flagged years.
@@ -1543,32 +1524,32 @@ export default function Methodology() {
               </Rule>
             </ol>
 
-            <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 mt-8 mb-2">By window</h3>
-            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg overflow-x-auto">
+            <h3 className="h3 mt-8 mb-2">By window</h3>
+            <div className="overflow-x-auto border-y border-rule">
               <table className="w-full text-sm">
                 <caption className="sr-only">Rated institutions, national rate and list members by window</caption>
-                <thead className="bg-gray-50 dark:bg-gray-800">
+                <thead className="border-b border-ink/60">
                   <tr>
-                    <th scope="col" className="px-3 py-2 text-left font-semibold text-gray-900 dark:text-gray-100">Window</th>
-                    <th scope="col" className="px-3 py-2 text-right font-semibold text-gray-900 dark:text-gray-100">Rated</th>
-                    <th scope="col" className="px-3 py-2 text-right font-semibold text-gray-900 dark:text-gray-100">National rate, violent crimes</th>
+                    <th scope="col" className="px-3 py-2 text-left font-semibold text-ink">Window</th>
+                    <th scope="col" className="px-3 py-2 text-right font-semibold text-ink">Rated</th>
+                    <th scope="col" className="px-3 py-2 text-right font-semibold text-ink">National rate, violent crimes</th>
                     {listCodes.map((c) => (
-                      <th key={c} scope="col" className="px-3 py-2 text-right font-semibold text-gray-900 dark:text-gray-100">
+                      <th key={c} scope="col" className="px-3 py-2 text-right font-semibold text-ink">
                         On the list: {rateCodeLabel(c).toLowerCase()}
                       </th>
                     ))}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
+                <tbody className="divide-y divide-rule">
                   {keys.slice().reverse().map((key) => {
                     const s = rs?.windows?.[key]
                     return (
                       <tr key={key}>
-                        <th scope="row" className="px-3 py-2 text-left font-normal text-gray-700 dark:text-gray-300 whitespace-nowrap">{windowLabel(key)}</th>
-                        <td className="px-3 py-2 text-right tabular-nums text-gray-600 dark:text-gray-400">{num(s?.violent?.rated)}</td>
-                        <td className="px-3 py-2 text-right tabular-nums text-gray-600 dark:text-gray-400">{s?.violent ? fmtRate(s.violent.natl) : '…'}</td>
+                        <th scope="row" className="px-3 py-2 text-left font-normal text-ink-2 whitespace-nowrap">{windowLabel(key)}</th>
+                        <td className="px-3 py-2 text-right tabular text-ink-2">{num(s?.violent?.rated)}</td>
+                        <td className="px-3 py-2 text-right tabular text-ink-2">{s?.violent ? fmtRate(s.violent.natl) : '…'}</td>
                         {listCodes.map((c) => (
-                          <td key={c} className="px-3 py-2 text-right tabular-nums text-gray-600 dark:text-gray-400">{num(s?.[c]?.listed)}</td>
+                          <td key={c} className="px-3 py-2 text-right tabular text-ink-2">{num(s?.[c]?.listed)}</td>
                         ))}
                       </tr>
                     )
@@ -1579,39 +1560,39 @@ export default function Methodology() {
 
             {w && latest && (
               <>
-                <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 mt-8 mb-2">
+                <h3 className="h3 mt-8 mb-2">
                   Comparisons in {latestLabel}, by category
                 </h3>
-                <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg overflow-x-auto">
+                <div className="overflow-x-auto border-y border-rule">
                   <table className="w-full text-sm">
                     <caption className="sr-only">National rate and comparisons of rated institutions in {latestLabel}</caption>
-                    <thead className="bg-gray-50 dark:bg-gray-800">
+                    <thead className="border-b border-ink/60">
                       <tr>
-                        <th scope="col" className="px-3 py-2 text-left font-semibold text-gray-900 dark:text-gray-100">Category</th>
-                        <th scope="col" className="px-3 py-2 text-right font-semibold text-gray-900 dark:text-gray-100">National rate</th>
-                        <th scope="col" className="px-3 py-2 text-right font-semibold text-gray-900 dark:text-gray-100">Above</th>
-                        <th scope="col" className="px-3 py-2 text-right font-semibold text-gray-900 dark:text-gray-100">Not distinguishable</th>
-                        <th scope="col" className="px-3 py-2 text-right font-semibold text-gray-900 dark:text-gray-100">Below</th>
-                        <th scope="col" className="px-3 py-2 text-right font-semibold text-gray-900 dark:text-gray-100">Not determined</th>
-                        <th scope="col" className="px-3 py-2 text-right font-semibold text-gray-900 dark:text-gray-100">Not compared (shared campus)</th>
+                        <th scope="col" className="px-3 py-2 text-left font-semibold text-ink">Category</th>
+                        <th scope="col" className="px-3 py-2 text-right font-semibold text-ink">National rate</th>
+                        <th scope="col" className="px-3 py-2 text-right font-semibold text-ink">Above</th>
+                        <th scope="col" className="px-3 py-2 text-right font-semibold text-ink">Not distinguishable</th>
+                        <th scope="col" className="px-3 py-2 text-right font-semibold text-ink">Below</th>
+                        <th scope="col" className="px-3 py-2 text-right font-semibold text-ink">Not determined</th>
+                        <th scope="col" className="px-3 py-2 text-right font-semibold text-ink">Not compared (shared campus)</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
+                    <tbody className="divide-y divide-rule">
                       {codesWithRate.filter((c) => w[c]).map((c) => (
                         <tr key={c}>
-                          <th scope="row" className="px-3 py-2 text-left font-normal text-gray-700 dark:text-gray-300">{rateCodeLabel(c)}</th>
-                          <td className="px-3 py-2 text-right tabular-nums text-gray-600 dark:text-gray-400">{fmtRate(w[c].natl)}</td>
-                          <td className="px-3 py-2 text-right tabular-nums text-gray-600 dark:text-gray-400">{formatNumber(w[c].verdicts.above)}</td>
-                          <td className="px-3 py-2 text-right tabular-nums text-gray-600 dark:text-gray-400">{formatNumber(w[c].verdicts.nd)}</td>
-                          <td className="px-3 py-2 text-right tabular-nums text-gray-600 dark:text-gray-400">{formatNumber(w[c].verdicts.below)}</td>
-                          <td className="px-3 py-2 text-right tabular-nums text-gray-600 dark:text-gray-400">{formatNumber(w[c].verdicts.undetermined)}</td>
-                          <td className="px-3 py-2 text-right tabular-nums text-gray-600 dark:text-gray-400">{formatNumber(w[c].verdicts.withheld ?? 0)}</td>
+                          <th scope="row" className="px-3 py-2 text-left font-normal text-ink-2">{rateCodeLabel(c)}</th>
+                          <td className="px-3 py-2 text-right tabular text-ink-2">{fmtRate(w[c].natl)}</td>
+                          <td className="px-3 py-2 text-right tabular text-ink-2">{formatNumber(w[c].verdicts.above)}</td>
+                          <td className="px-3 py-2 text-right tabular text-ink-2">{formatNumber(w[c].verdicts.nd)}</td>
+                          <td className="px-3 py-2 text-right tabular text-ink-2">{formatNumber(w[c].verdicts.below)}</td>
+                          <td className="px-3 py-2 text-right tabular text-ink-2">{formatNumber(w[c].verdicts.undetermined)}</td>
+                          <td className="px-3 py-2 text-right tabular text-ink-2">{formatNumber(w[c].verdicts.withheld ?? 0)}</td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
                 </div>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                <p className="text-meta text-ink-3 mt-2">
                   Rates per 10,000 on-campus students a year. Each category's columns add up to the{' '}
                   {num(w.violent?.rated)} rated institutions.{' '}
                   {nationalCompositionSentence('violent', facts.violent?.composition, latest, facts.violent?.compositionShare) ?? ''}
@@ -1619,39 +1600,39 @@ export default function Methodology() {
               </>
             )}
 
-            <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 mt-8 mb-2">By year</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+            <h3 className="h3 mt-8 mb-2">By year</h3>
+            <p className="text-ui text-ink-2 mb-2">
               The population, merger and shared-campus rules give no rate to {num(ruleTotals?.all)} institution-years in all (
               {num(ruleTotals?.withFte)} in the states covered with a denominator of at least {num(rr?.minFte)}).
             </p>
-            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg overflow-x-auto">
+            <div className="overflow-x-auto border-y border-rule">
               <table className="w-full text-sm">
                 <caption className="sr-only">Institutions by year: denominator, population rules, single-year rates, uncertain on-campus FTE, campuses abroad</caption>
-                <thead className="bg-gray-50 dark:bg-gray-800">
+                <thead className="border-b border-ink/60">
                   <tr>
-                    <th scope="col" className="px-3 py-2 text-left font-semibold text-gray-900 dark:text-gray-100">Year</th>
-                    <th scope="col" className="px-3 py-2 text-right font-semibold text-gray-900 dark:text-gray-100">Denominator {num(rr?.minFte)}+</th>
-                    <th scope="col" className="px-3 py-2 text-right font-semibold text-gray-900 dark:text-gray-100">Population rule</th>
-                    <th scope="col" className="px-3 py-2 text-right font-semibold text-gray-900 dark:text-gray-100">Single-year rate</th>
-                    <th scope="col" className="px-3 py-2 text-right font-semibold text-gray-900 dark:text-gray-100">Uncertain on-campus FTE</th>
-                    <th scope="col" className="px-3 py-2 text-right font-semibold text-gray-900 dark:text-gray-100">With a campus abroad</th>
+                    <th scope="col" className="px-3 py-2 text-left font-semibold text-ink">Year</th>
+                    <th scope="col" className="px-3 py-2 text-right font-semibold text-ink">Denominator {num(rr?.minFte)}+</th>
+                    <th scope="col" className="px-3 py-2 text-right font-semibold text-ink">Population rule</th>
+                    <th scope="col" className="px-3 py-2 text-right font-semibold text-ink">Single-year rate</th>
+                    <th scope="col" className="px-3 py-2 text-right font-semibold text-ink">Uncertain on-campus FTE</th>
+                    <th scope="col" className="px-3 py-2 text-right font-semibold text-ink">With a campus abroad</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
+                <tbody className="divide-y divide-rule">
                   {yearRows.map(([y, s]) => (
                     <tr key={y}>
-                      <th scope="row" className="px-3 py-2 text-left font-normal text-gray-700 dark:text-gray-300">{y}</th>
-                      <td className="px-3 py-2 text-right tabular-nums text-gray-600 dark:text-gray-400">{formatNumber(s.withFte)}</td>
-                      <td className="px-3 py-2 text-right tabular-nums text-gray-600 dark:text-gray-400">{formatNumber(s.excluded)}</td>
-                      <td className="px-3 py-2 text-right tabular-nums text-gray-600 dark:text-gray-400">{formatNumber(s.rated)}</td>
-                      <td className="px-3 py-2 text-right tabular-nums text-gray-600 dark:text-gray-400">{formatNumber(s.fteUncertain)}</td>
-                      <td className="px-3 py-2 text-right tabular-nums text-gray-600 dark:text-gray-400">{formatNumber(s.abroad)}</td>
+                      <th scope="row" className="px-3 py-2 text-left font-normal text-ink-2">{y}</th>
+                      <td className="px-3 py-2 text-right tabular text-ink-2">{formatNumber(s.withFte)}</td>
+                      <td className="px-3 py-2 text-right tabular text-ink-2">{formatNumber(s.excluded)}</td>
+                      <td className="px-3 py-2 text-right tabular text-ink-2">{formatNumber(s.rated)}</td>
+                      <td className="px-3 py-2 text-right tabular text-ink-2">{formatNumber(s.fteUncertain)}</td>
+                      <td className="px-3 py-2 text-right tabular text-ink-2">{formatNumber(s.abroad)}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+            <p className="text-meta text-ink-3 mt-2">
               Denominator {num(rr?.minFte)}+: institutions in the states covered whose denominator that year is at
               least {num(rr?.minFte)}. Of those, Population rule: no rate under the population, merger or
               shared-campus rules; Single-year rate: the years charted on school pages
@@ -1660,10 +1641,10 @@ export default function Methodology() {
               With a campus abroad: any rule.
             </p>
 
-            <h3 id="calibration" className="scroll-mt-20 text-base font-semibold text-gray-900 dark:text-gray-100 mt-8 mb-2">
+            <h3 id="calibration" className="scroll-mt-20 h3 mt-8 mb-2">
               How well the intervals fit
             </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+            <p className="text-ui text-ink-2 mb-2">
               On every build the audit (check Interval Calibration) predicts each year's on-campus count of every
               institution with a rate from its other years, with the intervals' variance (the model's, or the
               other years' own spread when that is larger), and counts how often the year falls inside the central{' '}
@@ -1690,7 +1671,7 @@ export default function Methodology() {
               intervals that hold more are too wide, which only leaves more rates without a verdict.
             </p>
             {calibration.length > 0 && rr?.calibration && (
-              <div className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+              <div className="text-ui text-ink-2 mb-2">
                 {calShort.length === 0 ? (
                   <>
                     In this build no group's share inside is below the expected share by more than{' '}
@@ -1708,48 +1689,48 @@ export default function Methodology() {
               </div>
             )}
             {calibration.length > 0 ? (
-              <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg overflow-x-auto">
+              <div className="overflow-x-auto border-y border-rule">
                 <table className="w-full text-sm">
                   <caption className="sr-only">
                     Share of yearly counts inside the predicted range, and the share expected, by category, period and
                     group of institutions with similar counts
                   </caption>
-                  <thead className="bg-gray-50 dark:bg-gray-800">
+                  <thead className="border-b border-ink/60">
                     <tr>
-                      <th scope="col" className="px-3 py-2 text-left font-semibold text-gray-900 dark:text-gray-100">Category</th>
-                      <th scope="col" className="px-3 py-2 text-left font-semibold text-gray-900 dark:text-gray-100">Years</th>
+                      <th scope="col" className="px-3 py-2 text-left font-semibold text-ink">Category</th>
+                      <th scope="col" className="px-3 py-2 text-left font-semibold text-ink">Years</th>
                       {calColumns.map((b) => (
-                        <th key={b} scope="col" className="px-3 py-2 text-right font-semibold text-gray-900 dark:text-gray-100">
+                        <th key={b} scope="col" className="px-3 py-2 text-right font-semibold text-ink">
                           {b.startsWith('all') ? 'All with ' : ''}{bandLabel(b)}
                         </th>
                       ))}
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
+                  <tbody className="divide-y divide-rule">
                     {calKeys.map(({ code, period }) => (
                       <tr key={`${code}-${period}`}>
-                        <th scope="row" className="px-3 py-2 text-left font-normal text-gray-700 dark:text-gray-300">{rateCodeLabel(code)}</th>
-                        <td className="px-3 py-2 text-left text-gray-600 dark:text-gray-400 whitespace-nowrap">{periodLabel(period)}</td>
+                        <th scope="row" className="px-3 py-2 text-left font-normal text-ink-2">{rateCodeLabel(code)}</th>
+                        <td className="px-3 py-2 text-left text-ink-2 whitespace-nowrap">{periodLabel(period)}</td>
                         {calColumns.map((b) => {
                           const r = calibration.find((x) => x.code === code && x.period === period && x.band === b)
                           if (!r) {
-                            return <td key={b} className="px-3 py-2 text-right text-gray-600 dark:text-gray-400">–</td>
+                            return <td key={b} className="px-3 py-2 text-right text-ink-2">–</td>
                           }
                           const status = r.observed === null || r.expected === null
                             ? null
                             : !r.tested ? 'too few to test' : r.ok === false ? 'fails' : null
                           const isShort = calShort.includes(r)
                           return (
-                            <td key={b} className="px-3 py-2 text-right tabular-nums text-gray-600 dark:text-gray-400">
+                            <td key={b} className="px-3 py-2 text-right tabular text-ink-2">
                               {r.observed === null || r.expected === null ? (
                                 <span className="whitespace-nowrap">no institutions</span>
                               ) : (
-                                <span className={cn('whitespace-nowrap', isShort && 'font-semibold text-gray-900 dark:text-gray-100')}>
+                                <span className={cn('whitespace-nowrap', isShort && 'font-semibold text-ink')}>
                                   {pct1(r.observed)} ({pct1(r.expected)}){isShort ? ' †' : ''}
                                 </span>
                               )}
                               {r.observed !== null && (
-                                <span className="block text-xs whitespace-nowrap">
+                                <span className="block text-meta whitespace-nowrap">
                                   {formatNumber(r.units)} {r.units === 1 ? 'institution' : 'institutions'}
                                   {status ? `, ${status}` : ''}
                                 </span>
@@ -1763,31 +1744,26 @@ export default function Methodology() {
                 </table>
               </div>
             ) : (
-              <p className="text-sm text-gray-600 dark:text-gray-400">The audit's figures are not loaded.</p>
+              <p className="text-ui text-ink-2">The audit's figures are not loaded.</p>
             )}
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+            <p className="text-meta text-ink-3 mt-2">
               Each cell: the share of yearly counts inside the predicted range, the share expected in brackets, and the
               number of institutions. Columns: institutions by their average incidents a year. † Below the expected
               share by more than {rr?.calibration ? pctPoints(rr.calibration.bandToleranceBelow) : '…'} (a small
               group with the most incidents is tested against its widened limit, and "fails" says when it is
               outside it). Years: the
               first five years and the latest {rr?.calibration?.latestYears ?? '…'}.{' '}
-              <a href="/audit.json" className="underline">audit.json</a> has every figure.
+              <a href="/audit.json" className="link">audit.json</a> has every figure.
             </p>
           </section>
 
           {/* Definitions */}
           <section id="definitions" className="scroll-mt-20">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/50 rounded-xl flex items-center justify-center">
-                <Shield className="w-5 h-5 text-primary-600 dark:text-primary-400" />
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                Definitions
-              </h2>
-            </div>
+            <h2 className="section-head">
+              Definitions
+            </h2>
 
-            <p className="text-gray-600 dark:text-gray-400 mb-4">
+            <p className="text-ink-2 mb-4">
               Every category on this site is a Clery Act category, counted by each institution and reported to the
               U.S. Department of Education (ED) in its yearly Campus Safety and Security survey. The definitions below
               are the regulation's, shortened: the crimes in{' '}
@@ -1803,17 +1779,17 @@ export default function Methodology() {
                 { title: 'VAWA offenses (3)', note: 'Added to the Clery Act by the Violence Against Women Reauthorization Act of 2013.', items: VAWA_DEFINITIONS },
                 { title: 'Arrests and disciplinary referrals (3 violations each)', note: 'Counts of people arrested, and of people referred for campus disciplinary action, for violating these laws.', items: LAW_VIOLATION_DEFINITIONS },
               ].map((group) => (
-                <div key={group.title} className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-5">
-                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">{group.title}</h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">{group.note}</p>
-                  <dl className="space-y-2 text-sm">
+                <div key={group.title} className="border-t border-rule pt-5">
+                  <h3 className="h3 mb-1">{group.title}</h3>
+                  <p className="text-ui text-ink-3 mb-3">{group.note}</p>
+                  <dl className="space-y-2 text-ui">
                     {group.items.map((d) => (
                       <div key={d.name}>
-                        <dt className="inline font-medium text-gray-900 dark:text-gray-100">
+                        <dt className="inline font-semibold text-ink">
                           {d.name}
-                          {d.doeName && <span className="font-normal text-gray-500 dark:text-gray-400"> [{d.doeName}]</span>}:
+                          {d.doeName && <span className="font-normal text-ink-3"> [{d.doeName}]</span>}:
                         </dt>{' '}
-                        <dd className="inline text-gray-600 dark:text-gray-400">{d.text}</dd>
+                        <dd className="inline text-ink-2">{d.text}</dd>
                       </div>
                     ))}
                   </dl>
@@ -1821,44 +1797,42 @@ export default function Methodology() {
               ))}
             </div>
 
-            <h3 id="geography" className="scroll-mt-20 text-lg font-semibold text-gray-900 dark:text-gray-100 mt-8 mb-3">
-              <MapPin className="w-4 h-4 inline mr-2 text-primary-600 dark:text-primary-400" aria-hidden="true" />
+            <h3 id="geography" className="scroll-mt-20 h-sub mt-10 mb-3">
               Locations (Clery geography)
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
               {GEOGRAPHY_DEFINITIONS.map((d) => (
-                <div key={d.name} className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
-                  <h4 className="font-semibold text-gray-900 dark:text-gray-100 text-sm mb-1">
+                <div key={d.name} className="border-t border-rule pt-4">
+                  <h4 className="font-semibold text-ink text-ui mb-1">
                     {d.name}
-                    {d.doeName && <span className="font-normal text-gray-500 dark:text-gray-400"> [{d.doeName}]</span>}
+                    {d.doeName && <span className="font-normal text-ink-3"> [{d.doeName}]</span>}
                   </h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">{d.text}</p>
+                  <p className="text-ui text-ink-2">{d.text}</p>
                 </div>
               ))}
             </div>
-            <div className="flex items-start gap-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
-              <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
-              <p className="text-sm text-amber-800 dark:text-amber-300">
-                <strong>Residence halls are not added to totals.</strong> The regulation asks for the number of
+            <div className="border-l-2 border-rule-strong pl-4">
+              <p className="text-ui text-ink-2">
+                <strong className="text-ink">Residence halls are not added to totals.</strong> The regulation asks for the number of
                 on-campus crimes that took place in student housing, so every residence-hall incident is already
                 in the on-campus count. Totals on this site are on-campus + non-campus + public property; adding
                 residence halls would count those incidents twice.
               </p>
             </div>
 
-            <h3 id="counting" className="scroll-mt-20 text-lg font-semibold text-gray-900 dark:text-gray-100 mt-8 mb-3">
+            <h3 id="counting" className="scroll-mt-20 h-sub mt-10 mb-3">
               How institutions count
             </h3>
-            <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400 list-disc ml-5">
+            <ul className="space-y-2 text-ui text-ink-2 list-disc ml-5">
               <li>
-                <strong className="text-gray-900 dark:text-gray-200">Reports, not convictions.</strong> A crime is
+                <strong className="text-ink">Reports, not convictions.</strong> A crime is
                 counted when it is reported to a campus security authority or to local police and occurred on the
                 institution's Clery geography (34 CFR 668.46(c)(1)). Only sworn or commissioned law enforcement
                 personnel may determine a report false or baseless ("unfounded"); unfounded reports are left out of
                 the counts and reported separately (668.46(c)(2)(iii)). This site does not show unfounded reports.
               </li>
               <li id="year-reported" className="scroll-mt-20">
-                <strong className="text-gray-900 dark:text-gray-200">By the year reported, not the year it happened.</strong>{' '}
+                <strong className="text-ink">By the year reported, not the year it happened.</strong>{' '}
                 Statistics are disclosed by "the year in which the crimes were reported" (2016 Handbook, chapter
                 2). A crime reported in 2019 counts in 2019 even if it happened years earlier, so a year's figure
                 can jump when many people report past abuse at one institution. For example, the national number
@@ -1866,10 +1840,10 @@ export default function Methodology() {
                 fondling) and the University of Michigan in 2020 (fondling and rape), and Michigan State
                 University's 1,012 rapes in 2018 are about 12% of that year's national total. These are the
                 figures the institutions reported, and the site does not change them; it flags years that stand out
-                from an institution's other years (<a href="#rate-flags" className="underline">Unusual years</a>).
+                from an institution's other years (<a href="#rate-flags" className="link">Unusual years</a>).
               </li>
               <li>
-                <strong className="text-gray-900 dark:text-gray-200">One offense per incident, with exceptions.</strong>{' '}
+                <strong className="text-ink">One offense per incident, with exceptions.</strong>{' '}
                 When several criminal offenses happen in one incident, only the most serious is counted (the FBI's
                 Hierarchy Rule, 668.46(c)(9)(v)). Arson is always counted, and a rape, fondling, incest or statutory
                 rape in the same incident as a murder is counted along with the murder (668.46(c)(9)(vi)-(vii)). The
@@ -1877,7 +1851,7 @@ export default function Methodology() {
                 aggravated assault and as dating violence (2016 Handbook, chapter 3).
               </li>
               <li>
-                <strong className="text-gray-900 dark:text-gray-200">Arrests and referrals count people.</strong> The
+                <strong className="text-ink">Arrests and referrals count people.</strong> The
                 arrest figures count people arrested (the 2016 Handbook defines an arrest as a person processed by
                 arrest, citation or summons). The disciplinary figures count people "not included" in the arrest
                 count who were referred for campus disciplinary action (668.46(c)(1)(ii)), so a person both arrested
@@ -1887,16 +1861,16 @@ export default function Methodology() {
                 Hierarchy Rule and are counted in addition to any criminal offense in the same incident.
               </li>
               <li>
-                <strong className="text-gray-900 dark:text-gray-200">Stalking is counted per year.</strong> Stalking
+                <strong className="text-ink">Stalking is counted per year.</strong> Stalking
                 that continues into another calendar year is counted in each year in which the course of conduct
                 was reported (668.46(c)(6)).
               </li>
             </ul>
 
-            <h3 id="not-shown" className="scroll-mt-20 text-lg font-semibold text-gray-900 dark:text-gray-100 mt-8 mb-3">
+            <h3 id="not-shown" className="scroll-mt-20 h-sub mt-10 mb-3">
               What this site does not show
             </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-ui text-ink-2">
               DOE also publishes hate crimes, unfounded crime reports and fire statistics; this site does not read
               or show them. Hate crimes are a breakdown rather than a separate total: the criminal offenses above
               that were hate crimes (already in those counts, so adding them would count them twice), plus four
@@ -1907,18 +1881,18 @@ export default function Methodology() {
               the reports withheld from the counts.
             </p>
 
-            <h3 id="totals" className="scroll-mt-20 text-lg font-semibold text-gray-900 dark:text-gray-100 mt-8 mb-3">
+            <h3 id="totals" className="scroll-mt-20 h-sub mt-10 mb-3">
               Totals on this site
             </h3>
-            <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+            <div className="space-y-2 text-ui text-ink-2">
               <p>
-                <strong className="text-gray-900 dark:text-gray-100">All criminal offenses</strong> (what school
+                <strong className="text-ink">All criminal offenses</strong> (what school
                 pages and Compare open on; rankings by count open on violent crimes): the 11 criminal offenses above,
                 added up. It has no rate; rates use criminal offenses except motor-vehicle theft (see{' '}
-                <a href="#rate-codes" className="underline">Categories without a rate</a>).
+                <a href="#rate-codes" className="link">Categories without a rate</a>).
               </p>
               <p>
-                <strong className="text-gray-900 dark:text-gray-100">All categories (crimes, arrests,
+                <strong className="text-ink">All categories (crimes, arrests,
                 referrals)</strong>: every category added up. These are different kinds of counts: arrests
                 and disciplinary referrals count people (each person arrested or referred), not incidents,
                 and an incident of dating violence, domestic violence or stalking can also be counted as a
@@ -1930,29 +1904,24 @@ export default function Methodology() {
 
           {/* Series breaks and context */}
           <section id="series-breaks" className="scroll-mt-20">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/50 rounded-xl flex items-center justify-center">
-                <Calendar className="w-5 h-5 text-primary-600 dark:text-primary-400" />
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                Comparing Years
-              </h2>
-            </div>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
+            <h2 className="section-head">
+              Comparing Years
+            </h2>
+            <p className="text-ink-2 mb-6">
               Changes in definitions, reporting or circumstances between 2015 and 2024 that affect comparisons
               over time. Notes marked with years also appear next to charts and rankings that show those years.
             </p>
             <div className="space-y-4">
               {SERIES_NOTES.map((n) => (
-                <div key={n.id} id={n.id} className="scroll-mt-20 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-5">
-                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                    <span className="inline-block mr-2 px-2 py-0.5 rounded bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 text-xs font-semibold align-middle">
+                <div key={n.id} id={n.id} className="scroll-mt-20 border-t border-rule pt-5">
+                  <h3 className="h3 mb-2">
+                    <span className="inline-block mr-2 px-1.5 py-px rounded-sm border border-rule-strong text-ink-2 text-label font-semibold align-middle">
                       {n.label}
                     </span>
                     {n.title}
                   </h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{n.detail}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                  <p className="text-ui text-ink-2 mb-2">{n.detail}</p>
+                  <p className="text-meta text-ink-3">
                     Sources:{' '}
                     {n.sources.map((s, i) => (
                       <span key={s.url}>
@@ -1964,14 +1933,14 @@ export default function Methodology() {
                 </div>
               ))}
 
-              <div id="known-defects" className="scroll-mt-20 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-5">
-                <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                  <span className="inline-block mr-2 px-2 py-0.5 rounded bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 text-xs font-semibold align-middle">
+              <div id="known-defects" className="scroll-mt-20 border-t border-rule pt-5">
+                <h3 className="h3 mb-2">
+                  <span className="inline-block mr-2 px-1.5 py-px rounded-sm border border-rule-strong text-ink-2 text-label font-semibold align-middle">
                     2022-2023
                   </span>
                   Residence-hall figures from DOE's 2021-2023 release
                 </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+                <p className="text-ui text-ink-2">
                   For campuses whose 2022 or 2023 figures come from DOE's 2021-2023 release (Crime2024SAS.zip;
                   campuses missing from the 2022-2024 release), two of that release's residence-hall files are
                   wrong (see Known Errors in DOE Files above). Their 2022 residence-hall disciplinary referrals and
@@ -1986,15 +1955,15 @@ export default function Methodology() {
               </div>
             </div>
 
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mt-8 mb-3">
+            <h3 className="h-sub mt-10 mb-3">
               Context for every year
             </h3>
             <div className="space-y-4">
               {SERIES_CONTEXT.map((n) => (
                 <div key={n.id} id={n.id === 'year-reported' ? undefined : n.id} className="scroll-mt-20">
-                  <h4 className="font-medium text-gray-900 dark:text-gray-100 text-sm mb-1">{n.title}</h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">{n.detail}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                  <h4 className="font-semibold text-ink text-ui mb-1">{n.title}</h4>
+                  <p className="text-ui text-ink-2 mb-1">{n.detail}</p>
+                  <p className="text-meta text-ink-3">
                     Sources:{' '}
                     {n.sources.map((s, i) => (
                       <span key={s.url}>
@@ -2010,82 +1979,72 @@ export default function Methodology() {
 
           {/* Data Limitations */}
           <section id="limitations" className="scroll-mt-20">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-amber-100 dark:bg-amber-900/50 rounded-xl flex items-center justify-center">
-                <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400" />
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                Limitations
-              </h2>
-            </div>
+            <h2 className="section-head">
+              Limitations
+            </h2>
 
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
+            <p className="text-ink-2 mb-6">
               What these figures can and cannot support. Read these before comparing schools or years.
             </p>
 
             <div className="space-y-4">
               {limitations(facts).map((item) => (
-                <div key={item.title} className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
-                  <h3 className="font-medium text-gray-900 dark:text-gray-100 text-sm mb-1">{item.title}</h3>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">{item.body}</div>
+                <div key={item.title} className="border-t border-rule pt-4">
+                  <h3 className="h3 mb-1">{item.title}</h3>
+                  <div className="text-ui text-ink-2">{item.body}</div>
                 </div>
               ))}
             </div>
 
-            <h3 id="corrections" className="scroll-mt-20 text-lg font-semibold text-gray-900 dark:text-gray-100 mt-8 mb-3">
+            <h3 id="corrections" className="scroll-mt-20 h-sub mt-10 mb-3">
               What this site corrects, and what it does not
             </h3>
-            <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400 list-disc ml-5">
+            <ul className="space-y-2 text-ui text-ink-2 list-disc ml-5">
               <li>
-                <strong className="text-gray-900 dark:text-gray-200">One DOE release per campus-year.</strong> Each
+                <strong className="text-ink">One DOE release per campus-year.</strong> Each
                 campus-year comes from the newest DOE release that reports it, with all of its figures from that
                 release, so a campus missing from the latest release keeps the years an earlier release published.
               </li>
               <li>
-                <strong className="text-gray-900 dark:text-gray-200">Figures reported by two campuses count once.</strong>{' '}
+                <strong className="text-ink">Figures reported by two campuses count once.</strong>{' '}
                 When campuses in the same state report exactly the same figures for a location (or a whole year),
                 totals and rankings count them once, under one host campus. School pages still show each campus's
                 figures as DOE publishes them.
               </li>
               <li>
-                <strong className="text-gray-900 dark:text-gray-200">Known errors in DOE's 2021-2023 release.</strong>{' '}
+                <strong className="text-ink">Known errors in DOE's 2021-2023 release.</strong>{' '}
                 Its residence-hall disciplinary file repeats the on-campus figures for 2022 and 2023, and its
                 residence-hall arrest file has no 2022 liquor-law column. For campuses whose figures come from that
                 release, 2022 values are taken from the 2020-2022 release and 2023 residence-hall disciplinary
-                referrals are left out (see <a href="#known-defects" className="underline">Comparing Years</a>).
+                referrals are left out (see <a href="#known-defects" className="link">Comparing Years</a>).
               </li>
               <li>
-                <strong className="text-gray-900 dark:text-gray-200">DOE's 2015 and 2016 files are read correctly.</strong>{' '}
+                <strong className="text-ink">DOE's 2015 and 2016 files are read correctly.</strong>{' '}
                 Those SAS files are read with a reader that returns every row; an earlier reader lost 13 Alabama
                 campuses' 2015 and 2016 figures.
               </li>
               <li>
-                <strong className="text-gray-900 dark:text-gray-200">Enrollment is NCES's own FTE</strong> for every
+                <strong className="text-ink">Enrollment is NCES's own FTE</strong> for every
                 year. The on-campus part of it that rates divide by is an estimate made from NCES's figures (
-                <a href="#rate-denominator" className="underline">On-campus students</a>).
+                <a href="#rate-denominator" className="link">On-campus students</a>).
               </li>
               <li>
-                <strong className="text-gray-900 dark:text-gray-200">Not corrected:</strong> the figures themselves.
+                <strong className="text-ink">Not corrected:</strong> the figures themselves.
                 This site does not audit institutions or change what they reported; it publishes DOE's figures with
                 the rules above. An implausible figure here is an institution's report as DOE publishes it: ask the
                 institution, or check its Annual Security Report. See also the{' '}
-                <Link to="/changes" className="underline">list of corrections to this site's data</Link>.
+                <Link to="/changes" className="link">list of corrections to this site's data</Link>.
               </li>
             </ul>
           </section>
 
           {/* Data Audit Download */}
           <section id="audit" className="scroll-mt-20">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/50 rounded-xl flex items-center justify-center">
-                <FileText className="w-5 h-5 text-primary-600 dark:text-primary-400" />
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                Data Quality Audit
-              </h2>
-            </div>
+            <h2 className="section-head">
+              Data Quality Audit
+            </h2>
 
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
+            <p className="text-ink-2 mb-6">
               Each build runs an audit over {schoolCount !== undefined ? `all ${formatNumber(schoolCount)} campus pages` : 'every campus page'}.
               Most of its checks test that the published files agree with each other and with the pipeline's tables;
               one re-reads NCES's enrollment figures, one recomputes every published rate figure with a separate
@@ -2094,25 +2053,25 @@ export default function Methodology() {
               they are published as reported to the Department of Education.
             </p>
 
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
+            <p className="text-ink-2 mb-6">
               The audit compares the published files with the pipeline's own tables; it does not re-read the
               Department of Education's source files. The{' '}
-              <a href="/data/build_inputs.json" className="underline hover:text-gray-700 dark:hover:text-gray-300">build record</a>{' '}
+              <a href="/data/build_inputs.json" className="link">build record</a>{' '}
               lists every source file the build read, with a checksum (and its size, for the Department of Education
               files), and a SHA-256 checksum of every other published data file (everything under /data/).
             </p>
 
-            <div className="bg-gradient-to-r from-primary-50 to-primary-100 dark:from-primary-950/50 dark:to-primary-900/30 rounded-xl p-6 border border-primary-200 dark:border-primary-800">
+            <div className="border-y border-rule py-5">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1 min-w-0 break-words">
-                  <h4 className="font-semibold text-primary-900 dark:text-primary-100 mb-2">
+                  <h4 className="h3 mb-2">
                     Download Full Audit Report
                   </h4>
-                  <p className="text-sm text-primary-700 dark:text-primary-300 mb-4">
+                  <p className="text-ui text-ink-2 mb-3">
                     JSON file with the result of each check below, coverage counts by year, and the checksum
                     of the build it audited.
                   </p>
-                  <div className="flex flex-wrap gap-4 text-sm text-primary-700 dark:text-primary-300">
+                  <div className="tabular flex flex-wrap gap-x-5 gap-y-1 text-meta text-ink-2">
                     <span>Format: <strong>JSON</strong></span>
                     <span>Schools: <strong>{schoolCount !== undefined ? formatNumber(schoolCount) : metadata ? '—' : 'Loading...'}</strong></span>
                     <span>Last Updated: <strong>{metadata ? formatDate(metadata.lastUpdated) : 'Loading...'}</strong></span>
@@ -2121,41 +2080,41 @@ export default function Methodology() {
                 <a
                   href="/audit.json"
                   download="collegesafetydata-audit.json"
-                  className="flex-shrink-0 inline-flex items-center gap-2 px-4 py-2 bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600 text-white font-medium rounded-lg shadow-md transition-all hover:shadow-lg"
+                  className="btn flex-shrink-0"
                 >
-                  <Download className="w-4 h-4" />
+                  <Download className="w-4 h-4" aria-hidden="true" />
                   <span>Download</span>
                 </a>
               </div>
             </div>
 
-            <div className="mt-4 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
-              <h3 className="font-medium text-gray-900 dark:text-gray-100 text-sm mb-1">The checks and this build's results</h3>
+            <div className="mt-4 border-t border-rule pt-4">
+              <h3 className="h3 mb-1">The checks and this build's results</h3>
               {checks.length > 0 ? (
                 <>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                  <p className="text-ui text-ink-2 mb-3">
                     {formatNumber(checks.length)} checks: {formatNumber(statusCount('PASS'))} passed,{' '}
                     {formatNumber(statusCount('FAIL'))} failed, {formatNumber(statusCount('WARNING'))} with a warning.
                     A warning never fails the audit.
                   </p>
-                  <ol className="space-y-3 text-sm list-decimal pl-5">
+                  <ol className="space-y-3 text-ui list-decimal pl-5">
                     {checks.map((c) => (
-                      <li key={c.name} className="text-gray-600 dark:text-gray-400">
-                        <span className="font-medium text-gray-900 dark:text-gray-100">{c.name}</span>{' '}
-                        <span className={`inline-block px-1.5 py-0.5 rounded text-xs font-semibold ${STATUS_STYLES[c.status] ?? 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200'}`}>
+                      <li key={c.name} className="text-ink-2">
+                        <span className="font-semibold text-ink">{c.name}</span>{' '}
+                        <span className={`inline-block px-1.5 py-px rounded-sm border text-label font-semibold ${STATUS_STYLES[c.status] ?? 'border-rule-strong text-ink-2'}`}>
                           {c.status}
                         </span>
                         {CHECK_DESCRIPTIONS[c.name] && <>: {CHECK_DESCRIPTIONS[c.name]}.</>}
                         {[...c.errors, ...c.warnings].map((t, i) => (
-                          <span key={i} className="block mt-1 text-gray-800 dark:text-gray-200">{t}</span>
+                          <span key={i} className="block mt-1 text-ink">{t}</span>
                         ))}
                       </li>
                     ))}
                   </ol>
                 </>
               ) : (
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  The audit's results are in <a href="/audit.json" className="underline">audit.json</a>.
+                <p className="text-ui text-ink-2">
+                  The audit's results are in <a href="/audit.json" className="link">audit.json</a>.
                 </p>
               )}
             </div>
@@ -2163,31 +2122,26 @@ export default function Methodology() {
 
           {/* Data and downloads */}
           <section id="data" className="scroll-mt-20">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/50 rounded-xl flex items-center justify-center">
-                <Download className="w-5 h-5 text-primary-600 dark:text-primary-400" />
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                Data and Downloads
-              </h2>
-            </div>
+            <h2 className="section-head">
+              Data and Downloads
+            </h2>
 
-            <dl className="space-y-4 text-sm text-gray-600 dark:text-gray-400 mb-6">
+            <dl className="space-y-4 text-ui text-ink-2 mb-6">
               <div>
-                <dt className="font-medium text-gray-900 dark:text-gray-100">Build identifier</dt>
+                <dt className="font-semibold text-ink">Build identifier</dt>
                 <dd>
                   {build ? (
-                    <>This build is <code className="font-mono text-gray-800 dark:text-gray-200 break-all">{build.sha256}</code>{metadata ? `, built ${formatDate(metadata.lastUpdated)}` : ''}. </>
+                    <>This build is <code className="font-mono text-ink break-all">{build.sha256}</code>{metadata ? `, built ${formatDate(metadata.lastUpdated)}` : ''}. </>
                   ) : null}
                   The identifier is the SHA-256 of the{' '}
-                  <a href="/data/build_inputs.json" className="underline">build record</a>, which lists a checksum of
+                  <a href="/data/build_inputs.json" className="link">build record</a>, which lists a checksum of
                   every source file the build read and every data file it published; the footer shows its first 12
                   characters. Rebuilding from the same source files gives the same figures, but the build date is
                   part of the record, so every run has a new identifier. Cite it with the date you accessed the data.
                 </dd>
               </div>
               <div>
-                <dt className="font-medium text-gray-900 dark:text-gray-100"><a href="/audit.json" className="underline">audit.json</a></dt>
+                <dt className="font-semibold text-ink"><a href="/audit.json" className="link">audit.json</a></dt>
                 <dd>
                   The result of the build's audit (below): <code>overall_status</code>, each check with its details,
                   coverage counts by year, and <code>audited_build.site_record_sha256</code>, the identifier of the
@@ -2195,8 +2149,8 @@ export default function Methodology() {
                 </dd>
               </div>
               <div>
-                <dt className="font-medium text-gray-900 dark:text-gray-100">
-                  <a href="/data/downloads/campus-years.csv" className="underline">campus-years.csv</a>
+                <dt className="font-semibold text-ink">
+                  <a href="/data/downloads/campus-years.csv" className="link">campus-years.csv</a>
                 </dt>
                 <dd>
                   One row per campus and year the site shows (each year a campus reported to DOE, zeros included):{' '}
@@ -2209,9 +2163,9 @@ export default function Methodology() {
                   of the whole institution), <code>institution_online_pct</code> (percent of students enrolled
                   exclusively in distance education), <code>online_pct_fall</code> (the fall that share is from),{' '}
                   <code>institution_rate_fte</code> (the institution's denominator that year: its on-campus FTE, the
-                  larger of the two estimates of <a href="#rate-denominator" className="underline">On-campus students</a>,
-                  with any FTE added under <a href="#rate-mergers" className="underline">Mergers</a> or{' '}
-                  <a href="#rate-shared" className="underline">Shared campuses</a>),{' '}
+                  larger of the two estimates of <a href="#rate-denominator" className="link">On-campus students</a>,
+                  with any FTE added under <a href="#rate-mergers" className="link">Mergers</a> or{' '}
+                  <a href="#rate-shared" className="link">Shared campuses</a>),{' '}
                   <code>institution_rate_rule</code> (the rule that gives the institution no rate that year, and none
                   for a window containing it: <code>hospital</code>, <code>medical</code> or <code>listed</code> under
                   Population rules, <code>merger</code> or <code>family</code> under Mergers,{' '}
@@ -2224,11 +2178,11 @@ export default function Methodology() {
                   <code>institution_oncampus_fte_uncertain_reason</code> (<code>own</code>, or <code>pooled</code>{' '}
                   when only an added institution's estimates are uncertain; empty otherwise) and{' '}
                   <code>medical_center_campus</code> (True when the campus is on the list of{' '}
-                  <a href="#rate-medical-campuses" className="underline">Medical-center campuses</a> that year).
+                  <a href="#rate-medical-campuses" className="link">Medical-center campuses</a> that year).
                 </dd>
               </div>
               <div>
-                <dt className="font-medium text-gray-900 dark:text-gray-100">counts-YYYY.csv, one per year</dt>
+                <dt className="font-semibold text-ink">counts-YYYY.csv, one per year</dt>
                 <dd>
                   Every nonzero count, by campus, location and offense, as the campus reported it: <code>year</code>,{' '}
                   <code>unitid</code>, <code>geo</code> (On-campus, Residence halls, Non-campus, Public property),{' '}
@@ -2242,7 +2196,7 @@ export default function Methodology() {
                 </dd>
               </div>
               <div>
-                <dt className="font-medium text-gray-900 dark:text-gray-100">Rate files</dt>
+                <dt className="font-semibold text-ink">Rate files</dt>
                 <dd>
                   <code>/data/rates/</code>, listed in the build record.{' '}
                   {latest ? (
@@ -2266,7 +2220,7 @@ export default function Methodology() {
                 </dd>
               </div>
               <div>
-                <dt className="font-medium text-gray-900 dark:text-gray-100">Reproducing the site's totals</dt>
+                <dt className="font-semibold text-ink">Reproducing the site's totals</dt>
                 <dd>
                   From <code>counts-YYYY.csv</code>: leave out Residence halls (part of on-campus), keep rows with an
                   empty <code>counted_under_unitid</code>, and, for national totals, keep campuses whose state in{' '}
@@ -2275,12 +2229,12 @@ export default function Methodology() {
                 </dd>
               </div>
               <div>
-                <dt className="font-medium text-gray-900 dark:text-gray-100">Rebuilding from DOE's and NCES's files</dt>
+                <dt className="font-semibold text-ink">Rebuilding from DOE's and NCES's files</dt>
                 <dd>
                   The pipeline downloads the source files and builds every file above. With Python 3.11 or later, in{' '}
                   <code>etl/</code> of the{' '}
-                  <a href="https://github.com/kbdevopz/collegesafetydata-public" target="_blank" rel="noopener noreferrer" className="underline">repository</a>:
-                  <pre className="mt-2 bg-gray-50 dark:bg-gray-800/60 rounded-lg p-3 text-xs text-gray-800 dark:text-gray-200 overflow-x-auto whitespace-pre">{`python -m venv venv
+                  <a href="https://github.com/kbdevopz/collegesafetydata-public" target="_blank" rel="noopener noreferrer" className="link">repository</a>:
+                  <pre className="mt-2 bg-subtle rounded p-3 text-meta text-ink overflow-x-auto whitespace-pre">{`python -m venv venv
 venv\\Scripts\\activate        # macOS/Linux: source venv/bin/activate
 pip install -r requirements.txt
 python 01_download_raw_data.py
@@ -2303,15 +2257,10 @@ python 07_comprehensive_audit.py`}</pre>
 
           {/* Official sources */}
           <section id="sources" className="scroll-mt-20">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/50 rounded-xl flex items-center justify-center">
-                <BookOpen className="w-5 h-5 text-primary-600 dark:text-primary-400" />
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                Official Sources
-              </h2>
-            </div>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+            <h2 className="section-head">
+              Official Sources
+            </h2>
+            <p className="text-ui text-ink-2 mb-4">
               The 2016 Handbook was rescinded in October 2020 and replaced by the Clery Act Appendix for the FSA
               Handbook; ED keeps the Handbook online for historical purposes. ED said at the time that no statutory
               or regulatory requirement for Clery Act reporting had changed. The definitions above are the
@@ -2319,9 +2268,9 @@ python 07_comprehensive_audit.py`}</pre>
               34 CFR 668.46 and its Appendix A, which begins in December 2016, shows no substantive amendment
               since. The Handbook is cited only where it explains how to count.
             </p>
-            <ul className="space-y-2 text-sm">
+            <ul className="space-y-2 text-ui">
               {Object.values(SOURCES).map((s) => (
-                <li key={s.url} className="text-gray-600 dark:text-gray-400">
+                <li key={s.url} className="text-ink-2">
                   {s.publisher}.{' '}
                   <SourceLink source={s} />
                 </li>
@@ -2330,22 +2279,17 @@ python 07_comprehensive_audit.py`}</pre>
           </section>
 
           {/* Source Code Reference */}
-          <section>
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-gray-100 dark:bg-gray-800 rounded-xl flex items-center justify-center">
-                <FileText className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                Source Code
-              </h2>
-            </div>
+          <section id="source-code" className="scroll-mt-20">
+            <h2 className="section-head">
+              Source Code
+            </h2>
 
-            <p className="text-gray-600 dark:text-gray-400 mb-4">
+            <p className="text-ink-2 mb-4">
               The complete ETL (Extract, Transform, Load) pipeline is open source and available for inspection.
             </p>
 
-            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4 font-mono text-sm">
-              <div className="space-y-1 text-gray-700 dark:text-gray-300">
+            <div className="overflow-x-auto bg-subtle rounded p-4 font-mono text-meta">
+              <div className="space-y-1 text-ink-2">
                 <div>etl/00_check_for_updates.py — Check DOE and NCES for newer data</div>
                 <div>etl/01_download_raw_data.py — Download DOE crime data</div>
                 <div>etl/01b_download_ipeds.py — Download IPEDS enrollment</div>
@@ -2364,6 +2308,7 @@ python 07_comprehensive_audit.py`}</pre>
           </section>
 
         </div>
+      </div>
       </div>
     </div>
   )

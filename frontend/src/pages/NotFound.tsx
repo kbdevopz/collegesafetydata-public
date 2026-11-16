@@ -9,19 +9,19 @@ const LINKS = [
 
 export default function NotFound() {
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 max-w-2xl">
-      <p className="text-sm font-semibold text-primary-600 dark:text-primary-400 mb-2">404</p>
-      <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">Page not found</h1>
-      <p className="text-gray-600 dark:text-gray-400 mb-8">
+    <div className="wrap py-16">
+      <p className="tabular text-meta font-semibold text-ink-3 mb-2">404</p>
+      <h1 className="h1 mb-3">Page not found</h1>
+      <p className="lede mb-8">
         There is no page at this address. It may have been mistyped, or a link may be out of date.
       </p>
-      <ul className="space-y-3">
+      <ul className="max-w-prose space-y-2 text-body">
         {LINKS.map(({ to, label, note }) => (
           <li key={to}>
-            <Link to={to} className="font-medium text-primary-600 dark:text-primary-400 hover:underline">
+            <Link to={to} className="link font-semibold">
               {label}
             </Link>
-            <span className="text-gray-600 dark:text-gray-400">: {note}</span>
+            <span className="text-ink-2">: {note}</span>
           </li>
         ))}
       </ul>

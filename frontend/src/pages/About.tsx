@@ -1,22 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import {
-  ExternalLink,
-  Database,
-  Shield,
-  BarChart3,
-  FileText,
-  AlertTriangle,
-  CheckCircle,
-  ChevronDown,
-  Clock,
-  Users,
-  Calculator,
-  MapPin,
-  Info,
-  Github,
-  Mail,
-} from 'lucide-react'
+import { ChevronRight, ExternalLink } from 'lucide-react'
 import { cachedMetadata, getMetadata } from '../lib/api'
 import type { Metadata } from '../lib/types'
 import { formatDate, formatNumber, cn } from '../lib/utils'
@@ -30,7 +14,8 @@ import {
   GEOGRAPHY_DEFINITIONS,
 } from '../data/sources'
 
-// Collapsible section component
+// Collapsible section: a native disclosure (keyboard and screen readers
+// handle it; find-in-page opens it)
 function CollapsibleSection({
   title,
   children,
@@ -40,71 +25,46 @@ function CollapsibleSection({
   children: React.ReactNode
   defaultOpen?: boolean
 }) {
-  const [isOpen, setIsOpen] = useState(defaultOpen)
-
   return (
-    <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
-      <button
-        type="button"
-        onClick={() => setIsOpen(!isOpen)}
-        className="w-full px-4 py-3 flex items-center justify-between bg-gray-50 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-left"
-      >
-        <span className="font-medium text-gray-900 dark:text-gray-100">{title}</span>
-        <ChevronDown
-          className={cn(
-            "w-5 h-5 text-gray-500 transition-transform duration-200",
-            isOpen && "rotate-180"
-          )}
+    <details className="group border-b border-rule" open={defaultOpen}>
+      <summary className="flex min-h-[2.75rem] cursor-pointer list-none items-center gap-2 py-2 text-left text-ui font-semibold text-ink hover:text-accent [&::-webkit-details-marker]:hidden">
+        <ChevronRight
+          className="h-4 w-4 flex-shrink-0 text-ink-3 transition-transform group-open:rotate-90"
+          aria-hidden="true"
         />
-      </button>
-      <div
-        className={cn(
-          "overflow-hidden transition-all duration-200",
-          isOpen ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0"
-        )}
-      >
-        <div className="px-4 py-4 bg-white dark:bg-gray-900">
-          {children}
-        </div>
+        <span>{title}</span>
+      </summary>
+      <div className="pb-4 pl-6">
+        {children}
       </div>
-    </div>
+    </details>
   )
 }
 
 // Crime category item
 function CrimeItem({ name, description }: { name: string; description: string }) {
   return (
-    <div className="flex gap-3 py-2">
-      <div className="w-1.5 h-1.5 rounded-full bg-primary-500 dark:bg-primary-400 mt-2 flex-shrink-0" />
-      <div>
-        <span className="font-medium text-gray-900 dark:text-gray-100">{name}</span>
-        <span className="text-gray-600 dark:text-gray-400"> — {description}</span>
-      </div>
+    <div className="py-1.5">
+      <span className="font-semibold text-ink">{name}</span>
+      <span className="text-ink-2"> — {description}</span>
     </div>
   )
 }
 
-// Limitation card
+// Limitation item
 function LimitationCard({
-  icon: Icon,
   title,
-  description
+  description,
+  className,
 }: {
-  icon: React.ElementType
   title: string
-  description: string
+  description: React.ReactNode
+  className?: string
 }) {
   return (
-    <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
-      <div className="flex items-start gap-3">
-        <div className="w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center flex-shrink-0">
-          <Icon className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-        </div>
-        <div>
-          <h4 className="font-medium text-gray-900 dark:text-gray-100 text-sm">{title}</h4>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{description}</p>
-        </div>
-      </div>
+    <div className={cn('border-t border-rule pt-3', className)}>
+      <h4 className="text-ui font-semibold text-ink">{title}</h4>
+      <p className="mt-1 text-ui text-ink-2">{description}</p>
     </div>
   )
 }
@@ -125,130 +85,99 @@ export default function About() {
 
   return (
     <div className="min-h-screen">
-      {/* Hero Section */}
-      <div className="bg-gradient-to-b from-primary-50 to-white dark:from-gray-900 dark:to-gray-950 border-b border-gray-200 dark:border-gray-800">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-          <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-              About CollegeSafetyData
-            </h1>
-            <p className="text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
-              Free, public access to campus crime statistics reported under the
-              Jeanne Clery Act — making college safety data transparent and accessible.
-            </p>
-          </div>
-        </div>
-      </div>
+      {/* Header */}
+      <header className="wrap pt-8 pb-8 sm:pt-10">
+        <h1 className="h1">
+          About CollegeSafetyData
+        </h1>
+        <p className="lede mt-2">
+          Free, public access to campus crime statistics reported under the
+          Jeanne Clery Act — making college safety data transparent and accessible.
+        </p>
+      </header>
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="max-w-3xl mx-auto space-y-16">
+      <div className="wrap pb-12">
+        <div className="max-w-[46rem] space-y-14">
 
           {/* What is the Clery Act */}
           <section>
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/50 rounded-xl flex items-center justify-center">
-                <Shield className="w-5 h-5 text-primary-600 dark:text-primary-400" />
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                What is the Clery Act?
-              </h2>
-            </div>
+            <h2 className="section-head">
+              What is the Clery Act?
+            </h2>
 
-            <div className="space-y-4 text-gray-600 dark:text-gray-400">
-              <p className="leading-relaxed">
+            <div className="prose-body">
+              <p>
                 The Clery Act is a federal law requiring colleges and universities
                 participating in federal financial aid programs to disclose campus crime information.
               </p>
-              <p className="leading-relaxed">
-                Named after <strong className="text-gray-900 dark:text-gray-200">Jeanne Clery</strong>,
+              <p>
+                Named after <strong className="font-semibold text-ink">Jeanne Clery</strong>,
                 who was murdered in her dorm room at Lehigh University in 1986, the Act ensures
                 transparency about campus safety.
               </p>
             </div>
 
-            {/* Requirements Grid */}
-            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {/* Requirements */}
+            <ul className="mt-5 list-disc space-y-1.5 pl-5 text-ui text-ink-2 marker:text-ink-3">
               {[
                 { text: "Publish Annual Security Reports with 3 years of crime data" },
                 { text: "Report specific crime categories for campus areas" },
                 { text: "Issue timely warnings about safety threats" },
                 { text: "Keep a daily crime log open to the public, if the institution has a campus police or security department (34 CFR 668.46(f))" },
               ].map((item, i) => (
-                <div key={i} className="flex items-start gap-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3">
-                  <CheckCircle className="w-5 h-5 text-green-500 dark:text-green-400 flex-shrink-0 mt-0.5" />
-                  <span className="text-sm text-gray-700 dark:text-gray-300">{item.text}</span>
-                </div>
+                <li key={i}>{item.text}</li>
               ))}
-            </div>
+            </ul>
           </section>
 
           {/* Data Source */}
           <section>
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/50 rounded-xl flex items-center justify-center">
-                <Database className="w-5 h-5 text-primary-600 dark:text-primary-400" />
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                Data Source
-              </h2>
-            </div>
+            <h2 className="section-head">
+              Data Source
+            </h2>
 
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 rounded-xl p-6 border border-blue-100 dark:border-blue-900/50">
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-xl bg-white dark:bg-gray-800 shadow-sm flex items-center justify-center flex-shrink-0">
-                  <FileText className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">
-                    U.S. Department of Education
-                  </h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                    Campus Safety and Security Database
-                  </p>
-                  <a
-                    href="https://ope.ed.gov/campussafety/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-sm font-medium text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300"
-                  >
-                    ope.ed.gov/campussafety
-                    <ExternalLink className="w-4 h-4" />
-                  </a>
-                </div>
+            <h3 className="h3">
+              U.S. Department of Education
+            </h3>
+            <p className="mt-0.5 text-ui text-ink-2">
+              Campus Safety and Security Database
+            </p>
+            <a
+              href="https://ope.ed.gov/campussafety/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="link mt-2 inline-flex min-h-[1.5rem] items-center gap-1 text-ui font-semibold"
+            >
+              ope.ed.gov/campussafety
+              <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
+            </a>
+            {metadata && (
+              <div className="mt-4 flex flex-wrap gap-x-6 gap-y-1 border-t border-rule pt-3 text-meta text-ink-2">
+                <span>Coverage: <strong className="font-semibold text-ink">{metadata.coverage || dataYears.span || '—'}</strong></span>
+                <span>Updated: <strong className="font-semibold text-ink">{formatDate(metadata.lastUpdated)}</strong></span>
               </div>
-              {metadata && (
-                <div className="mt-4 pt-4 border-t border-blue-200/50 dark:border-blue-800/50 flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-600 dark:text-gray-400">
-                  <span>Coverage: <strong className="text-gray-900 dark:text-gray-200">{metadata.coverage || dataYears.span || '—'}</strong></span>
-                  <span>Updated: <strong className="text-gray-900 dark:text-gray-200">{formatDate(metadata.lastUpdated)}</strong></span>
-                </div>
-              )}
-            </div>
+            )}
           </section>
 
           {/* Crime Categories - Collapsible */}
           <section>
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/50 rounded-xl flex items-center justify-center">
-                <BarChart3 className="w-5 h-5 text-primary-600 dark:text-primary-400" />
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                Crime Categories
-              </h2>
-            </div>
+            <h2 className="section-head">
+              Crime Categories
+            </h2>
 
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
+            <p className="prose-body mb-4">
               The Clery Act regulation (34 CFR 668.46) lists the categories institutions must count and defines
               them. Open a section for the definitions in plain words; the{' '}
-              <Link to="/methodology#definitions" className="text-primary-600 dark:text-primary-400 underline">
+              <Link to="/methodology#definitions" className="link">
                 Methodology page
               </Link>{' '}
               links to the official text and explains how institutions count.
             </p>
 
-            <div className="space-y-3">
+            <div className="border-t border-rule">
               <CollapsibleSection title="Criminal Offenses (11 categories)" defaultOpen>
-                <div className="space-y-1 text-sm">
+                <div className="text-ui">
                   {CRIMINAL_DEFINITIONS.map((d) => (
                     <CrimeItem key={d.name} name={d.name} description={d.text} />
                   ))}
@@ -256,24 +185,24 @@ export default function About() {
               </CollapsibleSection>
 
               <CollapsibleSection title="VAWA Offenses (3 categories)">
-                <div className="space-y-1 text-sm">
+                <div className="text-ui">
                   {VAWA_DEFINITIONS.map((d) => (
                     <CrimeItem key={d.name} name={d.name} description={d.text} />
                   ))}
                 </div>
-                <p className="mt-3 text-xs text-gray-500 dark:text-gray-500">
+                <p className="mt-3 text-meta text-ink-3">
                   Added to the Clery Act by the Violence Against Women Reauthorization Act of 2013; ED's final rule
                   took effect on July 1, 2015.
                 </p>
               </CollapsibleSection>
 
               <CollapsibleSection title="Arrests & Disciplinary Referrals (3 categories each)">
-                <div className="space-y-1 text-sm">
+                <div className="text-ui">
                   {LAW_VIOLATION_DEFINITIONS.map((d) => (
                     <CrimeItem key={d.name} name={d.name} description={d.text} />
                   ))}
                 </div>
-                <p className="mt-3 text-xs text-gray-500 dark:text-gray-500">
+                <p className="mt-3 text-meta text-ink-3">
                   These count people, not incidents: people arrested, and people referred for campus disciplinary
                   action who were not arrested. A person both arrested and referred is counted once, as an arrest.
                 </p>
@@ -283,118 +212,94 @@ export default function About() {
 
           {/* Geographic Definitions */}
           <section>
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/50 rounded-xl flex items-center justify-center">
-                <MapPin className="w-5 h-5 text-primary-600 dark:text-primary-400" />
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                Geographic Definitions
-              </h2>
-            </div>
+            <h2 className="section-head">
+              Geographic Definitions
+            </h2>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+            <div className="mb-6 grid grid-cols-1 gap-x-8 gap-y-5 sm:grid-cols-2">
               {GEOGRAPHY_DEFINITIONS.map((item) => {
                 const highlight = item.name === 'Residence halls'
                 return (
                   <div
                     key={item.name}
-                    className={cn(
-                      "rounded-lg p-4 border",
-                      highlight
-                        ? "bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800"
-                        : "bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800"
-                    )}
+                    className="border-t border-rule pt-3"
                   >
-                    <h4 className="font-semibold text-gray-900 dark:text-gray-100 text-sm mb-1">
+                    <h4 className="mb-1 text-ui font-semibold text-ink">
                       {item.name}
-                      {highlight && <span className="text-amber-600 dark:text-amber-400 ml-1">*</span>}
+                      {highlight && <span className="ml-1 text-ink-2">*</span>}
                     </h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">{item.text}</p>
+                    <p className="text-ui text-ink-2">{item.text}</p>
                   </div>
                 )
               })}
             </div>
 
-            <div className="flex items-start gap-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
-              <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="font-medium text-amber-800 dark:text-amber-300 text-sm">
-                  Avoid Double-Counting
-                </p>
-                <p className="text-sm text-amber-700 dark:text-amber-400 mt-1">
-                  Residence hall incidents are a <em>subset</em> of on-campus totals.
-                  Our calculations exclude residence halls when summing totals.
-                </p>
-              </div>
+            <div className="border-l-2 border-rule-strong pl-4">
+              <p className="text-ui font-semibold text-ink">
+                Avoid Double-Counting
+              </p>
+              <p className="mt-1 text-ui text-ink-2">
+                Residence hall incidents are a <em>subset</em> of on-campus totals.
+                Our calculations exclude residence halls when summing totals.
+              </p>
             </div>
           </section>
 
           {/* Methodology */}
           <section>
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/50 rounded-xl flex items-center justify-center">
-                <Calculator className="w-5 h-5 text-primary-600 dark:text-primary-400" />
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                How We Calculate
-              </h2>
-            </div>
+            <h2 className="section-head">
+              How We Calculate
+            </h2>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-              <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-5">
-                <div className="text-3xl font-bold text-primary-600 dark:text-primary-400 mb-2">
+            <div className="mb-8 grid grid-cols-1 border-y border-rule sm:grid-cols-2">
+              <div className="py-4 sm:pr-6">
+                <div className="tabular text-figure font-semibold text-ink">
                   {typeof schoolCount === 'number' && schoolCount > 0 ? formatNumber(schoolCount) : '—'}
                 </div>
-                <div className="text-sm font-medium text-gray-900 dark:text-gray-100">Campuses</div>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                <div className="mt-1 text-ui font-semibold text-ink">Campuses</div>
+                <p className="mt-1 text-meta text-ink-2">
                   Every campus that reported to DOE in at least one year{dataYears.span ? ` of ${dataYears.span}` : ''}; each has a school page
                 </p>
               </div>
-              <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-5">
-                <div className="text-3xl font-bold text-primary-600 dark:text-primary-400 mb-2">{dataYears.count ?? '—'}</div>
-                <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{dataYears.count === 1 ? 'Year' : 'Years'} of Data</div>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              <div className="border-t border-rule py-4 sm:border-l sm:border-t-0 sm:pl-6">
+                <div className="tabular text-figure font-semibold text-ink">{dataYears.count ?? '—'}</div>
+                <div className="mt-1 text-ui font-semibold text-ink">{dataYears.count === 1 ? 'Year' : 'Years'} of Data</div>
+                <p className="mt-1 text-meta text-ink-2">
                   {dataYears.span ? `Calendar years ${dataYears.span}` : 'Every year in the published data'}
                 </p>
               </div>
             </div>
 
-            <div className="space-y-3 mb-8">
-              <div className="flex items-start gap-3 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
-                <div className="w-6 h-6 rounded-full bg-primary-100 dark:bg-primary-900/50 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-xs font-bold text-primary-600 dark:text-primary-400">1</span>
-                </div>
+            <div className="space-y-5">
+              <div className="flex items-start gap-4">
+                <span className="tabular w-5 flex-shrink-0 text-right font-serif text-heading font-semibold text-ink-3">1</span>
                 <div>
-                  <h4 className="font-medium text-gray-900 dark:text-gray-100 text-sm">Total Counts</h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                  <h4 className="text-ui font-semibold text-ink">Total Counts</h4>
+                  <p className="text-ui text-ink-2">
                     Sum of on-campus + non-campus + public property (excluding residence halls to avoid double-counting)
                   </p>
                 </div>
               </div>
-              <div className="flex items-start gap-3 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
-                <div className="w-6 h-6 rounded-full bg-primary-100 dark:bg-primary-900/50 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-xs font-bold text-primary-600 dark:text-primary-400">2</span>
-                </div>
+              <div className="flex items-start gap-4">
+                <span className="tabular w-5 flex-shrink-0 text-right font-serif text-heading font-semibold text-ink-3">2</span>
                 <div>
-                  <h4 className="font-medium text-gray-900 dark:text-gray-100 text-sm">Per 10k Rates</h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                  <h4 className="text-ui font-semibold text-ink">Per 10k Rates</h4>
+                  <p className="text-ui text-ink-2">
                     Incidents reported on campus at all of an institution's campuses in the United States over three
                     years, per 10,000 of its on-campus FTE a year (an estimate of its FTE without students enrolled
                     only online): a size-adjusted figure, not a measure of risk. Each rate has an interval and is
                     compared with the national rate; the largest institutions are also placed on ordered lists, unless
                     one of their years in the window is unusually high. How
                     all of this is done is described on the{' '}
-                    <Link to="/methodology#rates" className="text-primary-600 dark:text-primary-400 underline">Methodology page</Link>.
+                    <Link to="/methodology#rates" className="link">Methodology page</Link>.
                   </p>
                 </div>
               </div>
-              <div className="flex items-start gap-3 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
-                <div className="w-6 h-6 rounded-full bg-primary-100 dark:bg-primary-900/50 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-xs font-bold text-primary-600 dark:text-primary-400">3</span>
-                </div>
+              <div className="flex items-start gap-4">
+                <span className="tabular w-5 flex-shrink-0 text-right font-serif text-heading font-semibold text-ink-3">3</span>
                 <div>
-                  <h4 className="font-medium text-gray-900 dark:text-gray-100 text-sm">Percentages</h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                  <h4 className="text-ui font-semibold text-ink">Percentages</h4>
+                  <p className="text-ui text-ink-2">
                     Each school's share of the total for the selected ranking (national, a state or the Ivy League)
                   </p>
                 </div>
@@ -404,94 +309,70 @@ export default function About() {
 
           {/* Data Limitations */}
           <section>
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-amber-100 dark:bg-amber-900/50 rounded-xl flex items-center justify-center">
-                <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400" />
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                Important Limitations
-              </h2>
-            </div>
+            <h2 className="section-head">
+              Important Limitations
+            </h2>
 
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
+            <p className="prose-body mb-5">
               A short version; the{' '}
-              <Link to="/methodology#limitations" className="text-primary-600 dark:text-primary-400 underline">Methodology page</Link>{' '}
+              <Link to="/methodology#limitations" className="link">Methodology page</Link>{' '}
               has the full list and sources.
             </p>
 
-            {/* Key Insight Callout */}
-            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
-              <div className="flex items-start gap-3">
-                <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-sm font-medium text-blue-800 dark:text-blue-200">
-                    Higher reported numbers do not by themselves mean more danger
-                  </p>
-                  <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
-                    Clery figures count reports. A higher count can reflect more crime, more reporting, or both, and a
-                    lower count does not show that a campus is safer.
-                  </p>
-                </div>
-              </div>
+            {/* Key point */}
+            <div className="mb-6 border-l-2 border-accent pl-4">
+              <p className="text-ui font-semibold text-ink">
+                Higher reported numbers do not by themselves mean more danger
+              </p>
+              <p className="mt-1 text-ui text-ink-2">
+                Clery figures count reports. A higher count can reflect more crime, more reporting, or both, and a
+                lower count does not show that a campus is safer.
+              </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-x-8 gap-y-5 sm:grid-cols-2">
               <LimitationCard
-                icon={Clock}
                 title="Reporting Lag"
                 description={describeReportingLag(dataYears.latest)}
               />
               <LimitationCard
-                icon={Clock}
                 title="Counted by Year Reported"
                 description="Each year counts crimes reported that year, including some that happened earlier. Many reports of past abuse at one school can make one year jump."
               />
               {/* Underreporting, with its source */}
-              <div className="col-span-1 sm:col-span-2 bg-amber-50 dark:bg-amber-900/20 rounded-lg p-4 border border-amber-200 dark:border-amber-800">
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center flex-shrink-0">
-                    <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-gray-900 dark:text-gray-100 text-sm">Many Crimes Are Never Reported</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                      Clery data counts only <strong className="text-gray-900 dark:text-gray-200">reported</strong> incidents.
-                      In the Bureau of Justice Statistics' analysis of the National Crime Victimization Survey, 80% of
-                      rape and sexual assault victimizations of female college students aged 18-24 (1995-2013) were not
-                      reported to police. That survey does not measure reports to campus officials, which Clery figures
-                      also include.
-                    </p>
-                    <div className="mt-3 text-xs text-gray-500 dark:text-gray-500">
-                      Source:{' '}
-                      <a href={SOURCES.bjsCollege2014.url} target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-700 dark:hover:text-gray-300">
-                        BJS, Rape and Sexual Assault Victimization Among College-Age Females, 1995-2013 (2014)
-                      </a>
-                    </div>
-                  </div>
-                </div>
+              <div className="border-t border-rule pt-3 sm:col-span-2">
+                <h4 className="text-ui font-semibold text-ink">Many Crimes Are Never Reported</h4>
+                <p className="mt-1 text-ui text-ink-2">
+                  Clery data counts only <strong className="font-semibold text-ink">reported</strong> incidents.
+                  In the Bureau of Justice Statistics' analysis of the National Crime Victimization Survey, 80% of
+                  rape and sexual assault victimizations of female college students aged 18-24 (1995-2013) were not
+                  reported to police. That survey does not measure reports to campus officials, which Clery figures
+                  also include.
+                </p>
+                <p className="mt-2 text-meta text-ink-3">
+                  Source:{' '}
+                  <a href={SOURCES.bjsCollege2014.url} target="_blank" rel="noopener noreferrer" className="link">
+                    BJS, Rape and Sexual Assault Victimization Among College-Age Females, 1995-2013 (2014)
+                  </a>
+                </p>
               </div>
               <LimitationCard
-                icon={Users}
                 title="Reporting Varies by School"
                 description="Each institution classifies incidents, designates who receives reports and maps its own campus, so the same incidents can be reported differently."
               />
               <LimitationCard
-                icon={FileText}
                 title="Definitions"
                 description="The current categories took effect with ED's VAWA rule on July 1, 2015. This site starts in 2015; do not join its figures with earlier years."
               />
               <LimitationCard
-                icon={Calculator}
                 title="FTE Data Limited"
                 description={fteAvailabilityText}
               />
               <LimitationCard
-                icon={Info}
                 title="What is FTE?"
                 description="Full-time equivalent fall enrollment from NCES: full-time students plus part-time students weighted by factors that depend on the type of institution and student. It counts enrolled students only, for the whole institution."
               />
               <LimitationCard
-                icon={BarChart3}
                 title="Small Numbers Swing"
                 description={
                   'Rates average three years, and every rate has an interval (Methodology page). One incident more or less can still move a small school\'s rate a lot, so only institutions large enough to expect ' +
@@ -502,68 +383,60 @@ export default function About() {
                 }
               />
               <LimitationCard
-                icon={MapPin}
                 title="Geographic Context"
                 description="Urban and rural campuses differ: public property next to a city campus is not comparable with a rural one."
               />
             </div>
           </section>
 
-          {/* CTA */}
-          <section className="bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-950/50 dark:to-primary-900/30 rounded-2xl p-8 sm:p-10 text-center border border-primary-200 dark:border-primary-800">
-            <h2 className="text-2xl font-bold text-primary-900 dark:text-primary-100 mb-3">
+          {/* Call to explore */}
+          <section className="border-y border-rule py-8">
+            <h2 className="h2 mb-2">
               Ready to Explore?
             </h2>
-            <p className="text-primary-700 dark:text-primary-300 mb-6 max-w-md mx-auto">
+            <p className="mb-5 max-w-md text-ui text-ink-2">
               View rankings, trends, and detailed breakdowns for thousands of U.S. colleges.
             </p>
             <Link
               to="/"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600 text-white font-medium rounded-xl shadow-lg shadow-primary-500/25 transition-all hover:shadow-xl hover:shadow-primary-500/30 hover:-translate-y-0.5"
+              className="btn-primary"
             >
-              <BarChart3 className="w-5 h-5" />
               View Rankings
             </Link>
           </section>
 
           {/* Open Source */}
           <section>
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/50 rounded-xl flex items-center justify-center">
-                <Github className="w-5 h-5 text-primary-600 dark:text-primary-400" />
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                Open Source
-              </h2>
-            </div>
-            <div className="space-y-4 text-gray-600 dark:text-gray-400">
-              <p className="leading-relaxed">
+            <h2 className="section-head">
+              Open Source
+            </h2>
+            <div className="prose-body">
+              <p>
                 CollegeSafetyData is fully open source. Our data pipeline, methodology,
                 and this website are publicly available for review, audit, and contribution.
               </p>
-              <p className="leading-relaxed">
+              <p>
                 We welcome collaboration from researchers, journalists, and developers
                 who want to improve campus safety transparency.
               </p>
-              <a
-                href="https://github.com/kbdevopz/collegesafetydata-public"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300"
-              >
-                <Github className="w-4 h-4" />
-                <span>View on GitHub</span>
-                <ExternalLink className="w-4 h-4" />
-              </a>
             </div>
+            <a
+              href="https://github.com/kbdevopz/collegesafetydata-public"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="link mt-4 inline-flex min-h-[1.5rem] items-center gap-1 text-ui font-semibold"
+            >
+              <span>View on GitHub</span>
+              <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
+            </a>
           </section>
 
           {/* Resources */}
           <section>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">
+            <h2 className="section-head">
               Additional Resources
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <ul className="grid grid-cols-1 gap-x-8 sm:grid-cols-2">
               {[
                 {
                   href: "https://clerycenter.org/",
@@ -591,61 +464,50 @@ export default function About() {
                   desc: "National crime reporting standards"
                 },
               ].map((link) => (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 hover:border-primary-300 dark:hover:border-primary-700 hover:shadow-md transition-all flex items-start gap-3"
-                >
-                  <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-gray-800 group-hover:bg-primary-100 dark:group-hover:bg-primary-900/50 flex items-center justify-center flex-shrink-0 transition-colors">
-                    <ExternalLink className="w-5 h-5 text-gray-400 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors" />
-                  </div>
-                  <div>
-                    <div className="font-medium text-gray-900 dark:text-gray-100 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                <li key={link.href} className="border-b border-rule">
+                  <a
+                    href={link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group block py-3"
+                  >
+                    <div className="inline-flex items-center gap-1 font-semibold text-ink underline decoration-rule-strong/60 underline-offset-[3px] group-hover:text-accent group-hover:decoration-current">
                       {link.title}
+                      <ExternalLink className="h-3.5 w-3.5 text-ink-3" aria-hidden="true" />
                     </div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">
+                    <div className="text-meta text-ink-2">
                       {link.desc}
                     </div>
-                  </div>
-                </a>
+                  </a>
+                </li>
               ))}
-            </div>
+            </ul>
           </section>
 
           {/* Contact & Feedback */}
           <section>
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/50 rounded-xl flex items-center justify-center">
-                <Mail className="w-5 h-5 text-primary-600 dark:text-primary-400" />
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                Contact & Feedback
-              </h2>
-            </div>
-            <div className="space-y-4 text-gray-600 dark:text-gray-400">
-              <p className="leading-relaxed">
-                We welcome feedback, bug reports, and collaboration inquiries from researchers, journalists, and the public.
-              </p>
-              <div className="flex flex-col gap-3">
-                <a
-                  href="mailto:contact@collegesafetydata.org"
-                  className="inline-flex items-center gap-2 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 transition-colors"
-                >
-                  <Mail className="w-5 h-5" />
-                  <span className="font-medium">contact@collegesafetydata.org</span>
-                </a>
-                <a
-                  href="https://github.com/kbdevopz/collegesafetydata-public/issues"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 transition-colors"
-                >
-                  <ExternalLink className="w-5 h-5" />
-                  <span className="font-medium">Report an issue on GitHub</span>
-                </a>
-              </div>
+            <h2 className="section-head">
+              Contact & Feedback
+            </h2>
+            <p className="prose-body">
+              We welcome feedback, bug reports, and collaboration inquiries from researchers, journalists, and the public.
+            </p>
+            <div className="mt-4 flex flex-col items-start gap-2 text-ui">
+              <a
+                href="mailto:contact@collegesafetydata.org"
+                className="link inline-flex min-h-[1.5rem] items-center font-semibold"
+              >
+                <span>contact@collegesafetydata.org</span>
+              </a>
+              <a
+                href="https://github.com/kbdevopz/collegesafetydata-public/issues"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="link inline-flex min-h-[1.5rem] items-center gap-1 font-semibold"
+              >
+                <span>Report an issue on GitHub</span>
+                <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
+              </a>
             </div>
           </section>
         </div>
