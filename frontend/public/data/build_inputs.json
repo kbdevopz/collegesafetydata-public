@@ -1,7 +1,7 @@
 {
   "aggregates": {
     "all_schools": true,
-    "built_at": "2026-11-15T13:46:48+00:00",
+    "built_at": "2026-11-16T12:20:25+00:00",
     "code": {
       "04_create_aggregates.py": "48adb9d66f2ae6126c08726a011008314764a7180a572cf399239640adefd3c9",
       "config.py": "780a3abda94a4efc0cbe6d15332de1efc18380c70b14c1b3721e17ebc2155514",
@@ -10,7 +10,7 @@
     "inputs": {
       "crime": {
         "all_schools": true,
-        "built_at": "2026-11-15T11:03:09+00:00",
+        "built_at": "2026-11-16T12:18:51+00:00",
         "campus_year_sources": {
           "2015": {
             "131415": 530,
@@ -62,8 +62,8 @@
         },
         "code": {
           "02_transform_to_parquet.py": "b6bb9b03be9f3c6950435d836caf66f338bbec8c74905694c23fa103e19abaca",
-          "config.py": "725ca0405a08cac589e95bd52f412c61cef8815314bcace03260bc28290c89a7",
-          "provenance.py": "34c2f619387898406db99984d0c952487c03053bf9ffa5cdff6915a3d1c5e871"
+          "config.py": "780a3abda94a4efc0cbe6d15332de1efc18380c70b14c1b3721e17ebc2155514",
+          "provenance.py": "c416607b5814f306a0d3f2d6ab74e5b6c43d91aac2c1e124894e4cd5ead7eb4e"
         },
         "files": {
           "noncampusarrest131415.sas7bdat": {
@@ -801,20 +801,20 @@
         }
       },
       "enrollment": {
-        "built_at": "2026-11-15T11:03:12+00:00",
+        "built_at": "2026-11-16T12:18:53+00:00",
         "code": {
           "02a_transform_enrollment.py": "39e4dfe8f20524e5f50638e8a39c6fc938802ca1be367c1fe140ac9066761594",
-          "config.py": "725ca0405a08cac589e95bd52f412c61cef8815314bcace03260bc28290c89a7",
+          "config.py": "780a3abda94a4efc0cbe6d15332de1efc18380c70b14c1b3721e17ebc2155514",
           "ipeds_files.py": "0661ec7c43d5a755fb0a9730aed43a47bdac25879f1c5f8c317e61c822f39547",
-          "provenance.py": "34c2f619387898406db99984d0c952487c03053bf9ffa5cdff6915a3d1c5e871"
+          "provenance.py": "c416607b5814f306a0d3f2d6ab74e5b6c43d91aac2c1e124894e4cd5ead7eb4e"
         },
         "ef": {
-          "built_at": "2026-11-15T11:03:11+00:00",
+          "built_at": "2026-11-16T12:18:52+00:00",
           "code": {
             "02b_transform_ef_enrollment.py": "5a56eaa6bc92a226bca461489d91975e5c6dbb8e074e83e9d76f465e1a9ff669",
-            "config.py": "725ca0405a08cac589e95bd52f412c61cef8815314bcace03260bc28290c89a7",
+            "config.py": "780a3abda94a4efc0cbe6d15332de1efc18380c70b14c1b3721e17ebc2155514",
             "ipeds_files.py": "0661ec7c43d5a755fb0a9730aed43a47bdac25879f1c5f8c317e61c822f39547",
-            "provenance.py": "34c2f619387898406db99984d0c952487c03053bf9ffa5cdff6915a3d1c5e871"
+            "provenance.py": "c416607b5814f306a0d3f2d6ab74e5b6c43d91aac2c1e124894e4cd5ead7eb4e"
           },
           "inputs": {
             "2015": {
@@ -916,7 +916,7 @@
         }
       },
       "institutions": {
-        "built_at": "2026-11-15T13:45:16+00:00",
+        "built_at": "2026-11-16T12:19:08+00:00",
         "code": {
           "03_build_dimensions.py": "2cd83e1b27824c58b88ee355aaa5f1cecb8caa9b6179c4a1b1892e9a8c800df6",
           "campus_identity.py": "2dd1a49a891c6aa23d73accee0bf307203d4d8e49bc7c5aab0a447a8fb04a58e",
@@ -926,7 +926,7 @@
         },
         "crime": {
           "all_schools": true,
-          "built_at": "2026-11-15T11:03:09+00:00",
+          "built_at": "2026-11-16T12:18:51+00:00",
           "campus_year_sources": {
             "2015": {
               "131415": 530,
@@ -978,8 +978,8 @@
           },
           "code": {
             "02_transform_to_parquet.py": "b6bb9b03be9f3c6950435d836caf66f338bbec8c74905694c23fa103e19abaca",
-            "config.py": "725ca0405a08cac589e95bd52f412c61cef8815314bcace03260bc28290c89a7",
-            "provenance.py": "34c2f619387898406db99984d0c952487c03053bf9ffa5cdff6915a3d1c5e871"
+            "config.py": "780a3abda94a4efc0cbe6d15332de1efc18380c70b14c1b3721e17ebc2155514",
+            "provenance.py": "c416607b5814f306a0d3f2d6ab74e5b6c43d91aac2c1e124894e4cd5ead7eb4e"
           },
           "files": {
             "noncampusarrest131415.sas7bdat": {
@@ -1788,7 +1788,7 @@
     "provenance.py": "c416607b5814f306a0d3f2d6ab74e5b6c43d91aac2c1e124894e4cd5ead7eb4e",
     "rates.py": "1f60ed3ebf8809bfd59b57fe6c8d8e0683ea77760fff8790792f9becf59d41c8"
   },
-  "generated_at": "2026-11-15T13:52:58+00:00",
+  "generated_at": "2026-11-16T12:24:18+00:00",
   "outputs": {
     "downloads/campus-years.csv": "eeeb9abf8b7381caa41efbbd8a3cad8761420f53aa849db4c1bbc5f08155a959",
     "downloads/counts-2015.csv": "eb3882e7740d48698de5eb6d6be8e2c726c607b297eebbadee3af3bf0473c94a",
@@ -1801,7 +1801,7 @@
     "downloads/counts-2022.csv": "95170afbea3c32d54fd921a0a15119d4c6d2758ad6fe101a1f3858a0e5c45def",
     "downloads/counts-2023.csv": "40c553d14708c1fc77deda5db5154866630251205b68c97fb4c01b9bca1b8918",
     "downloads/counts-2024.csv": "ad136b3b97264a9634a488e1be463b0667f13da94e3a7e4293a700546f5009e9",
-    "metadata.json": "7777559fa6c95689695d8d0e0893fa9a61fd5383ff7945c1d2512aff6ffdbbe0",
+    "metadata.json": "d4ba5b19273d903055a937162cac4f02b4a86e2cbf87d03dc68bc7a7e93f2170",
     "presets.json": "c60962eda06fb6fd6b2421314bcb00b992cd52c9e362ea6fd1e54b0c1db7192f",
     "rankings/AK-2015-all.json": "577058541c8f62317be31b4560665a4d1bed046c8be26b87482a35c1fb9da929",
     "rankings/AK-2016-all.json": "a49a4731e7e1dba08b962c9641667b2282a959cc00710a86b8db7fa95410f256",
