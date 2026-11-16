@@ -176,11 +176,15 @@ export function countsOnlyReason(code: string, label?: string): string {
 
 /**
  * "12th; could be anywhere from 3rd to 61st of 206", or without the point
- * position (SHOW_POINT_POSITION false) "anywhere from 3rd to 61st of 206"
+ * position (SHOW_POINT_POSITION false) "anywhere from 3rd to 61st of 206".
+ * A range of one position is given as that range: "1st of 6 (its range is
+ * this one position)".
  */
 export function positionText(position: number, lo: number, hi: number, n: number): string {
   if (lo === hi) {
-    return SHOW_POINT_POSITION ? `${ordinal(position)} of ${fmtInt(n)}; the range is that position alone` : `${ordinal(lo)} of ${fmtInt(n)}`
+    return SHOW_POINT_POSITION
+      ? `${ordinal(position)} of ${fmtInt(n)}; the range is that position alone`
+      : `${ordinal(lo)} of ${fmtInt(n)} (its range is this one position)`
   }
   const range = `anywhere from ${ordinal(lo)} to ${ordinal(hi)} of ${fmtInt(n)}`
   return SHOW_POINT_POSITION ? `${ordinal(position)}; could be ${range}` : range

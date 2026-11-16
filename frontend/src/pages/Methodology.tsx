@@ -25,7 +25,7 @@ import {
   peerLabel, rateCodeLabel, rateCodePhrase, rateCodes, ratioPercent, sharedSiteShareText, windowKeys, windowLabel,
   windowYears,
 } from '../lib/rates'
-import { VERDICT_LABELS } from '../lib/rateDisplay'
+import { SHOW_POINT_POSITION, VERDICT_LABELS } from '../lib/rateDisplay'
 import SourceLink from '../components/SourceLink'
 import CiteThisData from '../components/CiteThisData'
 import { useBuildInfo } from '../lib/build'
@@ -286,8 +286,8 @@ function limitations(d: RateFacts): { title: string; body: React.ReactNode }[] {
           a separate organization, such as a health system, can report no hospital. The reviewed list adds the
           universities whose annual security reports say that their figures count incidents at such a hospital,
           and a second reviewed list marks the universities with a hospital next to or inside the main campus
-          whose reports do not say whether its incidents are counted; those keep their rates and positions, with
-          a note on their pages (<a href="#rate-hospital-notes" className="underline">Hospital notes</a>). Only
+          whose reports do not say whether its incidents are counted; those keep their rates and their places on
+          the lists, with a note on their pages (<a href="#rate-hospital-notes" className="underline">Hospital notes</a>). Only
           the reports of universities near the top of the ordered lists were read for these two lists, so a
           university elsewhere can count hospital incidents in its figures without a note. And the list of
           medical-center campuses was reviewed by hand, campus by campus: incidents at a medical center that is
@@ -921,9 +921,10 @@ export default function Methodology() {
                 <li>
                   For {listCodes.length > 0 ? joinAnd(listCodes.map(rateCodePhrase)) : '…'}, institutions large enough
                   to expect at least {rr?.lists?.minExpected ?? '…'} incidents at the national rate are placed on an
-                  ordered list, unless one of their years in the window is unusually high. Each position is given
-                  with a range: positions closer together than the ranges cannot be told apart. Positions within a
-                  state and within a type of institution are given the same way.
+                  ordered list, unless one of their years in the window is unusually high.{' '}
+                  {SHOW_POINT_POSITION
+                    ? 'Each position is given with a range: positions closer together than the ranges cannot be told apart. Positions within a state and within a type of institution are given the same way.'
+                    : 'A list is ordered by rate, and each institution on it is shown with the range of positions it could hold: positions closer together than the ranges cannot be told apart. Ranges within a state and within a type of institution are given the same way.'}
                 </li>
                 <li>
                   A year that is unusually high for an institution is flagged, not removed: the rate counts it as
@@ -972,7 +973,7 @@ export default function Methodology() {
                   In rankings by count, campuses with the same count share a rank, and the next rank skips the places
                   the tie takes: 1, 2, 2, 4. Tied campuses are listed by name, and campuses that reported the year but
                   had none of the selected category come last, with 0, sharing one rank. On rate lists, institutions
-                  with the same rate share a position the same way and are listed by name.
+                  with the same rate {SHOW_POINT_POSITION ? 'share a position the same way and are listed by name' : 'are listed by name (in the data they share a position the same way)'}.
                 </p>
               </div>
             </div>
@@ -1235,7 +1236,7 @@ export default function Methodology() {
                   </>
                 )}{' '}
                 Members are ordered by rate, highest first; equal rates share a position (1, 2, 2, 4) and are listed
-                by name. Each member's rate is compared with every other member's by a z-test of the difference,
+                by name.{SHOW_POINT_POSITION ? '' : ' The pages show each member\'s range, not its position; the data have both.'} Each member's rate is compared with every other member's by a z-test of the difference,
                 with each member's variance the larger of the interval model's at their pooled rate and its own
                 yearly spread (<a href="#rate-interval" className="underline">Intervals</a>), at the level{' '}
                 {rr?.lists?.alpha ?? '…'} / (2(n − 1)) for a list of n members (Bonferroni). The range runs from 1 +
@@ -1258,8 +1259,9 @@ export default function Methodology() {
               <Rule id="rate-state-lists" title="Positions within a state">
                 A state's positions are the national list's members in that state, with positions and ranges
                 recomputed among them alone. The data has them for every state with at least{' '}
-                {rr?.lists?.stateMinMembers ?? '…'} members; this site shows them for states with at least{' '}
-                {rr?.lists?.stateDisplayMin ?? '…'}, and for a state with fewer it shows its members' national positions.
+                {rr?.lists?.stateMinMembers ?? '…'} members; this site shows {SHOW_POINT_POSITION ? 'them' : 'their ranges'} for states with at least{' '}
+                {rr?.lists?.stateDisplayMin ?? '…'}, and for a state with fewer it shows its members'{' '}
+                {SHOW_POINT_POSITION ? 'national positions' : 'ranges on the national list'}.
                 {w?.violent?.stateListsDisplayMin !== undefined && rr?.lists?.stateDisplayMin !== undefined && (
                   <>
                     {' '}In {latestLabel}, {formatNumber(w.violent.stateListsDisplayMin)} states have at least{' '}
@@ -1272,12 +1274,12 @@ export default function Methodology() {
                 <a href="#rate-peers" className="underline">Comparisons with institutions of the same type</a>), with
                 positions and ranges recomputed among them alone, like a state's. The data has them for every type
                 with at least {rr?.lists?.typeMinMembers ?? '…'} members, and the list page and school pages show
-                them. On-campus rates differ by type, and a position within a type compares an institution only with
+                {SHOW_POINT_POSITION ? ' them' : ' their ranges'}. On-campus rates differ by type, and a position within a type compares an institution only with
                 institutions of the same type.
                 {w?.violent?.typeLists !== undefined && (
                   <>
-                    {' '}In {latestLabel}, {formatNumber(w.violent.typeLists)} types have positions on the violent-crime
-                    list.
+                    {' '}In {latestLabel}, {formatNumber(w.violent.typeLists)} types have{' '}
+                    {SHOW_POINT_POSITION ? 'positions' : 'ranges of their own'} on the violent-crime list.
                   </>
                 )}
               </Rule>
@@ -1322,7 +1324,7 @@ export default function Methodology() {
                 A second reviewed list (etl/reference/hospital_unresolved.csv in the open-source pipeline) holds the
                 universities with a hospital next to or inside the main campus whose own reports, as read, do not
                 establish whether the hospital's incidents are in their figures. Each keeps its rate and its
-                positions, and every page that shows one of its rates for those years says that this is not
+                places on the lists, and every page that shows one of its rates for those years says that this is not
                 established and names the hospital; its school page gives what its reports do say, with the source.
                 The annual security reports read for this list and for the reviewed exclusions above were those of
                 universities near the top of the ordered lists, not every institution's.
@@ -2257,7 +2259,7 @@ export default function Methodology() {
                   the comparisons (<code>verdict</code>, <code>peerVerdict</code>), the reason it is not on a list
                   (<code>why</code>, or <code>notPlaced</code> for an unusual year), its unusual-year flags, a hospital
                   note (<code>hospitalUnresolved</code>) and, for the list categories, its national, state and type
-                  positions and ranges; the file's header has the national rate and the rates by type, to 2 and 4
+                  positions and ranges{SHOW_POINT_POSITION ? '' : ' (the pages show only the ranges)'}; the file's header has the national rate and the rates by type, to 2 and 4
                   decimals.{' '}
                   <code>rates/institutions/</code> has one file per institution with its windows and single years,
                   and <code>rates/flags.json</code> every unusual-year flag.

@@ -34,10 +34,10 @@ export const CHANGES: ChangeEntry[] = [
   {
     date: '2026-11-15',
     kind: 'method',
-    title: 'Wider intervals for uneven years, unusual years kept off the order, positions within a type, hospitals',
+    title: 'Wider intervals for uneven years, unusual years kept off the order, lists within a type, hospitals',
     body: [
       'An interval now allows for as much year-to-year variation as the institution\'s own three yearly counts show, when that is more than the model allows. Such intervals are wider, and the school page says so and gives the yearly counts. Comparisons and rank ranges use the same rule.',
-      'An institution with an unusually high year of one of a list\'s offenses in the window is no longer placed on that list: one year would set its place. It is shown in a group of its own with its rate and comparisons. The lists also give positions within each type of institution.',
+      'An institution with an unusually high year of one of a list\'s offenses in the window is no longer placed on that list: one year would set its place. It is shown in a group of its own with its rate and comparisons. The lists can also be shown within each type of institution, with ranges of positions worked out among its members.',
       'Vanderbilt University, Yale University, the University of North Carolina at Chapel Hill, West Virginia University, the University of Pittsburgh and George Washington University have no rate in the years their annual security reports count incidents at a hospital whose patients, visitors and staff are not their students; each school page gives the reason and the source. Universities with a hospital next to or inside the main campus whose reports do not say whether its incidents are counted keep their rates, with a note.',
       'The medical-school rule now applies in every year when any edition of the Carnegie classification codes an institution as a medical school, and one more medical-center campus is counted apart. Where an end of an interval and the rate it is compared with are the same to two decimals, both are now shown to four. No count changed.',
     ],

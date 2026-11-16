@@ -245,7 +245,7 @@ export default function RateRankingsView({
       {typeOptions.length > 0 && (
         <section className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 p-4 text-sm text-gray-700 dark:text-gray-300 space-y-2">
           <div className="flex flex-wrap items-center gap-2">
-            <label htmlFor="rate-type" className="font-medium text-gray-900 dark:text-gray-100">Positions</label>
+            <label htmlFor="rate-type" className="font-medium text-gray-900 dark:text-gray-100">{SHOW_POINT_POSITION ? 'Positions' : 'List'}</label>
             <select
               id="rate-type"
               value={type ?? ''}
@@ -301,7 +301,7 @@ export default function RateRankingsView({
                 : preset === 'national'
                   ? `On the list: ${fmtInt(listN)} institutions`
                   : useStatePositions
-                    ? `${presetName}: ${fmtInt(stateMembers)} institutions on the national list, with their positions in ${presetName}`
+                    ? `${presetName}: ${fmtInt(stateMembers)} institutions on the national list, with their ${SHOW_POINT_POSITION ? 'positions' : 'ranges of positions'} in ${presetName}`
                     : `${presetName}: institutions on the national list`}
             </h2>
             <p className={groupText}>
@@ -311,10 +311,12 @@ export default function RateRankingsView({
                   ? (stateMembers === 0
                       ? `None of the ${fmtInt(listN)} institutions on the national list is in ${presetName}.`
                       : `${fmtInt(stateMembers)} of the ${fmtInt(listN)} institutions on the national list ${stateMembers === 1 ? 'is' : 'are'} in ${presetName}; ` +
-                        (minState !== null ? `a state's own positions are shown from ${minState} institutions on the list, so ` : '') +
-                        `${stateMembers === 1 ? 'its national position is' : 'their national positions are'} shown.`)
+                        (minState !== null ? `${SHOW_POINT_POSITION ? "a state's own positions are" : 'ranges within a state are'} shown from ${minState} institutions on the list, so ` : '') +
+                        (SHOW_POINT_POSITION
+                          ? `${stateMembers === 1 ? 'its national position is' : 'their national positions are'} shown.`
+                          : `${stateMembers === 1 ? 'its range' : 'their ranges'} on the national list ${stateMembers === 1 ? 'is' : 'are'} shown.`))
                   : isGroup
-                    ? `${listed.length} of the ${fmtInt(listN)} institutions on the national list ${listed.length === 1 ? 'is' : 'are'} in this group; their national positions are shown.`
+                    ? `${listed.length} of the ${fmtInt(listN)} institutions on the national list ${listed.length === 1 ? 'is' : 'are'} in this group; their ${SHOW_POINT_POSITION ? 'national positions are' : 'ranges on the national list are'} shown.`
                     : useStatePositions
                       ? `Ordered by rate, highest first, with ${SHOW_POINT_POSITION ? 'positions and ranges' : 'ranges of positions'} worked out among the ${fmtInt(stateMembers)} alone.`
                       : `Ordered by rate, highest first, each with ${SHOW_POINT_POSITION ? 'its position and the range its position could be in' : 'the range its position could be in'}.`}

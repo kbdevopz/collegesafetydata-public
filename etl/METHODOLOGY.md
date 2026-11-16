@@ -181,9 +181,10 @@ F = on-campus FTE, summed over the same 3 years ("student-years")
 A rate per 10,000 student-years is a rate per 10,000 on-campus students a
 year. Each rate has a 95% interval and is compared with the national rate.
 Violent crimes, criminal offenses except motor vehicle theft, and burglary
-also have ordered lists of large institutions, on which each position is a
-range. The rules below say which institutions and codes have a rate and how
-each figure is made; "Published rate files" lists the files that hold them.
+also have lists of large institutions ordered by rate, on which the site
+shows each institution's range of positions. The rules below say which
+institutions and codes have a rate and how each figure is made; "Published
+rate files" lists the files that hold them.
 
 ### Rates are per institution
 NCES publishes FTE for each institution, not for each campus: every campus
@@ -583,10 +584,11 @@ build are named below by the field that holds them, in `metadata.json`
       and positions closer together than the ranges are wide cannot be
       ordered with confidence. No simulation is used.
 
-    Ranks estimated from counts are uncertain, which is why a position is
-    given with its range (Goldstein and Spiegelhalter 1996 set out the
-    limits of such league tables). A rated institution that is not on a list
-    keeps its rate and verdict (`listed` false).
+    Ranks estimated from counts are uncertain, which is why the site shows
+    each member's range, in rate order, and not its point position, which
+    stays in the data as `position` (Goldstein and Spiegelhalter 1996 set
+    out the limits of such league tables). A rated institution that is not
+    on a list keeps its rate and verdict (`listed` false).
 11. **State lists** (`STATE_LIST_MIN_MEMBERS` = 2, `STATE_LIST_DISPLAY_MIN`
     = 5; `rateRules.lists.stateMinMembers`, `stateDisplayMin`;
     `statePosition`, `stateRankLo`, `stateRankHi`, `stateN`, and
@@ -600,7 +602,7 @@ build are named below by the field that holds them, in `metadata.json`
     and at least `stateDisplayMin` members). The site shows a state list
     only when it has at least `lists.stateDisplayMin` (5) members; for a
     state with fewer, it names the state's institutions on the national list
-    with their national positions.
+    with their ranges on the national list.
 
     Type lists (`TYPE_LIST_MIN_MEMBERS` = 2; `rateRules.lists.typeMinMembers`;
     `typePosition`, `typeRankLo`, `typeRankHi`, `typeN`, and `typeLists` in
