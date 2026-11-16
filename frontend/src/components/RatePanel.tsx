@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Info, Loader2 } from 'lucide-react'
+import { ChevronRight } from 'lucide-react'
 import { fetchInstitutionRates } from '../lib/api'
 import type { InstitutionRatesFile, Metadata, SchoolProfile } from '../lib/types'
 import {
@@ -11,9 +11,12 @@ import {
 import { MAIN_RATE_CODES, RATE_IS_NOT, RATE_MEASURE } from '../lib/rateDisplay'
 import { HospitalNote, RateCodeBlock, VerdictLabel } from './RateCard'
 import LinkedText from './LinkedText'
+import { cn } from '../lib/utils'
 import SingleYearRates from './SingleYearRates'
+import { Loading } from './ui'
 
-const card = 'bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 p-4 sm:p-6'
+const sectionTitle = 'font-serif text-[1.25rem] font-semibold leading-snug text-ink'
+const section = 'border-t border-rule pt-6'
 
 /**
  * The school page's rate view: the institution's 3-year rates in one window
@@ -51,10 +54,10 @@ export default function RatePanel({
   const institutionName = file?.name ?? profile.name
   const campusAbroad = !profile.state
   const intro = (
-    <div className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+    <div className="max-w-prose space-y-2 text-ui text-ink-2">
       <p>
-        <strong className="font-semibold">What these rates measure.</strong> {RATE_MEASURE} {RATE_IS_NOT}{' '}
-        <Link to="/methodology#rates" className="text-primary-600 dark:text-primary-400 underline">Methodology</Link>
+        <strong className="font-semibold text-ink">What these rates measure.</strong> {RATE_MEASURE} {RATE_IS_NOT}{' '}
+        <Link to="/methodology#rates" className="link">Methodology</Link>
       </p>
       <p>
         NCES counts enrollment per institution, not per campus, so a rate is made for {institutionName} as a
@@ -83,14 +86,14 @@ export default function RatePanel({
       groups.set(text, [...(groups.get(text) ?? []), y])
     }
     return (
-      <div className="space-y-4 mb-8">
+      <div className="space-y-6 mb-8">
         {countsOnlyNote && <Note>{countsOnlyNote}</Note>}
-        <section className={card}>
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">Rates</h2>
+        <section>
+          <h2 className={cn(sectionTitle, 'mb-3')}>Rates</h2>
           {intro}
-          <p className="mt-3 font-medium text-gray-900 dark:text-gray-100">{noRatesSentence(profile, rules, years.length > 0)}</p>
+          <p className="mt-4 max-w-prose text-ui font-semibold text-ink">{noRatesSentence(profile, rules, years.length > 0)}</p>
           {years.length > 0 && (
-            <ul className="mt-2 text-sm text-gray-600 dark:text-gray-400 space-y-0.5 break-words">
+            <ul className="tabular mt-2 max-w-prose text-meta text-ink-2 space-y-0.5 break-words">
               {Array.from(groups.entries()).map(([text, ys]) => (
                 <li key={ys[0]}>
                   {ys.join(', ')}: <LinkedText text={text} />
@@ -111,11 +114,7 @@ export default function RatePanel({
     )
   }
   if (!file) {
-    return (
-      <div className="flex items-center gap-2 py-8 text-sm text-gray-500 dark:text-gray-400 mb-8">
-        <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" /> Loading rates…
-      </div>
-    )
+    return <Loading className="mb-8 justify-start py-8">Loading rates…</Loading>
   }
 
   const win = file.windows[windowKey]
@@ -162,7 +161,7 @@ export default function RatePanel({
           hospital={null}
         />
         {abroadNotes(code).map((n) => (
-          <p key={n} className="mt-2 text-sm text-gray-600 dark:text-gray-400">{n}</p>
+          <p key={n} className="mt-2 text-meta text-ink-2">{n}</p>
         ))}
         {isListCode(code, rules) && <PositionHistory file={file} code={code} metadata={metadata} current={windowKey} />}
       </>
@@ -170,21 +169,21 @@ export default function RatePanel({
   }
 
   return (
-    <div className="space-y-4 mb-8">
+    <div className="space-y-8 mb-8">
       {countsOnlyNote && <Note>{countsOnlyNote}</Note>}
-      <section className={card} aria-labelledby="rates-heading">
-        <h2 id="rates-heading" className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">
+      <section aria-labelledby="rates-heading">
+        <h2 id="rates-heading" className={cn(sectionTitle, 'mb-3')}>
           Rates, {windowLabel(windowKey)}
         </h2>
         {intro}
-        {status && <p className="mt-3 font-medium text-gray-900 dark:text-gray-100 break-words"><LinkedText text={status} /></p>}
+        {status && <p className="mt-4 max-w-prose text-ui font-semibold text-ink break-words"><LinkedText text={status} /></p>}
         {!win && (
-          <p className="mt-3 font-medium text-gray-900 dark:text-gray-100 break-words">
+          <p className="mt-4 max-w-prose text-ui font-semibold text-ink break-words">
             {missingYearsSentence(windowKey, [], rules, profile)}
           </p>
         )}
         {win?.status === 'rated' && (
-          <p className="mt-3 text-sm text-gray-600 dark:text-gray-400">
+          <p className="tabular mt-3 max-w-prose text-meta text-ink-2">
             On-campus students (FTE) in the denominator:{' '}
             {winYears.map((y) => `${y}: ${fmtInt(win.fteByYear[String(y)] ?? 0)}`).join('; ')}
             {win.fteSmallerByYear && (
@@ -194,10 +193,10 @@ export default function RatePanel({
           </p>
         )}
         {yearNotes.map((n) => (
-          <p key={n} className="mt-1 text-sm text-gray-600 dark:text-gray-400">{n}</p>
+          <p key={n} className="mt-1 max-w-prose text-meta text-ink-2">{n}</p>
         ))}
         {win?.status === 'rated' && win.hospitalUnresolved && (
-          <div className="mt-3">
+          <div className="mt-3 max-w-prose">
             <HospitalNote note={win.hospitalUnresolved} rows={file.hospitalUnresolved ?? []} windowYearsN={winYears.length} />
           </div>
         )}
@@ -205,32 +204,38 @@ export default function RatePanel({
 
       {win?.status === 'rated' && (
         <>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            {main.map((code) => (
-              <section key={code} className={card}>{block(code, 3)}</section>
+          <div className="grid grid-cols-1 border-t border-rule lg:grid-cols-3">
+            {main.map((code, i) => (
+              <section
+                key={code}
+                className={cn('min-w-0 py-6', i > 0 && 'border-t border-rule lg:border-t-0 lg:border-l lg:pl-6', i < main.length - 1 && 'lg:pr-6')}
+              >
+                {block(code, 3)}
+              </section>
             ))}
           </div>
-          <section className={card}>
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-1">Single offenses</h2>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+          <section className={section}>
+            <h2 className={cn(sectionTitle, 'mb-1')}>Single offenses</h2>
+            <p className="max-w-prose text-meta text-ink-2 mb-3">
               These rates have no ordered list. Each shows its comparisons with the national rate and with
               institutions of the same type.
             </p>
-            <div className="divide-y divide-gray-100 dark:divide-gray-800">
+            <div className="divide-y divide-rule border-y border-rule">
               {others.map((code) => {
                 const entry = win.codes[code]
                 return (
-                  <details key={code} className="py-2" open={code === trendCode}>
-                    <summary className="cursor-pointer flex flex-wrap items-center gap-2 text-sm font-medium text-gray-900 dark:text-gray-100">
+                  <details key={code} className="group py-2" open={code === trendCode}>
+                    <summary className="flex min-h-[1.75rem] cursor-pointer list-none flex-wrap items-center gap-x-2 gap-y-1 text-ui font-semibold text-ink [&::-webkit-details-marker]:hidden">
+                      <ChevronRight className="h-4 w-4 flex-shrink-0 text-ink-3 transition-transform group-open:rotate-90" aria-hidden="true" />
                       {rateCodeLabel(code)}
                       {entry && (
                         <>
-                          <span className="tabular-nums text-gray-700 dark:text-gray-300">{fmtRate(entry.rate)}</span>
+                          <span className="tabular font-normal text-ink-2">{fmtRate(entry.rate)}</span>
                           <VerdictLabel verdict={entry.verdict} />
                         </>
                       )}
                     </summary>
-                    <div className="mt-2">{block(code, 4)}</div>
+                    <div className="mt-2 mb-2 max-w-prose pl-6">{block(code, 4)}</div>
                   </details>
                 )
               })}
@@ -239,19 +244,19 @@ export default function RatePanel({
         </>
       )}
 
-      <section className={card}>
+      <section className={cn(section, 'single-year-rates')}>
         <SingleYearRates file={file} code={trendCode} rules={rules} profile={profile} />
       </section>
 
       {file.flags.length > 0 && (
-        <section className={card}>
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Unusual years, every location</h2>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+        <section className={section}>
+          <h2 className={cn(sectionTitle, 'mb-2')}>Unusual years, every location</h2>
+          <p className="max-w-prose text-meta text-ink-2 mb-2">
             A year is flagged when its count of an offense at one location is at least{' '}
             {rules.flags?.minCount ?? 10} and far above this institution's other years.{' '}
-            <Link to="/methodology#rate-flags" className="text-primary-600 dark:text-primary-400 underline">How flags work</Link>
+            <Link to="/methodology#rate-flags" className="link">How flags work</Link>
           </p>
-          <ul className="space-y-1 text-sm text-gray-700 dark:text-gray-300">
+          <ul className="tabular max-w-prose space-y-1 text-ui text-ink-2">
             {file.flags.map((f) => (
               <li key={`${f.year}-${f.offense}-${f.geo}`}>
                 {f.year}, {f.geo.toLowerCase()}: {offenseCount(f.count, f.offense)} (median of its other years{' '}
@@ -267,9 +272,8 @@ export default function RatePanel({
 
 function Note({ children }: { children: React.ReactNode }) {
   return (
-    <p role="note" className="flex items-start gap-2 text-sm bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 text-blue-800 dark:text-blue-200">
-      <Info className="w-4 h-4 flex-shrink-0 mt-0.5" aria-hidden="true" />
-      <span>{children}</span>
+    <p role="note" className="aside-note max-w-prose">
+      {children}
     </p>
   )
 }
@@ -299,8 +303,8 @@ function PositionHistory({
     return { k, text: 'not on the list (too few expected incidents)' }
   })
   return (
-    <div className="mt-3 text-xs text-gray-600 dark:text-gray-400">
-      <p className="font-medium">Other windows</p>
+    <div className="tabular mt-3 text-meta text-ink-2">
+      <p className="font-semibold text-ink">Other windows</p>
       <ul className="space-y-0.5">
         {rows.map((r) => (
           <li key={r.k}>{windowLabel(r.k)}: {r.text}</li>

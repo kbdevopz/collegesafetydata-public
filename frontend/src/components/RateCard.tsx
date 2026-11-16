@@ -10,22 +10,25 @@ import {
   onlineSentence, otherLocationsSentence, peerSentence, rateCodeLabel, sharedFigureText, sharedGuestSentence,
   sharedHostSentence, spreadSentence, tieDigits, typePositionText, windowLabel, withoutFlaggedSentence,
 } from '../lib/rates'
+import { AlertTriangle } from 'lucide-react'
 import LinkedText from './LinkedText'
 import { stateDisplayMin, VERDICT_LABELS } from '../lib/rateDisplay'
 import { cn, formatNumber } from '../lib/utils'
 
+// Neutral tones that differ by fill and outline, not by hue: the words say
+// which verdict it is
 const VERDICT_TONES: Record<Verdict, string> = {
-  above: 'bg-amber-50 text-amber-900 border-amber-300 dark:bg-amber-900/30 dark:text-amber-200 dark:border-amber-700',
-  below: 'bg-sky-50 text-sky-900 border-sky-300 dark:bg-sky-900/30 dark:text-sky-200 dark:border-sky-700',
-  nd: 'bg-gray-50 text-gray-800 border-gray-300 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600',
-  undetermined: 'bg-gray-50 text-gray-800 border-gray-300 border-dashed dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600',
-  withheld: 'bg-white text-gray-700 border-gray-400 border-dashed dark:bg-gray-900 dark:text-gray-300 dark:border-gray-500',
+  above: 'bg-tint text-ink border-rule-strong',
+  below: 'bg-surface text-ink border-rule-strong',
+  nd: 'bg-transparent text-ink-2 border-rule',
+  undetermined: 'bg-transparent text-ink-2 border-rule-strong border-dashed',
+  withheld: 'bg-transparent text-ink-3 border-rule-strong border-dashed',
 }
 
 /** The verdict against the national rate, in words (the colour only repeats it) */
 export function VerdictLabel({ verdict, short, className }: { verdict: Verdict; short?: string; className?: string }) {
   return (
-    <span className={cn('inline-block rounded border px-1.5 py-0.5 text-xs font-medium', VERDICT_TONES[verdict], className)}>
+    <span className={cn('inline-block rounded-sm border px-1.5 py-px text-label font-semibold', VERDICT_TONES[verdict], className)}>
       {short ?? VERDICT_LABELS[verdict]}
     </span>
   )
@@ -139,28 +142,28 @@ export function entryText(
 }
 
 function Line({ children, className }: { children: ReactNode; className?: string }) {
-  return <p className={cn('text-sm text-gray-700 dark:text-gray-300', className)}>{children}</p>
+  return <p className={cn('text-ui text-ink-2', className)}>{children}</p>
 }
 
 /** A guest's shared-site figures, one per site campus and year, behind a disclosure */
 function SiteFigures({ figures }: { figures: SharedSiteFigure[] }) {
   return (
-    <details className="text-sm text-gray-600 dark:text-gray-400">
-      <summary className="cursor-pointer text-primary-600 dark:text-primary-400 hover:underline">
+    <details className="text-meta text-ink-2">
+      <summary className="cursor-pointer font-semibold text-accent underline-offset-[3px] hover:underline">
         Students there by year and campus
       </summary>
       <ul className="mt-1 ml-5 list-disc space-y-0.5">
         {figures.map((f) => (
           <li key={`${f.year}-${f.unitid}`}>
             {f.year},{' '}
-            <Link to={`/school/${f.unitid}`} className="underline">DOE campus {f.unitid}</Link>: {sharedFigureText(f)}
+            <Link to={`/school/${f.unitid}`} className="link">DOE campus {f.unitid}</Link>: {sharedFigureText(f)}
           </li>
         ))}
       </ul>
-      <p className="mt-1 text-xs">
+      <p className="mt-1 text-meta text-ink-3">
         A figure's year is the fall term it describes, or the academic year that begins that fall. Which figures
         are accepted and what they count:{' '}
-        <Link to="/methodology#rate-shared" className="underline">Shared campuses</Link>.
+        <Link to="/methodology#rate-shared" className="link">Shared campuses</Link>.
       </p>
     </details>
   )
@@ -199,29 +202,29 @@ export function RateCodeBlock({
   return (
     <div className="space-y-2">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <Heading className="text-base font-semibold text-gray-900 dark:text-gray-100">{rateCodeLabel(code)}</Heading>
+        <Heading className="h3">{rateCodeLabel(code)}</Heading>
         <VerdictLabel verdict={t.verdict} />
       </div>
-      <p className="text-gray-900 dark:text-gray-100">
-        <span className="text-2xl font-bold tabular-nums">{fmtRate(entry.rate)}</span>{' '}
-        <span className="text-sm text-gray-600 dark:text-gray-400">
+      <p className="text-ink">
+        <span className="tabular text-figure font-semibold">{fmtRate(entry.rate)}</span>{' '}
+        <span className="text-meta text-ink-2">
           reported incidents on campus per 10,000 on-campus students a year, {windowLabel(windowKey)} average
         </span>
       </p>
       <Line>{t.interval}</Line>
-      {t.why && <Line className="font-medium">{t.why}</Line>}
+      {t.why && <Line className="font-semibold text-ink">{t.why}</Line>}
       {t.why !== null && t.why === t.guest && t.figures.length > 0 && <SiteFigures figures={t.figures} />}
       {t.peer && <Line>{t.peer}</Line>}
       {t.differ && <Line>{t.differ}</Line>}
       {t.position && (
         <Line>
-          <span className="font-medium">National list position:</span> {t.position}.
+          <span className="font-semibold text-ink">National list position:</span> {t.position}.
         </Line>
       )}
       {t.statePosition && <Line>{t.statePosition}.</Line>}
       {t.typePosition && <Line>{t.typePosition}.</Line>}
       {t.notListed && <Line>{t.notListed}</Line>}
-      <Line className="text-gray-600 dark:text-gray-400">
+      <Line className="tabular text-meta">
         On campus: {fmtInt(entry.n)} {entry.n === 1 ? 'incident' : 'incidents'}
         {years.length > 0 && <> ({years.map((y) => `${fmtInt(entry.nByYear[y])} in ${y}`).join(', ')})</>}, over{' '}
         {fmtInt(entry.fteYears)} student-years (on-campus students added up over the three years). At the national
@@ -229,23 +232,26 @@ export function RateCodeBlock({
       </Line>
       {t.notes.map((n) => (
         <Fragment key={n}>
-          <Line className="text-gray-600 dark:text-gray-400">{n}</Line>
+          <Line className="text-meta">{n}</Line>
           {n === t.guest && t.figures.length > 0 && <SiteFigures figures={t.figures} />}
         </Fragment>
       ))}
       {t.flags.length > 0 && (
-        <div className="rounded-md border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 p-2 space-y-1">
-          <p className="text-xs font-medium text-amber-900 dark:text-amber-200">Unusual {t.flags.length === 1 ? 'year' : 'years'}</p>
-          {t.flags.map((f) => <Line key={f} className="text-amber-900 dark:text-amber-200">{f}</Line>)}
-          {t.withoutFlagged && <Line className="text-amber-900 dark:text-amber-200">{t.withoutFlagged}</Line>}
-          <Line className="text-amber-900 dark:text-amber-200">{FLAG_NOTE}</Line>
+        <div className="space-y-1 border-l-2 border-attention pl-3">
+          <p className="flex items-center gap-1.5 text-meta font-semibold text-ink">
+            <AlertTriangle className="h-3.5 w-3.5 flex-shrink-0 text-attention" aria-hidden="true" />
+            Unusual {t.flags.length === 1 ? 'year' : 'years'}
+          </p>
+          {t.flags.map((f) => <Line key={f} className="text-meta">{f}</Line>)}
+          {t.withoutFlagged && <Line className="text-meta">{t.withoutFlagged}</Line>}
+          <Line className="text-meta">{FLAG_NOTE}</Line>
         </div>
       )}
-      {t.composition && <Line className="text-gray-600 dark:text-gray-400">{t.composition}</Line>}
+      {t.composition && <Line className="text-meta">{t.composition}</Line>}
       {hospital !== null && entry.hospitalUnresolved && (
         <HospitalNote note={entry.hospitalUnresolved} rows={hospital ?? []} />
       )}
-      <Line className="text-xs text-gray-500 dark:text-gray-400">{t.national}</Line>
+      <Line className="text-meta text-ink-3">{t.national}</Line>
     </div>
   )
 }
@@ -263,15 +269,15 @@ export function HospitalNote({
 }) {
   const row = rows.find((r) => r.name === note.name)
   return (
-    <div className="text-sm text-gray-700 dark:text-gray-300">
+    <div className="text-meta text-ink-2">
       <p>{hospitalNote(note, windowYearsN)}</p>
       {row && (
-        <details className="mt-1 text-gray-600 dark:text-gray-400">
-          <summary className="cursor-pointer text-primary-600 dark:text-primary-400 hover:underline">
+        <details className="mt-1">
+          <summary className="cursor-pointer font-semibold text-accent underline-offset-[3px] hover:underline">
             More: what its reports say
           </summary>
           <p className="mt-1">{row.known}</p>
-          <p className="mt-1 text-xs break-words">Source: <LinkedText text={row.source} /></p>
+          <p className="mt-1 text-meta text-ink-3 break-words">Source: <LinkedText text={row.source} /></p>
         </details>
       )}
     </div>

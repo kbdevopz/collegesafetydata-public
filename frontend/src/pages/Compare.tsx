@@ -13,20 +13,7 @@ import {
   BarChart,
   Bar,
 } from 'recharts'
-import {
-  Plus,
-  X,
-  TrendingUp,
-  TrendingDown,
-  Minus,
-  AlertCircle,
-  Loader2,
-  ChevronDown,
-  ArrowRight,
-  Calendar,
-  AlertTriangle,
-  Info,
-} from 'lucide-react'
+import { X, ChevronDown } from 'lucide-react'
 import { fetchSchoolProfile, fetchSchoolIndex, fetchPresets, getMetadata } from '../lib/api'
 import type { SchoolProfile, School, PresetDetail, SchoolIndex, Metadata } from '../lib/types'
 import { cn, formatNumber, calculateYoYChange, displayName as titleOf, withParams } from '../lib/utils'
@@ -38,13 +25,11 @@ import CompareRates from '../components/CompareRates'
 import {
   ALL, CRIMINAL, PROPERTY, SUMMARY_LABELS, VIOLENT, inSelection, isSummary, selectionCode, selectionFromParam, selectionLabel,
 } from '../lib/selection'
-import { useTheme } from '../hooks/useTheme'
+import { SERIES_DASHES, barCursor, lineCursor, tooltipProps, useChartTheme } from '../lib/chartTheme'
+import { Loading, SchoolSwatch } from '../components/ui'
 import { useMediaQuery } from '../hooks/useMediaQuery'
 import SeriesNotes, { ReportYearNote } from '../components/SeriesNotes'
 import { SERIES_NOTES } from '../data/seriesNotes'
-
-// School colors for comparison
-const SCHOOL_COLORS = ['#3b82f6', '#10b981'] // Blue, Emerald
 
 // One school's count of `selection` ('criminal', 'all' or an offense name)
 // in `year`: 0 when it reported the year without any of it, null when it did
@@ -67,7 +52,6 @@ function parseSchoolIds(value: string | null): number[] {
 
 export default function Compare() {
   const [searchParams, setSearchParams] = useSearchParams()
-  const { resolvedTheme } = useTheme()
   // Phone width: the year axis labels are angled so that every year fits
   const narrow = useMediaQuery('(max-width: 639px)')
 
@@ -379,29 +363,32 @@ export default function Compare() {
     })
   }, [profiles, selectedYear, selectedOffense])
 
-  // Theme-aware chart styling
-  const chartGridColor = resolvedTheme === 'dark' ? '#374151' : '#e5e7eb'
-  const noteBandColor = resolvedTheme === 'dark' ? '#fbbf24' : '#d97706'
+  // Chart styling for the current theme. The two schools are told apart by
+  // colour and by pattern: the second school's line is dashed and its bars
+  // hatched, and its swatch is hatched too
+  const chart = useChartTheme()
+  const schoolColors = [chart.series[0], chart.series[1]]
   // Years with a sourced comparability note (data/seriesNotes.ts), shaded on the trend chart
   const noteBands = SERIES_NOTES.map((n) => n.years.filter((y) => availableYears.includes(y)))
     .filter((ys) => ys.length > 0)
     .map((ys) => ({ x1: Math.min(...ys), x2: Math.max(...ys) }))
-  const chartTextColor = resolvedTheme === 'dark' ? '#9ca3af' : '#6b7280'
-  const chartBgColor = resolvedTheme === 'dark' ? '#111827' : 'white'
-  const chartBorderColor = resolvedTheme === 'dark' ? '#374151' : '#e5e7eb'
+  const swatch = (index: number) => <SchoolSwatch color={schoolColors[index]} hatched={index === 1} />
+  const filterLabel = 'sr-only sm:not-sr-only text-meta text-ink-2'
+  const sectionTitle = 'font-serif text-[1.25rem] font-semibold leading-snug text-ink mb-4'
+  const cellLabel = 'py-3 pr-4 text-meta text-ink-2'
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="wrap pt-8 pb-8 sm:pt-10">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+      <div className="mb-6">
+        <h1 className="h1">
           Compare Schools
         </h1>
       </div>
 
       {/* School Selection */}
-      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 p-4 sm:p-6 mb-8">
-        <div className="flex flex-wrap items-center gap-3">
+      <div className="mb-6">
+        <div className="flex flex-wrap items-center gap-2">
           {/* Selected Schools */}
           {selectedIds.map((id, index) => {
             const school = schools.find((s) => s.unitid === id)
@@ -411,28 +398,24 @@ export default function Compare() {
             return (
               <div
                 key={id}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg border-2"
-                style={{ borderColor: SCHOOL_COLORS[index] }}
+                className="flex h-10 items-center gap-2 rounded border border-rule-strong bg-surface pl-3 pr-1"
               >
-                <div
-                  className="w-3 h-3 rounded-full"
-                  style={{ backgroundColor: SCHOOL_COLORS[index] }}
-                />
-                <span className="font-medium text-gray-900 dark:text-gray-100 text-sm">
+                {swatch(index)}
+                <span className="text-ui font-semibold text-ink">
                   {displayName.length > 25 ? displayName.slice(0, 25) + '...' : displayName}
                 </span>
                 {school?.state && (
-                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                  <span className="text-meta text-ink-3">
                     {school.state}
                   </span>
                 )}
                 <button
                   type="button"
                   onClick={() => removeSchool(id)}
-                  className="ml-1 p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                  className="inline-flex h-8 w-8 items-center justify-center rounded text-ink-3 hover:bg-subtle hover:text-ink"
                   aria-label={`Remove ${school ? titleOf(school) : profile?.name || 'school'} from comparison`}
                 >
-                  <X className="w-4 h-4" />
+                  <X className="w-4 h-4" aria-hidden="true" />
                 </button>
               </div>
             )
@@ -444,31 +427,30 @@ export default function Compare() {
               <button
                 type="button"
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:border-primary-500 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+                className="btn h-10 border-dashed font-normal text-ink-2"
               >
-                <Plus className="w-4 h-4" />
                 <span>Add School</span>
-                <ChevronDown className={cn('w-4 h-4 transition-transform', isDropdownOpen && 'rotate-180')} />
+                <ChevronDown className={cn('w-4 h-4 transition-transform', isDropdownOpen && 'rotate-180')} aria-hidden="true" />
               </button>
 
               {isDropdownOpen && (
-                <div className="absolute top-full left-0 mt-2 w-80 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">
+                <div className="absolute left-0 top-full z-50 mt-1 w-80 max-w-[calc(100vw-2rem)] rounded border border-rule-strong/60 bg-surface shadow-pop">
                   {/* Search Input */}
-                  <div className="p-2 border-b border-gray-200 dark:border-gray-700">
+                  <div className="border-b border-rule p-2">
                     <input
                       type="text"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       placeholder="Search schools..."
-                      className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      className="control w-full"
                       autoFocus
                     />
                   </div>
 
                   {/* School List */}
-                  <div className="max-h-64 overflow-y-auto py-2">
+                  <div className="max-h-64 overflow-y-auto py-1">
                     {filteredSchools.length === 0 ? (
-                      <div className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400 text-center">
+                      <div className="px-4 py-3 text-meta text-ink-2">
                         {searchQuery ? 'No schools found' : 'Loading schools...'}
                       </div>
                     ) : (
@@ -480,22 +462,22 @@ export default function Compare() {
                             addSchool(school.unitid)
                             setSearchQuery('')
                           }}
-                          className="w-full text-left px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                          className="w-full px-3.5 py-2 text-left hover:bg-subtle"
                         >
-                          <div className="font-medium text-gray-900 dark:text-gray-100 text-sm">
+                          <div className="text-ui font-semibold text-ink">
                             {titleOf(school)}
                             {school.isMainCampus === false && !school.campus && (
-                              <span className="ml-1.5 text-xs font-normal text-gray-500 dark:text-gray-400">(Branch)</span>
+                              <span className="ml-1.5 text-meta font-normal text-ink-3">(Branch)</span>
                             )}
                           </div>
-                          <div className="text-xs text-gray-500 dark:text-gray-400">
+                          <div className="text-meta text-ink-3">
                             {school.city && school.state ? `${school.city}, ${school.state}` : school.state || ''}
                           </div>
                         </button>
                       ))
                     )}
                     {filteredSchools.length === 20 && searchQuery && (
-                      <div className="px-4 py-2 text-xs text-gray-400 dark:text-gray-500 text-center border-t border-gray-100 dark:border-gray-800">
+                      <div className="border-t border-rule px-3.5 py-2 text-meta text-ink-3">
                         Showing first 20 results. Type more to narrow search.
                       </div>
                     )}
@@ -507,7 +489,7 @@ export default function Compare() {
         </div>
 
         {selectedIds.length === 0 && (
-          <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">
+          <p className="mt-4 text-body text-ink-2">
             Select two schools above to begin comparing their statistics.
           </p>
         )}
@@ -515,21 +497,20 @@ export default function Compare() {
 
       {/* Sticky Filter Bar - only show when 2 schools selected */}
       {profiles.length === 2 && (
-        <div className="sticky top-16 z-40 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg shadow-sm mb-8">
-          <div className="flex flex-wrap items-center gap-4 p-4">
+        <div className="sticky top-header z-40 -mx-4 mb-6 border-y border-rule bg-paper px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-2 py-2.5">
             {showRate && rateRules ? (
               <>
                 {/* Window (rate view) */}
                 <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0" aria-hidden="true" />
-                  <label htmlFor="compare-window-select" className="text-sm text-gray-500 dark:text-gray-400 hidden sm:inline">
+                  <label htmlFor="compare-window-select" className={filterLabel}>
                     Years:
                   </label>
                   <select
                     id="compare-window-select"
                     value={selectedWindow ?? ''}
                     onChange={(e) => setSelection({ window: e.target.value })}
-                    className="w-32 text-sm font-medium bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1.5 cursor-pointer focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    className="control w-36"
                   >
                     {windowKeys(rateRules).slice().reverse().map((key) => (
                       <option key={key} value={key}>{windowLabel(key)}</option>
@@ -538,15 +519,14 @@ export default function Compare() {
                 </div>
                 {/* Rate code (rate view) */}
                 <div className="flex items-center gap-2 min-w-0 max-w-full">
-                  <AlertTriangle className="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0" aria-hidden="true" />
-                  <label htmlFor="compare-rate-code-select" className="text-sm text-gray-500 dark:text-gray-400 hidden sm:inline">
+                  <label htmlFor="compare-rate-code-select" className={filterLabel}>
                     Rate:
                   </label>
                   <select
                     id="compare-rate-code-select"
                     value={rateCode ?? ''}
                     onChange={(e) => setSelection({ offense: e.target.value })}
-                    className="w-56 max-w-full text-sm font-medium bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1.5 cursor-pointer focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    className="control w-64 max-w-full"
                   >
                     {rateCode === null && <option value="">Choose a rate</option>}
                     {rateCodes(rateRules).map((code) => (
@@ -559,15 +539,14 @@ export default function Compare() {
               <>
             {/* Year Dropdown */}
             <div className="flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0" />
-              <label htmlFor="compare-year-select" className="text-sm text-gray-500 dark:text-gray-400 hidden sm:inline">
+              <label htmlFor="compare-year-select" className={filterLabel}>
                 Year:
               </label>
               <select
                 id="compare-year-select"
                 value={selectedYear}
                 onChange={(e) => setSelectedYear(e.target.value)}
-                className="w-36 text-sm font-medium bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1.5 cursor-pointer focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                className="control w-36"
               >
                 <option value="all">All Years</option>
                 {availableYears.map((year) => (
@@ -580,16 +559,15 @@ export default function Compare() {
             </div>
 
             {/* Offense Dropdown */}
-            <div className="flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0" />
-              <label htmlFor="compare-offense-select" className="text-sm text-gray-500 dark:text-gray-400 hidden sm:inline">
+            <div className="flex items-center gap-2 min-w-0">
+              <label htmlFor="compare-offense-select" className={filterLabel}>
                 Crime:
               </label>
               <select
                 id="compare-offense-select"
                 value={selectedOffense}
                 onChange={(e) => setSelectedOffense(e.target.value)}
-                className="w-56 max-w-full text-sm font-medium bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1.5 cursor-pointer focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                className="control w-64 max-w-full"
               >
                 <option value={CRIMINAL}>{SUMMARY_LABELS[CRIMINAL]}</option>
                 <option value={VIOLENT}>{SUMMARY_LABELS[VIOLENT]}</option>
@@ -605,21 +583,12 @@ export default function Compare() {
               </>
             )}
 
-            {/* Divider */}
-            <div className="hidden sm:block w-px h-5 bg-gray-200 dark:bg-gray-700" />
-
             {/* Rate Toggle */}
-            <div role="group" aria-label="View" className="flex items-center gap-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
+            <div role="group" aria-label="View" className="segmented">
               <button
                 type="button"
                 onClick={() => setShowRate(false)}
                 aria-pressed={!showRate}
-                className={cn(
-                  'px-3 py-1.5 text-sm font-medium rounded-md transition-colors',
-                  !showRate
-                    ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm'
-                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
-                )}
               >
                 Total
               </button>
@@ -627,12 +596,6 @@ export default function Compare() {
                 type="button"
                 onClick={() => setShowRate(true)}
                 aria-pressed={showRate}
-                className={cn(
-                  'px-3 py-1.5 text-sm font-medium rounded-md transition-colors',
-                  showRate
-                    ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm'
-                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
-                )}
               >
                 Rate
               </button>
@@ -645,7 +608,7 @@ export default function Compare() {
                 // One change of the address for both (two would each start
                 // from the same address, and the second would undo the first)
                 onClick={() => setSelection({ year: null, offense: null })}
-                className="text-xs text-primary-600 dark:text-primary-400 hover:underline"
+                className="min-h-[1.5rem] text-meta font-semibold text-accent underline-offset-[3px] hover:underline"
               >
                 Clear filters
               </button>
@@ -656,18 +619,15 @@ export default function Compare() {
 
       {/* Comparability note for the selected year (data/seriesNotes.ts) */}
       {profiles.length === 2 && !showRate && selectedYear !== 'all' && (
-        <SeriesNotes years={[parseInt(selectedYear)]} className="mb-4" />
+        <SeriesNotes years={[parseInt(selectedYear)]} className="mb-3 max-w-prose" />
       )}
 
-      {/* Comparison Context Banner (counts) */}
+      {/* Comparison context (counts) */}
       {profiles.length === 2 && !showRate && (
-        <div className="bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-3 mb-4 flex items-start gap-2">
-          <Info className="w-4 h-4 text-gray-500 flex-shrink-0 mt-0.5" aria-hidden="true" />
-          <p className="text-sm text-gray-600 dark:text-gray-400">
-            Comparing counts of {selectionLabel(selectedOffense).toLowerCase()}. Larger institutions report more
-            incidents because they are larger; "Rate" shows 3-year rates per 10,000 on-campus students.
-          </p>
-        </div>
+        <p className="mb-6 max-w-prose text-meta text-ink-2">
+          Comparing counts of {selectionLabel(selectedOffense).toLowerCase()}. Larger institutions report more
+          incidents because they are larger; "Rate" shows 3-year rates per 10,000 on-campus students.
+        </p>
       )}
 
       {/* Rate view */}
@@ -678,10 +638,10 @@ export default function Compare() {
             metadata={metadata}
             windowKey={selectedWindow}
             code={rateCode}
-            colors={SCHOOL_COLORS}
+            colors={schoolColors}
           />
         ) : (
-          <p role="note" className="mb-8 text-sm bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 text-blue-800 dark:text-blue-200">
+          <p role="note" className="aside-note mb-8 max-w-prose">
             {countsOnlyNote} Choose a rate above.
           </p>
         )
@@ -689,79 +649,66 @@ export default function Compare() {
 
       {/* No Data Message */}
       {profiles.length === 2 && !showRate && !anyProfileHasData && (selectedYear !== 'all' || !isSummary(selectedOffense)) && (
-        <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-6 mb-8">
-          <div className="flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-amber-500 dark:text-amber-400 flex-shrink-0 mt-0.5" />
-            <div>
-              <h3 className="font-medium text-amber-800 dark:text-amber-300">
-                None at either school
-              </h3>
-              <p className="text-sm text-amber-700 dark:text-amber-400 mt-1">
-                Neither school has any {selectedOffense === CRIMINAL ? 'criminal offenses' : selectedOffense === VIOLENT ? 'violent crimes' : selectedOffense === PROPERTY ? 'property crimes' : selectedOffense === ALL ? 'crimes, arrests or referrals' : `${selectedOffense} incidents`}
-                {selectedYear !== 'all' ? ` in ${selectedYear}` : ''}: each had 0, or did not report that year.
-                Try selecting a different year or offense.
-              </p>
-            </div>
-          </div>
+        <div className="mb-8 max-w-prose border-l-2 border-rule-strong pl-4">
+          <h3 className="h3">
+            None at either school
+          </h3>
+          <p className="mt-1 text-ui text-ink-2">
+            Neither school has any {selectedOffense === CRIMINAL ? 'criminal offenses' : selectedOffense === VIOLENT ? 'violent crimes' : selectedOffense === PROPERTY ? 'property crimes' : selectedOffense === ALL ? 'crimes, arrests or referrals' : `${selectedOffense} incidents`}
+            {selectedYear !== 'all' ? ` in ${selectedYear}` : ''}: each had 0, or did not report that year.
+            Try selecting a different year or offense.
+          </p>
         </div>
       )}
 
       {/* Error State */}
       {error && (
-        <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg p-6 flex items-start gap-4 mb-8">
-          <AlertCircle className="w-6 h-6 text-red-500 dark:text-red-400 flex-shrink-0" />
-          <div>
-            <h3 className="font-semibold text-red-800 dark:text-red-300">Error Loading Data</h3>
-            <p className="text-red-700 dark:text-red-400 mt-1">{error}</p>
-          </div>
+        <div className="mb-8 border-l-2 border-danger pl-4">
+          <h3 className="h3 text-danger">Error Loading Data</h3>
+          <p className="mt-1 text-body text-ink-2">{error}</p>
         </div>
       )}
 
       {/* Loading State */}
       {loading && (
-        <div className="flex flex-col items-center justify-center py-16 min-h-[400px]">
-          <Loader2 className="w-8 h-8 text-primary-600 dark:text-primary-400 animate-spin" />
-          <span className="mt-3 text-sm text-gray-500 dark:text-gray-400">Loading schools...</span>
-        </div>
+        <Loading className="min-h-[400px]">Loading schools...</Loading>
       )}
 
       {/* Comparison Content */}
       {!loading && !showRate && profiles.length === 2 && (
         <>
           {/* Key Metrics */}
-          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden mb-8">
-            <div className="px-4 sm:px-6 py-4 border-b dark:border-gray-800">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                Key Metrics
-                {selectedYear === 'all' ? ' (All Years)' : ` (${selectedYear})`}
-                {` - ${selectionLabel(selectedOffense)}`}
-              </h2>
-            </div>
+          <section className="mb-12">
+            <h2 className={sectionTitle}>
+              Key Metrics
+              {selectedYear === 'all' ? ' (All Years)' : ` (${selectedYear})`}
+              {` - ${selectionLabel(selectedOffense)}`}
+            </h2>
 
             {/* Desktop: Table Layout */}
             <div className="hidden sm:block">
-              <table className="w-full">
-                <thead className="bg-gray-50 dark:bg-gray-800">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+              <table className="w-full border-collapse text-ui">
+                <thead>
+                  <tr className="border-b border-ink/60">
+                    <th className="w-1/3 py-2 pr-4 text-left align-bottom text-meta font-semibold text-ink-2">
                       Metric
                     </th>
                     {profiles.map((profile, index) => (
                       <th
                         key={profile.unitid}
-                        className="px-6 py-3 text-center"
+                        className="py-2 pl-4 text-right align-bottom"
                       >
-                        <div
-                          className="text-xs font-medium uppercase"
-                          style={{ color: SCHOOL_COLORS[index] }}
-                        >
-                          {profile.shortName || profile.name}
-                          {profile.isMainCampus === false && (
-                            <span className="ml-1 text-gray-400 dark:text-gray-500 font-normal normal-case">(Branch)</span>
-                          )}
+                        <div className="flex items-center justify-end gap-2 text-ui font-semibold text-ink">
+                          {swatch(index)}
+                          <span>
+                            {profile.shortName || profile.name}
+                            {profile.isMainCampus === false && (
+                              <span className="ml-1 font-normal text-ink-3">(Branch)</span>
+                            )}
+                          </span>
                         </div>
                         {fteLabels.has(profile.unitid) && (
-                          <div className="text-xs font-normal text-gray-400 dark:text-gray-500 mt-0.5 normal-case">
+                          <div className="tabular mt-0.5 text-meta font-normal text-ink-3">
                             {fteLabels.get(profile.unitid)}
                           </div>
                         )}
@@ -769,23 +716,23 @@ export default function Compare() {
                     ))}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                <tbody className="divide-y divide-rule border-b border-rule">
                   {/* Total Incidents / Rate */}
                   <tr>
-                    <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
+                    <td className={cellLabel}>
                       {selectionLabel(selectedOffense)}
                     </td>
                     {profiles.map((profile) => {
                       const metrics = filteredMetrics.find(m => m.unitid === profile.unitid)
                       return (
-                        <td key={profile.unitid} className="px-6 py-4 text-center">
+                        <td key={profile.unitid} className="num py-3 pl-4">
                           {metrics?.totalIncidents !== null && metrics?.totalIncidents !== undefined ? (
-                              <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                              <span className="text-figure font-semibold text-ink">
                                 {formatNumber(metrics.totalIncidents)}
                               </span>
                             ) : (
                               // A year the school did not report: no figures, not 0
-                              <span className="text-xl text-gray-400 dark:text-gray-500">
+                              <span className="text-ui text-ink-3">
                                 {selectedYear === 'all' ? 'N/A' : 'Not reported'}
                               </span>
                             )}
@@ -796,28 +743,20 @@ export default function Compare() {
 
                   {/* YoY Change */}
                   <tr>
-                    <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
+                    <td className={cellLabel}>
                       Year-over-Year Change
                     </td>
                     {profiles.map((profile) => {
                       const metrics = filteredMetrics.find(m => m.unitid === profile.unitid)
                       const yoy = metrics?.yoyChange
                       return (
-                        <td key={profile.unitid} className="px-6 py-4 text-center">
+                        <td key={profile.unitid} className="num py-3 pl-4">
                           {yoy ? (
-                            <div className={cn(
-                              'flex items-center justify-center gap-1 text-lg font-semibold',
-                              yoy.absolute > 0 ? 'text-purple-600 dark:text-purple-400' :
-                              yoy.absolute < 0 ? 'text-blue-600 dark:text-blue-400' :
-                              'text-gray-500 dark:text-gray-400'
-                            )}>
-                              {yoy.absolute > 0 ? <TrendingUp className="w-5 h-5" /> :
-                               yoy.absolute < 0 ? <TrendingDown className="w-5 h-5" /> :
-                               <Minus className="w-5 h-5" />}
+                            <span className="text-heading font-semibold text-ink">
                               {yoy.absolute > 0 ? '+' : ''}{formatNumber(yoy.absolute)}
-                            </div>
+                            </span>
                           ) : (
-                            <span className="text-gray-400">N/A</span>
+                            <span className="text-ink-3">N/A</span>
                           )}
                         </td>
                       )
@@ -827,18 +766,18 @@ export default function Compare() {
                   {/* Top Offense - only show when not filtering by specific offense */}
                   {isSummary(selectedOffense) && (
                     <tr>
-                      <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
+                      <td className={cellLabel}>
                         Most Common Offense
                       </td>
                       {profiles.map((profile, index) => {
                         const topOffense = profileTopOffenses[index]
                         return (
-                          <td key={profile.unitid} className="px-6 py-4 text-center">
-                            <div className="font-medium text-gray-900 dark:text-gray-100">
+                          <td key={profile.unitid} className="py-3 pl-4 text-right">
+                            <div className="font-semibold text-ink">
                               {topOffense?.offense || 'N/A'}
                             </div>
                             {topOffense && topOffense.count > 0 && (
-                              <div className="text-sm text-gray-500 dark:text-gray-400">
+                              <div className="tabular text-meta text-ink-2">
                                 {formatNumber(topOffense.count)} incidents
                               </div>
                             )}
@@ -852,38 +791,38 @@ export default function Compare() {
             </div>
 
             {/* Mobile: Card Layout */}
-            <div className="sm:hidden divide-y divide-gray-100 dark:divide-gray-800">
+            <div className="sm:hidden divide-y divide-rule border-y border-rule">
               {/* Total Incidents / Rate */}
-              <div className="p-4">
-                <div className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">
+              <div className="py-4">
+                <div className="mb-2 text-meta font-semibold text-ink-2">
                   {selectionLabel(selectedOffense)}
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   {profiles.map((profile, index) => {
                     const metrics = filteredMetrics.find(m => m.unitid === profile.unitid)
                     return (
-                      <div key={profile.unitid} className="text-center">
-                        <div
-                          className="text-xs font-medium"
-                          style={{ color: SCHOOL_COLORS[index] }}
-                        >
-                          {profile.shortName || profile.name}
-                          {profile.isMainCampus === false && (
-                            <span className="ml-1 text-gray-400 dark:text-gray-500 font-normal">(Branch)</span>
-                          )}
+                      <div key={profile.unitid}>
+                        <div className="flex items-center gap-1.5 text-meta font-semibold text-ink">
+                          {swatch(index)}
+                          <span>
+                            {profile.shortName || profile.name}
+                            {profile.isMainCampus === false && (
+                              <span className="ml-1 font-normal text-ink-3">(Branch)</span>
+                            )}
+                          </span>
                         </div>
                         {fteLabels.has(profile.unitid) && (
-                          <div className="text-xs text-gray-400 dark:text-gray-500 mb-1">
+                          <div className="tabular mb-1 text-label text-ink-3">
                             {fteLabels.get(profile.unitid)}
                           </div>
                         )}
                         {metrics?.totalIncidents !== null && metrics?.totalIncidents !== undefined ? (
-                            <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                            <div className="tabular text-figure font-semibold text-ink">
                               {formatNumber(metrics.totalIncidents)}
                             </div>
                           ) : (
                             // A year the school did not report: no figures, not 0
-                            <div className="text-xl text-gray-400 dark:text-gray-500">
+                            <div className="text-ui text-ink-3">
                               {selectedYear === 'all' ? 'N/A' : 'Not reported'}
                             </div>
                           )}
@@ -894,8 +833,8 @@ export default function Compare() {
               </div>
 
               {/* YoY Change */}
-              <div className="p-4">
-                <div className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">
+              <div className="py-4">
+                <div className="mb-2 text-meta font-semibold text-ink-2">
                   Year-over-Year Change
                 </div>
                 <div className="grid grid-cols-2 gap-4">
@@ -903,35 +842,27 @@ export default function Compare() {
                     const metrics = filteredMetrics.find(m => m.unitid === profile.unitid)
                     const yoy = metrics?.yoyChange ?? null
                     return (
-                      <div key={profile.unitid} className="text-center">
-                        <div
-                          className="text-xs font-medium"
-                          style={{ color: SCHOOL_COLORS[index] }}
-                        >
-                          {profile.shortName || profile.name}
-                          {profile.isMainCampus === false && (
-                            <span className="ml-1 text-gray-400 dark:text-gray-500 font-normal">(Branch)</span>
-                          )}
+                      <div key={profile.unitid}>
+                        <div className="flex items-center gap-1.5 text-meta font-semibold text-ink">
+                          {swatch(index)}
+                          <span>
+                            {profile.shortName || profile.name}
+                            {profile.isMainCampus === false && (
+                              <span className="ml-1 font-normal text-ink-3">(Branch)</span>
+                            )}
+                          </span>
                         </div>
                         {fteLabels.has(profile.unitid) && (
-                          <div className="text-xs text-gray-400 dark:text-gray-500 mb-1">
+                          <div className="tabular mb-1 text-label text-ink-3">
                             {fteLabels.get(profile.unitid)}
                           </div>
                         )}
                         {yoy ? (
-                          <div className={cn(
-                            'flex items-center justify-center gap-1 text-lg font-semibold',
-                            yoy.absolute > 0 ? 'text-purple-600 dark:text-purple-400' :
-                            yoy.absolute < 0 ? 'text-blue-600 dark:text-blue-400' :
-                            'text-gray-500 dark:text-gray-400'
-                          )}>
-                            {yoy.absolute > 0 ? <TrendingUp className="w-4 h-4" /> :
-                             yoy.absolute < 0 ? <TrendingDown className="w-4 h-4" /> :
-                             <Minus className="w-4 h-4" />}
+                          <div className="tabular text-heading font-semibold text-ink">
                             {yoy.absolute > 0 ? '+' : ''}{formatNumber(yoy.absolute)}
                           </div>
                         ) : (
-                          <span className="text-gray-400">N/A</span>
+                          <span className="text-ink-3">N/A</span>
                         )}
                       </div>
                     )
@@ -941,31 +872,29 @@ export default function Compare() {
 
               {/* Top Offense - only show when not filtering by specific offense */}
               {isSummary(selectedOffense) && (
-                <div className="p-4">
-                  <div className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">
+                <div className="py-4">
+                  <div className="mb-2 text-meta font-semibold text-ink-2">
                     Most Common Offense
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     {profiles.map((profile, index) => {
                       const topOffense = profileTopOffenses[index]
                       return (
-                        <div key={profile.unitid} className="text-center">
-                          <div
-                            className="text-xs font-medium"
-                            style={{ color: SCHOOL_COLORS[index] }}
-                          >
-                            {profile.shortName || profile.name}
+                        <div key={profile.unitid}>
+                          <div className="flex items-center gap-1.5 text-meta font-semibold text-ink">
+                            {swatch(index)}
+                            <span>{profile.shortName || profile.name}</span>
                           </div>
                           {fteLabels.has(profile.unitid) && (
-                            <div className="text-xs text-gray-400 dark:text-gray-500 mb-1">
+                            <div className="tabular mb-1 text-label text-ink-3">
                               {fteLabels.get(profile.unitid)}
                             </div>
                           )}
-                          <div className="font-medium text-gray-900 dark:text-gray-100 text-sm">
+                          <div className="text-ui font-semibold text-ink">
                             {topOffense?.offense || 'N/A'}
                           </div>
                           {topOffense && topOffense.count > 0 && (
-                            <div className="text-xs text-gray-500 dark:text-gray-400">
+                            <div className="tabular text-meta text-ink-2">
                               {formatNumber(topOffense.count)}
                             </div>
                           )}
@@ -976,124 +905,128 @@ export default function Compare() {
                 </div>
               )}
             </div>
-          </div>
+          </section>
 
           {/* Trend Chart */}
-          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 p-4 sm:p-6 mb-8">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+          <section className="mb-12">
+            <h2 className={sectionTitle}>
               {`${selectionLabel(selectedOffense)} Over Time`}
             </h2>
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={trendChartData}>
-                <CartesianGrid strokeDasharray="3 3" stroke={chartGridColor} />
+              <LineChart data={trendChartData} margin={{ top: 4, right: 20, bottom: 0, left: 0 }}>
+                <CartesianGrid stroke={chart.grid} vertical={false} />
                 {noteBands.map((b) => (
-                  <ReferenceArea key={b.x1} x1={b.x1} x2={b.x2} fill={noteBandColor} fillOpacity={0.12} ifOverflow="extendDomain" />
+                  <ReferenceArea key={b.x1} x1={b.x1} x2={b.x2} fill={chart.band} fillOpacity={0.07} ifOverflow="extendDomain" />
                 ))}
                 {/* Every year labelled (interval 0), angled at phone width so they do not overlap */}
                 <XAxis
                   dataKey="year"
                   interval={0}
-                  tick={{ fill: chartTextColor, fontSize: narrow ? 11 : 12 }}
+                  tick={{ fill: chart.text, fontSize: narrow ? 11 : 12 }}
                   angle={narrow ? -45 : 0}
                   textAnchor={narrow ? 'end' : 'middle'}
                   height={narrow ? 44 : 30}
-                  axisLine={{ stroke: chartGridColor }}
+                  axisLine={{ stroke: chart.grid }}
+                  tickLine={false}
                 />
                 <YAxis
                   tickFormatter={(v: number) => formatNumber(v)}
-                  tick={{ fill: chartTextColor, fontSize: 12 }}
-                  axisLine={{ stroke: chartGridColor }}
+                  tick={{ fill: chart.text, fontSize: 12 }}
+                  axisLine={false}
+                  tickLine={false}
+                  width={44}
                 />
                 <Tooltip
                   formatter={(value: number) => formatNumber(value)}
-                  contentStyle={{
-                    backgroundColor: chartBgColor,
-                    border: `1px solid ${chartBorderColor}`,
-                    borderRadius: '8px',
-                  }}
-                  labelStyle={{ color: chartTextColor }}
-                  itemStyle={{ color: chartTextColor }}
+                  {...tooltipProps(chart)}
+                  cursor={lineCursor(chart)}
                 />
-                <Legend wrapperStyle={{ color: chartTextColor }} />
+                <Legend iconSize={18} wrapperStyle={{ color: chart.text, fontSize: 13, paddingTop: 8 }} />
                 {profiles.map((profile, index) => (
                   <Line
                     key={profile.unitid}
                     type="monotone"
                     dataKey={profile.shortName || profile.name}
-                    stroke={SCHOOL_COLORS[index]}
-                    strokeWidth={3}
-                    dot={{ r: 4, fill: SCHOOL_COLORS[index] }}
-                    activeDot={{ r: 6 }}
+                    stroke={schoolColors[index]}
+                    strokeDasharray={SERIES_DASHES[index]}
+                    strokeWidth={2.5}
+                    dot={{ r: 3, fill: schoolColors[index], strokeDasharray: '' }}
+                    activeDot={{ r: 5 }}
+                    legendType="plainline"
                   />
                 ))}
               </LineChart>
             </ResponsiveContainer>
             <SeriesNotes years={availableYears} className="mt-3" />
             <ReportYearNote className="mt-1" />
-          </div>
+          </section>
 
           {/* Offense Breakdown */}
-          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 p-4 sm:p-6 mb-8">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+          <section className="mb-12">
+            <h2 className={sectionTitle}>
               Top Offenses Comparison{selectedYear !== 'all' ? ` (${selectedYear})` : ''}
             </h2>
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={offenseComparisonData} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" stroke={chartGridColor} />
+              <BarChart data={offenseComparisonData} layout="vertical" margin={{ top: 4, right: 20, bottom: 0, left: 0 }}>
+                <defs>
+                  <pattern id="compare-hatch" patternUnits="userSpaceOnUse" width="5" height="5" patternTransform="rotate(45)">
+                    <rect width="5" height="5" fill={schoolColors[1]} />
+                    <line x1="0" y1="0" x2="0" y2="5" stroke={chart.tooltipBg} strokeWidth="1.5" />
+                  </pattern>
+                </defs>
+                <CartesianGrid stroke={chart.grid} horizontal={false} />
                 <XAxis
                   type="number"
                   tickFormatter={(v: number) => formatNumber(v)}
-                  tick={{ fill: chartTextColor, fontSize: 12 }}
-                  axisLine={{ stroke: chartGridColor }}
+                  tick={{ fill: chart.text, fontSize: 12 }}
+                  axisLine={false}
+                  tickLine={false}
                 />
                 <YAxis
                   type="category"
                   dataKey="offense"
-                  tick={{ fill: chartTextColor, fontSize: 11 }}
-                  axisLine={{ stroke: chartGridColor }}
+                  tick={{ fill: chart.text, fontSize: 11 }}
+                  axisLine={{ stroke: chart.grid }}
+                  tickLine={false}
                   width={100}
                 />
                 <Tooltip
                   formatter={(value: number) => formatNumber(value)}
-                  contentStyle={{
-                    backgroundColor: chartBgColor,
-                    border: `1px solid ${chartBorderColor}`,
-                    borderRadius: '8px',
-                  }}
-                  labelStyle={{ color: chartTextColor }}
-                  itemStyle={{ color: chartTextColor }}
+                  {...tooltipProps(chart)}
+                  cursor={barCursor(chart)}
                 />
-                <Legend wrapperStyle={{ color: chartTextColor }} />
+                <Legend iconSize={12} wrapperStyle={{ color: chart.text, fontSize: 13, paddingTop: 8 }} />
                 {profiles.map((profile, index) => (
                   <Bar
                     key={profile.unitid}
                     dataKey={profile.shortName || profile.name}
-                    fill={SCHOOL_COLORS[index]}
-                    radius={[0, 4, 4, 0]}
+                    fill={index === 1 ? 'url(#compare-hatch)' : schoolColors[index]}
+                    stroke={schoolColors[index]}
+                    strokeWidth={index === 1 ? 1 : 0}
+                    radius={[0, 2, 2, 0]}
                   />
                 ))}
               </BarChart>
             </ResponsiveContainer>
-          </div>
+          </section>
 
           {/* View Full Profiles Links */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 border-t border-rule sm:grid-cols-2">
             {profiles.map((profile, index) => (
               <Link
                 key={profile.unitid}
                 to={`/school/${profile.unitid}`}
-                className="flex items-center justify-between p-4 rounded-lg border-2 hover:shadow-md transition-shadow"
-                style={{ borderColor: SCHOOL_COLORS[index] }}
+                className={cn('group flex items-center gap-3 border-b border-rule py-4 hover:bg-subtle', index === 1 && 'sm:border-l sm:pl-4')}
               >
+                {swatch(index)}
                 <div>
-                  <div className="font-medium text-gray-900 dark:text-gray-100">
+                  <div className="font-semibold text-ink underline decoration-rule-strong/60 underline-offset-[3px] group-hover:text-accent group-hover:decoration-current">
                     {profile.name}
                   </div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">
+                  <div className="text-meta text-ink-2">
                     View full profile
                   </div>
                 </div>
-                <ArrowRight className="w-5 h-5 text-gray-400" />
               </Link>
             ))}
           </div>
@@ -1102,14 +1035,11 @@ export default function Compare() {
 
       {/* Empty State - Only one school selected */}
       {!loading && selectedIds.length === 1 && (
-        <div className="text-center py-16">
-          <div className="text-gray-400 dark:text-gray-500 mb-4">
-            <Plus className="w-16 h-16 mx-auto" />
-          </div>
-          <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+        <div className="border-t border-rule py-12">
+          <h3 className="h3 mb-1">
             Add Another School
           </h3>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-body text-ink-2">
             Select one more school to start comparing statistics.
           </p>
         </div>

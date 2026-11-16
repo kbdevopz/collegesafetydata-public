@@ -185,22 +185,22 @@ export function schoolBodyHtml(profile: SchoolProfile): string {
     .join('')
 
   return (
-    `<main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 text-gray-900 dark:text-gray-100">` +
-    `<h1 class="text-3xl font-bold mb-2">${e(profile.campus ?? profile.name)}</h1>` +
-    (profile.campus ? `<p class="text-gray-600 dark:text-gray-400 mb-1">Campus of ${e(profile.name)}</p>` : '') +
-    (where ? `<p class="text-gray-600 dark:text-gray-400 mb-6">${e(where)}</p>` : '') +
+    `<main class="wrap py-8 text-ink">` +
+    `<h1 class="h1 mb-2">${e(profile.campus ?? profile.name)}</h1>` +
+    (profile.campus ? `<p class="text-ink-2 mb-1">Campus of ${e(profile.name)}</p>` : '') +
+    (where ? `<p class="text-ink-2 mb-6">${e(where)}</p>` : '') +
     `<p class="mb-6">${formatCount(totalIncidents)} crimes, arrests and disciplinary referrals reported for ${latestYear} ` +
     `(on campus, noncampus and public property).</p>` +
-    `<h2 class="text-xl font-semibold mb-2">Reported each year</h2>` +
+    `<h2 class="h-sub mb-2">Reported each year</h2>` +
     `<table class="mb-6"><thead><tr><th class="pr-6 text-left">Year</th><th class="text-right">All categories</th></tr></thead>` +
     `<tbody>${yearRows}</tbody></table>` +
     (categoryRows
-      ? `<h2 class="text-xl font-semibold mb-2">${latestYear} by category</h2>` +
+      ? `<h2 class="h-sub mb-2">${latestYear} by category</h2>` +
         `<table class="mb-6"><thead><tr><th class="pr-6 text-left">Category</th><th class="text-right">Count</th></tr></thead>` +
         `<tbody>${categoryRows}</tbody></table>`
       : '') +
-    `<p class="text-sm text-gray-600 dark:text-gray-400">Source: ${e(DOE_SOURCE_NAME)}, ` +
-    `<a class="underline" href="${DOE_SOURCE_URL}">${DOE_SOURCE_URL}</a>. ` +
+    `<p class="text-meta text-ink-2">Source: ${e(DOE_SOURCE_NAME)}, ` +
+    `<a class="link" href="${DOE_SOURCE_URL}">${DOE_SOURCE_URL}</a>. ` +
     `Reported incidents only; lower numbers may reflect reporting differences, not greater safety.</p>` +
     `</main>`
   )
