@@ -3,14 +3,13 @@
 # scripts/check-headers.mjs fails the build if the two differ.
 #
 # Content-Security-Policy origins:
-#   fonts.googleapis.com / fonts.gstatic.com  Google Fonts (Inter) stylesheet and font files
 #   static.cloudflareinsights.com             Cloudflare Web Analytics beacon script (.org)
 #   cloudflareinsights.com                    Cloudflare Web Analytics beacon reports (.org)
-# Everything else (scripts, styles, data JSON, favicon) is served from this site.
+# Everything else (scripts, styles, fonts, data JSON, favicon) is served from this site.
 
 /*
   Strict-Transport-Security: max-age=31536000; includeSubDomains
-  Content-Security-Policy: default-src 'self'; script-src 'self' https://static.cloudflareinsights.com; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://cloudflareinsights.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://static.cloudflareinsights.com; style-src 'self'; font-src 'self'; img-src 'self' data:; connect-src 'self' https://cloudflareinsights.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests
   X-Frame-Options: DENY
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin

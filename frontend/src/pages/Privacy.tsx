@@ -12,7 +12,7 @@ export default function Privacy() {
           We are committed to protecting your privacy. This policy explains what data we collect and how we use it.
         </p>
         <p className="meta mt-3">
-          Last updated: November 10, 2026
+          Last updated: November 16, 2026
         </p>
       </header>
 
@@ -59,17 +59,10 @@ export default function Privacy() {
 
                 <div className="border-t border-rule pt-3">
                   <h3 className="h3 mb-2">
-                    Google Fonts
+                    Fonts
                   </h3>
                   <p className="text-ui">
-                    This site uses Google Fonts CDN to load web fonts. When you visit our site, your browser makes a request to Google's servers to download font files. Google may collect basic connection information (IP address, user agent) as part of this standard web request. See <a
-                      href="https://policies.google.com/privacy"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="link"
-                    >
-                      Google's Privacy Policy
-                    </a> for details.
+                    The fonts are served from this site, so pages make no request to a font service.
                   </p>
                 </div>
 
