@@ -7,10 +7,11 @@ const KIND_LABEL: Record<ChangeKind, string> = {
   site: 'Site',
 }
 
+// The kind is in words; the outline only repeats it
 const KIND_CLASS: Record<ChangeKind, string> = {
-  correction: 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200',
-  method: 'bg-primary-100 text-primary-800 dark:bg-primary-900/40 dark:text-primary-200',
-  site: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300',
+  correction: 'border-attention text-attention',
+  method: 'border-accent text-accent',
+  site: 'border-rule-strong text-ink-2',
 }
 
 const MONTHS = [
@@ -26,55 +27,51 @@ function longDate(iso: string): string {
 export default function Changes() {
   return (
     <div className="min-h-screen">
-      <div className="bg-gradient-to-b from-primary-50 to-white dark:from-gray-900 dark:to-gray-950 border-b border-gray-200 dark:border-gray-800">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-          <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-              Changes and Corrections
-            </h1>
-            <p className="text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
-              Changes to the figures this site shows and to how it counts, ranks and rates them, newest first.
-            </p>
-          </div>
-        </div>
-      </div>
+      <header className="wrap pt-8 pb-8 sm:pt-10">
+        <h1 className="h1">
+          Changes and Corrections
+        </h1>
+        <p className="lede mt-2">
+          Changes to the figures this site shows and to how it counts, ranks and rates them, newest first.
+        </p>
+      </header>
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="max-w-3xl mx-auto">
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-8">
-            A <strong className="text-gray-900 dark:text-gray-100">correction</strong> changes figures the site
-            showed; a <strong className="text-gray-900 dark:text-gray-100">method</strong> change changes how they are
+      <div className="wrap pb-12">
+        <div className="max-w-[46rem]">
+          <p className="text-ui text-ink-2 mb-8">
+            A <strong className="font-semibold text-ink">correction</strong> changes figures the site
+            showed; a <strong className="font-semibold text-ink">method</strong> change changes how they are
             counted, ranked or rated. Figures cited from an earlier build can differ from today's: cite the build
             identifier shown in the footer (see{' '}
-            <Link to="/methodology#cite" className="text-primary-600 dark:text-primary-400 underline">how to cite</Link>).
+            <Link to="/methodology#cite" className="link">how to cite</Link>).
             The full history of the code and data is in the{' '}
             <a
               href="https://github.com/kbdevopz/collegesafetydata-public/commits/main"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-primary-600 dark:text-primary-400 underline"
+              className="link"
             >
               repository
             </a>
             . To report an error, write to{' '}
-            <a href="mailto:contact@collegesafetydata.org" className="text-primary-600 dark:text-primary-400 underline">
+            <a href="mailto:contact@collegesafetydata.org" className="link">
               contact@collegesafetydata.org
             </a>
             .
           </p>
 
-          <ol className="space-y-6">
+          <ol className="border-b border-rule">
             {CHANGES.map((c) => (
               <li
                 key={`${c.date}-${c.title}`}
-                className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-5"
+                className="border-t border-rule py-6"
               >
-                <div className="flex flex-wrap items-center gap-2 mb-2 text-xs">
-                  <time dateTime={c.date} className="text-gray-500 dark:text-gray-400">{longDate(c.date)}</time>
-                  <span className={`px-2 py-0.5 rounded-full font-medium ${KIND_CLASS[c.kind]}`}>{KIND_LABEL[c.kind]}</span>
+                <div className="flex flex-wrap items-center gap-2 mb-2 text-meta">
+                  <time dateTime={c.date} className="text-ink-3">{longDate(c.date)}</time>
+                  <span className={`rounded-sm border px-1.5 text-label font-semibold ${KIND_CLASS[c.kind]}`}>{KIND_LABEL[c.kind]}</span>
                 </div>
-                <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">{c.title}</h2>
-                <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                <h2 className="h-sub mb-2">{c.title}</h2>
+                <div className="space-y-2 text-ui text-ink-2">
                   {c.body.map((p, i) => (
                     <p key={i}>{p}</p>
                   ))}
@@ -82,7 +79,7 @@ export default function Changes() {
                 {c.methodology && (
                   <Link
                     to={`/methodology#${c.methodology}`}
-                    className="inline-block mt-3 text-sm text-primary-600 dark:text-primary-400 underline"
+                    className="link inline-block mt-3 text-meta"
                   >
                     Methodology
                   </Link>

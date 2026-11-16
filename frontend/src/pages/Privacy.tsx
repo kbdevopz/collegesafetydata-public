@@ -1,47 +1,37 @@
 import { Link } from 'react-router-dom'
-import { Shield, Database, Cookie, ExternalLink, Mail } from 'lucide-react'
 
 export default function Privacy() {
   return (
     <div className="min-h-screen">
-      {/* Hero Section */}
-      <div className="bg-gradient-to-b from-primary-50 to-white dark:from-gray-900 dark:to-gray-950 border-b border-gray-200 dark:border-gray-800">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-          <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-              Privacy Policy
-            </h1>
-            <p className="text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
-              We are committed to protecting your privacy. This policy explains what data we collect and how we use it.
-            </p>
-            <p className="text-sm text-gray-500 dark:text-gray-500 mt-4">
-              Last updated: November 10, 2026
-            </p>
-          </div>
-        </div>
-      </div>
+      {/* Header */}
+      <header className="wrap pt-8 pb-8 sm:pt-10">
+        <h1 className="h1">
+          Privacy Policy
+        </h1>
+        <p className="lede mt-2">
+          We are committed to protecting your privacy. This policy explains what data we collect and how we use it.
+        </p>
+        <p className="meta mt-3">
+          Last updated: November 16, 2026
+        </p>
+      </header>
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="max-w-3xl mx-auto space-y-12">
+      <div className="wrap pb-12">
+        <div className="max-w-[46rem] space-y-12">
 
           {/* Overview Section */}
           <section>
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/50 rounded-xl flex items-center justify-center">
-                <Shield className="w-5 h-5 text-primary-600 dark:text-primary-400" />
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                Overview
-              </h2>
-            </div>
-            <div className="space-y-4 text-gray-600 dark:text-gray-400">
-              <p className="leading-relaxed">
+            <h2 className="section-head">
+              Overview
+            </h2>
+            <div className="space-y-4 text-body text-ink-2">
+              <p>
                 CollegeSafetyData.org is a static website that displays publicly available campus crime statistics. We do not collect, store, or process any personally identifiable information about our visitors.
               </p>
-              <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
-                <p className="text-sm text-green-700 dark:text-green-300 font-medium">
-                  <strong>Privacy-First Design:</strong> This site collects no personal data, uses no cookies, and requires no account registration. The only analytics is Cloudflare Web Analytics, which counts page views in aggregate without cookies or tracking you across sites (see below).
+              <div className="border-l-2 border-accent pl-4">
+                <p className="text-ui text-ink-2">
+                  <strong className="font-semibold text-ink">Privacy-First Design:</strong> This site collects no personal data, uses no cookies, and requires no account registration. The only analytics is Cloudflare Web Analytics, which counts page views in aggregate without cookies or tracking you across sites (see below).
                 </p>
               </div>
             </div>
@@ -49,55 +39,43 @@ export default function Privacy() {
 
           {/* Data Collection Section */}
           <section>
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/50 rounded-xl flex items-center justify-center">
-                <Database className="w-5 h-5 text-primary-600 dark:text-primary-400" />
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                Data We Collect
-              </h2>
-            </div>
-            <div className="space-y-4 text-gray-600 dark:text-gray-400">
-              <p className="leading-relaxed font-medium text-gray-900 dark:text-gray-100">
+            <h2 className="section-head">
+              Data We Collect
+            </h2>
+            <div className="space-y-4 text-body text-ink-2">
+              <p className="font-semibold text-ink">
                 We collect minimal data necessary for site functionality:
               </p>
 
-              <div className="space-y-3">
-                <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
-                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">
+              <div className="space-y-5">
+                <div className="border-t border-rule pt-3">
+                  <h3 className="h3 mb-2">
                     Theme Preference (Local Storage Only)
                   </h3>
-                  <p className="text-sm">
+                  <p className="text-ui">
                     Your dark/light mode preference is stored locally in your browser's localStorage. This data never leaves your device and contains no personally identifiable information.
                   </p>
                 </div>
 
-                <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
-                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                    Google Fonts
+                <div className="border-t border-rule pt-3">
+                  <h3 className="h3 mb-2">
+                    Fonts
                   </h3>
-                  <p className="text-sm">
-                    This site uses Google Fonts CDN to load web fonts. When you visit our site, your browser makes a request to Google's servers to download font files. Google may collect basic connection information (IP address, user agent) as part of this standard web request. See <a
-                      href="https://policies.google.com/privacy"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 hover:underline"
-                    >
-                      Google's Privacy Policy
-                    </a> for details.
+                  <p className="text-ui">
+                    The fonts are served from this site, so pages make no request to a font service.
                   </p>
                 </div>
 
-                <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
-                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                <div className="border-t border-rule pt-3">
+                  <h3 className="h3 mb-2">
                     Cloudflare Web Analytics (collegesafetydata.org)
                   </h3>
-                  <p className="text-sm">
+                  <p className="text-ui">
                     Pages on collegesafetydata.org include Cloudflare Web Analytics, which records aggregate visit statistics such as page views, referring sites, countries and page load times. It sets no cookies, does not use your IP address to identify you, and does not follow you across other websites. We see only totals. See <a
                       href="https://www.cloudflare.com/web-analytics/"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 hover:underline"
+                      className="link"
                     >
                       Cloudflare Web Analytics
                     </a> for details.
@@ -105,50 +83,27 @@ export default function Privacy() {
                 </div>
               </div>
 
-              <p className="leading-relaxed font-medium text-gray-900 dark:text-gray-100 mt-6">
+              <p className="font-semibold text-ink mt-6">
                 What we DON'T collect:
               </p>
-              <ul className="space-y-2 text-sm">
-                <li className="flex gap-2">
-                  <span className="text-green-600 dark:text-green-400">✓</span>
-                  <span>No cookies</span>
-                </li>
-                <li className="flex gap-2">
-                  <span className="text-green-600 dark:text-green-400">✓</span>
-                  <span>No tracking or advertising scripts (no Google Analytics, no ad networks, no cross-site trackers)</span>
-                </li>
-                <li className="flex gap-2">
-                  <span className="text-green-600 dark:text-green-400">✓</span>
-                  <span>No user accounts or authentication</span>
-                </li>
-                <li className="flex gap-2">
-                  <span className="text-green-600 dark:text-green-400">✓</span>
-                  <span>No forms that submit data to our servers</span>
-                </li>
-                <li className="flex gap-2">
-                  <span className="text-green-600 dark:text-green-400">✓</span>
-                  <span>No server-side logging of visitor activity</span>
-                </li>
-                <li className="flex gap-2">
-                  <span className="text-green-600 dark:text-green-400">✓</span>
-                  <span>No email collection (our contact links use your email client)</span>
-                </li>
+              <ul className="list-disc space-y-1.5 pl-5 text-ui marker:text-ink-3">
+                <li>No cookies</li>
+                <li>No tracking or advertising scripts (no Google Analytics, no ad networks, no cross-site trackers)</li>
+                <li>No user accounts or authentication</li>
+                <li>No forms that submit data to our servers</li>
+                <li>No server-side logging of visitor activity</li>
+                <li>No email collection (our contact links use your email client)</li>
               </ul>
             </div>
           </section>
 
           {/* Cookies Section */}
           <section>
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/50 rounded-xl flex items-center justify-center">
-                <Cookie className="w-5 h-5 text-primary-600 dark:text-primary-400" />
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                Cookies
-              </h2>
-            </div>
-            <div className="space-y-4 text-gray-600 dark:text-gray-400">
-              <p className="leading-relaxed">
+            <h2 className="section-head">
+              Cookies
+            </h2>
+            <div className="space-y-4 text-body text-ink-2">
+              <p>
                 This website does not use cookies. We use browser localStorage instead to store your theme preference locally on your device.
               </p>
             </div>
@@ -156,33 +111,19 @@ export default function Privacy() {
 
           {/* External Links Section */}
           <section>
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/50 rounded-xl flex items-center justify-center">
-                <ExternalLink className="w-5 h-5 text-primary-600 dark:text-primary-400" />
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                External Links
-              </h2>
-            </div>
-            <div className="space-y-4 text-gray-600 dark:text-gray-400">
-              <p className="leading-relaxed">
+            <h2 className="section-head">
+              External Links
+            </h2>
+            <div className="space-y-4 text-body text-ink-2">
+              <p>
                 This site contains links to external websites, including:
               </p>
-              <ul className="space-y-2 text-sm ml-4">
-                <li className="flex gap-2">
-                  <span className="text-primary-600 dark:text-primary-400">•</span>
-                  <span>U.S. Department of Education Campus Safety Data</span>
-                </li>
-                <li className="flex gap-2">
-                  <span className="text-primary-600 dark:text-primary-400">•</span>
-                  <span>GitHub repository</span>
-                </li>
-                <li className="flex gap-2">
-                  <span className="text-primary-600 dark:text-primary-400">•</span>
-                  <span>Buy Me a Coffee donation platform</span>
-                </li>
+              <ul className="list-disc space-y-1.5 pl-5 text-ui marker:text-ink-3">
+                <li>U.S. Department of Education Campus Safety Data</li>
+                <li>GitHub repository</li>
+                <li>Buy Me a Coffee donation platform</li>
               </ul>
-              <p className="leading-relaxed">
+              <p>
                 We are not responsible for the privacy practices of these external sites. We encourage you to review their privacy policies before providing any personal information.
               </p>
             </div>
@@ -190,23 +131,23 @@ export default function Privacy() {
 
           {/* Hosting Section */}
           <section>
-            <div className="space-y-4 text-gray-600 dark:text-gray-400">
-              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+            <div className="space-y-4 text-body text-ink-2">
+              <h2 className="section-head">
                 Hosting & Infrastructure
               </h2>
-              <p className="leading-relaxed">
+              <p>
                 This site is hosted on Cloudflare Pages and Vercel. These hosting providers may collect basic connection logs (IP addresses, timestamps) for infrastructure security and performance monitoring. This data is controlled by the hosting provider, not by us. See <a
                   href="https://www.cloudflare.com/privacypolicy/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 hover:underline"
+                  className="link"
                 >
                   Cloudflare's Privacy Policy
                 </a> and <a
                   href="https://vercel.com/legal/privacy-policy"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 hover:underline"
+                  className="link"
                 >
                   Vercel's Privacy Policy
                 </a> for details.
@@ -216,11 +157,11 @@ export default function Privacy() {
 
           {/* Changes to Policy Section */}
           <section>
-            <div className="space-y-4 text-gray-600 dark:text-gray-400">
-              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+            <div className="space-y-4 text-body text-ink-2">
+              <h2 className="section-head">
                 Changes to This Policy
               </h2>
-              <p className="leading-relaxed">
+              <p>
                 We may update this privacy policy from time to time. The "Last updated" date at the top of this page indicates when the policy was last revised. Continued use of the site after changes constitutes acceptance of the updated policy.
               </p>
             </div>
@@ -228,29 +169,23 @@ export default function Privacy() {
 
           {/* Contact Section */}
           <section>
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/50 rounded-xl flex items-center justify-center">
-                <Mail className="w-5 h-5 text-primary-600 dark:text-primary-400" />
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                Questions About Privacy
-              </h2>
-            </div>
-            <div className="space-y-4 text-gray-600 dark:text-gray-400">
-              <p className="leading-relaxed">
+            <h2 className="section-head">
+              Questions About Privacy
+            </h2>
+            <div className="space-y-4 text-body text-ink-2">
+              <p>
                 If you have questions about this privacy policy or our data practices, please contact us:
               </p>
               <a
                 href="mailto:contact@collegesafetydata.org"
-                className="inline-flex items-center gap-2 text-lg text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 font-medium transition-colors"
+                className="link inline-flex min-h-[1.75rem] items-center text-heading font-semibold"
               >
-                <Mail className="w-5 h-5" />
                 contact@collegesafetydata.org
               </a>
-              <p className="text-sm">
+              <p className="text-ui">
                 For more information about our site, see our <Link
                   to="/about"
-                  className="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 hover:underline"
+                  className="link"
                 >
                   About
                 </Link> page.

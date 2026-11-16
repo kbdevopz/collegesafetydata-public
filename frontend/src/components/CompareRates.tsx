@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Loader2 } from 'lucide-react'
 import { fetchInstitutionRates } from '../lib/api'
 import type { InstitutionRatesFile, Metadata, SchoolProfile } from '../lib/types'
 import {
@@ -10,6 +9,7 @@ import { RATE_IS_NOT, RATE_MEASURE } from '../lib/rateDisplay'
 import { RateCodeBlock } from './RateCard'
 import LinkedText from './LinkedText'
 import RowNote, { NoteJoiner } from './RowNote'
+import { Loading, SchoolSwatch } from './ui'
 
 type Loaded = { file: InstitutionRatesFile | null; failed: boolean }
 
@@ -71,26 +71,26 @@ export default function CompareRates({
   }
 
   return (
-    <div className="space-y-4 mb-8">
-      <section className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 p-4 sm:p-6 text-sm text-gray-700 dark:text-gray-300 space-y-2">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+    <div className="space-y-6 mb-8">
+      <section className="max-w-prose text-ui text-ink-2 space-y-2">
+        <h2 className="font-serif text-[1.25rem] font-semibold leading-snug text-ink">
           {rateCodeLabel(code)}, {windowLabel(windowKey)}
         </h2>
         <p>{RATE_MEASURE} {RATE_IS_NOT}</p>
         <p>
           Each rate is shown with its interval and its own comparisons. This page does not test whether the
           institutions' rates differ from each other.{' '}
-          <Link to="/methodology#rates" className="text-primary-600 dark:text-primary-400 underline">Methodology</Link>
+          <Link to="/methodology#rates" className="link">Methodology</Link>
         </p>
         {sameInstitution && (
-          <p className="font-medium">
+          <p className="font-semibold text-ink">
             Both pages belong to the same institution, and NCES counts enrollment per institution, so the rates are
             the same.
           </p>
         )}
-        {rangeSentence && <p className="font-medium">{rangeSentence}</p>}
+        {rangeSentence && <p className="font-semibold text-ink">{rangeSentence}</p>}
       </section>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 border-t border-rule md:grid-cols-2">
         {profiles.map((p, i) => {
           const state = loaded[p.unitid]
           const file = state?.file ?? null
@@ -99,40 +99,41 @@ export default function CompareRates({
           return (
             <section
               key={p.unitid}
-              className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border-2 p-4 sm:p-6 space-y-2"
-              style={{ borderColor: colors[i] }}
+              className={i === 1 ? 'min-w-0 space-y-2 border-t border-rule py-6 md:border-t-0 md:border-l md:pl-6' : 'min-w-0 space-y-2 py-6 md:pr-6'}
             >
-              <p className="text-sm font-medium" style={{ color: colors[i] }}>
-                {file?.name ?? p.name}
-                {(p.campus || p.isMainCampus === false) && (
-                  <>
-                    <NoteJoiner />
-                    <RowNote
-                      subject={file?.name ?? p.name}
-                      notes={[{
-                        kind: 'info',
-                        text: "Rates are the institution's (all its campuses in the United States); the school " +
-                          `compared here is one of its campuses${!p.state ? ', outside the United States, so its incidents are not in them' : ''}.`,
-                      }]}
-                      className="ml-1"
-                    />
-                  </>
-                )}
+              <p className="flex items-center gap-2 text-ui font-semibold text-ink">
+                <SchoolSwatch color={colors[i]} hatched={i === 1} />
+                {/* One flex item, so the note button stays on the line of the name's last word */}
+                <span className="min-w-0">
+                  {file?.name ?? p.name}
+                  {(p.campus || p.isMainCampus === false) && (
+                    <>
+                      <NoteJoiner />
+                      <RowNote
+                        subject={file?.name ?? p.name}
+                        notes={[{
+                          kind: 'info',
+                          text: "Rates are the institution's (all its campuses in the United States); the school " +
+                            `compared here is one of its campuses${!p.state ? ', outside the United States, so its incidents are not in them' : ''}.`,
+                        }]}
+                        className="ml-1"
+                      />
+                    </>
+                  )}
+                </span>
               </p>
               {!state ? (
-                <p className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-                  <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" /> Loading rates…
-                </p>
+                <Loading className="justify-start py-2">Loading rates…</Loading>
               ) : state.failed ? (
-                <p className="text-sm text-red-700 dark:text-red-400">The rates file could not be loaded.</p>
+                <p className="text-ui text-danger">The rates file could not be loaded.</p>
               ) : !file ? (
-                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{noRatesSentence(p, rules)}</p>
+                <p className="text-ui font-semibold text-ink">{noRatesSentence(p, rules)}</p>
               ) : !w ? (
-                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                <p className="text-ui font-semibold text-ink">
                   {missingYearsSentence(windowKey, [], rules, file.absentYears)}
                 </p>
               ) : w.status !== 'rated' ? (
-                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                <p className="text-ui font-semibold text-ink break-words">
                   <LinkedText text={windowStatusSentence(w, windowKey, rules, p, file.absentYears) ?? ''} />
                 </p>
               ) : entry ? (
@@ -150,9 +151,9 @@ export default function CompareRates({
                   hospital={file.hospitalUnresolved ?? []}
                 />
               ) : (
-                <p className="text-sm text-gray-600 dark:text-gray-400">No figure for this code.</p>
+                <p className="text-ui text-ink-2">No figure for this code.</p>
               )}
-              <Link to={`/school/${p.unitid}?view=rate&window=${windowKey}&offense=${code}`} className="inline-block text-sm text-primary-600 dark:text-primary-400 underline">
+              <Link to={`/school/${p.unitid}?view=rate&window=${windowKey}&offense=${code}`} className="link inline-block text-meta">
                 All rates of this institution
               </Link>
             </section>

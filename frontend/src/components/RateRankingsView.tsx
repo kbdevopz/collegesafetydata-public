@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { AlertCircle, Check, GitCompare, Info, Loader2, Plus } from 'lucide-react'
 import { fetchPresets, fetchRateWindow } from '../lib/api'
 import type { Metadata, PeerRate, RateRules, RateWindowEntry, RateWindowFile, Verdict } from '../lib/types'
 import {
@@ -12,9 +11,10 @@ import {
   PLACES_WITHOUT_PRESET, RATE_IS_NOT, RATE_MEASURE, SHOW_POINT_POSITION, stateDisplayMin, VERDICT_ORDER,
   VERDICT_SHORT,
 } from '../lib/rateDisplay'
-import { cn, formatNumber } from '../lib/utils'
+import { formatNumber } from '../lib/utils'
 import { VerdictLabel } from './RateCard'
 import RowNote, { NoteJoiner, type RowNoteItem } from './RowNote'
+import { CompareButton, Disclosure, Loading } from './ui'
 
 const PAGE = 50
 
@@ -126,17 +126,14 @@ export default function RateRankingsView({
   // A place outside the rates' states and territories, or no known selection
   if (preset !== 'national' && !presetKnown) {
     return (
-      <section className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 text-sm text-blue-900 dark:text-blue-100 space-y-2">
-        <p className="flex items-start gap-2">
-          <Info className="w-4 h-4 flex-shrink-0 mt-0.5" aria-hidden="true" />
-          <span>
-            {PLACES_WITHOUT_PRESET[preset]
-              ? <><strong>{presetName}:</strong> institutions there are not rated.</>
-              : <><strong>{preset}</strong> is not a state, territory or group on this site, so no institution is shown.</>}{' '}
-            Rates cover institutions in the 50 states, the District of Columbia, Puerto Rico and the U.S. Virgin
-            Islands.{' '}
-            <Link to={`/?view=rate&window=${windowKey}&offense=${code}`} className="underline">See the national rates</Link>
-          </span>
+      <section className="max-w-prose text-body text-ink-2">
+        <p>
+          {PLACES_WITHOUT_PRESET[preset]
+            ? <><strong className="font-semibold text-ink">{presetName}:</strong> institutions there are not rated.</>
+            : <><strong className="font-semibold text-ink">{preset}</strong> is not a state, territory or group on this site, so no institution is shown.</>}{' '}
+          Rates cover institutions in the 50 states, the District of Columbia, Puerto Rico and the U.S. Virgin
+          Islands.{' '}
+          <Link to={`/?view=rate&window=${windowKey}&offense=${code}`} className="link">See the national rates</Link>
         </p>
       </section>
     )
@@ -144,19 +141,11 @@ export default function RateRankingsView({
 
   if (error) {
     return (
-      <div className="p-6 text-center">
-        <AlertCircle className="w-8 h-8 text-red-500 dark:text-red-400 mx-auto mb-2" aria-hidden="true" />
-        <p className="text-red-700 dark:text-red-400">Failed to load the rates. Please try again.</p>
-      </div>
+      <p className="py-6 text-body text-danger">Failed to load the rates. Please try again.</p>
     )
   }
   if (!file || (isGroup && !ivyIds)) {
-    return (
-      <div className="flex flex-col items-center justify-center py-16 min-h-[300px]">
-        <Loader2 className="w-8 h-8 text-primary-600 dark:text-primary-400 animate-spin" aria-hidden="true" />
-        <span className="mt-3 text-sm text-gray-500 dark:text-gray-400">Loading rates...</span>
-      </div>
-    )
+    return <Loading className="min-h-[300px]">Loading rates...</Loading>
   }
 
   const listN = file.list?.n ?? 0
@@ -179,78 +168,81 @@ export default function RateRankingsView({
   const loType = classified[classified.length - 1]
 
   return (
-    <div className="space-y-4">
-      {/* What the rates are and who is on the list */}
-      <section className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 text-sm text-blue-900 dark:text-blue-100 space-y-2">
-        <p className="flex items-start gap-2">
-          <Info className="w-4 h-4 flex-shrink-0 mt-0.5" aria-hidden="true" />
-          <span>
-            <strong>{rateCodeLabel(code)}, {windowLabel(windowKey)}.</strong> {RATE_MEASURE} {RATE_IS_NOT} Rates are
-            per institution (all its campuses in the United States), because NCES counts enrollment per institution.
-          </span>
+    <div className="space-y-5">
+      {/* What the rates are and who is on the list: the first paragraph and
+          the national rate in view, the rest behind a disclosure */}
+      <section className="max-w-prose space-y-2 text-ui text-ink-2">
+        <p>
+          <strong className="font-semibold text-ink">{rateCodeLabel(code)}, {windowLabel(windowKey)}.</strong> {RATE_MEASURE} {RATE_IS_NOT} Rates are
+          per institution (all its campuses in the United States), because NCES counts enrollment per institution.
         </p>
-        {listCode && file.list ? (
-          <>
-            <p>
-              <strong>Who is on the list:</strong> rated institutions expected, at the national rate, to have at least{' '}
-              {file.list.minExpected} on-campus {phrase} over the three years, which takes about{' '}
-              {fmtInt(minStudents ?? 0)} or more on-campus students. Institutions whose on-campus student count is
-              uncertain, whose count includes many incidents at a medical-center campus, or that are not compared
-              because they share a campus site with another institution, are not on it. An institution with an unusual
-              year in the period (an on-campus count of an offense counted here far above its other years) is not
-              placed, so that one year's count does not set its place. {fmtInt(listN)} institutions are placed,
-              ordered by rate, highest first.
-            </p>
-            <p>
-              {SHOW_POINT_POSITION
-                ? 'Each position comes with a range: '
-                : 'Each institution on the list is shown with a range of positions: '}
-              with {level}% confidence the institution's position among these {fmtInt(listN)} is within it. This holds
-              for each institution on its own, not for the whole list at once. Two institutions whose ranges overlap
-              may still differ, and positions closer together than these ranges cannot be told apart.
-              {example && example.rankLo !== undefined && example.rankHi !== undefined && (
-                SHOW_POINT_POSITION && example.position !== undefined
-                  ? <> For example, {example.name} is {ordinal(example.position)} nationally: its position among the{' '}
-                    {fmtInt(listN)} could be anywhere from {ordinal(example.rankLo)} to {ordinal(example.rankHi)}.</>
-                  : <> For example, {example.name}'s position among the {fmtInt(listN)} could be anywhere from{' '}
-                    {ordinal(example.rankLo)} to {ordinal(example.rankHi)}.</>
-              )}
-            </p>
-          </>
-        ) : (
+        {!(listCode && file.list) && (
           <p>
             This rate has no ordered list. Institutions are shown by name with their rates and their comparisons with
             the national rate and with institutions of the same type.
           </p>
         )}
         <p>{nationalSentence(file.natl, windowKey, rules)}</p>
-        {listCode && (
-          <p>
-            The order depends on counting only on-campus incidents (counting all locations changes it) and on the size
-            threshold. An institution's position can change substantially between windows five years apart.{' '}
-            <Link to="/methodology#rates" className="underline">Methodology</Link>
-          </p>
-        )}
-        <p>
-          A rate needs an institution in the 50 states, DC, Puerto Rico or the U.S. Virgin Islands that has figures of
-          its own in DOE's data all three years (not only figures counted under another institution's campus), has at
-          least {fmtInt(rules.minFte)} on-campus students in each of them, and is under
-          none of the rules that give no rate (for example a hospital, or a main campus whose incidents cannot be
-          assigned to one of the institutions sharing it). Institutions without a rate are not shown here; each one's
-          page says why.
-        </p>
+        <Disclosure summary={listCode && file.list ? 'More about the list and these rates' : 'More about these rates'}>
+          <div className="space-y-2 border-l-2 border-rule pl-4">
+            {listCode && file.list && (
+              <>
+                <p>
+                  <strong className="font-semibold text-ink">Who is on the list:</strong> rated institutions expected, at the national rate, to have at least{' '}
+                  {file.list.minExpected} on-campus {phrase} over the three years, which takes about{' '}
+                  {fmtInt(minStudents ?? 0)} or more on-campus students. Institutions whose on-campus student count is
+                  uncertain, whose count includes many incidents at a medical-center campus, or that are not compared
+                  because they share a campus site with another institution, are not on it. An institution with an unusual
+                  year in the period (an on-campus count of an offense counted here far above its other years) is not
+                  placed, so that one year's count does not set its place. {fmtInt(listN)} institutions are placed,
+                  ordered by rate, highest first.
+                </p>
+                <p>
+                  {SHOW_POINT_POSITION
+                    ? 'Each position comes with a range: '
+                    : 'Each institution on the list is shown with a range of positions: '}
+                  with {level}% confidence the institution's position among these {fmtInt(listN)} is within it. This holds
+                  for each institution on its own, not for the whole list at once. Two institutions whose ranges overlap
+                  may still differ, and positions closer together than these ranges cannot be told apart.
+                  {example && example.rankLo !== undefined && example.rankHi !== undefined && (
+                    SHOW_POINT_POSITION && example.position !== undefined
+                      ? <> For example, {example.name} is {ordinal(example.position)} nationally: its position among the{' '}
+                        {fmtInt(listN)} could be anywhere from {ordinal(example.rankLo)} to {ordinal(example.rankHi)}.</>
+                      : <> For example, {example.name}'s position among the {fmtInt(listN)} could be anywhere from{' '}
+                        {ordinal(example.rankLo)} to {ordinal(example.rankHi)}.</>
+                  )}
+                </p>
+              </>
+            )}
+            {listCode && (
+              <p>
+                The order depends on counting only on-campus incidents (counting all locations changes it) and on the size
+                threshold. An institution's position can change substantially between windows five years apart.{' '}
+                <Link to="/methodology#rates" className="link">Methodology</Link>
+              </p>
+            )}
+            <p>
+              A rate needs an institution in the 50 states, DC, Puerto Rico or the U.S. Virgin Islands that has figures of
+              its own in DOE's data all three years (not only figures counted under another institution's campus), has at
+              least {fmtInt(rules.minFte)} on-campus students in each of them, and is under
+              none of the rules that give no rate (for example a hospital, or a main campus whose incidents cannot be
+              assigned to one of the institutions sharing it). Institutions without a rate are not shown here; each one's
+              page says why.
+            </p>
+          </div>
+        </Disclosure>
       </section>
 
       {/* Positions within one type of institution (national selection) */}
       {typeOptions.length > 0 && (
-        <section className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 p-4 text-sm text-gray-700 dark:text-gray-300 space-y-2">
-          <div className="flex flex-wrap items-center gap-2">
-            <label htmlFor="rate-type" className="font-medium text-gray-900 dark:text-gray-100">{SHOW_POINT_POSITION ? 'Positions' : 'List'}</label>
+        <section className="max-w-prose space-y-2 text-ui text-ink-2">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+            <label htmlFor="rate-type" className="label">{SHOW_POINT_POSITION ? 'Positions' : 'List'}</label>
             <select
               id="rate-type"
               value={type ?? ''}
               onChange={(ev) => onPeerType(ev.target.value === '' ? null : ev.target.value)}
-              className="max-w-full px-2 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="control max-w-full"
             >
               <option value="">On the national list ({fmtInt(listN)})</option>
               {typeOptions.map((t) => (
@@ -261,7 +253,7 @@ export default function RateRankingsView({
             </select>
           </div>
           {hiType && loType && hiType !== loType && (
-            <p>
+            <p className="text-meta">
               Types come from the Carnegie size and setting classification (two-year institutions, four-year
               institutions by how residential they are, and others), and on-campus rates differ by type: in{' '}
               {windowLabel(windowKey)} the rate of{' '}
@@ -271,18 +263,18 @@ export default function RateRankingsView({
             </p>
           )}
           {typeLabel && typeRate && (
-            <p>
+            <p className="text-meta">
               The rate of {typeLabel.toLowerCase()} institutions, computed like the national rate within the type
               (over the {fmtInt(typeRate.members)} whose on-campus student count is certain):{' '}
-              <span className="font-semibold tabular-nums">{fmtRate(typeRate.rate)}</span>.
+              <span className="tabular font-semibold text-ink">{fmtRate(typeRate.rate)}</span>.
             </p>
           )}
         </section>
       )}
 
       {/* Verdict filter */}
-      <div role="group" aria-label="Filter by comparison with the national rate" className="flex flex-wrap items-center gap-2">
-        <span className="text-sm text-gray-600 dark:text-gray-400">Compared with the national rate:</span>
+      <div role="group" aria-label="Filter by comparison with the national rate" className="flex flex-wrap items-center gap-1.5">
+        <span className="mr-1 text-meta text-ink-2">Compared with the national rate:</span>
         <FilterChip pressed={verdict === null} onClick={() => onVerdict(null)}>All ({fmtInt(scoped.length)})</FilterChip>
         {VERDICT_ORDER.filter((v) => (tally[v] ?? 0) > 0 || (v !== 'undetermined' && v !== 'withheld')).map((v) => (
           <FilterChip key={v} pressed={verdict === v} onClick={() => onVerdict(verdict === v ? null : v)}>
@@ -293,7 +285,7 @@ export default function RateRankingsView({
 
       {/* 1. The placed members */}
       {listCode && file.list && (
-        <section className={groupCard} aria-labelledby="rate-list-heading">
+        <section className={group} aria-labelledby="rate-list-heading">
           <div className={groupHead}>
             <h2 id="rate-list-heading" className={groupTitle}>
               {type !== null && typeLabel
@@ -323,7 +315,7 @@ export default function RateRankingsView({
               {isState && !useStatePositions && stateMembers > 0 && (
                 <>
                   {' '}
-                  <Link to={`/?view=rate&window=${windowKey}&offense=${code}`} className="text-primary-600 dark:text-primary-400 underline">
+                  <Link to={`/?view=rate&window=${windowKey}&offense=${code}`} className="link">
                     See the national list
                   </Link>
                 </>
@@ -332,11 +324,11 @@ export default function RateRankingsView({
             {composition && <p className={groupText}>{composition}</p>}
           </div>
           {shownList.length === 0 ? (
-            <p className="p-4 text-sm text-gray-600 dark:text-gray-400">
+            <p className={groupEmpty}>
               {listed.length === 0 ? 'No institution here is on the list.' : 'No institution on the list matches this filter.'}
             </p>
           ) : (
-            <ol className="divide-y divide-gray-100 dark:divide-gray-800">
+            <ol className={groupList}>
               {shownList.map((e) => (
                 <EntryRow
                   key={e.id}
@@ -358,7 +350,7 @@ export default function RateRankingsView({
 
       {/* 2. Not placed: an unusual year in the window */}
       {listCode && file.list && (
-        <section className={groupCard} aria-labelledby="rate-notplaced-heading">
+        <section className={group} aria-labelledby="rate-notplaced-heading">
           <div className={groupHead}>
             <h2 id="rate-notplaced-heading" className={groupTitle}>
               Not placed: an unusual year in this period ({fmtInt(notPlaced.length)})
@@ -368,15 +360,15 @@ export default function RateRankingsView({
               on-campus count of an offense counted here is at least {rules.flags?.minCount ?? 10} and far above its
               other years; so that one year does not set a place, they have no position and are shown by name with
               their rates and comparisons.{' '}
-              <Link to="/methodology#rate-flags" className="text-primary-600 dark:text-primary-400 underline">How flags work</Link>
+              <Link to="/methodology#rate-flags" className="link">How flags work</Link>
             </p>
           </div>
           {shownNotPlaced.length === 0 ? (
-            <p className="p-4 text-sm text-gray-600 dark:text-gray-400">
+            <p className={groupEmpty}>
               {notPlaced.length === 0 ? 'No institution here is in this group.' : 'No institution in this group matches this filter.'}
             </p>
           ) : (
-            <ul className="divide-y divide-gray-100 dark:divide-gray-800">
+            <ul className={groupList}>
               {shownNotPlaced.map((e) => (
                 <EntryRow
                   key={e.id}
@@ -397,7 +389,7 @@ export default function RateRankingsView({
       )}
 
       {/* 3. The other rated institutions, by name (every one, for codes without a list) */}
-      <section className={groupCard} aria-labelledby="rate-all-heading">
+      <section className={group} aria-labelledby="rate-all-heading">
         <div className={groupHead}>
           <h2 id="rate-all-heading" className={groupTitle}>
             {listCode
@@ -411,11 +403,11 @@ export default function RateRankingsView({
           </p>
         </div>
         {shownOthers.length === 0 ? (
-          <p className="p-4 text-sm text-gray-600 dark:text-gray-400">
+          <p className={groupEmpty}>
             {others.length === 0 ? 'No institution here is in this group.' : 'No institution matches this filter.'}
           </p>
         ) : (
-          <ul className="divide-y divide-gray-100 dark:divide-gray-800">
+          <ul className={groupList}>
             {shownOthers.slice(0, shown).map((e) => (
               <EntryRow
                 key={e.id}
@@ -433,15 +425,14 @@ export default function RateRankingsView({
           </ul>
         )}
         {shownOthers.length > shown && (
-          <div className="p-4 border-t border-gray-100 dark:border-gray-800 text-center">
+          <div className="py-5 text-center">
             <button
               type="button"
               onClick={() => setShown((s) => s + PAGE)}
-              className="inline-flex items-center gap-2 px-6 py-2.5 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg font-medium transition-colors"
+              className="btn"
             >
-              <Plus className="w-4 h-4" aria-hidden="true" />
               Show {Math.min(PAGE, shownOthers.length - shown)} more
-              <span className="text-gray-500 dark:text-gray-400 text-sm">({fmtInt(shownOthers.length - shown)} remaining)</span>
+              <span className="tabular font-normal text-ink-3">({fmtInt(shownOthers.length - shown)} remaining)</span>
             </button>
           </div>
         )}
@@ -450,10 +441,12 @@ export default function RateRankingsView({
   )
 }
 
-const groupCard = 'bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800'
-const groupHead = 'px-4 py-3 border-b border-gray-200 dark:border-gray-800 space-y-1'
-const groupTitle = 'text-base font-semibold text-gray-900 dark:text-gray-100'
-const groupText = 'text-sm text-gray-600 dark:text-gray-400'
+const group = 'pt-4'
+const groupHead = 'max-w-prose space-y-1 pb-3'
+const groupTitle = 'font-serif text-[1.25rem] font-semibold leading-snug text-ink'
+const groupText = 'text-meta text-ink-2'
+const groupEmpty = 'border-y border-rule py-4 text-meta text-ink-2'
+const groupList = 'divide-y divide-rule border-y border-t-ink/60 border-b-rule'
 
 function FilterChip({ pressed, onClick, children }: { pressed: boolean; onClick: () => void; children: React.ReactNode }) {
   return (
@@ -461,12 +454,7 @@ function FilterChip({ pressed, onClick, children }: { pressed: boolean; onClick:
       type="button"
       aria-pressed={pressed}
       onClick={onClick}
-      className={cn(
-        'px-2.5 py-1 text-xs font-medium rounded-full border transition-colors',
-        pressed
-          ? 'bg-primary-600 text-white border-primary-600 dark:bg-primary-500 dark:border-primary-500'
-          : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'
-      )}
+      className="chip tabular"
     >
       {children}
     </button>
@@ -572,14 +560,14 @@ function EntryRow({
 
   const inCompare = isInCompare(e.unitid)
   return (
-    <li className="flex items-stretch">
-      <div className="flex-1 min-w-0 p-3 sm:p-4 flex flex-col sm:flex-row gap-2 sm:gap-4">
+    <li className="flex items-stretch hover:bg-subtle/60">
+      <div className="flex-1 min-w-0 py-3 pr-3 flex flex-col sm:flex-row gap-1.5 sm:gap-5">
         {head !== null && (
-          <div className="sm:w-48 flex-shrink-0 text-sm text-gray-900 dark:text-gray-100">
+          <div className="tabular sm:w-44 flex-shrink-0 text-ui text-ink">
             <span className="font-semibold">{head.split(';')[0]}</span>
-            {head.includes(';') && <span className="text-gray-600 dark:text-gray-400">;{head.slice(head.indexOf(';') + 1)}</span>}
+            {head.includes(';') && <span className="text-ink-2">;{head.slice(head.indexOf(';') + 1)}</span>}
             {nationalToo && (
-              <span className="block text-xs text-gray-600 dark:text-gray-400">National list: {nationalToo}</span>
+              <span className="block text-meta text-ink-3">National list: {nationalToo}</span>
             )}
           </div>
         )}
@@ -588,48 +576,41 @@ function EntryRow({
               the name's last word; from sm up it sits beside the name */}
           <div className="sm:flex sm:items-start sm:gap-1">
             <span className="sm:min-w-0">
-              <Link to={`/school/${e.unitid}`} className="font-medium text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300">
+              <Link to={`/school/${e.unitid}`} className="link-name">
                 {e.name}
               </Link>
               {'\u2060'}
-              <span className="ml-1.5 text-xs text-gray-500 dark:text-gray-400">{e.state}</span>
+              <span className="ml-1.5 text-meta text-ink-3">{e.state}</span>
               <NoteJoiner />
             </span>
-            <RowNote subject={e.name} notes={notes} className="ml-1 sm:ml-0 sm:-mt-0.5" />
+            <RowNote subject={e.name} notes={notes} className="ml-1 sm:ml-0 sm:mt-0.5" />
           </div>
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-gray-700 dark:text-gray-300">
+          <div className="tabular flex flex-wrap items-baseline gap-x-4 gap-y-0.5 text-meta text-ink-2">
             <span>
-              <span className="font-semibold tabular-nums text-gray-900 dark:text-gray-100">{fmtRate(e.rate)}</span> a year per
+              <span className="text-ui font-semibold text-ink">{fmtRate(e.rate)}</span> a year per
               10,000 students{' '}
-              <span className="text-gray-500 dark:text-gray-400 whitespace-nowrap">
+              <span className="text-ink-3 whitespace-nowrap">
                 ({levelPct(rules)}% interval {fmtRateAt(e.lo, e.lo4, digits)} to {fmtRateAt(e.hi, e.hi4, digits)})
               </span>
             </span>
-            <span className="tabular-nums">{fmtInt(e.n)} on campus in {windowLabel(windowKey)}</span>
+            <span>{fmtInt(e.n)} on campus in {windowLabel(windowKey)}</span>
           </div>
-          <div className="flex flex-wrap items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-meta text-ink-2">
             <VerdictLabel verdict={e.verdict} />
             {e.peerVerdict !== null && e.peerVerdict !== 'withheld' && (
               <span>Against {peerLabel(e.peerType, rules).toLowerCase()} institutions: {VERDICT_SHORT[e.peerVerdict]}</span>
             )}
           </div>
-          {status && <p className="text-xs font-medium text-gray-700 dark:text-gray-300">{status}</p>}
+          {status && <p className="text-meta font-semibold text-ink-2">{status}</p>}
         </div>
       </div>
-      <button
-        type="button"
+      <CompareButton
+        variant="column"
+        selected={inCompare}
+        name={e.name}
+        pressed={inCompare}
         onClick={(ev) => toggleCompare(e.unitid, e.name, ev)}
-        className={cn(
-          'flex items-center justify-center w-12 border-l transition-colors flex-shrink-0',
-          inCompare
-            ? 'bg-primary-50 dark:bg-primary-900/30 border-primary-200 dark:border-primary-800 text-primary-600 dark:text-primary-400'
-            : 'border-gray-100 dark:border-gray-800 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/50'
-        )}
-        aria-label={inCompare ? `Remove ${e.name} from comparison` : `Add ${e.name} to comparison`}
-        aria-pressed={inCompare}
-      >
-        {inCompare ? <Check className="w-5 h-5" aria-hidden="true" /> : <GitCompare className="w-5 h-5" aria-hidden="true" />}
-      </button>
+      />
     </li>
   )
 }

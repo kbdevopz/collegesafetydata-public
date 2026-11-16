@@ -186,12 +186,10 @@ export default function RowNote({
         onPointerEnter={enter}
         onPointerLeave={leave}
         className={cn(
-          'relative inline-flex items-center justify-center w-6 h-6 -my-1 align-middle rounded-full flex-shrink-0',
-          'transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500',
-          attention
-            ? 'text-amber-600 hover:bg-amber-50 dark:text-amber-500 dark:hover:bg-amber-900/30'
-            : 'text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800',
-          open && (attention ? 'bg-amber-50 dark:bg-amber-900/30' : 'bg-gray-100 dark:bg-gray-800'),
+          'relative inline-flex items-center justify-center w-6 h-6 -my-1 align-middle rounded flex-shrink-0',
+          attention ? 'text-attention' : 'text-ink-3',
+          'hover:bg-tint',
+          open && 'bg-tint',
           className
         )}
       >
@@ -209,7 +207,7 @@ export default function RowNote({
           onPointerEnter={enter}
           onPointerLeave={leave}
           style={{ position: 'fixed', top: 0, left: 0, visibility: 'hidden' }}
-          className="z-[70] overflow-y-auto rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-3 text-sm leading-snug text-gray-700 dark:text-gray-200 shadow-lg"
+          className="z-[70] overflow-y-auto rounded border border-rule-strong/60 bg-surface p-3 text-meta text-ink-2 shadow-pop"
         >
           {notes.length === 1 ? (
             <NoteLine item={notes[0]} />
@@ -244,7 +242,7 @@ function NoteLine({ item }: { item: RowNoteItem }) {
       <Icon
         className={cn(
           'w-3.5 h-3.5 mt-0.5 flex-shrink-0',
-          item.kind === 'attention' ? 'text-amber-600 dark:text-amber-500' : 'text-gray-500 dark:text-gray-400'
+          item.kind === 'attention' ? 'text-attention' : 'text-ink-3'
         )}
         aria-hidden="true"
       />

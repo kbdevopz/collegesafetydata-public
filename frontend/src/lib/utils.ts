@@ -3,13 +3,24 @@
  */
 
 import { clsx, type ClassValue } from 'clsx'
-import { twMerge } from 'tailwind-merge'
+import { extendTailwindMerge } from 'tailwind-merge'
 import type { TrendPoint, ChartDataPoint, Offense } from './types'
 import { formatNumber } from './format'
 
 // =============================================================================
 // Class Name Utilities
 // =============================================================================
+
+// The site's named type sizes (tailwind.config.js), so that merging keeps a
+// size and a colour together (text-meta text-ink-3) instead of reading both
+// as colours
+const twMerge = extendTailwindMerge({
+  extend: {
+    classGroups: {
+      'font-size': [{ text: ['display', 'title', 'heading', 'body', 'ui', 'meta', 'label', 'figure'] }],
+    },
+  },
+})
 
 /**
  * Merge Tailwind CSS classes with clsx

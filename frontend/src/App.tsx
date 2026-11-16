@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Outlet, Link, useLocation } from 'react-router-dom'
-import { BarChart3, GitCompare, Info, Shield, Sun, Moon, Monitor, Menu, X, Coffee, BookOpen, Github, Mail } from 'lucide-react'
+import { Sun, Moon, Monitor, Menu, X } from 'lucide-react'
 import { cn } from './lib/utils'
 import { useTheme } from './hooks/useTheme'
 import ErrorBoundary from './components/ErrorBoundary'
@@ -28,13 +28,14 @@ export default function App() {
   const themeLabel = theme === 'system'
     ? `System (${resolvedTheme})`
     : theme === 'dark' ? 'Dark' : 'Light'
+  const ThemeIcon = theme === 'system' ? Monitor : theme === 'dark' ? Moon : Sun
 
   const navLinks = [
-    { path: '/', label: 'Rankings', icon: BarChart3 },
-    { path: '/compare', label: 'Compare', icon: GitCompare },
-    { path: '/about', label: 'About', icon: Info },
-    { path: '/methodology', label: 'Methodology', icon: BookOpen },
-    { path: '/contact', label: 'Contact', icon: Mail },
+    { path: '/', label: 'Rankings' },
+    { path: '/compare', label: 'Compare' },
+    { path: '/about', label: 'About' },
+    { path: '/methodology', label: 'Methodology' },
+    { path: '/contact', label: 'Contact' },
   ]
 
   // Skip link: focus the main content (which scrolls it into view) without
@@ -47,90 +48,76 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col transition-colors duration-200">
+    <div className="min-h-screen bg-paper flex flex-col">
       <a
         href="#main-content"
         onClick={skipToMain}
-        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[60] focus:px-4 focus:py-2 focus:rounded-lg focus:bg-white focus:text-primary-700 focus:font-medium focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:bg-gray-900 dark:focus:text-primary-300"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[60] focus:rounded focus:border focus:border-rule-strong focus:bg-surface focus:px-4 focus:py-2 focus:text-ui focus:font-semibold focus:text-accent"
       >
         Skip to main content
       </a>
 
       {/* Header */}
-      <header className="bg-white dark:bg-gray-900 shadow-sm dark:shadow-gray-900/50 sticky top-0 z-50 transition-colors duration-200">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            {/* Logo */}
-            <Link
-              to="/"
-              className="flex items-center gap-3 text-gray-900 dark:text-gray-100 hover:text-gray-700 dark:hover:text-gray-300 transition-colors group"
-            >
-              <div className="w-9 h-9 bg-gradient-to-br from-primary-600 to-primary-800 dark:from-primary-500 dark:to-primary-700 rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow">
-                <Shield className="w-5 h-5 text-white" />
-              </div>
-              <div className="flex items-center gap-2 sm:gap-3">
-                <span className="text-lg font-bold tracking-tight">
-                  CollegeSafetyData
-                </span>
-                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-primary-100 text-primary-700 dark:bg-primary-900/50 dark:text-primary-300 border border-primary-200 dark:border-primary-700">
-                  BETA
-                </span>
-                <span className="hidden xl:block w-px h-5 bg-gray-300 dark:bg-gray-700" />
-                <span className="hidden xl:block text-sm text-gray-500 dark:text-gray-400 font-medium">
-                  Campus Crime Statistics
-                </span>
-              </div>
+      <header className="sticky top-0 z-50 border-b border-rule bg-paper">
+        <div className="wrap">
+          <div className="flex h-header items-center justify-between gap-4">
+            {/* Wordmark */}
+            <Link to="/" className="flex min-h-[2.5rem] min-w-0 items-center gap-3 text-ink hover:text-ink-2">
+              <span className="font-serif text-[1.1875rem] font-semibold leading-none tracking-[-0.005em]">
+                CollegeSafetyData
+              </span>
+              <span className="hidden xl:block self-center w-px h-4 bg-rule-strong/50" />
+              <span className="hidden xl:block text-meta text-ink-3">
+                Campus Crime Statistics
+              </span>
             </Link>
 
-            {/* Desktop Navigation */}
-            <div className="flex items-center gap-2">
-              <nav className="hidden lg:flex items-center gap-1">
-                {navLinks.map(({ path, label, icon: Icon }) => (
-                <Link
-                  key={path}
-                  to={path}
-                  className={cn(
-                    'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors',
-                    location.pathname === path
-                      ? 'bg-primary-50 text-primary-700 dark:bg-primary-900/50 dark:text-primary-300'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-100 dark:hover:bg-gray-800'
-                  )}
-                >
-                  <Icon className="w-4 h-4" />
-                  <span>{label}</span>
-                </Link>
-              ))}
+            <div className="flex items-center gap-1">
+              {/* Desktop Navigation */}
+              <nav className="hidden lg:flex items-stretch self-stretch gap-1">
+                {navLinks.map(({ path, label }) => {
+                  const current = location.pathname === path
+                  return (
+                    <Link
+                      key={path}
+                      to={path}
+                      aria-current={current ? 'page' : undefined}
+                      className={cn(
+                        'flex h-header items-center border-b-2 px-3 text-ui',
+                        current
+                          ? 'border-accent font-semibold text-ink'
+                          : 'border-transparent text-ink-2 hover:text-ink hover:border-rule-strong'
+                      )}
+                    >
+                      {label}
+                    </Link>
+                  )
+                })}
+              </nav>
 
               {/* Theme Toggle */}
               <button
                 type="button"
                 onClick={cycleTheme}
-                className="ml-2 p-2 rounded-lg text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-100 dark:hover:bg-gray-800 transition-colors"
+                className="hidden lg:inline-flex ml-2 h-9 w-9 items-center justify-center rounded text-ink-2 hover:bg-subtle hover:text-ink"
                 aria-label={`Theme: ${themeLabel}. Click to change.`}
                 title={`Theme: ${themeLabel}. Click to change.`}
               >
-                {theme === 'system' ? (
-                  <Monitor className="w-5 h-5" />
-                ) : theme === 'dark' ? (
-                  <Moon className="w-5 h-5" />
-                ) : (
-                  <Sun className="w-5 h-5" />
-                )}
+                <ThemeIcon className="h-[1.125rem] w-[1.125rem]" aria-hidden="true" />
               </button>
-            </nav>
 
               {/* Mobile Menu Button */}
               <button
                 type="button"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="lg:hidden p-2 rounded-lg text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-100 dark:hover:bg-gray-800 transition-colors"
+                className="lg:hidden -mr-2 inline-flex h-10 w-10 items-center justify-center rounded text-ink-2 hover:bg-subtle hover:text-ink"
                 aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
                 aria-expanded={isMobileMenuOpen}
               >
                 {isMobileMenuOpen ? (
-                  <X className="w-6 h-6" />
+                  <X className="h-5 w-5" aria-hidden="true" />
                 ) : (
-                  <Menu className="w-6 h-6" />
+                  <Menu className="h-5 w-5" aria-hidden="true" />
                 )}
               </button>
             </div>
@@ -138,37 +125,34 @@ export default function App() {
 
           {/* Mobile Menu Dropdown */}
           {isMobileMenuOpen && (
-            <div className="lg:hidden border-t dark:border-gray-800 py-4 space-y-1">
-              {navLinks.map(({ path, label, icon: Icon }) => (
-                <Link
-                  key={path}
-                  to={path}
-                  className={cn(
-                    'flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium transition-colors',
-                    location.pathname === path
-                      ? 'bg-primary-50 text-primary-700 dark:bg-primary-900/50 dark:text-primary-300'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-100 dark:hover:bg-gray-800'
-                  )}
-                >
-                  <Icon className="w-5 h-5" />
-                  <span>{label}</span>
-                </Link>
-              ))}
+            <div className="lg:hidden border-t border-rule py-2">
+              {navLinks.map(({ path, label }) => {
+                const current = location.pathname === path
+                return (
+                  <Link
+                    key={path}
+                    to={path}
+                    aria-current={current ? 'page' : undefined}
+                    className={cn(
+                      'flex items-center border-l-2 px-3 py-2.5 text-body',
+                      current
+                        ? 'border-accent font-semibold text-ink'
+                        : 'border-transparent text-ink-2 hover:text-ink hover:bg-subtle'
+                    )}
+                  >
+                    {label}
+                  </Link>
+                )
+              })}
 
               {/* Theme Toggle in Mobile Menu */}
-              <div className="border-t dark:border-gray-800 mt-3 pt-3">
+              <div className="mt-2 border-t border-rule pt-2">
                 <button
                   type="button"
                   onClick={cycleTheme}
-                  className="flex items-center gap-3 w-full px-4 py-3 rounded-lg text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-100 dark:hover:bg-gray-800 transition-colors"
+                  className="flex w-full items-center gap-3 border-l-2 border-transparent px-3 py-2.5 text-body text-ink-2 hover:bg-subtle hover:text-ink"
                 >
-                  {theme === 'system' ? (
-                    <Monitor className="w-5 h-5" />
-                  ) : theme === 'dark' ? (
-                    <Moon className="w-5 h-5" />
-                  ) : (
-                    <Sun className="w-5 h-5" />
-                  )}
+                  <ThemeIcon className="h-[1.125rem] w-[1.125rem]" aria-hidden="true" />
                   <span>Theme: {themeLabel}</span>
                 </button>
               </div>
@@ -185,15 +169,15 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-white dark:bg-gray-900 border-t dark:border-gray-800 mt-auto transition-colors duration-200">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <footer className="mt-16 border-t border-rule bg-paper">
+        <div className="wrap py-10">
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
             {/* About */}
             <div>
-              <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">
+              <h3 className="label text-ink mb-2">
                 About This Dashboard
               </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-meta text-ink-2 max-w-sm">
                 This dashboard displays publicly available campus crime
                 statistics reported under the Clery Act. Data is sourced from
                 the U.S. Department of Education.
@@ -202,14 +186,14 @@ export default function App() {
 
             {/* Resources */}
             <div>
-              <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">Resources</h3>
-              <ul className="space-y-2 text-sm">
+              <h3 className="label text-ink mb-2">Resources</h3>
+              <ul className="space-y-1.5 text-meta">
                 <li>
                   <a
                     href="https://ope.ed.gov/campussafety/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 hover:underline"
+                    className="link"
                   >
                     DOE Campus Safety Data
                   </a>
@@ -219,7 +203,7 @@ export default function App() {
                     href="https://clerycenter.org/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 hover:underline"
+                    className="link"
                   >
                     Clery Center
                   </a>
@@ -229,16 +213,15 @@ export default function App() {
 
             {/* Contact & Feedback */}
             <div>
-              <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">
+              <h3 className="label text-ink mb-2">
                 Contact & Feedback
               </h3>
-              <ul className="space-y-2 text-sm">
+              <ul className="space-y-1.5 text-meta">
                 <li>
                   <a
                     href="mailto:contact@collegesafetydata.org"
-                    className="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 hover:underline inline-flex items-center gap-1.5"
+                    className="link"
                   >
-                    <Mail className="w-4 h-4" />
                     contact@collegesafetydata.org
                   </a>
                 </li>
@@ -247,7 +230,7 @@ export default function App() {
                     href="https://github.com/kbdevopz/collegesafetydata-public/issues"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 hover:underline"
+                    className="link"
                   >
                     Report a Bug
                   </a>
@@ -256,67 +239,62 @@ export default function App() {
             </div>
           </div>
 
-          <div className="mt-8 pt-6 border-t dark:border-gray-800 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="text-sm text-gray-500 dark:text-gray-400 text-center sm:text-left">
-              <span className="font-medium">CollegeSafetyData.org</span>
+          <div className="mt-8 flex flex-col gap-3 border-t border-rule pt-5 sm:flex-row sm:items-baseline sm:justify-between">
+            <p className="text-meta text-ink-3">
+              <span className="font-semibold text-ink-2">CollegeSafetyData.org</span>
               <span className="mx-2">&middot;</span>
               A public transparency tool
               <span className="mx-2">&middot;</span>
-              <Link to="/about" className="text-primary-600 dark:text-primary-400 hover:underline">
+              <Link to="/about" className="link">
                 Learn More
               </Link>
               <span className="mx-2">&middot;</span>
-              <Link to="/privacy" className="text-primary-600 dark:text-primary-400 hover:underline">
+              <Link to="/privacy" className="link">
                 Privacy
               </Link>
               <span className="mx-2">&middot;</span>
-              <Link to="/terms" className="text-primary-600 dark:text-primary-400 hover:underline">
+              <Link to="/terms" className="link">
                 Terms
               </Link>
             </p>
 
-            <div className="flex items-center gap-4">
-              {/* GitHub */}
+            <p className="flex items-center gap-4 text-meta">
               <a
                 href="https://github.com/kbdevopz/collegesafetydata-public"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+                className="link inline-flex min-h-[1.5rem] items-center"
               >
-                <Github className="w-5 h-5" />
-                <span className="text-sm">Open Source</span>
+                Open Source
               </a>
-
-              {/* Buy Me a Coffee */}
               <a
                 href="https://buymeacoffee.com/karlisbaisden"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-white font-medium text-sm shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105"
+                className="link inline-flex min-h-[1.5rem] items-center"
               >
-                <Coffee className="w-4 h-4 group-hover:animate-bounce" />
-                <span>Buy me a coffee</span>
+                Buy me a coffee
               </a>
-            </div>
+            </p>
           </div>
 
-          <p className="mt-4 text-xs text-gray-500 dark:text-gray-400 text-center sm:text-left">
+          <p className="mt-4 max-w-prose text-meta text-ink-3">
             Reported incidents only. Lower numbers may reflect reporting differences, not greater safety.
             Data from the U.S. Department of Education. Not an official government website.
           </p>
-          <p className="mt-2 text-xs text-gray-500 dark:text-gray-400 text-center sm:text-left">
+          <p className="mt-2 text-meta text-ink-3">
             {build ? (
               <>
                 Data build{' '}
-                <Link to="/methodology#data" className="font-mono hover:underline" title={`SHA-256 of /data/build_inputs.json: ${build.sha256}`}>
+                <Link to="/methodology#data" className="font-mono text-[0.8em] text-ink-2 underline decoration-rule-strong underline-offset-[3px] hover:text-accent" title={`SHA-256 of /data/build_inputs.json: ${build.sha256}`}>
                   {build.id}
                 </Link>
                 <span className="mx-2">&middot;</span>
               </>
             ) : null}
-            <Link to="/methodology#cite" className="hover:underline">How to cite</Link>
+            <Link to="/methodology#cite" className="text-ink-2 underline decoration-rule-strong underline-offset-[3px] hover:text-accent">How to cite</Link>
             <span className="mx-2">&middot;</span>
-            <Link to="/changes" className="hover:underline">Changes and corrections</Link>
+            <Link to="/changes" className="text-ink-2 underline decoration-rule-strong underline-offset-[3px] hover:text-accent">Changes and corrections</Link>
           </p>
         </div>
       </footer>

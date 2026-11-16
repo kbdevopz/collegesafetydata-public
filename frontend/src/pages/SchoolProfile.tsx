@@ -16,14 +16,13 @@ import {
   Pie,
   Cell,
 } from 'recharts'
-import { ArrowLeft, MapPin, AlertCircle, Loader2, TrendingUp, TrendingDown, Calendar, AlertTriangle, Users, Info } from 'lucide-react'
+import { AlertTriangle } from 'lucide-react'
 import { fetchRankings, fetchSchoolProfile, getMetadata } from '../lib/api'
 import type { SchoolProfile as SchoolProfileType, OffenseBreakdown } from '../lib/types'
 import {
   cn,
   formatNumber,
   formatPercent,
-  getChartColors,
   transformTrendsForChart,
   getTopOffenses,
   calculateYoYChange,
@@ -39,10 +38,11 @@ import RatePanel from '../components/RatePanel'
 import {
   ALL, CRIMINAL, PROPERTY, SUMMARY_LABELS, VIOLENT, inSelection, isSummary, selectionCode, selectionFromParam, selectionLabel,
 } from '../lib/selection'
-import { useTheme } from '../hooks/useTheme'
+import { SERIES_DASHES, barCursor, lineCursor, tooltipProps, useChartTheme } from '../lib/chartTheme'
 import { useMediaQuery } from '../hooks/useMediaQuery'
 import SeriesNotes, { ReportYearNote } from '../components/SeriesNotes'
 import CiteThisData from '../components/CiteThisData'
+import { Loading } from '../components/ui'
 import { SERIES_NOTES } from '../data/seriesNotes'
 import type { Metadata } from '../lib/types'
 
@@ -55,7 +55,6 @@ function joinWithAnd(items: string[]): string {
 export default function SchoolProfile() {
   const { unitid } = useParams<{ unitid: string }>()
   const [searchParams, setSearchParams] = useSearchParams()
-  const { resolvedTheme } = useTheme()
   // Phone width: the year axis labels are angled so that every year fits
   const narrow = useMediaQuery('(max-width: 639px)')
   const [profile, setProfile] = useState<SchoolProfileType | null>(null)
@@ -281,17 +280,19 @@ export default function SchoolProfile() {
     [notReportedYears, chartYears]
   )
 
-  const chartColors = getChartColors()
+  const chart = useChartTheme()
 
   // By Location (latest year): each share is of the latest year's published
   // total (on-campus + non-campus + public property). Residence halls are a
   // subset of on-campus, so they are not part of that total and not a
   // separate pie slice; they keep their legend row and share.
   const geoTotal = profile ? profile.summary.totalIncidents : 0
+  // Colours follow the slices; residence halls take on-campus's colour
+  const pieGeos = profile ? profile.breakdownByGeo.map((item) => item.geo).filter((geo) => geo !== 'Residence halls') : []
   const geoRows = profile
-    ? profile.breakdownByGeo.map((item, index) => ({
+    ? profile.breakdownByGeo.map((item) => ({
         ...item,
-        color: chartColors[index % chartColors.length],
+        color: chart.series[Math.max(pieGeos.indexOf(item.geo === 'Residence halls' ? 'On-campus' : item.geo), 0) % chart.series.length],
         pct: geoTotal > 0 ? (item.count / geoTotal) * 100 : null,
       }))
     : []
@@ -320,108 +321,106 @@ export default function SchoolProfile() {
     [chartYears]
   )
 
-  // Theme-aware chart styling
-  const chartGridColor = resolvedTheme === 'dark' ? '#374151' : '#e5e7eb'
-  const chartTextColor = resolvedTheme === 'dark' ? '#9ca3af' : '#6b7280'
-  const chartBgColor = resolvedTheme === 'dark' ? '#111827' : 'white'
-  const chartBorderColor = resolvedTheme === 'dark' ? '#374151' : '#e5e7eb'
-  const barFillColor = resolvedTheme === 'dark' ? '#60a5fa' : '#3b82f6'
-  const noteBandColor = resolvedTheme === 'dark' ? '#fbbf24' : '#d97706'
   // Year axis of the trend charts: every year labelled (interval 0), the
   // labels angled at phone width so they do not overlap
   const yearAxisProps = {
     dataKey: 'year',
     interval: 0,
-    tick: { fill: chartTextColor, fontSize: narrow ? 11 : 12 },
+    tick: { fill: chart.text, fontSize: narrow ? 11 : 12 },
     angle: narrow ? -45 : 0,
     textAnchor: narrow ? ('end' as const) : ('middle' as const),
     height: narrow ? 44 : 30,
-    axisLine: { stroke: chartGridColor },
+    axisLine: { stroke: chart.grid },
+    tickLine: false,
   }
+  const countAxisProps = {
+    tickFormatter: (v: number) => formatNumber(v),
+    tick: { fill: chart.text, fontSize: 12 },
+    axisLine: false,
+    tickLine: false,
+    width: 44,
+  }
+  const gridProps = { stroke: chart.grid, vertical: false }
+  const bandProps = { fill: chart.band, fillOpacity: 0.07, ifOverflow: 'extendDomain' as const }
 
   if (loading) {
-    return (
-      <div className="container mx-auto px-4 py-12 flex flex-col justify-center items-center min-h-[60vh]">
-        <Loader2 className="w-8 h-8 text-primary-600 dark:text-primary-400 animate-spin" />
-        <span className="mt-3 text-sm text-gray-500 dark:text-gray-400">Loading school data...</span>
-      </div>
-    )
+    return <Loading className="min-h-[60vh]">Loading school data...</Loading>
   }
 
   if (error || !profile) {
     return (
-      <div className="container mx-auto px-4 py-12">
+      <div className="wrap py-10">
         <Link
           to="/"
-          className="inline-flex items-center gap-2 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 mb-6"
+          className="link inline-flex min-h-[1.5rem] items-center text-meta"
         >
-          <ArrowLeft className="w-4 h-4" />
           Back to Rankings
         </Link>
 
-        <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg p-6 flex items-start gap-4">
-          <AlertCircle className="w-6 h-6 text-red-500 dark:text-red-400 flex-shrink-0" />
-          <div>
-            <h3 className="font-semibold text-red-800 dark:text-red-300">School Not Found</h3>
-            <p className="text-red-700 dark:text-red-400 mt-1">
-              {error || `Could not find data for school ID ${unitid}`}
-            </p>
-          </div>
+        <div className="mt-6 border-l-2 border-danger pl-4">
+          <h3 className="h3 text-danger">School Not Found</h3>
+          <p className="mt-1 text-body text-ink-2">
+            {error || `Could not find data for school ID ${unitid}`}
+          </p>
         </div>
       </div>
     )
   }
 
+  const statLabel = 'text-meta text-ink-3'
+  const statSub = 'mt-1 text-meta text-ink-2'
+  const statFigure = 'tabular mt-1 text-figure font-semibold text-ink'
+  const statText = 'mt-1 text-heading font-semibold text-ink'
+  const filterLabel = 'sr-only sm:not-sr-only text-meta text-ink-2'
+  const chartTitle = 'font-serif text-[1.25rem] font-semibold leading-snug text-ink mb-4'
+  const caption = 'mt-3 text-meta text-ink-3'
+
   return (
     <div className="min-h-screen">
       {/* Header Section */}
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-4">
+      <div className="wrap pt-6 pb-6 sm:pt-8">
         {/* Back Link */}
         <Link
           to="/"
-          className="inline-flex items-center gap-2 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 mb-6 transition-colors"
+          className="link inline-flex min-h-[1.5rem] items-center text-meta"
         >
-          <ArrowLeft className="w-4 h-4" />
           Back to Rankings
         </Link>
 
         {/* School Header */}
-        <div className="mb-4">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+        <div className="mt-4">
+          <h1 className="h1">
             {displayName(profile)}
             {!profile.campus && profile.campusType && profile.isMainCampus === false && (
-              <span className="ml-3 text-lg font-normal text-gray-500 dark:text-gray-400">
+              <span className="ml-3 font-sans text-heading font-normal text-ink-3">
                 (Branch Campus)
               </span>
             )}
           </h1>
           {profile.campus && (
-            <p className="text-base text-gray-600 dark:text-gray-400 mb-2">Campus of {profile.name}</p>
+            <p className="mt-1 text-body text-ink-2">Campus of {profile.name}</p>
           )}
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-gray-600 dark:text-gray-400">
-            <span className="flex items-center gap-1.5">
-              <MapPin className="w-4 h-4" />
+          <div className="mt-3 flex flex-col gap-y-1 text-ui text-ink-2 sm:flex-row sm:flex-wrap sm:items-baseline sm:gap-x-5">
+            <span>
               {[profile.city, profile.state].filter(Boolean).join(', ')}
             </span>
             {headerFte && (
               <span
-                className="flex items-center gap-1.5"
+                className="tabular"
                 title="Enrollment (FTE) of the whole institution for the latest available year; NCES counts enrollment per institution, not per campus"
               >
-                <Users className="w-4 h-4" />
                 Institution FTE: {formatNumber(headerFte.fte)}
                 {headerCampuses > 1 && <> (all {headerCampuses} campuses)</>}
-                <span className="text-xs text-gray-400 dark:text-gray-500">({headerFte.year})</span>
+                <span className="ml-1 text-meta text-ink-3">({headerFte.year})</span>
               </span>
             )}
             {profile.ivyLeague && (
-              <span className="badge badge-success">Ivy League</span>
+              <span className="self-center rounded-sm border border-rule-strong px-1.5 text-label font-semibold text-ink-2">Ivy League</span>
             )}
           </div>
           {profile.idChanges && profile.idChanges.length > 0 && (
-            <div className="mt-4 rounded-lg border-2 border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20 px-4 py-3 text-sm text-gray-800 dark:text-gray-200">
-              <p className="font-semibold mb-1 flex items-center gap-1.5">
-                <Info className="w-4 h-4 flex-shrink-0" />
+            <div className="mt-5 max-w-prose border-l-2 border-accent pl-4 text-ui text-ink-2">
+              <p className="font-semibold text-ink mb-1">
                 This campus has more than one DOE ID
               </p>
               <ul className="space-y-1">
@@ -431,7 +430,7 @@ export default function SchoolProfile() {
                     a separate page:{' '}
                     <Link
                       to={`/school/${link.unitid}`}
-                      className="font-medium text-primary-700 hover:text-primary-800 dark:text-primary-400 dark:hover:text-primary-300 underline"
+                      className="link font-semibold"
                     >
                       {displayName(link)}
                     </Link>
@@ -446,22 +445,21 @@ export default function SchoolProfile() {
       </div>
 
       {/* Sticky Filter Bar */}
-      <div className="sticky top-16 z-40 bg-white dark:bg-gray-900 border-y border-gray-200 dark:border-gray-800 shadow-sm">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-wrap items-center gap-4 py-3">
+      <div className="sticky top-header z-40 border-y border-rule bg-paper">
+        <div className="wrap">
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-2 py-2.5">
             {showRate && rateRules ? (
               <>
                 {/* Window (rate view) */}
                 <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0" />
-                  <label htmlFor="window-select" className="text-sm text-gray-500 dark:text-gray-400 hidden sm:inline">
+                  <label htmlFor="window-select" className={filterLabel}>
                     Years:
                   </label>
                   <select
                     id="window-select"
                     value={selectedWindow ?? ''}
                     onChange={(e) => setSelectedWindow(e.target.value)}
-                    className="w-32 text-sm font-medium bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1.5 cursor-pointer focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    className="control w-36"
                   >
                     {windowKeys(rateRules).slice().reverse().map((key) => (
                       <option key={key} value={key}>{windowLabel(key)}</option>
@@ -470,15 +468,14 @@ export default function SchoolProfile() {
                 </div>
                 {/* Rate code of the single-year trend (rate view) */}
                 <div className="flex items-center gap-2 min-w-0">
-                  <AlertTriangle className="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0" />
-                  <label htmlFor="rate-code-select" className="text-sm text-gray-500 dark:text-gray-400 hidden sm:inline">
+                  <label htmlFor="rate-code-select" className={filterLabel}>
                     Trend:
                   </label>
                   <select
                     id="rate-code-select"
                     value={trendCode}
                     onChange={(e) => setTrendCode(e.target.value)}
-                    className="w-56 max-w-full text-sm font-medium bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1.5 cursor-pointer focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    className="control w-64 max-w-full"
                   >
                     {rateCodes(rateRules).map((code) => (
                       <option key={code} value={code}>{rateCodeLabel(code)}</option>
@@ -490,15 +487,14 @@ export default function SchoolProfile() {
               <>
             {/* Year Dropdown */}
             <div className="flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0" />
-              <label htmlFor="year-select" className="text-sm text-gray-500 dark:text-gray-400 hidden sm:inline">
+              <label htmlFor="year-select" className={filterLabel}>
                 Year:
               </label>
               <select
                 id="year-select"
                 value={selectedYear || ''}
                 onChange={(e) => setSelectedYear(parseInt(e.target.value))}
-                className="w-24 text-sm font-medium bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1.5 cursor-pointer focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                className="control w-[6.5rem]"
               >
                 {availableYears.map((year) => (
                   <option key={year} value={year}>
@@ -509,16 +505,15 @@ export default function SchoolProfile() {
             </div>
 
             {/* Offense/Crime Dropdown */}
-            <div className="flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0" />
-              <label htmlFor="offense-select" className="text-sm text-gray-500 dark:text-gray-400 hidden sm:inline">
+            <div className="flex items-center gap-2 min-w-0">
+              <label htmlFor="offense-select" className={filterLabel}>
                 Crime:
               </label>
               <select
                 id="offense-select"
                 value={selectedOffense}
                 onChange={(e) => setSelectedOffense(e.target.value)}
-                className="w-56 max-w-full text-sm font-medium bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1.5 cursor-pointer focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                className="control w-64 max-w-full"
               >
                 <option value={CRIMINAL}>{SUMMARY_LABELS[CRIMINAL]}</option>
                 <option value={VIOLENT}>{SUMMARY_LABELS[VIOLENT]}</option>
@@ -537,7 +532,7 @@ export default function SchoolProfile() {
               <button
                 type="button"
                 onClick={() => setSelectedOffense(CRIMINAL)}
-                className="text-xs text-primary-600 dark:text-primary-400 hover:underline"
+                className="min-h-[1.5rem] text-meta font-semibold text-accent underline-offset-[3px] hover:underline"
               >
                 Clear filter
               </button>
@@ -546,19 +541,13 @@ export default function SchoolProfile() {
             )}
 
             {/* Rate Toggle */}
-            <div className="flex items-center gap-1 ml-auto">
-              <span className="text-sm text-gray-500 dark:text-gray-400 hidden sm:inline mr-1">View:</span>
-              <div role="group" aria-label="View" className="flex gap-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
+            <div className="flex items-center gap-2 ml-auto">
+              <span className="text-meta text-ink-2 hidden sm:inline">View:</span>
+              <div role="group" aria-label="View" className="segmented">
                 <button
                   type="button"
                   onClick={() => setShowRate(false)}
                   aria-pressed={!showRate}
-                  className={cn(
-                    'px-3 py-1 text-sm font-medium rounded-md transition-colors',
-                    !showRate
-                      ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm'
-                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
-                  )}
                 >
                   Total
                 </button>
@@ -567,12 +556,6 @@ export default function SchoolProfile() {
                   onClick={() => setShowRate(true)}
                   aria-pressed={showRate}
                   title="3-year rates per 10,000 on-campus students"
-                  className={cn(
-                    'px-3 py-1 text-sm font-medium rounded-md transition-colors',
-                    showRate
-                      ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm'
-                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
-                  )}
                 >
                   Rate
                 </button>
@@ -583,7 +566,7 @@ export default function SchoolProfile() {
       </div>
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="wrap py-8">
         {showRate && metadata && selectedWindow && (
           <RatePanel
             profile={profile}
@@ -594,171 +577,157 @@ export default function SchoolProfile() {
           />
         )}
         {showRate && !metadata && (
-          <div className="flex items-center gap-2 py-8 text-sm text-gray-500 dark:text-gray-400 mb-8">
-            <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" /> Loading rates…
-          </div>
+          <Loading className="mb-8 justify-start py-8">Loading rates…</Loading>
         )}
         {!showRate && (<>
-        {/* Summary Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 p-6 transition-all duration-300">
-            <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">
+        {/* Summary figures */}
+        <div className="grid grid-cols-1 border-y border-rule sm:grid-cols-2 lg:grid-cols-4">
+          <div className="border-b border-rule py-4 sm:pr-6 lg:border-b-0">
+            <div className={statLabel}>
               {selectionLabel(selectedOffense)} ({selectedYear})
             </div>
-            <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+            <div className={statFigure}>
               {formatNumber(selectedYearTotal)}
             </div>
             {selectedYearYoYChange && selectedYearYoYChange.absolute === 0 && (
-              <div className="text-sm mt-1 text-gray-500 dark:text-gray-400">
+              <div className={statSub}>
                 Same number reported as in {selectedYear && selectedYear - 1}
               </div>
             )}
             {selectedYearYoYChange && selectedYearYoYChange.absolute !== 0 && (
               <div
-                className="flex items-center gap-1 text-sm mt-1 text-gray-600 dark:text-gray-400"
+                className={cn(statSub, 'tabular')}
                 title="A change in reported counts can reflect changes in reporting, not only in crime"
               >
-                {selectedYearYoYChange.absolute > 0 ? (
-                  <TrendingUp className="w-4 h-4" />
-                ) : (
-                  <TrendingDown className="w-4 h-4" />
-                )}
                 {selectedYearYoYChange.absolute > 0 ? '+' : ''}
                 {formatNumber(selectedYearYoYChange.absolute)} reported vs {selectedYear && selectedYear - 1}
               </div>
             )}
           </div>
 
-          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 p-6 transition-all duration-300">
-            <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">Most Common Criminal Offense</div>
-            <div className="text-xl font-bold text-gray-900 dark:text-gray-100">
+          <div className="border-b border-rule py-4 sm:border-l sm:pl-6 lg:border-b-0 lg:pr-6">
+            <div className={statLabel}>Most Common Criminal Offense</div>
+            <div className={statText}>
               {selectedYearTopOffense.offense || 'None'}
             </div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">
+            <div className={cn(statSub, 'tabular')}>
               {selectedYearTopOffense.offense
                 ? `${formatNumber(selectedYearTopOffense.count)} reported ${selectedYearTopOffense.count === 1 ? 'offense' : 'offenses'}`
                 : `No criminal offenses reported in ${selectedYear}`}
             </div>
           </div>
 
-          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 p-6 transition-all duration-300">
-            <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">Data Coverage</div>
-            <div className="text-xl font-bold text-gray-900 dark:text-gray-100">
+          <div className="border-b border-rule py-4 sm:border-b-0 sm:pr-6 lg:border-l lg:pl-6">
+            <div className={statLabel}>Data Coverage</div>
+            <div className={cn(statText, 'tabular')}>
               {chartYears.length > 0
                 ? `${chartYears[0]}-${chartYears[chartYears.length - 1]}`
                 : 'N/A'}
             </div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">
+            <div className={statSub}>
               {availableYears.length} {availableYears.length === 1 ? 'year' : 'years'} reported
             </div>
             {notReportedYears.length > 0 && (
-              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              <div className="mt-0.5 text-meta text-ink-3">
                 Not reported: {notReportedYears.join(', ')}
               </div>
             )}
           </div>
 
-          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 p-6 transition-all duration-300">
-            <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">Categories ({selectedYear})</div>
-            <div className="text-xl font-bold text-gray-900 dark:text-gray-100">
+          <div className="py-4 sm:border-l sm:pl-6">
+            <div className={statLabel}>Categories ({selectedYear})</div>
+            <div className={statFigure}>
               {selectedYearOffenseBreakdown.length}
             </div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">Categories above 0 (crimes, arrests, referrals)</div>
+            <div className={statSub}>Categories above 0 (crimes, arrests, referrals)</div>
           </div>
         </div>
 
-        {/* Comparability note for the selected year (data/seriesNotes.ts) */}
-        {selectedYear !== null && <SeriesNotes years={[selectedYear]} className="-mt-4 mb-6" />}
+        {/* Notes on the selected year's figures */}
+        <div className="mt-4 max-w-prose space-y-3 empty:hidden">
+          {/* Comparability note for the selected year (data/seriesNotes.ts) */}
+          {selectedYear !== null && <SeriesNotes years={[selectedYear]} />}
 
-        {/* Figures shared with another campus (counted once, under the host) */}
-        {selectedYearShared.length > 0 && (
-          <div role="note" className="-mt-4 mb-6 space-y-1">
-            {selectedYearShared.map((entry) => (
-              <p
-                key={entry.hostUnitid}
-                className="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-400"
-              >
-                <Info className="w-4 h-4 flex-shrink-0 mt-0.5" aria-hidden="true" />
-                <span>
-                  <span className="font-medium text-gray-700 dark:text-gray-300">
+          {/* Figures shared with another campus (counted once, under the host) */}
+          {selectedYearShared.length > 0 && (
+            <div role="note" className="space-y-1">
+              {selectedYearShared.map((entry) => (
+                <p
+                  key={entry.hostUnitid}
+                  className="text-meta text-ink-2"
+                >
+                  <span className="font-semibold text-ink">
                     {selectedYear} {joinWithAnd(entry.geos)} figures:
                   </span>{' '}
                   These figures are also reported by{' '}
                   <Link
                     to={`/school/${entry.hostUnitid}`}
-                    className="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 underline"
+                    className="link"
                   >
                     {entry.hostName}
                   </Link>{' '}
                   and are counted once, under {entry.hostName}, in totals and rankings.
-                </span>
+                </p>
+              ))}
+            </div>
+          )}
+
+          {/* Unusual-year flags of the selected year (the institution's, every location) */}
+          {selectedYearFlags.length > 0 && (
+            <div role="note" className="space-y-1 border-l-2 border-attention pl-3 text-meta text-ink-2">
+              <p className="flex items-center gap-1.5 font-semibold text-ink">
+                <AlertTriangle className="h-3.5 w-3.5 flex-shrink-0 text-attention" aria-hidden="true" />
+                Unusual year{institutionCampuses > 1 ? ` for ${profile.name} (all ${institutionCampuses} of its campuses)` : ''}
               </p>
-            ))}
-          </div>
-        )}
+              {selectedYearFlags.map((f) => (
+                <p key={f}>{f}</p>
+              ))}
+              <p>
+                Flags never change counts.{' '}
+                <Link to="/methodology#rate-flags" className="link">How flags work</Link>
+              </p>
+            </div>
+          )}
 
-        {/* Unusual-year flags of the selected year (the institution's, every location) */}
-        {selectedYearFlags.length > 0 && (
-          <div role="note" className="-mt-2 mb-6 rounded-lg border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 p-3 space-y-1">
-            <p className="text-sm font-medium text-amber-900 dark:text-amber-200">
-              Unusual year{institutionCampuses > 1 ? ` for ${profile.name} (all ${institutionCampuses} of its campuses)` : ''}
-            </p>
-            {selectedYearFlags.map((f) => (
-              <p key={f} className="text-sm text-amber-900 dark:text-amber-200">{f}</p>
-            ))}
-            <p className="text-sm text-amber-900 dark:text-amber-200">
-              Flags never change counts.{' '}
-              <Link to="/methodology#rate-flags" className="underline">How flags work</Link>
-            </p>
-          </div>
-        )}
-
-        {/* A count very high for the institution's size (rankings by count, highForSize) */}
-        {sizeFlag && (
-          <div role="note" className="-mt-2 mb-6 rounded-lg border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 p-3 space-y-1">
-            <p className="text-sm font-medium text-amber-900 dark:text-amber-200">
-              Very high for its institution's size
-            </p>
-            <p className="text-sm text-amber-900 dark:text-amber-200">
-              {highForSizeParagraph(sizeFlag.count, sizeFlag.fte, sizeFlag.campuses, sizeFlag.code, sizeFlag.year, metadata)}{' '}
-              <Link to="/methodology#count-flag" className="underline">How this flag works</Link>
-            </p>
-          </div>
-        )}
+          {/* A count very high for the institution's size (rankings by count, highForSize) */}
+          {sizeFlag && (
+            <div role="note" className="space-y-1 border-l-2 border-attention pl-3 text-meta text-ink-2">
+              <p className="flex items-center gap-1.5 font-semibold text-ink">
+                <AlertTriangle className="h-3.5 w-3.5 flex-shrink-0 text-attention" aria-hidden="true" />
+                Very high for its institution's size
+              </p>
+              <p>
+                {highForSizeParagraph(sizeFlag.count, sizeFlag.fte, sizeFlag.campuses, sizeFlag.code, sizeFlag.year, metadata)}{' '}
+                <Link to="/methodology#count-flag" className="link">How this flag works</Link>
+              </p>
+            </div>
+          )}
+        </div>
 
         {/* Charts Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <div className="mt-10 grid grid-cols-1 gap-x-12 gap-y-12 lg:grid-cols-2">
           {/* Yearly Trend Chart - changes based on offense filter */}
-          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 p-6 transition-colors duration-200">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+          <section className="min-w-0">
+            <h2 className={chartTitle}>
               {selectionLabel(selectedOffense)} Over Time
             </h2>
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={yearlyChartData}>
-                <CartesianGrid strokeDasharray="3 3" stroke={chartGridColor} />
+              <BarChart data={yearlyChartData} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
+                <CartesianGrid {...gridProps} />
                 {noteBands.map((b) => (
-                  <ReferenceArea key={b.x1} x1={b.x1} x2={b.x2} fill={noteBandColor} fillOpacity={0.12} ifOverflow="extendDomain" />
+                  <ReferenceArea key={b.x1} x1={b.x1} x2={b.x2} {...bandProps} />
                 ))}
                 <XAxis {...yearAxisProps} />
-                <YAxis
-                  tickFormatter={(v: number) => formatNumber(v)}
-                  tick={{ fill: chartTextColor, fontSize: 12 }}
-                  axisLine={{ stroke: chartGridColor }}
-                />
+                <YAxis {...countAxisProps} />
                 <Tooltip
                   formatter={(value: number) => formatNumber(value)}
-                  contentStyle={{
-                    backgroundColor: chartBgColor,
-                    border: `1px solid ${chartBorderColor}`,
-                    borderRadius: '8px',
-                  }}
-                  labelStyle={{ color: chartTextColor }}
-                  itemStyle={{ color: chartTextColor }}
+                  {...tooltipProps(chart)}
+                  cursor={barCursor(chart)}
                 />
                 <Bar
                   dataKey="count"
                   name={selectionLabel(selectedOffense)}
-                  radius={[4, 4, 0, 0]}
+                  radius={[2, 2, 0, 0]}
                   // A reported 0 gets a thin bar so it differs from a year not
                   // reported (null), which gets none
                   minPointSize={(value: number | null | undefined) => (value == null ? 0 : 3)}
@@ -766,15 +735,14 @@ export default function SchoolProfile() {
                   {yearlyChartData.map((entry) => (
                     <Cell
                       key={entry.year}
-                      fill={entry.year === selectedYear ? '#f59e0b' : barFillColor}
-                      opacity={entry.year === selectedYear ? 1 : 0.6}
+                      fill={entry.year === selectedYear ? chart.selected : chart.bar}
                     />
                   ))}
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-3 text-center">
-              Selected year highlighted in amber · A thin bar is 0
+            <p className={caption}>
+              Selected year highlighted in blue · A thin bar is 0
               {chartGaps.length > 0 && (
                 <> · No bar for {chartGaps.join(', ')}: not reported (no figures, not 0)</>
               )}
@@ -782,117 +750,104 @@ export default function SchoolProfile() {
             </p>
             <SeriesNotes years={chartYears} className="mt-2" />
             <ReportYearNote className="mt-1" />
-          </div>
+          </section>
 
           {/* Top Offenses Trend - only show when viewing a summary */}
           {isSummary(selectedOffense) ? (
-            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 p-6 transition-colors duration-200">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+            <section className="min-w-0">
+              <h2 className={chartTitle}>
                 {topOffenses.length > 0 ? `Top ${Math.min(topOffenses.length, 5)} Offenses Over Time` : 'Offenses Over Time'}
               </h2>
               {topOffenses.length === 0 ? (
-                <div className="h-[300px] flex items-center justify-center text-center text-gray-500 dark:text-gray-400">
+                <div className="flex h-[300px] items-center justify-center border-y border-rule text-center text-meta text-ink-3">
                   0 in every year this campus reported ({selectionLabel(selectedOffense).toLowerCase()})
                 </div>
               ) : (
               <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={trendChartData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke={chartGridColor} />
+                <LineChart data={trendChartData} margin={{ top: 4, right: 20, bottom: 0, left: 0 }}>
+                  <CartesianGrid {...gridProps} />
                 {noteBands.map((b) => (
-                  <ReferenceArea key={b.x1} x1={b.x1} x2={b.x2} fill={noteBandColor} fillOpacity={0.12} ifOverflow="extendDomain" />
+                  <ReferenceArea key={b.x1} x1={b.x1} x2={b.x2} {...bandProps} />
                 ))}
                   <XAxis {...yearAxisProps} />
-                  <YAxis
-                    tickFormatter={(v: number) => formatNumber(v)}
-                    tick={{ fill: chartTextColor, fontSize: 12 }}
-                    axisLine={{ stroke: chartGridColor }}
-                  />
+                  <YAxis {...countAxisProps} />
                   <Tooltip
                     formatter={(value: number) => formatNumber(value)}
-                    contentStyle={{
-                      backgroundColor: chartBgColor,
-                      border: `1px solid ${chartBorderColor}`,
-                      borderRadius: '8px',
-                    }}
-                    labelStyle={{ color: chartTextColor }}
-                    itemStyle={{ color: chartTextColor }}
+                    {...tooltipProps(chart)}
+                    cursor={lineCursor(chart)}
                   />
-                  <Legend wrapperStyle={{ color: chartTextColor }} />
+                  <Legend
+                    iconSize={18}
+                    wrapperStyle={{ color: chart.text, fontSize: 13, paddingTop: 8 }}
+                  />
                   {topOffenses.map((offense, i) => (
                     <Line
                       key={offense}
                       type="monotone"
                       dataKey={offense}
-                      stroke={chartColors[i % chartColors.length]}
+                      stroke={chart.series[i % chart.series.length]}
+                      strokeDasharray={SERIES_DASHES[i % SERIES_DASHES.length]}
                       strokeWidth={2}
-                      dot={{ r: 3 }}
-                      activeDot={{ r: 5 }}
+                      dot={{ r: 2.5, strokeDasharray: '' }}
+                      activeDot={{ r: 4.5 }}
+                      legendType="plainline"
                     />
                   ))}
                 </LineChart>
               </ResponsiveContainer>
               )}
-            </div>
+            </section>
           ) : (
-            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 p-6 transition-colors duration-200">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+            <section className="min-w-0">
+              <h2 className={chartTitle}>
                 {selectedOffense} Trend
               </h2>
               <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={yearlyChartData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke={chartGridColor} />
+                <LineChart data={yearlyChartData} margin={{ top: 4, right: 20, bottom: 0, left: 0 }}>
+                  <CartesianGrid {...gridProps} />
                 {noteBands.map((b) => (
-                  <ReferenceArea key={b.x1} x1={b.x1} x2={b.x2} fill={noteBandColor} fillOpacity={0.12} ifOverflow="extendDomain" />
+                  <ReferenceArea key={b.x1} x1={b.x1} x2={b.x2} {...bandProps} />
                 ))}
                   <XAxis {...yearAxisProps} />
-                  <YAxis
-                    tickFormatter={(v: number) => formatNumber(v)}
-                    tick={{ fill: chartTextColor, fontSize: 12 }}
-                    axisLine={{ stroke: chartGridColor }}
-                  />
+                  <YAxis {...countAxisProps} />
                   <Tooltip
                     formatter={(value: number) => formatNumber(value)}
-                    contentStyle={{
-                      backgroundColor: chartBgColor,
-                      border: `1px solid ${chartBorderColor}`,
-                      borderRadius: '8px',
-                    }}
-                    labelStyle={{ color: chartTextColor }}
-                    itemStyle={{ color: chartTextColor }}
+                    {...tooltipProps(chart)}
+                    cursor={lineCursor(chart)}
                   />
                   <Line
                     type="monotone"
                     dataKey="count"
-                    stroke={chartColors[0]}
-                    strokeWidth={3}
-                    dot={{ r: 4, fill: chartColors[0] }}
-                    activeDot={{ r: 6 }}
+                    stroke={chart.selected}
+                    strokeWidth={2.5}
+                    dot={{ r: 3, fill: chart.selected }}
+                    activeDot={{ r: 5 }}
                     name={selectedOffense}
                   />
                 </LineChart>
               </ResponsiveContainer>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-3 text-center">
+              <p className={caption}>
                 Showing trend for {selectedOffense} only
               </p>
-            </div>
+            </section>
           )}
         </div>
 
         {/* Breakdowns Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="mt-12 grid grid-cols-1 gap-x-12 gap-y-12 lg:grid-cols-2">
           {/* By Offense Type */}
-          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 p-6 transition-colors duration-200">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+          <section className="min-w-0">
+            <h2 className={chartTitle}>
               By Category ({selectedYear})
             </h2>
             {selectedYearOffenseBreakdown.length === 0 ? (
-              <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+              <div className="border-y border-rule py-8 text-center text-meta text-ink-3">
                 {/* Only reported years can be selected, so this is a 0, not missing data */}
                 No incidents in {selectedYear} (every figure reported was 0)
               </div>
             ) : (
-              <div className="space-y-3">
-                {selectedYearOffenseBreakdown.slice(0, 10).map((item, index) => {
+              <div className="border-t border-rule">
+                {selectedYearOffenseBreakdown.slice(0, 10).map((item) => {
                   const maxCount = selectedYearOffenseBreakdown[0]?.count || 1
                   const percentage = (item.count / maxCount) * 100
                   const isSelected = item.offense === selectedOffense
@@ -904,64 +859,61 @@ export default function SchoolProfile() {
                       onClick={() => setSelectedOffense(item.offense === selectedOffense ? CRIMINAL : item.offense)}
                       aria-pressed={isSelected}
                       className={cn(
-                        'w-full flex items-center gap-4 p-2 -mx-2 rounded-lg transition-colors',
-                        isSelected
-                          ? 'bg-primary-50 dark:bg-primary-900/20'
-                          : 'hover:bg-gray-50 dark:hover:bg-gray-800/50'
+                        'flex w-full items-center gap-4 border-b border-rule px-2 py-2 text-left',
+                        isSelected ? 'bg-accent-tint' : 'hover:bg-subtle'
                       )}
                     >
-                      <div className="w-32 sm:w-40 text-sm text-left text-gray-700 dark:text-gray-300 truncate">
+                      <div className={cn(
+                        'w-36 sm:w-44 flex-shrink-0 truncate text-meta',
+                        isSelected ? 'font-semibold text-ink' : 'text-ink-2'
+                      )}>
                         {item.offense}
                       </div>
                       <div className="flex-1">
-                        <div className="h-4 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
-                          <div
-                            className="h-full rounded-full transition-all duration-500"
-                            style={{
-                              width: `${percentage}%`,
-                              backgroundColor: isSelected ? '#f59e0b' : chartColors[index % chartColors.length],
-                            }}
-                          />
-                        </div>
+                        <div
+                          className="h-2.5 rounded-r-sm"
+                          style={{
+                            width: `${Math.max(percentage, 0.5)}%`,
+                            backgroundColor: isSelected ? chart.selected : chart.bar,
+                          }}
+                        />
                       </div>
-                      <div className="w-16 text-right font-semibold text-gray-900 dark:text-gray-100 tabular-nums">
+                      <div className="tabular w-14 text-right text-ui font-semibold text-ink">
                         {formatNumber(item.count)}
                       </div>
                     </button>
                   )
                 })}
                 {selectedYearOffenseBreakdown.length > 10 && (
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-3 text-center">
+                  <p className="mt-3 text-meta text-ink-3">
                     Showing top 10 of {selectedYearOffenseBreakdown.length} offense types
                   </p>
                 )}
               </div>
             )}
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-4 text-center">
+            <p className="mt-2 text-meta text-ink-3">
               Click an offense to filter charts
             </p>
-          </div>
+          </section>
 
           {/* By Location */}
-          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 p-6 transition-colors duration-200">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                By Location
-                <span className="ml-2 text-sm font-normal text-amber-600 dark:text-amber-400">
-                  ({profile.summary.latestYear}, all categories)
-                </span>
-              </h2>
-            </div>
+          <section className="min-w-0">
+            <h2 className={chartTitle}>
+              By Location
+              <span className="ml-2 font-sans text-meta font-normal text-ink-3">
+                ({profile.summary.latestYear}, all categories)
+              </span>
+            </h2>
 
             {geoRows.length === 0 ? (
               // A reported year in which every figure was 0
-              <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+              <div className="border-y border-rule py-8 text-center text-meta text-ink-3">
                 No incidents in {profile.summary.latestYear} (every figure reported was 0)
               </div>
             ) : (
-            <div className="flex flex-col lg:flex-row items-center gap-6">
+            <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-start">
               {/* Pie Chart */}
-              <div className="w-48 h-48 flex-shrink-0">
+              <div className="h-44 w-44 flex-shrink-0">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
@@ -970,9 +922,12 @@ export default function SchoolProfile() {
                       nameKey="geo"
                       cx="50%"
                       cy="50%"
-                      outerRadius={70}
-                      innerRadius={40}
-                      paddingAngle={2}
+                      outerRadius={80}
+                      innerRadius={50}
+                      paddingAngle={0}
+                      stroke={chart.tooltipBg}
+                      strokeWidth={2}
+                      isAnimationActive={false}
                     >
                       {geoPieRows.map((item) => (
                         <Cell
@@ -983,39 +938,31 @@ export default function SchoolProfile() {
                     </Pie>
                     <Tooltip
                       formatter={(value: number) => formatNumber(value)}
-                      contentStyle={{
-                        backgroundColor: chartBgColor,
-                        border: `1px solid ${chartBorderColor}`,
-                        borderRadius: '8px',
-                      }}
-                      labelStyle={{ color: chartTextColor }}
-                      itemStyle={{ color: chartTextColor }}
+                      {...tooltipProps(chart)}
                     />
                   </PieChart>
                 </ResponsiveContainer>
               </div>
 
               {/* Legend */}
-              <div className="flex-1 space-y-3">
+              <div className="w-full flex-1 border-t border-rule">
                 {geoRows.map((item) => {
                   const pct = item.pct
+                  // Residence halls are part of on-campus (not a slice of their own)
+                  const subset = item.geo === 'Residence halls'
 
                   return (
-                    <div key={item.geo} className="flex items-center gap-3">
+                    <div key={item.geo} className="flex items-center gap-3 border-b border-rule py-2">
                       <div
-                        className="w-3 h-3 rounded-full flex-shrink-0"
-                        style={{
-                          backgroundColor: item.color,
-                        }}
+                        className={cn('h-3 w-3 flex-shrink-0 rounded-sm', subset && 'ml-4 border-2 bg-transparent')}
+                        style={subset ? { borderColor: item.color } : { backgroundColor: item.color }}
                       />
-                      <div className="flex-1 text-sm text-gray-700 dark:text-gray-300">{item.geo}</div>
-                      <div className="text-right">
-                        <div className="font-semibold text-gray-900 dark:text-gray-100 tabular-nums">
-                          {formatNumber(item.count)}
-                        </div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400 tabular-nums">
-                          {pct !== null ? formatPercent(pct) : '—'}
-                        </div>
+                      <div className="flex-1 text-meta text-ink-2">{item.geo}</div>
+                      <div className="tabular w-16 text-right text-ui font-semibold text-ink">
+                        {formatNumber(item.count)}
+                      </div>
+                      <div className="tabular w-14 text-right text-meta text-ink-3">
+                        {pct !== null ? formatPercent(pct) : '—'}
                       </div>
                     </div>
                   )
@@ -1027,33 +974,25 @@ export default function SchoolProfile() {
             {geoYearDefects.length > 0 && (
               <div role="note" className="mt-4 space-y-1">
                 {geoYearDefects.map((d) => (
-                  <p key={d.file} className="flex items-start gap-1.5 text-xs text-gray-600 dark:text-gray-400">
-                    <Info className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" aria-hidden="true" />
-                    <span>
-                      {d.takenFrom
-                        ? <>{d.year} residence-hall {categoryLabel(d.category)} come from DOE's {releaseLabel(d.takenFrom)} release, because that file of the {releaseLabel(d.release)} release, which this campus's {d.year} figures come from, is wrong.</>
-                        : <>{d.year} residence-hall {categoryLabel(d.category)} are not included: that file of DOE's {releaseLabel(d.release)} release, which this campus's {d.year} figures come from, is wrong, and no other release has them.</>}{' '}
-                      <Link to="/methodology#known-defects" className="text-primary-600 dark:text-primary-400 underline">Details</Link>
-                    </span>
+                  <p key={d.file} className="text-meta text-ink-2">
+                    {d.takenFrom
+                      ? <>{d.year} residence-hall {categoryLabel(d.category)} come from DOE's {releaseLabel(d.takenFrom)} release, because that file of the {releaseLabel(d.release)} release, which this campus's {d.year} figures come from, is wrong.</>
+                      : <>{d.year} residence-hall {categoryLabel(d.category)} are not included: that file of DOE's {releaseLabel(d.release)} release, which this campus's {d.year} figures come from, is wrong, and no other release has them.</>}{' '}
+                    <Link to="/methodology#known-defects" className="link">Details</Link>
                   </p>
                 ))}
               </div>
             )}
 
-            <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
-              <div className="flex items-start gap-2 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
-                <AlertTriangle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
-                <p className="text-sm text-amber-700 dark:text-amber-300">
-                  <strong>Important:</strong> Residence hall incidents are a subset of on-campus incidents.
-                  Do not add these categories together — this would result in double-counting.
-                </p>
-              </div>
-            </div>
-          </div>
+            <p className="mt-4 text-meta text-ink-2">
+              <strong className="font-semibold text-ink">Important:</strong> Residence hall incidents are a subset of on-campus incidents.
+              Do not add these categories together — this would result in double-counting.
+            </p>
+          </section>
         </div>
         </>)}
 
-        <CiteThisData school={{ unitid: profile.unitid, name: profile.campus ? `${profile.campus} (${profile.name})` : profile.name }} className="mt-6" />
+        <CiteThisData school={{ unitid: profile.unitid, name: profile.campus ? `${profile.campus} (${profile.name})` : profile.name }} className="mt-12" />
       </div>
     </div>
   )
