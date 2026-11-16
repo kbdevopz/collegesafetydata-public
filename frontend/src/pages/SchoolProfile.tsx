@@ -699,10 +699,12 @@ export default function SchoolProfile() {
                 ))}
                 <XAxis {...yearAxisProps} />
                 <YAxis
+                  tickFormatter={(v: number) => formatNumber(v)}
                   tick={{ fill: chartTextColor, fontSize: 12 }}
                   axisLine={{ stroke: chartGridColor }}
                 />
                 <Tooltip
+                  formatter={(value: number) => formatNumber(value)}
                   contentStyle={{
                     backgroundColor: chartBgColor,
                     border: `1px solid ${chartBorderColor}`,
@@ -759,10 +761,12 @@ export default function SchoolProfile() {
                 ))}
                   <XAxis {...yearAxisProps} />
                   <YAxis
+                    tickFormatter={(v: number) => formatNumber(v)}
                     tick={{ fill: chartTextColor, fontSize: 12 }}
                     axisLine={{ stroke: chartGridColor }}
                   />
                   <Tooltip
+                    formatter={(value: number) => formatNumber(value)}
                     contentStyle={{
                       backgroundColor: chartBgColor,
                       border: `1px solid ${chartBorderColor}`,
@@ -800,10 +804,12 @@ export default function SchoolProfile() {
                 ))}
                   <XAxis {...yearAxisProps} />
                   <YAxis
+                    tickFormatter={(v: number) => formatNumber(v)}
                     tick={{ fill: chartTextColor, fontSize: 12 }}
                     axisLine={{ stroke: chartGridColor }}
                   />
                   <Tooltip
+                    formatter={(value: number) => formatNumber(value)}
                     contentStyle={{
                       backgroundColor: chartBgColor,
                       border: `1px solid ${chartBorderColor}`,

@@ -12,7 +12,7 @@ import {
   PLACES_WITHOUT_PRESET, RATE_IS_NOT, RATE_MEASURE, SHOW_POINT_POSITION, stateDisplayMin, VERDICT_ORDER,
   VERDICT_SHORT,
 } from '../lib/rateDisplay'
-import { cn } from '../lib/utils'
+import { cn, formatNumber } from '../lib/utils'
 import { VerdictLabel } from './RateCard'
 
 const PAGE = 50
@@ -531,7 +531,7 @@ function EntryRow({
     notes.push(`Not in the rate: ${offenseCount(e.composition.motor_vehicle_theft, 'motor_vehicle_theft')} on campus`)
   }
   const flags = (e.flags ?? []).map((f) =>
-    `Unusual year ${f.year}: ${offenseCount(f.count, f.offense)} on campus (median of its other years ${f.usual.toLocaleString('en-US')})`)
+    `Unusual year ${f.year}: ${offenseCount(f.count, f.offense)} on campus (median of its other years ${fmtInt(f.usual)})`)
   if (e.verdictWithoutFlagged) flags.push(`Counting the flagged ${flags.length === 1 ? 'year' : 'years'} at the median: ${VERDICT_SHORT[e.verdictWithoutFlagged]}`)
 
   // An interval end that prints as the rate it is compared with: both to 4 decimals
@@ -540,8 +540,8 @@ function EntryRow({
   const dPeer = tieDigits(e, e.peerVerdict, peer?.rate ?? null, peer?.rate4)
   const digits: 2 | 4 = dNatl === 4 || dPeer === 4 ? 4 : 2
   const refs4 = [
-    dNatl === 4 && file.natl4 !== undefined ? `the national rate ${file.natl4.toFixed(4)}` : null,
-    dPeer === 4 && peer?.rate4 !== undefined ? `the rate of ${peerLabel(e.peerType, rules).toLowerCase()} institutions ${peer.rate4.toFixed(4)}` : null,
+    dNatl === 4 && file.natl4 !== undefined ? `the national rate ${formatNumber(file.natl4, 4)}` : null,
+    dPeer === 4 && peer?.rate4 !== undefined ? `the rate of ${peerLabel(e.peerType, rules).toLowerCase()} institutions ${formatNumber(peer.rate4, 4)}` : null,
   ].filter((s): s is string => s !== null)
 
   const inCompare = isInCompare(e.unitid)

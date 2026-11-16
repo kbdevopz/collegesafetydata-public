@@ -425,7 +425,7 @@ export default function Rankings() {
           <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mb-4 sm:mb-5 max-w-2xl mx-auto">
             Explore safety data for{' '}
             <span className="font-semibold text-gray-900 dark:text-gray-100">
-              {totalSchoolCount.toLocaleString()}
+              {formatNumber(totalSchoolCount)}
             </span>{' '}
             college campuses
           </p>
@@ -640,7 +640,7 @@ export default function Rankings() {
               <div className="flex items-center gap-6 text-sm">
                 <div>
                   <span className="text-gray-500 dark:text-gray-400">Showing: </span>
-                  <span className="font-medium text-gray-900 dark:text-gray-100">{sortedRankings.length.toLocaleString()} {rowUnit}</span>
+                  <span className="font-medium text-gray-900 dark:text-gray-100">{formatNumber(sortedRankings.length)} {rowUnit}</span>
                 </div>
                 <div>
                   <span className="text-gray-500 dark:text-gray-400">{countLabel === 'Total' ? 'Total' : `Total ${countLabel.toLowerCase()}`}: </span>
@@ -714,7 +714,7 @@ export default function Rankings() {
                 {/* Mobile header row */}
                 <div className="flex items-center justify-between px-4 py-2 bg-gray-50 dark:bg-gray-800 border-b dark:border-gray-700">
                   <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
-                    Showing {displayedRankings.length} of {sortedRankings.length.toLocaleString()} {rowUnit}
+                    Showing {formatNumber(displayedRankings.length)} of {formatNumber(sortedRankings.length)} {rowUnit}
                   </span>
                   <span className="flex items-center gap-1 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                     <GitCompare className="w-3.5 h-3.5" />
@@ -809,7 +809,7 @@ export default function Rankings() {
                 {/* Desktop header row */}
                 <div className="flex items-center justify-between px-4 py-2 bg-gray-50 dark:bg-gray-800 border-b dark:border-gray-700">
                   <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
-                    Showing {displayedRankings.length} of {sortedRankings.length.toLocaleString()} {rowUnit}
+                    Showing {formatNumber(displayedRankings.length)} of {formatNumber(sortedRankings.length)} {rowUnit}
                   </span>
                 </div>
                 <div className="overflow-x-auto">
@@ -876,9 +876,9 @@ export default function Rankings() {
                     className="inline-flex items-center gap-2 px-6 py-2.5 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg font-medium transition-colors"
                   >
                     <Plus className="w-4 h-4" />
-                    Load {Math.min(LOAD_MORE_INCREMENT, remainingCount)} More
+                    Load {formatNumber(Math.min(LOAD_MORE_INCREMENT, remainingCount))} More
                     <span className="text-gray-500 dark:text-gray-400 text-sm">
-                      ({remainingCount.toLocaleString()} remaining)
+                      ({formatNumber(remainingCount)} remaining)
                     </span>
                   </button>
                 </div>
@@ -887,7 +887,7 @@ export default function Rankings() {
               {/* Showing count footer */}
               {!hasMoreToLoad && sortedRankings.length > 25 && (
                 <div className="p-4 border-t border-gray-100 dark:border-gray-800 text-center text-sm text-gray-500 dark:text-gray-400">
-                  Showing all {sortedRankings.length.toLocaleString()} {rowUnit}
+                  Showing all {formatNumber(sortedRankings.length)} {rowUnit}
                 </div>
               )}
             </>

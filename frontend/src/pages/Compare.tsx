@@ -814,7 +814,7 @@ export default function Compare() {
                               {yoy.absolute > 0 ? <TrendingUp className="w-5 h-5" /> :
                                yoy.absolute < 0 ? <TrendingDown className="w-5 h-5" /> :
                                <Minus className="w-5 h-5" />}
-                              {yoy.absolute > 0 ? '+' : ''}{yoy.absolute}
+                              {yoy.absolute > 0 ? '+' : ''}{formatNumber(yoy.absolute)}
                             </div>
                           ) : (
                             <span className="text-gray-400">N/A</span>
@@ -928,7 +928,7 @@ export default function Compare() {
                             {yoy.absolute > 0 ? <TrendingUp className="w-4 h-4" /> :
                              yoy.absolute < 0 ? <TrendingDown className="w-4 h-4" /> :
                              <Minus className="w-4 h-4" />}
-                            {yoy.absolute > 0 ? '+' : ''}{yoy.absolute}
+                            {yoy.absolute > 0 ? '+' : ''}{formatNumber(yoy.absolute)}
                           </div>
                         ) : (
                           <span className="text-gray-400">N/A</span>
@@ -1000,10 +1000,12 @@ export default function Compare() {
                   axisLine={{ stroke: chartGridColor }}
                 />
                 <YAxis
+                  tickFormatter={(v: number) => formatNumber(v)}
                   tick={{ fill: chartTextColor, fontSize: 12 }}
                   axisLine={{ stroke: chartGridColor }}
                 />
                 <Tooltip
+                  formatter={(value: number) => formatNumber(value)}
                   contentStyle={{
                     backgroundColor: chartBgColor,
                     border: `1px solid ${chartBorderColor}`,
@@ -1040,6 +1042,7 @@ export default function Compare() {
                 <CartesianGrid strokeDasharray="3 3" stroke={chartGridColor} />
                 <XAxis
                   type="number"
+                  tickFormatter={(v: number) => formatNumber(v)}
                   tick={{ fill: chartTextColor, fontSize: 12 }}
                   axisLine={{ stroke: chartGridColor }}
                 />
@@ -1051,6 +1054,7 @@ export default function Compare() {
                   width={100}
                 />
                 <Tooltip
+                  formatter={(value: number) => formatNumber(value)}
                   contentStyle={{
                     backgroundColor: chartBgColor,
                     border: `1px solid ${chartBorderColor}`,

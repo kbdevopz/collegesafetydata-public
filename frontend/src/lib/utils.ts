@@ -5,6 +5,7 @@
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 import type { TrendPoint, ChartDataPoint, Offense } from './types'
+import { formatNumber } from './format'
 
 // =============================================================================
 // Class Name Utilities
@@ -21,18 +22,14 @@ export function cn(...inputs: ClassValue[]): string {
 // Number Formatting
 // =============================================================================
 
-/**
- * Format a number with thousand separators
- */
-export function formatNumber(n: number): string {
-  return n.toLocaleString()
-}
+// A number for reading (lib/format.ts): "1,234", "1,234.50"
+export { formatNumber }
 
 /**
  * Format a number as a percentage
  */
 export function formatPercent(value: number, decimals: number = 1): string {
-  return `${value.toFixed(decimals)}%`
+  return `${formatNumber(value, decimals)}%`
 }
 
 /**
@@ -48,7 +45,7 @@ export function formatChange(value: number): string {
  */
 export function formatPercentChange(value: number, decimals: number = 1): string {
   const sign = value > 0 ? '+' : ''
-  return `${sign}${value.toFixed(decimals)}%`
+  return `${sign}${formatNumber(value, decimals)}%`
 }
 
 // =============================================================================

@@ -18,6 +18,7 @@ import {
   COUNTS_ONLY_REASONS, OFFENSE_NOUNS, RATE_CODE_LABELS, RATE_CODE_ORDER, RATE_CODE_PHRASES, SHOW_POINT_POSITION,
   VERDICT_LABELS, VERDICT_SHORT,
 } from './rateDisplay'
+import { formatNumber } from './format'
 
 // =============================================================================
 // NCES FTE of a school's institution (count views)
@@ -49,11 +50,11 @@ export function latestFte(profile: FteSource): { year: number; fte: number } | n
 // Numbers and words
 // =============================================================================
 
-export const fmtInt = (n: number) => n.toLocaleString('en-US')
+export const fmtInt = (n: number) => formatNumber(n)
 
-/** A published rate (2 decimals) as published: "31.01" */
+/** A published rate (2 decimals) as published: "31.01", "1,204.50" */
 export function fmtRate(x: number): string {
-  return x.toFixed(2)
+  return formatNumber(x, 2)
 }
 
 /** "1st", "2nd", "3rd", "11th", "12th", "21st", "101st", "111th" */
@@ -207,7 +208,7 @@ export function entryPosition(e: RateEntryFields, listN: number | null, state = 
  * `digits` is 4 and the 4-decimal figure is published, else to 2.
  */
 export function fmtRateAt(x: number, x4: number | null | undefined, digits: 2 | 4): string {
-  return digits === 4 && x4 !== undefined && x4 !== null ? x4.toFixed(4) : fmtRate(x)
+  return digits === 4 && x4 !== undefined && x4 !== null ? formatNumber(x4, 4) : fmtRate(x)
 }
 
 /**
@@ -313,7 +314,7 @@ const GEO_PHRASES: Record<string, string> = {
 export function flagSentence(f: RateFlag | InstitutionFlag, geo = 'On-campus'): string {
   const where = GEO_PHRASES[('geo' in f && f.geo) || geo] ?? 'on campus'
   return `${f.year}: ${offenseCount(f.count, f.offense)} reported ${where}, compared with a median of ` +
-    `${f.usual.toLocaleString('en-US')} a year in this institution's other years. DOE counts each incident in ` +
+    `${formatNumber(f.usual)} a year in this institution's other years. DOE counts each incident in ` +
     'the year it is reported.'
 }
 
@@ -322,7 +323,7 @@ export function notPlacedSentence(e: Pick<RateEntryFields, 'notPlaced' | 'flags'
   if (e.notPlaced !== 'unusual_year') return null
   const flags = (e.flags ?? []).map((f) =>
     `in ${f.year} it reported ${offenseCount(f.count, f.offense)} on campus, against a median of ` +
-    `${f.usual.toLocaleString('en-US')} a year in its other years`)
+    `${formatNumber(f.usual)} a year in its other years`)
   const what = flags.length > 0 ? `: ${joinAnd(flags)}` : ': it has an unusual year in this period'
   return `Not placed on the list${what}. An institution with an unusual year in the window is not given a ` +
     "position, so that one year's count does not set its place; its rate and comparisons are shown."
@@ -621,7 +622,7 @@ export function nationalCompositionSentence(
     if (total <= 0) return null
     // The published shares (compositionShare, 4 decimals) as percentages to
     // 2 decimals, so that they are not rounded twice; else from the counts
-    const pct = (o: string) => `${(share?.[o] !== undefined ? share[o] * 100 : (composition[o] ?? 0) / total * 100).toFixed(2)}%`
+    const pct = (o: string) => `${formatNumber(share?.[o] !== undefined ? share[o] * 100 : (composition[o] ?? 0) / total * 100, 2)}%`
     return 'Violent crimes are murder, rape, robbery and aggravated assault. Of the ' +
       `${fmtInt(total)} on-campus violent crimes counted in the national rate for ${windowLabel(key)}, ${pct('rape')} ` +
       `are reported rapes, ${pct('aggravated_assault')} aggravated assaults, ${pct('robbery')} robberies and ` +

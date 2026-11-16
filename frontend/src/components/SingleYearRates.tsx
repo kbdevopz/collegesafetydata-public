@@ -1,6 +1,7 @@
 import type { InstitutionRatesFile, RateRules, SchoolProfile } from '../lib/types'
 import { fmtInt, fmtRate, joinAnd, levelPct, notRatedYearText, rateCodeLabel } from '../lib/rates'
 import LinkedText from './LinkedText'
+import { formatNumber } from '../lib/utils'
 
 interface YearRow {
   year: number
@@ -157,5 +158,5 @@ function niceMax(v: number): number {
 }
 
 function formatTick(v: number): string {
-  return Number.isInteger(v) ? String(v) : v.toFixed(1)
+  return Number.isInteger(v) ? formatNumber(v) : formatNumber(v, 1)
 }

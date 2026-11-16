@@ -43,7 +43,7 @@ import {
 // "1,234", or "…" while the figure is not loaded
 const num = (v: number | null | undefined) => (v === null || v === undefined ? '…' : formatNumber(v))
 // "29.3%"
-const pct1 = (x: number) => `${(x * 100).toFixed(1)}%`
+const pct1 = (x: number) => `${formatNumber(x * 100, 1)}%`
 // "3 percentage points"
 const pctPoints = (x: number) => `${Math.round(x * 100)} percentage ${Math.round(x * 100) === 1 ? 'point' : 'points'}`
 // "2015-2019" written for reading: "2015–2019"
@@ -645,7 +645,7 @@ export default function Methodology() {
     const v = vector(code, n)
     if (!v) return '…'
     const [lo, hi] = v.interval
-    const f =(x: number) => (x === 0 ? '0' : x.toLocaleString('en-US', { minimumFractionDigits: digits, maximumFractionDigits: digits }))
+    const f = (x: number) => (x === 0 ? '0' : formatNumber(x, digits))
     return `${f(lo)} to ${f(hi)}`
   }
 

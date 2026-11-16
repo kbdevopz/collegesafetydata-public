@@ -4,7 +4,7 @@ import { Info, Loader2 } from 'lucide-react'
 import { fetchInstitutionRates } from '../lib/api'
 import type { InstitutionRatesFile, Metadata, SchoolProfile } from '../lib/types'
 import {
-  abroadNote, entryPosition, fmtInt, fteUncertainNote, isListCode, missingYearsSentence, noRatesSentence,
+  abroadNote, entryPosition, fmtInt, fmtRate, fteUncertainNote, isListCode, missingYearsSentence, noRatesSentence,
   notRatedYearText, offenseCount, pooledNote,
   rateCodeLabel, rateCodes, windowKeys, windowLabel, windowStatusSentence, windowYears,
 } from '../lib/rates'
@@ -225,7 +225,7 @@ export default function RatePanel({
                       {rateCodeLabel(code)}
                       {entry && (
                         <>
-                          <span className="tabular-nums text-gray-700 dark:text-gray-300">{entry.rate.toFixed(2)}</span>
+                          <span className="tabular-nums text-gray-700 dark:text-gray-300">{fmtRate(entry.rate)}</span>
                           <VerdictLabel verdict={entry.verdict} />
                         </>
                       )}
@@ -255,7 +255,7 @@ export default function RatePanel({
             {file.flags.map((f) => (
               <li key={`${f.year}-${f.offense}-${f.geo}`}>
                 {f.year}, {f.geo.toLowerCase()}: {offenseCount(f.count, f.offense)} (median of its other years{' '}
-                {f.usual.toLocaleString('en-US')})
+                {fmtInt(f.usual)})
               </li>
             ))}
           </ul>

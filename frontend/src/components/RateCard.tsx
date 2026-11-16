@@ -12,7 +12,7 @@ import {
 } from '../lib/rates'
 import LinkedText from './LinkedText'
 import { stateDisplayMin, VERDICT_LABELS } from '../lib/rateDisplay'
-import { cn } from '../lib/utils'
+import { cn, formatNumber } from '../lib/utils'
 
 const VERDICT_TONES: Record<Verdict, string> = {
   above: 'bg-amber-50 text-amber-900 border-amber-300 dark:bg-amber-900/30 dark:text-amber-200 dark:border-amber-700',
@@ -225,7 +225,7 @@ export function RateCodeBlock({
         On campus: {fmtInt(entry.n)} {entry.n === 1 ? 'incident' : 'incidents'}
         {years.length > 0 && <> ({years.map((y) => `${fmtInt(entry.nByYear[y])} in ${y}`).join(', ')})</>}, over{' '}
         {fmtInt(entry.fteYears)} student-years (on-campus students added up over the three years). At the national
-        rate, about {entry.E.toFixed(1)} would be expected.
+        rate, about {formatNumber(entry.E, 1)} would be expected.
       </Line>
       {t.notes.map((n) => (
         <Fragment key={n}>
