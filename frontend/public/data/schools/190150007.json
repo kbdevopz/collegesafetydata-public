@@ -40,16 +40,30 @@
   ],
   "institution": {
     "id": 190150,
+    "ratesFile": "rates/institutions/190150.json",
     "byYear": {
       "2024": {
-        "campuses": 7,
+        "campuses": 6,
         "online": 4,
-        "rateRanked": true,
-        "rateFte": 30043,
-        "spikes": [
-          "property",
-          "burglary",
-          "motor_vehicle_theft"
+        "rated": true,
+        "rateFte": 30697,
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "On-campus",
+            "count": 90,
+            "usual": 23
+          },
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "Public property",
+            "count": 29,
+            "usual": 4
+          }
         ],
         "counts": {
           "criminal": 183,

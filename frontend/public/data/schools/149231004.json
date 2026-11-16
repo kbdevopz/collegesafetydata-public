@@ -213,17 +213,20 @@
   ],
   "institution": {
     "id": 149231,
+    "ratesFile": "rates/institutions/149231.json",
     "byYear": {
       "2015": {
         "campuses": 3,
         "online": 4,
-        "rateRanked": true,
-        "rateFte": 11889,
-        "spikes": [
-          "criminal",
-          "all",
-          "drug_arrest",
-          "liquor_arrest"
+        "rated": true,
+        "rateFte": 12163,
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "On-campus",
+            "count": 14,
+            "usual": 1
+          }
         ],
         "counts": {
           "criminal": 38,
@@ -249,12 +252,15 @@
       "2016": {
         "campuses": 3,
         "online": 5,
-        "rateRanked": true,
-        "rateFte": 11685,
-        "spikes": [
-          "criminal",
-          "all",
-          "drug_arrest"
+        "rated": true,
+        "rateFte": 12026,
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "On-campus",
+            "count": 15,
+            "usual": 1
+          }
         ],
         "counts": {
           "criminal": 26,
@@ -280,12 +286,8 @@
       "2017": {
         "campuses": 3,
         "online": 6,
-        "rateRanked": true,
-        "rateFte": 11228,
-        "spikes": [
-          "all",
-          "drug_arrest"
-        ],
+        "rated": true,
+        "rateFte": 11624,
         "counts": {
           "criminal": 12,
           "violent": 4,
@@ -308,11 +310,8 @@
       "2018": {
         "campuses": 3,
         "online": 7,
-        "rateRanked": true,
-        "rateFte": 10626,
-        "spikes": [
-          "drug_discipline"
-        ],
+        "rated": true,
+        "rateFte": 11066,
         "counts": {
           "criminal": 19,
           "violent": 7,
@@ -338,8 +337,8 @@
       "2019": {
         "campuses": 3,
         "online": 10,
-        "rateRanked": true,
-        "rateFte": 9996,
+        "rated": true,
+        "rateFte": 10604,
         "counts": {
           "criminal": 11,
           "violent": 5,

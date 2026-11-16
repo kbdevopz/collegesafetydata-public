@@ -48,15 +48,13 @@
   ],
   "institution": {
     "id": 224554,
+    "ratesFile": "rates/institutions/224554.json",
     "byYear": {
       "2015": {
         "campuses": 7,
         "online": 33,
-        "rateRanked": true,
-        "rateFte": 6318,
-        "spikes": [
-          "liquor_arrest"
-        ],
+        "rated": true,
+        "rateFte": 7820,
         "counts": {
           "criminal": 35,
           "violent": 10,
@@ -82,11 +80,8 @@
       "2016": {
         "campuses": 7,
         "online": 34,
-        "rateRanked": true,
-        "rateFte": 6476,
-        "spikes": [
-          "liquor_arrest"
-        ],
+        "rated": true,
+        "rateFte": 8076,
         "counts": {
           "criminal": 20,
           "violent": 4,
@@ -107,12 +102,20 @@
       "2017": {
         "campuses": 6,
         "online": 35,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2017 figures of this institution's campus 224554004 are also reported, identically, by campus 227146001 of another institution (a shared campus) and count once, under that campus, while the students on it are in each institution's own FTE. No rate is shown for that year.",
-        "rateFte": 6232,
-        "spikes": [
-          "property",
-          "burglary"
+        "rated": true,
+        "rateFte": 7832,
+        "fteUncertain": {
+          "share": 6232,
+          "partTimeFirst": 7832,
+          "reason": "own"
+        },
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "On-campus",
+            "count": 32,
+            "usual": 7
+          }
         ],
         "counts": {
           "criminal": 38,

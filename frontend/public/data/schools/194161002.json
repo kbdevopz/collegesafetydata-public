@@ -173,17 +173,20 @@
   ],
   "institution": {
     "id": 194161,
+    "ratesFile": "rates/institutions/194161.json",
     "byYear": {
       "2015": {
         "campuses": 2,
         "online": 3,
-        "rateRanked": true,
-        "rateFte": 2061,
-        "spikes": [
-          "criminal",
-          "all",
-          "drug_arrest",
-          "weapons_arrest"
+        "rated": true,
+        "rateFte": 2094,
+        "flags": [
+          {
+            "offense": "fondling",
+            "geo": "On-campus",
+            "count": 13,
+            "usual": 0.0
+          }
         ],
         "counts": {
           "criminal": 34,
@@ -205,8 +208,8 @@
       "2016": {
         "campuses": 2,
         "online": 6,
-        "rateRanked": true,
-        "rateFte": 1857,
+        "rated": true,
+        "rateFte": 1918,
         "counts": {
           "criminal": 12,
           "violent": 12,
@@ -219,8 +222,8 @@
       "2017": {
         "campuses": 2,
         "online": 10,
-        "rateRanked": true,
-        "rateFte": 1724,
+        "rated": true,
+        "rateFte": 1820,
         "counts": {
           "criminal": 3,
           "violent": 3,
@@ -232,8 +235,8 @@
       "2018": {
         "campuses": 2,
         "online": 15,
-        "rateRanked": true,
-        "rateFte": 1567,
+        "rated": true,
+        "rateFte": 1707,
         "counts": {
           "criminal": 4,
           "violent": 2,
@@ -249,8 +252,8 @@
       "2019": {
         "campuses": 2,
         "online": 16,
-        "rateRanked": true,
-        "rateFte": 1278,
+        "rated": true,
+        "rateFte": 1399,
         "counts": {
           "all": 7,
           "drug_discipline": 1,
@@ -260,9 +263,10 @@
       "2020": {
         "campuses": 2,
         "online": 16,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 1311,
+        "rateFte": 1438,
         "counts": {
           "all": 4,
           "liquor_discipline": 3,
@@ -272,9 +276,9 @@
       "2021": {
         "campuses": 1,
         "online": 16,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 1200
+        "rateFte": 1313
       }
     }
   }

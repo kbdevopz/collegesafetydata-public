@@ -69,16 +69,15 @@
   ],
   "institution": {
     "id": 188030,
+    "ratesFile": "rates/institutions/188030.json",
     "byYear": {
       "2015": {
         "campuses": 2,
         "online": 12,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2015 figures this institution reports for a campus are also reported, identically, by campus 187620001 of another institution (a shared campus) and count here, while that institution's students are in its own FTE. No rate is shown for that year.",
-        "rateFte": 11736,
-        "spikes": [
-          "domestic_violence"
-        ],
+        "rated": false,
+        "notRated": "excluded",
+        "rateExcludedReason": "Its main campus is shared with New Mexico State University-Dona Ana; the reported incidents cannot be assigned to one institution's students. No rate is shown for that year.",
+        "rateFte": 12617,
         "counts": {
           "criminal": 87,
           "violent": 15,
@@ -103,9 +102,10 @@
       "2016": {
         "campuses": 2,
         "online": 11,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2016 figures this institution reports for a campus are also reported, identically, by campus 187620001 of another institution (a shared campus) and count here, while that institution's students are in its own FTE. No rate is shown for that year.",
-        "rateFte": 11322,
+        "rated": false,
+        "notRated": "excluded",
+        "rateExcludedReason": "Its main campus is shared with New Mexico State University-Dona Ana; the reported incidents cannot be assigned to one institution's students. No rate is shown for that year.",
+        "rateFte": 12088,
         "counts": {
           "criminal": 75,
           "violent": 20,
@@ -131,9 +131,10 @@
       "2017": {
         "campuses": 2,
         "online": 11,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2017 figures this institution reports for a campus are also reported, identically, by campus 187620001 of another institution (a shared campus) and count here, while that institution's students are in its own FTE. No rate is shown for that year.",
-        "rateFte": 11069,
+        "rated": false,
+        "notRated": "excluded",
+        "rateExcludedReason": "Its main campus is shared with New Mexico State University-Dona Ana; the reported incidents cannot be assigned to one institution's students. No rate is shown for that year.",
+        "rateFte": 11822,
         "counts": {
           "criminal": 39,
           "violent": 10,
@@ -156,11 +157,17 @@
       "2018": {
         "campuses": 2,
         "online": 11,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2018 figures this institution reports for a campus are also reported, identically, by campus 187620001 of another institution (a shared campus) and count here, while that institution's students are in its own FTE. No rate is shown for that year.",
-        "rateFte": 10998,
-        "spikes": [
-          "stalking"
+        "rated": false,
+        "notRated": "excluded",
+        "rateExcludedReason": "Its main campus is shared with New Mexico State University-Dona Ana; the reported incidents cannot be assigned to one institution's students. No rate is shown for that year.",
+        "rateFte": 11747,
+        "flags": [
+          {
+            "offense": "stalking",
+            "geo": "On-campus",
+            "count": 20,
+            "usual": 4
+          }
         ],
         "counts": {
           "criminal": 47,
@@ -184,9 +191,10 @@
       "2019": {
         "campuses": 2,
         "online": 12,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2019 figures this institution reports for a campus are also reported, identically, by campus 187620001 of another institution (a shared campus) and count here, while that institution's students are in its own FTE. No rate is shown for that year.",
-        "rateFte": 10857,
+        "rated": false,
+        "notRated": "excluded",
+        "rateExcludedReason": "Its main campus is shared with Burrell College of Osteopathic Medicine and New Mexico State University-Dona Ana; the reported incidents cannot be assigned to one institution's students. No rate is shown for that year.",
+        "rateFte": 11673,
         "counts": {
           "criminal": 50,
           "violent": 9,

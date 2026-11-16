@@ -878,72 +878,78 @@
   ],
   "institution": {
     "id": 212674,
+    "ratesFile": "rates/institutions/212674.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2437
       },
       "2016": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2384
       },
       "2017": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2407
       },
       "2018": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2436,
-        "spikes": [
-          "property",
-          "burglary"
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "On-campus",
+            "count": 32,
+            "usual": 4
+          }
         ]
       },
       "2019": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2368
       },
       "2020": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 2500
       },
       "2021": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 2399
       },
       "2022": {
         "campuses": 1,
         "online": 22,
-        "rateRanked": true,
-        "rateFte": 1938
+        "rated": true,
+        "rateFte": 2237
       },
       "2023": {
         "campuses": 1,
         "online": 23,
-        "rateRanked": true,
-        "rateFte": 1905
+        "rated": true,
+        "rateFte": 2212
       },
       "2024": {
         "campuses": 1,
         "online": 25,
-        "rateRanked": true,
-        "rateFte": 1780
+        "rated": true,
+        "rateFte": 2098
       }
     }
   }

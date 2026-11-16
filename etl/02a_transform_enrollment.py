@@ -14,6 +14,9 @@ Output columns:
 - enrollment_ft: Full-time enrollment
 - enrollment_pt: Part-time enrollment
 - pctdeexc: Percent of students enrolled exclusively in distance education (may be blank)
+- enrollment_ug, enrollment_ug_ft, enrollment_grad, enrollment_grad_ft, pcudeexc,
+  pcgdeexc: the same headcounts and share by level (undergraduate, graduate),
+  from DRVEF (2021 onward; blank for earlier years)
 
 Usage:
     python 02a_transform_enrollment.py
@@ -42,6 +45,11 @@ DRVEF_YEARS = [y for y in DATA_YEARS if y >= 2021]
 # Input file used for each year, recorded in the build manifest
 INPUTS: dict[int, dict] = {}
 
+# Headcounts and online shares by level (DRVEF only; blank before 2021):
+# DRVEF column -> dim_enrollment column
+LEVEL_COLUMNS = {'EFUG': 'enrollment_ug', 'EFUGFT': 'enrollment_ug_ft', 'EFGRAD': 'enrollment_grad',
+                 'EFGRADFT': 'enrollment_grad_ft', 'PCUDEEXC': 'pcudeexc', 'PCGDEEXC': 'pcgdeexc'}
+
 
 def load_drvef_file(year: int) -> pd.DataFrame:
     """Load and parse a DRVEF file for a given year.
@@ -59,14 +67,25 @@ def load_drvef_file(year: int) -> pd.DataFrame:
     print(f"  Reading {file_path.name} ({'final' if INPUTS[year]['final'] else 'provisional'})")
 
     # Read only the columns we need; PCTDEEXC is the percent of students
-    # enrolled exclusively in distance education
-    cols = ['UNITID', 'ENRTOT', 'FTE', 'ENRFT', 'ENRPT', 'PCTDEEXC']
+    # enrolled exclusively in distance education, PCUDEEXC and PCGDEEXC the
+    # same for undergraduates and graduate students, EFUG/EFGRAD their
+    # headcounts and EFUGFT/EFGRADFT their full-time headcounts
+    cols = ['UNITID', 'ENRTOT', 'FTE', 'ENRFT', 'ENRPT', 'PCTDEEXC'] + list(LEVEL_COLUMNS)
     header = pd.read_csv(file_path, nrows=0).columns
     missing = [c for c in cols if c not in header]
     if missing:
         raise RuntimeError(f"{file_path.name} has no column {', '.join(missing)}. NCES may have renamed it; "
                            "look at the file and update load_drvef_file in 02a_transform_enrollment.py.")
     df = pd.read_csv(file_path, usecols=cols)
+    for col in LEVEL_COLUMNS:
+        # A blank (or NCES's "." for not applicable) is no figure
+        df[col] = pd.to_numeric(df[col], errors="coerce")
+        if (df[col].dropna() % 1 != 0).any() or (df[col].dropna() < 0).any():
+            raise RuntimeError(f"{file_path.name}: {col} holds a value that is not a whole number. Look at the "
+                               "file and update load_drvef_file in 02a_transform_enrollment.py.")
+    for col in ('PCUDEEXC', 'PCGDEEXC'):
+        if (df[col].dropna() > 100).any():
+            raise RuntimeError(f"{file_path.name}: {col} holds a value above 100. Look at the file.")
 
     # Add year column
     df['year'] = year
@@ -94,6 +113,8 @@ def load_drvef_file(year: int) -> pd.DataFrame:
         raise RuntimeError(f"{file_path.name}: PCTDEEXC holds a value that is not a whole percent. Look at the "
                            "file and update load_drvef_file in 02a_transform_enrollment.py.")
     df['PCTDEEXC'] = df['PCTDEEXC'].astype('Int16')
+    for col in LEVEL_COLUMNS:
+        df[col] = df[col].astype('Int32')
 
     return df
 
@@ -139,6 +160,7 @@ def main():
                 'ENRFT': 'enrollment_ft',
                 'ENRPT': 'enrollment_pt',
                 'PCTDEEXC': 'pctdeexc',
+                **LEVEL_COLUMNS,
             })
             print(f"  Loaded {len(df):,} institutions")
             all_data.append(df)
@@ -162,9 +184,13 @@ def main():
     combined = pd.concat(all_data, ignore_index=True)
 
     # Ensure correct column order
+    for col in LEVEL_COLUMNS.values():
+        if col not in combined.columns:
+            combined[col] = pd.NA
     combined = combined[['unitid', 'year', 'fte', 'enrollment_total', 'enrollment_ft', 'enrollment_pt',
-                         'pctdeexc']]
+                         'pctdeexc', *LEVEL_COLUMNS.values()]]
     combined['pctdeexc'] = combined['pctdeexc'].astype('Int16')
+    combined = combined.astype({col: 'Int32' for col in LEVEL_COLUMNS.values()})
 
     # Sort by unitid and year
     combined = combined.sort_values(['unitid', 'year']).reset_index(drop=True)

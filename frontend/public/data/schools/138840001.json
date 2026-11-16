@@ -150,68 +150,75 @@
   ],
   "institution": {
     "id": 138840,
+    "ratesFile": "rates/institutions/138840.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 10,
-        "rateRanked": true,
-        "rateFte": 1990
+        "rated": true,
+        "rateFte": 2084
       },
       "2016": {
         "campuses": 1,
         "online": 13,
-        "rateRanked": true,
-        "rateFte": 1915
+        "rated": true,
+        "rateFte": 2036
       },
       "2017": {
         "campuses": 1,
         "online": 18,
-        "rateRanked": true,
-        "rateFte": 1893
+        "rated": true,
+        "rateFte": 2061
       },
       "2018": {
         "campuses": 1,
         "online": 20,
-        "rateRanked": true,
-        "rateFte": 1649
+        "rated": true,
+        "rateFte": 1822
       },
       "2019": {
         "campuses": 1,
         "online": 20,
-        "rateRanked": true,
-        "rateFte": 1683
+        "rated": true,
+        "rateFte": 1849
       },
       "2020": {
         "campuses": 2,
         "online": 20,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 1249
+        "rateFte": 1357
       },
       "2021": {
         "campuses": 2,
         "online": 20,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 1461
+        "rateFte": 1599
       },
       "2022": {
         "campuses": 2,
         "online": 46,
-        "rateRanked": false,
-        "rateFte": 904
+        "rated": true,
+        "rateFte": 1191,
+        "fteUncertain": {
+          "share": 904,
+          "partTimeFirst": 1191,
+          "reason": "own"
+        }
       },
       "2023": {
         "campuses": 2,
         "online": 38,
-        "rateRanked": true,
-        "rateFte": 1195
+        "rated": true,
+        "rateFte": 1481
       },
       "2024": {
         "campuses": 2,
         "online": 35,
-        "rateRanked": true,
-        "rateFte": 1627
+        "rated": true,
+        "rateFte": 1974
       }
     }
   }

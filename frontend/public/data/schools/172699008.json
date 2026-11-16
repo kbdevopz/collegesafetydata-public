@@ -52,18 +52,20 @@
   ],
   "institution": {
     "id": 172699,
+    "ratesFile": "rates/institutions/172699.json",
     "byYear": {
       "2015": {
         "campuses": 11,
         "online": 4,
-        "rateRanked": true,
-        "rateFte": 18428,
-        "spikes": [
-          "all",
-          "drug_arrest",
-          "drug_discipline",
-          "liquor_arrest",
-          "liquor_discipline"
+        "rated": true,
+        "rateFte": 18838,
+        "flags": [
+          {
+            "offense": "dating_violence",
+            "geo": "On-campus",
+            "count": 15,
+            "usual": 0
+          }
         ],
         "counts": {
           "criminal": 54,
@@ -91,14 +93,15 @@
       "2016": {
         "campuses": 11,
         "online": 5,
-        "rateRanked": true,
-        "rateFte": 17935,
-        "spikes": [
-          "all",
-          "drug_arrest",
-          "drug_discipline",
-          "liquor_arrest",
-          "liquor_discipline"
+        "rated": true,
+        "rateFte": 18436,
+        "flags": [
+          {
+            "offense": "dating_violence",
+            "geo": "On-campus",
+            "count": 14,
+            "usual": 0
+          }
         ],
         "counts": {
           "criminal": 63,
@@ -125,10 +128,14 @@
         }
       },
       "2023": {
-        "campuses": 6,
+        "campuses": 5,
         "online": 12,
-        "rateRanked": true,
-        "rateFte": 12341,
+        "rated": true,
+        "rateFte": 13279,
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
         "counts": {
           "criminal": 39,
           "violent": 22,
@@ -148,10 +155,14 @@
         }
       },
       "2024": {
-        "campuses": 6,
+        "campuses": 5,
         "online": 13,
-        "rateRanked": true,
-        "rateFte": 12195,
+        "rated": true,
+        "rateFte": 13160,
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
         "counts": {
           "criminal": 45,
           "violent": 15,

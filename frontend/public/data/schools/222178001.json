@@ -680,12 +680,13 @@
   ],
   "institution": {
     "id": 222178,
+    "ratesFile": "rates/institutions/222178.json",
     "byYear": {
       "2015": {
         "campuses": 2,
         "online": 8,
-        "rateRanked": true,
-        "rateFte": 3816,
+        "rated": true,
+        "rateFte": 4008,
         "counts": {
           "criminal": 17,
           "violent": 1,
@@ -705,40 +706,57 @@
       "2016": {
         "campuses": 1,
         "online": 15,
-        "rateRanked": true,
-        "rateFte": 3643
+        "rated": true,
+        "rateFte": 4003
       },
       "2017": {
         "campuses": 2,
         "online": 20,
-        "rateRanked": true,
-        "rateFte": 3475
+        "rated": true,
+        "rateFte": 3950
       },
       "2018": {
-        "campuses": 5,
+        "campuses": 2,
         "online": 25,
-        "rateRanked": true,
-        "rateFte": 3221
+        "rated": true,
+        "rateFte": 3796,
+        "abroad": {
+          "campuses": 3,
+          "counts": {}
+        }
       },
       "2019": {
-        "campuses": 5,
+        "campuses": 2,
         "online": 27,
-        "rateRanked": true,
-        "rateFte": 3164
+        "rated": true,
+        "rateFte": 3787,
+        "abroad": {
+          "campuses": 3,
+          "counts": {}
+        }
       },
       "2020": {
-        "campuses": 5,
+        "campuses": 2,
         "online": 27,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 3136
+        "rateFte": 3749,
+        "abroad": {
+          "campuses": 3,
+          "counts": {}
+        }
       },
       "2021": {
-        "campuses": 5,
+        "campuses": 2,
         "online": 27,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 2924,
+        "rateFte": 3497,
+        "abroad": {
+          "campuses": 3,
+          "counts": {}
+        },
         "counts": {
           "criminal": 12,
           "violent": 3,
@@ -759,28 +777,34 @@
         }
       },
       "2022": {
-        "campuses": 5,
+        "campuses": 2,
         "online": 30,
-        "rateRanked": true,
-        "rateFte": 2855
+        "rated": true,
+        "rateFte": 3500,
+        "abroad": {
+          "campuses": 3,
+          "counts": {}
+        }
       },
       "2023": {
-        "campuses": 5,
+        "campuses": 2,
         "online": 31,
-        "rateRanked": true,
-        "rateFte": 2811,
-        "spikes": [
-          "liquor_discipline"
-        ]
+        "rated": true,
+        "rateFte": 3457,
+        "abroad": {
+          "campuses": 3,
+          "counts": {}
+        }
       },
       "2024": {
-        "campuses": 5,
+        "campuses": 2,
         "online": 30,
-        "rateRanked": true,
-        "rateFte": 2932,
-        "spikes": [
-          "liquor_discipline"
-        ]
+        "rated": true,
+        "rateFte": 3571,
+        "abroad": {
+          "campuses": 3,
+          "counts": {}
+        }
       }
     }
   }

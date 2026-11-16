@@ -56,12 +56,13 @@
   ],
   "institution": {
     "id": 206048,
+    "ratesFile": "rates/institutions/206048.json",
     "byYear": {
       "2015": {
         "campuses": 7,
         "online": 29,
-        "rateRanked": true,
-        "rateFte": 1801,
+        "rated": true,
+        "rateFte": 2144,
         "counts": {
           "criminal": 17,
           "violent": 2,
@@ -81,11 +82,13 @@
       "2016": {
         "campuses": 5,
         "online": 41,
-        "rateRanked": true,
-        "rateFte": 1437,
-        "spikes": [
-          "liquor_arrest"
-        ],
+        "rated": true,
+        "rateFte": 1904,
+        "fteUncertain": {
+          "share": 1437,
+          "partTimeFirst": 1904,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 5,
           "violent": 5,
@@ -103,9 +106,8 @@
       "2017": {
         "campuses": 7,
         "online": 26,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2017 figures of this institution's campus 206048010 are also reported, identically, by campus 204945001 of another institution (a shared campus) and count once, under that campus, while the students on it are in each institution's own FTE. No rate is shown for that year.",
-        "rateFte": 1761,
+        "rated": true,
+        "rateFte": 2064,
         "counts": {
           "criminal": 19,
           "violent": 7,
@@ -127,9 +129,13 @@
       "2018": {
         "campuses": 4,
         "online": 40,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2018 figures of this institution's campus 206048008 are also reported, identically, by campus 202356001 of another institution (a shared campus) and count once, under that campus, while the students on it are in each institution's own FTE. No rate is shown for that year.",
-        "rateFte": 1391,
+        "rated": true,
+        "rateFte": 1827,
+        "fteUncertain": {
+          "share": 1391,
+          "partTimeFirst": 1827,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 13,
           "violent": 6,
@@ -151,11 +157,13 @@
       "2019": {
         "campuses": 5,
         "online": 35,
-        "rateRanked": true,
-        "rateFte": 1472,
-        "spikes": [
-          "liquor_arrest"
-        ],
+        "rated": true,
+        "rateFte": 1867,
+        "fteUncertain": {
+          "share": 1472,
+          "partTimeFirst": 1867,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 8,
           "violent": 5,

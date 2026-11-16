@@ -454,63 +454,66 @@
   ],
   "institution": {
     "id": 215105,
+    "ratesFile": "rates/institutions/215105.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1815,
-        "spikes": [
-          "criminal",
-          "liquor_discipline"
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "On-campus",
+            "count": 19,
+            "usual": 1
+          }
         ]
       },
       "2016": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
-        "rateFte": 1858,
-        "spikes": [
-          "liquor_discipline"
-        ]
+        "rated": true,
+        "rateFte": 1858
       },
       "2017": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1816
       },
       "2018": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1884
       },
       "2019": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1816
       },
       "2020": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 1480
       },
       "2021": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 1527
       },
       "2022": {
         "campuses": 1,
         "online": 4,
-        "rateRanked": true,
-        "rateFte": 1212
+        "rated": true,
+        "rateFte": 1244
       }
     }
   }

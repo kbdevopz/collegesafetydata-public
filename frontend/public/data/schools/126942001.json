@@ -916,25 +916,23 @@
   ],
   "institution": {
     "id": 126942,
+    "ratesFile": "rates/institutions/126942.json",
     "byYear": {
       "2015": {
         "campuses": 2,
         "online": 11,
-        "rateRanked": true,
-        "rateFte": 4179,
-        "spikes": [
-          "drug_arrest"
-        ]
+        "rated": false,
+        "notRated": "excluded",
+        "rateExcludedReason": "Its main campus is shared with Metropolitan State University of Denver; the reported incidents cannot be assigned to one institution's students. No rate is shown for that year.",
+        "rateFte": 4358
       },
       "2016": {
         "campuses": 2,
         "online": 10,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2016 figures of this institution's campus 126942001 are also reported, identically, by campus 127565001 of another institution (a shared campus) and count once, under that campus, while the students on it are in each institution's own FTE. No rate is shown for that year.",
-        "rateFte": 4145,
-        "spikes": [
-          "drug_arrest"
-        ],
+        "rated": false,
+        "notRated": "excluded",
+        "rateExcludedReason": "Its main campus is shared with Metropolitan State University of Denver; the reported incidents cannot be assigned to one institution's students. No rate is shown for that year.",
+        "rateFte": 4303,
         "counts": {
           "criminal": 38,
           "violent": 9,
@@ -959,11 +957,17 @@
       "2017": {
         "campuses": 3,
         "online": 12,
-        "rateRanked": true,
-        "rateFte": 4320,
-        "spikes": [
-          "drug_arrest",
-          "stalking"
+        "rated": false,
+        "notRated": "excluded",
+        "rateExcludedReason": "Its main campus is shared with Metropolitan State University of Denver; the reported incidents cannot be assigned to one institution's students. No rate is shown for that year.",
+        "rateFte": 4495,
+        "flags": [
+          {
+            "offense": "stalking",
+            "geo": "On-campus",
+            "count": 19,
+            "usual": 3
+          }
         ],
         "counts": {
           "criminal": 44,
@@ -987,9 +991,10 @@
       "2018": {
         "campuses": 3,
         "online": 13,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2018 figures of this institution's campus 126942001 are also reported, identically, by campus 127565001 of another institution (a shared campus) and count once, under that campus, while the students on it are in each institution's own FTE. No rate is shown for that year.",
-        "rateFte": 3985,
+        "rated": false,
+        "notRated": "excluded",
+        "rateExcludedReason": "Its main campus is shared with Metropolitan State University of Denver; the reported incidents cannot be assigned to one institution's students. No rate is shown for that year.",
+        "rateFte": 4166,
         "counts": {
           "criminal": 2,
           "violent": 1,
@@ -1005,9 +1010,10 @@
       "2019": {
         "campuses": 2,
         "online": 13,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2019 figures of this institution's campus 126942001 are also reported, identically, by campus 127565001 of another institution (a shared campus) and count once, under that campus, while the students on it are in each institution's own FTE. No rate is shown for that year.",
-        "rateFte": 4163,
+        "rated": false,
+        "notRated": "excluded",
+        "rateExcludedReason": "Its main campus is shared with Metropolitan State University of Denver; the reported incidents cannot be assigned to one institution's students. No rate is shown for that year.",
+        "rateFte": 4353,
         "counts": {
           "criminal": 15,
           "violent": 12,
@@ -1026,9 +1032,11 @@
       "2020": {
         "campuses": 3,
         "online": 13,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "excluded",
         "onlineYear": 2019,
-        "rateFte": 3617,
+        "rateExcludedReason": "Its main campus is shared with Metropolitan State University of Denver and University of Colorado Denver/Anschutz Medical Campus; the reported incidents cannot be assigned to one institution's students. No rate is shown for that year.",
+        "rateFte": 3776,
         "counts": {
           "criminal": 33,
           "violent": 13,
@@ -1052,10 +1060,19 @@
       "2021": {
         "campuses": 3,
         "online": 13,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "excluded",
         "onlineYear": 2019,
-        "rateExcludedReason": "In 2021 figures of this institution's campus 126942001 are also reported, identically, by campus 127565001 of another institution (a shared campus) and count once, under that campus, while the students on it are in each institution's own FTE. No rate is shown for that year.",
-        "rateFte": 3406,
+        "rateExcludedReason": "Its main campus is shared with Metropolitan State University of Denver and University of Colorado Denver/Anschutz Medical Campus; the reported incidents cannot be assigned to one institution's students. No rate is shown for that year.",
+        "rateFte": 3543,
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "On-campus",
+            "count": 12,
+            "usual": 1
+          }
+        ],
         "counts": {
           "criminal": 69,
           "violent": 20,
@@ -1079,10 +1096,23 @@
       "2022": {
         "campuses": 3,
         "online": 26,
-        "rateRanked": true,
-        "rateFte": 2949,
-        "spikes": [
-          "motor_vehicle_theft"
+        "rated": false,
+        "notRated": "excluded",
+        "rateExcludedReason": "Its main campus is shared with Metropolitan State University of Denver and University of Colorado Denver/Anschutz Medical Campus; the reported incidents cannot be assigned to one institution's students. No rate is shown for that year.",
+        "rateFte": 3220,
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "Public property",
+            "count": 10,
+            "usual": 1
+          },
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 41,
+            "usual": 11
+          }
         ],
         "counts": {
           "criminal": 88,
@@ -1108,9 +1138,8 @@
       "2023": {
         "campuses": 3,
         "online": 27,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2023 figures of this institution's campus 126942001 are also reported, identically, by campus 126562001 of another institution (a shared campus) and count once, under that campus, while the students on it are in each institution's own FTE. No rate is shown for that year.",
-        "rateFte": 3095,
+        "rated": true,
+        "rateFte": 3399,
         "counts": {
           "criminal": 61,
           "violent": 15,
@@ -1136,9 +1165,8 @@
       "2024": {
         "campuses": 3,
         "online": 26,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2024 figures this institution reports for a campus are also reported, identically, by campus 126863002 of another institution (a shared campus) and count here, while that institution's students are in its own FTE. No rate is shown for that year.",
-        "rateFte": 3272,
+        "rated": true,
+        "rateFte": 3585,
         "counts": {
           "criminal": 11,
           "property": 10,

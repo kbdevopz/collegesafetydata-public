@@ -964,13 +964,15 @@
   ],
   "institution": {
     "id": 127565,
+    "ratesFile": "rates/institutions/127565.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 6,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2015 figures of this institution's campus 127565001 are also reported, identically, by campus 126562001 of another institution (a shared campus) and count once, under that campus, while the students on it are in each institution's own FTE. No rate is shown for that year.",
-        "rateFte": 14902,
+        "rated": false,
+        "notRated": "excluded",
+        "rateExcludedReason": "Its main campus is shared with Community College of Denver; the reported incidents cannot be assigned to one institution's students. No rate is shown for that year.",
+        "rateFte": 15354,
         "counts": {
           "criminal": 29,
           "violent": 5,
@@ -994,57 +996,66 @@
       "2016": {
         "campuses": 1,
         "online": 7,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2016 figures this institution reports for a campus are also reported, identically, by campus 126942001 of another institution (a shared campus) and count here, while that institution's students are in its own FTE. No rate is shown for that year.",
-        "rateFte": 14771
+        "rated": false,
+        "notRated": "excluded",
+        "rateExcludedReason": "Its main campus is shared with Community College of Denver; the reported incidents cannot be assigned to one institution's students. No rate is shown for that year.",
+        "rateFte": 15306
       },
       "2017": {
         "campuses": 1,
         "online": 6,
-        "rateRanked": true,
-        "rateFte": 15049
+        "rated": false,
+        "notRated": "excluded",
+        "rateExcludedReason": "Its main campus is shared with Community College of Denver; the reported incidents cannot be assigned to one institution's students. No rate is shown for that year.",
+        "rateFte": 15520
       },
       "2018": {
         "campuses": 1,
         "online": 6,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2018 figures this institution reports for a campus are also reported, identically, by campus 126942001 of another institution (a shared campus) and count here, while that institution's students are in its own FTE. No rate is shown for that year.",
-        "rateFte": 15041
+        "rated": false,
+        "notRated": "excluded",
+        "rateExcludedReason": "Its main campus is shared with Community College of Denver; the reported incidents cannot be assigned to one institution's students. No rate is shown for that year.",
+        "rateFte": 15514
       },
       "2019": {
         "campuses": 1,
         "online": 8,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2019 figures this institution reports for a campus are also reported, identically, by campus 126942001 of another institution (a shared campus) and count here, while that institution's students are in its own FTE. No rate is shown for that year.",
-        "rateFte": 14449
+        "rated": false,
+        "notRated": "excluded",
+        "rateExcludedReason": "Its main campus is shared with Community College of Denver; the reported incidents cannot be assigned to one institution's students. No rate is shown for that year.",
+        "rateFte": 15060
       },
       "2020": {
         "campuses": 1,
         "online": 8,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "excluded",
         "onlineYear": 2019,
-        "rateFte": 13514
+        "rateExcludedReason": "Its main campus is shared with Community College of Denver and University of Colorado Denver/Anschutz Medical Campus; the reported incidents cannot be assigned to one institution's students. No rate is shown for that year.",
+        "rateFte": 14077
       },
       "2021": {
         "campuses": 1,
         "online": 8,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "excluded",
         "onlineYear": 2019,
-        "rateExcludedReason": "In 2021 figures this institution reports for a campus are also reported, identically, by campus 126942001 of another institution (a shared campus) and count here, while that institution's students are in its own FTE. No rate is shown for that year.",
-        "rateFte": 12314
+        "rateExcludedReason": "Its main campus is shared with Community College of Denver and University of Colorado Denver/Anschutz Medical Campus; the reported incidents cannot be assigned to one institution's students. No rate is shown for that year.",
+        "rateFte": 12818
       },
       "2022": {
         "campuses": 1,
         "online": 25,
-        "rateRanked": true,
-        "rateFte": 9603
+        "rated": false,
+        "notRated": "excluded",
+        "rateExcludedReason": "Its main campus is shared with Community College of Denver and University of Colorado Denver/Anschutz Medical Campus; the reported incidents cannot be assigned to one institution's students. No rate is shown for that year.",
+        "rateFte": 11101
       },
       "2023": {
         "campuses": 1,
         "online": 23,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2023 figures of this institution's campus 127565001 are also reported, identically, by campus 126562001 of another institution (a shared campus) and count once, under that campus, while the students on it are in each institution's own FTE. No rate is shown for that year.",
-        "rateFte": 10036,
+        "rated": true,
+        "rateFte": 11403,
         "counts": {
           "criminal": 54,
           "violent": 12,
@@ -1070,10 +1081,15 @@
       "2024": {
         "campuses": 1,
         "online": 24,
-        "rateRanked": true,
-        "rateFte": 9967,
-        "spikes": [
-          "motor_vehicle_theft"
+        "rated": true,
+        "rateFte": 11332,
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 51,
+            "usual": 12
+          }
         ]
       }
     }

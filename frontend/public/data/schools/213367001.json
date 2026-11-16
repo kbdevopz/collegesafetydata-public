@@ -726,84 +726,91 @@
   ],
   "institution": {
     "id": 213367,
+    "ratesFile": "rates/institutions/213367.json",
     "byYear": {
       "2015": {
         "campuses": 3,
         "online": 9,
-        "rateRanked": true,
-        "rateFte": 4059,
-        "spikes": [
-          "drug_discipline"
-        ]
+        "rated": true,
+        "rateFte": 4263
       },
       "2016": {
         "campuses": 3,
         "online": 9,
-        "rateRanked": true,
-        "rateFte": 3766
+        "rated": true,
+        "rateFte": 3958
       },
       "2017": {
         "campuses": 3,
         "online": 10,
-        "rateRanked": true,
-        "rateFte": 3790
+        "rated": true,
+        "rateFte": 4011
       },
       "2018": {
         "campuses": 3,
         "online": 11,
-        "rateRanked": true,
-        "rateFte": 3762,
-        "spikes": [
-          "drug_discipline"
-        ]
+        "rated": true,
+        "rateFte": 4007
       },
       "2019": {
         "campuses": 3,
         "online": 13,
-        "rateRanked": true,
-        "rateFte": 3487,
-        "spikes": [
-          "drug_discipline"
-        ]
+        "rated": true,
+        "rateFte": 3761
       },
       "2020": {
         "campuses": 3,
         "online": 13,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 3208
+        "rateFte": 3455
       },
       "2021": {
         "campuses": 3,
         "online": 13,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 2732
+        "rateFte": 2937
       },
       "2022": {
         "campuses": 3,
         "online": 32,
-        "rateRanked": true,
-        "rateFte": 2016
+        "rated": true,
+        "rateFte": 2463
       },
       "2023": {
         "campuses": 1,
         "online": 21,
-        "rateRanked": true,
-        "rateFte": 2037,
-        "spikes": [
-          "property",
-          "motor_vehicle_theft"
+        "rated": true,
+        "rateFte": 2301,
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "Public property",
+            "count": 17,
+            "usual": 2
+          }
         ]
       },
       "2024": {
         "campuses": 1,
         "online": 21,
-        "rateRanked": true,
-        "rateFte": 1933,
-        "spikes": [
-          "property",
-          "motor_vehicle_theft"
+        "rated": true,
+        "rateFte": 2196,
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 32,
+            "usual": 1
+          },
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "Public property",
+            "count": 13,
+            "usual": 2
+          }
         ]
       }
     }

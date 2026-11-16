@@ -57,15 +57,19 @@
   ],
   "institution": {
     "id": 145725,
+    "ratesFile": "rates/institutions/145725.json",
     "byYear": {
       "2015": {
         "campuses": 5,
         "online": 5,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2015 figures this institution reports for a campus are also reported, identically, by campus 148849001 of another institution (a shared campus) and count here, while that institution's students are in its own FTE. No rate is shown for that year.",
-        "rateFte": 6693,
-        "spikes": [
-          "liquor_discipline"
+        "rated": true,
+        "rateFte": 6962,
+        "pooledWith": [
+          {
+            "id": 148849,
+            "name": "Shimer College",
+            "fte": 67
+          }
         ],
         "counts": {
           "criminal": 24,
@@ -90,10 +94,15 @@
       "2016": {
         "campuses": 5,
         "online": 5,
-        "rateRanked": true,
-        "rateFte": 6658,
-        "spikes": [
-          "robbery"
+        "rated": true,
+        "rateFte": 6860,
+        "flags": [
+          {
+            "offense": "robbery",
+            "geo": "On-campus",
+            "count": 18,
+            "usual": 1
+          }
         ],
         "counts": {
           "criminal": 37,

@@ -93,15 +93,13 @@
   "breakdownByGeo": [],
   "institution": {
     "id": 224554,
+    "ratesFile": "rates/institutions/224554.json",
     "byYear": {
       "2015": {
         "campuses": 7,
         "online": 33,
-        "rateRanked": true,
-        "rateFte": 6318,
-        "spikes": [
-          "liquor_arrest"
-        ],
+        "rated": true,
+        "rateFte": 7820,
         "counts": {
           "criminal": 35,
           "violent": 10,
@@ -127,11 +125,8 @@
       "2016": {
         "campuses": 7,
         "online": 34,
-        "rateRanked": true,
-        "rateFte": 6476,
-        "spikes": [
-          "liquor_arrest"
-        ],
+        "rated": true,
+        "rateFte": 8076,
         "counts": {
           "criminal": 20,
           "violent": 4,
@@ -152,12 +147,20 @@
       "2017": {
         "campuses": 6,
         "online": 35,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2017 figures of this institution's campus 224554004 are also reported, identically, by campus 227146001 of another institution (a shared campus) and count once, under that campus, while the students on it are in each institution's own FTE. No rate is shown for that year.",
-        "rateFte": 6232,
-        "spikes": [
-          "property",
-          "burglary"
+        "rated": true,
+        "rateFte": 7832,
+        "fteUncertain": {
+          "share": 6232,
+          "partTimeFirst": 7832,
+          "reason": "own"
+        },
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "On-campus",
+            "count": 32,
+            "usual": 7
+          }
         ],
         "counts": {
           "criminal": 38,
@@ -182,9 +185,13 @@
       "2018": {
         "campuses": 5,
         "online": 34,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2018 figures of this institution's campus 224554004 are also reported, identically, by campus 227146001 of another institution (a shared campus) and count once, under that campus, while the students on it are in each institution's own FTE. No rate is shown for that year.",
-        "rateFte": 6047,
+        "rated": true,
+        "rateFte": 7563,
+        "fteUncertain": {
+          "share": 6047,
+          "partTimeFirst": 7563,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 24,
           "violent": 15,
@@ -207,8 +214,8 @@
       "2019": {
         "campuses": 6,
         "online": 33,
-        "rateRanked": true,
-        "rateFte": 6026,
+        "rated": true,
+        "rateFte": 7475,
         "counts": {
           "criminal": 17,
           "violent": 5,
@@ -231,9 +238,10 @@
       "2020": {
         "campuses": 6,
         "online": 33,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 6239,
+        "rateFte": 7773,
         "counts": {
           "criminal": 14,
           "violent": 9,
@@ -257,9 +265,9 @@
       "2021": {
         "campuses": 7,
         "online": 33,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 5684,
+        "rateFte": 7040,
         "counts": {
           "criminal": 18,
           "violent": 8,
@@ -280,9 +288,13 @@
       "2022": {
         "campuses": 7,
         "online": 40,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2022 figures of this institution's campus 224554007 are also reported, identically, by campus 224615001 of another institution (a shared campus) and count once, under that campus, while the students on it are in each institution's own FTE. No rate is shown for that year.",
-        "rateFte": 5119,
+        "rated": true,
+        "rateFte": 6617,
+        "fteUncertain": {
+          "share": 5119,
+          "partTimeFirst": 6617,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 18,
           "violent": 6,
@@ -307,8 +319,13 @@
       "2023": {
         "campuses": 6,
         "online": 39,
-        "rateRanked": true,
-        "rateFte": 5524,
+        "rated": true,
+        "rateFte": 7101,
+        "fteUncertain": {
+          "share": 5524,
+          "partTimeFirst": 7101,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 25,
           "violent": 9,
@@ -331,8 +348,13 @@
       "2024": {
         "campuses": 6,
         "online": 45,
-        "rateRanked": true,
-        "rateFte": 5315,
+        "rated": true,
+        "rateFte": 7195,
+        "fteUncertain": {
+          "share": 5315,
+          "partTimeFirst": 7195,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 29,
           "violent": 12,

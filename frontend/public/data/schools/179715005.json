@@ -60,12 +60,14 @@
   ],
   "institution": {
     "id": 179715,
+    "ratesFile": "rates/institutions/179715.json",
     "byYear": {
       "2019": {
         "campuses": 5,
         "online": 28,
-        "rateRanked": false,
-        "rateFte": 747,
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 874,
         "counts": {
           "criminal": 2,
           "all": 7,
@@ -78,9 +80,10 @@
       "2020": {
         "campuses": 5,
         "online": 28,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "onlineYear": 2019,
-        "rateFte": 711,
+        "rateFte": 838,
         "counts": {
           "criminal": 1,
           "property": 1,
@@ -92,13 +95,10 @@
       "2021": {
         "campuses": 5,
         "online": 28,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "onlineYear": 2019,
-        "rateFte": 731,
-        "spikes": [
-          "all",
-          "liquor_discipline"
-        ],
+        "rateFte": 861,
         "counts": {
           "criminal": 5,
           "violent": 5,
@@ -115,8 +115,14 @@
       "2022": {
         "campuses": 5,
         "online": 37,
-        "rateRanked": false,
-        "rateFte": 700,
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 891,
+        "fteUncertain": {
+          "share": 700,
+          "partTimeFirst": 891,
+          "reason": "own"
+        },
         "counts": {
           "all": 8,
           "liquor_discipline": 8
@@ -125,8 +131,14 @@
       "2023": {
         "campuses": 5,
         "online": 35,
-        "rateRanked": false,
-        "rateFte": 753,
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 942,
+        "fteUncertain": {
+          "share": 753,
+          "partTimeFirst": 942,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 2,
           "violent": 1,
@@ -144,8 +156,14 @@
       "2024": {
         "campuses": 3,
         "online": 40,
-        "rateRanked": false,
-        "rateFte": 731,
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 956,
+        "fteUncertain": {
+          "share": 731,
+          "partTimeFirst": 956,
+          "reason": "own"
+        },
         "counts": {
           "all": 4,
           "liquor_discipline": 4

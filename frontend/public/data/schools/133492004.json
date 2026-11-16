@@ -40,12 +40,25 @@
   ],
   "institution": {
     "id": 133492,
+    "ratesFile": "rates/institutions/133492.json",
     "byYear": {
       "2015": {
-        "campuses": 3,
+        "campuses": 2,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1922,
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "On-campus",
+            "count": 14,
+            "usual": 2
+          }
+        ],
         "counts": {
           "criminal": 31,
           "violent": 10,

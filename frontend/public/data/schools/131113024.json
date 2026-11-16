@@ -73,12 +73,18 @@
   ],
   "institution": {
     "id": 131113,
+    "ratesFile": "rates/institutions/131113.json",
     "byYear": {
       "2018": {
         "campuses": 13,
         "online": 50,
-        "rateRanked": true,
-        "rateFte": 4002,
+        "rated": true,
+        "rateFte": 5266,
+        "fteUncertain": {
+          "share": 4002,
+          "partTimeFirst": 5266,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 6,
           "violent": 2,
@@ -93,8 +99,13 @@
       "2019": {
         "campuses": 13,
         "online": 57,
-        "rateRanked": true,
-        "rateFte": 3542,
+        "rated": true,
+        "rateFte": 4976,
+        "fteUncertain": {
+          "share": 3542,
+          "partTimeFirst": 4976,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 12,
           "violent": 5,
@@ -111,9 +122,15 @@
       "2020": {
         "campuses": 13,
         "online": 57,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 3559,
+        "rateFte": 5007,
+        "fteUncertain": {
+          "share": 3559,
+          "partTimeFirst": 5007,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 1,
           "violent": 1,
@@ -124,9 +141,14 @@
       "2021": {
         "campuses": 12,
         "online": 57,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 3140,
+        "rateFte": 4396,
+        "fteUncertain": {
+          "share": 3140,
+          "partTimeFirst": 4396,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 3,
           "property": 3,
@@ -140,8 +162,13 @@
       "2022": {
         "campuses": 11,
         "online": 75,
-        "rateRanked": true,
-        "rateFte": 1997,
+        "rated": true,
+        "rateFte": 3495,
+        "fteUncertain": {
+          "share": 1997,
+          "partTimeFirst": 3495,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 9,
           "violent": 5,

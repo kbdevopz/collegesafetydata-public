@@ -125,14 +125,15 @@
   ],
   "institution": {
     "id": 228705,
+    "ratesFile": "rates/institutions/228705.json",
     "byYear": {
       "2020": {
         "campuses": 4,
         "online": 5,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateExcludedReason": "In 2020 figures this institution reports for a campus are also reported, identically, by campus 228723018 of another institution (a shared campus) and count here, while that institution's students are in its own FTE. No rate is shown for that year.",
-        "rateFte": 5441,
+        "rateFte": 5592,
         "counts": {
           "criminal": 6,
           "violent": 2,
@@ -153,10 +154,17 @@
       "2021": {
         "campuses": 4,
         "online": 5,
-        "rateRanked": false,
+        "rated": true,
         "onlineYear": 2019,
-        "rateExcludedReason": "In 2021 figures this institution reports for a campus are also reported, identically, by campus 228723028 of another institution (a shared campus) and count here, while that institution's students are in its own FTE. No rate is shown for that year.",
-        "rateFte": 5047,
+        "rateFte": 5189,
+        "flags": [
+          {
+            "offense": "stalking",
+            "geo": "On-campus",
+            "count": 18,
+            "usual": 3
+          }
+        ],
         "counts": {
           "criminal": 12,
           "violent": 4,
@@ -176,11 +184,15 @@
       "2022": {
         "campuses": 4,
         "online": 12,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2022 figures this institution reports for a campus are also reported, identically, by campus 228723028 of another institution (a shared campus) and count here, while that institution's students are in its own FTE. No rate is shown for that year.",
-        "rateFte": 4528,
-        "spikes": [
-          "stalking"
+        "rated": true,
+        "rateFte": 4879,
+        "flags": [
+          {
+            "offense": "stalking",
+            "geo": "On-campus",
+            "count": 23,
+            "usual": 3
+          }
         ],
         "counts": {
           "criminal": 20,
@@ -204,11 +216,15 @@
       "2023": {
         "campuses": 4,
         "online": 12,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2023 figures this institution reports for a campus are also reported, identically, by campus 228723028 of another institution (a shared campus) and count here, while that institution's students are in its own FTE. No rate is shown for that year.",
-        "rateFte": 4830,
-        "spikes": [
-          "stalking"
+        "rated": true,
+        "rateFte": 5191,
+        "flags": [
+          {
+            "offense": "stalking",
+            "geo": "On-campus",
+            "count": 22,
+            "usual": 3
+          }
         ],
         "counts": {
           "criminal": 16,
@@ -231,11 +247,21 @@
       "2024": {
         "campuses": 3,
         "online": 13,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2024 figures this institution reports for a campus are also reported, identically, by campus 228723028 of another institution (a shared campus) and count here, while that institution's students are in its own FTE. No rate is shown for that year.",
-        "rateFte": 4984,
-        "spikes": [
-          "stalking"
+        "rated": true,
+        "rateFte": 5396,
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 11,
+            "usual": 0
+          },
+          {
+            "offense": "stalking",
+            "geo": "On-campus",
+            "count": 28,
+            "usual": 3
+          }
         ],
         "counts": {
           "criminal": 30,

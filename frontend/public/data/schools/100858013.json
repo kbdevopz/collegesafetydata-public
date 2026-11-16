@@ -56,12 +56,17 @@
   ],
   "institution": {
     "id": 100858,
+    "ratesFile": "rates/institutions/100858.json",
     "byYear": {
       "2018": {
-        "campuses": 11,
+        "campuses": 10,
         "online": 5,
-        "rateRanked": true,
-        "rateFte": 26194,
+        "rated": true,
+        "rateFte": 26993,
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
         "counts": {
           "criminal": 81,
           "violent": 31,
@@ -85,10 +90,14 @@
         }
       },
       "2019": {
-        "campuses": 11,
+        "campuses": 10,
         "online": 6,
-        "rateRanked": true,
-        "rateFte": 25957,
+        "rated": true,
+        "rateFte": 26919,
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
         "counts": {
           "criminal": 88,
           "violent": 35,
@@ -111,11 +120,16 @@
         }
       },
       "2020": {
-        "campuses": 13,
+        "campuses": 12,
         "online": 6,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 26039,
+        "rateFte": 27002,
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
         "counts": {
           "criminal": 51,
           "violent": 26,
@@ -139,14 +153,28 @@
         }
       },
       "2021": {
-        "campuses": 14,
+        "campuses": 13,
         "online": 6,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 26567,
-        "spikes": [
-          "fondling",
-          "rape"
+        "rateFte": 27546,
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
+        "flags": [
+          {
+            "offense": "fondling",
+            "geo": "On-campus",
+            "count": 18,
+            "usual": 3
+          },
+          {
+            "offense": "rape",
+            "geo": "On-campus",
+            "count": 42,
+            "usual": 10
+          }
         ],
         "counts": {
           "criminal": 117,
@@ -170,10 +198,14 @@
         }
       },
       "2022": {
-        "campuses": 14,
+        "campuses": 13,
         "online": 10,
-        "rateRanked": true,
-        "rateFte": 25642,
+        "rated": true,
+        "rateFte": 27351,
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
         "counts": {
           "criminal": 93,
           "violent": 45,

@@ -52,12 +52,13 @@
   ],
   "institution": {
     "id": 102076,
+    "ratesFile": "rates/institutions/102076.json",
     "byYear": {
       "2015": {
         "campuses": 2,
         "online": 23,
-        "rateRanked": true,
-        "rateFte": 1427,
+        "rated": true,
+        "rateFte": 1663,
         "counts": {
           "all": 2,
           "drug_arrest": 2
@@ -66,14 +67,14 @@
       "2016": {
         "campuses": 2,
         "online": 27,
-        "rateRanked": true,
-        "rateFte": 1224
+        "rated": true,
+        "rateFte": 1466
       },
       "2017": {
         "campuses": 2,
         "online": 28,
-        "rateRanked": true,
-        "rateFte": 1139,
+        "rated": true,
+        "rateFte": 1373,
         "counts": {
           "all": 1,
           "domestic_violence": 1
@@ -82,8 +83,13 @@
       "2018": {
         "campuses": 2,
         "online": 36,
-        "rateRanked": true,
-        "rateFte": 1016
+        "rated": true,
+        "rateFte": 1311,
+        "fteUncertain": {
+          "share": 1016,
+          "partTimeFirst": 1311,
+          "reason": "own"
+        }
       }
     }
   }

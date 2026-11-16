@@ -577,12 +577,21 @@
   ],
   "institution": {
     "id": 174020,
+    "ratesFile": "rates/institutions/174020.json",
     "byYear": {
       "2018": {
         "campuses": 5,
         "online": 20,
-        "rateRanked": true,
-        "rateFte": 4035,
+        "rated": true,
+        "rateFte": 4418,
+        "flags": [
+          {
+            "offense": "stalking",
+            "geo": "On-campus",
+            "count": 17,
+            "usual": 1
+          }
+        ],
         "counts": {
           "criminal": 14,
           "violent": 6,
@@ -606,9 +615,8 @@
       "2019": {
         "campuses": 5,
         "online": 20,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2019 figures of this institution's campus 174020005 are also reported, identically, by campus 174136001 of another institution (a shared campus) and count once, under that campus, while the students on it are in each institution's own FTE. No rate is shown for that year.",
-        "rateFte": 3958,
+        "rated": true,
+        "rateFte": 4344,
         "counts": {
           "criminal": 10,
           "violent": 8,
@@ -626,9 +634,18 @@
       "2020": {
         "campuses": 5,
         "online": 20,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 3901,
+        "rateFte": 4276,
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "Public property",
+            "count": 10,
+            "usual": 1
+          }
+        ],
         "counts": {
           "criminal": 32,
           "violent": 20,
@@ -651,10 +668,9 @@
       "2021": {
         "campuses": 5,
         "online": 20,
-        "rateRanked": false,
+        "rated": true,
         "onlineYear": 2019,
-        "rateExcludedReason": "In 2021 figures of this institution's campus 174020005 are also reported, identically, by campus 174136001 of another institution (a shared campus) and count once, under that campus, while the students on it are in each institution's own FTE. No rate is shown for that year.",
-        "rateFte": 3584,
+        "rateFte": 3932,
         "counts": {
           "criminal": 14,
           "property": 14,
@@ -672,9 +688,13 @@
       "2022": {
         "campuses": 5,
         "online": 58,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2022 figures of this institution's campus 174020005 are also reported, identically, by campus 174136001 of another institution (a shared campus) and count once, under that campus, while the students on it are in each institution's own FTE. No rate is shown for that year.",
-        "rateFte": 1723,
+        "rated": true,
+        "rateFte": 2522,
+        "fteUncertain": {
+          "share": 1723,
+          "partTimeFirst": 2522,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 21,
           "violent": 8,
@@ -695,8 +715,13 @@
       "2023": {
         "campuses": 5,
         "online": 47,
-        "rateRanked": true,
-        "rateFte": 2136,
+        "rated": true,
+        "rateFte": 2899,
+        "fteUncertain": {
+          "share": 2136,
+          "partTimeFirst": 2899,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 17,
           "violent": 11,
@@ -716,11 +741,20 @@
       "2024": {
         "campuses": 5,
         "online": 47,
-        "rateRanked": true,
-        "rateFte": 2406,
-        "spikes": [
-          "criminal",
-          "motor_vehicle_theft"
+        "rated": true,
+        "rateFte": 3306,
+        "fteUncertain": {
+          "share": 2406,
+          "partTimeFirst": 3306,
+          "reason": "own"
+        },
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "Public property",
+            "count": 17,
+            "usual": 1
+          }
         ],
         "counts": {
           "criminal": 45,

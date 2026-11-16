@@ -242,68 +242,78 @@
   "breakdownByGeo": [],
   "institution": {
     "id": 101240,
+    "ratesFile": "rates/institutions/101240.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 10,
-        "rateRanked": true,
-        "rateFte": 3056
+        "rated": true,
+        "rateFte": 3228,
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "On-campus",
+            "count": 10,
+            "usual": 1
+          }
+        ]
       },
       "2016": {
         "campuses": 1,
         "online": 12,
-        "rateRanked": true,
-        "rateFte": 2979
+        "rated": true,
+        "rateFte": 3179
       },
       "2017": {
         "campuses": 1,
         "online": 12,
-        "rateRanked": true,
-        "rateFte": 2912
+        "rated": true,
+        "rateFte": 3108
       },
       "2018": {
         "campuses": 1,
         "online": 16,
-        "rateRanked": true,
-        "rateFte": 2618
+        "rated": true,
+        "rateFte": 2863
       },
       "2019": {
         "campuses": 1,
         "online": 16,
-        "rateRanked": true,
-        "rateFte": 2543
+        "rated": true,
+        "rateFte": 2780
       },
       "2020": {
         "campuses": 1,
         "online": 16,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 2195
+        "rateFte": 2399
       },
       "2021": {
         "campuses": 1,
         "online": 16,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 2250
+        "rateFte": 2447
       },
       "2022": {
         "campuses": 1,
         "online": 27,
-        "rateRanked": true,
-        "rateFte": 2038
+        "rated": true,
+        "rateFte": 2397
       },
       "2023": {
         "campuses": 1,
         "online": 24,
-        "rateRanked": true,
-        "rateFte": 2283
+        "rated": true,
+        "rateFte": 2623
       },
       "2024": {
         "campuses": 1,
         "online": 21,
-        "rateRanked": true,
-        "rateFte": 2391
+        "rated": true,
+        "rateFte": 2669
       }
     }
   }

@@ -228,76 +228,86 @@
   ],
   "institution": {
     "id": 207236,
+    "ratesFile": "rates/institutions/207236.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 20,
-        "rateRanked": true,
-        "rateFte": 1238
+        "rated": true,
+        "rateFte": 1389
       },
       "2016": {
         "campuses": 1,
         "online": 20,
-        "rateRanked": true,
-        "rateFte": 1273
+        "rated": true,
+        "rateFte": 1430
       },
       "2017": {
         "campuses": 1,
         "online": 25,
-        "rateRanked": true,
-        "rateFte": 1115
+        "rated": true,
+        "rateFte": 1293
       },
       "2018": {
         "campuses": 1,
         "online": 28,
-        "rateRanked": false,
-        "rateFte": 998
+        "rated": true,
+        "rateFte": 1185
       },
       "2019": {
         "campuses": 1,
         "online": 35,
-        "rateRanked": false,
-        "rateFte": 835,
-        "spikes": [
-          "all",
-          "liquor_discipline"
-        ]
+        "rated": true,
+        "rateFte": 1040
       },
       "2020": {
         "campuses": 1,
         "online": 35,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 866,
-        "spikes": [
-          "all",
-          "liquor_discipline"
-        ]
+        "rateFte": 1077
       },
       "2021": {
         "campuses": 1,
         "online": 35,
-        "rateRanked": false,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 833
+        "rateFte": 1027
       },
       "2022": {
         "campuses": 1,
         "online": 57,
-        "rateRanked": false,
-        "rateFte": 575
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 900,
+        "fteUncertain": {
+          "share": 575,
+          "partTimeFirst": 900,
+          "reason": "own"
+        }
       },
       "2023": {
         "campuses": 1,
         "online": 58,
-        "rateRanked": false,
-        "rateFte": 659
+        "rated": true,
+        "rateFte": 1045,
+        "fteUncertain": {
+          "share": 659,
+          "partTimeFirst": 1045,
+          "reason": "own"
+        }
       },
       "2024": {
         "campuses": 1,
         "online": 59,
-        "rateRanked": false,
-        "rateFte": 754
+        "rated": true,
+        "rateFte": 1136,
+        "fteUncertain": {
+          "share": 754,
+          "partTimeFirst": 1136,
+          "reason": "own"
+        }
       }
     }
   }

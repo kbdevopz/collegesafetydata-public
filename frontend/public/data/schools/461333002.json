@@ -119,35 +119,43 @@
   ],
   "institution": {
     "id": 461333,
+    "ratesFile": "rates/institutions/461333.json",
     "byYear": {
       "2022": {
         "campuses": 2,
         "online": 0,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 10
       },
       "2023": {
         "campuses": 2,
         "online": 0,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 12,
-        "spikes": [
-          "criminal",
-          "property",
-          "all",
-          "motor_vehicle_theft"
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "Public property",
+            "count": 40,
+            "usual": 0
+          }
         ]
       },
       "2024": {
         "campuses": 2,
         "online": 0,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 12,
-        "spikes": [
-          "criminal",
-          "property",
-          "all",
-          "motor_vehicle_theft"
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "Public property",
+            "count": 45,
+            "usual": 0
+          }
         ]
       }
     }

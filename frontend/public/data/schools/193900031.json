@@ -40,33 +40,63 @@
   ],
   "institution": {
     "id": 193900,
+    "ratesFile": "rates/institutions/193900.json",
     "byYear": {
       "2024": {
-        "campuses": 26,
+        "campuses": 12,
         "online": 6,
-        "rateRanked": true,
-        "rateFte": 49422,
-        "spikes": [
-          "aggravated_assault",
-          "motor_vehicle_theft"
+        "rated": true,
+        "rateFte": 51293,
+        "abroad": {
+          "campuses": 14,
+          "counts": {
+            "criminal": 5,
+            "violent": 2,
+            "all": 49,
+            "drug_discipline": 1,
+            "fondling": 3,
+            "liquor_discipline": 42,
+            "rape": 2,
+            "stalking": 1
+          }
+        },
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "On-campus",
+            "count": 14,
+            "usual": 1
+          },
+          {
+            "offense": "aggravated_assault",
+            "geo": "Public property",
+            "count": 23,
+            "usual": 1
+          },
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "Public property",
+            "count": 37,
+            "usual": 3
+          }
         ],
         "counts": {
-          "criminal": 150,
-          "violent": 64,
+          "criminal": 145,
+          "violent": 62,
           "property": 61,
-          "all": 896,
+          "all": 847,
           "aggravated_assault": 37,
           "arson": 5,
           "burglary": 13,
           "dating_violence": 10,
           "domestic_violence": 5,
-          "drug_discipline": 54,
-          "fondling": 25,
-          "liquor_discipline": 645,
+          "drug_discipline": 53,
+          "fondling": 22,
+          "liquor_discipline": 603,
           "motor_vehicle_theft": 43,
-          "rape": 12,
+          "rape": 10,
           "robbery": 15,
-          "stalking": 25,
+          "stalking": 24,
           "weapons_arrest": 1,
           "weapons_discipline": 6
         }

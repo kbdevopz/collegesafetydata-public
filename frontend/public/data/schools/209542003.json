@@ -231,6 +231,18 @@
       "hostName": "Eastern Oregon University"
     },
     {
+      "year": 2017,
+      "geo": "On-campus",
+      "hostUnitid": 208646001,
+      "hostName": "Eastern Oregon University"
+    },
+    {
+      "year": 2017,
+      "geo": "Public property",
+      "hostUnitid": 208646001,
+      "hostName": "Eastern Oregon University"
+    },
+    {
       "year": 2018,
       "geo": "On-campus",
       "hostUnitid": 208646001,
@@ -239,12 +251,13 @@
   ],
   "institution": {
     "id": 209542,
+    "ratesFile": "rates/institutions/209542.json",
     "byYear": {
       "2015": {
         "campuses": 3,
         "online": 17,
-        "rateRanked": true,
-        "rateFte": 20793,
+        "rated": true,
+        "rateFte": 23062,
         "counts": {
           "criminal": 80,
           "violent": 24,
@@ -270,12 +283,8 @@
       "2016": {
         "campuses": 3,
         "online": 19,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2016 figures of this institution's campus 209542003 are also reported, identically, by campus 208646001 of another institution (a shared campus) and count once, under that campus, while the students on it are in each institution's own FTE. No rate is shown for that year.",
-        "rateFte": 20716,
-        "spikes": [
-          "liquor_arrest"
-        ],
+        "rated": true,
+        "rateFte": 23292,
         "counts": {
           "criminal": 96,
           "violent": 28,
@@ -300,39 +309,37 @@
         }
       },
       "2017": {
-        "campuses": 3,
+        "campuses": 2,
         "online": 20,
-        "rateRanked": true,
-        "rateFte": 20614,
+        "rated": true,
+        "rateFte": 23319,
         "counts": {
-          "criminal": 91,
+          "criminal": 90,
           "violent": 37,
           "property": 45,
-          "all": 701,
+          "all": 623,
           "aggravated_assault": 8,
           "arson": 9,
           "burglary": 27,
           "dating_violence": 8,
           "domestic_violence": 3,
-          "drug_arrest": 9,
-          "drug_discipline": 92,
+          "drug_arrest": 8,
+          "drug_discipline": 65,
           "fondling": 8,
           "liquor_arrest": 24,
-          "liquor_discipline": 441,
+          "liquor_discipline": 396,
           "motor_vehicle_theft": 9,
           "rape": 24,
           "robbery": 5,
-          "stalking": 32,
-          "statutory_rape": 1,
+          "stalking": 28,
           "weapons_arrest": 1
         }
       },
       "2018": {
         "campuses": 2,
         "online": 21,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2018 figures of this institution's campus 209542003 are also reported, identically, by campus 208646001 of another institution (a shared campus) and count once, under that campus, while the students on it are in each institution's own FTE. No rate is shown for that year.",
-        "rateFte": 20250,
+        "rated": true,
+        "rateFte": 23060,
         "counts": {
           "criminal": 90,
           "violent": 35,
@@ -358,10 +365,15 @@
       "2019": {
         "campuses": 3,
         "online": 24,
-        "rateRanked": true,
-        "rateFte": 19692,
-        "spikes": [
-          "domestic_violence"
+        "rated": true,
+        "rateFte": 22901,
+        "flags": [
+          {
+            "offense": "domestic_violence",
+            "geo": "On-campus",
+            "count": 26,
+            "usual": 5
+          }
         ],
         "counts": {
           "criminal": 88,
@@ -389,9 +401,10 @@
       "2020": {
         "campuses": 3,
         "online": 24,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 19610,
+        "rateFte": 22740,
         "counts": {
           "criminal": 48,
           "violent": 12,
@@ -416,9 +429,9 @@
       "2021": {
         "campuses": 3,
         "online": 24,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 20206,
+        "rateFte": 23440,
         "counts": {
           "criminal": 73,
           "violent": 25,
@@ -442,11 +455,8 @@
       "2022": {
         "campuses": 4,
         "online": 34,
-        "rateRanked": true,
-        "rateFte": 18205,
-        "spikes": [
-          "domestic_violence"
-        ],
+        "rated": true,
+        "rateFte": 22505,
         "counts": {
           "criminal": 130,
           "violent": 42,
@@ -473,8 +483,16 @@
       "2023": {
         "campuses": 4,
         "online": 35,
-        "rateRanked": true,
-        "rateFte": 18696,
+        "rated": true,
+        "rateFte": 23019,
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 31,
+            "usual": 6
+          }
+        ],
         "counts": {
           "criminal": 91,
           "violent": 21,
@@ -501,10 +519,15 @@
       "2024": {
         "campuses": 4,
         "online": 35,
-        "rateRanked": true,
-        "rateFte": 19611,
-        "spikes": [
-          "motor_vehicle_theft"
+        "rated": true,
+        "rateFte": 23882,
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 52,
+            "usual": 6
+          }
         ],
         "counts": {
           "criminal": 135,

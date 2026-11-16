@@ -1,4 +1,4 @@
-import { cn } from '../lib/utils'
+import { cn, formatNumber } from '../lib/utils'
 
 interface Preset {
   id: string
@@ -69,7 +69,7 @@ export default function PresetChips({
                 ? 'text-primary-200'
                 : 'text-gray-400 dark:text-gray-500'
             )}>
-              ({preset.schoolCount.toLocaleString()})
+              ({formatNumber(preset.schoolCount)})
             </span>
           )}
         </button>

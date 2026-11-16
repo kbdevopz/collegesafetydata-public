@@ -216,57 +216,60 @@
   ],
   "institution": {
     "id": 129367,
+    "ratesFile": "rates/institutions/129367.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 8,
-        "rateRanked": true,
-        "rateFte": 1586
+        "rated": true,
+        "rateFte": 1630
       },
       "2016": {
         "campuses": 1,
         "online": 9,
-        "rateRanked": true,
-        "rateFte": 1425
+        "rated": true,
+        "rateFte": 1466
       },
       "2017": {
         "campuses": 1,
         "online": 9,
-        "rateRanked": true,
-        "rateFte": 1420
+        "rated": true,
+        "rateFte": 1461
       },
       "2018": {
         "campuses": 1,
         "online": 11,
-        "rateRanked": true,
-        "rateFte": 1370
+        "rated": true,
+        "rateFte": 1417
       },
       "2019": {
         "campuses": 1,
         "online": 12,
-        "rateRanked": true,
-        "rateFte": 1312
+        "rated": true,
+        "rateFte": 1367
       },
       "2020": {
         "campuses": 1,
         "online": 12,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 1116
+        "rateFte": 1159
       },
       "2021": {
         "campuses": 1,
         "online": 12,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 1038
+        "rateFte": 1079
       },
       "2022": {
         "campuses": 17,
         "online": 18,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "excluded",
         "rateExcludedReason": "In 2022 the figures of campus 129367005 count for this institution, but IPEDS counts that campus's students under institution 129729 (DOE also reported it as 129729001: a merger or renumbering), which counts other campuses of its own that year. No rate is shown for that year.",
-        "rateFte": 989,
+        "rateFte": 1061,
         "counts": {
           "criminal": 8,
           "violent": 4,
@@ -283,13 +286,15 @@
       "2023": {
         "campuses": 17,
         "online": 22,
-        "rateRanked": true,
-        "rateFte": 15405,
-        "spikes": [
-          "criminal",
-          "property",
-          "all",
-          "motor_vehicle_theft"
+        "rated": true,
+        "rateFte": 17166,
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "Non-campus",
+            "count": 21,
+            "usual": 0
+          }
         ],
         "counts": {
           "criminal": 30,
@@ -308,8 +313,16 @@
       "2024": {
         "campuses": 17,
         "online": 23,
-        "rateRanked": true,
-        "rateFte": 15490,
+        "rated": true,
+        "rateFte": 17313,
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "Public property",
+            "count": 10,
+            "usual": 0
+          }
+        ],
         "counts": {
           "criminal": 14,
           "violent": 3,

@@ -74,14 +74,24 @@
   "breakdownByGeo": [],
   "institution": {
     "id": 153384,
+    "ratesFile": "rates/institutions/153384.json",
     "byYear": {
       "2015": {
-        "campuses": 4,
+        "campuses": 3,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1681,
-        "spikes": [
-          "criminal"
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
+        "flags": [
+          {
+            "offense": "fondling",
+            "geo": "On-campus",
+            "count": 13,
+            "usual": 1
+          }
         ],
         "counts": {
           "criminal": 34,
@@ -102,10 +112,14 @@
         }
       },
       "2016": {
-        "campuses": 3,
+        "campuses": 2,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1674,
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
         "counts": {
           "criminal": 13,
           "violent": 5,
@@ -125,10 +139,14 @@
         }
       },
       "2017": {
-        "campuses": 3,
+        "campuses": 2,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1682,
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
         "counts": {
           "criminal": 11,
           "violent": 5,
@@ -147,10 +165,14 @@
         }
       },
       "2018": {
-        "campuses": 3,
+        "campuses": 2,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1694,
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
         "counts": {
           "criminal": 17,
           "violent": 6,
@@ -169,13 +191,14 @@
         }
       },
       "2019": {
-        "campuses": 3,
+        "campuses": 2,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1713,
-        "spikes": [
-          "drug_discipline"
-        ],
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
         "counts": {
           "criminal": 11,
           "violent": 3,
@@ -192,11 +215,16 @@
         }
       },
       "2020": {
-        "campuses": 3,
+        "campuses": 2,
         "online": 0,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 1472,
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
         "counts": {
           "criminal": 1,
           "violent": 1,
@@ -210,11 +238,15 @@
         }
       },
       "2021": {
-        "campuses": 3,
+        "campuses": 2,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 1730,
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
         "counts": {
           "criminal": 5,
           "violent": 1,
@@ -230,10 +262,14 @@
         }
       },
       "2022": {
-        "campuses": 3,
+        "campuses": 2,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1727,
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
         "counts": {
           "criminal": 10,
           "violent": 6,
@@ -252,10 +288,14 @@
         }
       },
       "2023": {
-        "campuses": 3,
+        "campuses": 2,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1734,
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
         "counts": {
           "criminal": 4,
           "violent": 2,
@@ -271,10 +311,14 @@
         }
       },
       "2024": {
-        "campuses": 3,
+        "campuses": 2,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1752,
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
         "counts": {
           "criminal": 11,
           "violent": 2,

@@ -156,46 +156,69 @@
   ],
   "institution": {
     "id": 496663,
+    "ratesFile": "rates/institutions/496663.json",
     "byYear": {
       "2021": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "onlineYear": 2021,
         "rateFte": 28
       },
       "2022": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 28
       },
       "2023": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 41,
-        "spikes": [
-          "criminal",
-          "violent",
-          "property",
-          "all",
-          "aggravated_assault",
-          "motor_vehicle_theft"
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "Public property",
+            "count": 32,
+            "usual": 2
+          },
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "Public property",
+            "count": 44,
+            "usual": 2
+          },
+          {
+            "offense": "robbery",
+            "geo": "Public property",
+            "count": 15,
+            "usual": 1
+          }
         ]
       },
       "2024": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 69,
-        "spikes": [
-          "criminal",
-          "violent",
-          "property",
-          "all",
-          "aggravated_assault",
-          "motor_vehicle_theft"
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "Public property",
+            "count": 23,
+            "usual": 2
+          },
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "Public property",
+            "count": 42,
+            "usual": 2
+          }
         ]
       }
     }

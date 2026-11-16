@@ -464,72 +464,75 @@
   ],
   "institution": {
     "id": 207564,
+    "ratesFile": "rates/institutions/207564.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 9,
-        "rateRanked": true,
-        "rateFte": 1940
+        "rated": true,
+        "rateFte": 2037
       },
       "2016": {
         "campuses": 1,
         "online": 12,
-        "rateRanked": true,
-        "rateFte": 1743
+        "rated": true,
+        "rateFte": 1865
       },
       "2017": {
         "campuses": 1,
         "online": 13,
-        "rateRanked": true,
-        "rateFte": 1772
+        "rated": true,
+        "rateFte": 1906
       },
       "2018": {
         "campuses": 1,
         "online": 15,
-        "rateRanked": true,
-        "rateFte": 1668
+        "rated": true,
+        "rateFte": 1817
       },
       "2019": {
         "campuses": 1,
         "online": 19,
-        "rateRanked": true,
-        "rateFte": 1458
+        "rated": true,
+        "rateFte": 1623
       },
       "2020": {
         "campuses": 1,
         "online": 19,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 1470
+        "rateFte": 1635
       },
       "2021": {
         "campuses": 1,
         "online": 19,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 1402
+        "rateFte": 1556
       },
       "2022": {
         "campuses": 1,
         "online": 36,
-        "rateRanked": true,
-        "rateFte": 1137
+        "rated": true,
+        "rateFte": 1435,
+        "fteUncertain": {
+          "share": 1137,
+          "partTimeFirst": 1435,
+          "reason": "own"
+        }
       },
       "2023": {
         "campuses": 1,
         "online": 32,
-        "rateRanked": true,
-        "rateFte": 1294
+        "rated": true,
+        "rateFte": 1581
       },
       "2024": {
         "campuses": 1,
         "online": 33,
-        "rateRanked": true,
-        "rateFte": 1201,
-        "spikes": [
-          "all",
-          "liquor_discipline"
-        ]
+        "rated": true,
+        "rateFte": 1473
       }
     }
   }

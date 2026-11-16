@@ -105,6 +105,16 @@ export const SOURCES = {
     url: 'https://doi.org/10.1093/biomet/28.3-4.437',
     publisher: 'Biometrika',
   },
+  fayFeuer1997: {
+    label: 'Fay, M. P. and Feuer, E. J. (1997). Confidence intervals for directly standardized rates: a method based on the gamma distribution. Statistics in Medicine 16(7), 791-801',
+    url: 'https://doi.org/10.1002/(SICI)1097-0258(19970415)16:7%3C791::AID-SIM500%3E3.0.CO;2-%23',
+    publisher: 'Statistics in Medicine',
+  },
+  ncesFallEnrollment2024: {
+    label: 'IPEDS 2024-25 Survey Materials: Fall Enrollment for 4-year degree-granting institutions (full instructions, "Who to Exclude")',
+    url: 'https://nces.ed.gov/ipeds/use-the-data/download-survey-material/2024/fall%20enrollment/package_6_74.pdf',
+    publisher: 'National Center for Education Statistics',
+  },
   fbiViolent2019: {
     label: 'Crime in the United States, 2019: Violent Crime',
     url: 'https://ucr.fbi.gov/crime-in-the-u.s/2019/crime-in-the-u.s.-2019/topic-pages/violent-crime',
@@ -114,6 +124,31 @@ export const SOURCES = {
     label: 'Crime in the United States, 2019: Property Crime',
     url: 'https://ucr.fbi.gov/crime-in-the-u.s/2019/crime-in-the-u.s.-2019/topic-pages/property-crime',
     publisher: 'Federal Bureau of Investigation, Uniform Crime Reporting Program',
+  },
+  adventHealthAsr2018: {
+    label: 'AdventHealth University, Annual Security Report, Orlando campus, 2018',
+    url: 'https://my.adu.edu/sites/default/files/ASRorlando2018.pdf',
+    publisher: 'AdventHealth University',
+  },
+  greene2008: {
+    label: 'Greene, W. (2008). Functional forms for the negative binomial model for count data. Economics Letters 99(3), 585-590',
+    url: 'https://doi.org/10.1016/j.econlet.2007.10.015',
+    publisher: 'Economics Letters',
+  },
+  mogstad2024: {
+    label: 'Mogstad, M., Romano, J. P., Shaikh, A. M. and Wilhelm, D. (2024). Inference for ranks with applications to mobility across neighbourhoods and academic achievement across countries. Review of Economic Studies 91(1), 476-518',
+    url: 'https://doi.org/10.1093/restud/rdad006',
+    publisher: 'Review of Economic Studies',
+  },
+  goldsteinSpiegelhalter1996: {
+    label: 'Goldstein, H. and Spiegelhalter, D. J. (1996). League tables and their limitations: statistical issues in comparisons of institutional performance. Journal of the Royal Statistical Society, Series A 159(3), 385-443',
+    url: 'https://doi.org/10.2307/2983325',
+    publisher: 'Journal of the Royal Statistical Society, Series A',
+  },
+  yung2015: {
+    label: 'Yung, C. R. (2015). Concealing campus sexual assault: an empirical examination. Psychology, Public Policy, and Law 21(1), 1-9',
+    url: 'https://doi.org/10.1037/law0000037',
+    publisher: 'Psychology, Public Policy, and Law',
   },
   bjsCollege2014: {
     label: 'Rape and Sexual Assault Victimization Among College-Age Females, 1995-2013 (NCJ 248471, December 2014)',

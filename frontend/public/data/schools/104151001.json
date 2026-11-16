@@ -1066,12 +1066,13 @@
   ],
   "institution": {
     "id": 104151,
+    "ratesFile": "rates/institutions/104151.json",
     "byYear": {
       "2015": {
         "campuses": 2,
         "online": 2,
-        "rateRanked": true,
-        "rateFte": 47291,
+        "rated": true,
+        "rateFte": 47854,
         "counts": {
           "criminal": 120,
           "violent": 25,
@@ -1097,11 +1098,8 @@
       "2016": {
         "campuses": 2,
         "online": 2,
-        "rateRanked": true,
-        "rateFte": 47290,
-        "spikes": [
-          "liquor_arrest"
-        ],
+        "rated": true,
+        "rateFte": 47854,
         "counts": {
           "criminal": 113,
           "violent": 43,
@@ -1128,8 +1126,8 @@
       "2017": {
         "campuses": 2,
         "online": 1,
-        "rateRanked": true,
-        "rateFte": 47237,
+        "rated": true,
+        "rateFte": 47515,
         "counts": {
           "criminal": 102,
           "violent": 37,
@@ -1155,8 +1153,8 @@
       "2018": {
         "campuses": 4,
         "online": 1,
-        "rateRanked": true,
-        "rateFte": 47796,
+        "rated": true,
+        "rateFte": 48079,
         "counts": {
           "criminal": 86,
           "violent": 21,
@@ -1182,9 +1180,10 @@
       "2019": {
         "campuses": 9,
         "online": 1,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "excluded",
         "rateExcludedReason": "In 2019 the figures of campus 104151014 count for this institution, but IPEDS counts that campus's students under institution 448886 (DOE also reported it as 448886002: a merger or renumbering), which counts other campuses of its own that year. No rate is shown for that year.",
-        "rateFte": 49398,
+        "rateFte": 49691,
         "counts": {
           "criminal": 125,
           "violent": 43,
@@ -1210,9 +1209,10 @@
       "2020": {
         "campuses": 9,
         "online": 1,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 68981,
+        "rateFte": 69386,
         "counts": {
           "criminal": 79,
           "violent": 27,
@@ -1239,9 +1239,9 @@
       "2021": {
         "campuses": 8,
         "online": 1,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 71977,
+        "rateFte": 72401,
         "counts": {
           "criminal": 111,
           "violent": 45,
@@ -1268,12 +1268,15 @@
       "2022": {
         "campuses": 8,
         "online": 5,
-        "rateRanked": true,
-        "rateFte": 70993,
-        "spikes": [
-          "criminal",
-          "property",
-          "motor_vehicle_theft"
+        "rated": true,
+        "rateFte": 73032,
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 275,
+            "usual": 16
+          }
         ],
         "counts": {
           "criminal": 385,
@@ -1302,11 +1305,15 @@
       "2023": {
         "campuses": 9,
         "online": 5,
-        "rateRanked": true,
-        "rateFte": 70602,
-        "spikes": [
-          "property",
-          "motor_vehicle_theft"
+        "rated": true,
+        "rateFte": 72632,
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 200,
+            "usual": 16
+          }
         ],
         "counts": {
           "criminal": 311,
@@ -1333,14 +1340,33 @@
       "2024": {
         "campuses": 8,
         "online": 5,
-        "rateRanked": true,
-        "rateFte": 71159,
-        "spikes": [
-          "criminal",
-          "property",
-          "aggravated_assault",
-          "motor_vehicle_theft",
-          "robbery"
+        "rated": true,
+        "rateFte": 73468,
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "On-campus",
+            "count": 32,
+            "usual": 7
+          },
+          {
+            "offense": "aggravated_assault",
+            "geo": "Public property",
+            "count": 14,
+            "usual": 2
+          },
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 271,
+            "usual": 16
+          },
+          {
+            "offense": "robbery",
+            "geo": "Public property",
+            "count": 12,
+            "usual": 1
+          }
         ],
         "counts": {
           "criminal": 416,

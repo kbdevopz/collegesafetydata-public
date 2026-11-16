@@ -81,12 +81,13 @@
   "breakdownByGeo": [],
   "institution": {
     "id": 161253,
+    "ratesFile": "rates/institutions/161253.json",
     "byYear": {
       "2015": {
         "campuses": 3,
         "online": 6,
-        "rateRanked": true,
-        "rateFte": 9103,
+        "rated": true,
+        "rateFte": 9431,
         "counts": {
           "criminal": 25,
           "violent": 16,
@@ -109,8 +110,8 @@
       "2016": {
         "campuses": 3,
         "online": 7,
-        "rateRanked": true,
-        "rateFte": 9099,
+        "rated": true,
+        "rateFte": 9483,
         "counts": {
           "criminal": 44,
           "violent": 27,
@@ -133,8 +134,8 @@
       "2017": {
         "campuses": 3,
         "online": 6,
-        "rateRanked": true,
-        "rateFte": 9268,
+        "rated": true,
+        "rateFte": 9602,
         "counts": {
           "criminal": 33,
           "violent": 11,
@@ -157,8 +158,8 @@
       "2018": {
         "campuses": 3,
         "online": 8,
-        "rateRanked": true,
-        "rateFte": 9085,
+        "rated": true,
+        "rateFte": 9526,
         "counts": {
           "criminal": 34,
           "violent": 24,
@@ -177,8 +178,8 @@
       "2019": {
         "campuses": 3,
         "online": 11,
-        "rateRanked": true,
-        "rateFte": 8811,
+        "rated": true,
+        "rateFte": 9413,
         "counts": {
           "criminal": 25,
           "violent": 7,
@@ -201,14 +202,20 @@
       "2020": {
         "campuses": 4,
         "online": 11,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 9022,
+        "rateFte": 9681,
+        "fteUncertain": {
+          "share": 8758,
+          "partTimeFirst": 9345,
+          "reason": "pooled"
+        },
         "pooledWith": [
           {
             "id": 161244,
             "name": "University of Maine at Machias",
-            "fte": 264
+            "fte": 336
           }
         ],
         "counts": {
@@ -230,9 +237,9 @@
       "2021": {
         "campuses": 4,
         "online": 11,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 9284,
+        "rateFte": 9897,
         "counts": {
           "criminal": 22,
           "violent": 8,
@@ -253,8 +260,8 @@
       "2022": {
         "campuses": 4,
         "online": 22,
-        "rateRanked": true,
-        "rateFte": 7687,
+        "rated": true,
+        "rateFte": 8808,
         "counts": {
           "criminal": 19,
           "violent": 10,
@@ -274,8 +281,8 @@
       "2023": {
         "campuses": 4,
         "online": 23,
-        "rateRanked": true,
-        "rateFte": 7310,
+        "rated": true,
+        "rateFte": 8464,
         "counts": {
           "criminal": 31,
           "violent": 14,
@@ -296,8 +303,8 @@
       "2024": {
         "campuses": 5,
         "online": 21,
-        "rateRanked": true,
-        "rateFte": 7656,
+        "rated": true,
+        "rateFte": 8752,
         "counts": {
           "criminal": 20,
           "violent": 12,

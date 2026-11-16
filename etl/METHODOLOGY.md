@@ -43,13 +43,14 @@ reported year without any incident is a 0, not missing data:
 - its school page shows 0 for that year, and its charts show 0 there;
 - it is ranked with 0 for every category it had none of, after the campuses
   with incidents, all sharing the next rank and listed by name, then UNITID
-  (the tie rule below); its institution is ranked with rate 0 when the rate
-  rules below allow it;
+  (the tie rule below);
 - a campus that reported but never had an incident has a school page too.
 
-A reported zero can reflect how an institution classifies or reports
-incidents, not only how safe it is; the rate rankings say so where their
-zero rows begin.
+An institution rated in a 3-year window with no on-campus incident of a code
+in it has a rate of 0 for that code, with its interval, and is on that
+code's list when it meets the list rule (rate rules 4 and 10). A reported
+zero can reflect how an institution classifies or reports incidents, not
+only how safe it is.
 
 A year a campus did not report has no figures at all. Its school page lists
 it as not reported, its charts leave a gap there rather than a 0, and it is
@@ -87,15 +88,15 @@ arrest and 3 disciplinary categories), a blank counting as 0. A campus-year's
 whole figures are its three blocks (60 counts). Copies are looked for only
 between campuses in the same state (campuses with no state, or outside the
 50 states, DC, Puerto Rico and the U.S. Virgin Islands, are not ranked and
-are not compared), and every test needs at least 6 counts that are not 0:
-fewer match by chance too often to call a copy.
+are not compared), and every test but the last below needs at least 6
+counts that are not 0: fewer match by chance too often to call a copy.
 
 The host of a copy is chosen in this order: its campus-year comes from the
 newest release that covers the year (not from an older one), it is a main
 campus (UNITID ending in 001), it has more students (the FTE used for rates;
 no FTE sorts last), it has the larger total for the campus-year over the
 three geographies, it has the lower UNITID. The copies are shadows of the
-host. Four rules find them, in this order (a block keeps the first rule's
+host. Five rules find them, in this order (a block keeps the first rule's
 answer):
 
 1. **Same block:** two or more campuses' blocks of the same year and
@@ -111,6 +112,20 @@ answer):
    shadow of that campus.
 4. **Block, in an older release:** the same for one block of such a
    campus-year (all 20 counts equal).
+5. **Whole year, same city** (`SHARED_CITY_MIN_TOTAL` = 20; rule
+   `whole_year_city`): campus-years of two or more institutions (different
+   base UNITIDs) in the same state and city (`dim_institution` city,
+   compared without case and extra spaces) have all 60 counts equal, with a
+   total of at least 20, whatever the number of nonzero counts. They are one
+   report filed by each institution (the schools of one hospital,
+   institutions on one shared campus, a program at another institution's
+   campus). Every block of the campus-years other than the host's is a
+   shadow. A shadow institution with no other counting campus that year
+   counts no campus of its own: it has no figures of its own that year for
+   the rates (status `missingYears` for the windows containing it), and its
+   students are added to the host institution's denominator (rule 3, host
+   `coLocated`). A shadow institution with other counting campuses is a
+   guest at the host's site (rule 18).
 
 State and national totals and rankings count a shadow block's figures once,
 under the host; a campus-year whose every block with data is a shadow is not
@@ -131,7 +146,7 @@ shadow; the older releases' figures the last two rules compare are in
 
 ## FTE (Full-Time Equivalent) Enrollment
 
-FTE is the denominator of the per-student rates: full-time students count fully, part-time students in part. The site uses the FTE that NCES (the National Center for Education Statistics) publishes for each institution and fall, for every year. It does not calculate FTE.
+FTE is the basis of the per-student rates' denominator, an estimate of on-campus FTE made from it (rate rule 3): full-time students count fully, part-time students in part. The site uses the FTE that NCES (the National Center for Education Statistics) publishes for each institution and fall, for every year. It does not calculate FTE.
 
 | Years | Source of NCES's FTE |
 |-------|----------------------|
@@ -154,150 +169,744 @@ That matched NCES's FTE exactly for only 58% of institution-years (46% of those 
 
 ## Crime Rate Calculation
 
-Crime rates are expressed as incidents per 10,000 on-campus FTE students:
+A rate is a 3-year average: the reported on-campus incidents of one code in
+a 3-year window per 10,000 on-campus students a year.
 
 ```
-Rate = (Incident Count / On-campus FTE) × 10,000
+Rate = N / F × 10,000
+N = on-campus incidents of the code, summed over the window's 3 years
+F = on-campus FTE, summed over the same 3 years ("student-years")
 ```
+
+A rate per 10,000 student-years is a rate per 10,000 on-campus students a
+year. Each rate has a 95% interval and is compared with the national rate.
+Violent crimes, criminal offenses except motor vehicle theft, and burglary
+also have lists of large institutions ordered by rate, on which the site
+shows each institution's range of positions. The rules below say which
+institutions and codes have a rate and how each figure is made; "Published
+rate files" lists the files that hold them.
 
 ### Rates are per institution
 NCES publishes FTE for each institution, not for each campus: every campus
 of an institution (all campuses whose UNITID starts with the same six
-digits, the base UNITID) carries the institution's FTE. A rate therefore
-divides the incidents of all the institution's campuses that year by the
-institution's on-campus FTE (`04_create_aggregates.py`,
-`create_institution_tables`):
+digits, the base UNITID) carries the institution's FTE. A rate is therefore
+the institution's: the on-campus incidents of all its campuses in the
+United States over its on-campus FTE (`04_create_aggregates.py`,
+`create_institution_tables`, for the institution-years; `etl/rates.py` for
+the rates):
 
 - A campus counts for its institution in a year when it reported that year
   (`campus_year_sources`) and its figures are not all shadow blocks.
-- The incidents are counted as in rankings: the sum of on-campus, non-campus
-  and public property (residence halls are part of on-campus), shadow blocks
-  left out, campuses in any state.
-- Rate rankings list institutions, one row each, under the institution's
-  name. The row links to the main campus (UNITID ending in 001) when that
-  campus counts that year, otherwise to the institution's campus with the
-  most incidents that year (ties: the lowest UNITID), and is listed in that
-  campus's state. Rankings by count still list each campus.
-- School pages and Compare show the institution's rate and, for an
-  institution of more than one campus, label it "all N campuses combined".
+- The institution's counts are its counting campuses' counts per geography
+  (residence halls are part of on-campus), shadow blocks left out, campuses
+  with a state (territories included). A campus abroad (rule 17) is not in
+  its institution's counts or rates, but stays in its own school file. The
+  rate uses the on-campus counts only (rule 2).
+- Each institution-year has a link campus: the main campus (UNITID ending
+  in 001) when that campus counts that year, otherwise the institution's
+  campus in the United States with the most incidents that year (ties: the
+  lowest UNITID). A rate entry carries the institution's name, link campus
+  and state of the window's last year. Rates cover the institutions whose
+  link campus is in `US_STATES` (the 50 states, DC, PR and VI); an
+  institution elsewhere (Guam, the Federated States of Micronesia, ...) has
+  counts but no rate (rule 4). Rankings by count still list each campus.
+- Every school file of an institution that has a rates file names it
+  (`institution.ratesFile`), so all of an institution's campuses point to
+  the same rates.
 
 ### Rate rules
-Every rule rates and rate rankings follow (constants in `config.py`, rules
-in `04_create_aggregates.py`, checked again without that code by
-`07_comprehensive_audit.py` checks 10 and 12). None changes a count or a
-ranking by count. School pages and Compare show the rate of an institution
-under the floor (rule 2) or with fewer than 20 incidents, with a note; an
-institution-year left out by rule 3, 8 or 9 gets no rate there, only its
-counts and the note (`rateExcludedReason`). Numbers are for 2015-2024
-("institution-years": one institution in one year).
+These are the rules every rate follows. The constants are in `config.py`
+and are published in `metadata.json` `rateRules`. The institution-year
+figures (on-campus FTE, pooled FTE, population rules) are made in
+`04_create_aggregates.py`; the windows, intervals, comparisons, lists and
+flags in `etl/rates.py`, which `05_generate_json.py` runs.
+`07_comprehensive_audit.py` checks them again without that code: check 10
+the institution-year figures, check 12 every published rate figure, check
+13 the calibration of the intervals and check 14 the medical-center campus
+list (see Validation). No rule changes a count or the order of a ranking by
+count; rule 15 adds a flag to rankings by count. Figures that depend on the
+build are named below by the field that holds them, in `metadata.json`
+(`rateRules`, `rateStats`) or in the rate files.
 
-1. **On-campus FTE** (`MIN_FTE_FOR_RATE`, `ONLINE_SHARE_YEAR`). On-campus
-   FTE = FTE × (1 − PCTDEEXC / 100), rounded half up to a whole number,
-   PCTDEEXC being NCES's share of students enrolled exclusively in distance
-   education (in the same DRVEF/EF tables as the FTE). Clery figures cover
-   the campus. It is an approximation: PCTDEEXC is a share of the fall
-   headcount, applied to FTE, and a student with some online courses counts
-   as on campus. For 2020 and 2021 the share is the institution's fall 2019
-   share, so those years divide by the same kind of enrollment as the
-   others; when NCES has no 2019 figure the year's own share is used (66
-   institutions in 2020 and 102 in 2021, of which 1 and 2 have 1,000+ FTE).
-   An institution without PCTDEEXC would keep its full FTE (none with an FTE
-   lacks it in 2015-2024). This replaces the earlier cut-off, which left out
-   institutions at 50% or more exclusively online and divided by the full FTE
-   below that.
-2. **Floor.** Rate rankings list an institution only in a year its
-   on-campus FTE, with any FTE pooled under rules 8 and 9, is at least 1,000
-   (1,987 institutions in 2024).
-3. **Population** (`HOSPITAL_CODE`, `MEDICAL_CARNEGIE`,
-   `reference/rate_population_exclusions.csv`, read by
-   `03_build_dimensions.py` into `dims/dim_institution_class.parquet`). Left
-   out of rate rankings in a year when the IPEDS HD file says the
-   institution has a hospital (HOSPITAL = 1; 882 institution-years, 701 with
-   1,000+ on-campus FTE, 71 in 2024); else when its Carnegie basic
-   classification is "Special Focus Four-Year: Medical Schools & Centers"
-   (25 in C15BASIC, C18BASIC and C21BASIC) or the 2021 "Special Focus
-   Research Institution" category (C21BASIC 27; 20 of its 22 institutions
-   in HD2024 were 25 in C18BASIC): 335 institution-years, 205 with 1,000+,
-   21 in 2024; else when the reference list names it with a sourced reason
-   (Gallaudet University 2015-2024: the Clerc Center's Kendall Demonstration
-   Elementary School and Model Secondary School for the Deaf are on its
-   campus and their pupils are not in its FTE; 10 institution-years). Their
-   campuses hold many people who are not in FTE (patients, visitors,
-   clinical and research staff, pupils). In 2024 the median criminal-offense
-   rate per 10,000 on-campus FTE of Carnegie R1 universities was 80.2 with a
-   hospital and 34.6 without. Limitation: HOSPITAL = 1 only when the
-   institution itself runs the hospital; a university whose medical center is
-   a separate legal entity (for example Johns Hopkins University) is not caught
-   and stays ranked.
-4. **Minimum count** (`MIN_COUNT_FOR_RATE_RANK` = 20). Only a rate on at
-   least 20 incidents is ranked. A Poisson count n has a relative standard
-   error of 1/sqrt(n): 22.4% at 20, 31.6% at 10; CDC WONDER flags death
-   rates on fewer than 20 deaths as unreliable (relative standard error 23%
-   or more, https://wonder.cdc.gov/wonder/help/ucd.html). Institutions with
-   1-19 incidents are written to `rateUnranked` (by rate) and shown as "too
-   few incidents to rank by rate", with the rate and interval.
-5. **Counts only** (`RATE_RANK_MIN_NATIONAL` = 1,000, `RATE_COUNTS_ONLY`).
-   Offenses averaging fewer than 1,000 incidents a year nationally have no
-   rate rankings: incest 2.5, negligent manslaughter 6.2, murder 48.8,
-   statutory rape 78.7, arson 654.9 a year. Only 7 institution-years in rate
-   rankings reached 20 of any of them (statutory rape 3, arson 4). 07 checks
-   that the list is exactly the offenses under the threshold.
-6. **Intervals and rank ranges** (`RATE_CI_LEVEL` = 0.95). Each rate's
-   interval is the exact Poisson (Garwood 1936) interval of its count,
-   divided by the denominator, × 10,000, rounded to 2 decimals. 05 finds it
-   by bisection on the Poisson distribution, 07 again through the
-   regularized incomplete gamma function. A ranked institution's rank range
-   is 1 + #{ranked institutions whose lower bound is above its upper bound}
-   to N − #{those whose upper bound is below its lower bound}, on the
-   published bounds. In 2024 the median ranked institution's range holds 48
-   of 84 ranks for violent crimes and 155 of 310 for all criminal offenses.
-7. **Violent and property crimes** (`VIOLENT_OFFENSES`,
-   `PROPERTY_OFFENSES`). "violent" = murder, rape, robbery, aggravated
-   assault (the FBI's violent crime); "property" = burglary, motor vehicle
-   theft, arson (the FBI's property crime without larceny-theft, which Clery
-   does not collect). Source: FBI, Crime in the United States 2019, Violent
-   Crime and Property Crime,
-   https://ucr.fbi.gov/crime-in-the-u.s/2019/crime-in-the-u.s.-2019/topic-pages/violent-crime
-   and .../property-crime. Rankings open on "violent": motor vehicle theft
-   was 37% of all criminal offenses in 2024 (15% in 2015). "criminal" and
-   "all" are still offered.
-8. **Mergers and renumbered campuses** (`merger_rate_rules`,
-   `split_family_exclusions`). In a year DOE reports a campus under two
-   institutions (its old and new ID), the institution whose FTE holds its
-   students is the one with an FTE, or the one whose every campus is such a
-   linked campus. When the other institution counts the campus and the
-   students' institution counts no campus of its own, the other's rate adds
-   the students' institution's on-campus FTE. Otherwise the institution
-   counting the campus is left out (or the students' institution, when its
-   copy is the shadow and it is listed), and a campus split among several
-   institutions leaves them out. A merged institution's group is left out
-   when a member without an FTE counts a campus with incidents that no
-   member with an FTE also counts. A campus with no incident that year
-   (under either ID, any category) needs none of this. 91 institution-years
-   are left out (27 with 1,000+ on-campus FTE); 31 are rated with pooled
-   FTE.
-9. **Shared campuses** (`shared_rate_rules`). For a shadow block whose
-   host campus belongs to another institution (not a linked pair of IDs):
-   when the shadow's institution counts no campus of its own that year and
-   has one host institution, the host's rate adds its on-campus FTE (44
-   institution-years); otherwise neither rate is exact, and the shadow's
-   institution (if listed) and every host institution are left out that
-   year: 243 institution-years, 209 with 1,000+ on-campus FTE, 21 in 2024
-   (among them Texas A&M, Purdue, Indiana University Bloomington and the
-   University of Maryland, College Park).
-10. **Unusually high years** (`SPIKE_MIN_COUNT` = 20, `SPIKE_FACTOR` = 3,
-    `SPIKE_MIN_OTHER_YEARS` = 3). A rate entry is flagged `spike` when its
-    count is at least 20 and more than 3 times the median of the
-    institution's counts of that code in its other listed years (0 for a
-    year without one), with at least 3 other years. It stays ranked; the
-    site notes that DOE counts crimes in the year reported. School files
-    list the flagged codes per year (`spikes`).
+1. **3-year windows** (`RATE_WINDOW_YEARS` = 3, `RATE_SKIP_YEARS` = 2020;
+   `rateRules.windowYears`, `skipYears`, `windows`). A rate covers 3
+   consecutive calendar years, none of them 2020: with data for 2015-2024
+   the windows are 2015-2017, 2016-2018, 2017-2019, 2021-2023 and
+   2022-2024. In fall 2020 many institutions taught remotely (44% of
+   undergraduates took only distance education courses, against 15% in fall
+   2019; see Comparing Years), so that year's enrollment does not measure
+   who was on campus. 2020 keeps its counts but has no rate, and no window
+   contains it. Comparisons and lists are made for windows only; the
+   single-year rates of rule 13 serve the trend on school pages.
+2. **Numerator: on-campus incidents** (`RATE_CODES`; `rateRules.codes`). N
+   is the institution's on-campus incidents of the code (DOE's "On campus",
+   which includes residence halls), summed over the window's 3 years (`n`;
+   per year `nByYear`). Its non-campus and public-property incidents in the
+   same years are published beside the rate as counts (`nNoncampus`,
+   `nPublic`) and are not in it: the denominator counts students, and how
+   much public property next to campus an institution reports depends on
+   where it is and how it maps its Clery geography. The codes with a rate
+   are `violent` (murder and nonnegligent manslaughter, rape, robbery,
+   aggravated assault), `criminal_xmvt` (the 11 criminal offenses except
+   motor vehicle theft), `burglary`, and the single offenses `rape`,
+   `fondling`, `robbery`, `aggravated_assault`, `stalking`,
+   `dating_violence` and `domestic_violence`. Every other code has counts
+   only (rule 14).
+3. **Denominator: on-campus student-years** (`oncampus_estimates`,
+   `ONLINE_UNCERTAIN_RATIO`, `ONLINE_SHARE_YEAR`;
+   `rateRules.onlineUncertainRatio`, `onlineShareYear`). Clery figures cover
+   the campus, so each year's denominator is an estimate of the FTE without
+   students enrolled exclusively in distance education. NCES gives their
+   share of the fall headcount (PCTDEEXC), not of FTE, so 04 makes two
+   estimates: (a) proportional, FTE x (1 - PCTDEEXC / 100); (b) part-time
+   first, the on-campus headcount H x (1 - PCTDEEXC / 100) filled first with
+   full-time students (FT_on = min(FT, on-campus headcount)), the rest
+   part-time, each counting (FTE - FT) / PT as in the institution's FTE; by
+   level (PCUDEEXC, PCGDEEXC) when the share is the year's own and DRVEF has
+   them (2021 on), else from the totals. Headcounts are NCES's (DRVEF 2021
+   on, EF A before). On-campus FTE is the larger estimate, rounded half up.
+   When the larger is more than 5/4 of the smaller (more than 25% apart) or
+   (b) cannot be computed (headcounts that do not add up), the year's
+   on-campus FTE is uncertain (`fteUncertain`; rule 5). For 2020 and 2021
+   the share is the institution's fall 2019 share, so those years divide by
+   the same kind of enrollment as the others; when NCES has no 2019 figure
+   the year's own share is used (`rateStats.institutionYears.onlineOwnYear`).
+   2020 has no rate, so the 2019 share enters the 2021 rates and the count
+   flag's reference for 2020 and 2021 (rule 15). The number of institutions
+   with an uncertain on-campus FTE
+   (`rateStats.institutionYears.byYear[y].fteUncertain`) rises in 2022, the
+   first year after 2020-2021 that uses each fall's own share. An
+   institution without PCTDEEXC would keep its full FTE (none with an FTE
+   lacks it in 2015-2024).
 
-Rules 3, 8 and 9 leave out 1,546 institution-years (1,139 with 1,000+
-on-campus FTE). Rate rankings list 2,153 institutions in 2015, 2,106 in
-2016, 2,092 in 2017, 2,057 in 2018, 2,025 in 2019, 1,973 in 2020, 1,945 in
-2021, 1,822 in 2022, 1,834 in 2023 and 1,874 in 2024 (2,077 in 2024 under
-the earlier rules).
+   A year's denominator adds another institution's on-campus FTE in two
+   cases (`rateStats.institutionYears.pooled` counts them):
+   - Merger (`merger_rate_rules`): in a year DOE reports a campus under two
+     institutions (its old and new ID), the institution whose FTE holds its
+     students is the one with an FTE or, when both have one, the one that
+     reported only campuses linked to campuses of the other. When the other
+     institution counts the campus and the students' institution counts no
+     campus of its own, the other's denominator adds the students'
+     institution's on-campus FTE. The other cases are population rules
+     (rule 4, `merger`).
+   - Shared site (`shared_rate_rules`, `classify_shared_sites`; rule 18):
+     for a shadow block whose host campus belongs to another institution
+     (not two IDs of one campus), when the shadow's institution counts no
+     campus of its own that year and has one host institution, the host's
+     denominator adds its on-campus FTE. The owner of a shared site with
+     several main campuses adds the on-campus FTE of the institutions it
+     pools there (rule 18). Institutions pooled at a shared site are named
+     in the owner's `coLocated` (window entries and the rated window status
+     of its institution file).
+
+   A denominator that adds another institution's FTE is uncertain too when
+   that institution's is (`fteUncertain` reason `pooled`; `own` when the
+   institution's own estimates differ). The window's F (`fteYears`) is the
+   sum of the 3 years' denominators (`fteByYear` in the institution file).
+4. **Who is rated** (`MIN_FTE_FOR_RATE` = 1,000, `HOSPITAL_CODE`,
+   `MEDICAL_CARNEGIE`, `reference/rate_population_exclusions.csv`,
+   `merger_rate_rules`, `split_family_exclusions`, `classify_shared_sites`;
+   `rateRules.minFte`,
+   `rateStats.definitions.rated`). An institution is rated in a window when
+   DOE has figures for it (a counting campus) in each of the 3 years, its
+   link campus in the window's last year is in the 50 states, DC, Puerto
+   Rico or the U.S. Virgin Islands, its denominator (rule 3) is at least
+   1,000 in each year, and no population rule applies to it in any of the 3
+   years. The population rules apply to one institution-year each (the
+   first that applies is recorded, `rate_rule`):
+   - `hospital`: the IPEDS HD file says the institution has a hospital
+     (HOSPITAL = 1).
+   - `medical`: in every data year, when any edition of its Carnegie basic
+     classification, in the IPEDS HD file of any data year, is "Special
+     Focus Four-Year: Medical Schools & Centers" (25 in C15BASIC, C18BASIC
+     or C21BASIC) or the 2021 "Special Focus Research Institution" category
+     (C21BASIC 27; 20 of its 22 institutions in HD2024 were 25 in C18BASIC).
+     An institution an older edition codes as a medical school is medical
+     even in the years whose own newest field no longer does (Loma Linda
+     University: C15BASIC and C18BASIC 25, C21BASIC 16), and one a newer
+     edition codes so is medical in the earlier years too.
+   - `listed`: `etl/reference/rate_population_exclusions.csv` names it with
+     a sourced reason: Gallaudet University 2015-2024 (its campus also holds
+     the Clerc Center's Kendall Demonstration Elementary School and Model
+     Secondary School for the Deaf, whose pupils are not in its FTE),
+     AdventHealth University 2015-2024 (its main campus's Clery geography
+     includes a hospital that IPEDS does not flag), and six universities
+     whose annual security reports count incidents at a hospital whose
+     patients, visitors and staff are not in their FTE, in the years the
+     reports say so: Vanderbilt University 2015-2024, Yale University
+     2016-2024, the University of North Carolina at Chapel Hill 2017-2024,
+     West Virginia University 2021-2024, the University of
+     Pittsburgh-Pittsburgh Campus 2020-2024 and George Washington University
+     2016-2018. Each row's source names the report, with what it says and
+     its address; the school file's `rateExcludedReason` carries the reason
+     and the source. A year another rule already covers keeps that rule
+     (`rate_rule` records the first).
+   - `merger`: in the merger case of rule 3, both institutions when the
+     students' institution cannot be told; the other institution when it
+     counts the campus but cannot add the students' FTE; the students'
+     institution when its copy of the campus is the shadow but it counts
+     other campuses of its own; and, when one institution's FTE would be
+     added to two or more others, those others. A campus with no incident
+     that year (under either ID, any category) needs none of this.
+   - `family`: every institution of a merged group, in a year when a member
+     without an FTE counts a campus with incidents that no member with an
+     FTE also counts.
+   - `shared_pooled` and `shared_campus`: its main campus is at a shared
+     site with another institution's main campus (rule 18). `shared_pooled`:
+     the site's owner counts the site once and adds this institution's
+     students. `shared_campus`: the site's incidents cannot be assigned to
+     one institution's students, so none of the institutions there has a
+     rate. The school file's `rateExcludedReason` names the other
+     institutions.
+
+   The campuses of hospitals and medical schools hold many people who are
+   not in FTE (patients, visitors, clinical and research staff, pupils), so
+   a rate per student would not describe them. Rule 16 covers medical
+   centers these rules do not catch, and rule 19 notes hospitals whose
+   incidents may or may not be in an institution's figures. `rateStats.institutionYears.rules[rule]`
+   gives, per rule, the institution-years it is the first rule for
+   (`institutionYears`) and those of them in the national scope with a
+   denominator of 1,000 or more (`withFte`).
+
+   An institution that is not rated in a window has no rate for it. Its
+   institution file (`rates/institutions/{base}.json`, when it has one)
+   gives the first status that applies, in this order: `missingYears` (no
+   figures of its own in each of the 3 years: not in DOE's data, or every
+   figure of that year counts under another institution's campus, as a
+   shadow of copies rule 5 or an older shared block; `years` lists the
+   years it has figures, and the school file's `sharedFigures` names the
+   host of a shadow year),
+   `scope` (link campus outside the 50 states, DC, PR and VI), `size`
+   (denominator under 1,000, or none, in at least one year; `fteByYear`),
+   `excluded` (a population rule in at least one year; `rules` gives each
+   such year's rule). A rated window has the status `rated`. The window
+   files list exactly the rated institutions (`summary.rated`;
+   `rateStats.windows[w][code].rated`).
+5. **Reasons** (`why`; `SHARED_SITE_MAX_SHARE` = 1/10,
+   `MEDICAL_CAMPUS_SHARE` = 1/4; `rateRules.sharedSiteShare`,
+   `medicalShare`). Per window and code, a rated institution has the first
+   of these reasons that applies, or none:
+   - `shared`: in at least one of the 3 years it is a guest or participant
+     at a shared site (rule 18), unless a published figure shows that its
+     students there are few. That needs, for every such site-year, a figure
+     from `etl/reference/shared_site_enrollment.csv`, and the figures' sum
+     must be at most 1/10 of F (`sharedSite.exempt`). A figure is a
+     published count, a published upper bound such as the enrollment of
+     every location of a program together, or an upper bound derived only
+     from published figures by the arithmetic stated in the row's `derived`
+     column (the sum of the published sizes of a program's classes enrolled
+     that fall, or a published cap per class times the number of classes at
+     the site at one time); never an estimate or a lower bound. A site-year
+     takes the figure for its own fall term (or an academic year that
+     includes it); failing that, the largest of the figures whose own year
+     is at most `SHARED_SITE_FIGURE_YEARS` = 3 years before or after it
+     (`rateRules.sharedSiteFigureYears`; on a tie the nearer, then the
+     earlier), and `sharedSite.figures` publishes that figure's own year. A
+     figure counts the students of the programs its source covers: the Texas
+     A&M Irma Lerma Rangel College of Pharmacy rows count PharmD students
+     only (not the college's PhD students, enrolled from spring 2020), and
+     the Indiana University School of Medicine rows count MD students only,
+     so a guest's other students at a site are not in its figure. The reason is set per window, the same on every
+     code. The institution's campuses at the site are left out of its N
+     (their on-campus incidents are its `sharedOut`), but its FTE is NCES's
+     figure for the whole institution and may include its students there,
+     and no file says how many. So its rate and interval are published and
+     its verdict and peer verdict are `withheld` (without `verdictLargerFte`,
+     `verdictSmallerFte`, their peer counterparts or
+     `verdictWithoutFlagged`). Its incidents and student-years stay in the
+     national and peer rates (rule 7). 1/10 is well inside the 25%
+     difference between the two on-campus estimates that rule 3 accepts,
+     and small against the intervals.
+   - `online`: its on-campus FTE (rule 3) is uncertain in at least one of
+     the 3 years (`fteUncertain`, `own` or `pooled` per year). The rate and
+     interval use the larger estimate. Each comparison (rules 8 and 9) is
+     made twice, with F from the larger and from the smaller estimates
+     (`fteYearsSmaller`; `verdictLargerFte`, `verdictSmallerFte`): when the
+     two agree, that is the verdict; when they differ, the verdict is
+     `undetermined` (`undeterminedReason` `estimates`, or
+     `noSecondEstimate` when the smaller estimate is missing for a year).
+     Its incidents and student-years are not in the national and peer rates
+     (rule 7).
+   - `medical_campus`: N is above 0 and its incidents at listed
+     medical-center campuses (rule 16) are at least 1/4 of N. Those
+     incidents (`medical`) are the on-campus incidents at a listed campus
+     less those in its residence halls: a medical center's patients,
+     visitors and staff are not students.
+
+   A reason never takes away the rate or interval; `shared` withholds the
+   verdicts. An institution with a reason is on no list (rule 10). The
+   owner of a shared site has no reason for it: its incidents there are in
+   its N (`sharedIn`), and the guests are named (`sharedInWith`). Each
+   window file's `summary.byWhy` counts the rated institutions per reason.
+6. **Interval** (`RATE_CI_LEVEL` = 0.95, `RATE_DISPERSION`,
+   `RATE_DISPERSION_OTHER`, `RATE_RAMP`, `count_interval`;
+   `rateRules.ciLevel`, `dispersion`). Institutions' yearly counts vary more
+   than Poisson counts. For a yearly mean m the model's variance is
+
+   ```
+   Var(m) = m + c × g(m) × m^1.5,   g(m) = min(2, max(1, m / 10))
+   ```
+
+   the NB-P variance function with exponent 1.5 (Greene 2008), with a ramp
+   g on its second term that rises from 1 at 10 a year to 2 at 20 a year,
+   where counts vary more than the exponent alone allows
+   (`dispersion.power`, `dispersion.ramp`). The constant c is per code
+   (`dispersion.c`). Every value was fitted by one method on the on-campus
+   counts of 2015-2019 of the institutions that reported all five years
+   with an on-campus FTE of at least 1,000, no rule of rule 4 and a certain
+   on-campus FTE (`config.py` describes the fit): the codes in
+   `dispersion.fitted` on their own counts, and `dispersion.other` on the
+   single crime offenses together; the codes without a fit of their own
+   use `dispersion.other`. Each window file gives its code's c (`c`). For a window total N over its 3 years the
+   model's variance-to-mean ratio is
+
+   ```
+   phi0(N) = 1 + c × g(N/3) × sqrt(N/3)
+   ```
+
+   An institution's own yearly counts can vary more than the model allows
+   (one year of many reports between two quiet ones), so the window's ratio
+   is the larger of the model's and the institution's own
+   (`RATE_SPREAD` = "max"; `dispersion.spread`):
+
+   ```
+   phi = max(phi0(N), 3 × s^2 / N)     for N > 0;  phi = phi0(0) = 1 for N = 0
+   ```
+
+   with s^2 the sample variance of the institution's three yearly counts
+   (n - 1 denominator, exact). `phi` is published to 6 decimals and
+   `phiFrom` is `years` when the institution's own term is strictly the
+   larger, else `model`; the institution file's `nByYear` gives the yearly
+   counts. Three counts say little about an institution's own variation, so
+   the model is the floor. `verdictWithoutFlagged` uses N and s^2 of the
+   yearly counts less their flagged excess. The interval is phi times the
+   gamma interval of the effective count
+   m = N / phi: lower phi × G(0.025; m) (0 when N = 0), upper
+   phi × G(0.975; m + 1), G the gamma quantile (Fay and Feuer 1997;
+   Garwood's exact Poisson interval when phi = 1), divided by F and
+   multiplied by 10,000 (`lo`, `hi`). Audit check 12 checks that neither
+   bound falls as N rises (`details.A5`). Rates are rounded half up to 2 decimals exactly,
+   in integer arithmetic; interval bounds half up to 2 decimals; E (rule 7)
+   half up to 1 decimal. Verdicts, list membership and ranges use the
+   unrounded figures, so they cannot always be recomputed from the rounded
+   ones: a bound and the national or peer rate can be equal to 2 decimals
+   with a verdict of above or below. The bounds, the national rate and the
+   type rates are therefore also published half up to 4 decimals (`lo4`,
+   `hi4`; `natl4` and `peer[type].rate4` in each window file, `natl4` and
+   `peerRate4` in the institution file), and where the deciding bound and
+   the rate it is compared with are equal to 2 decimals the pages show both
+   to 4 (`natlN` and `natlF` give the national rate unrounded). The interval
+   reflects how much yearly counts vary, as much as is usual for an
+   institution with that many incidents or as much as the institution's own
+   counts varied when that is more; differences between institutions in how
+   they record and report incidents are outside it. `rateRules.testVectors` holds worked
+   examples (count intervals, rates, a small list with its critical value)
+   that check 12 recomputes.
+7. **National rate** (`natl`, `natlN`, `natlF` in each window file;
+   `rateStats.windows[w][code].natl`). Per window and code: the sum of N
+   over the sum of F of the rated institutions, except those with `why`
+   `online`, whose denominators are uncertain; institutions with
+   `medical_campus` or `shared` are in it. An institution's expected count
+   (`E`) is the national rate times its F.
+8. **Comparison with the national rate** (`verdict`). `above` when the
+   whole 95% interval is above the national rate, `below` when it is wholly
+   below it, otherwise `nd` (not distinguishable); `undetermined` only for
+   `online` and `withheld` only for `shared` (rule 5). If the intervals
+   had exactly 95% coverage, an institution whose underlying rate equals
+   the national rate would be
+   shown above about 1 time in 40 and below about 1 time in 40 (see
+   Limitations of the rates, item 4). Each window file's `summary.verdicts`
+   counts the verdicts (`verdictsNoReason`: those of institutions without a
+   reason).
+9. **Comparison with the peer type** (`SIZE_SETTING_FIELDS`, `PEER_TYPES`;
+   `rateRules.peerTypes`, `sizeSettingFields`; `peerType`, `peerVerdict`,
+   and `peer` in each window file). On-campus rates are generally much
+   higher where many students live on campus (compare the types' rates in a
+   window file's `peer`), so each rated institution is also compared, by the same
+   test, with the rate of its type. The type comes from the Carnegie Size &
+   Setting classification: the value of the first of C21SZSET, C18SZSET and
+   C15SZSET that an IPEDS HD file classifies the institution in, from the
+   newest such file, so an institution has one type in every window. The
+   types are two-year (1-5); four-year, primarily nonresidential (6, 9, 12,
+   15); four-year, primarily residential (7, 10, 13, 16); four-year, highly
+   residential (8, 11, 14, 17); and other (exclusively graduate, or not
+   classified). A type's rate is computed like the national rate within the
+   type (`peer[type]`: `rate`, `n`, `fteYears`, `members`). An `online`
+   institution's peer comparison follows rule 5 (`peerVerdictLargerFte`,
+   `peerVerdictSmallerFte`), and a `shared` institution's is `withheld`.
+   `peerVerdict` is null when the type has no rate.
+10. **Lists** (`LIST_CODES`, `LIST_MIN_EXPECTED` = 20, `LIST_ALPHA` = 0.05,
+    `rank_ranges`; `rateRules.lists`; `listed`, `position`, `rankLo`,
+    `rankHi`, and `list` in the window file). Only violent, criminal_xmvt
+    and burglary have ordered lists. A window's list holds the rated
+    institutions without a reason (rule 5) whose expected count E is at
+    least 20, compared exactly. E depends on the institution's size, not on
+    its count, so the list does not pick institutions by their outcome. 20
+    is the floor CDC WONDER uses for reliable rates: it marks rates based on
+    fewer than 20 deaths as unreliable (relative standard error 23% or
+    more; https://wonder.cdc.gov/wonder/help/ucd.html). `list.minFteYears`
+    is the smallest F that gives E = 20; divided by 3, it is the number of
+    on-campus students a year an institution needs to be on the list. An
+    institution that meets these conditions but has an on-campus flag (rule
+    12) of an offense of the code in a year of the window is not placed
+    (`config.py`, above `LIST_CODES`; `rateRules.lists.notPlaced`): `listed` false and
+    `notPlaced` `unusual_year`, with its rate, interval, verdicts, flags and
+    `verdictWithoutFlagged` published as usual, so that one year's count
+    does not set its place. It is in the national and peer rates like any
+    institution without a reason. `list.n`
+    (`rateStats.windows[w][code].listed`) is the number of placed members;
+    `list.notPlaced` (`rateStats.windows[w][code].notPlaced`) the number not
+    placed. Positions, rank ranges, `list.zc`, and the state and type lists
+    count placed members only.
+    - Order (`entries`): rate, highest first, compared exactly (N_i × F_j
+      against N_j × F_i), then institution name, then base UNITID. The point
+      position (`position`) is 1 + the number of members with a strictly
+      higher rate, so equal rates share a position.
+    - Rank range (`rankLo`-`rankHi`): for members i and j, with the common
+      rate r = (N_i + N_j) / (F_i + F_j), the model's variance of rule 6 for
+      a window total with mean mu, V0(mu) = 3 × (m + c × g(m) × m^1.5) with
+      m = mu / 3, and each member's variance the larger of the model's and
+      its own spread (rule 6), V_i = max(V0(r F_i), 3 × s_i^2),
+
+      ```
+      z_ij = (N_i/F_i - N_j/F_j) / sqrt( V_i / F_i^2 + V_j / F_j^2 )
+      zc   = Phi^-1( 1 - 0.05 / (2 (n - 1)) )        (n = list.n; list.zc)
+      ```
+
+      rankLo is 1 + the number of members j with z_ji > zc (significantly
+      above i), and rankHi is n minus the number with z_ij > zc
+      (significantly below i), widened to include i's point position.
+      Testing i against the other n - 1 members at the Bonferroni level
+      makes the range a 95% confidence set for i's rank (Mogstad, Romano,
+      Shaikh and Wilhelm 2024). The set is marginal: it holds for each
+      institution on its own, not for all of a list's ranges at once.
+      Overlapping ranges do not show that two institutions' rates are equal,
+      and positions closer together than the ranges are wide cannot be
+      ordered with confidence. No simulation is used.
+
+    Ranks estimated from counts are uncertain, which is why the site shows
+    each member's range, in rate order, and not its point position, which
+    stays in the data as `position` (Goldstein and Spiegelhalter 1996 set
+    out the limits of such league tables). A rated institution that is not
+    on a list keeps its rate and verdict (`listed` false).
+11. **State lists** (`STATE_LIST_MIN_MEMBERS` = 2, `STATE_LIST_DISPLAY_MIN`
+    = 5; `rateRules.lists.stateMinMembers`, `stateDisplayMin`;
+    `statePosition`, `stateRankLo`, `stateRankHi`, `stateN`, and
+    `stateLists` in the window file). A state list is the national list's
+    members in one state (the state of the window's last year), ordered as
+    in rule 10, with positions and ranges recomputed among them (n = the
+    state's members). The data hold every state list with at least
+    `lists.stateMinMembers` members, and `stateLists` gives every state's
+    number of members (`rateStats.windows[w][code].stateLists` and
+    `stateListsDisplayMin` count the states with at least `stateMinMembers`
+    and at least `stateDisplayMin` members). The site shows a state list
+    only when it has at least `lists.stateDisplayMin` (5) members; for a
+    state with fewer, it names the state's institutions on the national list
+    with their ranges on the national list.
+
+    Type lists (`TYPE_LIST_MIN_MEMBERS` = 2; `rateRules.lists.typeMinMembers`;
+    `typePosition`, `typeRankLo`, `typeRankHi`, `typeN`, and `typeLists` in
+    the window file) are made the same way from the national list's placed
+    members of one peer type (rule 9), for every type with at least
+    `typeMinMembers` members. `typeLists` gives every type's number of
+    members, and `rateStats.windows[w][code].typeLists` counts the types
+    with at least `typeMinMembers`. On-campus rates differ by type, so a
+    type list compares an institution only with institutions of its type.
+12. **Unusual years** (`FLAG_*`, `unusual_years`; `rateRules.flags`;
+    `rates/flags.json`, and `flags` in rate entries, institution files and
+    school files). DOE counts incidents in the year they are reported (see
+    Year of report), so a year's count can include incidents from earlier
+    years. A flag says only that a year's count is far above the
+    institution's other years; the figures do not say why. A cell is one
+    institution's count of one offense
+    of `rateRules.flags.offenses` (aggravated assault, burglary, dating
+    violence, domestic violence, fondling, motor vehicle theft, rape,
+    robbery, stalking) at one geography (on campus, non-campus, public
+    property). A cell's year is flagged when its count is at least 10, the
+    institution has at least 3 other years in DOE's data (a year without an
+    incident counts as 0), and P(Y >= count) < 0.001 for a negative binomial
+    Y with mean mu, the larger of `rateRules.flags.minMean` and the median
+    of the other years, and variance mu + c × mu^1.5 (c =
+    `rateRules.flags.c`). Every institution is tested, whatever its size,
+    in every year, 2020 included. A flag gives the year, offense,
+    geography, count and `usual` (that median). Flags never change a count
+    or a rate. A rate entry carries the on-campus flags of its code's
+    offenses in its window's years; for an entry with flags the verdict is
+    computed again with N less the flagged excess (the sum of count - usual,
+    not below 0), and published as `verdictWithoutFlagged` only when it
+    differs from `verdict`. An on-campus flag of a list code's offenses in
+    a window keeps the institution off that window's list (rule 10,
+    `notPlaced`); audit check 12 checks that no placed entry has a flag and
+    that every entry not placed has one (`details.A4`). Each window file's `summary`
+    counts the entries with flags (`withFlags`) and those whose verdict
+    differs without them (`verdictWithoutFlaggedDiffers`); `rateStats.flags`
+    counts the flags by year, geography and offense.
+13. **Single-year rates** (`single_year`; `rates/institutions/{base}.json`
+    `years`). For the trend on each school page, each institution-year has
+    the same rate for that year alone: N and F of the year, with T = 1 in
+    rule 6 (phi(N) = 1 + c × g(N) × sqrt(N)) and its 1-year interval
+    (`years[y].rates[code]` = [N, rate, lo, hi]; also `fte`, `fteUncertain`
+    and, per code, `medical`, `sharedIn`, `sharedOut`). Single years vary
+    more than 3-year averages, and their intervals are wider. A year has a
+    single-year rate when its link campus is in the 50 states, DC, PR or VI,
+    its denominator is at least 1,000, no population rule applies and it is
+    not 2020; otherwise `years[y].notRated` gives the first reason that
+    applies: `scope`, `size`, `excluded` or `skippedYear` (2020). No
+    verdict, list or position is computed for a single year.
+    `rateStats.singleYear[y]` counts the institutions with a single-year
+    rate.
+14. **Codes without rates** (`rateRules.countsOnly`). These codes have
+    counts and rankings by count but no rate:
+    - weapons, drug and liquor law arrests and disciplinary referrals: they
+      count people arrested or referred and measure enforcement activity,
+      not incidents;
+    - "all": it adds criminal offenses, VAWA offenses, arrests and
+      referrals, which are different kinds of counts (see Totals shown on
+      the site);
+    - motor vehicle theft: on-campus vehicle thefts in national totals more
+      than tripled from 2021 to 2024, and the 100 institutions with the
+      largest increases account for most of the rise
+      (`downloads/counts-2021.csv`, `counts-2024.csv`);
+    - "criminal" (all criminal offenses) and "property" (burglary, motor
+      vehicle theft, arson): both include motor vehicle theft, so
+      `criminal_xmvt` and `burglary` carry the rates instead;
+    - murder, negligent manslaughter, incest, statutory rape and arson: they
+      are rare; each averaged fewer than 1,000 incidents a year in national
+      totals in 2015-2024 (the national rankings files' `totals`).
+
+    "violent" is the FBI's violent crime (murder and nonnegligent
+    manslaughter, rape, robbery, aggravated assault); "property" is the
+    FBI's property crime without larceny-theft, which Clery does not
+    collect (burglary, motor vehicle theft, arson). Source: FBI, Crime in
+    the United States 2019, Violent Crime and Property Crime,
+    https://ucr.fbi.gov/crime-in-the-u.s/2019/crime-in-the-u.s.-2019/topic-pages/violent-crime
+    and .../property-crime. Rankings by count open on "violent": motor
+    vehicle theft was 37% of all criminal offenses in 2024 (15% in 2015).
+    "criminal" and "all" are still offered.
+15. **Count flag** (`COUNT_FLAG_MIN_COUNT` = 20, `COUNT_FLAG_FACTOR` = 3,
+    `COUNT_FLAG_PERCENTILE` = 99; `rateRules.countFlag`). In rankings by
+    count, an entry is flagged `highForSize` when its count is at least 20
+    and the count per 10,000 of its institution's FTE (NCES's FTE of the
+    whole institution) is more than 3 times the 99th percentile of that
+    year's institution rates of the code. Those rates are all-geography
+    counts per 10,000 of the denominator (rule 3) of the institutions in the
+    national scope with a denominator of at least 1,000, no population rule
+    and a certain on-campus FTE, 0 included; the percentile is by linear
+    interpolation (NumPy's default), and there is no flag where it is 0.
+    The reference is `rateRules.countFlag.reference[year][code]` (per
+    10,000), and `rateStats.countFlags[year][code]` counts the flagged
+    entries of each year's national rankings file. The count is shown as
+    reported and keeps its place; the flag says that it is high for the
+    institution's size, not why (DOE counts each incident in the year it is
+    reported, so some may have happened earlier).
+16. **Medical-center campuses** (`reference/medical_campuses.csv`,
+    `reference/medical_campus_reviews.csv`, `MEDICAL_SCREEN_*`;
+    `rateRules.medicalShare`, `medicalScreen`). A university's Clery
+    geography can include a medical center or hospital, whose patients,
+    visitors and staff are not students. The `hospital` rule (rule 4)
+    depends on what the institution reports to IPEDS: it catches an
+    institution that reports a hospital of its own (HOSPITAL = 1). A
+    university next to a medical center owned by a separate organization,
+    such as a health system, can report no hospital and is then not caught
+    by it; its incidents at that medical center count toward a reason (rule
+    5) only when its medical campus is on the reviewed list, and a hospital
+    on or next to its main campus is covered only by the reviewed exclusions
+    (rule 4, `listed`) and notes (rule 19).
+    `medical_campuses.csv` (45 rows at 37 institutions; the Sayre campus of
+    Commonwealth University of Pennsylvania is listed under both its DOE
+    IDs) lists such campuses by DOE campus ID and years,
+    each with its reason and source (DOE's campus name and address and,
+    where they do not settle it, the institution's annual security report
+    or another source). Each was reviewed by hand;
+    `medical_campus_reviews.csv` records the campuses reviewed and not
+    listed, with the decision and its source. The listed campuses'
+    incidents stay in the institution's counts and rates; `medical` (rule
+    5) counts their on-campus incidents outside residence halls, and
+    `campus-years.csv` marks the campuses (`medical_center_campus`). Audit
+    check 14 re-runs a screen: every campus other than a main campus whose
+    DOE name and address match `rateRules.medicalScreen.pattern`, in an
+    institution-year with a single-year rate, and that has at least
+    `medicalScreen.minCount` on-campus criminal offenses except motor
+    vehicle theft outside residence halls and at least `medicalScreen.share`
+    of the institution's on-campus count of them, must be in one of the two
+    files. Each campus-year in neither is named as a warning; nothing is
+    added to the list automatically.
+17. **Campuses abroad** (`abroad_campuses`, `reference/campuses_abroad.csv`).
+    A campus DOE lists without a state is abroad, and so are the campuses of
+    `etl/reference/campuses_abroad.csv`: sites in other countries that DOE
+    lists with a U.S. state, each with its country, reason and source.
+    NCES's fall enrollment excludes "students enrolled in any branch campus
+    located in a foreign country" (IPEDS 2024-25 Fall Enrollment
+    instructions, Who to Exclude), so a campus abroad's incidents are not in
+    its institution's counts or rates; they stay in the campus's own school
+    file, and the institution's school-file entry gives them under `abroad`
+    (`campuses`, `counts`). Territories (PR, VI, GU, ...) are not abroad.
+    `rateStats.institutionYears.byYear[y].abroad` counts the institutions
+    in the national scope with a denominator of at least 1,000 that have a
+    counting campus abroad that year; audit check 10 recomputes the counts
+    with those campuses apart (`details.by_year`). A campus abroad that DOE
+    lists under a U.S. state is a counting campus, so it is in the
+    rankings files' `campuses` (national and its state) like any other and
+    would be ranked by count if it reported an incident; none of them
+    reported one in 2015-2024. Its incidents are never in an institution's
+    totals or rates.
+18. **Shared sites** (`shared_rate_rules`, `find_near_copies` and
+    `classify_shared_sites` in `04_create_aggregates.py`;
+    `SHARED_MIN_NONZERO`, `SHARED_NEAR_*`, `SHARED_SITE_MAX_SHARE`,
+    `reference/shared_campus_overrides.csv`,
+    `reference/shared_site_enrollment.csv`; `rateRules.sharedNear`,
+    `sharedSiteShare`). DOE's files give no enrollment per campus, so when
+    campuses of different institutions report the same on-campus incidents,
+    the incidents cannot be divided among the institutions' students. Per
+    year, a shared site is a connected group of campuses of two or more
+    institutions joined by any of: an identical copy (a shadow block, other
+    than two IDs of one campus); a near-copy (`sharedNear`: two counting
+    campuses of different institutions in one state, or in two states when
+    every on-campus cell is equal, where the campus with the smaller
+    on-campus total over the `OFFENSE_ORDER` cells has at least `minNonzero`
+    nonzero cells and a total of at least `minTotal`, and at least `match`
+    of its nonzero cells equal the other's); or a row of
+    `shared_campus_overrides.csv` (reviewed, each with its reason and
+    source). Counts never change: an identical copy counts once, under its
+    host, as in totals, and a near-copy or listed campus keeps its figures.
+    Only the rates follow the site's class. Its parties are the
+    institutions with at least one counting campus that year (anywhere); a
+    main campus is a campus whose UNITID ends in 001. Two IDs of one campus
+    (`campus_id_changes.csv`, decision `link`) are never joined to each
+    other.
+    - One party's main campus at the site: that party owns the site. Its
+      on-campus incidents there are in its N, and it is compared and listed
+      as usual; the other parties are in `sharedInWith`. Every other party
+      is a guest.
+    - Two or more parties' main campuses: the owner is the party with the
+      largest on-campus FTE. When every other party counts no campus
+      outside the site that year, or their on-campus FTE together is at
+      most `sharedSiteShare` of the owner's, the owner's denominator adds
+      theirs (`coLocated`, `pooled.shared`) and they are left out by rule
+      `shared_pooled`; otherwise every party is left out by rule
+      `shared_campus` (rule 4): the incidents cannot be assigned to one
+      institution's students, and a rate would overstate one of them.
+    - No main campus: every party is a participant.
+    - One party: rule 3 (pooled with its host).
+
+    `sharedIn` and `sharedOut` are counted per year from the published files
+    alone. Let C(u) be campus u's counted on-campus figures that year (its
+    `counts-{y}.csv` rows with geo On-campus and an empty
+    `counted_under_unitid`, when u is a counting campus in
+    `campus-years.csv` and not abroad; otherwise none), and say that u is a
+    copy of h when its on-campus rows have `counted_under_unitid` h. The
+    owner's `sharedIn` adds C(u) of each of its campuses u at the site: the
+    whole campus's counted on-campus figures, not only the figures a guest
+    repeats. A guest's or participant's `sharedOut` adds, for each of its
+    campuses u at the site, C(h) when u is a copy of h, else C(u): the
+    figures u reported either way. Per code, the figures of the code's
+    offenses (`rateRules.codes`) are added; `years[y].sharedIn` and
+    `sharedOut` in the institution file give a rated year's sums and the
+    window entries the window's, each only when above 0. `sharedOut` is
+    never in the guest's N and the owner's `sharedIn` is in its N, so the
+    same incidents can be one institution's `sharedIn` and another's
+    `sharedOut`. A site with two or more main campuses, or with one party,
+    has neither (rules 3 and 4 apply instead). Audit check 12 recomputes
+    both with its own implementation.
+
+    A guest's or participant's campuses at the site are in none of its
+    rates: their on-campus incidents are its `sharedOut`, the owner or the
+    other participants are its `sharedOutWith`, and `sharedSite` gives the
+    years, its students there by `shared_site_enrollment.csv` under the
+    figure rule of rule 5 (summed over its site campuses and those years;
+    null when a site-year has no figure), whether any figure is an upper
+    bound, whether the sum is at most `sharedSiteShare` of F (`exempt`),
+    and `figures`: one item per site campus and year, by year, then campus,
+    `{year, unitid, name, students, figureYear, upperBound, derived}` (`name`
+    is DOE's name of that site campus that year; `students`
+    and `figureYear` null when that campus-year has no figure; `figureYear`
+    is the year the figure itself describes, and differs from `year` when
+    another year's figure is used; `derived` marks an upper bound computed
+    by the row's stated arithmetic). Unless `exempt`, it has the reason `shared` (rule 5) in
+    every code of the window. `rateStats.institutionYears.rules`
+    (`shared_pooled`, `shared_campus`) and `pooled.shared` count the
+    institution-years.
+19. **Hospital notes** (`reference/hospital_unresolved.csv`: unitid,
+    first_year, last_year, hospital, known, source). The reviewed list of
+    institutions with a hospital next to or inside the main campus whose
+    own reports, as read, do not establish whether the hospital's incidents
+    are in their figures (rule 4's `listed` rows are those whose reports say
+    they are). Such an institution keeps its rate, verdicts and positions.
+    Every code of a rated window that overlaps a row's years carries
+    `hospitalUnresolved` {`name`, `years`} (the window's years the row
+    covers), in the window files and in the institution file's rated window
+    status; the institution file's top-level `hospitalUnresolved` gives the
+    rows (`name`, `firstYear`, `lastYear`, `known`: what the reports do say,
+    `source`). The annual security reports read for this list and for the
+    `listed` hospital rows were those of universities near the top of the
+    lists, not every institution's.
+
+### Published rate files
+`05_generate_json.py` writes, under `frontend/public/data/`:
+
+- `rates/{y0}-{y1}-{code}.json`, one per window and rate code: `window`,
+  `years`, `c` (rule 6), `natl`, `natl4`, `natlN`, `natlF` (rule 7),
+  `peer` (rule 9, with `rate4`), `summary` (the rated institutions by
+  reason and by verdict, national and peer, and the counts of rule 12),
+  `composition` (violent: the national on-campus counts of its four
+  offenses; criminal_xmvt: the national on-campus motor vehicle thefts it
+  leaves out; both over the institutions in the national rate),
+  `compositionShare` (violent: each offense's share of the national
+  on-campus count, half up to 4 decimals), for the list codes `list` (`n`,
+  `notPlaced`, `minExpected`, `minFteYears`, `zc`), `stateLists` (members
+  per state) and `typeLists` (members per type), and `entries`: every rated
+  institution, by rate (highest first, exact), then name, then base
+  UNITID. An entry has `id` (base UNITID), `unitid` (link campus), `name`,
+  `state` and `peerType`, `n`, `nNoncampus`, `nPublic`, `fteYears`,
+  `rate`, `lo`, `hi`, `lo4`, `hi4`, `phi`, `phiFrom` (rule 6), `E`,
+  `verdict` and `peerVerdict`; where they apply `why`, the fields of rule 5
+  (`medical`, `sharedIn` and `sharedOut` only when above 0), the
+  shared-site notes of rule 18 (`sharedInWith`, `sharedOutWith` and
+  `coLocated`, each a list of `{id, name}`, and `sharedSite`), `flags`,
+  `verdictWithoutFlagged` and `hospitalUnresolved` (rule 19); and for the
+  list codes `listed`, `notPlaced` (rule 10) and, when listed, `position`,
+  `rankLo`, `rankHi`, the state and type fields of rule 11 and, for violent
+  and criminal_xmvt, the entry's own `composition`.
+- `rates/institutions/{base}.json`, one per institution with a rated
+  window, a single-year rate or a flag: `id`, `unitid`, `name`, `state`,
+  `peerType`; `years` (rule 13); `windows`, for each window in which DOE has
+  the institution in at least one year: its status (rule 4) and, when
+  rated, `fteByYear`, `why` (`online` or `shared`), `fteSmallerByYear` for
+  `online`, the shared-site notes of rule 18 (once for the window, not in
+  each code), `hospitalUnresolved` (rule 19), and
+  `codes` (each code's window-file entry with `nByYear`, `natl`, `natl4`,
+  `peerRate`, `peerRate4` and, for violent and criminal_xmvt,
+  `composition`); `flags` (all its unusual-year flags, every geography);
+  and `hospitalUnresolved` (rule 19's rows for the institution).
+- `rates/flags.json`: every unusual-year flag (`id`, `name`, `state`,
+  `year`, `offense`, `geo`, `count`, `usual`).
+- `rankings/{preset}-{year}-all.json`: rankings by count only; an entry
+  flagged by rule 15 has `highForSize`. Rates are not in these files.
+- `schools/{unitid}.json`, `institution`: `ratesFile` (the institution's
+  rates file, when it has one) and, per year, `rated` (the year has a
+  single-year rate), `notRated` (rule 13's reason), `rateExcludedReason`,
+  `rateFte` (the year's denominator), `fteUncertain` (`share`,
+  `partTimeFirst`, `reason`), `pooledWith`, `abroad`, `flags` (that year's
+  unusual-year flags) and `counts`.
+- `metadata.json`: `rateRules` (the constants of the rules above, with
+  `testVectors`, `calibration` and `medicalScreen`) and `rateStats`
+  (`definitions` of each set it counts, `windows[w][code]`, `flags`,
+  `singleYear`, `institutionFiles`, `countFlags`, `institutionYears`).
+
+### Institution-years
+`rateStats.institutionYears` counts institution-years ("institution-years":
+one institution in one year, 2015-2024): `rules[rule]` (rule 4:
+`institutionYears`, those the rule is the first for, and `withFte`, those of
+them in the national scope with a denominator of at least 1,000), `pooled`
+(institution-years whose denominator adds another institution's FTE, per
+case of rule 3), `onlineOwnYear` (rule 3), and per year `byYear[y]`:
+`withFte` (institutions in the national scope with a denominator of at least
+1,000, population rules included), and of those `excluded` (a population
+rule), `rated` (a single-year rate), `fteUncertain` (no rule, an uncertain
+on-campus FTE), `fteUncertainPooledOnly` (of those, uncertain only through a
+pooled institution) and `abroad` (a counting campus abroad); and
+`outsideScopeWithFte` (outside the national scope with such a denominator,
+no rate). `rateStats.definitions` defines the sets in words.
 
 ## Geographic Classifications
 
@@ -396,10 +1005,14 @@ national number 1 campus by count of all criminal offenses was Ohio State
 University in 2018, 2019 and 2021 (mostly fondling) and the University of
 Michigan in 2020 (fondling and rape), and Michigan State University's 1,012
 rapes in 2018 are about 12% of that year's national total. These are the
-figures the institutions reported; this site does not mark or remove them.
+figures the institutions reported; this site does not remove them. The
+unusual-year flags (rate rule 12) mark Ohio State's on-campus fondling
+counts of those three years, Michigan's 2020 on-campus rape and fondling
+counts and Michigan State's 2018 non-campus rapes; a flag changes no count
+or rate.
 
 ### Totals shown on the site
-- **All criminal offenses** (the default view of rankings, school pages and comparisons): the 11 criminal offenses above, added up.
+- **All criminal offenses** (what school pages and comparisons open on; rankings open on violent crimes, rate rule 14): the 11 criminal offenses above, added up. It has no rate; rates use criminal offenses except motor vehicle theft (rate rules 2 and 14).
 - **All categories (crimes, arrests, referrals)**: every category added up, criminal offenses, VAWA offenses, arrests and disciplinary referrals. These are different kinds of counts. Arrests and disciplinary referrals count people (each person arrested or referred), not incidents, and an incident of dating violence, domestic violence or stalking can also be counted as a criminal offense such as aggravated assault. So this total is not a number of incidents, and high totals often reflect drug and alcohol enforcement rather than violent crime. It is still available (`?offense=all` on the rankings page).
 
 ## Comparing Years (2015-2024)
@@ -415,7 +1028,8 @@ next to charts and rankings are in `frontend/src/data/seriesNotes.ts`
   Announcement of July 10, 2020: Annual Security Reports by December 31, 2020;
   survey open November 18, 2020 to January 14, 2021), not what is counted.
   School pages and Compare shade 2020-2021 on trend charts and add a note;
-  rankings for 2020 or 2021 show the note too.
+  rankings for 2020 or 2021 show the note too. No rate covers 2020 (rate
+  rule 1).
 - **2022-2023, residence-hall figures from DOE's 2021-2023 release.** See
   Known Errors in DOE Files. `metadata.json` (`knownDefects`) lists, for each
   error, the campuses whose figures for that year come from that release, and
@@ -447,7 +1061,7 @@ for the categories shown).
 
 ## Rankings
 
-Each ranking lists schools by their count, largest first. Schools with the same count share a rank (standard competition ranking: 1, 2, 2, 4, so the rank after a tie skips the places the tie takes) and are listed by name, then by UNITID. Rate rankings rank institutions' rates the same way, ties by institution name, then base UNITID. Every campus that reported the year is in its rankings: those with none of a category are the last tie, with 0 (see Zero Versus Not Reported).
+Each ranking lists schools by their count, largest first. Schools with the same count share a rank (standard competition ranking: 1, 2, 2, 4, so the rank after a tie skips the places the tie takes) and are listed by name, then by UNITID. The rate lists (rate rule 10) order institutions by rate the same way, ties by institution name, then base UNITID, and give equal rates the same point position; each position comes with its rank range. Every campus that reported the year is in its rankings: those with none of a category are the last tie, with 0 (see Zero Versus Not Reported).
 
 ## Data Limitations
 
@@ -474,22 +1088,120 @@ reasonable interpretation of terms and applies no measurable distance to
 "reasonably contiguous". The same incidents can be reported differently.
 
 ### Rates are per enrolled student
-On-campus FTE is estimated from NCES's FTE of the whole institution and its
-share of students enrolled exclusively online. It does not count residents
-who are not students, employees, visitors or patients. Rate rankings leave
-out institutions with a hospital and special-focus medical and research
-institutions (rule 3), but other Clery geography can include places used
-mostly by others (a clinic, for example), where a rate per student says
-little about risk to a student.
+On-campus FTE is estimated from NCES's FTE of the whole institution, its
+fall headcounts and its share of students enrolled exclusively online (rate
+rule 3); when the two estimates differ by more than 25% in a year of a
+window, the institution's verdict is given only when both estimates lead to
+the same one, and it is on no list (rate rule 5). On-campus FTE does not
+count residents who are not students, employees, visitors or patients.
+Institutions with a hospital and special-focus medical and research
+institutions have no rate (rate rule 4), and an institution with a quarter
+or more of a window's on-campus incidents at a listed medical-center campus
+is on no list for that code (rate rules 5 and 16), but other Clery geography
+can include places used mostly by others (a clinic, or a medical center not
+on the list), where a rate per student says little about risk to a student.
+The reviewed exclusions of universities whose reports count a hospital's
+incidents (rate rule 4, `listed`) and the hospital notes (rate rule 19) rest
+on the annual security reports of universities near the top of the lists
+only; a university elsewhere can count hospital incidents without a note.
+Rates leave out campuses abroad, whose students NCES's fall enrollment
+leaves out (rate rule 17).
 
 ### Small numbers, zeros and unweighted totals
-Rates on fewer than 20 incidents are not ranked (rule 4), and every rate has
-a 95% interval and a rank range (rule 6); ranks inside one range are not
-clearly different. A rate of 0 is a reported zero, which can reflect
-classification or chance. "All criminal offenses" adds unlike crimes with
-equal weight; motor vehicle theft was about 15% of the national criminal
-total in 2015 and about 37% in 2024, which is why rankings open on violent
-crimes.
+Every rate has a 95% interval (rate rule 6), and an institution is on a list
+only when its expected count at the national rate is at least 20 and no
+year in the window is flagged as unusual (rate rule 10). Because counts vary from year to year beyond chance, intervals stay
+wide even for large counts (`rateRules.testVectors.counts` gives examples).
+A rate of 0 means that no on-campus incident of the code was reported in
+the window's 3 years; it can reflect classification or chance, and incidents
+at the institution's other locations are published beside it (`nNoncampus`,
+`nPublic`). "All criminal offenses" adds unlike crimes with equal weight;
+motor vehicle theft was about 15% of the national criminal total in 2015 and
+about 37% in 2024, which is why rankings by count open on violent crimes and
+why the rates use criminal offenses except motor vehicle theft.
+
+### Limitations of the rates
+Comparisons of institutions by a rate have general limits, set out by
+Goldstein and Spiegelhalter (1996). These are the ones that apply to the
+rates here (rate rules above):
+
+1. A rate counts reported incidents, not all incidents. How completely
+   institutions record and report incidents differs between institutions
+   and over time, and nothing in these methods can correct for that: a high
+   rate can mean more complete reporting as well as more crime. Yung (2015)
+   found that the sexual assaults universities reported rose by about 44%
+   while the Department of Education was auditing their Clery compliance,
+   and fell back after the audits; the other crimes studied showed no such
+   change.
+2. Only on-campus incidents are in a rate. Non-campus and public-property
+   incidents are published beside it as counts (`nNoncampus`, `nPublic`);
+   at some institutions most of the reported incidents are on public
+   property in or next to campus. The order of each list depends on counting
+   only on-campus incidents.
+3. The denominator is students, but on-campus incidents also involve
+   staff, visitors and patients. Rates are generally much higher where many
+   students live on campus, so an institution's residential character
+   drives its rate; the peer comparison (rate rule 9) compares it with
+   institutions of its own type, and each window file's `peer` gives the
+   types' rates.
+4. The intervals come from a model, widened by an institution's own spread
+   when that is larger (rate rule 6), whose calibration is checked in
+   aggregate, over groups of institutions, not institution by institution
+   (audit check 13). `audit.json`, check "Interval Calibration", gives the
+   measured and expected coverage for each code, period and band of yearly
+   means (`details.rows`, with each row's limits `toleranceBelow` and
+   `toleranceAbove`): where the measured share is below the expected one,
+   the intervals of that band are too narrow, and where it is above, too
+   wide. A band with fewer institutions than
+   `rateRules.calibration.bandMinUnits` is reported but not tested, except
+   the top band (20 or more a year) of `calibration.topBandCodes`, which is
+   tested whatever its size with each limit widened, below `bandMinUnits`
+   institutions, by `calibration.topBandSE` binomial standard errors of the
+   expected share over the band's institution-years; the check's errors
+   name every tested row outside its limits. So a band can be below the
+   expected coverage by more than `bandToleranceBelow` without failing the
+   check; the site's Methodology page ("How well the intervals fit") shows
+   every band from `audit.json` and names each one, tested or not, that is
+   below by more than `bandToleranceBelow`. In such a band the intervals may
+   be too narrow.
+5. A rank range is a 95% statement about one institution on its own. It is
+   not a statement about all of a list's ranges at once.
+6. The lists hold only large institutions: those with at least
+   `list.minFteYears` / 3 on-campus students a year in the window file (an
+   expected count of 20 at the national rate). Smaller rated institutions
+   have a rate and a verdict but no position.
+7. Positions in windows five years apart differ substantially (compare a
+   list in `rates/2017-2019-{code}.json` with the same institutions in
+   `rates/2022-2024-{code}.json`). Adjacent windows share two of their three
+   years, so their close agreement says little about stability.
+8. The order of a list depends on two judgment calls: counting only
+   on-campus incidents (rate rule 2) and the size threshold, an expected
+   count of 20 (rate rule 10). Other choices give other members and another
+   order.
+9. The medical-center campus list (rate rule 16) was reviewed by hand and
+   may be incomplete: audit check 14 names, as a warning, every campus its
+   screen finds that has not been reviewed.
+10. DOE counts incidents in the year they are reported, so a year's count
+    can include incidents from earlier years; the unusual-year flags (rate
+    rule 12) mark years far above an institution's others, without saying
+    why, and keep the institution off that window's list order.
+11. 2020 has no rate (rate rule 1).
+12. Motor vehicle theft, arrests and disciplinary referrals are counts only
+    (rate rule 14).
+13. Incidents at campuses abroad are not in the rates (rate rule 17).
+14. DOE's files give no enrollment per campus, so at a shared site (rate
+    rule 18) the incidents are in one institution's rate or in none, and a
+    guest or participant without a published figure for its students there
+    has its comparisons withheld and is on no list; institutions whose main
+    campuses share a site may have no rate. Large institutions can
+    therefore have no comparison, or no rate, in a window (each window
+    file's `summary.verdicts.withheld`; `rateStats.institutionYears.rules`).
+    The figures that let a guest be compared count only the students of the
+    programs their sources cover (the Rangel College of Pharmacy rows count
+    PharmD students, not its PhD students; the Indiana University School of
+    Medicine rows count MD students), and a figure may be another year's
+    (up to `SHARED_SITE_FIGURE_YEARS` away) or an upper bound computed from
+    published class sizes or a cap per class (rate rule 5).
 
 ### Institution-reported, not audited
 The figures are what institutions submitted to ED's survey. This project
@@ -510,14 +1222,102 @@ effect on July 1, 2015 apply to every year shown.
 These checks test internal consistency: that the published files agree with
 each other and with the pipeline's tables built from DOE's and NCES's files.
 They do not test institutions' figures against institutions' records.
-1. `06_validate.py` checks row counts per year, that no count is negative, that every Ivy League campus is present, offense coverage and that the JSON files parse
-2. The audit (`07_comprehensive_audit.py`, check 7) verifies that the aggregates hold exactly the fact table's counts
-3. The same audit (check 9) verifies that every FTE and online share is NCES's own published figure
-4. The same audit (check 4) recomputes every published rate from its count and FTE
-5. The same audit (`07_comprehensive_audit.py`, check 8) that finds the shared blocks again from the fact table and the older releases' figures, and verifies that every ranking entry counts the school's figures without its shadow blocks
-6. The same audit (check 5) verifies that every ranking is listed in ranking order and that every rank is 1 + the number of schools with a larger count (or rate)
-7. The same audit (check 10) recomputes every institution's campuses, counts, link campus, FTE and online share from the fact table and NCES's enrollment, without the pipeline's code, and verifies that every rate ranking lists exactly the institutions the rules above allow, with rate = count / FTE × 10,000, and that every rankings file lists exactly the campuses that reported its year (those with 0 included)
-8. The same audit (checks 1 and 2) verifies that every campus that reported a year has a school page and is in the site search, and that each page has exactly the years the campus reported, 0 included, and lists the others as not reported
+
+`06_validate.py` checks row counts per year, that no count is negative, that
+every Ivy League campus is present, offense coverage and that the JSON files
+parse.
+
+`07_comprehensive_audit.py` runs 14 checks; its report is published as
+`audit.json`. Each check's `details.what_it_checks` says exactly what it
+verifies, and `summary` counts the checks that passed, failed and gave a
+warning. Checks 1-8, 10 and 11 compare the pipeline's own files with each
+other; check 9 re-reads NCES's enrollment files, check 10 also the IPEDS HD
+files, NCES's headcounts and the reference lists of medical-center campuses
+and campuses abroad, and checks 12 to 14 recompute the rates from check 10's
+figures with their own implementation of the rules (nothing of
+`etl/rates.py`, 04 or 05 is used). None re-reads the DOE downloads.
+
+1. **School Completeness**: every campus that reported a year has a school
+   page and is in the site search.
+2. **Incident Total Accuracy**: each school page has exactly the years the
+   campus reported, 0 included, lists the others as not reported, and each
+   year's total equals the aggregates'.
+3. **FTE Coverage**: of the schools with crime data in each year, the share
+   with an FTE.
+4. **Rate Calculation Accuracy**: from each rate file's own numbers, every
+   3-year and single-year rate is N / F × 10,000 rounded half up, lies
+   inside its interval, and the national rate, peer rates and E agree with
+   the figures they are made of.
+5. **Ranking Order Validation**: every ranking by count is in count order
+   with competition ranks (1, 2, 2, 4); every rate file is in rate order,
+   and each list position is 1 + the members with a strictly higher rate
+   and lies inside its rank range, state lists included.
+6. **Ranking Totals and Tables**: each rankings file's totals and campus
+   table agree with its rankings and it holds no rates; the window files,
+   institution files, `rates/flags.json` and the school files' `ratesFile`
+   agree with each other.
+7. **Aggregate Consistency**: the aggregates hold exactly the fact table's
+   counts.
+8. **Shared Statistics Counted Once**: the shared blocks are found again
+   from the fact table and the older releases' figures, and every ranking
+   entry counts the school's figures without its shadow blocks.
+9. **Enrollment Matches NCES**: every FTE, online share and headcount is
+   NCES's own published figure.
+10. **Institution Rates**: without 04's or 05's code, each institution-year's
+    counting campuses in the United States (campuses abroad apart, rate rule
+    17), counts per geography, link campus, FTE, online share, both
+    on-campus FTE estimates and whether they make it uncertain, population
+    rules, pooled institutions and both denominators, peer type, and
+    on-campus figures at listed medical-center campuses and at shared
+    campuses; these must match 04's tables, the school files,
+    `campus-years.csv` and `rateStats.institutionYears`, and every rankings
+    file must list exactly its preset's campuses that count in its year
+    (those with 0 included).
+11. **Campus Identity**: `etl/reference/campus_id_changes.csv` lists exactly
+    the campus ID changes found again in DOE's names, with the same
+    evidence, and the two school files of each link point to each other
+    without moving figures.
+12. **Rate Rules**: every window status, N, F, reason, national and peer
+    rate, interval, E, verdict (national, peer, both FTE estimates),
+    unusual-year flag, verdict without the flagged excess, list, position,
+    rank range, state and type list, placement (`notPlaced`), `phi` and
+    `phiFrom`, the 4-decimal figures, `sharedIn` and `sharedOut`, and
+    `hospitalUnresolved`; the window files' headers and summaries, the
+    institution files (single-year rates and statuses), `rates/flags.json`,
+    the count flag in every rankings file, the school files' `ratesFile`,
+    `rated`, `notRated` and `flags`, and `metadata.json`'s `rateRules` and
+    `rateStats` against `config.py` and the design's values. It also
+    recomputes the test vectors (`rateRules.testVectors`), checks that no
+    placed entry has an unusual-year flag and that every entry not placed
+    has one (`details.A4`), and that no interval bound falls as the count
+    rises (`details.A5`). `details.subchecks` counts the problems per part.
+13. **Interval Calibration** (added with the 3-year rates): for each code
+    and period of `rateRules.calibration`, every institution with a
+    single-year rate in all the period's years and an incident in at least
+    one has each year's on-campus count predicted from its other years
+    under the published dispersion (rate rule 6: the model, or the other
+    years' own spread when that is larger). The share of counts inside the
+    central 95% predictive interval is compared with the share expected
+    under the model with the same rule (the mean of `simulations` simulated
+    panels, NumPy PCG64 seeded with `seed`). The check fails when they
+    differ, either way, by more than `tolerance` over the institutions with
+    a mean of at least 2 a year, or, in a band of yearly means (`bands`)
+    with at least `bandMinUnits` institutions, when the observed share is
+    below the expected one by more than `bandToleranceBelow` or above it by
+    more than `bandToleranceAbove`. The top band of `topBandCodes` is
+    tested whatever its size: below `bandMinUnits` institutions each limit
+    is widened by `topBandSE` binomial standard errors of the expected
+    share e over the band's k institution-years, sqrt(e (1 - e) / k). The
+    band limits differ on purpose: intervals that
+    cover less often than the model says are too narrow, so verdicts and
+    rank ranges claim more certainty than the data give; intervals that
+    cover more often are too wide, which only leaves more rates without a
+    verdict. `details.rows` gives the observed and expected coverage per
+    code, period and band, tested or not, with the limits applied to each
+    row (`toleranceBelow`, `toleranceAbove`).
+14. **Medical-Campus Screen** (added with the 3-year rates): the screen of
+    rate rule 16. Campus-years it finds in neither reference file are a
+    warning, never a failure (`details.unreviewed`).
 
 ## Downloads and build identifier
 
@@ -542,7 +1342,7 @@ steps in this order (README, "Full ETL Pipeline"):
 - `02a_transform_enrollment.py`: DRVEF FTE for 2021 onward
 - `03_build_dimensions.py`: campus and offense tables
 - `04_create_aggregates.py`: shared figures, institution tables, rankings tables
-- `05_generate_json.py`: site JSON and the CSV downloads
+- `05_generate_json.py`: site JSON and the CSV downloads; it runs `rates.py`, which makes the rate windows, intervals, comparisons, lists, unusual-year flags and single-year rates
 - `06_validate.py`: checks of the generated files
 - `07_comprehensive_audit.py`: the audit published as `audit.json`
 
@@ -570,3 +1370,9 @@ For questions about methodology or to report data issues, please open an issue o
 16. Centers for Disease Control and Prevention. CDC WONDER, Underlying Cause of Death help (unreliable rates). https://wonder.cdc.gov/wonder/help/ucd.html
 17. Garwood, F. (1936). Fiducial limits for the Poisson distribution. Biometrika 28(3/4), 437-442. https://doi.org/10.1093/biomet/28.3-4.437
 18. Federal Bureau of Investigation. Crime in the United States, 2019: Violent Crime and Property Crime. https://ucr.fbi.gov/crime-in-the-u.s/2019/crime-in-the-u.s.-2019/topic-pages/violent-crime ; https://ucr.fbi.gov/crime-in-the-u.s/2019/crime-in-the-u.s.-2019/topic-pages/property-crime
+19. Fay, M. P. and Feuer, E. J. (1997). Confidence intervals for directly standardized rates: a method based on the gamma distribution. Statistics in Medicine 16(7), 791-801. https://doi.org/10.1002/(SICI)1097-0258(19970415)16:7%3C791::AID-SIM500%3E3.0.CO;2-%23
+20. National Center for Education Statistics. IPEDS 2024-25 Survey Materials: Fall Enrollment for 4-year degree-granting institutions (full instructions, "Who to Exclude"). https://nces.ed.gov/ipeds/use-the-data/download-survey-material/2024/fall%20enrollment/package_6_74.pdf
+21. Greene, W. (2008). Functional forms for the negative binomial model for count data. Economics Letters 99(3), 585-590. https://doi.org/10.1016/j.econlet.2007.10.015
+22. Mogstad, M., Romano, J. P., Shaikh, A. M. and Wilhelm, D. (2024). Inference for ranks with applications to mobility across neighbourhoods and academic achievement across countries. Review of Economic Studies 91(1), 476-518. https://doi.org/10.1093/restud/rdad006
+23. Yung, C. R. (2015). Concealing campus sexual assault: An empirical examination. Psychology, Public Policy, and Law 21(1), 1-9. https://doi.org/10.1037/law0000037
+24. Goldstein, H. and Spiegelhalter, D. J. (1996). League tables and their limitations: statistical issues in comparisons of institutional performance. Journal of the Royal Statistical Society, Series A 159(3), 385-443. https://doi.org/10.2307/2983325

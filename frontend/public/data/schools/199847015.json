@@ -44,22 +44,31 @@
   ],
   "institution": {
     "id": 199847,
+    "ratesFile": "rates/institutions/199847.json",
     "byYear": {
       "2020": {
-        "campuses": 17,
+        "campuses": 7,
         "online": 5,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 7916,
+        "rateFte": 8165,
+        "abroad": {
+          "campuses": 10,
+          "counts": {
+            "all": 1,
+            "drug_arrest": 1
+          }
+        },
         "counts": {
           "criminal": 16,
           "violent": 6,
           "property": 8,
-          "all": 637,
+          "all": 636,
           "aggravated_assault": 1,
           "burglary": 4,
           "domestic_violence": 1,
-          "drug_arrest": 11,
+          "drug_arrest": 10,
           "drug_discipline": 56,
           "fondling": 2,
           "liquor_arrest": 7,
@@ -71,14 +80,28 @@
         }
       },
       "2021": {
-        "campuses": 16,
+        "campuses": 7,
         "online": 5,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 7990,
-        "spikes": [
-          "aggravated_assault",
-          "fondling"
+        "rateFte": 8238,
+        "abroad": {
+          "campuses": 9,
+          "counts": {}
+        },
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "Non-campus",
+            "count": 18,
+            "usual": 4
+          },
+          {
+            "offense": "fondling",
+            "geo": "Non-campus",
+            "count": 12,
+            "usual": 0
+          }
         ],
         "counts": {
           "criminal": 75,

@@ -22,6 +22,58 @@ export interface ChangeEntry {
 
 export const CHANGES: ChangeEntry[] = [
   {
+    date: '2026-11-15',
+    kind: 'correction',
+    title: 'One report filed by two institutions in the same city counted once',
+    body: [
+      'Where campuses of two or more institutions in the same city report exactly the same figures for a whole year (every category at every location), adding up to at least 20, the year now counts once, under one host campus, in state and national totals and rankings by count, as other identical figures already did. Over 2015-2024 this takes 1,301 (crimes, arrests and disciplinary referrals together), in 36 sets of figures for one campus, year and location, out of the totals, where they had been counted twice; the repeating campuses leave the rankings by count in those years.',
+      'School pages still show every figure as DOE publishes it, and each such campus\'s page names the campus its figures count under. An institution with no other campus counting that year has no figures of its own that year, so it has no rate for the windows containing it, and its students are added to the host institution\'s rate.',
+    ],
+    methodology: 'copies',
+  },
+  {
+    date: '2026-11-15',
+    kind: 'method',
+    title: 'Wider intervals for uneven years, unusual years kept off the order, lists within a type, hospitals',
+    body: [
+      'An interval now allows for as much year-to-year variation as the institution\'s own three yearly counts show, when that is more than the model allows. Such intervals are wider, and the school page says so and gives the yearly counts. Comparisons and rank ranges use the same rule.',
+      'An institution with an unusually high year of one of a list\'s offenses in the window is no longer placed on that list: one year would set its place. It is shown in a group of its own with its rate and comparisons. The lists can also be shown within each type of institution, with ranges of positions worked out among its members.',
+      'Vanderbilt University, Yale University, the University of North Carolina at Chapel Hill, West Virginia University, the University of Pittsburgh and George Washington University have no rate in the years their annual security reports count incidents at a hospital whose patients, visitors and staff are not their students; each school page gives the reason and the source. Universities with a hospital next to or inside the main campus whose reports do not say whether its incidents are counted keep their rates, with a note.',
+      'The medical-school rule now applies in every year when any edition of the Carnegie classification codes an institution as a medical school, and one more medical-center campus is counted apart. Where an end of an interval and the rate it is compared with are the same to two decimals, both are now shown to four. No count changed.',
+    ],
+    methodology: 'rate-rules',
+  },
+  {
+    date: '2026-11-15',
+    kind: 'method',
+    title: 'Three-year rates of on-campus incidents, compared with the national rate',
+    body: [
+      'A rate now counts the incidents reported on campus over three years, per 10,000 on-campus students a year. No rate includes 2020. Incidents at non-campus locations and on public property are shown beside the rate as counts, not in it.',
+      'Rankings by rate for single years are replaced by comparisons. Each rate is compared with the national rate and with the rate of institutions of its type, from its 95% interval: above, below or not distinguishable. For violent crimes, criminal offenses except motor-vehicle theft, and burglary, the institutions large enough to expect at least 20 incidents at the national rate are placed on an ordered list, each with the range of positions its rate allows. School pages still chart each year\'s rate, without comparisons.',
+      'Motor-vehicle theft, "All criminal offenses", "Property crimes", "All categories", arrests and disciplinary referrals are shown as counts only, with the reason, as the rare offenses already were.',
+      'Intervals use a new model of how much institutions\' counts vary. Its constant is fitted to institutions\' 2015-2019 counts for each of violent crimes, criminal offenses except motor-vehicle theft, burglary, rape and aggravated assault; the other single offenses share one constant fitted to those offenses together. The audit now tests the model against the data on every build. Rank ranges come from comparing each listed institution with every other, not from simulation.',
+      'Shared campuses are now handled site by site, not by the share of an institution\'s figures. Where campuses of two or more institutions report the same incidents (identical figures, near-identical figures, or a reviewed list), the site\'s incidents are in one institution\'s rate at most. An institution with a campus at another institution\'s site is shown without comparisons and is not on a list, unless published enrollment figures show that few of its students are there (a year without a figure of its own may use one from up to three years away, and the school page says so). Where the main campuses of several institutions share one site, the others are counted with the one with the most on-campus students when they are much smaller or have no campus elsewhere; otherwise none of them has a rate in those years. No count changed.',
+      'Years that are unusually high for an institution are flagged at each location and never removed; when a flagged year changes a comparison, the school page says so. Counts flagged as very high for an institution\'s size are now measured against the 99th percentile of institution rates, not the highest ranked rate.',
+      'More medical-center campuses are counted apart, from a list reviewed campus by campus, and AdventHealth University has no rate because its main campus includes a hospital. No count changed.',
+    ],
+    methodology: 'rates',
+  },
+  {
+    date: '2026-11-14',
+    kind: 'method',
+    title: 'Rate rules revised: on-campus estimate, medical-center campuses, campuses abroad, wider intervals',
+    body: [
+      'On-campus FTE is now the larger of two estimates made from NCES\'s FTE, fall headcounts and share of students enrolled exclusively online. When the two differ by more than 25%, or NCES\'s headcounts do not add up, the rate is shown but not ranked: 221 institutions in the 2024 national rate rankings, among them Grand Canyon University (estimates of 12,503 and 23,110), which the previous change ranked.',
+      'Incidents at 13 listed medical-center campuses, such as Johns Hopkins University\'s East Baltimore campus, are counted apart: when they are 25% or more of an institution\'s count of an offense, its rate is shown but not ranked. The University of Tennessee Health Science Center (2015-2017) and Albert Einstein College of Medicine (2019-2020) are left out of rate rankings in the years IPEDS gives them no Carnegie classification.',
+      'Shared campuses no longer leave institutions out of rate rankings. For each offense, a rate is not ranked when the figures shared with another institution\'s campus are more than 5% of its count, and is ranked with a note below that.',
+      'Rates leave out incidents at campuses abroad, because NCES\'s fall enrollment leaves out their students (95 institutions in 2024). Those incidents stay on each campus\'s own page.',
+      'Intervals now allow for how much institutions\' counts vary from year to year beyond chance (a negative binomial interval), so they are wider, most of all for large counts, and rank ranges are simulated. Unusually high years are marked under a stricter test, and rankings by count flag counts that are very high for an institution\'s size.',
+      'In the 2024 national rate rankings 2,076 institutions are listed, 94 of them left out by a rule; 293 are ranked for all criminal offenses and 79 for violent crimes. Of the previous top 25 by all criminal offenses, 20 are still in it: Grand Canyon University, Metropolitan State University and the CUNY Graduate Center are not ranked because of an uncertain on-campus FTE, Johns Hopkins University because of that and its medical-center campuses, and Harvard University is 26th. No count changed.',
+      'The figures in this entry are those of this change. The change above replaced rankings by rate for single years with three-year rates and comparisons, so they no longer hold; Methodology has the current rules.',
+    ],
+    methodology: 'rate-rules',
+  },
+  {
     date: '2026-11-14',
     kind: 'method',
     title: 'Rates per on-campus student, with intervals; violent and property crimes',
@@ -31,6 +83,7 @@ export const CHANGES: ChangeEntry[] = [
       'Only rates built on at least 20 incidents get a rank; the others are listed as too few to rank by rate, with their rate. Every rate shows a 95% interval and every rank the range of ranks the intervals allow. Murder, negligent manslaughter, incest, statutory rape and arson are ranked by count only.',
       'New categories: "Violent crimes" and "Property crimes", the offenses of the FBI\'s violent and property crime (without larceny-theft, which Clery does not collect). Rankings open on violent crimes. A year more than 3 times an institution\'s usual count is marked as unusually high and stays ranked.',
       'In 2024 rate rankings list 1,874 institutions (2,077 before). Of the previous top 25 by all criminal offenses, 13 are still in it and 11 are now left out, most of them medical institutions or institutions with a hospital. No count changed.',
+      'The figures in this entry are those of this change. The revision above changed the denominator, the shared-campus rule, the intervals and the unusually-high test, so several of them no longer hold; Methodology has the current ones.',
     ],
     methodology: 'rate-rules',
   },

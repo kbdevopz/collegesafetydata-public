@@ -157,11 +157,12 @@
   ],
   "institution": {
     "id": 131399,
+    "ratesFile": "rates/institutions/131399.json",
     "byYear": {
       "2015": {
         "campuses": 10,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 3218,
         "counts": {
           "criminal": 18,
@@ -182,7 +183,7 @@
       "2016": {
         "campuses": 10,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2966,
         "counts": {
           "criminal": 6,
@@ -200,7 +201,7 @@
       "2017": {
         "campuses": 10,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2974,
         "counts": {
           "criminal": 6,
@@ -221,7 +222,7 @@
       "2018": {
         "campuses": 9,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2966,
         "counts": {
           "criminal": 21,
@@ -242,7 +243,7 @@
       "2019": {
         "campuses": 9,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 3070,
         "pooledWith": [
           {
@@ -270,7 +271,8 @@
       "2020": {
         "campuses": 8,
         "online": 0,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 2742,
         "pooledWith": [
@@ -278,6 +280,14 @@
             "id": 363721,
             "name": "University of the District of Columbia-David A Clarke School of Law",
             "fte": 144
+          }
+        ],
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "Non-campus",
+            "count": 10,
+            "usual": 0
           }
         ],
         "counts": {
@@ -298,7 +308,7 @@
       "2021": {
         "campuses": 7,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 2380,
         "counts": {
@@ -321,7 +331,7 @@
       "2022": {
         "campuses": 8,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2369,
         "counts": {
           "criminal": 14,
@@ -341,8 +351,8 @@
       "2023": {
         "campuses": 6,
         "online": 1,
-        "rateRanked": true,
-        "rateFte": 2434,
+        "rated": true,
+        "rateFte": 2446,
         "counts": {
           "criminal": 7,
           "violent": 2,
@@ -361,8 +371,8 @@
       "2024": {
         "campuses": 6,
         "online": 1,
-        "rateRanked": true,
-        "rateFte": 2747,
+        "rated": true,
+        "rateFte": 2761,
         "counts": {
           "criminal": 8,
           "violent": 3,

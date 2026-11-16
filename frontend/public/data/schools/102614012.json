@@ -52,13 +52,19 @@
   ],
   "institution": {
     "id": 102614,
+    "ratesFile": "rates/institutions/102614.json",
     "byYear": {
       "2021": {
         "campuses": 11,
         "online": 41,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 2564,
+        "rateFte": 3234,
+        "fteUncertain": {
+          "share": 2564,
+          "partTimeFirst": 3234,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 12,
           "violent": 10,
@@ -81,8 +87,13 @@
       "2022": {
         "campuses": 9,
         "online": 48,
-        "rateRanked": true,
-        "rateFte": 2199,
+        "rated": true,
+        "rateFte": 2958,
+        "fteUncertain": {
+          "share": 2199,
+          "partTimeFirst": 2958,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 34,
           "violent": 18,
@@ -107,10 +118,20 @@
       "2023": {
         "campuses": 14,
         "online": 46,
-        "rateRanked": true,
-        "rateFte": 2358,
-        "spikes": [
-          "statutory_rape"
+        "rated": true,
+        "rateFte": 3150,
+        "fteUncertain": {
+          "share": 2358,
+          "partTimeFirst": 3150,
+          "reason": "own"
+        },
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "On-campus",
+            "count": 13,
+            "usual": 2
+          }
         ],
         "counts": {
           "criminal": 66,
@@ -135,10 +156,20 @@
       "2024": {
         "campuses": 14,
         "online": 44,
-        "rateRanked": true,
-        "rateFte": 2579,
-        "spikes": [
-          "stalking"
+        "rated": true,
+        "rateFte": 3396,
+        "fteUncertain": {
+          "share": 2579,
+          "partTimeFirst": 3396,
+          "reason": "own"
+        },
+        "flags": [
+          {
+            "offense": "stalking",
+            "geo": "On-campus",
+            "count": 31,
+            "usual": 5
+          }
         ],
         "counts": {
           "criminal": 25,

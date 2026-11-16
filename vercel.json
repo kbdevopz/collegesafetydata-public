@@ -4,6 +4,10 @@
   "framework": "vite",
   "cleanUrls": true,
   "trailingSlash": false,
+  "redirects": [
+    { "source": "/rankings", "destination": "/", "statusCode": 301 },
+    { "source": "/data/audit.json", "destination": "/audit.json", "statusCode": 301 }
+  ],
   "headers": [
     {
       "source": "/(.*)",

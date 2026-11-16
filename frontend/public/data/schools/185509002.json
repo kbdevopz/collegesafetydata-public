@@ -211,12 +211,13 @@
   ],
   "institution": {
     "id": 185509,
+    "ratesFile": "rates/institutions/185509.json",
     "byYear": {
       "2015": {
         "campuses": 2,
         "online": 5,
-        "rateRanked": true,
-        "rateFte": 4487,
+        "rated": true,
+        "rateFte": 4589,
         "counts": {
           "criminal": 4,
           "violent": 3,
@@ -232,8 +233,8 @@
       "2016": {
         "campuses": 2,
         "online": 6,
-        "rateRanked": true,
-        "rateFte": 4104,
+        "rated": true,
+        "rateFte": 4214,
         "counts": {
           "criminal": 8,
           "violent": 1,
@@ -251,15 +252,21 @@
       "2017": {
         "campuses": 2,
         "online": 6,
-        "rateRanked": true,
-        "rateFte": 4144,
-        "spikes": [
-          "criminal",
-          "property",
-          "all",
-          "drug_arrest",
-          "drug_discipline",
-          "liquor_discipline"
+        "rated": true,
+        "rateFte": 4254,
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "Non-campus",
+            "count": 15,
+            "usual": 0
+          },
+          {
+            "offense": "domestic_violence",
+            "geo": "Non-campus",
+            "count": 12,
+            "usual": 0
+          }
         ],
         "counts": {
           "criminal": 50,
@@ -285,17 +292,27 @@
       "2018": {
         "campuses": 2,
         "online": 6,
-        "rateRanked": true,
-        "rateFte": 4054,
-        "spikes": [
-          "criminal",
-          "property",
-          "all",
-          "burglary",
-          "domestic_violence",
-          "drug_arrest",
-          "drug_discipline",
-          "liquor_discipline"
+        "rated": true,
+        "rateFte": 4158,
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "On-campus",
+            "count": 16,
+            "usual": 1
+          },
+          {
+            "offense": "burglary",
+            "geo": "Non-campus",
+            "count": 31,
+            "usual": 0
+          },
+          {
+            "offense": "domestic_violence",
+            "geo": "Non-campus",
+            "count": 18,
+            "usual": 0
+          }
         ],
         "counts": {
           "criminal": 64,
@@ -318,15 +335,15 @@
       "2019": {
         "campuses": 2,
         "online": 7,
-        "rateRanked": true,
-        "rateFte": 3926,
-        "spikes": [
-          "criminal",
-          "all",
-          "domestic_violence",
-          "drug_arrest",
-          "drug_discipline",
-          "liquor_discipline"
+        "rated": true,
+        "rateFte": 4046,
+        "flags": [
+          {
+            "offense": "domestic_violence",
+            "geo": "Non-campus",
+            "count": 17,
+            "usual": 0
+          }
         ],
         "counts": {
           "criminal": 27,
@@ -350,9 +367,10 @@
       "2020": {
         "campuses": 2,
         "online": 7,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 3212,
+        "rateFte": 3305,
         "counts": {
           "criminal": 5,
           "violent": 2,
@@ -368,9 +386,9 @@
       "2021": {
         "campuses": 2,
         "online": 7,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 3090,
+        "rateFte": 3177,
         "counts": {
           "criminal": 1,
           "violent": 1,
@@ -382,8 +400,8 @@
       "2022": {
         "campuses": 2,
         "online": 14,
-        "rateRanked": true,
-        "rateFte": 2775,
+        "rated": true,
+        "rateFte": 2953,
         "counts": {
           "all": 1,
           "domestic_violence": 1
@@ -392,8 +410,8 @@
       "2023": {
         "campuses": 2,
         "online": 13,
-        "rateRanked": true,
-        "rateFte": 2989,
+        "rated": true,
+        "rateFte": 3165,
         "counts": {
           "all": 1,
           "dating_violence": 1
@@ -402,8 +420,8 @@
       "2024": {
         "campuses": 2,
         "online": 10,
-        "rateRanked": true,
-        "rateFte": 3175,
+        "rated": true,
+        "rateFte": 3313,
         "counts": {
           "criminal": 6,
           "property": 1,

@@ -197,18 +197,27 @@
   ],
   "institution": {
     "id": 440031,
+    "ratesFile": "rates/institutions/440031.json",
     "byYear": {
       "2019": {
         "campuses": 2,
         "online": 7,
-        "rateRanked": false,
-        "rateFte": 531,
-        "spikes": [
-          "criminal",
-          "violent",
-          "all",
-          "aggravated_assault",
-          "robbery"
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 539,
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "Public property",
+            "count": 22,
+            "usual": 0
+          },
+          {
+            "offense": "robbery",
+            "geo": "Public property",
+            "count": 26,
+            "usual": 0
+          }
         ],
         "counts": {
           "criminal": 60,
@@ -232,14 +241,23 @@
       "2020": {
         "campuses": 2,
         "online": 7,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "onlineYear": 2019,
-        "rateFte": 581,
-        "spikes": [
-          "criminal",
-          "violent",
-          "all",
-          "drug_arrest"
+        "rateFte": 587,
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "Public property",
+            "count": 14,
+            "usual": 0
+          },
+          {
+            "offense": "robbery",
+            "geo": "Public property",
+            "count": 14,
+            "usual": 0
+          }
         ],
         "counts": {
           "criminal": 38,

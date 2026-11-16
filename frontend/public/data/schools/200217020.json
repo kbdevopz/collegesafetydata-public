@@ -93,12 +93,17 @@
   "breakdownByGeo": [],
   "institution": {
     "id": 200217,
+    "ratesFile": "rates/institutions/200217.json",
     "byYear": {
       "2015": {
-        "campuses": 9,
+        "campuses": 8,
         "online": 16,
-        "rateRanked": true,
-        "rateFte": 2099,
+        "rated": true,
+        "rateFte": 2320,
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
         "counts": {
           "criminal": 4,
           "violent": 2,
@@ -116,10 +121,14 @@
         }
       },
       "2016": {
-        "campuses": 9,
+        "campuses": 8,
         "online": 12,
-        "rateRanked": true,
-        "rateFte": 2406,
+        "rated": true,
+        "rateFte": 2582,
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
         "counts": {
           "criminal": 3,
           "violent": 2,
@@ -133,10 +142,14 @@
         }
       },
       "2017": {
-        "campuses": 10,
+        "campuses": 9,
         "online": 16,
-        "rateRanked": true,
-        "rateFte": 2377,
+        "rated": true,
+        "rateFte": 2619,
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
         "counts": {
           "criminal": 3,
           "violent": 3,
@@ -147,10 +160,14 @@
         }
       },
       "2018": {
-        "campuses": 10,
+        "campuses": 9,
         "online": 25,
-        "rateRanked": true,
-        "rateFte": 2285,
+        "rated": true,
+        "rateFte": 2679,
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
         "counts": {
           "all": 54,
           "drug_arrest": 5,
@@ -160,10 +177,14 @@
         }
       },
       "2019": {
-        "campuses": 10,
+        "campuses": 9,
         "online": 24,
-        "rateRanked": true,
-        "rateFte": 2324,
+        "rated": true,
+        "rateFte": 2703,
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
         "counts": {
           "all": 41,
           "drug_arrest": 7,
@@ -173,14 +194,16 @@
         }
       },
       "2020": {
-        "campuses": 10,
+        "campuses": 9,
         "online": 24,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 2295,
-        "spikes": [
-          "liquor_arrest"
-        ],
+        "rateFte": 2666,
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
         "counts": {
           "all": 92,
           "drug_arrest": 6,
@@ -190,11 +213,15 @@
         }
       },
       "2021": {
-        "campuses": 10,
+        "campuses": 9,
         "online": 24,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 2307,
+        "rateFte": 2682,
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
         "counts": {
           "criminal": 2,
           "violent": 2,
@@ -207,27 +234,38 @@
         }
       },
       "2022": {
-        "campuses": 9,
+        "campuses": 8,
         "online": 28,
-        "rateRanked": true,
-        "rateFte": 2105,
+        "rated": true,
+        "rateFte": 2421,
+        "abroad": {
+          "campuses": 1,
+          "counts": {
+            "all": 1,
+            "liquor_discipline": 1
+          }
+        },
         "counts": {
           "criminal": 1,
           "violent": 1,
-          "all": 67,
+          "all": 66,
           "drug_arrest": 2,
           "drug_discipline": 1,
           "liquor_arrest": 2,
-          "liquor_discipline": 59,
+          "liquor_discipline": 58,
           "rape": 1,
           "stalking": 2
         }
       },
       "2023": {
-        "campuses": 9,
+        "campuses": 8,
         "online": 26,
-        "rateRanked": true,
-        "rateFte": 2263,
+        "rated": true,
+        "rateFte": 2580,
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
         "counts": {
           "all": 22,
           "drug_arrest": 1,
@@ -237,10 +275,14 @@
         }
       },
       "2024": {
-        "campuses": 10,
+        "campuses": 9,
         "online": 26,
-        "rateRanked": true,
-        "rateFte": 2304,
+        "rated": true,
+        "rateFte": 2633,
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
         "counts": {
           "criminal": 3,
           "violent": 2,

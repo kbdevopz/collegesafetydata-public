@@ -71,12 +71,21 @@
   ],
   "institution": {
     "id": 179867,
+    "ratesFile": "rates/institutions/179867.json",
     "byYear": {
       "2015": {
         "campuses": 6,
         "online": 2,
-        "rateRanked": true,
-        "rateFte": 13176,
+        "rated": true,
+        "rateFte": 13332,
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "On-campus",
+            "count": 24,
+            "usual": 5
+          }
+        ],
         "counts": {
           "criminal": 83,
           "violent": 54,
@@ -100,11 +109,33 @@
       "2016": {
         "campuses": 6,
         "online": 2,
-        "rateRanked": true,
-        "rateFte": 13489,
-        "spikes": [
-          "rape",
-          "robbery"
+        "rated": true,
+        "rateFte": 13648,
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "Public property",
+            "count": 16,
+            "usual": 1
+          },
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "Public property",
+            "count": 20,
+            "usual": 1
+          },
+          {
+            "offense": "rape",
+            "geo": "On-campus",
+            "count": 36,
+            "usual": 8
+          },
+          {
+            "offense": "robbery",
+            "geo": "Public property",
+            "count": 10,
+            "usual": 1
+          }
         ],
         "counts": {
           "criminal": 145,
@@ -131,10 +162,15 @@
       "2017": {
         "campuses": 6,
         "online": 2,
-        "rateRanked": true,
-        "rateFte": 13759,
-        "spikes": [
-          "rape"
+        "rated": true,
+        "rateFte": 13922,
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "Public property",
+            "count": 14,
+            "usual": 1
+          }
         ],
         "counts": {
           "criminal": 97,

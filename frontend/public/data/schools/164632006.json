@@ -52,12 +52,18 @@
   ],
   "institution": {
     "id": 164632,
+    "ratesFile": "rates/institutions/164632.json",
     "byYear": {
       "2017": {
         "campuses": 5,
         "online": 36,
-        "rateRanked": true,
-        "rateFte": 1571,
+        "rated": true,
+        "rateFte": 1996,
+        "fteUncertain": {
+          "share": 1571,
+          "partTimeFirst": 1996,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 1,
           "violent": 1,
@@ -68,8 +74,13 @@
       "2018": {
         "campuses": 5,
         "online": 44,
-        "rateRanked": true,
-        "rateFte": 1417,
+        "rated": true,
+        "rateFte": 1929,
+        "fteUncertain": {
+          "share": 1417,
+          "partTimeFirst": 1929,
+          "reason": "own"
+        },
         "counts": {
           "all": 2,
           "drug_discipline": 1,
@@ -79,8 +90,13 @@
       "2019": {
         "campuses": 5,
         "online": 42,
-        "rateRanked": true,
-        "rateFte": 1346,
+        "rated": true,
+        "rateFte": 1782,
+        "fteUncertain": {
+          "share": 1346,
+          "partTimeFirst": 1782,
+          "reason": "own"
+        },
         "counts": {
           "all": 2,
           "drug_discipline": 1,
@@ -90,9 +106,15 @@
       "2020": {
         "campuses": 3,
         "online": 42,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 1308
+        "rateFte": 1731,
+        "fteUncertain": {
+          "share": 1308,
+          "partTimeFirst": 1731,
+          "reason": "own"
+        }
       }
     }
   }

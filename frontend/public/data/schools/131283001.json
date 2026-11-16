@@ -700,18 +700,19 @@
   ],
   "institution": {
     "id": 131283,
+    "ratesFile": "rates/institutions/131283.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 8,
-        "rateRanked": true,
-        "rateFte": 4849
+        "rated": true,
+        "rateFte": 5071
       },
       "2016": {
         "campuses": 1,
         "online": 9,
-        "rateRanked": true,
-        "rateFte": 4522,
+        "rated": true,
+        "rateFte": 4754,
         "pooledWith": [
           {
             "id": 455813,
@@ -723,36 +724,57 @@
       "2017": {
         "campuses": 1,
         "online": 9,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2017 figures this institution reports for a campus are also reported, identically, by campus 455813001 of another institution (a shared campus) and count here, while that institution's students are in its own FTE. No rate is shown for that year.",
-        "rateFte": 4461
+        "rated": true,
+        "rateFte": 4761,
+        "pooledWith": [
+          {
+            "id": 455813,
+            "name": "Pontifical John Paul II Institute for Studies on Marriage and Family",
+            "fte": 66
+          }
+        ]
       },
       "2018": {
         "campuses": 1,
         "online": 7,
-        "rateRanked": true,
-        "rateFte": 4564
+        "rated": true,
+        "rateFte": 4748,
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "On-campus",
+            "count": 15,
+            "usual": 2
+          }
+        ]
       },
       "2019": {
         "campuses": 1,
         "online": 5,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2019 figures this institution reports for a campus are also reported, identically, by campus 455813001 of another institution (a shared campus) and count here, while that institution's students are in its own FTE. No rate is shown for that year.",
-        "rateFte": 4574
+        "rated": true,
+        "rateFte": 4763,
+        "pooledWith": [
+          {
+            "id": 455813,
+            "name": "Pontifical John Paul II Institute for Studies on Marriage and Family",
+            "fte": 58
+          }
+        ]
       },
       "2020": {
         "campuses": 1,
         "online": 5,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 4256
+        "rateFte": 4377
       },
       "2021": {
         "campuses": 1,
         "online": 5,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 4058,
+        "rateFte": 4172,
         "pooledWith": [
           {
             "id": 455813,
@@ -764,22 +786,35 @@
       "2022": {
         "campuses": 1,
         "online": 8,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2022 figures this institution reports for a campus are also reported, identically, by campus 455813001 of another institution (a shared campus) and count here, while that institution's students are in its own FTE. No rate is shown for that year.",
-        "rateFte": 3803
+        "rated": true,
+        "rateFte": 3987
       },
       "2023": {
         "campuses": 1,
         "online": 9,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2023 figures this institution reports for a campus are also reported, identically, by campus 455813001 of another institution (a shared campus) and count here, while that institution's students are in its own FTE. No rate is shown for that year.",
-        "rateFte": 3946
+        "rated": true,
+        "rateFte": 4211,
+        "pooledWith": [
+          {
+            "id": 455813,
+            "name": "Pontifical John Paul II Institute for Studies on Marriage and Family",
+            "fte": 52
+          }
+        ],
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "Public property",
+            "count": 10,
+            "usual": 0
+          }
+        ]
       },
       "2024": {
         "campuses": 1,
         "online": 9,
-        "rateRanked": true,
-        "rateFte": 4081
+        "rated": true,
+        "rateFte": 4313
       }
     }
   }

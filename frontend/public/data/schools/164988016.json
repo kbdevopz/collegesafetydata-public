@@ -64,15 +64,17 @@
   ],
   "institution": {
     "id": 164988,
+    "ratesFile": "rates/institutions/164988.json",
     "byYear": {
       "2018": {
-        "campuses": 12,
+        "campuses": 10,
         "online": 7,
-        "rateRanked": true,
-        "rateFte": 28582,
-        "spikes": [
-          "liquor_arrest"
-        ],
+        "rated": true,
+        "rateFte": 29801,
+        "abroad": {
+          "campuses": 2,
+          "counts": {}
+        },
         "counts": {
           "criminal": 78,
           "violent": 36,
@@ -97,23 +99,34 @@
         }
       },
       "2019": {
-        "campuses": 9,
+        "campuses": 8,
         "online": 7,
-        "rateRanked": true,
-        "rateFte": 27827,
-        "spikes": [
-          "dating_violence",
-          "drug_arrest"
+        "rated": true,
+        "rateFte": 29015,
+        "abroad": {
+          "campuses": 1,
+          "counts": {
+            "all": 1,
+            "dating_violence": 1
+          }
+        },
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "Public property",
+            "count": 31,
+            "usual": 9
+          }
         ],
         "counts": {
           "criminal": 128,
           "violent": 70,
           "property": 40,
-          "all": 854,
+          "all": 853,
           "aggravated_assault": 44,
           "arson": 1,
           "burglary": 23,
-          "dating_violence": 24,
+          "dating_violence": 23,
           "domestic_violence": 17,
           "drug_arrest": 100,
           "fondling": 18,
@@ -128,11 +141,16 @@
         }
       },
       "2020": {
-        "campuses": 9,
+        "campuses": 8,
         "online": 7,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 26732,
+        "rateFte": 27866,
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
         "counts": {
           "criminal": 107,
           "violent": 55,
@@ -155,16 +173,25 @@
         }
       },
       "2021": {
-        "campuses": 9,
+        "campuses": 8,
         "online": 7,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 29528,
+        "rateFte": 30783,
+        "abroad": {
+          "campuses": 1,
+          "counts": {
+            "criminal": 1,
+            "violent": 1,
+            "all": 1,
+            "robbery": 1
+          }
+        },
         "counts": {
-          "criminal": 76,
-          "violent": 47,
+          "criminal": 75,
+          "violent": 46,
           "property": 21,
-          "all": 657,
+          "all": 656,
           "aggravated_assault": 25,
           "arson": 2,
           "burglary": 8,
@@ -175,27 +202,33 @@
           "liquor_discipline": 533,
           "motor_vehicle_theft": 11,
           "rape": 11,
-          "robbery": 11,
+          "robbery": 10,
           "stalking": 18,
           "weapons_arrest": 6,
           "weapons_discipline": 3
         }
       },
       "2022": {
-        "campuses": 8,
+        "campuses": 7,
         "online": 11,
-        "rateRanked": true,
-        "rateFte": 28578,
+        "rated": true,
+        "rateFte": 30501,
+        "abroad": {
+          "campuses": 1,
+          "counts": {
+            "all": 2,
+            "drug_discipline": 2
+          }
+        },
         "counts": {
           "criminal": 59,
           "violent": 35,
           "property": 13,
-          "all": 428,
+          "all": 426,
           "aggravated_assault": 18,
           "burglary": 9,
           "dating_violence": 3,
           "drug_arrest": 21,
-          "drug_discipline": 2,
           "fondling": 11,
           "liquor_arrest": 1,
           "liquor_discipline": 332,
@@ -208,12 +241,27 @@
         }
       },
       "2023": {
-        "campuses": 8,
+        "campuses": 7,
         "online": 11,
-        "rateRanked": true,
-        "rateFte": 28467,
-        "spikes": [
-          "fondling"
+        "rated": true,
+        "rateFte": 30399,
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
+        "flags": [
+          {
+            "offense": "fondling",
+            "geo": "On-campus",
+            "count": 34,
+            "usual": 10
+          },
+          {
+            "offense": "fondling",
+            "geo": "Public property",
+            "count": 10,
+            "usual": 1
+          }
         ],
         "counts": {
           "criminal": 93,
@@ -236,18 +284,25 @@
         }
       },
       "2024": {
-        "campuses": 8,
+        "campuses": 7,
         "online": 14,
-        "rateRanked": true,
-        "rateFte": 27953,
+        "rated": true,
+        "rateFte": 30403,
+        "abroad": {
+          "campuses": 1,
+          "counts": {
+            "all": 1,
+            "dating_violence": 1
+          }
+        },
         "counts": {
           "criminal": 91,
           "violent": 58,
           "property": 21,
-          "all": 460,
+          "all": 459,
           "aggravated_assault": 30,
           "burglary": 17,
-          "dating_violence": 6,
+          "dating_violence": 5,
           "domestic_violence": 2,
           "drug_arrest": 15,
           "drug_discipline": 3,

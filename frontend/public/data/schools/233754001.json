@@ -282,72 +282,83 @@
   ],
   "institution": {
     "id": 233754,
+    "ratesFile": "rates/institutions/233754.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 14,
-        "rateRanked": true,
-        "rateFte": 4421
+        "rated": true,
+        "rateFte": 4703
       },
       "2016": {
         "campuses": 1,
         "online": 15,
-        "rateRanked": true,
-        "rateFte": 4043
+        "rated": true,
+        "rateFte": 4309
       },
       "2017": {
         "campuses": 1,
         "online": 15,
-        "rateRanked": true,
-        "rateFte": 3738
+        "rated": true,
+        "rateFte": 3981
       },
       "2018": {
         "campuses": 1,
         "online": 15,
-        "rateRanked": true,
-        "rateFte": 3575
+        "rated": true,
+        "rateFte": 3819
       },
       "2019": {
         "campuses": 1,
         "online": 18,
-        "rateRanked": true,
-        "rateFte": 3203
+        "rated": true,
+        "rateFte": 3464
       },
       "2020": {
         "campuses": 1,
         "online": 18,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 2807
+        "rateFte": 3045
       },
       "2021": {
         "campuses": 1,
         "online": 18,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 2528
+        "rateFte": 2730
       },
       "2022": {
         "campuses": 1,
         "online": 33,
-        "rateRanked": true,
-        "rateFte": 2145
+        "rated": true,
+        "rateFte": 2535
       },
       "2023": {
         "campuses": 1,
         "online": 30,
-        "rateRanked": true,
-        "rateFte": 2234
+        "rated": true,
+        "rateFte": 2575
       },
       "2024": {
         "campuses": 2,
         "online": 30,
-        "rateRanked": true,
-        "rateFte": 2319,
-        "spikes": [
-          "criminal",
-          "all",
-          "drug_arrest"
+        "rated": true,
+        "rateFte": 2667,
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "Non-campus",
+            "count": 10,
+            "usual": 0
+          },
+          {
+            "offense": "fondling",
+            "geo": "Non-campus",
+            "count": 12,
+            "usual": 0
+          }
         ],
         "counts": {
           "criminal": 25,

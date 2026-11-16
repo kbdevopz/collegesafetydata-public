@@ -85,15 +85,13 @@
   ],
   "institution": {
     "id": 213613,
+    "ratesFile": "rates/institutions/213613.json",
     "byYear": {
       "2015": {
         "campuses": 4,
         "online": 8,
-        "rateRanked": true,
-        "rateFte": 3959,
-        "spikes": [
-          "drug_arrest"
-        ],
+        "rated": true,
+        "rateFte": 4160,
         "counts": {
           "criminal": 18,
           "violent": 4,
@@ -114,11 +112,8 @@
       "2016": {
         "campuses": 4,
         "online": 8,
-        "rateRanked": true,
-        "rateFte": 3622,
-        "spikes": [
-          "drug_arrest"
-        ],
+        "rated": true,
+        "rateFte": 3805,
         "counts": {
           "criminal": 11,
           "violent": 6,
@@ -139,11 +134,8 @@
       "2017": {
         "campuses": 4,
         "online": 8,
-        "rateRanked": true,
-        "rateFte": 3285,
-        "spikes": [
-          "drug_arrest"
-        ],
+        "rated": true,
+        "rateFte": 3451,
         "counts": {
           "criminal": 12,
           "violent": 3,
@@ -164,8 +156,8 @@
       "2018": {
         "campuses": 4,
         "online": 10,
-        "rateRanked": true,
-        "rateFte": 2858,
+        "rated": true,
+        "rateFte": 3042,
         "counts": {
           "criminal": 16,
           "violent": 7,
@@ -186,8 +178,8 @@
       "2019": {
         "campuses": 4,
         "online": 12,
-        "rateRanked": true,
-        "rateFte": 2553,
+        "rated": true,
+        "rateFte": 2754,
         "counts": {
           "criminal": 9,
           "violent": 4,
@@ -206,9 +198,10 @@
       "2020": {
         "campuses": 4,
         "online": 12,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 2469,
+        "rateFte": 2657,
         "counts": {
           "criminal": 1,
           "violent": 1,
@@ -222,10 +215,11 @@
       "2021": {
         "campuses": 3,
         "online": 12,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "excluded",
         "onlineYear": 2019,
         "rateExcludedReason": "In 2021 DOE counted the figures of campus 213613001 of this institution under ID 498562005 of another institution (a merger or renumbering), while IPEDS counts that campus's students in this institution's FTE. No rate is shown for that year.",
-        "rateFte": 2305
+        "rateFte": 2483
       }
     }
   }

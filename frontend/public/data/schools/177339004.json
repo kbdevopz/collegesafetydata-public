@@ -60,12 +60,17 @@
   ],
   "institution": {
     "id": 177339,
+    "ratesFile": "rates/institutions/177339.json",
     "byYear": {
       "2015": {
-        "campuses": 6,
+        "campuses": 5,
         "online": 7,
-        "rateRanked": true,
-        "rateFte": 1662,
+        "rated": true,
+        "rateFte": 1734,
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
         "counts": {
           "criminal": 9,
           "violent": 1,
@@ -82,15 +87,27 @@
         }
       },
       "2016": {
-        "campuses": 7,
+        "campuses": 6,
         "online": 8,
-        "rateRanked": true,
-        "rateFte": 1665,
+        "rated": true,
+        "rateFte": 1743,
         "pooledWith": [
           {
             "id": 176619,
             "name": "Assemblies of God Theological Seminary",
-            "fte": 152
+            "fte": 154
+          }
+        ],
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "On-campus",
+            "count": 10,
+            "usual": 1
           }
         ],
         "counts": {
@@ -107,10 +124,14 @@
         }
       },
       "2017": {
-        "campuses": 7,
+        "campuses": 6,
         "online": 9,
-        "rateRanked": true,
-        "rateFte": 1646,
+        "rated": true,
+        "rateFte": 1736,
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
         "counts": {
           "criminal": 14,
           "property": 14,
@@ -122,10 +143,14 @@
         }
       },
       "2018": {
-        "campuses": 7,
+        "campuses": 6,
         "online": 15,
-        "rateRanked": true,
-        "rateFte": 1518,
+        "rated": true,
+        "rateFte": 1664,
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
         "counts": {
           "criminal": 5,
           "property": 4,
@@ -140,10 +165,14 @@
         }
       },
       "2019": {
-        "campuses": 7,
+        "campuses": 6,
         "online": 18,
-        "rateRanked": true,
-        "rateFte": 1572,
+        "rated": true,
+        "rateFte": 1757,
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
         "counts": {
           "criminal": 9,
           "property": 9,
@@ -157,11 +186,16 @@
         }
       },
       "2020": {
-        "campuses": 7,
+        "campuses": 6,
         "online": 18,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 1405,
+        "rateFte": 1576,
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
         "counts": {
           "criminal": 4,
           "property": 4,

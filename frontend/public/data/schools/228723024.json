@@ -63,15 +63,30 @@
   ],
   "institution": {
     "id": 228723,
+    "ratesFile": "rates/institutions/228723.json",
     "byYear": {
       "2017": {
-        "campuses": 15,
+        "campuses": 14,
         "online": 3,
-        "rateRanked": true,
-        "rateFte": 60324,
-        "spikes": [
-          "dating_violence",
-          "drug_discipline"
+        "rated": true,
+        "rateFte": 61396,
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
+        "flags": [
+          {
+            "offense": "dating_violence",
+            "geo": "On-campus",
+            "count": 87,
+            "usual": 3
+          },
+          {
+            "offense": "rape",
+            "geo": "On-campus",
+            "count": 93,
+            "usual": 33
+          }
         ],
         "counts": {
           "criminal": 214,
@@ -97,23 +112,40 @@
         }
       },
       "2018": {
-        "campuses": 16,
+        "campuses": 15,
         "online": 1,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2018 figures of this institution's campus 228723018 are also reported, identically, by campus 228705001 of another institution (a shared campus) and count once, under that campus, while the students on it are in each institution's own FTE. No rate is shown for that year.",
-        "rateFte": 62278,
-        "spikes": [
-          "dating_violence",
-          "fondling"
+        "rated": true,
+        "rateFte": 62639,
+        "abroad": {
+          "campuses": 1,
+          "counts": {
+            "all": 2,
+            "dating_violence": 1,
+            "stalking": 1
+          }
+        },
+        "flags": [
+          {
+            "offense": "dating_violence",
+            "geo": "On-campus",
+            "count": 23,
+            "usual": 3
+          },
+          {
+            "offense": "fondling",
+            "geo": "On-campus",
+            "count": 157,
+            "usual": 21
+          }
         ],
         "counts": {
           "criminal": 302,
           "violent": 72,
           "property": 73,
-          "all": 1250,
+          "all": 1248,
           "aggravated_assault": 24,
           "burglary": 63,
-          "dating_violence": 24,
+          "dating_violence": 23,
           "domestic_violence": 47,
           "drug_arrest": 224,
           "drug_discipline": 37,
@@ -123,22 +155,28 @@
           "motor_vehicle_theft": 10,
           "rape": 43,
           "robbery": 5,
-          "stalking": 217,
+          "stalking": 216,
           "weapons_arrest": 14,
           "weapons_discipline": 2
         }
       },
       "2019": {
-        "campuses": 16,
+        "campuses": 15,
         "online": 3,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2019 figures of this institution's campus 228723018 are also reported, identically, by campus 228705001 of another institution (a shared campus) and count once, under that campus, while the students on it are in each institution's own FTE. No rate is shown for that year.",
-        "rateFte": 61167,
+        "rated": true,
+        "rateFte": 62256,
+        "abroad": {
+          "campuses": 1,
+          "counts": {
+            "all": 1,
+            "stalking": 1
+          }
+        },
         "counts": {
           "criminal": 141,
           "violent": 49,
           "property": 69,
-          "all": 973,
+          "all": 972,
           "aggravated_assault": 16,
           "burglary": 34,
           "dating_violence": 8,
@@ -151,23 +189,33 @@
           "motor_vehicle_theft": 35,
           "rape": 25,
           "robbery": 8,
-          "stalking": 272,
+          "stalking": 271,
           "weapons_arrest": 8,
           "weapons_discipline": 1
         }
       },
       "2020": {
-        "campuses": 15,
+        "campuses": 14,
         "online": 3,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateExcludedReason": "In 2020 figures of this institution's campus 228723018 are also reported, identically, by campus 228705001 of another institution (a shared campus) and count once, under that campus, while the students on it are in each institution's own FTE. No rate is shown for that year.",
-        "rateFte": 62674,
+        "rateFte": 63791,
+        "abroad": {
+          "campuses": 1,
+          "counts": {
+            "criminal": 1,
+            "violent": 1,
+            "all": 3,
+            "rape": 1,
+            "stalking": 2
+          }
+        },
         "counts": {
-          "criminal": 112,
-          "violent": 49,
+          "criminal": 111,
+          "violent": 48,
           "property": 53,
-          "all": 837,
+          "all": 834,
           "aggravated_assault": 16,
           "arson": 3,
           "burglary": 22,
@@ -179,24 +227,31 @@
           "liquor_arrest": 153,
           "liquor_discipline": 165,
           "motor_vehicle_theft": 28,
-          "rape": 28,
+          "rape": 27,
           "robbery": 5,
-          "stalking": 191,
+          "stalking": 189,
           "weapons_arrest": 4
         }
       },
       "2021": {
-        "campuses": 17,
+        "campuses": 16,
         "online": 3,
-        "rateRanked": false,
+        "rated": true,
         "onlineYear": 2019,
-        "rateExcludedReason": "In 2021 figures of this institution's campus 228723028 are also reported, identically, by campus 229814001 of another institution (a shared campus) and count once, under that campus, while the students on it are in each institution's own FTE. No rate is shown for that year.",
-        "rateFte": 64461,
+        "rateFte": 65609,
+        "abroad": {
+          "campuses": 1,
+          "counts": {
+            "all": 5,
+            "liquor_arrest": 3,
+            "stalking": 2
+          }
+        },
         "counts": {
           "criminal": 156,
           "violent": 61,
           "property": 70,
-          "all": 1126,
+          "all": 1121,
           "aggravated_assault": 25,
           "arson": 3,
           "burglary": 34,
@@ -205,12 +260,12 @@
           "drug_arrest": 191,
           "drug_discipline": 20,
           "fondling": 25,
-          "liquor_arrest": 213,
+          "liquor_arrest": 210,
           "liquor_discipline": 154,
           "motor_vehicle_theft": 33,
           "rape": 35,
           "robbery": 1,
-          "stalking": 331,
+          "stalking": 329,
           "weapons_arrest": 17,
           "weapons_discipline": 1
         }

@@ -59,13 +59,20 @@
   ],
   "institution": {
     "id": 235237,
+    "ratesFile": "rates/institutions/235237.json",
     "byYear": {
       "2019": {
         "campuses": 5,
         "online": 50,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "excluded",
         "rateExcludedReason": "In 2019 the figures of campus 235237004 count for this institution, but IPEDS counts that campus's students under institution 439145 (DOE also reported it as 439145001: a merger or renumbering), which counts other campuses of its own that year. No rate is shown for that year.",
-        "rateFte": 2036,
+        "rateFte": 2822,
+        "fteUncertain": {
+          "share": 2036,
+          "partTimeFirst": 2822,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 9,
           "violent": 3,
@@ -89,9 +96,15 @@
       "2020": {
         "campuses": 5,
         "online": 50,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 3211,
+        "rateFte": 4165,
+        "fteUncertain": {
+          "share": 3211,
+          "partTimeFirst": 4165,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 8,
           "violent": 3,
@@ -110,9 +123,14 @@
       "2021": {
         "campuses": 5,
         "online": 50,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 2790,
+        "rateFte": 3682,
+        "fteUncertain": {
+          "share": 2790,
+          "partTimeFirst": 3682,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 6,
           "property": 6,

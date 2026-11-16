@@ -56,12 +56,13 @@
   ],
   "institution": {
     "id": 147536,
+    "ratesFile": "rates/institutions/147536.json",
     "byYear": {
       "2015": {
         "campuses": 7,
         "online": 26,
-        "rateRanked": true,
-        "rateFte": 2104,
+        "rated": true,
+        "rateFte": 2404,
         "counts": {
           "criminal": 3,
           "violent": 2,
@@ -77,8 +78,8 @@
       "2016": {
         "campuses": 7,
         "online": 28,
-        "rateRanked": true,
-        "rateFte": 2148,
+        "rated": true,
+        "rateFte": 2497,
         "counts": {
           "criminal": 2,
           "violent": 1,
@@ -92,17 +93,19 @@
       "2017": {
         "campuses": 7,
         "online": 30,
-        "rateRanked": true,
-        "rateFte": 2808,
+        "rated": true,
+        "rateFte": 3418,
+        "fteUncertain": {
+          "share": 2409,
+          "partTimeFirst": 2874,
+          "reason": "pooled"
+        },
         "pooledWith": [
           {
             "id": 146393,
             "name": "Kendall College",
-            "fte": 399
+            "fte": 544
           }
-        ],
-        "spikes": [
-          "all"
         ],
         "counts": {
           "criminal": 4,
@@ -121,8 +124,8 @@
       "2018": {
         "campuses": 7,
         "online": 32,
-        "rateRanked": true,
-        "rateFte": 2909,
+        "rated": true,
+        "rateFte": 3538,
         "counts": {
           "criminal": 1,
           "violent": 1,
@@ -137,8 +140,8 @@
       "2019": {
         "campuses": 7,
         "online": 30,
-        "rateRanked": true,
-        "rateFte": 3530,
+        "rated": true,
+        "rateFte": 4233,
         "counts": {
           "criminal": 3,
           "violent": 2,

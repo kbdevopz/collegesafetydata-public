@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import { Check, Copy, Quote } from 'lucide-react'
 import { cachedMetadata, getMetadata } from '../lib/api'
 import { useBuildInfo } from '../lib/build'
+import { SITE_ORIGIN } from '../lib/seo'
 import type { Metadata } from '../lib/types'
-
-const SITE_URL = 'https://collegesafetydata.org'
 
 const MONTHS = [
   'January', 'February', 'March', 'April', 'May', 'June',
@@ -63,6 +63,9 @@ function CopyButton({ text, label }: { text: string; label: string }) {
 export default function CiteThisData({ school, className }: Props) {
   const [metadata, setMetadata] = useState<Metadata | null>(cachedMetadata)
   const build = useBuildInfo()
+  // The router's location, not window.location, so the build's prerender
+  // (no window) renders it too
+  const { search } = useLocation()
 
   // The access date is set in the browser, not when the page is prerendered
   const [accessed, setAccessed] = useState<Date | null>(null)
@@ -84,7 +87,11 @@ export default function CiteThisData({ school, className }: Props) {
   ].filter(Boolean)
   const buildNote = buildParts.length ? ` (${buildParts.join(', ')})` : ''
 
-  const url = school ? `${SITE_URL}/school/${school.unitid}` : `${SITE_URL}/`
+  // A school page is cited with the selections in its address (?year=,
+  // ?offense=, ?view=rate), so the link opens the view the reader cites; on
+  // the canonical host, as the page's canonical URL is. The site as a whole
+  // is cited at its home page.
+  const url = school ? `${SITE_ORIGIN}/school/${school.unitid}${search}` : `${SITE_ORIGIN}/`
   const title = school
     ? `${school.name}: Clery Act crime statistics${years ? `, ${years}` : ''}`
     : `CollegeSafetyData: Clery Act campus crime statistics${years ? `, ${years}` : ''}`

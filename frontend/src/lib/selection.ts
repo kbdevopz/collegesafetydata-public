@@ -129,3 +129,16 @@ export function isSummary(selection: string): boolean {
 export function selectionCode(selection: string): string {
   return isSummary(selection) ? selection : selection.toLowerCase().split(' ').join('_')
 }
+
+/**
+ * The profile selection an ?offense= value names: a summary code, or one of
+ * `offenses` (offense names, as in profile trends) by its code
+ * ("motor_vehicle_theft", as rankings use) or its name. `fallback` when the
+ * value is absent or names none of them.
+ */
+export function selectionFromParam(value: string | null, offenses: string[], fallback: string): string {
+  if (!value) return fallback
+  const v = value.trim().toLowerCase()
+  if ([CRIMINAL, VIOLENT, PROPERTY, ALL].includes(v)) return v
+  return offenses.find((o) => selectionCode(o) === v || o.toLowerCase() === v) ?? fallback
+}

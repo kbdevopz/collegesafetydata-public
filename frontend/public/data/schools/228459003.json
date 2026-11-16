@@ -56,16 +56,15 @@
   ],
   "institution": {
     "id": 228459,
+    "ratesFile": "rates/institutions/228459.json",
     "byYear": {
       "2020": {
         "campuses": 3,
         "online": 3,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 31626,
-        "spikes": [
-          "liquor_discipline"
-        ],
+        "rateFte": 32157,
         "counts": {
           "criminal": 70,
           "violent": 24,
@@ -91,9 +90,9 @@
       "2021": {
         "campuses": 3,
         "online": 3,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 31647,
+        "rateFte": 32179,
         "counts": {
           "criminal": 87,
           "violent": 38,
@@ -119,12 +118,15 @@
       "2022": {
         "campuses": 3,
         "online": 9,
-        "rateRanked": true,
-        "rateFte": 30395,
-        "spikes": [
-          "violent",
-          "aggravated_assault",
-          "liquor_discipline"
+        "rated": true,
+        "rateFte": 32040,
+        "flags": [
+          {
+            "offense": "stalking",
+            "geo": "On-campus",
+            "count": 50,
+            "usual": 17
+          }
         ],
         "counts": {
           "criminal": 146,
@@ -152,13 +154,21 @@
       "2023": {
         "campuses": 3,
         "online": 8,
-        "rateRanked": true,
-        "rateFte": 31680,
-        "spikes": [
-          "violent",
-          "aggravated_assault",
-          "liquor_discipline",
-          "stalking"
+        "rated": true,
+        "rateFte": 33224,
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "On-campus",
+            "count": 43,
+            "usual": 7
+          },
+          {
+            "offense": "stalking",
+            "geo": "On-campus",
+            "count": 61,
+            "usual": 17
+          }
         ],
         "counts": {
           "criminal": 124,
@@ -186,14 +196,27 @@
       "2024": {
         "campuses": 3,
         "online": 6,
-        "rateRanked": true,
-        "rateFte": 34795,
-        "spikes": [
-          "aggravated_assault",
-          "domestic_violence",
-          "fondling",
-          "motor_vehicle_theft",
-          "stalking"
+        "rated": true,
+        "rateFte": 36045,
+        "flags": [
+          {
+            "offense": "domestic_violence",
+            "geo": "On-campus",
+            "count": 86,
+            "usual": 21
+          },
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 24,
+            "usual": 5
+          },
+          {
+            "offense": "stalking",
+            "geo": "On-campus",
+            "count": 59,
+            "usual": 17
+          }
         ],
         "counts": {
           "criminal": 153,

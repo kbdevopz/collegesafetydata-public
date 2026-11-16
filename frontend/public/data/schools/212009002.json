@@ -72,15 +72,17 @@
   ],
   "institution": {
     "id": 212009,
+    "ratesFile": "rates/institutions/212009.json",
     "byYear": {
       "2016": {
-        "campuses": 5,
+        "campuses": 2,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2393,
-        "spikes": [
-          "drug_discipline"
-        ],
+        "abroad": {
+          "campuses": 3,
+          "counts": {}
+        },
         "counts": {
           "criminal": 31,
           "violent": 12,
@@ -100,13 +102,14 @@
         }
       },
       "2017": {
-        "campuses": 5,
+        "campuses": 2,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2360,
-        "spikes": [
-          "drug_discipline"
-        ],
+        "abroad": {
+          "campuses": 3,
+          "counts": {}
+        },
         "counts": {
           "criminal": 25,
           "violent": 9,
@@ -124,13 +127,14 @@
         }
       },
       "2018": {
-        "campuses": 5,
+        "campuses": 2,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2376,
-        "spikes": [
-          "drug_discipline"
-        ],
+        "abroad": {
+          "campuses": 3,
+          "counts": {}
+        },
         "counts": {
           "criminal": 23,
           "violent": 11,
@@ -150,10 +154,14 @@
         }
       },
       "2019": {
-        "campuses": 5,
+        "campuses": 2,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2117,
+        "abroad": {
+          "campuses": 3,
+          "counts": {}
+        },
         "counts": {
           "criminal": 24,
           "violent": 15,
@@ -172,11 +180,16 @@
         }
       },
       "2020": {
-        "campuses": 5,
+        "campuses": 2,
         "online": 0,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 1874,
+        "abroad": {
+          "campuses": 3,
+          "counts": {}
+        },
         "counts": {
           "criminal": 28,
           "violent": 14,
@@ -194,13 +207,22 @@
         }
       },
       "2021": {
-        "campuses": 5,
+        "campuses": 2,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 2165,
-        "spikes": [
-          "fondling"
+        "abroad": {
+          "campuses": 3,
+          "counts": {}
+        },
+        "flags": [
+          {
+            "offense": "fondling",
+            "geo": "On-campus",
+            "count": 22,
+            "usual": 5
+          }
         ],
         "counts": {
           "criminal": 45,
@@ -219,10 +241,14 @@
         }
       },
       "2022": {
-        "campuses": 5,
+        "campuses": 2,
         "online": 1,
-        "rateRanked": true,
-        "rateFte": 2091,
+        "rated": true,
+        "rateFte": 2107,
+        "abroad": {
+          "campuses": 3,
+          "counts": {}
+        },
         "counts": {
           "criminal": 42,
           "violent": 20,
@@ -242,10 +268,14 @@
         }
       },
       "2023": {
-        "campuses": 5,
+        "campuses": 2,
         "online": 1,
-        "rateRanked": true,
-        "rateFte": 2170,
+        "rated": true,
+        "rateFte": 2186,
+        "abroad": {
+          "campuses": 3,
+          "counts": {}
+        },
         "counts": {
           "criminal": 25,
           "violent": 10,
@@ -263,10 +293,14 @@
         }
       },
       "2024": {
-        "campuses": 5,
+        "campuses": 2,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 2302,
+        "abroad": {
+          "campuses": 3,
+          "counts": {}
+        },
         "counts": {
           "criminal": 23,
           "violent": 13,

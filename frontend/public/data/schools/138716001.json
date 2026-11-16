@@ -840,23 +840,24 @@
   ],
   "institution": {
     "id": 138716,
+    "ratesFile": "rates/institutions/138716.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 10,
-        "rateRanked": true,
-        "rateFte": 2730
+        "rated": true,
+        "rateFte": 2898
       },
       "2016": {
         "campuses": 2,
         "online": 13,
-        "rateRanked": true,
-        "rateFte": 4069,
+        "rated": true,
+        "rateFte": 4603,
         "pooledWith": [
           {
             "id": 138691,
             "name": "Darton State College",
-            "fte": 1760
+            "fte": 2102
           }
         ],
         "counts": {
@@ -881,8 +882,16 @@
       "2017": {
         "campuses": 3,
         "online": 20,
-        "rateRanked": true,
-        "rateFte": 4082,
+        "rated": true,
+        "rateFte": 4573,
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "On-campus",
+            "count": 18,
+            "usual": 2
+          }
+        ],
         "counts": {
           "criminal": 26,
           "violent": 7,
@@ -905,8 +914,8 @@
       "2018": {
         "campuses": 3,
         "online": 20,
-        "rateRanked": true,
-        "rateFte": 4134,
+        "rated": true,
+        "rateFte": 4659,
         "counts": {
           "criminal": 16,
           "violent": 9,
@@ -929,8 +938,8 @@
       "2019": {
         "campuses": 3,
         "online": 21,
-        "rateRanked": true,
-        "rateFte": 3960,
+        "rated": true,
+        "rateFte": 4499,
         "counts": {
           "criminal": 9,
           "violent": 7,
@@ -952,9 +961,10 @@
       "2020": {
         "campuses": 3,
         "online": 21,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 4160,
+        "rateFte": 4720,
         "counts": {
           "criminal": 10,
           "violent": 6,
@@ -977,9 +987,9 @@
       "2021": {
         "campuses": 3,
         "online": 21,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 3952,
+        "rateFte": 4474,
         "counts": {
           "criminal": 14,
           "violent": 4,
@@ -1001,8 +1011,8 @@
       "2022": {
         "campuses": 3,
         "online": 33,
-        "rateRanked": true,
-        "rateFte": 3507,
+        "rated": true,
+        "rateFte": 4215,
         "counts": {
           "criminal": 14,
           "violent": 4,
@@ -1026,8 +1036,8 @@
       "2023": {
         "campuses": 3,
         "online": 34,
-        "rateRanked": true,
-        "rateFte": 3587,
+        "rated": true,
+        "rateFte": 4331,
         "counts": {
           "criminal": 16,
           "violent": 7,
@@ -1050,8 +1060,8 @@
       "2024": {
         "campuses": 3,
         "online": 35,
-        "rateRanked": true,
-        "rateFte": 3616,
+        "rated": true,
+        "rateFte": 4369,
         "counts": {
           "criminal": 23,
           "violent": 16,

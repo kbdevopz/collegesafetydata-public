@@ -392,68 +392,85 @@
   ],
   "institution": {
     "id": 112826,
+    "ratesFile": "rates/institutions/112826.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 5,
-        "rateRanked": true,
-        "rateFte": 3193
+        "rated": true,
+        "rateFte": 3254
       },
       "2016": {
         "campuses": 1,
         "online": 7,
-        "rateRanked": true,
-        "rateFte": 3137
+        "rated": true,
+        "rateFte": 3224
       },
       "2017": {
         "campuses": 1,
         "online": 11,
-        "rateRanked": true,
-        "rateFte": 3055
+        "rated": true,
+        "rateFte": 3185
       },
       "2018": {
         "campuses": 1,
         "online": 12,
-        "rateRanked": true,
-        "rateFte": 3248
+        "rated": true,
+        "rateFte": 3401
       },
       "2019": {
         "campuses": 1,
         "online": 15,
-        "rateRanked": true,
-        "rateFte": 3076
+        "rated": true,
+        "rateFte": 3260
       },
       "2020": {
         "campuses": 1,
         "online": 15,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 2579
+        "rateFte": 2719
       },
       "2021": {
         "campuses": 1,
         "online": 15,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 2371
+        "rateFte": 2505
       },
       "2022": {
         "campuses": 1,
         "online": 55,
-        "rateRanked": true,
-        "rateFte": 1295
+        "rated": true,
+        "rateFte": 1800,
+        "fteUncertain": {
+          "share": 1295,
+          "partTimeFirst": 1800,
+          "reason": "own"
+        }
       },
       "2023": {
         "campuses": 1,
         "online": 47,
-        "rateRanked": true,
-        "rateFte": 1609
+        "rated": true,
+        "rateFte": 2090,
+        "fteUncertain": {
+          "share": 1609,
+          "partTimeFirst": 2090,
+          "reason": "own"
+        }
       },
       "2024": {
         "campuses": 1,
         "online": 43,
-        "rateRanked": true,
-        "rateFte": 1935
+        "rated": true,
+        "rateFte": 2451,
+        "fteUncertain": {
+          "share": 1935,
+          "partTimeFirst": 2451,
+          "reason": "own"
+        }
       }
     }
   }

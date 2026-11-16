@@ -40,18 +40,31 @@
   ],
   "institution": {
     "id": 135081,
+    "ratesFile": "rates/institutions/135081.json",
     "byYear": {
       "2024": {
-        "campuses": 20,
+        "campuses": 18,
         "online": 47,
-        "rateRanked": true,
-        "rateFte": 8766,
+        "rated": true,
+        "rateFte": 10977,
+        "fteUncertain": {
+          "share": 8766,
+          "partTimeFirst": 10977,
+          "reason": "own"
+        },
+        "abroad": {
+          "campuses": 2,
+          "counts": {
+            "all": 8,
+            "liquor_discipline": 8
+          }
+        },
         "counts": {
           "criminal": 3,
           "violent": 2,
-          "all": 20,
+          "all": 12,
           "fondling": 1,
-          "liquor_discipline": 9,
+          "liquor_discipline": 1,
           "robbery": 2,
           "stalking": 5,
           "weapons_discipline": 3

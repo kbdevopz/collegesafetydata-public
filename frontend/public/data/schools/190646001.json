@@ -522,73 +522,78 @@
   ],
   "institution": {
     "id": 190646,
+    "ratesFile": "rates/institutions/190646.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 5422
       },
       "2016": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 5591
       },
       "2017": {
         "campuses": 1,
         "online": 1,
-        "rateRanked": true,
-        "rateFte": 5495
+        "rated": true,
+        "rateFte": 5524
       },
       "2018": {
         "campuses": 1,
         "online": 1,
-        "rateRanked": true,
-        "rateFte": 5430
+        "rated": true,
+        "rateFte": 5458
       },
       "2019": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 4796
       },
       "2020": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 4413
       },
       "2021": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 3444
       },
       "2022": {
         "campuses": 1,
         "online": 26,
-        "rateRanked": true,
-        "rateFte": 2176,
-        "spikes": [
-          "criminal",
-          "all",
-          "weapons_arrest"
+        "rated": true,
+        "rateFte": 2558,
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "Public property",
+            "count": 18,
+            "usual": 1
+          }
         ]
       },
       "2023": {
         "campuses": 1,
         "online": 15,
-        "rateRanked": true,
-        "rateFte": 2634
+        "rated": true,
+        "rateFte": 2866
       },
       "2024": {
         "campuses": 1,
         "online": 16,
-        "rateRanked": true,
-        "rateFte": 2379
+        "rated": true,
+        "rateFte": 2591
       }
     }
   }

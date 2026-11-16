@@ -40,15 +40,20 @@
   ],
   "institution": {
     "id": 224615,
+    "ratesFile": "rates/institutions/224615.json",
     "byYear": {
       "2024": {
         "campuses": 16,
         "online": 39,
-        "rateRanked": true,
-        "rateFte": 23863,
-        "spikes": [
-          "all",
-          "stalking"
+        "rated": true,
+        "rateFte": 28142,
+        "flags": [
+          {
+            "offense": "stalking",
+            "geo": "On-campus",
+            "count": 22,
+            "usual": 2
+          }
         ],
         "counts": {
           "criminal": 15,

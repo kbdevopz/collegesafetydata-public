@@ -74,15 +74,13 @@
   "breakdownByGeo": [],
   "institution": {
     "id": 140818,
+    "ratesFile": "rates/institutions/140818.json",
     "byYear": {
       "2015": {
         "campuses": 2,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1771,
-        "spikes": [
-          "liquor_discipline"
-        ],
         "counts": {
           "all": 45,
           "drug_arrest": 2,
@@ -94,8 +92,8 @@
       "2016": {
         "campuses": 2,
         "online": 2,
-        "rateRanked": true,
-        "rateFte": 1792,
+        "rated": true,
+        "rateFte": 1812,
         "counts": {
           "criminal": 2,
           "violent": 1,
@@ -113,8 +111,8 @@
       "2017": {
         "campuses": 2,
         "online": 2,
-        "rateRanked": true,
-        "rateFte": 1822,
+        "rated": true,
+        "rateFte": 1841,
         "counts": {
           "all": 25,
           "drug_discipline": 14,
@@ -124,8 +122,8 @@
       "2018": {
         "campuses": 2,
         "online": 1,
-        "rateRanked": true,
-        "rateFte": 1953,
+        "rated": true,
+        "rateFte": 1964,
         "counts": {
           "all": 40,
           "drug_discipline": 10,
@@ -135,11 +133,8 @@
       "2019": {
         "campuses": 2,
         "online": 3,
-        "rateRanked": true,
-        "rateFte": 1896,
-        "spikes": [
-          "liquor_discipline"
-        ],
+        "rated": true,
+        "rateFte": 1926,
         "counts": {
           "criminal": 4,
           "violent": 3,
@@ -153,12 +148,10 @@
       "2020": {
         "campuses": 2,
         "online": 3,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 1839,
-        "spikes": [
-          "liquor_discipline"
-        ],
+        "rateFte": 1869,
         "counts": {
           "all": 45,
           "drug_discipline": 6,
@@ -168,9 +161,9 @@
       "2021": {
         "campuses": 2,
         "online": 3,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 1620,
+        "rateFte": 1646,
         "counts": {
           "criminal": 2,
           "violent": 1,
@@ -186,8 +179,8 @@
       "2022": {
         "campuses": 2,
         "online": 31,
-        "rateRanked": true,
-        "rateFte": 1027,
+        "rated": true,
+        "rateFte": 1256,
         "counts": {
           "criminal": 3,
           "violent": 3,
@@ -203,8 +196,16 @@
       "2023": {
         "campuses": 2,
         "online": 29,
-        "rateRanked": true,
-        "rateFte": 1069,
+        "rated": true,
+        "rateFte": 1300,
+        "flags": [
+          {
+            "offense": "stalking",
+            "geo": "On-campus",
+            "count": 11,
+            "usual": 0
+          }
+        ],
         "counts": {
           "criminal": 1,
           "property": 1,
@@ -221,8 +222,8 @@
       "2024": {
         "campuses": 2,
         "online": 33,
-        "rateRanked": true,
-        "rateFte": 1040,
+        "rated": true,
+        "rateFte": 1234,
         "counts": {
           "criminal": 1,
           "violent": 1,

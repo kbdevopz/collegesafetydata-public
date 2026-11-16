@@ -44,12 +44,18 @@
   ],
   "institution": {
     "id": 226231,
+    "ratesFile": "rates/institutions/226231.json",
     "byYear": {
       "2015": {
         "campuses": 3,
         "online": 44,
-        "rateRanked": true,
-        "rateFte": 1069,
+        "rated": true,
+        "rateFte": 1430,
+        "fteUncertain": {
+          "share": 1069,
+          "partTimeFirst": 1430,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 2,
           "violent": 1,
@@ -64,8 +70,13 @@
       "2016": {
         "campuses": 4,
         "online": 43,
-        "rateRanked": true,
-        "rateFte": 1066,
+        "rated": true,
+        "rateFte": 1414,
+        "fteUncertain": {
+          "share": 1066,
+          "partTimeFirst": 1414,
+          "reason": "own"
+        },
         "counts": {
           "all": 4,
           "drug_discipline": 3,

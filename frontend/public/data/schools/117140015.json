@@ -107,12 +107,13 @@
   ],
   "institution": {
     "id": 117140,
+    "ratesFile": "rates/institutions/117140.json",
     "byYear": {
       "2015": {
         "campuses": 8,
         "online": 10,
-        "rateRanked": true,
-        "rateFte": 5875,
+        "rated": true,
+        "rateFte": 6205,
         "counts": {
           "criminal": 12,
           "violent": 2,
@@ -132,8 +133,8 @@
       "2016": {
         "campuses": 9,
         "online": 10,
-        "rateRanked": true,
-        "rateFte": 5849,
+        "rated": true,
+        "rateFte": 6175,
         "counts": {
           "criminal": 25,
           "violent": 9,
@@ -157,8 +158,8 @@
       "2017": {
         "campuses": 9,
         "online": 10,
-        "rateRanked": true,
-        "rateFte": 5774,
+        "rated": true,
+        "rateFte": 6100,
         "counts": {
           "criminal": 17,
           "violent": 8,
@@ -181,12 +182,8 @@
       "2018": {
         "campuses": 9,
         "online": 12,
-        "rateRanked": true,
-        "rateFte": 5554,
-        "spikes": [
-          "drug_discipline",
-          "liquor_discipline"
-        ],
+        "rated": true,
+        "rateFte": 5936,
         "counts": {
           "criminal": 12,
           "violent": 3,
@@ -208,12 +205,15 @@
       "2019": {
         "campuses": 9,
         "online": 12,
-        "rateRanked": true,
-        "rateFte": 5174,
-        "spikes": [
-          "property",
-          "drug_arrest",
-          "liquor_arrest"
+        "rated": true,
+        "rateFte": 5535,
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "Non-campus",
+            "count": 15,
+            "usual": 0
+          }
         ],
         "counts": {
           "criminal": 35,
@@ -238,13 +238,10 @@
       "2020": {
         "campuses": 9,
         "online": 12,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 4968,
-        "spikes": [
-          "property",
-          "drug_arrest"
-        ],
+        "rateFte": 5321,
         "counts": {
           "criminal": 32,
           "violent": 9,

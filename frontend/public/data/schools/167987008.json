@@ -52,12 +52,21 @@
   ],
   "institution": {
     "id": 167987,
+    "ratesFile": "rates/institutions/167987.json",
     "byYear": {
       "2015": {
         "campuses": 4,
         "online": 7,
-        "rateRanked": true,
-        "rateFte": 7174,
+        "rated": true,
+        "rateFte": 7474,
+        "flags": [
+          {
+            "offense": "domestic_violence",
+            "geo": "On-campus",
+            "count": 15,
+            "usual": 2
+          }
+        ],
         "counts": {
           "criminal": 30,
           "violent": 12,
@@ -81,8 +90,8 @@
       "2016": {
         "campuses": 4,
         "online": 8,
-        "rateRanked": true,
-        "rateFte": 6882,
+        "rated": true,
+        "rateFte": 7215,
         "counts": {
           "criminal": 34,
           "violent": 13,
@@ -106,8 +115,8 @@
       "2017": {
         "campuses": 4,
         "online": 10,
-        "rateRanked": true,
-        "rateFte": 6508,
+        "rated": true,
+        "rateFte": 6909,
         "counts": {
           "criminal": 30,
           "violent": 15,
@@ -131,8 +140,16 @@
       "2018": {
         "campuses": 4,
         "online": 12,
-        "rateRanked": true,
-        "rateFte": 6413,
+        "rated": true,
+        "rateFte": 6897,
+        "flags": [
+          {
+            "offense": "dating_violence",
+            "geo": "On-campus",
+            "count": 11,
+            "usual": 0
+          }
+        ],
         "counts": {
           "criminal": 26,
           "violent": 14,

@@ -37,8 +37,25 @@ export default function App() {
     { path: '/contact', label: 'Contact', icon: Mail },
   ]
 
+  // Skip link: focus the main content (which scrolls it into view) without
+  // adding #main-content to the address
+  const skipToMain = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    const main = document.getElementById('main-content')
+    if (!main) return
+    e.preventDefault()
+    main.focus()
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col transition-colors duration-200">
+      <a
+        href="#main-content"
+        onClick={skipToMain}
+        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[60] focus:px-4 focus:py-2 focus:rounded-lg focus:bg-white focus:text-primary-700 focus:font-medium focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:bg-gray-900 dark:focus:text-primary-300"
+      >
+        Skip to main content
+      </a>
+
       {/* Header */}
       <header className="bg-white dark:bg-gray-900 shadow-sm dark:shadow-gray-900/50 sticky top-0 z-50 transition-colors duration-200">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -161,7 +178,7 @@ export default function App() {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1">
+      <main id="main-content" tabIndex={-1} className="flex-1 focus:outline-none">
         <ErrorBoundary>
           <Outlet />
         </ErrorBoundary>

@@ -72,28 +72,46 @@
       "2018": {
         "campuses": 6,
         "online": 100,
-        "rateRanked": false,
-        "rateFte": 29,
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 46,
+        "fteUncertain": {
+          "share": 0,
+          "partTimeFirst": 0,
+          "reason": "pooled"
+        },
         "pooledWith": [
           {
             "id": 181242,
             "name": "Kaplan University-Lincoln Campus",
-            "fte": 29
+            "fte": 46
           }
         ]
       },
       "2019": {
         "campuses": 6,
         "online": 99,
-        "rateRanked": false,
-        "rateFte": 212
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 381,
+        "fteUncertain": {
+          "share": 212,
+          "partTimeFirst": 381,
+          "reason": "own"
+        }
       },
       "2020": {
         "campuses": 3,
         "online": 99,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "onlineYear": 2019,
-        "rateFte": 246
+        "rateFte": 439,
+        "fteUncertain": {
+          "share": 246,
+          "partTimeFirst": 439,
+          "reason": "own"
+        }
       }
     }
   }

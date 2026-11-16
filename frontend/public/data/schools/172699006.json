@@ -48,18 +48,20 @@
   ],
   "institution": {
     "id": 172699,
+    "ratesFile": "rates/institutions/172699.json",
     "byYear": {
       "2015": {
         "campuses": 11,
         "online": 4,
-        "rateRanked": true,
-        "rateFte": 18428,
-        "spikes": [
-          "all",
-          "drug_arrest",
-          "drug_discipline",
-          "liquor_arrest",
-          "liquor_discipline"
+        "rated": true,
+        "rateFte": 18838,
+        "flags": [
+          {
+            "offense": "dating_violence",
+            "geo": "On-campus",
+            "count": 15,
+            "usual": 0
+          }
         ],
         "counts": {
           "criminal": 54,
@@ -87,14 +89,15 @@
       "2016": {
         "campuses": 11,
         "online": 5,
-        "rateRanked": true,
-        "rateFte": 17935,
-        "spikes": [
-          "all",
-          "drug_arrest",
-          "drug_discipline",
-          "liquor_arrest",
-          "liquor_discipline"
+        "rated": true,
+        "rateFte": 18436,
+        "flags": [
+          {
+            "offense": "dating_violence",
+            "geo": "On-campus",
+            "count": 14,
+            "usual": 0
+          }
         ],
         "counts": {
           "criminal": 63,
@@ -123,14 +126,8 @@
       "2017": {
         "campuses": 9,
         "online": 5,
-        "rateRanked": true,
-        "rateFte": 17779,
-        "spikes": [
-          "all",
-          "drug_arrest",
-          "drug_discipline",
-          "liquor_discipline"
-        ],
+        "rated": true,
+        "rateFte": 18281,
         "counts": {
           "criminal": 69,
           "violent": 28,

@@ -1008,62 +1008,70 @@
   ],
   "institution": {
     "id": 238032,
+    "ratesFile": "rates/institutions/238032.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 11,
-        "rateRanked": true,
-        "rateFte": 23633
+        "rated": true,
+        "rateFte": 25337
       },
       "2016": {
         "campuses": 1,
         "online": 10,
-        "rateRanked": true,
-        "rateFte": 23773
+        "rated": true,
+        "rateFte": 25319
       },
       "2017": {
         "campuses": 1,
         "online": 10,
-        "rateRanked": true,
-        "rateFte": 23766
+        "rated": true,
+        "rateFte": 25314
       },
       "2018": {
         "campuses": 1,
         "online": 10,
-        "rateRanked": true,
-        "rateFte": 22504
+        "rated": true,
+        "rateFte": 23973
       },
       "2019": {
         "campuses": 1,
         "online": 10,
-        "rateRanked": true,
-        "rateFte": 22334
+        "rated": true,
+        "rateFte": 23786
       },
       "2020": {
         "campuses": 3,
         "online": 10,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 21797
+        "rateFte": 23211
       },
       "2021": {
         "campuses": 3,
         "online": 10,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "excluded",
         "onlineYear": 2019,
-        "rateFte": 21155
+        "rateExcludedReason": "Its annual security report's on-campus figures for the Morgantown campus include incidents at J.W. Ruby Memorial Hospital, whose patients, visitors and staff are not in its FTE. So a rate per student would not measure its campus population. It has no rate; its counts are shown. Source: West Virginia University 2026 Clery report (statistics 2023-2025), Morgantown Campus table: \"Eleven of the reportable domestic violence reports occurred at J.W. Ruby Memorial Hospital\" (2023) and \"Nine of the reportable domestic violence reports occurred at J.W. Ruby Memorial Hospital\" (2024), https://police.wvu.edu/files/d/a70956c9-a391-4974-bc9c-493246382c47/2026-clery-report.pdf; 2024 report (statistics 2021-2023), 2021 on-campus motor vehicle theft: \"Two vehicle thefts were reported from the Ruby Memorial Hospital Parking lot.\", https://police.wvu.edu/files/d/2df4543f-0601-4887-a718-90b54e12641d/2024-clery-report.pdf",
+        "rateFte": 22532
       },
       "2022": {
         "campuses": 3,
         "online": 10,
-        "rateRanked": true,
-        "rateFte": 20569
+        "rated": false,
+        "notRated": "excluded",
+        "rateExcludedReason": "Its annual security report's on-campus figures for the Morgantown campus include incidents at J.W. Ruby Memorial Hospital, whose patients, visitors and staff are not in its FTE. So a rate per student would not measure its campus population. It has no rate; its counts are shown. Source: West Virginia University 2026 Clery report (statistics 2023-2025), Morgantown Campus table: \"Eleven of the reportable domestic violence reports occurred at J.W. Ruby Memorial Hospital\" (2023) and \"Nine of the reportable domestic violence reports occurred at J.W. Ruby Memorial Hospital\" (2024), https://police.wvu.edu/files/d/a70956c9-a391-4974-bc9c-493246382c47/2026-clery-report.pdf; 2024 report (statistics 2021-2023), 2021 on-campus motor vehicle theft: \"Two vehicle thefts were reported from the Ruby Memorial Hospital Parking lot.\", https://police.wvu.edu/files/d/2df4543f-0601-4887-a718-90b54e12641d/2024-clery-report.pdf",
+        "rateFte": 21866
       },
       "2023": {
         "campuses": 4,
         "online": 10,
-        "rateRanked": true,
-        "rateFte": 20129,
+        "rated": false,
+        "notRated": "excluded",
+        "rateExcludedReason": "Its annual security report's on-campus figures for the Morgantown campus include incidents at J.W. Ruby Memorial Hospital, whose patients, visitors and staff are not in its FTE. So a rate per student would not measure its campus population. It has no rate; its counts are shown. Source: West Virginia University 2026 Clery report (statistics 2023-2025), Morgantown Campus table: \"Eleven of the reportable domestic violence reports occurred at J.W. Ruby Memorial Hospital\" (2023) and \"Nine of the reportable domestic violence reports occurred at J.W. Ruby Memorial Hospital\" (2024), https://police.wvu.edu/files/d/a70956c9-a391-4974-bc9c-493246382c47/2026-clery-report.pdf; 2024 report (statistics 2021-2023), 2021 on-campus motor vehicle theft: \"Two vehicle thefts were reported from the Ruby Memorial Hospital Parking lot.\", https://police.wvu.edu/files/d/2df4543f-0601-4887-a718-90b54e12641d/2024-clery-report.pdf",
+        "rateFte": 21249,
         "counts": {
           "criminal": 65,
           "violent": 33,
@@ -1089,10 +1097,23 @@
       "2024": {
         "campuses": 4,
         "online": 13,
-        "rateRanked": true,
-        "rateFte": 19002,
-        "spikes": [
-          "stalking"
+        "rated": false,
+        "notRated": "excluded",
+        "rateExcludedReason": "Its annual security report's on-campus figures for the Morgantown campus include incidents at J.W. Ruby Memorial Hospital, whose patients, visitors and staff are not in its FTE. So a rate per student would not measure its campus population. It has no rate; its counts are shown. Source: West Virginia University 2026 Clery report (statistics 2023-2025), Morgantown Campus table: \"Eleven of the reportable domestic violence reports occurred at J.W. Ruby Memorial Hospital\" (2023) and \"Nine of the reportable domestic violence reports occurred at J.W. Ruby Memorial Hospital\" (2024), https://police.wvu.edu/files/d/a70956c9-a391-4974-bc9c-493246382c47/2026-clery-report.pdf; 2024 report (statistics 2021-2023), 2021 on-campus motor vehicle theft: \"Two vehicle thefts were reported from the Ruby Memorial Hospital Parking lot.\", https://police.wvu.edu/files/d/2df4543f-0601-4887-a718-90b54e12641d/2024-clery-report.pdf",
+        "rateFte": 20616,
+        "flags": [
+          {
+            "offense": "fondling",
+            "geo": "On-campus",
+            "count": 19,
+            "usual": 4
+          },
+          {
+            "offense": "stalking",
+            "geo": "On-campus",
+            "count": 41,
+            "usual": 9
+          }
         ],
         "counts": {
           "criminal": 86,

@@ -40,12 +40,22 @@
   ],
   "institution": {
     "id": 163204,
+    "ratesFile": "rates/institutions/163204.json",
     "byYear": {
       "2017": {
-        "campuses": 29,
+        "campuses": 27,
         "online": 79,
-        "rateRanked": true,
-        "rateFte": 6139,
+        "rated": true,
+        "rateFte": 10846,
+        "fteUncertain": {
+          "share": 6139,
+          "partTimeFirst": 10846,
+          "reason": "own"
+        },
+        "abroad": {
+          "campuses": 2,
+          "counts": {}
+        },
         "counts": {
           "criminal": 6,
           "violent": 3,

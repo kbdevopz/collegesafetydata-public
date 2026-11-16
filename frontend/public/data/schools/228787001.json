@@ -786,74 +786,78 @@
   ],
   "institution": {
     "id": 228787,
+    "ratesFile": "rates/institutions/228787.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 1,
-        "rateRanked": true,
-        "rateFte": 20850,
-        "spikes": [
-          "drug_arrest"
-        ]
+        "rated": true,
+        "rateFte": 20967
       },
       "2016": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
-        "rateFte": 23130,
-        "spikes": [
-          "liquor_arrest"
-        ]
+        "rated": true,
+        "rateFte": 23130
       },
       "2017": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 23960
       },
       "2018": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 25028
       },
       "2019": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 25947
       },
       "2020": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 25147
       },
       "2021": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 26025
       },
       "2022": {
         "campuses": 1,
         "online": 3,
-        "rateRanked": true,
-        "rateFte": 26893
+        "rated": true,
+        "rateFte": 27334
       },
       "2023": {
         "campuses": 1,
         "online": 3,
-        "rateRanked": true,
-        "rateFte": 26511
+        "rated": true,
+        "rateFte": 26955
       },
       "2024": {
         "campuses": 1,
         "online": 3,
-        "rateRanked": true,
-        "rateFte": 25784
+        "rated": true,
+        "rateFte": 26218,
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 17,
+            "usual": 0
+          }
+        ]
       }
     }
   }

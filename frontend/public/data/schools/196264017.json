@@ -97,16 +97,18 @@
   ],
   "institution": {
     "id": 196264,
+    "ratesFile": "rates/institutions/196264.json",
     "byYear": {
       "2015": {
         "campuses": 34,
         "online": 48,
-        "rateRanked": true,
-        "rateFte": 3823,
-        "spikes": [
-          "all",
-          "liquor_arrest"
-        ],
+        "rated": true,
+        "rateFte": 5082,
+        "fteUncertain": {
+          "share": 3823,
+          "partTimeFirst": 5082,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 4,
           "violent": 3,
@@ -123,8 +125,13 @@
       "2016": {
         "campuses": 34,
         "online": 50,
-        "rateRanked": true,
-        "rateFte": 3431,
+        "rated": true,
+        "rateFte": 4611,
+        "fteUncertain": {
+          "share": 3431,
+          "partTimeFirst": 4611,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 3,
           "violent": 1,
@@ -142,8 +149,13 @@
       "2017": {
         "campuses": 33,
         "online": 50,
-        "rateRanked": true,
-        "rateFte": 3344,
+        "rated": true,
+        "rateFte": 4508,
+        "fteUncertain": {
+          "share": 3344,
+          "partTimeFirst": 4508,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 1,
           "violent": 1,
@@ -156,8 +168,13 @@
       "2018": {
         "campuses": 33,
         "online": 49,
-        "rateRanked": true,
-        "rateFte": 3245,
+        "rated": true,
+        "rateFte": 4335,
+        "fteUncertain": {
+          "share": 3245,
+          "partTimeFirst": 4335,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 3,
           "violent": 1,
@@ -171,8 +188,13 @@
       "2019": {
         "campuses": 33,
         "online": 47,
-        "rateRanked": true,
-        "rateFte": 3276,
+        "rated": true,
+        "rateFte": 4238,
+        "fteUncertain": {
+          "share": 3276,
+          "partTimeFirst": 4238,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 6,
           "violent": 3,
@@ -187,13 +209,15 @@
       "2020": {
         "campuses": 33,
         "online": 47,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 3466,
-        "spikes": [
-          "all",
-          "drug_discipline"
-        ],
+        "rateFte": 4549,
+        "fteUncertain": {
+          "share": 3466,
+          "partTimeFirst": 4549,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 4,
           "violent": 2,

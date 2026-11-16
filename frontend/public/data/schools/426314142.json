@@ -40,12 +40,22 @@
   ],
   "institution": {
     "id": 426314,
+    "ratesFile": "rates/institutions/426314.json",
     "byYear": {
       "2015": {
-        "campuses": 122,
+        "campuses": 108,
         "online": 80,
-        "rateRanked": true,
-        "rateFte": 1681
+        "rated": true,
+        "rateFte": 2803,
+        "fteUncertain": {
+          "share": 1681,
+          "partTimeFirst": 2803,
+          "reason": "own"
+        },
+        "abroad": {
+          "campuses": 14,
+          "counts": {}
+        }
       }
     }
   }

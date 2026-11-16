@@ -94,13 +94,15 @@
   ],
   "institution": {
     "id": 224615,
+    "ratesFile": "rates/institutions/224615.json",
     "byYear": {
       "2020": {
         "campuses": 12,
         "online": 27,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 30202,
+        "rateFte": 33224,
         "counts": {
           "criminal": 10,
           "violent": 4,
@@ -120,9 +122,9 @@
       "2021": {
         "campuses": 12,
         "online": 27,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 26972,
+        "rateFte": 29411,
         "counts": {
           "criminal": 13,
           "violent": 3,
@@ -144,11 +146,15 @@
       "2022": {
         "campuses": 12,
         "online": 41,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2022 figures this institution reports for a campus are also reported, identically, by campus 224554007 of another institution (a shared campus) and count here, while that institution's students are in its own FTE. No rate is shown for that year.",
-        "rateFte": 20494,
-        "spikes": [
-          "stalking"
+        "rated": true,
+        "rateFte": 24120,
+        "flags": [
+          {
+            "offense": "stalking",
+            "geo": "On-campus",
+            "count": 21,
+            "usual": 2
+          }
         ],
         "counts": {
           "criminal": 18,
@@ -173,10 +179,15 @@
       "2023": {
         "campuses": 12,
         "online": 39,
-        "rateRanked": true,
-        "rateFte": 22503,
-        "spikes": [
-          "stalking"
+        "rated": true,
+        "rateFte": 26409,
+        "flags": [
+          {
+            "offense": "stalking",
+            "geo": "On-campus",
+            "count": 20,
+            "usual": 2
+          }
         ],
         "counts": {
           "criminal": 11,
@@ -200,11 +211,15 @@
       "2024": {
         "campuses": 16,
         "online": 39,
-        "rateRanked": true,
-        "rateFte": 23863,
-        "spikes": [
-          "all",
-          "stalking"
+        "rated": true,
+        "rateFte": 28142,
+        "flags": [
+          {
+            "offense": "stalking",
+            "geo": "On-campus",
+            "count": 22,
+            "usual": 2
+          }
         ],
         "counts": {
           "criminal": 15,

@@ -56,12 +56,22 @@
   ],
   "institution": {
     "id": 426314,
+    "ratesFile": "rates/institutions/426314.json",
     "byYear": {
       "2018": {
-        "campuses": 122,
+        "campuses": 100,
         "online": 86,
-        "rateRanked": true,
-        "rateFte": 1139,
+        "rated": true,
+        "rateFte": 1984,
+        "fteUncertain": {
+          "share": 1139,
+          "partTimeFirst": 1984,
+          "reason": "own"
+        },
+        "abroad": {
+          "campuses": 22,
+          "counts": {}
+        },
         "counts": {
           "criminal": 5,
           "violent": 3,
@@ -74,30 +84,68 @@
         }
       },
       "2019": {
-        "campuses": 113,
+        "campuses": 91,
         "online": 82,
-        "rateRanked": true,
-        "rateFte": 1443
+        "rated": true,
+        "rateFte": 2479,
+        "fteUncertain": {
+          "share": 1443,
+          "partTimeFirst": 2479,
+          "reason": "own"
+        },
+        "abroad": {
+          "campuses": 22,
+          "counts": {}
+        }
       },
       "2020": {
-        "campuses": 110,
+        "campuses": 86,
         "online": 82,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 1502
+        "rateFte": 2503,
+        "fteUncertain": {
+          "share": 1502,
+          "partTimeFirst": 2503,
+          "reason": "own"
+        },
+        "abroad": {
+          "campuses": 24,
+          "counts": {}
+        }
       },
       "2021": {
-        "campuses": 111,
+        "campuses": 87,
         "online": 82,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 1331
+        "rateFte": 2290,
+        "fteUncertain": {
+          "share": 1331,
+          "partTimeFirst": 2290,
+          "reason": "own"
+        },
+        "abroad": {
+          "campuses": 24,
+          "counts": {}
+        }
       },
       "2022": {
-        "campuses": 111,
+        "campuses": 87,
         "online": 91,
-        "rateRanked": false,
-        "rateFte": 627,
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 980,
+        "fteUncertain": {
+          "share": 627,
+          "partTimeFirst": 980,
+          "reason": "own"
+        },
+        "abroad": {
+          "campuses": 24,
+          "counts": {}
+        },
         "counts": {
           "all": 1,
           "weapons_arrest": 1

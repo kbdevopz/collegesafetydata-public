@@ -97,12 +97,13 @@
   ],
   "institution": {
     "id": 147536,
+    "ratesFile": "rates/institutions/147536.json",
     "byYear": {
       "2015": {
         "campuses": 7,
         "online": 26,
-        "rateRanked": true,
-        "rateFte": 2104,
+        "rated": true,
+        "rateFte": 2404,
         "counts": {
           "criminal": 3,
           "violent": 2,
@@ -118,8 +119,8 @@
       "2016": {
         "campuses": 7,
         "online": 28,
-        "rateRanked": true,
-        "rateFte": 2148,
+        "rated": true,
+        "rateFte": 2497,
         "counts": {
           "criminal": 2,
           "violent": 1,
@@ -133,17 +134,19 @@
       "2017": {
         "campuses": 7,
         "online": 30,
-        "rateRanked": true,
-        "rateFte": 2808,
+        "rated": true,
+        "rateFte": 3418,
+        "fteUncertain": {
+          "share": 2409,
+          "partTimeFirst": 2874,
+          "reason": "pooled"
+        },
         "pooledWith": [
           {
             "id": 146393,
             "name": "Kendall College",
-            "fte": 399
+            "fte": 544
           }
-        ],
-        "spikes": [
-          "all"
         ],
         "counts": {
           "criminal": 4,
@@ -162,8 +165,8 @@
       "2018": {
         "campuses": 7,
         "online": 32,
-        "rateRanked": true,
-        "rateFte": 2909,
+        "rated": true,
+        "rateFte": 3538,
         "counts": {
           "criminal": 1,
           "violent": 1,
@@ -178,8 +181,8 @@
       "2019": {
         "campuses": 7,
         "online": 30,
-        "rateRanked": true,
-        "rateFte": 3530,
+        "rated": true,
+        "rateFte": 4233,
         "counts": {
           "criminal": 3,
           "violent": 2,
@@ -193,9 +196,10 @@
       "2020": {
         "campuses": 5,
         "online": 30,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 3816,
+        "rateFte": 4596,
         "counts": {
           "criminal": 3,
           "violent": 2,
@@ -209,9 +213,9 @@
       "2021": {
         "campuses": 5,
         "online": 30,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 3781,
+        "rateFte": 4556,
         "counts": {
           "criminal": 10,
           "violent": 4,
@@ -227,8 +231,13 @@
       "2022": {
         "campuses": 4,
         "online": 52,
-        "rateRanked": true,
-        "rateFte": 2637,
+        "rated": true,
+        "rateFte": 3512,
+        "fteUncertain": {
+          "share": 2637,
+          "partTimeFirst": 3512,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 11,
           "violent": 7,
@@ -246,8 +255,13 @@
       "2023": {
         "campuses": 4,
         "online": 55,
-        "rateRanked": true,
-        "rateFte": 2724,
+        "rated": true,
+        "rateFte": 3726,
+        "fteUncertain": {
+          "share": 2724,
+          "partTimeFirst": 3726,
+          "reason": "own"
+        },
         "counts": {
           "all": 1,
           "domestic_violence": 1
@@ -256,8 +270,13 @@
       "2024": {
         "campuses": 4,
         "online": 58,
-        "rateRanked": true,
-        "rateFte": 2779,
+        "rated": true,
+        "rateFte": 3745,
+        "fteUncertain": {
+          "share": 2779,
+          "partTimeFirst": 3745,
+          "reason": "own"
+        },
         "counts": {
           "all": 21,
           "dating_violence": 1,

@@ -60,12 +60,13 @@
   ],
   "institution": {
     "id": 206996,
+    "ratesFile": "rates/institutions/206996.json",
     "byYear": {
       "2019": {
         "campuses": 2,
         "online": 19,
-        "rateRanked": true,
-        "rateFte": 1220,
+        "rated": true,
+        "rateFte": 1371,
         "counts": {
           "all": 51,
           "drug_discipline": 10,
@@ -75,9 +76,10 @@
       "2020": {
         "campuses": 2,
         "online": 19,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 1159,
+        "rateFte": 1299,
         "counts": {
           "all": 36,
           "drug_discipline": 13,
@@ -88,9 +90,9 @@
       "2021": {
         "campuses": 2,
         "online": 19,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 1040,
+        "rateFte": 1164,
         "counts": {
           "all": 49,
           "drug_discipline": 6,
@@ -100,8 +102,14 @@
       "2022": {
         "campuses": 2,
         "online": 49,
-        "rateRanked": false,
-        "rateFte": 539,
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 779,
+        "fteUncertain": {
+          "share": 539,
+          "partTimeFirst": 779,
+          "reason": "own"
+        },
         "counts": {
           "all": 29,
           "dating_violence": 1,
@@ -112,8 +120,13 @@
       "2023": {
         "campuses": 2,
         "online": 39,
-        "rateRanked": false,
-        "rateFte": 822,
+        "rated": true,
+        "rateFte": 1073,
+        "fteUncertain": {
+          "share": 822,
+          "partTimeFirst": 1073,
+          "reason": "own"
+        },
         "counts": {
           "all": 44,
           "drug_discipline": 10,
@@ -123,8 +136,8 @@
       "2024": {
         "campuses": 2,
         "online": 33,
-        "rateRanked": true,
-        "rateFte": 1030,
+        "rated": true,
+        "rateFte": 1275,
         "counts": {
           "criminal": 4,
           "violent": 1,

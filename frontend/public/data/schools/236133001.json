@@ -286,82 +286,97 @@
   ],
   "institution": {
     "id": 236133,
+    "ratesFile": "rates/institutions/236133.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1165
       },
       "2016": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1164
       },
       "2017": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
-        "rateFte": 1546,
+        "rated": true,
+        "rateFte": 1693,
+        "fteUncertain": {
+          "share": 1190,
+          "partTimeFirst": 1190,
+          "reason": "pooled"
+        },
         "pooledWith": [
           {
             "id": 487603,
             "name": "Northwest University-Center for Online and Extended Education",
-            "fte": 356
+            "fte": 503
           }
         ]
       },
       "2018": {
         "campuses": 1,
         "online": 3,
-        "rateRanked": true,
-        "rateFte": 1203
+        "rated": true,
+        "rateFte": 1225
       },
       "2019": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1223
       },
       "2020": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 1417,
+        "rateFte": 1590,
+        "fteUncertain": {
+          "share": 1116,
+          "partTimeFirst": 1116,
+          "reason": "pooled"
+        },
         "pooledWith": [
           {
             "id": 487603,
             "name": "Northwest University-Center for Online and Extended Education",
-            "fte": 301
+            "fte": 474
           }
         ]
       },
       "2021": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 1019
       },
       "2022": {
         "campuses": 1,
         "online": 1,
-        "rateRanked": false,
-        "rateFte": 940
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 944
       },
       "2023": {
         "campuses": 1,
         "online": 1,
-        "rateRanked": false,
-        "rateFte": 894
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 898
       },
       "2024": {
         "campuses": 1,
         "online": 1,
-        "rateRanked": false,
-        "rateFte": 959
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 964
       }
     }
   }

@@ -120,18 +120,25 @@
   ],
   "institution": {
     "id": 161253,
+    "ratesFile": "rates/institutions/161253.json",
     "byYear": {
       "2020": {
         "campuses": 4,
         "online": 11,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 9022,
+        "rateFte": 9681,
+        "fteUncertain": {
+          "share": 8758,
+          "partTimeFirst": 9345,
+          "reason": "pooled"
+        },
         "pooledWith": [
           {
             "id": 161244,
             "name": "University of Maine at Machias",
-            "fte": 264
+            "fte": 336
           }
         ],
         "counts": {
@@ -153,9 +160,9 @@
       "2021": {
         "campuses": 4,
         "online": 11,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 9284,
+        "rateFte": 9897,
         "counts": {
           "criminal": 22,
           "violent": 8,
@@ -176,8 +183,8 @@
       "2022": {
         "campuses": 4,
         "online": 22,
-        "rateRanked": true,
-        "rateFte": 7687,
+        "rated": true,
+        "rateFte": 8808,
         "counts": {
           "criminal": 19,
           "violent": 10,
@@ -197,8 +204,8 @@
       "2023": {
         "campuses": 4,
         "online": 23,
-        "rateRanked": true,
-        "rateFte": 7310,
+        "rated": true,
+        "rateFte": 8464,
         "counts": {
           "criminal": 31,
           "violent": 14,
@@ -219,8 +226,8 @@
       "2024": {
         "campuses": 5,
         "online": 21,
-        "rateRanked": true,
-        "rateFte": 7656,
+        "rated": true,
+        "rateFte": 8752,
         "counts": {
           "criminal": 20,
           "violent": 12,

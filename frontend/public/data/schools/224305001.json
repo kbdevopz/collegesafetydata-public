@@ -290,12 +290,13 @@
   ],
   "institution": {
     "id": 224305,
+    "ratesFile": "rates/institutions/224305.json",
     "byYear": {
       "2015": {
         "campuses": 3,
         "online": 28,
-        "rateRanked": false,
-        "rateFte": 972,
+        "rated": true,
+        "rateFte": 1122,
         "counts": {
           "criminal": 3,
           "violent": 1,
@@ -308,33 +309,34 @@
       "2016": {
         "campuses": 3,
         "online": 31,
-        "rateRanked": true,
-        "rateFte": 1004
+        "rated": true,
+        "rateFte": 1175
       },
       "2017": {
         "campuses": 4,
         "online": 31,
-        "rateRanked": true,
-        "rateFte": 1012
+        "rated": true,
+        "rateFte": 1186
       },
       "2018": {
         "campuses": 4,
         "online": 31,
-        "rateRanked": false,
-        "rateFte": 972
+        "rated": true,
+        "rateFte": 1134
       },
       "2019": {
         "campuses": 4,
         "online": 27,
-        "rateRanked": true,
-        "rateFte": 1072
+        "rated": true,
+        "rateFte": 1219
       },
       "2020": {
         "campuses": 4,
         "online": 27,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 1077,
+        "rateFte": 1223,
         "counts": {
           "criminal": 9,
           "violent": 4,
@@ -352,9 +354,9 @@
       "2021": {
         "campuses": 4,
         "online": 27,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 1151,
+        "rateFte": 1312,
         "counts": {
           "criminal": 10,
           "property": 10,
@@ -368,20 +370,20 @@
       "2022": {
         "campuses": 4,
         "online": 40,
-        "rateRanked": false,
-        "rateFte": 883
+        "rated": true,
+        "rateFte": 1079
       },
       "2023": {
         "campuses": 4,
         "online": 38,
-        "rateRanked": false,
-        "rateFte": 910
+        "rated": true,
+        "rateFte": 1089
       },
       "2024": {
         "campuses": 5,
         "online": 42,
-        "rateRanked": false,
-        "rateFte": 842
+        "rated": true,
+        "rateFte": 1036
       }
     }
   }

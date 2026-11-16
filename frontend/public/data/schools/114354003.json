@@ -68,12 +68,13 @@
   ],
   "institution": {
     "id": 114354,
+    "ratesFile": "rates/institutions/114354.json",
     "byYear": {
       "2018": {
         "campuses": 3,
         "online": 4,
-        "rateRanked": true,
-        "rateFte": 2131,
+        "rated": true,
+        "rateFte": 2180,
         "pooledWith": [
           {
             "id": 114415,
@@ -85,9 +86,6 @@
             "name": "FIDM-Fashion Institute of Design & Merchandising-San Diego",
             "fte": 63
           }
-        ],
-        "spikes": [
-          "all"
         ],
         "counts": {
           "criminal": 5,
@@ -103,8 +101,8 @@
       "2019": {
         "campuses": 3,
         "online": 4,
-        "rateRanked": true,
-        "rateFte": 2014,
+        "rated": true,
+        "rateFte": 2063,
         "counts": {
           "criminal": 5,
           "violent": 5,
@@ -116,9 +114,10 @@
       "2020": {
         "campuses": 3,
         "online": 4,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 1645
+        "rateFte": 1684
       }
     }
   }

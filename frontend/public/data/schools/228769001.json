@@ -952,15 +952,20 @@
   ],
   "institution": {
     "id": 228769,
+    "ratesFile": "rates/institutions/228769.json",
     "byYear": {
       "2015": {
         "campuses": 3,
         "online": 30,
-        "rateRanked": true,
-        "rateFte": 20517,
-        "spikes": [
-          "drug_discipline",
-          "liquor_discipline"
+        "rated": true,
+        "rateFte": 24394,
+        "flags": [
+          {
+            "offense": "dating_violence",
+            "geo": "On-campus",
+            "count": 12,
+            "usual": 0
+          }
         ],
         "counts": {
           "criminal": 16,
@@ -986,11 +991,8 @@
       "2016": {
         "campuses": 3,
         "online": 34,
-        "rateRanked": true,
-        "rateFte": 20285,
-        "spikes": [
-          "liquor_discipline"
-        ],
+        "rated": true,
+        "rateFte": 24732,
         "counts": {
           "criminal": 28,
           "violent": 10,
@@ -1015,20 +1017,30 @@
       "2017": {
         "campuses": 3,
         "online": 36,
-        "rateRanked": true,
-        "rateFte": 20202
+        "rated": true,
+        "rateFte": 25067
       },
       "2018": {
         "campuses": 3,
         "online": 38,
-        "rateRanked": true,
-        "rateFte": 20581
+        "rated": true,
+        "rateFte": 26131,
+        "fteUncertain": {
+          "share": 20581,
+          "partTimeFirst": 26131,
+          "reason": "own"
+        }
       },
       "2019": {
         "campuses": 3,
         "online": 39,
-        "rateRanked": true,
-        "rateFte": 20397,
+        "rated": true,
+        "rateFte": 26084,
+        "fteUncertain": {
+          "share": 20397,
+          "partTimeFirst": 26084,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 48,
           "violent": 21,
@@ -1053,21 +1065,46 @@
       "2020": {
         "campuses": 3,
         "online": 39,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 20209
+        "rateFte": 25856,
+        "fteUncertain": {
+          "share": 20209,
+          "partTimeFirst": 25856,
+          "reason": "own"
+        }
       },
       "2021": {
         "campuses": 3,
         "online": 39,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 19735,
-        "spikes": [
-          "criminal",
-          "domestic_violence",
-          "fondling",
-          "stalking"
+        "rateFte": 25399,
+        "fteUncertain": {
+          "share": 19735,
+          "partTimeFirst": 25399,
+          "reason": "own"
+        },
+        "flags": [
+          {
+            "offense": "domestic_violence",
+            "geo": "On-campus",
+            "count": 159,
+            "usual": 19
+          },
+          {
+            "offense": "fondling",
+            "geo": "On-campus",
+            "count": 120,
+            "usual": 4
+          },
+          {
+            "offense": "stalking",
+            "geo": "On-campus",
+            "count": 34,
+            "usual": 10
+          }
         ],
         "counts": {
           "criminal": 172,
@@ -1094,14 +1131,14 @@
       "2022": {
         "campuses": 3,
         "online": 31,
-        "rateRanked": true,
-        "rateFte": 22248
+        "rated": true,
+        "rateFte": 26931
       },
       "2023": {
         "campuses": 3,
         "online": 29,
-        "rateRanked": true,
-        "rateFte": 23390,
+        "rated": true,
+        "rateFte": 28004,
         "counts": {
           "criminal": 48,
           "violent": 7,
@@ -1126,8 +1163,16 @@
       "2024": {
         "campuses": 3,
         "online": 31,
-        "rateRanked": true,
-        "rateFte": 23568,
+        "rated": true,
+        "rateFte": 28774,
+        "flags": [
+          {
+            "offense": "stalking",
+            "geo": "On-campus",
+            "count": 33,
+            "usual": 10
+          }
+        ],
         "counts": {
           "criminal": 57,
           "violent": 11,

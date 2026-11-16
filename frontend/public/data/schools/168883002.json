@@ -91,9 +91,9 @@
       "2015": {
         "campuses": 2,
         "online": 18,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2015 figures this institution reports for a campus are also reported, identically, by campus 170639002 of another institution (a shared campus) and count here, while that institution's students are in its own FTE. No rate is shown for that year.",
-        "rateFte": 897,
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 982,
         "counts": {
           "criminal": 2,
           "violent": 2,
@@ -109,8 +109,9 @@
       "2016": {
         "campuses": 2,
         "online": 18,
-        "rateRanked": false,
-        "rateFte": 886,
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 969,
         "counts": {
           "criminal": 1,
           "violent": 1,
@@ -124,8 +125,9 @@
       "2017": {
         "campuses": 2,
         "online": 22,
-        "rateRanked": false,
-        "rateFte": 868,
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 976,
         "counts": {
           "all": 7,
           "drug_discipline": 3,
@@ -135,14 +137,9 @@
       "2018": {
         "campuses": 2,
         "online": 23,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2018 figures this institution reports for a campus are also reported, identically, by campus 170639002 of another institution (a shared campus) and count here, while that institution's students are in its own FTE. No rate is shown for that year.",
-        "rateFte": 868,
-        "spikes": [
-          "all",
-          "drug_discipline",
-          "liquor_discipline"
-        ],
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 977,
         "counts": {
           "criminal": 1,
           "violent": 1,
@@ -158,8 +155,9 @@
       "2019": {
         "campuses": 2,
         "online": 23,
-        "rateRanked": false,
-        "rateFte": 837,
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 946,
         "counts": {
           "all": 26,
           "drug_discipline": 2,
@@ -171,13 +169,10 @@
       "2020": {
         "campuses": 2,
         "online": 23,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "onlineYear": 2019,
-        "rateExcludedReason": "In 2020 figures this institution reports for a campus are also reported, identically, by campus 170639002 of another institution (a shared campus) and count here, while that institution's students are in its own FTE. No rate is shown for that year.",
-        "rateFte": 862,
-        "spikes": [
-          "liquor_discipline"
-        ],
+        "rateFte": 972,
         "counts": {
           "criminal": 3,
           "violent": 2,
@@ -195,9 +190,10 @@
       "2021": {
         "campuses": 2,
         "online": 23,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "onlineYear": 2019,
-        "rateFte": 849,
+        "rateFte": 952,
         "counts": {
           "criminal": 1,
           "property": 1,
@@ -210,8 +206,14 @@
       "2022": {
         "campuses": 2,
         "online": 41,
-        "rateRanked": false,
-        "rateFte": 614,
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 769,
+        "fteUncertain": {
+          "share": 614,
+          "partTimeFirst": 769,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 1,
           "violent": 1,
@@ -225,9 +227,14 @@
       "2023": {
         "campuses": 2,
         "online": 47,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2023 figures this institution reports for a campus are also reported, identically, by campus 170639002 of another institution (a shared campus) and count here, while that institution's students are in its own FTE. No rate is shown for that year.",
-        "rateFte": 560,
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 742,
+        "fteUncertain": {
+          "share": 560,
+          "partTimeFirst": 742,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 3,
           "violent": 1,
@@ -244,8 +251,14 @@
       "2024": {
         "campuses": 2,
         "online": 49,
-        "rateRanked": false,
-        "rateFte": 592,
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 807,
+        "fteUncertain": {
+          "share": 592,
+          "partTimeFirst": 807,
+          "reason": "own"
+        },
         "counts": {
           "all": 14,
           "drug_arrest": 2,

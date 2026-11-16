@@ -1082,86 +1082,93 @@
   ],
   "institution": {
     "id": 199193,
+    "ratesFile": "rates/institutions/199193.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 8,
-        "rateRanked": true,
-        "rateFte": 27157
+        "rated": true,
+        "rateFte": 28485
       },
       "2016": {
         "campuses": 1,
         "online": 8,
-        "rateRanked": true,
-        "rateFte": 27067,
-        "spikes": [
-          "dating_violence",
-          "liquor_arrest"
+        "rated": true,
+        "rateFte": 28398,
+        "flags": [
+          {
+            "offense": "dating_violence",
+            "geo": "On-campus",
+            "count": 33,
+            "usual": 9
+          }
         ]
       },
       "2017": {
         "campuses": 1,
         "online": 8,
-        "rateRanked": true,
-        "rateFte": 27663,
-        "spikes": [
-          "fondling"
-        ]
+        "rated": true,
+        "rateFte": 29027
       },
       "2018": {
         "campuses": 1,
         "online": 8,
-        "rateRanked": true,
-        "rateFte": 28576,
-        "spikes": [
-          "fondling"
-        ]
+        "rated": true,
+        "rateFte": 29986
       },
       "2019": {
         "campuses": 1,
         "online": 9,
-        "rateRanked": true,
-        "rateFte": 28792,
-        "spikes": [
-          "liquor_arrest"
-        ]
+        "rated": true,
+        "rateFte": 30401
       },
       "2020": {
         "campuses": 1,
         "online": 9,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 28432
+        "rateFte": 30014
       },
       "2021": {
         "campuses": 1,
         "online": 9,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 29143
+        "rateFte": 30771
       },
       "2022": {
         "campuses": 1,
         "online": 9,
-        "rateRanked": true,
-        "rateFte": 30206,
-        "spikes": [
-          "fondling"
+        "rated": true,
+        "rateFte": 31982,
+        "flags": [
+          {
+            "offense": "fondling",
+            "geo": "On-campus",
+            "count": 108,
+            "usual": 5
+          }
         ]
       },
       "2023": {
         "campuses": 1,
         "online": 8,
-        "rateRanked": true,
-        "rateFte": 31211
+        "rated": true,
+        "rateFte": 32805
       },
       "2024": {
         "campuses": 1,
         "online": 8,
-        "rateRanked": true,
-        "rateFte": 32322,
-        "spikes": [
-          "motor_vehicle_theft"
+        "rated": true,
+        "rateFte": 34038,
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 44,
+            "usual": 6
+          }
         ]
       }
     }

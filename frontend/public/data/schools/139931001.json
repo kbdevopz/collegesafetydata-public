@@ -930,32 +930,30 @@
   ],
   "institution": {
     "id": 139931,
+    "ratesFile": "rates/institutions/139931.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 9,
-        "rateRanked": true,
-        "rateFte": 16632
+        "rated": true,
+        "rateFte": 17566
       },
       "2016": {
         "campuses": 1,
         "online": 10,
-        "rateRanked": true,
-        "rateFte": 16642,
-        "spikes": [
-          "liquor_arrest"
-        ]
+        "rated": true,
+        "rateFte": 17694
       },
       "2017": {
         "campuses": 2,
         "online": 10,
-        "rateRanked": true,
-        "rateFte": 21723,
+        "rated": true,
+        "rateFte": 22964,
         "pooledWith": [
           {
             "id": 138789,
             "name": "Armstrong State University",
-            "fte": 5308
+            "fte": 5512
           }
         ],
         "counts": {
@@ -983,8 +981,8 @@
       "2018": {
         "campuses": 3,
         "online": 10,
-        "rateRanked": true,
-        "rateFte": 20707,
+        "rated": true,
+        "rateFte": 21981,
         "counts": {
           "criminal": 24,
           "violent": 15,
@@ -1009,8 +1007,8 @@
       "2019": {
         "campuses": 3,
         "online": 10,
-        "rateRanked": true,
-        "rateFte": 20409,
+        "rated": true,
+        "rateFte": 21665,
         "counts": {
           "criminal": 30,
           "violent": 21,
@@ -1034,9 +1032,10 @@
       "2020": {
         "campuses": 3,
         "online": 10,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 20903,
+        "rateFte": 22177,
         "counts": {
           "criminal": 26,
           "violent": 15,
@@ -1059,9 +1058,9 @@
       "2021": {
         "campuses": 3,
         "online": 10,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 20883,
+        "rateFte": 22148,
         "counts": {
           "criminal": 35,
           "violent": 20,
@@ -1086,9 +1085,8 @@
       "2022": {
         "campuses": 3,
         "online": 16,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2022 figures this institution reports for a campus are also reported, identically, by campus 139621004 of another institution (a shared campus) and count here, while that institution's students are in its own FTE. No rate is shown for that year.",
-        "rateFte": 18296,
+        "rated": true,
+        "rateFte": 20259,
         "counts": {
           "criminal": 41,
           "violent": 26,
@@ -1114,9 +1112,16 @@
       "2023": {
         "campuses": 3,
         "online": 20,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2023 figures this institution reports for a campus are also reported, identically, by campus 139621003 of another institution (a shared campus) and count here, while that institution's students are in its own FTE. No rate is shown for that year.",
-        "rateFte": 17797,
+        "rated": true,
+        "rateFte": 19966,
+        "flags": [
+          {
+            "offense": "fondling",
+            "geo": "On-campus",
+            "count": 13,
+            "usual": 2
+          }
+        ],
         "counts": {
           "criminal": 38,
           "violent": 13,
@@ -1141,9 +1146,8 @@
       "2024": {
         "campuses": 3,
         "online": 22,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2024 figures this institution reports for a campus are also reported, identically, by campus 139621003 of another institution (a shared campus) and count here, while that institution's students are in its own FTE. No rate is shown for that year.",
-        "rateFte": 18120,
+        "rated": true,
+        "rateFte": 20599,
         "counts": {
           "criminal": 23,
           "violent": 13,

@@ -60,12 +60,21 @@
   ],
   "institution": {
     "id": 199069,
+    "ratesFile": "rates/institutions/199069.json",
     "byYear": {
       "2015": {
         "campuses": 7,
         "online": 10,
-        "rateRanked": true,
-        "rateFte": 1958,
+        "rated": true,
+        "rateFte": 2044,
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "On-campus",
+            "count": 11,
+            "usual": 0
+          }
+        ],
         "counts": {
           "criminal": 11,
           "property": 11,
@@ -78,8 +87,8 @@
       "2016": {
         "campuses": 7,
         "online": 13,
-        "rateRanked": true,
-        "rateFte": 1961,
+        "rated": true,
+        "rateFte": 2079,
         "counts": {
           "criminal": 5,
           "property": 5,
@@ -92,8 +101,8 @@
       "2017": {
         "campuses": 7,
         "online": 14,
-        "rateRanked": true,
-        "rateFte": 1969,
+        "rated": true,
+        "rateFte": 2100,
         "counts": {
           "criminal": 3,
           "property": 3,
@@ -106,8 +115,8 @@
       "2018": {
         "campuses": 7,
         "online": 15,
-        "rateRanked": true,
-        "rateFte": 1797,
+        "rated": true,
+        "rateFte": 1926,
         "counts": {
           "all": 43,
           "drug_discipline": 4,
@@ -117,8 +126,13 @@
       "2019": {
         "campuses": 7,
         "online": 57,
-        "rateRanked": false,
-        "rateFte": 873,
+        "rated": true,
+        "rateFte": 1206,
+        "fteUncertain": {
+          "share": 873,
+          "partTimeFirst": 1206,
+          "reason": "own"
+        },
         "counts": {
           "all": 59,
           "liquor_discipline": 59
@@ -127,9 +141,15 @@
       "2020": {
         "campuses": 7,
         "online": 57,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 794,
+        "rateFte": 1090,
+        "fteUncertain": {
+          "share": 794,
+          "partTimeFirst": 1090,
+          "reason": "own"
+        },
         "counts": {
           "all": 31,
           "drug_discipline": 1,

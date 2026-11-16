@@ -224,22 +224,21 @@
   "breakdownByGeo": [],
   "institution": {
     "id": 455512,
+    "ratesFile": "rates/institutions/455512.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 8,
-        "rateRanked": true,
-        "rateFte": 1380
+        "rated": true,
+        "rateFte": 1421
       },
       "2016": {
         "campuses": 2,
         "online": 11,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "excluded",
         "rateExcludedReason": "In 2016 DOE reported campus 455512003 of this institution also under ID 126119003 of another institution (a merger or renumbering), and IPEDS has an FTE for both institutions, so it cannot be told which FTE holds that campus's students. No rate is shown for that year.",
-        "rateFte": 1628,
-        "spikes": [
-          "all"
-        ],
+        "rateFte": 1694,
         "counts": {
           "criminal": 6,
           "violent": 3,
@@ -258,8 +257,8 @@
       "2017": {
         "campuses": 3,
         "online": 9,
-        "rateRanked": true,
-        "rateFte": 1434,
+        "rated": true,
+        "rateFte": 1475,
         "counts": {
           "criminal": 2,
           "violent": 2,
@@ -274,8 +273,8 @@
       "2018": {
         "campuses": 3,
         "online": 10,
-        "rateRanked": true,
-        "rateFte": 1662,
+        "rated": true,
+        "rateFte": 1724,
         "counts": {
           "criminal": 1,
           "property": 1,
@@ -289,8 +288,8 @@
       "2019": {
         "campuses": 3,
         "online": 15,
-        "rateRanked": true,
-        "rateFte": 1845,
+        "rated": true,
+        "rateFte": 1980,
         "counts": {
           "criminal": 6,
           "violent": 2,
@@ -307,9 +306,10 @@
       "2020": {
         "campuses": 3,
         "online": 15,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 2171,
+        "rateFte": 2322,
         "counts": {
           "criminal": 2,
           "violent": 1,
@@ -322,9 +322,9 @@
       "2021": {
         "campuses": 3,
         "online": 15,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 1233,
+        "rateFte": 1289,
         "counts": {
           "criminal": 5,
           "violent": 4,
@@ -339,7 +339,7 @@
       "2022": {
         "campuses": 3,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1584,
         "counts": {
           "criminal": 3,
@@ -350,8 +350,13 @@
       "2023": {
         "campuses": 3,
         "online": 54,
-        "rateRanked": false,
-        "rateFte": 793,
+        "rated": true,
+        "rateFte": 1059,
+        "fteUncertain": {
+          "share": 793,
+          "partTimeFirst": 1059,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 7,
           "violent": 4,
@@ -366,8 +371,13 @@
       "2024": {
         "campuses": 3,
         "online": 51,
-        "rateRanked": false,
-        "rateFte": 930,
+        "rated": true,
+        "rateFte": 1191,
+        "fteUncertain": {
+          "share": 930,
+          "partTimeFirst": 1191,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 7,
           "property": 7,

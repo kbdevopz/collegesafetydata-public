@@ -63,12 +63,17 @@
   ],
   "institution": {
     "id": 170675,
+    "ratesFile": "rates/institutions/170675.json",
     "byYear": {
       "2016": {
-        "campuses": 3,
+        "campuses": 2,
         "online": 6,
-        "rateRanked": true,
-        "rateFte": 2208,
+        "rated": true,
+        "rateFte": 2273,
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
         "counts": {
           "criminal": 7,
           "violent": 1,
@@ -84,10 +89,14 @@
         }
       },
       "2017": {
-        "campuses": 3,
+        "campuses": 2,
         "online": 7,
-        "rateRanked": true,
-        "rateFte": 2076,
+        "rated": true,
+        "rateFte": 2149,
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
         "counts": {
           "criminal": 5,
           "property": 5,
@@ -103,8 +112,8 @@
       "2018": {
         "campuses": 2,
         "online": 8,
-        "rateRanked": true,
-        "rateFte": 2004,
+        "rated": true,
+        "rateFte": 2088,
         "counts": {
           "criminal": 5,
           "property": 4,
@@ -123,8 +132,8 @@
       "2019": {
         "campuses": 2,
         "online": 10,
-        "rateRanked": true,
-        "rateFte": 1931,
+        "rated": true,
+        "rateFte": 2035,
         "counts": {
           "criminal": 6,
           "property": 6,
@@ -139,9 +148,10 @@
       "2020": {
         "campuses": 2,
         "online": 10,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 1896,
+        "rateFte": 1998,
         "counts": {
           "criminal": 3,
           "violent": 2,

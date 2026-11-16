@@ -40,14 +40,20 @@
   ],
   "institution": {
     "id": 155317,
+    "ratesFile": "rates/institutions/155317.json",
     "byYear": {
       "2024": {
         "campuses": 12,
         "online": 10,
-        "rateRanked": true,
-        "rateFte": 24316,
-        "spikes": [
-          "motor_vehicle_theft"
+        "rated": true,
+        "rateFte": 25823,
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 80,
+            "usual": 9
+          }
         ],
         "counts": {
           "criminal": 193,

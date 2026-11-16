@@ -121,16 +121,21 @@
   ],
   "institution": {
     "id": 400080,
+    "ratesFile": "rates/institutions/400080.json",
     "byYear": {
       "2016": {
         "campuses": 3,
         "online": 0,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 918,
-        "spikes": [
-          "criminal",
-          "property",
-          "all"
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 10,
+            "usual": 0
+          }
         ],
         "counts": {
           "criminal": 21,
@@ -144,7 +149,7 @@
       "2017": {
         "campuses": 3,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1154,
         "counts": {
           "criminal": 6,
@@ -162,13 +167,13 @@
       "2018": {
         "campuses": 3,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1218
       },
       "2019": {
         "campuses": 3,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1085,
         "counts": {
           "criminal": 3,
@@ -184,7 +189,8 @@
       "2020": {
         "campuses": 4,
         "online": 0,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 1036,
         "counts": {
@@ -200,7 +206,7 @@
       "2021": {
         "campuses": 4,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 1100,
         "counts": {
@@ -215,19 +221,20 @@
       "2022": {
         "campuses": 4,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1017
       },
       "2023": {
         "campuses": 4,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1210
       },
       "2024": {
         "campuses": 4,
         "online": 0,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 989
       }
     }

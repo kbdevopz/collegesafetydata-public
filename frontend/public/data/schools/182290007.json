@@ -99,13 +99,22 @@
   ],
   "institution": {
     "id": 182290,
+    "ratesFile": "rates/institutions/182290.json",
     "byYear": {
       "2020": {
         "campuses": 4,
         "online": 5,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 16873,
+        "rateFte": 17891,
+        "pooledWith": [
+          {
+            "id": 182458,
+            "name": "Sierra Nevada University",
+            "fte": 527
+          }
+        ],
         "counts": {
           "criminal": 31,
           "violent": 15,
@@ -128,9 +137,9 @@
       "2021": {
         "campuses": 4,
         "online": 5,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 16830,
+        "rateFte": 17311,
         "counts": {
           "criminal": 53,
           "violent": 12,
@@ -155,10 +164,15 @@
       "2022": {
         "campuses": 4,
         "online": 7,
-        "rateRanked": true,
-        "rateFte": 16357,
-        "spikes": [
-          "motor_vehicle_theft"
+        "rated": true,
+        "rateFte": 17012,
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 28,
+            "usual": 8
+          }
         ],
         "counts": {
           "criminal": 61,
@@ -185,10 +199,21 @@
       "2023": {
         "campuses": 4,
         "online": 7,
-        "rateRanked": true,
-        "rateFte": 16611,
-        "spikes": [
-          "motor_vehicle_theft"
+        "rated": true,
+        "rateFte": 17291,
+        "flags": [
+          {
+            "offense": "dating_violence",
+            "geo": "On-campus",
+            "count": 11,
+            "usual": 1
+          },
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 49,
+            "usual": 8
+          }
         ],
         "counts": {
           "criminal": 77,
@@ -212,11 +237,21 @@
       "2024": {
         "campuses": 4,
         "online": 6,
-        "rateRanked": true,
-        "rateFte": 17358,
-        "spikes": [
-          "motor_vehicle_theft",
-          "rape"
+        "rated": true,
+        "rateFte": 17858,
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 57,
+            "usual": 8
+          },
+          {
+            "offense": "rape",
+            "geo": "On-campus",
+            "count": 21,
+            "usual": 4
+          }
         ],
         "counts": {
           "criminal": 95,

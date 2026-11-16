@@ -6,7 +6,7 @@
  * answer it with 404.
  */
 import type { ComponentType } from 'react'
-import { Routes, Route, matchPath } from 'react-router-dom'
+import { Routes, Route, Navigate, matchPath, useLocation } from 'react-router-dom'
 import App from './App'
 import RouteHead from './components/RouteHead'
 
@@ -46,6 +46,14 @@ export function pageFor(pathname: string): PageKey {
   return 'notFound'
 }
 
+// The rankings page's old address. Both hosts answer it with a 301 to /
+// (public/_redirects, vercel.json); this covers a server without those rules.
+// It has no HTML file and is not in STATIC_PAGES.
+function OldRankingsAddress() {
+  const { search, hash } = useLocation()
+  return <Navigate to={{ pathname: '/', search, hash }} replace />
+}
+
 export function AppRoutes({ pages }: { pages: PageComponents }) {
   return (
     <Routes>
@@ -66,6 +74,7 @@ export function AppRoutes({ pages }: { pages: PageComponents }) {
             <Route key={key} path={path.slice(1)} element={<Page />} />
           )
         })}
+        <Route path="rankings" element={<OldRankingsAddress />} />
         <Route path="*" element={<pages.notFound />} />
       </Route>
     </Routes>

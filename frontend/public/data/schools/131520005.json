@@ -40,18 +40,28 @@
   ],
   "institution": {
     "id": 131520,
+    "ratesFile": "rates/institutions/131520.json",
     "byYear": {
       "2015": {
         "campuses": 3,
         "online": 1,
-        "rateRanked": false,
-        "rateExcludedReason": "IPEDS reports that this institution has a hospital (institutional characteristics, 2015). Patients, visitors and hospital staff are on its campus but not in its FTE, so a rate per student would not measure its campus population. It is left out of rate rankings; its counts are shown.",
-        "rateFte": 9310,
-        "spikes": [
-          "all",
-          "burglary",
-          "drug_discipline",
-          "liquor_discipline"
+        "rated": false,
+        "notRated": "excluded",
+        "rateExcludedReason": "IPEDS reports that this institution has a hospital (institutional characteristics, 2015). Patients, visitors and hospital staff are on its campus but not in its FTE, so a rate per student would not measure its campus population. It has no rate; its counts are shown.",
+        "rateFte": 9365,
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "On-campus",
+            "count": 27,
+            "usual": 6
+          },
+          {
+            "offense": "robbery",
+            "geo": "Public property",
+            "count": 15,
+            "usual": 0
+          }
         ],
         "counts": {
           "criminal": 95,

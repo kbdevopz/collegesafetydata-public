@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, useSearchParams, Link } from 'react-router-dom'
 import {
   LineChart,
   Line,
@@ -17,8 +17,8 @@ import {
   Cell,
 } from 'recharts'
 import { ArrowLeft, MapPin, AlertCircle, Loader2, TrendingUp, TrendingDown, Calendar, AlertTriangle, Users, Info } from 'lucide-react'
-import { fetchSchoolProfile, getMetadata } from '../lib/api'
-import type { SchoolProfile as SchoolProfileType, OffenseBreakdown, RateRules } from '../lib/types'
+import { fetchRankings, fetchSchoolProfile, getMetadata } from '../lib/api'
+import type { SchoolProfile as SchoolProfileType, OffenseBreakdown } from '../lib/types'
 import {
   cn,
   formatNumber,
@@ -29,13 +29,18 @@ import {
   calculateYoYChange,
   displayName,
   compactYears,
+  withParams,
 } from '../lib/utils'
 import {
-  fteFor, latestFte, institutionRate, rateNote, pooledNote, onlineNote, campusesPhrase, rateInterval, intervalText,
-  rateTier, SPIKE_NOTE,
+  chooseWindow, countsOnlyReason, flagSentence, highForSizeParagraph, latestFte, rateCodeForSelection, rateCodeLabel,
+  rateCodes, windowKeys, windowLabel,
 } from '../lib/rates'
-import { ALL, CRIMINAL, PROPERTY, SUMMARY_LABELS, VIOLENT, inSelection, isSummary, selectionCode, selectionLabel } from '../lib/selection'
+import RatePanel from '../components/RatePanel'
+import {
+  ALL, CRIMINAL, PROPERTY, SUMMARY_LABELS, VIOLENT, inSelection, isSummary, selectionCode, selectionFromParam, selectionLabel,
+} from '../lib/selection'
 import { useTheme } from '../hooks/useTheme'
+import { useMediaQuery } from '../hooks/useMediaQuery'
 import SeriesNotes, { ReportYearNote } from '../components/SeriesNotes'
 import CiteThisData from '../components/CiteThisData'
 import { SERIES_NOTES } from '../data/seriesNotes'
@@ -49,28 +54,23 @@ function joinWithAnd(items: string[]): string {
 
 export default function SchoolProfile() {
   const { unitid } = useParams<{ unitid: string }>()
+  const [searchParams, setSearchParams] = useSearchParams()
   const { resolvedTheme } = useTheme()
+  // Phone width: the year axis labels are angled so that every year fits
+  const narrow = useMediaQuery('(max-width: 639px)')
   const [profile, setProfile] = useState<SchoolProfileType | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [selectedYear, setSelectedYear] = useState<number | null>(null)
-  // 'criminal' (default), 'all' (every category) or one offense name
-  const [selectedOffense, setSelectedOffense] = useState<string>(CRIMINAL)
-  const [showRate, setShowRate] = useState(false)
-  // Who rate rankings list (metadata.json), for the note on a left-out rate
-  const [rateRules, setRateRules] = useState<RateRules | null>(null)
-
-  // Known DOE file errors (metadata.json "knownDefects"), for the note on
-  // residence-hall figures they touch
-  const [knownDefects, setKnownDefects] = useState<Metadata['knownDefects']>(undefined)
+  // metadata.json: the rate rules and figures, and known DOE file errors
+  // (for the note on residence-hall figures they touch)
+  const [metadata, setMetadata] = useState<Metadata | null>(null)
+  const rateRules = metadata?.rateRules ?? null
+  const knownDefects = metadata?.knownDefects
 
   useEffect(() => {
     getMetadata()
-      .then((m) => {
-        setRateRules(m.rateRules)
-        setKnownDefects(m.knownDefects)
-      })
-      .catch(() => setRateRules(null))
+      .then(setMetadata)
+      .catch(() => setMetadata(null))
   }, [])
 
   useEffect(() => {
@@ -80,11 +80,7 @@ export default function SchoolProfile() {
     setError(null)
 
     fetchSchoolProfile(parseInt(unitid))
-      .then((data) => {
-        setProfile(data)
-        // Default to latest year
-        setSelectedYear(data.summary.latestYear)
-      })
+      .then((data) => setProfile(data))
       .catch(() => setError('Failed to load school data. Please try again.'))
       .finally(() => setLoading(false))
   }, [unitid])
@@ -114,6 +110,39 @@ export default function SchoolProfile() {
     return Array.from(offenses).sort()
   }, [profile])
 
+  // The selections are in the address, so a view of the page can be cited
+  // or shared: ?year= (a reported year; default the latest), ?offense= (a
+  // summary or an offense code such as motor_vehicle_theft; default all
+  // criminal offenses) and ?view=rate (default counts). They are changed in
+  // place, without a new history entry for each change.
+  const yearParam = Number(searchParams.get('year'))
+  const selectedYear = profile
+    ? (availableYears.includes(yearParam) ? yearParam : profile.summary.latestYear)
+    : null
+  // 'criminal' (default), 'all' (every category) or one offense name
+  const selectedOffense = selectionFromParam(searchParams.get('offense'), availableOffenses, CRIMINAL)
+  const showRate = searchParams.get('view') === 'rate'
+  const setSelection = (changes: Record<string, string | null>) =>
+    setSearchParams((prev) => withParams(prev, changes), { replace: true })
+  const setSelectedYear = (year: number) => setSelection({ year: String(year) })
+  const setSelectedOffense = (offense: string) =>
+    setSelection({ offense: offense === CRIMINAL ? null : selectionCode(offense) })
+  const setShowRate = (rate: boolean) => setSelection({ view: rate ? 'rate' : null })
+  // Rate view: ?window= (a 3-year window; default the one ending in the
+  // selected year, else the latest) and the rate code of the selection,
+  // whose single-year trend is shown (violent when the selection has none)
+  const selectedWindow = chooseWindow(rateRules, searchParams.get('window'), yearParam || null)
+  const setSelectedWindow = (key: string) => setSelection({ window: key })
+  const rawOffense = searchParams.get('offense')?.trim().toLowerCase() ?? null
+  const selectionRateCode = rateRules
+    ? (rawOffense && rawOffense in rateRules.codes ? rawOffense : rateCodeForSelection(selectionCode(selectedOffense), rateRules))
+    : null
+  const trendCode = selectionRateCode ?? 'violent'
+  const setTrendCode = (code: string) => setSelection({ offense: code })
+  const countsOnlyNote = showRate && rateRules && !selectionRateCode
+    ? `${countsOnlyReason(selectionCode(selectedOffense), selectionLabel(selectedOffense))} The rates below are for the offenses that have one.`
+    : null
+
   // The selection's count in one year: the sum of its trend rows (0 when it
   // has none; a reported year without the selection had 0)
   const countIn = useMemo(() => {
@@ -142,41 +171,52 @@ export default function SchoolProfile() {
     return countIn(selectedYear)
   }, [profile, selectedYear, countIn])
 
-  // FTE for the selected year only (null when that year has no FTE)
-  const selectedYearFte = useMemo(() => fteFor(profile, selectedYear), [profile, selectedYear])
-
   // Newest FTE and the year it belongs to (for the header)
   const headerFte = useMemo(() => latestFte(profile), [profile])
 
-  // The rate per 10k students in the selected year (that year's FTE only).
-  // It is the institution's: the incidents of all its campuses per its FTE,
-  // as NCES publishes FTE per institution.
-  const selectedYearInstitution = useMemo(
-    () => institutionRate(profile, selectedYear, selectedOffense, selectedYearTotal),
-    [profile, selectedYear, selectedOffense, selectedYearTotal]
-  )
-  const selectedYearRate = selectedYearInstitution?.rate ?? null
-  const selectedYearRateCount = selectedYearInstitution?.count ?? selectedYearTotal
-  const selectedYearCampuses = campusesPhrase(selectedYearInstitution?.campuses ?? 1)
-  const selectedYearRateNote = rateNote(selectedYearInstitution, rateRules)
-  const selectedYearPooledNote = pooledNote(selectedYearInstitution)
-  const selectedYearOnlineNote = onlineNote(selectedYearInstitution, rateRules)
-  // The rate's denominator (on-campus FTE), its 95% interval, and where it
-  // stands under the rate rules: ranked, too few incidents, or counts only
-  const selectedYearRateFte = selectedYearInstitution?.fte ?? null
-  const selectedYearInterval = selectedYearRate !== null && selectedYearRateFte !== null
-    ? rateInterval(selectedYearRateCount, selectedYearRateFte, rateRules?.ciLevel ?? 0.95)
-    : null
-  const selectedCode = selectionCode(selectedOffense)
-  const selectedYearTier = rateTier(selectedCode, selectedYearRateCount, rateRules)
-  const selectedYearSpike = !!selectedYearInstitution?.spikes?.includes(selectedCode)
-  const selectedYearTierNote = selectedYearRate === null || !rateRules
-    ? null
-    : selectedYearTier === 'countsOnly'
-      ? `${selectionLabel(selectedOffense)} is too rare nationally for rates to be compared, so rate rankings leave it out (counts only).`
-      : selectedYearTier === 'few' && selectedYearInstitution?.rateRanked
-        ? `${formatNumber(selectedYearRateCount)} ${selectedYearRateCount === 1 ? 'incident is' : 'incidents are'} too few to rank by rate (rate rankings rank institutions with at least ${rateRules.minCount}); the rate is shown with its interval.`
-        : null
+  // Unusual-year flags of the selected year (every location) whose offense
+  // is in the selection: notes beside the counts. Flags never change counts.
+  const selectedYearFlags = useMemo(() => {
+    if (!profile || !selectedYear) return []
+    const flags = profile.institution?.byYear[String(selectedYear)]?.flags ?? []
+    return flags
+      .filter((f) => {
+        const offense = metadata?.offenses.find((o) => o.code === f.offense)
+        return !!offense && inSelection({ offense: offense.display, offenseFamily: offense.family }, selectedOffense)
+      })
+      .map((f) => flagSentence({ ...f, year: selectedYear }))
+  }, [profile, selectedYear, selectedOffense, metadata])
+  // Flags are the institution's: all its campuses together
+  const institutionCampuses = selectedYear ? profile?.institution?.byYear[String(selectedYear)]?.campuses ?? 1 : 1
+
+  // The selection's count in the selected year when the rankings by count
+  // flag it as very high for the institution's size (highForSize), read from
+  // the state's rankings file (every rankings file of a year flags a campus's
+  // count the same way, and every ranked campus is in its state's file)
+  const [sizeFlag, setSizeFlag] = useState<{
+    year: number; code: string; count: number; fte: number; campuses: number
+  } | null>(null)
+  useEffect(() => {
+    setSizeFlag(null)
+    const state = profile?.state
+    if (!profile || !selectedYear || showRate || !state || !metadata?.presets.some((p) => p.id === state)) return
+    const code = selectionCode(selectedOffense)
+    let live = true
+    fetchRankings(state, selectedYear)
+      .then((file) => {
+        const entry = file.rankings[code]?.find((e) => e.unitid === profile.unitid)
+        const campus = file.campuses[String(profile.unitid)]
+        if (live && entry?.highForSize && campus?.fte) {
+          setSizeFlag({ year: selectedYear, code, count: entry.count, fte: campus.fte, campuses: campus.campuses })
+        }
+      })
+      .catch(() => {
+        // Without the file the page shows no size note; the counts are unaffected
+      })
+    return () => {
+      live = false
+    }
+  }, [profile, selectedYear, selectedOffense, showRate, metadata])
 
   // Number of campuses of the institution in the header FTE's year
   const headerCampuses = headerFte
@@ -287,6 +327,17 @@ export default function SchoolProfile() {
   const chartBorderColor = resolvedTheme === 'dark' ? '#374151' : '#e5e7eb'
   const barFillColor = resolvedTheme === 'dark' ? '#60a5fa' : '#3b82f6'
   const noteBandColor = resolvedTheme === 'dark' ? '#fbbf24' : '#d97706'
+  // Year axis of the trend charts: every year labelled (interval 0), the
+  // labels angled at phone width so they do not overlap
+  const yearAxisProps = {
+    dataKey: 'year',
+    interval: 0,
+    tick: { fill: chartTextColor, fontSize: narrow ? 11 : 12 },
+    angle: narrow ? -45 : 0,
+    textAnchor: narrow ? ('end' as const) : ('middle' as const),
+    height: narrow ? 44 : 30,
+    axisLine: { stroke: chartGridColor },
+  }
 
   if (loading) {
     return (
@@ -350,7 +401,7 @@ export default function SchoolProfile() {
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-gray-600 dark:text-gray-400">
             <span className="flex items-center gap-1.5">
               <MapPin className="w-4 h-4" />
-              {profile.city}, {profile.state}
+              {[profile.city, profile.state].filter(Boolean).join(', ')}
             </span>
             {headerFte && (
               <span
@@ -398,6 +449,45 @@ export default function SchoolProfile() {
       <div className="sticky top-16 z-40 bg-white dark:bg-gray-900 border-y border-gray-200 dark:border-gray-800 shadow-sm">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-wrap items-center gap-4 py-3">
+            {showRate && rateRules ? (
+              <>
+                {/* Window (rate view) */}
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0" />
+                  <label htmlFor="window-select" className="text-sm text-gray-500 dark:text-gray-400 hidden sm:inline">
+                    Years:
+                  </label>
+                  <select
+                    id="window-select"
+                    value={selectedWindow ?? ''}
+                    onChange={(e) => setSelectedWindow(e.target.value)}
+                    className="w-32 text-sm font-medium bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1.5 cursor-pointer focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  >
+                    {windowKeys(rateRules).slice().reverse().map((key) => (
+                      <option key={key} value={key}>{windowLabel(key)}</option>
+                    ))}
+                  </select>
+                </div>
+                {/* Rate code of the single-year trend (rate view) */}
+                <div className="flex items-center gap-2 min-w-0">
+                  <AlertTriangle className="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0" />
+                  <label htmlFor="rate-code-select" className="text-sm text-gray-500 dark:text-gray-400 hidden sm:inline">
+                    Trend:
+                  </label>
+                  <select
+                    id="rate-code-select"
+                    value={trendCode}
+                    onChange={(e) => setTrendCode(e.target.value)}
+                    className="w-56 max-w-full text-sm font-medium bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1.5 cursor-pointer focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  >
+                    {rateCodes(rateRules).map((code) => (
+                      <option key={code} value={code}>{rateCodeLabel(code)}</option>
+                    ))}
+                  </select>
+                </div>
+              </>
+            ) : (
+              <>
             {/* Year Dropdown */}
             <div className="flex items-center gap-2">
               <Calendar className="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0" />
@@ -452,14 +542,17 @@ export default function SchoolProfile() {
                 Clear filter
               </button>
             )}
+              </>
+            )}
 
             {/* Rate Toggle */}
             <div className="flex items-center gap-1 ml-auto">
               <span className="text-sm text-gray-500 dark:text-gray-400 hidden sm:inline mr-1">View:</span>
-              <div className="flex gap-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
+              <div role="group" aria-label="View" className="flex gap-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
                 <button
                   type="button"
                   onClick={() => setShowRate(false)}
+                  aria-pressed={!showRate}
                   className={cn(
                     'px-3 py-1 text-sm font-medium rounded-md transition-colors',
                     !showRate
@@ -472,14 +565,13 @@ export default function SchoolProfile() {
                 <button
                   type="button"
                   onClick={() => setShowRate(true)}
-                  disabled={!selectedYearFte}
-                  title={!selectedYearFte ? `FTE data not available for ${selectedYear ?? 'this year'}` : 'Show rate per 10,000 on-campus students'}
+                  aria-pressed={showRate}
+                  title="3-year rates per 10,000 on-campus students"
                   className={cn(
                     'px-3 py-1 text-sm font-medium rounded-md transition-colors',
                     showRate
                       ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm'
-                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100',
-                    !selectedYearFte && 'opacity-50 cursor-not-allowed'
+                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
                   )}
                 >
                   Rate
@@ -492,35 +584,36 @@ export default function SchoolProfile() {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {showRate && metadata && selectedWindow && (
+          <RatePanel
+            profile={profile}
+            metadata={metadata}
+            windowKey={selectedWindow}
+            trendCode={trendCode}
+            countsOnlyNote={countsOnlyNote}
+          />
+        )}
+        {showRate && !metadata && (
+          <div className="flex items-center gap-2 py-8 text-sm text-gray-500 dark:text-gray-400 mb-8">
+            <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" /> Loading rates…
+          </div>
+        )}
+        {!showRate && (<>
         {/* Summary Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 p-6 transition-all duration-300">
             <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">
               {selectionLabel(selectedOffense)} ({selectedYear})
-              {showRate && ' - Rate'}
             </div>
             <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-              {showRate ? (
-                selectedYearRate !== null ? (
-                  <>
-                    {selectedYearRate.toFixed(1)}
-                    <span className="text-lg font-normal text-gray-500 dark:text-gray-400 ml-1">
-                      per 10k
-                    </span>
-                  </>
-                ) : (
-                  <span className="text-gray-400">N/A</span>
-                )
-              ) : (
-                formatNumber(selectedYearTotal)
-              )}
+              {formatNumber(selectedYearTotal)}
             </div>
-            {!showRate && selectedYearYoYChange && selectedYearYoYChange.absolute === 0 && (
+            {selectedYearYoYChange && selectedYearYoYChange.absolute === 0 && (
               <div className="text-sm mt-1 text-gray-500 dark:text-gray-400">
                 Same number reported as in {selectedYear && selectedYear - 1}
               </div>
             )}
-            {!showRate && selectedYearYoYChange && selectedYearYoYChange.absolute !== 0 && (
+            {selectedYearYoYChange && selectedYearYoYChange.absolute !== 0 && (
               <div
                 className="flex items-center gap-1 text-sm mt-1 text-gray-600 dark:text-gray-400"
                 title="A change in reported counts can reflect changes in reporting, not only in crime"
@@ -533,27 +626,6 @@ export default function SchoolProfile() {
                 {selectedYearYoYChange.absolute > 0 ? '+' : ''}
                 {formatNumber(selectedYearYoYChange.absolute)} reported vs {selectedYear && selectedYear - 1}
               </div>
-            )}
-            {showRate && selectedYearInterval && (
-              <div className="text-sm text-gray-600 dark:text-gray-400 mt-1 tabular-nums">
-                {Math.round((rateRules?.ciLevel ?? 0.95) * 100)}% interval {intervalText(selectedYearInterval.lo, selectedYearInterval.hi)}
-              </div>
-            )}
-            {showRate && selectedYearRateFte !== null && (
-              <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                {selectedYearCampuses ? (
-                  // The institution's rate: all its campuses' incidents per its on-campus FTE
-                  <>
-                    Institution rate ({selectedYearCampuses}):{' '}
-                    {formatNumber(selectedYearRateCount)} per {formatNumber(selectedYearRateFte)} on-campus FTE
-                  </>
-                ) : (
-                  <>{formatNumber(selectedYearRateCount)} per {formatNumber(selectedYearRateFte)} on-campus FTE</>
-                )}
-              </div>
-            )}
-            {showRate && selectedYearSpike && (
-              <div className="text-sm text-amber-700 dark:text-amber-400 mt-1">{SPIKE_NOTE}</div>
             )}
           </div>
 
@@ -625,57 +697,32 @@ export default function SchoolProfile() {
           </div>
         )}
 
-        {/* Rate Info Banner */}
-        {showRate && (
-          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
-            <div className="flex items-center gap-2 text-sm text-blue-700 dark:text-blue-300">
-              <Users className="w-4 h-4 flex-shrink-0" />
-              <span>
-                <strong>Rate view:</strong> Incidents per 10,000 on-campus full-time equivalent (FTE) students:
-                NCES's FTE less the share of students enrolled exclusively online (an approximation, as that share
-                counts students, not FTE). The interval is the rate's exact 95% Poisson interval.
-                {selectedYearCampuses && (
-                  <span className="ml-1">
-                    NCES counts enrollment per institution, not per campus, so this is the institution's rate:
-                    the incidents of {selectedYearCampuses} per its on-campus FTE.
-                  </span>
-                )}
-              </span>
-            </div>
-            {selectedYearOnlineNote && (
-              <p role="note" className="flex items-start gap-2 mt-2 text-sm text-blue-700 dark:text-blue-300">
-                <Info className="w-4 h-4 flex-shrink-0 mt-0.5" aria-hidden="true" />
-                <span>In {selectedYear}: {selectedYearOnlineNote}</span>
-              </p>
-            )}
-            {selectedYearTierNote && (
-              <p role="note" className="flex items-start gap-2 mt-2 text-sm text-blue-700 dark:text-blue-300">
-                <Info className="w-4 h-4 flex-shrink-0 mt-0.5" aria-hidden="true" />
-                <span>In {selectedYear}: {selectedYearTierNote}</span>
-              </p>
-            )}
-            {selectedYearSpike && (
-              <p role="note" className="flex items-start gap-2 mt-2 text-sm text-amber-700 dark:text-amber-400">
-                <Info className="w-4 h-4 flex-shrink-0 mt-0.5" aria-hidden="true" />
-                <span>
-                  In {selectedYear}: {SPIKE_NOTE} The count is at least {rateRules?.spike.minCount ?? 20} and more
-                  than {rateRules?.spike.factor ?? 3} times the median of the institution's other years; it stays
-                  in rate rankings.
-                </span>
-              </p>
-            )}
-            {selectedYearRateNote && (
-              <p role="note" className="flex items-start gap-2 mt-2 text-sm text-blue-700 dark:text-blue-300">
-                <Info className="w-4 h-4 flex-shrink-0 mt-0.5" aria-hidden="true" />
-                <span>In {selectedYear}: {selectedYearRateNote}</span>
-              </p>
-            )}
-            {selectedYearPooledNote && (
-              <p role="note" className="flex items-start gap-2 mt-2 text-sm text-blue-700 dark:text-blue-300">
-                <Info className="w-4 h-4 flex-shrink-0 mt-0.5" aria-hidden="true" />
-                <span>{selectedYearPooledNote}</span>
-              </p>
-            )}
+        {/* Unusual-year flags of the selected year (the institution's, every location) */}
+        {selectedYearFlags.length > 0 && (
+          <div role="note" className="-mt-2 mb-6 rounded-lg border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 p-3 space-y-1">
+            <p className="text-sm font-medium text-amber-900 dark:text-amber-200">
+              Unusual year{institutionCampuses > 1 ? ` for ${profile.name} (all ${institutionCampuses} of its campuses)` : ''}
+            </p>
+            {selectedYearFlags.map((f) => (
+              <p key={f} className="text-sm text-amber-900 dark:text-amber-200">{f}</p>
+            ))}
+            <p className="text-sm text-amber-900 dark:text-amber-200">
+              Flags never change counts.{' '}
+              <Link to="/methodology#rate-flags" className="underline">How flags work</Link>
+            </p>
+          </div>
+        )}
+
+        {/* A count very high for the institution's size (rankings by count, highForSize) */}
+        {sizeFlag && (
+          <div role="note" className="-mt-2 mb-6 rounded-lg border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 p-3 space-y-1">
+            <p className="text-sm font-medium text-amber-900 dark:text-amber-200">
+              Very high for its institution's size
+            </p>
+            <p className="text-sm text-amber-900 dark:text-amber-200">
+              {highForSizeParagraph(sizeFlag.count, sizeFlag.fte, sizeFlag.campuses, sizeFlag.code, sizeFlag.year, metadata)}{' '}
+              <Link to="/methodology#count-flag" className="underline">How this flag works</Link>
+            </p>
           </div>
         )}
 
@@ -692,16 +739,14 @@ export default function SchoolProfile() {
                 {noteBands.map((b) => (
                   <ReferenceArea key={b.x1} x1={b.x1} x2={b.x2} fill={noteBandColor} fillOpacity={0.12} ifOverflow="extendDomain" />
                 ))}
-                <XAxis
-                  dataKey="year"
-                  tick={{ fill: chartTextColor, fontSize: 12 }}
-                  axisLine={{ stroke: chartGridColor }}
-                />
+                <XAxis {...yearAxisProps} />
                 <YAxis
+                  tickFormatter={(v: number) => formatNumber(v)}
                   tick={{ fill: chartTextColor, fontSize: 12 }}
                   axisLine={{ stroke: chartGridColor }}
                 />
                 <Tooltip
+                  formatter={(value: number) => formatNumber(value)}
                   contentStyle={{
                     backgroundColor: chartBgColor,
                     border: `1px solid ${chartBorderColor}`,
@@ -756,16 +801,14 @@ export default function SchoolProfile() {
                 {noteBands.map((b) => (
                   <ReferenceArea key={b.x1} x1={b.x1} x2={b.x2} fill={noteBandColor} fillOpacity={0.12} ifOverflow="extendDomain" />
                 ))}
-                  <XAxis
-                    dataKey="year"
-                    tick={{ fill: chartTextColor, fontSize: 12 }}
-                    axisLine={{ stroke: chartGridColor }}
-                  />
+                  <XAxis {...yearAxisProps} />
                   <YAxis
+                    tickFormatter={(v: number) => formatNumber(v)}
                     tick={{ fill: chartTextColor, fontSize: 12 }}
                     axisLine={{ stroke: chartGridColor }}
                   />
                   <Tooltip
+                    formatter={(value: number) => formatNumber(value)}
                     contentStyle={{
                       backgroundColor: chartBgColor,
                       border: `1px solid ${chartBorderColor}`,
@@ -801,16 +844,14 @@ export default function SchoolProfile() {
                 {noteBands.map((b) => (
                   <ReferenceArea key={b.x1} x1={b.x1} x2={b.x2} fill={noteBandColor} fillOpacity={0.12} ifOverflow="extendDomain" />
                 ))}
-                  <XAxis
-                    dataKey="year"
-                    tick={{ fill: chartTextColor, fontSize: 12 }}
-                    axisLine={{ stroke: chartGridColor }}
-                  />
+                  <XAxis {...yearAxisProps} />
                   <YAxis
+                    tickFormatter={(v: number) => formatNumber(v)}
                     tick={{ fill: chartTextColor, fontSize: 12 }}
                     axisLine={{ stroke: chartGridColor }}
                   />
                   <Tooltip
+                    formatter={(value: number) => formatNumber(value)}
                     contentStyle={{
                       backgroundColor: chartBgColor,
                       border: `1px solid ${chartBorderColor}`,
@@ -861,6 +902,7 @@ export default function SchoolProfile() {
                       key={item.offense}
                       type="button"
                       onClick={() => setSelectedOffense(item.offense === selectedOffense ? CRIMINAL : item.offense)}
+                      aria-pressed={isSelected}
                       className={cn(
                         'w-full flex items-center gap-4 p-2 -mx-2 rounded-lg transition-colors',
                         isSelected
@@ -1009,6 +1051,7 @@ export default function SchoolProfile() {
             </div>
           </div>
         </div>
+        </>)}
 
         <CiteThisData school={{ unitid: profile.unitid, name: profile.campus ? `${profile.campus} (${profile.name})` : profile.name }} className="mt-6" />
       </div>

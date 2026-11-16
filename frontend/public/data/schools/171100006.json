@@ -74,22 +74,31 @@
   "breakdownByGeo": [],
   "institution": {
     "id": 171100,
+    "ratesFile": "rates/institutions/171100.json",
     "byYear": {
       "2015": {
-        "campuses": 6,
+        "campuses": 5,
         "online": 4,
-        "rateRanked": true,
-        "rateFte": 45443,
+        "rated": true,
+        "rateFte": 46546,
         "pooledWith": [
           {
             "id": 169628,
             "name": "Michigan State University-College of Law",
-            "fte": 776
+            "fte": 795
           }
         ],
-        "spikes": [
-          "drug_arrest",
-          "liquor_arrest"
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "On-campus",
+            "count": 83,
+            "usual": 35
+          }
         ],
         "counts": {
           "criminal": 167,
@@ -115,14 +124,28 @@
         }
       },
       "2016": {
-        "campuses": 6,
+        "campuses": 5,
         "online": 5,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2016 figures this institution reports for a campus are also reported, identically, by campus 169628001 of another institution (a shared campus) and count here, while that institution's students are in its own FTE. No rate is shown for that year.",
-        "rateFte": 43938,
-        "spikes": [
-          "drug_arrest",
-          "liquor_arrest"
+        "rated": true,
+        "rateFte": 46037,
+        "pooledWith": [
+          {
+            "id": 169628,
+            "name": "Michigan State University-College of Law",
+            "fte": 754
+          }
+        ],
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
+        "flags": [
+          {
+            "offense": "rape",
+            "geo": "Non-campus",
+            "count": 68,
+            "usual": 6
+          }
         ],
         "counts": {
           "criminal": 229,
@@ -148,15 +171,34 @@
         }
       },
       "2017": {
-        "campuses": 6,
+        "campuses": 5,
         "online": 4,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2017 figures this institution reports for a campus are also reported, identically, by campus 169628001 of another institution (a shared campus) and count here, while that institution's students are in its own FTE. No rate is shown for that year.",
-        "rateFte": 44172,
-        "spikes": [
-          "drug_arrest",
-          "liquor_arrest",
-          "rape"
+        "rated": true,
+        "rateFte": 46032,
+        "pooledWith": [
+          {
+            "id": 169628,
+            "name": "Michigan State University-College of Law",
+            "fte": 789
+          }
+        ],
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "On-campus",
+            "count": 94,
+            "usual": 35
+          },
+          {
+            "offense": "rape",
+            "geo": "Non-campus",
+            "count": 152,
+            "usual": 6
+          }
         ],
         "counts": {
           "criminal": 359,
@@ -183,15 +225,28 @@
       "2018": {
         "campuses": 5,
         "online": 4,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2018 figures this institution reports for a campus are also reported, identically, by campus 169628001 of another institution (a shared campus) and count here, while that institution's students are in its own FTE. No rate is shown for that year.",
-        "rateFte": 44509,
-        "spikes": [
-          "criminal",
-          "violent",
-          "drug_arrest",
-          "fondling",
-          "rape"
+        "rated": true,
+        "rateFte": 46281,
+        "pooledWith": [
+          {
+            "id": 169628,
+            "name": "Michigan State University-College of Law",
+            "fte": 693
+          }
+        ],
+        "flags": [
+          {
+            "offense": "fondling",
+            "geo": "Non-campus",
+            "count": 146,
+            "usual": 3
+          },
+          {
+            "offense": "rape",
+            "geo": "Non-campus",
+            "count": 969,
+            "usual": 6
+          }
         ],
         "counts": {
           "criminal": 1308,
@@ -218,10 +273,15 @@
       "2019": {
         "campuses": 5,
         "online": 4,
-        "rateRanked": true,
-        "rateFte": 44208,
-        "spikes": [
-          "fondling"
+        "rated": true,
+        "rateFte": 45282,
+        "flags": [
+          {
+            "offense": "fondling",
+            "geo": "On-campus",
+            "count": 82,
+            "usual": 14
+          }
         ],
         "counts": {
           "criminal": 257,
@@ -248,9 +308,18 @@
       "2020": {
         "campuses": 5,
         "online": 4,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 43764,
+        "rateFte": 44821,
+        "flags": [
+          {
+            "offense": "rape",
+            "geo": "Non-campus",
+            "count": 91,
+            "usual": 6
+          }
+        ],
         "counts": {
           "criminal": 174,
           "violent": 114,
@@ -275,9 +344,9 @@
       "2021": {
         "campuses": 5,
         "online": 4,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 43820,
+        "rateFte": 44883,
         "counts": {
           "criminal": 122,
           "violent": 39,
@@ -305,8 +374,8 @@
       "2022": {
         "campuses": 5,
         "online": 5,
-        "rateRanked": true,
-        "rateFte": 44175,
+        "rated": true,
+        "rateFte": 45364,
         "counts": {
           "criminal": 163,
           "violent": 35,
@@ -333,8 +402,8 @@
       "2023": {
         "campuses": 5,
         "online": 5,
-        "rateRanked": true,
-        "rateFte": 45594,
+        "rated": true,
+        "rateFte": 47046,
         "counts": {
           "criminal": 177,
           "violent": 68,
@@ -362,8 +431,16 @@
       "2024": {
         "campuses": 5,
         "online": 5,
-        "rateRanked": true,
-        "rateFte": 46422,
+        "rated": true,
+        "rateFte": 47833,
+        "flags": [
+          {
+            "offense": "stalking",
+            "geo": "On-campus",
+            "count": 91,
+            "usual": 32
+          }
+        ],
         "counts": {
           "criminal": 178,
           "violent": 71,

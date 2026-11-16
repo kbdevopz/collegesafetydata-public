@@ -1,0 +1,12 @@
+# Redirects for Cloudflare Pages (collegesafetydata.org); vercel.json
+# "redirects" has the same rules for Vercel (collegesafetydata.com).
+#
+# Old addresses that are still linked. Cloudflare keeps the request's query
+# string when the destination has none (/rankings?year=2023 -> /?year=2023)
+# and matches a path exactly, so the trailing-slash form has its own line.
+# The Pages worker (dist/_worker.js) handles only /school/* (dist/_routes.json),
+# so these paths are served by Pages itself, which applies this file.
+
+/rankings          /             301
+/rankings/         /             301
+/data/audit.json   /audit.json   301

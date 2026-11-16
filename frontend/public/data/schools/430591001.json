@@ -84,9 +84,15 @@
       "2015": {
         "campuses": 1,
         "online": 8,
-        "rateRanked": false,
-        "rateExcludedReason": "IPEDS reports that this institution has a hospital (institutional characteristics, 2015). Patients, visitors and hospital staff are on its campus but not in its FTE, so a rate per student would not measure its campus population. It is left out of rate rankings; its counts are shown.",
-        "rateFte": 372
+        "rated": false,
+        "notRated": "size",
+        "rateExcludedReason": "IPEDS reports that this institution has a hospital (institutional characteristics, 2015). Patients, visitors and hospital staff are on its campus but not in its FTE, so a rate per student would not measure its campus population. It has no rate; its counts are shown.",
+        "rateFte": 372,
+        "fteUncertain": {
+          "share": 372,
+          "partTimeFirst": null,
+          "reason": "own"
+        }
       }
     }
   }

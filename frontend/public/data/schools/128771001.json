@@ -766,78 +766,78 @@
   ],
   "institution": {
     "id": 128771,
+    "ratesFile": "rates/institutions/128771.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 1,
-        "rateRanked": true,
-        "rateFte": 9639
+        "rated": true,
+        "rateFte": 9690
       },
       "2016": {
         "campuses": 1,
         "online": 1,
-        "rateRanked": true,
-        "rateFte": 9433,
-        "spikes": [
-          "drug_arrest"
-        ]
+        "rated": true,
+        "rateFte": 9483
       },
       "2017": {
         "campuses": 1,
         "online": 1,
-        "rateRanked": true,
-        "rateFte": 9550,
-        "spikes": [
-          "drug_arrest",
-          "liquor_arrest"
+        "rated": true,
+        "rateFte": 9600,
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "On-campus",
+            "count": 10,
+            "usual": 0
+          }
         ]
       },
       "2018": {
         "campuses": 1,
         "online": 1,
-        "rateRanked": true,
-        "rateFte": 9475
+        "rated": true,
+        "rateFte": 9526
       },
       "2019": {
         "campuses": 1,
         "online": 2,
-        "rateRanked": true,
-        "rateFte": 8879
+        "rated": true,
+        "rateFte": 8974
       },
       "2020": {
         "campuses": 1,
         "online": 2,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 8449
+        "rateFte": 8539
       },
       "2021": {
         "campuses": 1,
         "online": 2,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 7591
+        "rateFte": 7672
       },
       "2022": {
         "campuses": 1,
         "online": 4,
-        "rateRanked": true,
-        "rateFte": 7365
+        "rated": true,
+        "rateFte": 7545
       },
       "2023": {
         "campuses": 1,
         "online": 4,
-        "rateRanked": true,
-        "rateFte": 7663
+        "rated": true,
+        "rateFte": 7848
       },
       "2024": {
         "campuses": 1,
         "online": 4,
-        "rateRanked": true,
-        "rateFte": 7933,
-        "spikes": [
-          "drug_discipline"
-        ]
+        "rated": true,
+        "rateFte": 8134
       }
     }
   }

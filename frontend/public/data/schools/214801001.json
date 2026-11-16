@@ -481,60 +481,64 @@
   ],
   "institution": {
     "id": 214801,
+    "ratesFile": "rates/institutions/214801.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 3457
       },
       "2016": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 3469
       },
       "2017": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 3546
       },
       "2018": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 3470
       },
       "2021": {
         "campuses": 1,
         "online": null,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2021 DOE reported campuses of this institution and of related institutions (a merger or renumbering) under separate IDs, while IPEDS has no enrollment for 214591, 214607, 214625, 214634, 214643, 214652, 214670, 214689, 214698, 214704, 214713, 214731, 214740, 214759, 214768, 214777, 214786, 214795, 214801, 214810, 214829, so that year's incidents and enrollment may not cover the same campuses. No rate is shown for it.",
-        "spikes": [
-          "liquor_discipline"
-        ]
+        "rated": false,
+        "notRated": "size",
+        "rateExcludedReason": "In 2021 DOE reported campuses of this institution and of related institutions (a merger or renumbering) under separate IDs, while IPEDS has no enrollment for 214591, 214607, 214625, 214634, 214643, 214652, 214670, 214689, 214698, 214704, 214713, 214731, 214740, 214759, 214768, 214777, 214786, 214795, 214801, 214810, 214829, so that year's incidents and enrollment may not cover the same campuses. No rate is shown for it."
       },
       "2022": {
         "campuses": 1,
         "online": 1,
-        "rateRanked": true,
-        "rateFte": 2902,
-        "spikes": [
-          "liquor_discipline"
-        ]
+        "rated": true,
+        "rateFte": 2919
       },
       "2023": {
         "campuses": 1,
         "online": 1,
-        "rateRanked": true,
-        "rateFte": 2925
+        "rated": true,
+        "rateFte": 2943
       },
       "2024": {
         "campuses": 1,
         "online": 1,
-        "rateRanked": true,
-        "rateFte": 2728
+        "rated": true,
+        "rateFte": 2743,
+        "flags": [
+          {
+            "offense": "dating_violence",
+            "geo": "On-campus",
+            "count": 11,
+            "usual": 1
+          }
+        ]
       }
     }
   }

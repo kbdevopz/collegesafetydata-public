@@ -910,27 +910,39 @@
   ],
   "institution": {
     "id": 228875,
+    "ratesFile": "rates/institutions/228875.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 2,
-        "rateRanked": true,
-        "rateFte": 9833
+        "rated": true,
+        "rateFte": 10146,
+        "pooledWith": [
+          {
+            "id": 450304,
+            "name": "Brite Divinity School",
+            "fte": 192
+          }
+        ]
       },
       "2016": {
         "campuses": 1,
         "online": 2,
-        "rateRanked": true,
-        "rateFte": 9931,
-        "spikes": [
-          "liquor_arrest"
+        "rated": true,
+        "rateFte": 10233,
+        "pooledWith": [
+          {
+            "id": 450304,
+            "name": "Brite Divinity School",
+            "fte": 180
+          }
         ]
       },
       "2017": {
         "campuses": 1,
         "online": 2,
-        "rateRanked": true,
-        "rateFte": 10217,
+        "rated": true,
+        "rateFte": 10340,
         "pooledWith": [
           {
             "id": 450304,
@@ -942,8 +954,8 @@
       "2018": {
         "campuses": 1,
         "online": 2,
-        "rateRanked": true,
-        "rateFte": 10595,
+        "rated": true,
+        "rateFte": 10723,
         "pooledWith": [
           {
             "id": 450304,
@@ -955,16 +967,30 @@
       "2019": {
         "campuses": 1,
         "online": 2,
-        "rateRanked": true,
-        "rateFte": 10563
+        "rated": true,
+        "rateFte": 10819,
+        "pooledWith": [
+          {
+            "id": 450304,
+            "name": "Brite Divinity School",
+            "fte": 126
+          }
+        ]
       },
       "2020": {
         "campuses": 2,
         "online": 2,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateExcludedReason": "In 2020 figures this institution reports for a campus are also reported, identically, by campus 450304001 of another institution (a shared campus) and count here, while that institution's students are in its own FTE. No rate is shown for that year.",
-        "rateFte": 10923,
+        "rateFte": 11167,
+        "pooledWith": [
+          {
+            "id": 450304,
+            "name": "Brite Divinity School",
+            "fte": 110
+          }
+        ],
         "counts": {
           "criminal": 35,
           "violent": 19,
@@ -988,37 +1014,68 @@
       "2021": {
         "campuses": 2,
         "online": 2,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 11509
+        "rateFte": 11651,
+        "flags": [
+          {
+            "offense": "dating_violence",
+            "geo": "On-campus",
+            "count": 17,
+            "usual": 3
+          },
+          {
+            "offense": "domestic_violence",
+            "geo": "On-campus",
+            "count": 15,
+            "usual": 1
+          }
+        ]
       },
       "2022": {
         "campuses": 2,
         "online": 2,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2022 figures this institution reports for a campus are also reported, identically, by campus 450304001 of another institution (a shared campus) and count here, while that institution's students are in its own FTE. No rate is shown for that year.",
-        "rateFte": 11838
-      },
-      "2023": {
-        "campuses": 2,
-        "online": 3,
-        "rateRanked": true,
-        "rateFte": 12271,
+        "rated": true,
+        "rateFte": 11980,
         "pooledWith": [
           {
             "id": 450304,
             "name": "Brite Divinity School",
-            "fte": 72
+            "fte": 73
+          }
+        ]
+      },
+      "2023": {
+        "campuses": 2,
+        "online": 3,
+        "rated": true,
+        "rateFte": 12417,
+        "pooledWith": [
+          {
+            "id": 450304,
+            "name": "Brite Divinity School",
+            "fte": 80
           }
         ]
       },
       "2024": {
         "campuses": 2,
         "online": 2,
-        "rateRanked": true,
-        "rateFte": 12478,
-        "spikes": [
-          "motor_vehicle_theft"
+        "rated": true,
+        "rateFte": 12493,
+        "flags": [
+          {
+            "offense": "domestic_violence",
+            "geo": "On-campus",
+            "count": 19,
+            "usual": 1
+          },
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 28,
+            "usual": 4
+          }
         ],
         "counts": {
           "criminal": 56,

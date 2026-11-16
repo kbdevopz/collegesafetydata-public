@@ -193,19 +193,32 @@
   ],
   "institution": {
     "id": 120342,
+    "ratesFile": "rates/institutions/120342.json",
     "byYear": {
       "2022": {
         "campuses": 2,
         "online": 16,
-        "rateRanked": true,
-        "rateFte": 8317,
-        "spikes": [
-          "criminal",
-          "property",
-          "all",
-          "domestic_violence",
-          "drug_discipline",
-          "liquor_discipline"
+        "rated": true,
+        "rateFte": 9008,
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "On-campus",
+            "count": 17,
+            "usual": 1
+          },
+          {
+            "offense": "domestic_violence",
+            "geo": "On-campus",
+            "count": 16,
+            "usual": 0
+          },
+          {
+            "offense": "stalking",
+            "geo": "On-campus",
+            "count": 18,
+            "usual": 1
+          }
         ],
         "counts": {
           "criminal": 57,
@@ -230,12 +243,8 @@
       "2023": {
         "campuses": 1,
         "online": 13,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2023 figures of this institution's campus 120342002 are also reported, identically, by campus 115126001 of another institution (a shared campus) and count once, under that campus, while the students on it are in each institution's own FTE. No rate is shown for that year.",
-        "rateFte": 8763,
-        "spikes": [
-          "all"
-        ],
+        "rated": true,
+        "rateFte": 9326,
         "counts": {
           "criminal": 19,
           "violent": 7,
@@ -259,12 +268,8 @@
       "2024": {
         "campuses": 1,
         "online": 14,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2024 figures of this institution's campus 120342002 are also reported, identically, by campus 115126001 of another institution (a shared campus) and count once, under that campus, while the students on it are in each institution's own FTE. No rate is shown for that year.",
-        "rateFte": 8431,
-        "spikes": [
-          "all"
-        ],
+        "rated": true,
+        "rateFte": 9000,
         "counts": {
           "criminal": 14,
           "violent": 1,

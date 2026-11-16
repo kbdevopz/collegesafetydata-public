@@ -65,13 +65,13 @@
   ],
   "institution": {
     "id": 151111,
+    "ratesFile": "rates/institutions/151111.json",
     "byYear": {
       "2016": {
         "campuses": 8,
         "online": 7,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2016 figures of this institution's campus 151111007 are also reported, identically, by campus 150136001 of another institution (a shared campus) and count once, under that campus, while the students on it are in each institution's own FTE. No rate is shown for that year.",
-        "rateFte": 23283,
+        "rated": true,
+        "rateFte": 24232,
         "counts": {
           "criminal": 115,
           "violent": 38,
@@ -97,9 +97,8 @@
       "2017": {
         "campuses": 8,
         "online": 7,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2017 figures of this institution's campus 151111007 are also reported, identically, by campus 150136001 of another institution (a shared campus) and count once, under that campus, while the students on it are in each institution's own FTE. No rate is shown for that year.",
-        "rateFte": 23421,
+        "rated": true,
+        "rateFte": 24382,
         "counts": {
           "criminal": 119,
           "violent": 41,
@@ -127,9 +126,8 @@
       "2018": {
         "campuses": 7,
         "online": 8,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2018 figures of this institution's campus 151111005 are also reported, identically, by campus 151102001 of another institution (a shared campus) and count once, under that campus, while the students on it are in each institution's own FTE. No rate is shown for that year.",
-        "rateFte": 23124,
+        "rated": true,
+        "rateFte": 24228,
         "counts": {
           "criminal": 169,
           "violent": 59,
@@ -156,9 +154,22 @@
       "2019": {
         "campuses": 10,
         "online": 8,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2019 figures of this institution's campus 151111007 are also reported, identically, by campus 150136001 of another institution (a shared campus) and count once, under that campus, while the students on it are in each institution's own FTE. No rate is shown for that year.",
-        "rateFte": 23249,
+        "rated": true,
+        "rateFte": 24366,
+        "flags": [
+          {
+            "offense": "domestic_violence",
+            "geo": "On-campus",
+            "count": 35,
+            "usual": 11
+          },
+          {
+            "offense": "rape",
+            "geo": "On-campus",
+            "count": 33,
+            "usual": 9
+          }
+        ],
         "counts": {
           "criminal": 197,
           "violent": 66,

@@ -78,16 +78,15 @@
   ],
   "institution": {
     "id": 138558,
+    "ratesFile": "rates/institutions/138558.json",
     "byYear": {
       "2017": {
         "campuses": 5,
         "online": 3,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "excluded",
         "rateExcludedReason": "In 2017 DOE reported campus 138558004 of this institution also under ID 139010002 of another institution (a merger or renumbering), and IPEDS has an FTE for both institutions, so it cannot be told which FTE holds that campus's students. No rate is shown for that year.",
-        "rateFte": 2758,
-        "spikes": [
-          "liquor_arrest"
-        ],
+        "rateFte": 2802,
         "counts": {
           "criminal": 1,
           "property": 1,
@@ -104,11 +103,8 @@
       "2018": {
         "campuses": 5,
         "online": 9,
-        "rateRanked": true,
-        "rateFte": 3019,
-        "spikes": [
-          "liquor_arrest"
-        ],
+        "rated": true,
+        "rateFte": 3162,
         "counts": {
           "criminal": 4,
           "violent": 2,
@@ -129,8 +125,8 @@
       "2019": {
         "campuses": 5,
         "online": 6,
-        "rateRanked": true,
-        "rateFte": 2880,
+        "rated": true,
+        "rateFte": 2969,
         "counts": {
           "criminal": 2,
           "violent": 1,
@@ -147,9 +143,10 @@
       "2020": {
         "campuses": 5,
         "online": 6,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 2900,
+        "rateFte": 2988,
         "counts": {
           "criminal": 3,
           "violent": 1,

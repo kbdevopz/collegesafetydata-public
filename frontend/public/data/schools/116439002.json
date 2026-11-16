@@ -61,12 +61,18 @@
   ],
   "institution": {
     "id": 116439,
+    "ratesFile": "rates/institutions/116439.json",
     "byYear": {
       "2023": {
         "campuses": 2,
         "online": 38,
-        "rateRanked": true,
-        "rateFte": 4344,
+        "rated": true,
+        "rateFte": 5477,
+        "fteUncertain": {
+          "share": 4344,
+          "partTimeFirst": 5477,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 4,
           "violent": 1,
@@ -84,8 +90,13 @@
       "2024": {
         "campuses": 2,
         "online": 38,
-        "rateRanked": true,
-        "rateFte": 4736,
+        "rated": true,
+        "rateFte": 5978,
+        "fteUncertain": {
+          "share": 4736,
+          "partTimeFirst": 5978,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 8,
           "violent": 3,

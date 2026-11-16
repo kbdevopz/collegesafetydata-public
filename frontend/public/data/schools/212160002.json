@@ -67,14 +67,20 @@
   ],
   "institution": {
     "id": 212160,
+    "ratesFile": "rates/institutions/212160.json",
     "byYear": {
       "2015": {
         "campuses": 2,
         "online": 15,
-        "rateRanked": true,
-        "rateFte": 4907,
-        "spikes": [
-          "drug_arrest"
+        "rated": true,
+        "rateFte": 5401,
+        "flags": [
+          {
+            "offense": "stalking",
+            "geo": "On-campus",
+            "count": 12,
+            "usual": 2
+          }
         ],
         "counts": {
           "criminal": 9,
@@ -96,12 +102,8 @@
       "2016": {
         "campuses": 2,
         "online": 17,
-        "rateRanked": true,
-        "rateFte": 4512,
-        "spikes": [
-          "drug_arrest",
-          "liquor_arrest"
-        ],
+        "rated": true,
+        "rateFte": 5038,
         "counts": {
           "criminal": 8,
           "violent": 5,
@@ -120,12 +122,8 @@
       "2017": {
         "campuses": 2,
         "online": 18,
-        "rateRanked": true,
-        "rateFte": 4034,
-        "spikes": [
-          "drug_arrest",
-          "liquor_arrest"
-        ],
+        "rated": true,
+        "rateFte": 4541,
         "counts": {
           "criminal": 17,
           "violent": 7,
@@ -144,8 +142,8 @@
       "2018": {
         "campuses": 2,
         "online": 20,
-        "rateRanked": true,
-        "rateFte": 3372,
+        "rated": true,
+        "rateFte": 3850,
         "counts": {
           "criminal": 17,
           "violent": 12,
@@ -166,8 +164,8 @@
       "2019": {
         "campuses": 2,
         "online": 21,
-        "rateRanked": true,
-        "rateFte": 3178,
+        "rated": true,
+        "rateFte": 3653,
         "counts": {
           "criminal": 6,
           "violent": 3,
@@ -187,9 +185,10 @@
       "2020": {
         "campuses": 2,
         "online": 21,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 2935,
+        "rateFte": 3371,
         "counts": {
           "all": 15,
           "drug_arrest": 2,

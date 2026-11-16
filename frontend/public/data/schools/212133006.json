@@ -93,15 +93,13 @@
   "breakdownByGeo": [],
   "institution": {
     "id": 212133,
+    "ratesFile": "rates/institutions/212133.json",
     "byYear": {
       "2015": {
         "campuses": 6,
         "online": 10,
-        "rateRanked": true,
-        "rateFte": 2552,
-        "spikes": [
-          "criminal"
-        ],
+        "rated": true,
+        "rateFte": 2701,
         "counts": {
           "criminal": 27,
           "violent": 13,
@@ -123,8 +121,8 @@
       "2016": {
         "campuses": 6,
         "online": 13,
-        "rateRanked": true,
-        "rateFte": 2359,
+        "rated": true,
+        "rateFte": 2540,
         "counts": {
           "criminal": 3,
           "property": 1,
@@ -141,8 +139,8 @@
       "2017": {
         "campuses": 6,
         "online": 19,
-        "rateRanked": true,
-        "rateFte": 1995,
+        "rated": true,
+        "rateFte": 2222,
         "counts": {
           "criminal": 2,
           "property": 1,
@@ -157,8 +155,8 @@
       "2018": {
         "campuses": 5,
         "online": 24,
-        "rateRanked": true,
-        "rateFte": 1810,
+        "rated": true,
+        "rateFte": 2081,
         "counts": {
           "criminal": 3,
           "property": 3,
@@ -175,8 +173,8 @@
       "2019": {
         "campuses": 4,
         "online": 30,
-        "rateRanked": true,
-        "rateFte": 1565,
+        "rated": true,
+        "rateFte": 1876,
         "counts": {
           "all": 9,
           "drug_discipline": 2,
@@ -186,9 +184,10 @@
       "2020": {
         "campuses": 4,
         "online": 30,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 1714,
+        "rateFte": 2044,
         "counts": {
           "criminal": 4,
           "violent": 1,
@@ -204,12 +203,9 @@
       "2021": {
         "campuses": 5,
         "online": 30,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 2046,
-        "spikes": [
-          "drug_discipline"
-        ],
+        "rateFte": 2413,
         "counts": {
           "criminal": 3,
           "all": 61,
@@ -225,8 +221,13 @@
       "2022": {
         "campuses": 3,
         "online": 68,
-        "rateRanked": true,
-        "rateFte": 1164,
+        "rated": true,
+        "rateFte": 1767,
+        "fteUncertain": {
+          "share": 1164,
+          "partTimeFirst": 1767,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 3,
           "violent": 1,
@@ -246,12 +247,13 @@
       "2023": {
         "campuses": 3,
         "online": 69,
-        "rateRanked": true,
-        "rateFte": 1339,
-        "spikes": [
-          "drug_discipline",
-          "liquor_discipline"
-        ],
+        "rated": true,
+        "rateFte": 1992,
+        "fteUncertain": {
+          "share": 1339,
+          "partTimeFirst": 1992,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 2,
           "property": 2,
@@ -266,12 +268,13 @@
       "2024": {
         "campuses": 3,
         "online": 72,
-        "rateRanked": true,
-        "rateFte": 1508,
-        "spikes": [
-          "drug_discipline",
-          "liquor_discipline"
-        ],
+        "rated": true,
+        "rateFte": 2242,
+        "fteUncertain": {
+          "share": 1508,
+          "partTimeFirst": 2242,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 4,
           "violent": 1,

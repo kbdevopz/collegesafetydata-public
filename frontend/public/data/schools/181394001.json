@@ -906,71 +906,86 @@
   ],
   "institution": {
     "id": 181394,
+    "ratesFile": "rates/institutions/181394.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 9,
-        "rateRanked": true,
-        "rateFte": 11358
+        "rated": true,
+        "rateFte": 11942
       },
       "2016": {
         "campuses": 1,
         "online": 7,
-        "rateRanked": true,
-        "rateFte": 11851,
-        "spikes": [
-          "liquor_arrest"
+        "rated": true,
+        "rateFte": 12321,
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "On-campus",
+            "count": 12,
+            "usual": 1
+          }
         ]
       },
       "2017": {
         "campuses": 1,
         "online": 8,
-        "rateRanked": true,
-        "rateFte": 11714
+        "rated": true,
+        "rateFte": 12248
       },
       "2018": {
         "campuses": 1,
         "online": 9,
-        "rateRanked": true,
-        "rateFte": 11486
+        "rated": true,
+        "rateFte": 12087
       },
       "2019": {
         "campuses": 1,
         "online": 9,
-        "rateRanked": true,
-        "rateFte": 11386
+        "rated": true,
+        "rateFte": 11988
       },
       "2020": {
         "campuses": 1,
         "online": 9,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 11928
+        "rateFte": 12559
       },
       "2021": {
         "campuses": 1,
         "online": 9,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 11520
+        "rateFte": 12130
       },
       "2022": {
         "campuses": 1,
         "online": 24,
-        "rateRanked": true,
-        "rateFte": 9550
+        "rated": true,
+        "rateFte": 11139
       },
       "2023": {
         "campuses": 1,
         "online": 23,
-        "rateRanked": true,
-        "rateFte": 9647
+        "rated": true,
+        "rateFte": 11175,
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "Public property",
+            "count": 15,
+            "usual": 0
+          }
+        ]
       },
       "2024": {
         "campuses": 1,
         "online": 24,
-        "rateRanked": true,
-        "rateFte": 9437
+        "rated": true,
+        "rateFte": 10918
       }
     }
   }

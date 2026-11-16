@@ -376,71 +376,78 @@
   ],
   "institution": {
     "id": 190628,
+    "ratesFile": "rates/institutions/190628.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 13607
       },
       "2016": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
-        "rateFte": 13607
+        "rated": true,
+        "rateFte": 13607,
+        "flags": [
+          {
+            "offense": "stalking",
+            "geo": "On-campus",
+            "count": 12,
+            "usual": 2
+          }
+        ]
       },
       "2017": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 13704
       },
       "2018": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 13568
       },
       "2019": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
-        "rateFte": 12854,
-        "spikes": [
-          "drug_discipline"
-        ]
+        "rated": true,
+        "rateFte": 12854
       },
       "2020": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 11795
       },
       "2021": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 9973
       },
       "2022": {
         "campuses": 1,
         "online": 27,
-        "rateRanked": true,
-        "rateFte": 6433
+        "rated": true,
+        "rateFte": 7629
       },
       "2023": {
         "campuses": 1,
         "online": 8,
-        "rateRanked": true,
-        "rateFte": 8774
+        "rated": true,
+        "rateFte": 9161
       },
       "2024": {
         "campuses": 1,
         "online": 6,
-        "rateRanked": true,
-        "rateFte": 9010
+        "rated": true,
+        "rateFte": 9293
       }
     }
   }

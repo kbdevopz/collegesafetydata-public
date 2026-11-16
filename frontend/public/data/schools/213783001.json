@@ -468,24 +468,25 @@
   ],
   "institution": {
     "id": 213783,
+    "ratesFile": "rates/institutions/213783.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 10,
-        "rateRanked": true,
-        "rateFte": 1953
+        "rated": true,
+        "rateFte": 2078
       },
       "2016": {
         "campuses": 1,
         "online": 8,
-        "rateRanked": true,
-        "rateFte": 1865
+        "rated": true,
+        "rateFte": 1959
       },
       "2017": {
         "campuses": 2,
         "online": 8,
-        "rateRanked": true,
-        "rateFte": 1605,
+        "rated": true,
+        "rateFte": 1686,
         "counts": {
           "criminal": 4,
           "violent": 4,
@@ -504,8 +505,8 @@
       "2018": {
         "campuses": 2,
         "online": 7,
-        "rateRanked": true,
-        "rateFte": 1421,
+        "rated": true,
+        "rateFte": 1483,
         "counts": {
           "criminal": 5,
           "violent": 3,
@@ -525,11 +526,8 @@
       "2019": {
         "campuses": 2,
         "online": 7,
-        "rateRanked": true,
-        "rateFte": 1442,
-        "spikes": [
-          "drug_arrest"
-        ],
+        "rated": true,
+        "rateFte": 1504,
         "counts": {
           "criminal": 5,
           "violent": 1,
@@ -551,9 +549,10 @@
       "2020": {
         "campuses": 2,
         "online": 7,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 1495,
+        "rateFte": 1558,
         "counts": {
           "criminal": 5,
           "violent": 5,

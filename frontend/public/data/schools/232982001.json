@@ -1014,44 +1014,31 @@
   ],
   "institution": {
     "id": 232982,
+    "ratesFile": "rates/institutions/232982.json",
     "byYear": {
       "2015": {
         "campuses": 22,
         "online": 19,
-        "rateRanked": true,
-        "rateFte": 16159,
-        "spikes": [
-          "liquor_discipline"
-        ]
+        "rated": true,
+        "rateFte": 18133
       },
       "2016": {
         "campuses": 22,
         "online": 21,
-        "rateRanked": true,
-        "rateFte": 15557,
-        "spikes": [
-          "drug_arrest",
-          "liquor_discipline"
-        ]
+        "rated": true,
+        "rateFte": 17715
       },
       "2017": {
         "campuses": 22,
         "online": 23,
-        "rateRanked": true,
-        "rateFte": 15126,
-        "spikes": [
-          "drug_arrest",
-          "liquor_discipline"
-        ]
+        "rated": true,
+        "rateFte": 17479
       },
       "2018": {
         "campuses": 22,
         "online": 25,
-        "rateRanked": true,
-        "rateFte": 14645,
-        "spikes": [
-          "drug_arrest"
-        ],
+        "rated": true,
+        "rateFte": 17194,
         "counts": {
           "criminal": 45,
           "violent": 25,
@@ -1076,8 +1063,8 @@
       "2019": {
         "campuses": 27,
         "online": 26,
-        "rateRanked": true,
-        "rateFte": 14137,
+        "rated": true,
+        "rateFte": 16723,
         "counts": {
           "criminal": 44,
           "violent": 21,
@@ -1102,43 +1089,43 @@
       "2020": {
         "campuses": 27,
         "online": 26,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 14400,
-        "spikes": [
-          "motor_vehicle_theft"
+        "rateFte": 17012,
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 31,
+            "usual": 7
+          }
         ]
       },
       "2021": {
         "campuses": 4,
         "online": 26,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 13817
+        "rateFte": 16307
       },
       "2022": {
         "campuses": 4,
         "online": 38,
-        "rateRanked": true,
-        "rateFte": 11464
+        "rated": true,
+        "rateFte": 14132
       },
       "2023": {
         "campuses": 4,
         "online": 37,
-        "rateRanked": true,
-        "rateFte": 11418,
-        "spikes": [
-          "drug_discipline"
-        ]
+        "rated": true,
+        "rateFte": 13920
       },
       "2024": {
         "campuses": 4,
         "online": 36,
-        "rateRanked": true,
-        "rateFte": 12332,
-        "spikes": [
-          "motor_vehicle_theft"
-        ]
+        "rated": true,
+        "rateFte": 14985
       }
     }
   }

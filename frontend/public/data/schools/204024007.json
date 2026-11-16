@@ -137,25 +137,38 @@
   ],
   "institution": {
     "id": 204024,
+    "ratesFile": "rates/institutions/204024.json",
     "byYear": {
       "2016": {
-        "campuses": 7,
+        "campuses": 6,
         "online": 3,
-        "rateRanked": true,
-        "rateFte": 17705,
-        "spikes": [
-          "property",
-          "burglary",
-          "drug_arrest"
+        "rated": true,
+        "rateFte": 18033,
+        "abroad": {
+          "campuses": 1,
+          "counts": {
+            "criminal": 1,
+            "property": 1,
+            "all": 1,
+            "burglary": 1
+          }
+        },
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "On-campus",
+            "count": 64,
+            "usual": 7
+          }
         ],
         "counts": {
-          "criminal": 123,
+          "criminal": 122,
           "violent": 36,
-          "property": 81,
-          "all": 865,
+          "property": 80,
+          "all": 864,
           "aggravated_assault": 10,
           "arson": 2,
-          "burglary": 74,
+          "burglary": 73,
           "dating_violence": 17,
           "drug_arrest": 62,
           "drug_discipline": 82,
@@ -169,13 +182,14 @@
         }
       },
       "2017": {
-        "campuses": 7,
+        "campuses": 6,
         "online": 5,
-        "rateRanked": true,
-        "rateFte": 17464,
-        "spikes": [
-          "drug_arrest"
-        ],
+        "rated": true,
+        "rateFte": 18016,
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
         "counts": {
           "criminal": 76,
           "violent": 35,
@@ -198,18 +212,22 @@
         }
       },
       "2018": {
-        "campuses": 6,
+        "campuses": 5,
         "online": 5,
-        "rateRanked": true,
-        "rateFte": 17614,
-        "spikes": [
-          "drug_arrest"
-        ],
+        "rated": true,
+        "rateFte": 18169,
+        "abroad": {
+          "campuses": 1,
+          "counts": {
+            "all": 1,
+            "stalking": 1
+          }
+        },
         "counts": {
           "criminal": 75,
           "violent": 34,
           "property": 32,
-          "all": 750,
+          "all": 749,
           "aggravated_assault": 5,
           "arson": 6,
           "burglary": 25,
@@ -223,15 +241,19 @@
           "motor_vehicle_theft": 1,
           "rape": 28,
           "robbery": 1,
-          "stalking": 38,
+          "stalking": 37,
           "weapons_arrest": 1
         }
       },
       "2019": {
-        "campuses": 6,
+        "campuses": 5,
         "online": 5,
-        "rateRanked": true,
-        "rateFte": 17528,
+        "rated": true,
+        "rateFte": 18083,
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
         "counts": {
           "criminal": 86,
           "violent": 41,
@@ -254,11 +276,16 @@
         }
       },
       "2020": {
-        "campuses": 5,
+        "campuses": 4,
         "online": 5,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 16839,
+        "rateFte": 17374,
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
         "counts": {
           "criminal": 38,
           "violent": 27,
@@ -278,14 +305,15 @@
         }
       },
       "2021": {
-        "campuses": 5,
+        "campuses": 4,
         "online": 5,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 17285,
-        "spikes": [
-          "fondling"
-        ],
+        "rateFte": 17837,
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
         "counts": {
           "criminal": 74,
           "violent": 37,
@@ -308,10 +336,14 @@
         }
       },
       "2022": {
-        "campuses": 6,
+        "campuses": 5,
         "online": 6,
-        "rateRanked": true,
-        "rateFte": 16928,
+        "rated": true,
+        "rateFte": 17554,
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
         "counts": {
           "criminal": 100,
           "violent": 42,

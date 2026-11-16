@@ -81,24 +81,25 @@
   ],
   "institution": {
     "id": 129729,
+    "ratesFile": "rates/institutions/129729.json",
     "byYear": {
       "2015": {
         "campuses": 2,
         "online": 4,
-        "rateRanked": true,
-        "rateFte": 3755
+        "rated": true,
+        "rateFte": 3817
       },
       "2016": {
         "campuses": 2,
         "online": 4,
-        "rateRanked": true,
-        "rateFte": 3566
+        "rated": true,
+        "rateFte": 3626
       },
       "2017": {
         "campuses": 2,
         "online": 4,
-        "rateRanked": true,
-        "rateFte": 3440,
+        "rated": true,
+        "rateFte": 3497,
         "counts": {
           "criminal": 1,
           "property": 1,
@@ -109,35 +110,37 @@
       "2018": {
         "campuses": 2,
         "online": 4,
-        "rateRanked": true,
-        "rateFte": 3401
+        "rated": true,
+        "rateFte": 3459
       },
       "2019": {
         "campuses": 2,
         "online": 4,
-        "rateRanked": true,
-        "rateFte": 3290
+        "rated": true,
+        "rateFte": 3346
       },
       "2020": {
         "campuses": 2,
         "online": 4,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 2841
+        "rateFte": 2891
       },
       "2021": {
         "campuses": 2,
         "online": 4,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 2575
+        "rateFte": 2619
       },
       "2022": {
         "campuses": 1,
         "online": 18,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "excluded",
         "rateExcludedReason": "In 2022 DOE counted the figures of campus 129729001 of this institution under ID 129367005 of another institution (a merger or renumbering), while IPEDS counts that campus's students in this institution's FTE. No rate is shown for that year.",
-        "rateFte": 2124
+        "rateFte": 2315
       }
     }
   }

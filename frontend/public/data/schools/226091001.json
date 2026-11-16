@@ -868,79 +868,128 @@
   ],
   "institution": {
     "id": 226091,
+    "ratesFile": "rates/institutions/226091.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 39,
-        "rateRanked": true,
-        "rateFte": 6256
+        "rated": true,
+        "rateFte": 8052,
+        "fteUncertain": {
+          "share": 6256,
+          "partTimeFirst": 8052,
+          "reason": "own"
+        }
       },
       "2016": {
         "campuses": 1,
         "online": 42,
-        "rateRanked": true,
-        "rateFte": 5823
+        "rated": true,
+        "rateFte": 7657,
+        "fteUncertain": {
+          "share": 5823,
+          "partTimeFirst": 7657,
+          "reason": "own"
+        }
       },
       "2017": {
         "campuses": 1,
         "online": 45,
-        "rateRanked": true,
-        "rateFte": 5251
+        "rated": true,
+        "rateFte": 7073,
+        "fteUncertain": {
+          "share": 5251,
+          "partTimeFirst": 7073,
+          "reason": "own"
+        }
       },
       "2018": {
         "campuses": 1,
         "online": 48,
-        "rateRanked": true,
-        "rateFte": 4993
+        "rated": true,
+        "rateFte": 6922,
+        "fteUncertain": {
+          "share": 4993,
+          "partTimeFirst": 6922,
+          "reason": "own"
+        }
       },
       "2019": {
         "campuses": 1,
         "online": 54,
-        "rateRanked": true,
-        "rateFte": 4358,
-        "spikes": [
-          "liquor_discipline"
-        ]
+        "rated": true,
+        "rateFte": 6329,
+        "fteUncertain": {
+          "share": 4358,
+          "partTimeFirst": 6329,
+          "reason": "own"
+        }
       },
       "2020": {
         "campuses": 1,
         "online": 54,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 4420,
-        "spikes": [
-          "liquor_discipline"
-        ]
+        "rateFte": 6228,
+        "fteUncertain": {
+          "share": 4420,
+          "partTimeFirst": 6228,
+          "reason": "own"
+        }
       },
       "2021": {
         "campuses": 1,
         "online": 54,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 4361
+        "rateFte": 6163,
+        "fteUncertain": {
+          "share": 4361,
+          "partTimeFirst": 6163,
+          "reason": "own"
+        }
       },
       "2022": {
         "campuses": 1,
         "online": 54,
-        "rateRanked": true,
-        "rateFte": 5504
+        "rated": true,
+        "rateFte": 7652,
+        "fteUncertain": {
+          "share": 5504,
+          "partTimeFirst": 7652,
+          "reason": "own"
+        }
       },
       "2023": {
         "campuses": 1,
         "online": 61,
-        "rateRanked": true,
-        "rateFte": 5357,
-        "spikes": [
-          "drug_discipline",
-          "liquor_arrest",
-          "liquor_discipline"
-        ]
+        "rated": true,
+        "rateFte": 6875,
+        "fteUncertain": {
+          "share": 5357,
+          "partTimeFirst": 6875,
+          "reason": "own"
+        }
       },
       "2024": {
         "campuses": 1,
         "online": 60,
-        "rateRanked": true,
-        "rateFte": 5660
+        "rated": true,
+        "rateFte": 7085,
+        "fteUncertain": {
+          "share": 5660,
+          "partTimeFirst": 7085,
+          "reason": "own"
+        },
+        "flags": [
+          {
+            "offense": "fondling",
+            "geo": "On-campus",
+            "count": 14,
+            "usual": 2
+          }
+        ]
       }
     }
   }

@@ -44,12 +44,17 @@
   ],
   "institution": {
     "id": 240471,
+    "ratesFile": "rates/institutions/240471.json",
     "byYear": {
       "2023": {
-        "campuses": 2,
+        "campuses": 1,
         "online": 8,
-        "rateRanked": true,
-        "rateFte": 4078,
+        "rated": true,
+        "rateFte": 4273,
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
         "counts": {
           "criminal": 8,
           "violent": 8,
@@ -65,10 +70,22 @@
         }
       },
       "2024": {
-        "campuses": 2,
+        "campuses": 1,
         "online": 7,
-        "rateRanked": true,
-        "rateFte": 4257,
+        "rated": true,
+        "rateFte": 4436,
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
+        "flags": [
+          {
+            "offense": "dating_violence",
+            "geo": "On-campus",
+            "count": 12,
+            "usual": 2
+          }
+        ],
         "counts": {
           "criminal": 21,
           "violent": 14,

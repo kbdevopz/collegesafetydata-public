@@ -908,77 +908,86 @@
   ],
   "institution": {
     "id": 220978,
+    "ratesFile": "rates/institutions/220978.json",
     "byYear": {
       "2015": {
         "campuses": 2,
         "online": 8,
-        "rateRanked": true,
-        "rateFte": 17604,
-        "spikes": [
-          "liquor_discipline"
+        "rated": true,
+        "rateFte": 18430,
+        "flags": [
+          {
+            "offense": "dating_violence",
+            "geo": "On-campus",
+            "count": 18,
+            "usual": 0
+          }
         ]
       },
       "2016": {
         "campuses": 2,
         "online": 8,
-        "rateRanked": true,
-        "rateFte": 17348
+        "rated": true,
+        "rateFte": 18167
       },
       "2017": {
         "campuses": 2,
         "online": 7,
-        "rateRanked": true,
-        "rateFte": 17355
+        "rated": true,
+        "rateFte": 18062
       },
       "2018": {
         "campuses": 2,
         "online": 8,
-        "rateRanked": true,
-        "rateFte": 16874,
-        "spikes": [
-          "stalking"
+        "rated": true,
+        "rateFte": 17665,
+        "flags": [
+          {
+            "offense": "stalking",
+            "geo": "On-campus",
+            "count": 26,
+            "usual": 7
+          }
         ]
       },
       "2019": {
         "campuses": 1,
         "online": 7,
-        "rateRanked": true,
-        "rateFte": 17188
+        "rated": true,
+        "rateFte": 17887
       },
       "2020": {
         "campuses": 1,
         "online": 7,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 17325
+        "rateFte": 18028
       },
       "2021": {
         "campuses": 1,
         "online": 7,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 16884
+        "rateFte": 17569
       },
       "2022": {
         "campuses": 1,
         "online": 15,
-        "rateRanked": true,
-        "rateFte": 14230
+        "rated": true,
+        "rateFte": 15563
       },
       "2023": {
         "campuses": 1,
         "online": 13,
-        "rateRanked": true,
-        "rateFte": 14696,
-        "spikes": [
-          "liquor_discipline"
-        ]
+        "rated": true,
+        "rateFte": 15908
       },
       "2024": {
         "campuses": 1,
         "online": 15,
-        "rateRanked": true,
-        "rateFte": 14640
+        "rated": true,
+        "rateFte": 16035
       }
     }
   }

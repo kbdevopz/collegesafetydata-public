@@ -492,29 +492,33 @@
   ],
   "institution": {
     "id": 190585,
+    "ratesFile": "rates/institutions/190585.json",
     "byYear": {
       "2015": {
         "campuses": 2,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 5259,
-        "spikes": [
-          "criminal",
-          "violent",
-          "aggravated_assault"
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "Public property",
+            "count": 22,
+            "usual": 1
+          }
         ]
       },
       "2016": {
         "campuses": 2,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 5140
       },
       "2017": {
         "campuses": 2,
         "online": 1,
-        "rateRanked": true,
-        "rateFte": 5136,
+        "rated": true,
+        "rateFte": 5164,
         "counts": {
           "criminal": 4,
           "violent": 2,
@@ -531,20 +535,33 @@
       "2018": {
         "campuses": 2,
         "online": 1,
-        "rateRanked": true,
-        "rateFte": 5158
+        "rated": true,
+        "rateFte": 5185
       },
       "2019": {
         "campuses": 2,
         "online": 1,
-        "rateRanked": true,
-        "rateFte": 4838,
-        "spikes": [
-          "criminal",
-          "violent",
-          "all",
-          "aggravated_assault",
-          "domestic_violence"
+        "rated": true,
+        "rateFte": 4863,
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "Public property",
+            "count": 20,
+            "usual": 1
+          },
+          {
+            "offense": "domestic_violence",
+            "geo": "Public property",
+            "count": 24,
+            "usual": 0
+          },
+          {
+            "offense": "robbery",
+            "geo": "Public property",
+            "count": 10,
+            "usual": 1
+          }
         ],
         "counts": {
           "criminal": 32,
@@ -566,38 +583,49 @@
       "2020": {
         "campuses": 1,
         "online": 1,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 4232
+        "rateFte": 4254
       },
       "2021": {
         "campuses": 1,
         "online": 1,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 3555
+        "rateFte": 3573
       },
       "2022": {
         "campuses": 1,
         "online": 19,
-        "rateRanked": true,
-        "rateFte": 2632,
-        "spikes": [
-          "criminal",
-          "violent"
+        "rated": true,
+        "rateFte": 2936,
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "Public property",
+            "count": 13,
+            "usual": 1
+          },
+          {
+            "offense": "robbery",
+            "geo": "Public property",
+            "count": 10,
+            "usual": 1
+          }
         ]
       },
       "2023": {
         "campuses": 1,
         "online": 14,
-        "rateRanked": true,
-        "rateFte": 3103
+        "rated": true,
+        "rateFte": 3348
       },
       "2024": {
         "campuses": 1,
         "online": 13,
-        "rateRanked": true,
-        "rateFte": 2946
+        "rated": true,
+        "rateFte": 3147
       }
     }
   }

@@ -84,11 +84,13 @@
   ],
   "institution": {
     "id": 488679,
+    "ratesFile": "rates/institutions/488679.json",
     "byYear": {
       "2015": {
         "campuses": 15,
         "online": null,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateExcludedReason": "In 2015 DOE reported campuses of this institution and of related institutions (a merger or renumbering) under separate IDs, while IPEDS has no enrollment for 488679, so that year's incidents and enrollment may not cover the same campuses. No rate is shown for it.",
         "counts": {
           "criminal": 2,
@@ -103,8 +105,8 @@
       "2016": {
         "campuses": 16,
         "online": 47,
-        "rateRanked": true,
-        "rateFte": 5532,
+        "rated": true,
+        "rateFte": 5863,
         "counts": {
           "criminal": 2,
           "property": 2,
@@ -115,8 +117,8 @@
       "2017": {
         "campuses": 15,
         "online": 86,
-        "rateRanked": true,
-        "rateFte": 1420,
+        "rated": true,
+        "rateFte": 1509,
         "counts": {
           "criminal": 1,
           "property": 1,
@@ -129,8 +131,8 @@
       "2018": {
         "campuses": 15,
         "online": 81,
-        "rateRanked": true,
-        "rateFte": 1868,
+        "rated": true,
+        "rateFte": 2017,
         "counts": {
           "all": 1,
           "stalking": 1
@@ -139,8 +141,8 @@
       "2019": {
         "campuses": 15,
         "online": 86,
-        "rateRanked": true,
-        "rateFte": 1533,
+        "rated": true,
+        "rateFte": 1597,
         "counts": {
           "criminal": 1,
           "violent": 1,
@@ -151,34 +153,36 @@
       "2020": {
         "campuses": 15,
         "online": 86,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 1502
+        "rateFte": 1532
       },
       "2021": {
         "campuses": 14,
         "online": 86,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 1359
+        "rateFte": 1401
       },
       "2022": {
         "campuses": 14,
         "online": 97,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 287
       },
       "2023": {
         "campuses": 14,
         "online": 77,
-        "rateRanked": true,
-        "rateFte": 2773
+        "rated": true,
+        "rateFte": 2969
       },
       "2024": {
         "campuses": 11,
         "online": 73,
-        "rateRanked": true,
-        "rateFte": 3679
+        "rated": true,
+        "rateFte": 3848
       }
     }
   }

@@ -10,6 +10,7 @@
 
 import type { SchoolProfile } from './types'
 import { formatYearRanges } from './enrollment'
+import { formatNumber } from './format'
 
 export const SITE_NAME = 'CollegeSafetyData.org'
 // Canonical host for every page (collegesafetydata.com serves the same site).
@@ -122,9 +123,7 @@ export function escapeHtml(text: string): string {
     .replace(/'/g, '&#39;')
 }
 
-function formatCount(n: number): string {
-  return n.toLocaleString('en-US')
-}
+const formatCount = (n: number): string => formatNumber(n)
 
 function place(profile: Pick<SchoolProfile, 'city' | 'state'>): string {
   return [profile.city, profile.state].filter(Boolean).join(', ')

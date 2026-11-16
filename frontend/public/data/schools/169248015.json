@@ -40,17 +40,20 @@
   ],
   "institution": {
     "id": 169248,
+    "ratesFile": "rates/institutions/169248.json",
     "byYear": {
       "2015": {
         "campuses": 40,
         "online": 19,
-        "rateRanked": true,
-        "rateFte": 18172,
-        "spikes": [
-          "drug_arrest",
-          "drug_discipline",
-          "fondling",
-          "liquor_arrest"
+        "rated": true,
+        "rateFte": 20508,
+        "flags": [
+          {
+            "offense": "fondling",
+            "geo": "On-campus",
+            "count": 21,
+            "usual": 5
+          }
         ],
         "counts": {
           "criminal": 36,

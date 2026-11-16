@@ -56,12 +56,17 @@
   ],
   "institution": {
     "id": 170806,
+    "ratesFile": "rates/institutions/170806.json",
     "byYear": {
       "2016": {
-        "campuses": 6,
+        "campuses": 5,
         "online": 10,
-        "rateRanked": true,
-        "rateFte": 1946,
+        "rated": true,
+        "rateFte": 2034,
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
         "counts": {
           "criminal": 6,
           "violent": 1,
@@ -76,10 +81,14 @@
         }
       },
       "2017": {
-        "campuses": 6,
+        "campuses": 5,
         "online": 11,
-        "rateRanked": true,
-        "rateFte": 1872,
+        "rated": true,
+        "rateFte": 1971,
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
         "counts": {
           "criminal": 6,
           "property": 5,
@@ -94,10 +103,14 @@
         }
       },
       "2018": {
-        "campuses": 4,
+        "campuses": 3,
         "online": 19,
-        "rateRanked": true,
-        "rateFte": 1724,
+        "rated": true,
+        "rateFte": 1904,
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
         "counts": {
           "criminal": 2,
           "violent": 1,
@@ -111,10 +124,14 @@
         }
       },
       "2019": {
-        "campuses": 5,
+        "campuses": 4,
         "online": 21,
-        "rateRanked": true,
-        "rateFte": 1781,
+        "rated": true,
+        "rateFte": 2009,
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
         "counts": {
           "criminal": 2,
           "violent": 1,
@@ -128,11 +145,16 @@
         }
       },
       "2020": {
-        "campuses": 5,
+        "campuses": 4,
         "online": 21,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 1678,
+        "rateFte": 1896,
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
         "counts": {
           "criminal": 5,
           "violent": 3,

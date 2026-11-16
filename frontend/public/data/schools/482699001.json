@@ -438,12 +438,13 @@
   ],
   "institution": {
     "id": 482699,
+    "ratesFile": "rates/institutions/482699.json",
     "byYear": {
       "2015": {
         "campuses": 2,
         "online": 1,
-        "rateRanked": true,
-        "rateFte": 2137,
+        "rated": true,
+        "rateFte": 2148,
         "counts": {
           "criminal": 9,
           "property": 9,
@@ -460,8 +461,8 @@
       "2016": {
         "campuses": 2,
         "online": 2,
-        "rateRanked": true,
-        "rateFte": 1963,
+        "rated": true,
+        "rateFte": 1982,
         "counts": {
           "criminal": 3,
           "violent": 1,
@@ -480,17 +481,14 @@
       "2017": {
         "campuses": 2,
         "online": 4,
-        "rateRanked": true,
-        "rateFte": 1930,
-        "spikes": [
-          "liquor_arrest"
-        ]
+        "rated": true,
+        "rateFte": 1969
       },
       "2018": {
         "campuses": 2,
         "online": 10,
-        "rateRanked": true,
-        "rateFte": 1750,
+        "rated": true,
+        "rateFte": 1844,
         "counts": {
           "criminal": 2,
           "property": 2,
@@ -503,46 +501,46 @@
       "2019": {
         "campuses": 2,
         "online": 9,
-        "rateRanked": true,
-        "rateFte": 1663,
-        "spikes": [
-          "drug_arrest"
-        ]
+        "rated": true,
+        "rateFte": 1742
       },
       "2020": {
         "campuses": 2,
         "online": 9,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 1377
+        "rateFte": 1439
       },
       "2021": {
         "campuses": 2,
         "online": 9,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 1200
+        "rateFte": 1255
       },
       "2022": {
         "campuses": 2,
         "online": 33,
-        "rateRanked": false,
-        "rateFte": 917
+        "rated": true,
+        "rateFte": 1129
       },
       "2023": {
         "campuses": 2,
         "online": 38,
-        "rateRanked": false,
-        "rateFte": 866,
-        "spikes": [
-          "liquor_discipline"
-        ]
+        "rated": true,
+        "rateFte": 1113,
+        "fteUncertain": {
+          "share": 866,
+          "partTimeFirst": 1113,
+          "reason": "own"
+        }
       },
       "2024": {
         "campuses": 2,
         "online": 34,
-        "rateRanked": false,
-        "rateFte": 896
+        "rated": true,
+        "rateFte": 1097
       }
     }
   }

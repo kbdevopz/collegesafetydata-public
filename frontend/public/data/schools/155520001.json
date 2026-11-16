@@ -404,68 +404,86 @@
   ],
   "institution": {
     "id": 155520,
+    "ratesFile": "rates/institutions/155520.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 14,
-        "rateRanked": true,
-        "rateFte": 1245
+        "rated": true,
+        "rateFte": 1346
       },
       "2016": {
         "campuses": 1,
         "online": 19,
-        "rateRanked": true,
-        "rateFte": 1143
+        "rated": true,
+        "rateFte": 1277
       },
       "2017": {
         "campuses": 1,
         "online": 18,
-        "rateRanked": true,
-        "rateFte": 1178
+        "rated": true,
+        "rateFte": 1305
       },
       "2018": {
         "campuses": 1,
         "online": 19,
-        "rateRanked": true,
-        "rateFte": 1118
+        "rated": true,
+        "rateFte": 1243
       },
       "2019": {
         "campuses": 1,
         "online": 37,
-        "rateRanked": false,
-        "rateFte": 884
+        "rated": true,
+        "rateFte": 1130,
+        "fteUncertain": {
+          "share": 884,
+          "partTimeFirst": 1130,
+          "reason": "own"
+        }
       },
       "2020": {
         "campuses": 1,
         "online": 37,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 809
+        "rateFte": 1031,
+        "fteUncertain": {
+          "share": 809,
+          "partTimeFirst": 1031,
+          "reason": "own"
+        }
       },
       "2021": {
         "campuses": 1,
         "online": 37,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "onlineYear": 2019,
-        "rateFte": 771
+        "rateFte": 997,
+        "fteUncertain": {
+          "share": 771,
+          "partTimeFirst": 997,
+          "reason": "own"
+        }
       },
       "2022": {
         "campuses": 1,
         "online": 10,
-        "rateRanked": true,
-        "rateFte": 1073
+        "rated": true,
+        "rateFte": 1131
       },
       "2023": {
         "campuses": 1,
         "online": 9,
-        "rateRanked": true,
-        "rateFte": 1107
+        "rated": true,
+        "rateFte": 1161
       },
       "2024": {
         "campuses": 1,
         "online": 9,
-        "rateRanked": true,
-        "rateFte": 1107
+        "rated": true,
+        "rateFte": 1161
       }
     }
   }

@@ -74,16 +74,18 @@
   "breakdownByGeo": [],
   "institution": {
     "id": 196264,
+    "ratesFile": "rates/institutions/196264.json",
     "byYear": {
       "2015": {
         "campuses": 34,
         "online": 48,
-        "rateRanked": true,
-        "rateFte": 3823,
-        "spikes": [
-          "all",
-          "liquor_arrest"
-        ],
+        "rated": true,
+        "rateFte": 5082,
+        "fteUncertain": {
+          "share": 3823,
+          "partTimeFirst": 5082,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 4,
           "violent": 3,
@@ -100,8 +102,13 @@
       "2016": {
         "campuses": 34,
         "online": 50,
-        "rateRanked": true,
-        "rateFte": 3431,
+        "rated": true,
+        "rateFte": 4611,
+        "fteUncertain": {
+          "share": 3431,
+          "partTimeFirst": 4611,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 3,
           "violent": 1,
@@ -119,8 +126,13 @@
       "2017": {
         "campuses": 33,
         "online": 50,
-        "rateRanked": true,
-        "rateFte": 3344,
+        "rated": true,
+        "rateFte": 4508,
+        "fteUncertain": {
+          "share": 3344,
+          "partTimeFirst": 4508,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 1,
           "violent": 1,
@@ -133,8 +145,13 @@
       "2018": {
         "campuses": 33,
         "online": 49,
-        "rateRanked": true,
-        "rateFte": 3245,
+        "rated": true,
+        "rateFte": 4335,
+        "fteUncertain": {
+          "share": 3245,
+          "partTimeFirst": 4335,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 3,
           "violent": 1,
@@ -148,8 +165,13 @@
       "2019": {
         "campuses": 33,
         "online": 47,
-        "rateRanked": true,
-        "rateFte": 3276,
+        "rated": true,
+        "rateFte": 4238,
+        "fteUncertain": {
+          "share": 3276,
+          "partTimeFirst": 4238,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 6,
           "violent": 3,
@@ -164,13 +186,15 @@
       "2020": {
         "campuses": 33,
         "online": 47,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 3466,
-        "spikes": [
-          "all",
-          "drug_discipline"
-        ],
+        "rateFte": 4549,
+        "fteUncertain": {
+          "share": 3466,
+          "partTimeFirst": 4549,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 4,
           "violent": 2,
@@ -186,9 +210,14 @@
       "2021": {
         "campuses": 17,
         "online": 47,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 3072,
+        "rateFte": 4044,
+        "fteUncertain": {
+          "share": 3072,
+          "partTimeFirst": 4044,
+          "reason": "own"
+        },
         "counts": {
           "all": 6,
           "drug_arrest": 1,
@@ -198,8 +227,13 @@
       "2022": {
         "campuses": 12,
         "online": 61,
-        "rateRanked": true,
-        "rateFte": 2258,
+        "rated": true,
+        "rateFte": 3454,
+        "fteUncertain": {
+          "share": 2258,
+          "partTimeFirst": 3454,
+          "reason": "own"
+        },
         "counts": {
           "all": 1,
           "domestic_violence": 1
@@ -208,8 +242,14 @@
       "2023": {
         "campuses": 8,
         "online": 92,
-        "rateRanked": false,
-        "rateFte": 478,
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 779,
+        "fteUncertain": {
+          "share": 478,
+          "partTimeFirst": 779,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 2,
           "property": 2,
@@ -220,8 +260,14 @@
       "2024": {
         "campuses": 8,
         "online": 92,
-        "rateRanked": false,
-        "rateFte": 536
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 840,
+        "fteUncertain": {
+          "share": 536,
+          "partTimeFirst": 840,
+          "reason": "own"
+        }
       }
     }
   }

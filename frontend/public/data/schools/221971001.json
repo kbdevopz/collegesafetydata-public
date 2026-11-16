@@ -334,50 +334,52 @@
   ],
   "institution": {
     "id": 221971,
+    "ratesFile": "rates/institutions/221971.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 3,
-        "rateRanked": true,
-        "rateFte": 2942
+        "rated": true,
+        "rateFte": 2991
       },
       "2016": {
         "campuses": 1,
         "online": 8,
-        "rateRanked": true,
-        "rateFte": 2501
+        "rated": true,
+        "rateFte": 2611
       },
       "2017": {
         "campuses": 1,
         "online": 9,
-        "rateRanked": true,
-        "rateFte": 2441
+        "rated": true,
+        "rateFte": 2564
       },
       "2018": {
         "campuses": 1,
         "online": 10,
-        "rateRanked": true,
-        "rateFte": 2489
+        "rated": true,
+        "rateFte": 2640
       },
       "2019": {
         "campuses": 1,
         "online": 13,
-        "rateRanked": true,
-        "rateFte": 2366
+        "rated": true,
+        "rateFte": 2559
       },
       "2020": {
         "campuses": 4,
         "online": 13,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 2305
+        "rateFte": 2494
       },
       "2021": {
         "campuses": 4,
         "online": 13,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 2138,
+        "rateFte": 2311,
         "counts": {
           "criminal": 5,
           "property": 4,
@@ -392,27 +394,28 @@
       "2022": {
         "campuses": 4,
         "online": 21,
-        "rateRanked": true,
-        "rateFte": 1793,
-        "spikes": [
-          "liquor_discipline"
-        ]
+        "rated": true,
+        "rateFte": 2039
       },
       "2023": {
         "campuses": 4,
         "online": 21,
-        "rateRanked": true,
-        "rateFte": 1733,
-        "spikes": [
-          "all",
-          "liquor_discipline"
+        "rated": true,
+        "rateFte": 1972,
+        "flags": [
+          {
+            "offense": "stalking",
+            "geo": "On-campus",
+            "count": 12,
+            "usual": 1
+          }
         ]
       },
       "2024": {
         "campuses": 4,
         "online": 22,
-        "rateRanked": true,
-        "rateFte": 1679
+        "rated": true,
+        "rateFte": 1883
       }
     }
   }

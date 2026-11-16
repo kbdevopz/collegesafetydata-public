@@ -692,83 +692,86 @@
   ],
   "institution": {
     "id": 196167,
+    "ratesFile": "rates/institutions/196167.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
-        "rateFte": 5589,
-        "spikes": [
-          "drug_arrest"
-        ]
+        "rated": true,
+        "rateFte": 5589
       },
       "2016": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
-        "rateFte": 5497,
-        "spikes": [
-          "all",
-          "drug_arrest",
-          "drug_discipline"
-        ]
+        "rated": true,
+        "rateFte": 5497
       },
       "2017": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
-        "rateFte": 5559,
-        "spikes": [
-          "drug_arrest"
-        ]
+        "rated": true,
+        "rateFte": 5559
       },
       "2018": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
-        "rateFte": 5497,
-        "spikes": [
-          "drug_arrest",
-          "drug_discipline"
-        ]
+        "rated": true,
+        "rateFte": 5497
       },
       "2019": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 5278
       },
       "2020": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 4769
       },
       "2021": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 4413
       },
       "2022": {
         "campuses": 1,
         "online": 1,
-        "rateRanked": true,
-        "rateFte": 4037
+        "rated": true,
+        "rateFte": 4072
       },
       "2023": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
-        "rateFte": 3823
+        "rated": true,
+        "rateFte": 3823,
+        "flags": [
+          {
+            "offense": "dating_violence",
+            "geo": "On-campus",
+            "count": 13,
+            "usual": 2
+          }
+        ]
       },
       "2024": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
-        "rateFte": 3858
+        "rated": true,
+        "rateFte": 3858,
+        "flags": [
+          {
+            "offense": "stalking",
+            "geo": "On-campus",
+            "count": 10,
+            "usual": 1
+          }
+        ]
       }
     }
   }

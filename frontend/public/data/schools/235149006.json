@@ -57,12 +57,18 @@
   ],
   "institution": {
     "id": 235149,
+    "ratesFile": "rates/institutions/235149.json",
     "byYear": {
       "2024": {
         "campuses": 4,
         "online": 41,
-        "rateRanked": true,
-        "rateFte": 2821,
+        "rated": true,
+        "rateFte": 3673,
+        "fteUncertain": {
+          "share": 2821,
+          "partTimeFirst": 3673,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 13,
           "violent": 2,

@@ -68,12 +68,13 @@
   ],
   "institution": {
     "id": 199421,
+    "ratesFile": "rates/institutions/199421.json",
     "byYear": {
       "2017": {
         "campuses": 3,
         "online": 23,
-        "rateRanked": true,
-        "rateFte": 1229,
+        "rated": true,
+        "rateFte": 1384,
         "counts": {
           "all": 2,
           "weapons_discipline": 2
@@ -82,14 +83,14 @@
       "2018": {
         "campuses": 3,
         "online": 29,
-        "rateRanked": true,
-        "rateFte": 1036
+        "rated": true,
+        "rateFte": 1188
       },
       "2019": {
         "campuses": 3,
         "online": 30,
-        "rateRanked": true,
-        "rateFte": 1042,
+        "rated": true,
+        "rateFte": 1196,
         "counts": {
           "all": 4,
           "drug_discipline": 2,
@@ -99,16 +100,18 @@
       "2020": {
         "campuses": 3,
         "online": 30,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 921
+        "rateFte": 1058
       },
       "2021": {
         "campuses": 3,
         "online": 30,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "onlineYear": 2019,
-        "rateFte": 818,
+        "rateFte": 937,
         "counts": {
           "all": 1,
           "drug_discipline": 1
@@ -117,20 +120,33 @@
       "2022": {
         "campuses": 3,
         "online": 60,
-        "rateRanked": false,
-        "rateFte": 482
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 709,
+        "fteUncertain": {
+          "share": 482,
+          "partTimeFirst": 709,
+          "reason": "own"
+        }
       },
       "2023": {
         "campuses": 3,
         "online": 50,
-        "rateRanked": false,
-        "rateFte": 661
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 865,
+        "fteUncertain": {
+          "share": 661,
+          "partTimeFirst": 865,
+          "reason": "own"
+        }
       },
       "2024": {
         "campuses": 3,
         "online": 52,
-        "rateRanked": false,
-        "rateFte": 582
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 721
       }
     }
   }

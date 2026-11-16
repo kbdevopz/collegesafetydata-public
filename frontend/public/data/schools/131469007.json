@@ -165,15 +165,20 @@
   "breakdownByGeo": [],
   "institution": {
     "id": 131469,
+    "ratesFile": "rates/institutions/131469.json",
     "byYear": {
       "2015": {
         "campuses": 7,
         "online": 14,
-        "rateRanked": true,
-        "rateFte": 18022,
-        "spikes": [
-          "burglary",
-          "domestic_violence"
+        "rated": true,
+        "rateFte": 19549,
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "On-campus",
+            "count": 22,
+            "usual": 5
+          }
         ],
         "counts": {
           "criminal": 89,
@@ -201,11 +206,23 @@
       "2016": {
         "campuses": 7,
         "online": 16,
-        "rateRanked": true,
-        "rateFte": 18209,
-        "spikes": [
-          "violent",
-          "robbery"
+        "rated": false,
+        "notRated": "excluded",
+        "rateExcludedReason": "Its annual security reports for these years count incidents reported to the security department of George Washington University Hospital, whose patients, visitors and staff are not in its FTE, in its Foggy Bottom campus figures. So a rate per student would not measure its campus population. It has no rate; its counts are shown. Source: George Washington University 2018 Annual Security and Fire Safety Report (statistics 2016-2018): the Foggy Bottom campus is home to \"the university's hospital\", and of the Foggy Bottom table's column of incidents reported to GWPD: \"Incidents reported to the GW University Hospital Security Department are also included in this column.\", https://safety.gwu.edu/sites/g/files/zaxdzs5906/files/GWPD%202018%20Final%20ASR.pdf",
+        "rateFte": 20011,
+        "flags": [
+          {
+            "offense": "robbery",
+            "geo": "On-campus",
+            "count": 15,
+            "usual": 3
+          },
+          {
+            "offense": "robbery",
+            "geo": "Non-campus",
+            "count": 10,
+            "usual": 0
+          }
         ],
         "counts": {
           "criminal": 141,
@@ -232,8 +249,10 @@
       "2017": {
         "campuses": 7,
         "online": 18,
-        "rateRanked": true,
-        "rateFte": 18233,
+        "rated": false,
+        "notRated": "excluded",
+        "rateExcludedReason": "Its annual security reports for these years count incidents reported to the security department of George Washington University Hospital, whose patients, visitors and staff are not in its FTE, in its Foggy Bottom campus figures. So a rate per student would not measure its campus population. It has no rate; its counts are shown. Source: George Washington University 2018 Annual Security and Fire Safety Report (statistics 2016-2018): the Foggy Bottom campus is home to \"the university's hospital\", and of the Foggy Bottom table's column of incidents reported to GWPD: \"Incidents reported to the GW University Hospital Security Department are also included in this column.\", https://safety.gwu.edu/sites/g/files/zaxdzs5906/files/GWPD%202018%20Final%20ASR.pdf",
+        "rateFte": 20305,
         "counts": {
           "criminal": 95,
           "violent": 66,
@@ -259,8 +278,10 @@
       "2018": {
         "campuses": 7,
         "online": 19,
-        "rateRanked": true,
-        "rateFte": 18289,
+        "rated": false,
+        "notRated": "excluded",
+        "rateExcludedReason": "Its annual security reports for these years count incidents reported to the security department of George Washington University Hospital, whose patients, visitors and staff are not in its FTE, in its Foggy Bottom campus figures. So a rate per student would not measure its campus population. It has no rate; its counts are shown. Source: George Washington University 2018 Annual Security and Fire Safety Report (statistics 2016-2018): the Foggy Bottom campus is home to \"the university's hospital\", and of the Foggy Bottom table's column of incidents reported to GWPD: \"Incidents reported to the GW University Hospital Security Department are also included in this column.\", https://safety.gwu.edu/sites/g/files/zaxdzs5906/files/GWPD%202018%20Final%20ASR.pdf",
+        "rateFte": 20526,
         "counts": {
           "criminal": 78,
           "violent": 46,
@@ -286,8 +307,8 @@
       "2019": {
         "campuses": 7,
         "online": 18,
-        "rateRanked": true,
-        "rateFte": 18256,
+        "rated": true,
+        "rateFte": 20343,
         "counts": {
           "criminal": 51,
           "violent": 23,
@@ -311,9 +332,10 @@
       "2020": {
         "campuses": 7,
         "online": 18,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 17347,
+        "rateFte": 19288,
         "counts": {
           "criminal": 19,
           "violent": 9,
@@ -337,9 +359,9 @@
       "2021": {
         "campuses": 7,
         "online": 18,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 17248,
+        "rateFte": 19207,
         "counts": {
           "criminal": 46,
           "violent": 17,
@@ -363,8 +385,8 @@
       "2022": {
         "campuses": 7,
         "online": 19,
-        "rateRanked": true,
-        "rateFte": 16876,
+        "rated": true,
+        "rateFte": 18950,
         "counts": {
           "criminal": 36,
           "violent": 16,
@@ -387,8 +409,8 @@
       "2023": {
         "campuses": 7,
         "online": 18,
-        "rateRanked": true,
-        "rateFte": 17165,
+        "rated": true,
+        "rateFte": 19235,
         "counts": {
           "criminal": 25,
           "violent": 16,
@@ -410,8 +432,16 @@
       "2024": {
         "campuses": 7,
         "online": 16,
-        "rateRanked": true,
-        "rateFte": 17855,
+        "rated": true,
+        "rateFte": 19711,
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "Public property",
+            "count": 11,
+            "usual": 1
+          }
+        ],
         "counts": {
           "criminal": 58,
           "violent": 22,

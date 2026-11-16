@@ -40,14 +40,20 @@
   ],
   "institution": {
     "id": 145813,
+    "ratesFile": "rates/institutions/145813.json",
     "byYear": {
       "2024": {
         "campuses": 2,
         "online": 6,
-        "rateRanked": true,
-        "rateFte": 18949,
-        "spikes": [
-          "dating_violence"
+        "rated": true,
+        "rateFte": 19678,
+        "flags": [
+          {
+            "offense": "dating_violence",
+            "geo": "On-campus",
+            "count": 38,
+            "usual": 11
+          }
         ],
         "counts": {
           "criminal": 24,

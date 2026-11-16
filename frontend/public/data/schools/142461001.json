@@ -360,72 +360,96 @@
   ],
   "institution": {
     "id": 142461,
+    "ratesFile": "rates/institutions/142461.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 25,
-        "rateRanked": true,
-        "rateFte": 1433
+        "rated": true,
+        "rateFte": 1655,
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "On-campus",
+            "count": 11,
+            "usual": 1
+          }
+        ]
       },
       "2016": {
         "campuses": 1,
         "online": 30,
-        "rateRanked": true,
-        "rateFte": 1305
+        "rated": true,
+        "rateFte": 1510,
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "On-campus",
+            "count": 12,
+            "usual": 1
+          }
+        ]
       },
       "2017": {
         "campuses": 1,
         "online": 33,
-        "rateRanked": true,
-        "rateFte": 1257,
-        "spikes": [
-          "all"
+        "rated": true,
+        "rateFte": 1453,
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "On-campus",
+            "count": 12,
+            "usual": 1
+          }
         ]
       },
       "2018": {
         "campuses": 1,
         "online": 30,
-        "rateRanked": true,
-        "rateFte": 1315
+        "rated": true,
+        "rateFte": 1541
       },
       "2019": {
         "campuses": 1,
         "online": 32,
-        "rateRanked": true,
-        "rateFte": 1231
+        "rated": true,
+        "rateFte": 1435
       },
       "2020": {
         "campuses": 1,
         "online": 32,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 1247
+        "rateFte": 1434
       },
       "2021": {
         "campuses": 1,
         "online": 32,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 1210
+        "rateFte": 1390
       },
       "2022": {
         "campuses": 1,
         "online": 23,
-        "rateRanked": true,
-        "rateFte": 1106
+        "rated": true,
+        "rateFte": 1281
       },
       "2023": {
         "campuses": 1,
         "online": 26,
-        "rateRanked": true,
-        "rateFte": 1071
+        "rated": true,
+        "rateFte": 1271
       },
       "2024": {
         "campuses": 1,
         "online": 16,
-        "rateRanked": false,
-        "rateExcludedReason": "IPEDS reports that this institution has a hospital (institutional characteristics, 2024). Patients, visitors and hospital staff are on its campus but not in its FTE, so a rate per student would not measure its campus population. It is left out of rate rankings; its counts are shown.",
-        "rateFte": 1117
+        "rated": false,
+        "notRated": "excluded",
+        "rateExcludedReason": "IPEDS reports that this institution has a hospital (institutional characteristics, 2024). Patients, visitors and hospital staff are on its campus but not in its FTE, so a rate per student would not measure its campus population. It has no rate; its counts are shown.",
+        "rateFte": 1226
       }
     }
   }

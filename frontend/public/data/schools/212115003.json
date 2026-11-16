@@ -48,15 +48,20 @@
   ],
   "institution": {
     "id": 212115,
+    "ratesFile": "rates/institutions/212115.json",
     "byYear": {
       "2015": {
         "campuses": 3,
         "online": 1,
-        "rateRanked": true,
-        "rateFte": 6250,
-        "spikes": [
-          "liquor_arrest",
-          "liquor_discipline"
+        "rated": true,
+        "rateFte": 6287,
+        "flags": [
+          {
+            "offense": "stalking",
+            "geo": "On-campus",
+            "count": 13,
+            "usual": 1
+          }
         ],
         "counts": {
           "criminal": 6,
@@ -77,11 +82,8 @@
       "2016": {
         "campuses": 3,
         "online": 2,
-        "rateRanked": true,
-        "rateFte": 6152,
-        "spikes": [
-          "liquor_arrest"
-        ],
+        "rated": true,
+        "rateFte": 6225,
         "counts": {
           "criminal": 9,
           "violent": 7,
@@ -102,11 +104,8 @@
       "2017": {
         "campuses": 3,
         "online": 3,
-        "rateRanked": true,
-        "rateFte": 6002,
-        "spikes": [
-          "liquor_arrest"
-        ],
+        "rated": true,
+        "rateFte": 6110,
         "counts": {
           "criminal": 14,
           "violent": 8,

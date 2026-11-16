@@ -370,11 +370,13 @@
   ],
   "institution": {
     "id": 240718,
+    "ratesFile": "rates/institutions/240718.json",
     "byYear": {
       "2015": {
         "campuses": 2,
         "online": 0,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 462,
         "counts": {
           "criminal": 5,
@@ -391,7 +393,8 @@
       "2016": {
         "campuses": 2,
         "online": 0,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 518,
         "counts": {
           "criminal": 5,
@@ -408,65 +411,58 @@
       "2017": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 464
       },
       "2018": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 38
       },
       "2019": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 253
       },
       "2020": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "onlineYear": 2019,
         "rateFte": 585
       },
       "2021": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "onlineYear": 2019,
         "rateFte": 742
       },
       "2022": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": false,
-        "rateFte": 993,
-        "spikes": [
-          "all",
-          "liquor_discipline"
-        ]
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 993
       },
       "2023": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
-        "rateFte": 1206,
-        "spikes": [
-          "all",
-          "drug_discipline",
-          "liquor_discipline"
-        ]
+        "rated": true,
+        "rateFte": 1206
       },
       "2024": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
-        "rateFte": 1335,
-        "spikes": [
-          "all",
-          "liquor_discipline"
-        ]
+        "rated": true,
+        "rateFte": 1335
       }
     }
   }

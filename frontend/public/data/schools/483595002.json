@@ -48,24 +48,35 @@
   ],
   "institution": {
     "id": 483595,
+    "ratesFile": "rates/institutions/483595.json",
     "byYear": {
       "2022": {
         "campuses": 3,
         "online": 80,
-        "rateRanked": true,
-        "rateFte": 1237
+        "rated": true,
+        "rateFte": 1587,
+        "fteUncertain": {
+          "share": 1237,
+          "partTimeFirst": 1587,
+          "reason": "own"
+        }
       },
       "2023": {
         "campuses": 3,
         "online": 82,
-        "rateRanked": true,
-        "rateFte": 1216
+        "rated": true,
+        "rateFte": 1532,
+        "fteUncertain": {
+          "share": 1216,
+          "partTimeFirst": 1532,
+          "reason": "own"
+        }
       },
       "2024": {
         "campuses": 3,
         "online": 82,
-        "rateRanked": true,
-        "rateFte": 1251
+        "rated": true,
+        "rateFte": 1532
       }
     }
   }

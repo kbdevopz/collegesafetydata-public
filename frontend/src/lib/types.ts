@@ -20,9 +20,12 @@ export interface Metadata {
   // {"2023": "final", "2024": "provisional"}. Absent in data built before
   // 05 wrote it.
   enrollmentStatus?: Record<string, EnrollmentStatus>
-  // The rate rules (etl/config.py): who rate rankings list and rank, the
-  // interval and the spike flag
+  // The rate rules (etl/config.py): windows, who is rated, the interval
+  // model, verdicts, lists, flags and the count flag
   rateRules: RateRules
+  // What the rate rules did, counted by the build (05): the figures the
+  // pages quote. Absent in data built before 05 wrote it.
+  rateStats?: RateStats
   // Known errors in DOE's files that the build worked around, with the
   // campuses whose figures for that year come from the defective release.
   // Absent in data built before 05 wrote it.
@@ -41,21 +44,240 @@ export interface KnownDefect {
   unitids: number[]
 }
 
+// A ratio [a, b], read as the fraction a / b (or a threshold a : b)
+export type Ratio = [number, number]
+
 export interface RateRules {
-  // Rate rankings list institutions with at least this on-campus FTE
+  // A window's institution-years need a rate denominator (on-campus FTE,
+  // pooled FTE added) of at least this many in every year
   minFte: number
-  // ... and rank by rate those with at least this many incidents
-  minCount: number
-  // Offense codes too rare nationally for a rate ranking (counts only)
-  countsOnly: string[]
-  // The level of each rate's exact Poisson interval (0.95)
-  ciLevel: number
-  // An unusually high count: at least minCount and more than factor times
-  // the median of the institution's other listed years (minOtherYears+)
-  spike: { minCount: number; factor: number; minOtherYears: number }
-  // Years whose online share is another fall's, e.g. {"2020": 2019}: the
-  // pandemic's remote teaching did not take students off campus for good
+  // On-campus FTE is uncertain when the larger of its two estimates times
+  // [1] is more than the smaller times [0] ([5, 4]: more than 25% apart)
+  onlineUncertainRatio: Ratio
+  // Years whose online share is another fall's, e.g. {"2021": 2019}
   onlineShareYear?: Record<string, number>
+  // Years per window, the years no window contains, and the windows
+  windowYears: number
+  skipYears: number[]
+  windows: [number, number][]
+  // The codes with a rate and the offenses each adds up
+  codes: Record<string, string[]>
+  // Count codes without a rate (counts only)
+  countsOnly: string[]
+  // The level of each interval (0.95)
+  ciLevel: number
+  dispersion: Dispersion
+  // A code's reason is medical_campus when incidents at listed
+  // medical-center campuses outside their residence halls are at least this
+  // share of the window's on-campus count ([1, 4]: a quarter)
+  medicalShare: Ratio
+  // A guest or participant at a shared site is compared as usual only when
+  // a reviewed, published figure puts its students there at most this
+  // share of its student-years ([1, 10])
+  sharedSiteShare: Ratio
+  // A site-year without a figure of its own takes the largest figure whose
+  // own year is at most this many years before or after it
+  sharedSiteFigureYears?: number
+  // Near-copies that join two campuses into a shared site: the campus with
+  // the smaller total has at least minNonzero nonzero cells, at least
+  // match[0] / match[1] of them equal to the other's, and a total of at
+  // least minTotal
+  sharedNear: { minNonzero: number; match: Ratio; minTotal: number }
+  lists: {
+    // The codes with ordered lists
+    codes: string[]
+    // Members: expected count at the national rate of at least this
+    minExpected: number
+    // Rank ranges: 1 - alpha confidence, Bonferroni over n - 1 comparisons
+    alpha: number
+    // State fields are published for states with at least this many members
+    stateMinMembers: number
+    // The pages show a state's own positions from this many members up
+    // (lib/rateDisplay.ts stateDisplayMin)
+    stateDisplayMin: number
+    // Type lists (the national list's members of one peer type) are
+    // published from this many members up
+    typeMinMembers?: number
+    // Why a member that meets the conditions is not placed: ["unusual_year"]
+    notPlaced?: string[]
+  }
+  // Residential types of the peer comparison (Carnegie size and setting)
+  peerTypes: Record<string, { label: string; sizeSetting: number[] }>
+  sizeSettingFields: string[]
+  // Unusual-year flags
+  flags: {
+    offenses: string[]
+    geos: string[]
+    minCount: number
+    minOtherYears: number
+    p: number
+    c: number
+    minMean: number
+  }
+  // Count rankings flag a count of at least minCount whose count per 10,000
+  // institution FTE is more than factor times the percentile-th percentile of
+  // that year's single-year rates of the code (reference[year][code])
+  countFlag: {
+    minCount: number
+    factor: number
+    percentile: number
+    reference: Record<string, Record<string, number>>
+  }
+  // The audit's medical-campus name screen (check 14)
+  medicalScreen?: { pattern: string; share: Ratio; minCount: number }
+  // The audit's calibration check (check 13)
+  calibration?: {
+    codes: string[]
+    periods: (string | [number, number])[]
+    latestYears: number
+    simulations: number
+    seed: number
+    bands: number[]
+    // Overall, either way
+    tolerance: number
+    // A band of bandMinUnits or more institutions fails when its observed
+    // coverage is below expected by more than bandToleranceBelow, or above
+    // it by more than bandToleranceAbove
+    bandToleranceBelow: number
+    bandToleranceAbove: number
+    bandMinUnits: number
+    // The top band of these codes is tested whatever its size: below
+    // bandMinUnits each limit is widened by topBandSE binomial standard errors
+    topBandCodes?: string[]
+    topBandSE?: number
+  }
+  testVectors?: {
+    // interval: [lo, hi] of the count
+    counts: { c: number; years: number; n: number; phi: number; interval: [number, number] }[]
+    rates: { n: number; fteYears: number; c: number; rate: number; lo: number; hi: number }[]
+  }
+}
+
+export interface Dispersion {
+  // Var(m) = m + c g(m) m^power, g(m) = min(cap, max(1, m / start)) up to end
+  power: number
+  c: Record<string, number>
+  fitted: Record<string, number>
+  other: number
+  ramp: { start: number; end: number; cap: number }
+  // "max": a window's variance is the larger of the model's and the
+  // institution's own year-to-year spread
+  spread?: string
+}
+
+// The rules that give an institution no rate (in any window containing the year)
+export type RateRule =
+  | 'hospital' | 'medical' | 'listed' | 'merger' | 'family' | 'shared_pooled' | 'shared_campus'
+
+// Why a rated institution is not on a list (its rate is still shown; with
+// "shared" its comparisons are withheld)
+export type RateWhy = 'online' | 'medical_campus' | 'shared'
+
+// "undetermined" only with why "online"; "withheld" only with why "shared"
+export type Verdict = 'above' | 'below' | 'nd' | 'undetermined' | 'withheld'
+
+// An institution named in a shared-site note
+export interface NamedInstitution {
+  id: number
+  name: string
+}
+
+// One site campus and year of a guest or participant: the reviewed figure
+// for its students there (null when there is none), the year the figure
+// itself describes (its fall term, or the academic year that begins then;
+// it differs from `year` when another year's figure is used), whether it is
+// an upper bound, and whether that bound is computed from published figures
+// (class sizes, or a cap per class)
+export interface SharedSiteFigure {
+  year: number
+  unitid: number
+  // DOE's name of that site campus that year
+  name?: string
+  students: number | null
+  figureYear: number | null
+  upperBound: boolean
+  derived: boolean
+}
+
+// A guest or participant at a shared site: the years, its students there by
+// a reviewed published figure (summed over those years; null when a year
+// has none), whether that figure is an upper bound, and whether it is small
+// enough (students x sharedSiteShare[1] <= fteYears x sharedSiteShare[0])
+// for the institution to be compared as usual
+export interface SharedSite {
+  years: number[]
+  students: number | null
+  upperBound: boolean
+  exempt: boolean
+  // One per site campus and year, by year, then campus
+  figures?: SharedSiteFigure[]
+}
+
+// The shared-site notes of an institution and window (window-file entries;
+// the rated window status of an institution file)
+export interface SharedSiteNotes {
+  // The guests at the sites it owns
+  sharedInWith?: NamedInstitution[]
+  // The owners or other participants of the sites it is a guest or participant of
+  sharedOutWith?: NamedInstitution[]
+  sharedSite?: SharedSite
+  // Institutions whose students its rate adds, because their campuses at a
+  // shared site copy its own
+  coLocated?: NamedInstitution[]
+}
+
+export interface WindowCodeStats {
+  natl: number
+  rated: number
+  byWhy: Record<'none' | RateWhy, number>
+  verdicts: Record<Verdict, number>
+  verdictsNoReason: Partial<Record<Verdict, number>>
+  peerVerdicts: Partial<Record<Verdict, number>>
+  withFlags: number
+  verdictWithoutFlaggedDiffers: number
+  // List codes only
+  listed?: number
+  notPlaced?: number
+  minFteYears?: number
+  stateLists?: number
+  stateListsDisplayMin?: number
+  typeLists?: number
+}
+
+export interface RateStats {
+  // The exact set each count counts, in words
+  definitions: Record<string, string>
+  // windows["2022-2024"][code]
+  windows: Record<string, Record<string, WindowCodeStats>>
+  flags: {
+    total: number
+    byGeo: Record<string, number>
+    byYear: Record<string, number>
+    byOffense: Record<string, number>
+  }
+  // Institutions with a single-year rate, per year
+  singleYear: Record<string, number>
+  institutionFiles: number
+  // Count-ranking entries flagged highForSize, per year and code
+  countFlags: Record<string, Record<string, number>>
+  institutionYears: {
+    // Institution-years each rule gives no rate (as the first rule), and how
+    // many of them have a denominator of at least minFte
+    rules: Record<RateRule, { institutionYears: number; withFte: number }>
+    // Institution-years rated with another institution's FTE added
+    pooled: { merger: number; shared: number }
+    byYear: Record<string, {
+      withFte: number
+      excluded: number
+      rated: number
+      fteUncertain: number
+      fteUncertainPooledOnly: number
+      abroad: number
+      outsideScopeWithFte: number
+    }>
+    // Pandemic years whose own online share was used (no fall 2019 share)
+    onlineOwnYear: Record<string, { all: number; withFte: number }>
+  }
 }
 
 // "final": NCES final revised file; "provisional": NCES provisional release;
@@ -131,7 +353,7 @@ export interface RankedCampus {
   campus?: string
   // Its institution's FTE (NCES publishes FTE per institution, not campus)
   fte: number | null
-  // Its institution's number of campuses that year
+  // Its institution's number of campuses in the United States that year
   campuses: number
 }
 
@@ -140,20 +362,11 @@ export interface CountEntry {
   rank: number
   unitid: number
   count: number
-}
-
-// An institution of a rankings file's rate rankings: all campuses with the
-// same first six UNITID digits, shown as `name` and linked to the school
-// page of campus `unitid`
-export interface RateInstitution {
-  name: string
-  unitid: number
-  state: string | null
-  // The rate's denominator: its on-campus FTE, plus that of `pooled`
-  fte: number
-  campuses: number
-  // Institutions whose FTE the rate adds (their campus figures count here)
-  pooled?: PooledInstitution[]
+  // The count is at least RateRules.countFlag.minCount and its count per
+  // 10,000 of its institution's FTE is more than countFlag.factor times
+  // countFlag.reference[year][code] (the percentile-th percentile of that
+  // year's institution rates of the code)
+  highForSize?: boolean
 }
 
 // An institution whose FTE another's rate adds: `id` its base UNITID
@@ -161,31 +374,6 @@ export interface PooledInstitution {
   id: number
   name: string | null
   fte: number
-}
-
-// One institution of a rate ranking: `id` is its base UNITID (a key of
-// RankingsData.institutions), `count` the incidents of all its campuses,
-// lo-hi the rate's 95% interval, rankLo-rankHi the ranks that interval
-// allows, spike an unusually high count for it
-export interface RateEntry {
-  rank: number
-  id: number
-  count: number
-  rate: number
-  lo: number
-  hi: number
-  rankLo: number
-  rankHi: number
-  spike?: boolean
-}
-
-// An institution with too few incidents to rank by rate (1 to minCount - 1)
-export interface RateUnrankedEntry {
-  id: number
-  count: number
-  rate: number
-  lo: number
-  hi: number
 }
 
 export interface RankingsData {
@@ -196,13 +384,194 @@ export interface RankingsData {
   // (every other campus of `campuses` had 0)
   rankings: Record<string, CountEntry[]>
   totals: Record<string, number>
-  // Rate rankings per code, by institution (rate per 10,000 on-campus FTE):
-  // those with at least minCount incidents, then those with fewer
-  // (rateUnranked); every other institution of `institutions` had 0. A code
-  // of RateRules.countsOnly has neither
-  institutions: Record<string, RateInstitution>
-  rateRankings: Record<string, RateEntry[]>
-  rateUnranked: Record<string, RateUnrankedEntry[]>
+}
+
+// =============================================================================
+// Rate files (rates/*.json)
+// =============================================================================
+
+// An unusual-year flag: `usual` is the median of the institution's counts of
+// the offense and geography in its other years (may end in .5)
+export interface RateFlag {
+  year: number
+  offense: string
+  count: number
+  usual: number
+}
+
+export interface InstitutionFlag extends RateFlag {
+  geo: 'On-campus' | 'Non-campus' | 'Public property'
+}
+
+// One rated institution of a window and code: its 3-year on-campus rate
+export interface RateEntryFields {
+  // On-campus incidents in the window's years; other geographies (not in the rate)
+  n: number
+  nNoncampus: number
+  nPublic: number
+  // The rate's denominator: on-campus FTE summed over the years
+  fteYears: number
+  // Per 10,000 on-campus students a year (2 decimals) and its interval
+  rate: number
+  lo: number
+  hi: number
+  // The interval to 4 decimals
+  lo4?: number
+  hi4?: number
+  // The window's variance-to-mean ratio, and whether it is the model's or
+  // the institution's own year-to-year spread (the larger of the two)
+  phi?: number
+  phiFrom?: 'model' | 'years'
+  // Incidents expected at the national rate (1 decimal)
+  E: number
+  verdict: Verdict
+  why?: RateWhy
+  // why "online": the verdict with each FTE estimate, and why undetermined
+  verdictLargerFte?: Verdict
+  verdictSmallerFte?: Verdict
+  undeterminedReason?: 'estimates' | 'noSecondEstimate'
+  fteYearsSmaller?: number
+  fteUncertain?: Record<string, 'own' | 'pooled'>
+  peerVerdict: Verdict | null
+  peerVerdictLargerFte?: Verdict
+  peerVerdictSmallerFte?: Verdict
+  medical?: number
+  // A host's on-campus incidents at the shared sites it owns (in n); a
+  // guest's or participant's at its campuses at shared sites (not in n)
+  sharedIn?: number
+  sharedOut?: number
+  // On-campus unusual-year flags of the code's offenses in the window
+  flags?: RateFlag[]
+  // The verdict without the flagged years' excess, only when it differs
+  verdictWithoutFlagged?: Verdict
+  // List codes only
+  listed?: boolean
+  position?: number
+  rankLo?: number
+  rankHi?: number
+  statePosition?: number
+  stateRankLo?: number
+  stateRankHi?: number
+  stateN?: number
+  // Meets the list's conditions but is not placed ("unusual_year": an
+  // on-campus unusual-year flag of the code in the window)
+  notPlaced?: string
+  // Position among the national list's members of its peer type
+  typePosition?: number
+  typeRankLo?: number
+  typeRankHi?: number
+  typeN?: number
+  // A hospital adjoins or lies inside the main campus, and whether its
+  // incidents are in the figures is not established (the window's years)
+  hospitalUnresolved?: { name: string; years: number[] }
+  // violent: its four offenses; criminal_xmvt: motor-vehicle thefts
+  composition?: Record<string, number>
+}
+
+export interface RateWindowEntry extends RateEntryFields, SharedSiteNotes {
+  id: number
+  unitid: number
+  name: string
+  state: string
+  peerType: string
+}
+
+export interface PeerRate {
+  rate: number
+  rate4?: number
+  n: number
+  fteYears: number
+  members: number
+}
+
+// rates/{y0}-{y1}-{code}.json: every rated institution, ordered by rate
+export interface RateWindowFile {
+  window: [number, number]
+  code: string
+  years: number[]
+  c: number
+  natl: number
+  natl4?: number
+  natlN: number
+  natlF: number
+  peer: Record<string, PeerRate>
+  summary: {
+    rated: number
+    byWhy: Record<string, number>
+    verdicts: Record<string, number>
+    verdictsNoReason: Record<string, number>
+    peerVerdicts: Record<string, number>
+    withFlags: number
+    verdictWithoutFlaggedDiffers: number
+  }
+  composition?: Record<string, number>
+  // violent: each offense's share of the national on-campus count (4 decimals)
+  compositionShare?: Record<string, number>
+  list?: { n: number; notPlaced?: number; minExpected: number; minFteYears: number; zc: number | null }
+  stateLists?: Record<string, number>
+  // Placed members per peer type
+  typeLists?: Record<string, number>
+  entries: RateWindowEntry[]
+}
+
+// A code of an institution's rated window: the window-file entry plus its
+// on-campus incidents per year, the national and peer-type rates
+export interface InstitutionWindowCode extends RateEntryFields {
+  nByYear: Record<string, number>
+  natl: number
+  natl4?: number
+  peerRate: number | null
+  peerRate4?: number | null
+}
+
+export type InstitutionWindow =
+  | ({
+      status: 'rated'
+      why?: 'online' | 'shared'
+      fteByYear: Record<string, number>
+      fteSmallerByYear?: Record<string, number>
+      codes: Record<string, InstitutionWindowCode>
+      hospitalUnresolved?: { name: string; years: number[] }
+    } & SharedSiteNotes)
+  | { status: 'missingYears'; years: number[] }
+  | { status: 'scope' }
+  | { status: 'size'; fteByYear: Record<string, number | null> }
+  | { status: 'excluded'; rules: Record<string, RateRule> }
+
+export type NotRatedReason = 'scope' | 'size' | 'excluded' | 'skippedYear'
+
+// A single year: [n, rate, lo, hi] per code (1-year interval), or why not
+export interface InstitutionRateYear {
+  fte?: number
+  rates?: Record<string, [number, number, number, number]>
+  fteUncertain?: 'own' | 'pooled'
+  medical?: Record<string, number>
+  sharedIn?: Record<string, number>
+  sharedOut?: Record<string, number>
+  notRated?: NotRatedReason
+}
+
+// rates/institutions/{base}.json
+export interface InstitutionRatesFile {
+  id: number
+  unitid: number
+  name: string
+  state: string
+  peerType: string
+  years: Record<string, InstitutionRateYear>
+  windows: Record<string, InstitutionWindow>
+  flags: InstitutionFlag[]
+  // The reviewed rows: a hospital adjoins or lies inside the main campus;
+  // `known` is what its reports say, `source` where
+  hospitalUnresolved?: HospitalUnresolved[]
+}
+
+export interface HospitalUnresolved {
+  name: string
+  firstYear: number
+  lastYear: number
+  known: string
+  source: string
 }
 
 // =============================================================================
@@ -256,10 +625,24 @@ export interface SchoolProfile {
 
 export interface InstitutionInfo {
   id: number // base UNITID
+  // "rates/institutions/{id}.json" when the institution has one (a rated
+  // window, a single-year rate or an unusual-year flag)
+  ratesFile?: string
   byYear: Record<string, InstitutionYear>
 }
 
+// The two estimates of an institution's on-campus FTE (rounded) when they
+// are more than RateRules.onlineUncertainRatio apart: proportional, FTE x
+// (1 - online share); and part-time first, null when NCES's headcounts do
+// not allow it. reason "pooled": only a pooled partner's estimates differ.
+export interface FteUncertain {
+  share: number
+  partTimeFirst: number | null
+  reason: 'own' | 'pooled'
+}
+
 export interface InstitutionYear {
+  // Its campuses in the United States that count that year
   campuses: number
   // Percent of its students enrolled exclusively online (NCES) that the rate
   // rules use, or null
@@ -267,19 +650,26 @@ export interface InstitutionYear {
   // In the years of RateRules.onlineShareYear only: the fall `online` is
   // from (that other fall, or the year itself when NCES has no figure then)
   onlineYear?: number
-  // Whether rate rankings list it that year (Metadata.rateRules)
-  rateRanked: boolean
-  // Why the rate is left out that year, when the pipeline says so
+  // The year has a single-year rate (school-page trend only)
+  rated: boolean
+  // Why it has none, the first that applies
+  notRated?: NotRatedReason
+  // Why a population rule leaves it out that year, in words
   rateExcludedReason?: string
-  // The rate's denominator: on-campus FTE, with the on-campus FTE of
-  // pooledWith added (institutions whose campus figures count here that
-  // year: a merger, renumbering or shared campus); absent without an FTE
+  // The rate's denominator: the larger on-campus FTE estimate, with the
+  // on-campus FTE of pooledWith added (institutions whose campus figures
+  // count here that year: a merger, renumbering or shared campus); absent
+  // without an FTE
   rateFte?: number
   pooledWith?: PooledInstitution[]
-  // Codes whose count is unusually high for the institution that year
-  spikes?: string[]
-  // Counts of all its campuses per code (shadow blocks left out); absent
-  // when equal to the school's own counts that year
+  fteUncertain?: FteUncertain
+  // Its campuses abroad and their incidents per code (not in counts or rates)
+  abroad?: { campuses: number; counts: Record<string, number> }
+  // That year's unusual-year flags (every geography)
+  flags?: Omit<InstitutionFlag, 'year'>[]
+  // Counts of all its campuses per code (campuses abroad and figures that
+  // count under another institution's campus left out); absent when equal
+  // to the school's own counts that year
   counts?: Record<string, number>
 }
 

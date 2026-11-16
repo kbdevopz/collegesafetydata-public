@@ -396,69 +396,85 @@
   ],
   "institution": {
     "id": 230418,
+    "ratesFile": "rates/institutions/230418.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1765
       },
       "2016": {
         "campuses": 1,
         "online": 2,
-        "rateRanked": true,
-        "rateFte": 1655
+        "rated": true,
+        "rateFte": 1672
       },
       "2017": {
         "campuses": 1,
         "online": 3,
-        "rateRanked": true,
-        "rateFte": 1559
+        "rated": true,
+        "rateFte": 1583
       },
       "2018": {
         "campuses": 1,
         "online": 3,
-        "rateRanked": true,
-        "rateFte": 1509
+        "rated": true,
+        "rateFte": 1532
       },
       "2019": {
         "campuses": 1,
         "online": 2,
-        "rateRanked": true,
-        "rateFte": 1500
+        "rated": true,
+        "rateFte": 1516
       },
       "2020": {
         "campuses": 1,
         "online": 2,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 1373
+        "rateFte": 1386
       },
       "2021": {
         "campuses": 1,
         "online": 2,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 1692
+        "rateFte": 1706
       },
       "2022": {
         "campuses": 1,
         "online": 62,
-        "rateRanked": false,
-        "rateFte": 873
+        "rated": true,
+        "rateFte": 1309,
+        "fteUncertain": {
+          "share": 873,
+          "partTimeFirst": 1309,
+          "reason": "own"
+        }
       },
       "2023": {
         "campuses": 1,
         "online": 72,
-        "rateRanked": false,
-        "rateFte": 923
+        "rated": true,
+        "rateFte": 1607,
+        "fteUncertain": {
+          "share": 923,
+          "partTimeFirst": 1607,
+          "reason": "own"
+        }
       },
       "2024": {
         "campuses": 1,
         "online": 78,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2024 figures this institution reports for a campus are also reported, identically, by campus 230038002 of another institution (a shared campus) and count here, while that institution's students are in its own FTE. No rate is shown for that year.",
-        "rateFte": 894
+        "rated": true,
+        "rateFte": 1671,
+        "fteUncertain": {
+          "share": 894,
+          "partTimeFirst": 1671,
+          "reason": "own"
+        }
       }
     }
   }

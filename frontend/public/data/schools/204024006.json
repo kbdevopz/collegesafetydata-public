@@ -87,25 +87,38 @@
   ],
   "institution": {
     "id": 204024,
+    "ratesFile": "rates/institutions/204024.json",
     "byYear": {
       "2016": {
-        "campuses": 7,
+        "campuses": 6,
         "online": 3,
-        "rateRanked": true,
-        "rateFte": 17705,
-        "spikes": [
-          "property",
-          "burglary",
-          "drug_arrest"
+        "rated": true,
+        "rateFte": 18033,
+        "abroad": {
+          "campuses": 1,
+          "counts": {
+            "criminal": 1,
+            "property": 1,
+            "all": 1,
+            "burglary": 1
+          }
+        },
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "On-campus",
+            "count": 64,
+            "usual": 7
+          }
         ],
         "counts": {
-          "criminal": 123,
+          "criminal": 122,
           "violent": 36,
-          "property": 81,
-          "all": 865,
+          "property": 80,
+          "all": 864,
           "aggravated_assault": 10,
           "arson": 2,
-          "burglary": 74,
+          "burglary": 73,
           "dating_violence": 17,
           "drug_arrest": 62,
           "drug_discipline": 82,
@@ -119,13 +132,14 @@
         }
       },
       "2017": {
-        "campuses": 7,
+        "campuses": 6,
         "online": 5,
-        "rateRanked": true,
-        "rateFte": 17464,
-        "spikes": [
-          "drug_arrest"
-        ],
+        "rated": true,
+        "rateFte": 18016,
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
         "counts": {
           "criminal": 76,
           "violent": 35,

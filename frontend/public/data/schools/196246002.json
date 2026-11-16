@@ -493,6 +493,12 @@
       "hostName": "SUNY Adirondack"
     },
     {
+      "year": 2019,
+      "geo": "On-campus",
+      "hostUnitid": 188438001,
+      "hostName": "SUNY Adirondack"
+    },
+    {
       "year": 2023,
       "geo": "On-campus",
       "hostUnitid": 188438001,
@@ -501,17 +507,13 @@
   ],
   "institution": {
     "id": 196246,
+    "ratesFile": "rates/institutions/196246.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 5,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2015 figures of this institution's campus 196246002 are also reported, identically, by campus 188438001 of another institution (a shared campus) and count once, under that campus, while the students on it are in each institution's own FTE. No rate is shown for that year.",
-        "rateFte": 5115,
-        "spikes": [
-          "drug_arrest",
-          "liquor_arrest"
-        ],
+        "rated": true,
+        "rateFte": 5271,
         "counts": {
           "criminal": 25,
           "violent": 12,
@@ -535,13 +537,8 @@
       "2016": {
         "campuses": 1,
         "online": 4,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2016 figures of this institution's campus 196246002 are also reported, identically, by campus 188438001 of another institution (a shared campus) and count once, under that campus, while the students on it are in each institution's own FTE. No rate is shown for that year.",
-        "rateFte": 5004,
-        "spikes": [
-          "drug_arrest",
-          "liquor_arrest"
-        ],
+        "rated": true,
+        "rateFte": 5126,
         "counts": {
           "criminal": 27,
           "violent": 12,
@@ -564,12 +561,8 @@
       "2017": {
         "campuses": 1,
         "online": 6,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2017 figures of this institution's campus 196246002 are also reported, identically, by campus 188438001 of another institution (a shared campus) and count once, under that campus, while the students on it are in each institution's own FTE. No rate is shown for that year.",
-        "rateFte": 5035,
-        "spikes": [
-          "drug_arrest"
-        ],
+        "rated": true,
+        "rateFte": 5221,
         "counts": {
           "criminal": 19,
           "violent": 13,
@@ -594,12 +587,8 @@
       "2018": {
         "campuses": 1,
         "online": 7,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2018 figures of this institution's campus 196246002 are also reported, identically, by campus 188438001 of another institution (a shared campus) and count once, under that campus, while the students on it are in each institution's own FTE. No rate is shown for that year.",
-        "rateFte": 4977,
-        "spikes": [
-          "drug_arrest"
-        ],
+        "rated": true,
+        "rateFte": 5195,
         "counts": {
           "criminal": 17,
           "violent": 13,
@@ -619,40 +608,37 @@
         }
       },
       "2019": {
-        "campuses": 2,
+        "campuses": 1,
         "online": 9,
-        "rateRanked": true,
-        "rateFte": 4459,
-        "spikes": [
-          "liquor_discipline"
-        ],
+        "rated": true,
+        "rateFte": 4713,
         "counts": {
           "criminal": 21,
           "violent": 13,
           "property": 2,
-          "all": 565,
+          "all": 431,
           "aggravated_assault": 5,
           "burglary": 2,
-          "dating_violence": 4,
+          "dating_violence": 1,
           "domestic_violence": 3,
-          "drug_arrest": 15,
-          "drug_discipline": 97,
+          "drug_arrest": 12,
+          "drug_discipline": 83,
           "fondling": 3,
           "liquor_arrest": 14,
-          "liquor_discipline": 404,
+          "liquor_discipline": 291,
           "rape": 8,
           "stalking": 5,
           "statutory_rape": 3,
-          "weapons_arrest": 1,
-          "weapons_discipline": 1
+          "weapons_arrest": 1
         }
       },
       "2020": {
         "campuses": 2,
         "online": 9,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 4286,
+        "rateFte": 4529,
         "counts": {
           "criminal": 17,
           "violent": 8,
@@ -674,9 +660,9 @@
       "2021": {
         "campuses": 2,
         "online": 9,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 3965,
+        "rateFte": 4189,
         "counts": {
           "criminal": 13,
           "violent": 3,
@@ -696,11 +682,8 @@
       "2022": {
         "campuses": 2,
         "online": 18,
-        "rateRanked": true,
-        "rateFte": 3367,
-        "spikes": [
-          "weapons_discipline"
-        ],
+        "rated": true,
+        "rateFte": 3697,
         "counts": {
           "criminal": 18,
           "violent": 11,
@@ -725,9 +708,8 @@
       "2023": {
         "campuses": 1,
         "online": 20,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2023 figures of this institution's campus 196246002 are also reported, identically, by campus 188438001 of another institution (a shared campus) and count once, under that campus, while the students on it are in each institution's own FTE. No rate is shown for that year.",
-        "rateFte": 3210,
+        "rated": true,
+        "rateFte": 3525,
         "counts": {
           "criminal": 11,
           "violent": 3,
@@ -750,8 +732,8 @@
       "2024": {
         "campuses": 2,
         "online": 22,
-        "rateRanked": true,
-        "rateFte": 3219,
+        "rated": true,
+        "rateFte": 3532,
         "counts": {
           "criminal": 6,
           "violent": 3,

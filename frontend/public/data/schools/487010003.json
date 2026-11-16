@@ -40,13 +40,15 @@
   ],
   "institution": {
     "id": 487010,
+    "ratesFile": "rates/institutions/487010.json",
     "byYear": {
       "2024": {
         "campuses": 2,
         "online": 8,
-        "rateRanked": false,
-        "rateExcludedReason": "Its Carnegie basic classification in IPEDS for 2024 is \"Special Focus Research Institution\" (C21BASIC 27). Such an institution's campus holds medical or research facilities whose staff, researchers and patients are not in its FTE, so a rate per student would not measure its campus population. It is left out of rate rankings; its counts are shown.",
-        "rateFte": 2747,
+        "rated": false,
+        "notRated": "excluded",
+        "rateExcludedReason": "Its Carnegie basic classification in IPEDS is a special-focus medical school, medical center or research institution (C18BASIC 25, \"Special Focus Four-Year: Medical Schools & Centers\"; C21BASIC 27, \"Special Focus Research Institution\"); the rule applies in every year when any of C15BASIC, C18BASIC and C21BASIC gives such a code. Such an institution's campus holds medical or research facilities whose staff, researchers and patients are not in its FTE, so a rate per student would not measure its campus population. It has no rate; its counts are shown.",
+        "rateFte": 2847,
         "counts": {
           "criminal": 19,
           "violent": 7,

@@ -105,18 +105,29 @@
   "breakdownByGeo": [],
   "institution": {
     "id": 233684,
+    "ratesFile": "rates/institutions/233684.json",
     "byYear": {
       "2015": {
         "campuses": 11,
         "online": 54,
-        "rateRanked": true,
-        "rateFte": 1709
+        "rated": true,
+        "rateFte": 2353,
+        "fteUncertain": {
+          "share": 1709,
+          "partTimeFirst": 2353,
+          "reason": "own"
+        }
       },
       "2016": {
         "campuses": 11,
         "online": 62,
-        "rateRanked": true,
-        "rateFte": 1341,
+        "rated": true,
+        "rateFte": 2018,
+        "fteUncertain": {
+          "share": 1341,
+          "partTimeFirst": 2018,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 1,
           "violent": 1,
@@ -129,8 +140,13 @@
       "2017": {
         "campuses": 11,
         "online": 68,
-        "rateRanked": true,
-        "rateFte": 1047,
+        "rated": true,
+        "rateFte": 1709,
+        "fteUncertain": {
+          "share": 1047,
+          "partTimeFirst": 1709,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 5,
           "violent": 3,
@@ -148,8 +164,13 @@
       "2018": {
         "campuses": 11,
         "online": 72,
-        "rateRanked": false,
-        "rateFte": 856,
+        "rated": true,
+        "rateFte": 1504,
+        "fteUncertain": {
+          "share": 856,
+          "partTimeFirst": 1504,
+          "reason": "own"
+        },
         "counts": {
           "all": 4,
           "drug_arrest": 3,
@@ -159,8 +180,13 @@
       "2019": {
         "campuses": 8,
         "online": 79,
-        "rateRanked": false,
-        "rateFte": 620,
+        "rated": true,
+        "rateFte": 1177,
+        "fteUncertain": {
+          "share": 620,
+          "partTimeFirst": 1177,
+          "reason": "own"
+        },
         "counts": {
           "all": 7,
           "drug_arrest": 5,
@@ -171,9 +197,15 @@
       "2020": {
         "campuses": 8,
         "online": 79,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 527,
+        "rateFte": 1007,
+        "fteUncertain": {
+          "share": 527,
+          "partTimeFirst": 1007,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 6,
           "violent": 3,
@@ -187,9 +219,15 @@
       "2021": {
         "campuses": 8,
         "online": 79,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "onlineYear": 2019,
-        "rateFte": 343,
+        "rateFte": 638,
+        "fteUncertain": {
+          "share": 343,
+          "partTimeFirst": 638,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 2,
           "violent": 2,
@@ -201,8 +239,14 @@
       "2022": {
         "campuses": 7,
         "online": 100,
-        "rateRanked": false,
-        "rateFte": 0,
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 8,
+        "fteUncertain": {
+          "share": 0,
+          "partTimeFirst": 8,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 4,
           "violent": 2,
@@ -217,8 +261,14 @@
       "2023": {
         "campuses": 7,
         "online": 98,
-        "rateRanked": false,
-        "rateFte": 24,
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 42,
+        "fteUncertain": {
+          "share": 24,
+          "partTimeFirst": 42,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 1,
           "property": 1,
@@ -229,8 +279,14 @@
       "2024": {
         "campuses": 7,
         "online": 92,
-        "rateRanked": false,
-        "rateFte": 83,
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 150,
+        "fteUncertain": {
+          "share": 83,
+          "partTimeFirst": 150,
+          "reason": "own"
+        },
         "counts": {
           "all": 1,
           "weapons_arrest": 1

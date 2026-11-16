@@ -48,12 +48,21 @@
   ],
   "institution": {
     "id": 170657,
+    "ratesFile": "rates/institutions/170657.json",
     "byYear": {
       "2016": {
         "campuses": 6,
         "online": 16,
-        "rateRanked": true,
-        "rateFte": 6670,
+        "rated": true,
+        "rateFte": 7210,
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "Public property",
+            "count": 10,
+            "usual": 1
+          }
+        ],
         "counts": {
           "criminal": 45,
           "violent": 17,
@@ -79,8 +88,22 @@
       "2017": {
         "campuses": 6,
         "online": 17,
-        "rateRanked": true,
-        "rateFte": 6208,
+        "rated": true,
+        "rateFte": 6745,
+        "flags": [
+          {
+            "offense": "domestic_violence",
+            "geo": "Public property",
+            "count": 14,
+            "usual": 0
+          },
+          {
+            "offense": "robbery",
+            "geo": "Public property",
+            "count": 13,
+            "usual": 0
+          }
+        ],
         "counts": {
           "criminal": 52,
           "violent": 18,
@@ -103,12 +126,21 @@
       "2018": {
         "campuses": 6,
         "online": 18,
-        "rateRanked": true,
-        "rateFte": 5594,
-        "spikes": [
-          "violent",
-          "all",
-          "domestic_violence"
+        "rated": true,
+        "rateFte": 6111,
+        "flags": [
+          {
+            "offense": "domestic_violence",
+            "geo": "Non-campus",
+            "count": 16,
+            "usual": 0
+          },
+          {
+            "offense": "domestic_violence",
+            "geo": "Public property",
+            "count": 30,
+            "usual": 0
+          }
         ],
         "counts": {
           "criminal": 51,

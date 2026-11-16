@@ -870,82 +870,143 @@
   ],
   "institution": {
     "id": 104717,
+    "ratesFile": "rates/institutions/104717.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 78,
-        "rateRanked": true,
-        "rateFte": 7700
+        "rated": true,
+        "rateFte": 13992,
+        "fteUncertain": {
+          "share": 7700,
+          "partTimeFirst": 13992,
+          "reason": "own"
+        }
       },
       "2016": {
         "campuses": 1,
         "online": 78,
-        "rateRanked": true,
-        "rateFte": 8427
+        "rated": true,
+        "rateFte": 15373,
+        "fteUncertain": {
+          "share": 8427,
+          "partTimeFirst": 15373,
+          "reason": "own"
+        }
       },
       "2017": {
         "campuses": 1,
         "online": 78,
-        "rateRanked": true,
-        "rateFte": 9255
+        "rated": true,
+        "rateFte": 16900,
+        "fteUncertain": {
+          "share": 9255,
+          "partTimeFirst": 16900,
+          "reason": "own"
+        }
       },
       "2018": {
         "campuses": 1,
         "online": 78,
-        "rateRanked": true,
-        "rateFte": 10030
+        "rated": true,
+        "rateFte": 18312,
+        "fteUncertain": {
+          "share": 10030,
+          "partTimeFirst": 18312,
+          "reason": "own"
+        }
       },
       "2019": {
         "campuses": 1,
         "online": 78,
-        "rateRanked": true,
-        "rateFte": 10686
+        "rated": true,
+        "rateFte": 19479,
+        "fteUncertain": {
+          "share": 10686,
+          "partTimeFirst": 19479,
+          "reason": "own"
+        }
       },
       "2020": {
         "campuses": 1,
         "online": 78,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 11509
+        "rateFte": 21034,
+        "fteUncertain": {
+          "share": 11509,
+          "partTimeFirst": 21034,
+          "reason": "own"
+        }
       },
       "2021": {
         "campuses": 1,
         "online": 78,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 11798
+        "rateFte": 22443,
+        "fteUncertain": {
+          "share": 11798,
+          "partTimeFirst": 22443,
+          "reason": "own"
+        }
       },
       "2022": {
         "campuses": 1,
         "online": 76,
-        "rateRanked": true,
-        "rateFte": 12999,
-        "spikes": [
-          "criminal",
-          "property",
-          "motor_vehicle_theft"
+        "rated": true,
+        "rateFte": 23781,
+        "fteUncertain": {
+          "share": 12999,
+          "partTimeFirst": 23781,
+          "reason": "own"
+        },
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 356,
+            "usual": 7
+          }
         ]
       },
       "2023": {
         "campuses": 1,
         "online": 77,
-        "rateRanked": true,
-        "rateFte": 13145,
-        "spikes": [
-          "criminal",
-          "property",
-          "motor_vehicle_theft"
+        "rated": true,
+        "rateFte": 23857,
+        "fteUncertain": {
+          "share": 13145,
+          "partTimeFirst": 23857,
+          "reason": "own"
+        },
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 548,
+            "usual": 7
+          }
         ]
       },
       "2024": {
         "campuses": 1,
         "online": 79,
-        "rateRanked": true,
-        "rateFte": 12503,
-        "spikes": [
-          "criminal",
-          "property",
-          "motor_vehicle_theft"
+        "rated": true,
+        "rateFte": 23110,
+        "fteUncertain": {
+          "share": 12503,
+          "partTimeFirst": 23110,
+          "reason": "own"
+        },
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 365,
+            "usual": 7
+          }
         ]
       }
     }

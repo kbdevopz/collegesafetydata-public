@@ -60,12 +60,13 @@
   ],
   "institution": {
     "id": 165802,
+    "ratesFile": "rates/institutions/165802.json",
     "byYear": {
       "2015": {
         "campuses": 4,
         "online": 9,
-        "rateRanked": true,
-        "rateFte": 1385,
+        "rated": true,
+        "rateFte": 1453,
         "counts": {
           "criminal": 2,
           "violent": 1,
@@ -82,8 +83,8 @@
       "2016": {
         "campuses": 4,
         "online": 31,
-        "rateRanked": true,
-        "rateFte": 1047,
+        "rated": true,
+        "rateFte": 1271,
         "counts": {
           "criminal": 3,
           "violent": 2,
@@ -100,11 +101,9 @@
       "2017": {
         "campuses": 4,
         "online": 32,
-        "rateRanked": false,
-        "rateFte": 828,
-        "spikes": [
-          "drug_discipline"
-        ],
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 975,
         "counts": {
           "criminal": 2,
           "violent": 2,
@@ -120,12 +119,14 @@
       "2018": {
         "campuses": 4,
         "online": 56,
-        "rateRanked": false,
-        "rateFte": 475,
-        "spikes": [
-          "all",
-          "drug_discipline"
-        ],
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 714,
+        "fteUncertain": {
+          "share": 475,
+          "partTimeFirst": 714,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 5,
           "violent": 2,
@@ -146,11 +147,14 @@
       "2019": {
         "campuses": 4,
         "online": 56,
-        "rateRanked": false,
-        "rateFte": 464,
-        "spikes": [
-          "drug_discipline"
-        ],
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 696,
+        "fteUncertain": {
+          "share": 464,
+          "partTimeFirst": 696,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 12,
           "violent": 4,
@@ -171,9 +175,15 @@
       "2020": {
         "campuses": 4,
         "online": 56,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "onlineYear": 2019,
-        "rateFte": 412,
+        "rateFte": 624,
+        "fteUncertain": {
+          "share": 412,
+          "partTimeFirst": 624,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 1,
           "property": 1,

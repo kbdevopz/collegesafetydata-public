@@ -9,6 +9,8 @@ import type {
   SchoolProfile,
   SchoolIndex,
   ApiResult,
+  RateWindowFile,
+  InstitutionRatesFile,
 } from './types'
 
 const BASE_URL = '/data'
@@ -129,6 +131,43 @@ export async function fetchRankings(
 
   rankingsCache.set(cacheKey, result.data)
   return result.data
+}
+
+// =============================================================================
+// Rates (rates/{window}-{code}.json and rates/institutions/{id}.json)
+// =============================================================================
+
+const rateWindowCache = new Map<string, Promise<RateWindowFile>>()
+
+/** Every rated institution of a window ("2022-2024") and rate code */
+export function fetchRateWindow(window: string, code: string): Promise<RateWindowFile> {
+  const key = `${window}-${code}`
+  let request = rateWindowCache.get(key)
+  if (!request) {
+    request = fetchJson<RateWindowFile>(`/rates/${key}.json`).then((result) => {
+      if (!result.success) throw new Error(result.error.message)
+      return result.data
+    })
+    request.catch(() => rateWindowCache.delete(key))
+    rateWindowCache.set(key, request)
+  }
+  return request
+}
+
+const institutionRatesCache = new Map<string, Promise<InstitutionRatesFile>>()
+
+/** An institution's rates file: `path` is institution.ratesFile ("rates/institutions/130794.json") */
+export function fetchInstitutionRates(path: string): Promise<InstitutionRatesFile> {
+  let request = institutionRatesCache.get(path)
+  if (!request) {
+    request = fetchJson<InstitutionRatesFile>(`/${path.replace(/^\/+/, '')}`).then((result) => {
+      if (!result.success) throw new Error(result.error.message)
+      return result.data
+    })
+    request.catch(() => institutionRatesCache.delete(path))
+    institutionRatesCache.set(path, request)
+  }
+  return request
 }
 
 // =============================================================================

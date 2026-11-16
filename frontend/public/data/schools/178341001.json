@@ -562,77 +562,78 @@
   ],
   "institution": {
     "id": 178341,
+    "ratesFile": "rates/institutions/178341.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 15,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2015 figures this institution reports for a campus are also reported, identically, by campus 409120002 of another institution (a shared campus) and count here, while that institution's students are in its own FTE. No rate is shown for that year.",
-        "rateFte": 4119
+        "rated": true,
+        "rateFte": 4497
       },
       "2016": {
         "campuses": 1,
         "online": 16,
-        "rateRanked": true,
-        "rateFte": 4360
+        "rated": true,
+        "rateFte": 4791
       },
       "2017": {
         "campuses": 1,
         "online": 17,
-        "rateRanked": true,
-        "rateFte": 4236,
-        "spikes": [
-          "criminal",
-          "property"
+        "rated": true,
+        "rateFte": 4683,
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "On-campus",
+            "count": 18,
+            "usual": 3
+          }
         ]
       },
       "2018": {
         "campuses": 1,
         "online": 18,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2018 figures this institution reports for a campus are also reported, identically, by campus 409120002 of another institution (a shared campus) and count here, while that institution's students are in its own FTE. No rate is shown for that year.",
-        "rateFte": 4038
+        "rated": true,
+        "rateFte": 4491
       },
       "2019": {
         "campuses": 1,
         "online": 19,
-        "rateRanked": true,
-        "rateFte": 3697
+        "rated": true,
+        "rateFte": 4137
       },
       "2020": {
         "campuses": 1,
         "online": 19,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateExcludedReason": "In 2020 figures this institution reports for a campus are also reported, identically, by campus 409120002 of another institution (a shared campus) and count here, while that institution's students are in its own FTE. No rate is shown for that year.",
-        "rateFte": 3326
+        "rateFte": 3721
       },
       "2021": {
         "campuses": 1,
         "online": 19,
-        "rateRanked": false,
+        "rated": true,
         "onlineYear": 2019,
-        "rateExcludedReason": "In 2021 figures this institution reports for a campus are also reported, identically, by campus 409120002 of another institution (a shared campus) and count here, while that institution's students are in its own FTE. No rate is shown for that year.",
-        "rateFte": 2765
+        "rateFte": 3081
       },
       "2022": {
         "campuses": 1,
         "online": 23,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2022 figures this institution reports for a campus are also reported, identically, by campus 409120002 of another institution (a shared campus) and count here, while that institution's students are in its own FTE. No rate is shown for that year.",
-        "rateFte": 2476
+        "rated": true,
+        "rateFte": 2828
       },
       "2023": {
         "campuses": 1,
         "online": 23,
-        "rateRanked": true,
-        "rateFte": 2472
+        "rated": true,
+        "rateFte": 2836
       },
       "2024": {
         "campuses": 1,
         "online": 21,
-        "rateRanked": true,
-        "rateFte": 2522
+        "rated": true,
+        "rateFte": 2854
       }
     }
   }

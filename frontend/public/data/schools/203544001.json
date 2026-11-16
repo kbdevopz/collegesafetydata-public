@@ -314,85 +314,103 @@
   "breakdownByGeo": [],
   "institution": {
     "id": 203544,
+    "ratesFile": "rates/institutions/203544.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 19,
-        "rateRanked": false,
-        "rateFte": 442
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 491
       },
       "2016": {
         "campuses": 1,
         "online": 18,
-        "rateRanked": false,
-        "rateFte": 470
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 519
       },
       "2017": {
         "campuses": 1,
         "online": 18,
-        "rateRanked": false,
-        "rateFte": 494,
-        "spikes": [
-          "all",
-          "drug_arrest",
-          "liquor_arrest"
-        ]
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 544
       },
       "2018": {
         "campuses": 1,
         "online": 17,
-        "rateRanked": false,
-        "rateFte": 549,
-        "spikes": [
-          "all",
-          "drug_arrest"
-        ]
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 605
       },
       "2019": {
         "campuses": 1,
         "online": 15,
-        "rateRanked": false,
-        "rateFte": 564,
-        "spikes": [
-          "all",
-          "drug_arrest"
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 616,
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "Non-campus",
+            "count": 11,
+            "usual": 0
+          }
         ]
       },
       "2020": {
         "campuses": 1,
         "online": 15,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "onlineYear": 2019,
-        "rateFte": 525,
-        "spikes": [
-          "criminal",
-          "all"
+        "rateFte": 573,
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "Non-campus",
+            "count": 10,
+            "usual": 0
+          }
         ]
       },
       "2021": {
         "campuses": 1,
         "online": 15,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "onlineYear": 2019,
-        "rateFte": 565
+        "rateFte": 617
       },
       "2022": {
         "campuses": 1,
         "online": 12,
-        "rateRanked": false,
-        "rateFte": 590
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 633
       },
       "2023": {
         "campuses": 1,
         "online": 11,
-        "rateRanked": false,
-        "rateFte": 573
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 609,
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "Public property",
+            "count": 10,
+            "usual": 0
+          }
+        ]
       },
       "2024": {
         "campuses": 1,
         "online": 13,
-        "rateRanked": false,
-        "rateFte": 518
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 556
       }
     }
   }

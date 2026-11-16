@@ -716,23 +716,29 @@
   ],
   "institution": {
     "id": 455813,
+    "ratesFile": "rates/institutions/455813.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 59,
-        "spikes": [
-          "all",
-          "drug_discipline",
-          "liquor_discipline"
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "On-campus",
+            "count": 12,
+            "usual": 0
+          }
         ]
       },
       "2017": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2017 figures of this institution's campus 455813001 are also reported, identically, by campus 131283001 of another institution (a shared campus) and count once, under that campus, while the students on it are in each institution's own FTE. No rate is shown for that year.",
+        "rated": false,
+        "notRated": "size",
+        "rateExcludedReason": "Its main campus is shared with The Catholic University of America, whose rate includes this institution's students and the campus's incidents. No separate rate is shown for that year.",
         "rateFte": 66,
         "counts": {
           "criminal": 4,
@@ -747,17 +753,16 @@
       "2018": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": false,
-        "rateFte": 61,
-        "spikes": [
-          "drug_discipline"
-        ]
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 61
       },
       "2019": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2019 figures of this institution's campus 455813001 are also reported, identically, by campus 131283001 of another institution (a shared campus) and count once, under that campus, while the students on it are in each institution's own FTE. No rate is shown for that year.",
+        "rated": false,
+        "notRated": "size",
+        "rateExcludedReason": "Its main campus is shared with The Catholic University of America, whose rate includes this institution's students and the campus's incidents. No separate rate is shown for that year.",
         "rateFte": 58,
         "counts": {
           "criminal": 13,
@@ -774,15 +779,16 @@
       "2020": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "onlineYear": 2019,
         "rateFte": 62
       },
       "2022": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2022 figures of this institution's campus 455813001 are also reported, identically, by campus 131283001 of another institution (a shared campus) and count once, under that campus, while the students on it are in each institution's own FTE. No rate is shown for that year.",
+        "rated": false,
+        "notRated": "size",
         "rateFte": 55,
         "counts": {
           "criminal": 3,
@@ -797,12 +803,10 @@
       "2023": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2023 figures of this institution's campus 455813001 are also reported, identically, by campus 131283001 of another institution (a shared campus) and count once, under that campus, while the students on it are in each institution's own FTE. No rate is shown for that year.",
+        "rated": false,
+        "notRated": "size",
+        "rateExcludedReason": "Its main campus is shared with The Catholic University of America, whose rate includes this institution's students and the campus's incidents. No separate rate is shown for that year.",
         "rateFte": 52,
-        "spikes": [
-          "criminal"
-        ],
         "counts": {
           "criminal": 26,
           "violent": 13,
@@ -821,7 +825,8 @@
       "2024": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 50
       }
     }

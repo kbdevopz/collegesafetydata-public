@@ -550,89 +550,80 @@
   ],
   "institution": {
     "id": 198899,
+    "ratesFile": "rates/institutions/198899.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
-        "rateFte": 1343,
-        "spikes": [
-          "all",
-          "liquor_arrest",
-          "liquor_discipline"
-        ]
+        "rated": true,
+        "rateFte": 1343
       },
       "2016": {
         "campuses": 2,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1310,
-        "spikes": [
-          "criminal",
-          "property",
-          "all",
-          "burglary",
-          "liquor_arrest",
-          "liquor_discipline"
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "On-campus",
+            "count": 20,
+            "usual": 3
+          }
         ]
       },
       "2017": {
         "campuses": 2,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1238
       },
       "2018": {
         "campuses": 2,
         "online": 0,
-        "rateRanked": true,
-        "rateFte": 1114,
-        "spikes": [
-          "drug_arrest",
-          "drug_discipline",
-          "liquor_arrest"
-        ]
+        "rated": true,
+        "rateFte": 1114
       },
       "2019": {
         "campuses": 2,
         "online": 0,
-        "rateRanked": true,
-        "rateFte": 1025,
-        "spikes": [
-          "liquor_arrest"
-        ]
+        "rated": true,
+        "rateFte": 1025
       },
       "2020": {
         "campuses": 2,
         "online": 0,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
         "rateFte": 1005
       },
       "2021": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
         "rateFte": 1024
       },
       "2022": {
         "campuses": 1,
         "online": 7,
-        "rateRanked": false,
-        "rateFte": 905
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 941
       },
       "2023": {
         "campuses": 1,
         "online": 6,
-        "rateRanked": false,
-        "rateFte": 946
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 976
       },
       "2024": {
         "campuses": 1,
         "online": 5,
-        "rateRanked": true,
-        "rateFte": 1005
+        "rated": true,
+        "rateFte": 1032
       }
     }
   }

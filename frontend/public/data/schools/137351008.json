@@ -127,21 +127,19 @@
   ],
   "institution": {
     "id": 137351,
+    "ratesFile": "rates/institutions/137351.json",
     "byYear": {
       "2019": {
         "campuses": 4,
         "online": 13,
-        "rateRanked": true,
-        "rateFte": 34709,
+        "rated": true,
+        "rateFte": 37552,
         "pooledWith": [
           {
             "id": 448840,
             "name": "University of South Florida-St Petersburg",
-            "fte": 2767
+            "fte": 3059
           }
-        ],
-        "spikes": [
-          "liquor_discipline"
         ],
         "counts": {
           "criminal": 64,
@@ -168,9 +166,18 @@
       "2020": {
         "campuses": 4,
         "online": 13,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 36508,
+        "rateFte": 39409,
+        "flags": [
+          {
+            "offense": "rape",
+            "geo": "Non-campus",
+            "count": 11,
+            "usual": 0
+          }
+        ],
         "counts": {
           "criminal": 62,
           "violent": 31,
@@ -197,9 +204,9 @@
       "2021": {
         "campuses": 4,
         "online": 13,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 35827,
+        "rateFte": 38672,
         "counts": {
           "criminal": 52,
           "violent": 25,
@@ -225,8 +232,8 @@
       "2022": {
         "campuses": 4,
         "online": 17,
-        "rateRanked": true,
-        "rateFte": 34732,
+        "rated": true,
+        "rateFte": 38525,
         "counts": {
           "criminal": 44,
           "violent": 13,
@@ -251,11 +258,15 @@
       "2023": {
         "campuses": 4,
         "online": 16,
-        "rateRanked": true,
-        "rateFte": 34861,
-        "spikes": [
-          "property",
-          "motor_vehicle_theft"
+        "rated": true,
+        "rateFte": 38442,
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 109,
+            "usual": 9
+          }
         ],
         "counts": {
           "criminal": 133,
@@ -283,13 +294,15 @@
       "2024": {
         "campuses": 4,
         "online": 15,
-        "rateRanked": true,
-        "rateFte": 36365,
-        "spikes": [
-          "criminal",
-          "property",
-          "motor_vehicle_theft",
-          "weapons_arrest"
+        "rated": true,
+        "rateFte": 39934,
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 176,
+            "usual": 9
+          }
         ],
         "counts": {
           "criminal": 205,

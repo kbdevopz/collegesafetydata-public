@@ -40,16 +40,30 @@
   ],
   "institution": {
     "id": 229115,
+    "ratesFile": "rates/institutions/229115.json",
     "byYear": {
       "2024": {
-        "campuses": 7,
+        "campuses": 6,
         "online": 14,
-        "rateRanked": true,
-        "rateFte": 31981,
-        "spikes": [
-          "violent",
-          "aggravated_assault",
-          "motor_vehicle_theft"
+        "rated": true,
+        "rateFte": 35058,
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "Non-campus",
+            "count": 93,
+            "usual": 0
+          },
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 41,
+            "usual": 6
+          }
         ],
         "counts": {
           "criminal": 169,

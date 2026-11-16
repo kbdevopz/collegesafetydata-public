@@ -44,12 +44,22 @@
   ],
   "institution": {
     "id": 163204,
+    "ratesFile": "rates/institutions/163204.json",
     "byYear": {
       "2023": {
-        "campuses": 9,
+        "campuses": 7,
         "online": 89,
-        "rateRanked": true,
-        "rateFte": 3379,
+        "rated": true,
+        "rateFte": 6336,
+        "fteUncertain": {
+          "share": 3379,
+          "partTimeFirst": 6336,
+          "reason": "own"
+        },
+        "abroad": {
+          "campuses": 2,
+          "counts": {}
+        },
         "counts": {
           "criminal": 3,
           "violent": 2,
@@ -61,11 +71,19 @@
         }
       },
       "2024": {
-        "campuses": 10,
+        "campuses": 8,
         "online": 90,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2024 figures of this institution's campus 163204119 are also reported, identically, by campus 163286001 of another institution (a shared campus) and count once, under that campus, while the students on it are in each institution's own FTE. No rate is shown for that year.",
-        "rateFte": 3281,
+        "rated": true,
+        "rateFte": 6233,
+        "fteUncertain": {
+          "share": 3281,
+          "partTimeFirst": 6233,
+          "reason": "own"
+        },
+        "abroad": {
+          "campuses": 2,
+          "counts": {}
+        },
         "counts": {
           "criminal": 8,
           "violent": 5,

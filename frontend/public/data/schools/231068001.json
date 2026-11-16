@@ -182,22 +182,39 @@
   "breakdownByGeo": [],
   "institution": {
     "id": 231068,
+    "ratesFile": "rates/institutions/231068.json",
     "byYear": {
       "2015": {
         "campuses": 2,
         "online": 43,
-        "rateRanked": false,
-        "rateFte": 127,
-        "spikes": [
-          "criminal",
-          "all"
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 164,
+        "fteUncertain": {
+          "share": 127,
+          "partTimeFirst": 164,
+          "reason": "own"
+        },
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "Non-campus",
+            "count": 10,
+            "usual": 0
+          }
         ]
       },
       "2016": {
         "campuses": 2,
         "online": 49,
-        "rateRanked": false,
-        "rateFte": 88,
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 118,
+        "fteUncertain": {
+          "share": 88,
+          "partTimeFirst": 118,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 8,
           "violent": 5,
@@ -214,8 +231,14 @@
       "2017": {
         "campuses": 2,
         "online": 43,
-        "rateRanked": false,
-        "rateFte": 92,
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 118,
+        "fteUncertain": {
+          "share": 92,
+          "partTimeFirst": 118,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 15,
           "violent": 10,
@@ -234,46 +257,68 @@
       "2018": {
         "campuses": 2,
         "online": 75,
-        "rateRanked": false,
-        "rateFte": 16
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 20,
+        "fteUncertain": {
+          "share": 16,
+          "partTimeFirst": 20,
+          "reason": "own"
+        }
       },
       "2019": {
         "campuses": 2,
         "online": 79,
-        "rateRanked": false,
-        "rateFte": 7
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 11,
+        "fteUncertain": {
+          "share": 7,
+          "partTimeFirst": 11,
+          "reason": "own"
+        }
       },
       "2020": {
         "campuses": 1,
         "online": 79,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "onlineYear": 2019,
-        "rateFte": 15
+        "rateFte": 29,
+        "fteUncertain": {
+          "share": 15,
+          "partTimeFirst": 29,
+          "reason": "own"
+        }
       },
       "2021": {
         "campuses": 1,
         "online": 79,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "onlineYear": 2019,
-        "rateFte": 82
+        "rateFte": 99
       },
       "2022": {
         "campuses": 1,
         "online": 5,
-        "rateRanked": false,
-        "rateFte": 548
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 567
       },
       "2023": {
         "campuses": 1,
         "online": 8,
-        "rateRanked": false,
-        "rateFte": 557
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 585
       },
       "2024": {
         "campuses": 1,
         "online": 4,
-        "rateRanked": false,
-        "rateFte": 598
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 612
       }
     }
   }

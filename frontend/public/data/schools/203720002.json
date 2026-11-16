@@ -75,16 +75,21 @@
   ],
   "institution": {
     "id": 203720,
+    "ratesFile": "rates/institutions/203720.json",
     "byYear": {
       "2018": {
         "campuses": 2,
         "online": 0,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 154,
-        "spikes": [
-          "all",
-          "domestic_violence",
-          "drug_discipline"
+        "flags": [
+          {
+            "offense": "domestic_violence",
+            "geo": "Non-campus",
+            "count": 21,
+            "usual": 0
+          }
         ],
         "counts": {
           "criminal": 6,
@@ -102,7 +107,8 @@
       "2019": {
         "campuses": 2,
         "online": 0,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "rateFte": 175,
         "counts": {
           "all": 2,
@@ -113,7 +119,8 @@
       "2020": {
         "campuses": 3,
         "online": 0,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "onlineYear": 2019,
         "rateFte": 165,
         "counts": {

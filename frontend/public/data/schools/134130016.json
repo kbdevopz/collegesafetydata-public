@@ -44,12 +44,17 @@
   ],
   "institution": {
     "id": 134130,
+    "ratesFile": "rates/institutions/134130.json",
     "byYear": {
       "2019": {
-        "campuses": 34,
+        "campuses": 33,
         "online": 8,
-        "rateRanked": true,
-        "rateFte": 43731,
+        "rated": true,
+        "rateFte": 45945,
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
         "counts": {
           "criminal": 149,
           "violent": 73,
@@ -75,11 +80,16 @@
         }
       },
       "2020": {
-        "campuses": 37,
+        "campuses": 36,
         "online": 8,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 43656,
+        "rateFte": 45843,
+        "abroad": {
+          "campuses": 1,
+          "counts": {}
+        },
         "counts": {
           "criminal": 154,
           "violent": 68,

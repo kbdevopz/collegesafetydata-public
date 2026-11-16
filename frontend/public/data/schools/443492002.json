@@ -48,18 +48,26 @@
   ],
   "institution": {
     "id": 443492,
+    "ratesFile": "rates/institutions/443492.json",
     "byYear": {
       "2022": {
         "campuses": 3,
         "online": 42,
-        "rateRanked": false,
-        "rateFte": 575
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 786,
+        "fteUncertain": {
+          "share": 575,
+          "partTimeFirst": 786,
+          "reason": "own"
+        }
       },
       "2023": {
         "campuses": 4,
         "online": 33,
-        "rateRanked": false,
-        "rateFte": 752,
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 907,
         "counts": {
           "all": 8,
           "drug_arrest": 8
@@ -68,8 +76,8 @@
       "2024": {
         "campuses": 4,
         "online": 24,
-        "rateRanked": false,
-        "rateFte": 922,
+        "rated": true,
+        "rateFte": 1057,
         "counts": {
           "all": 3,
           "drug_arrest": 3

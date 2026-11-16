@@ -608,90 +608,137 @@
   ],
   "institution": {
     "id": 180814,
+    "ratesFile": "rates/institutions/180814.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 78,
-        "rateRanked": true,
-        "rateFte": 1857
+        "rated": true,
+        "rateFte": 2147
       },
       "2016": {
         "campuses": 1,
         "online": 79,
-        "rateRanked": true,
-        "rateFte": 1642
+        "rated": true,
+        "rateFte": 1868
       },
       "2017": {
         "campuses": 1,
         "online": 79,
-        "rateRanked": true,
-        "rateFte": 1603,
-        "spikes": [
-          "criminal",
-          "all",
-          "drug_arrest",
-          "stalking"
+        "rated": true,
+        "rateFte": 1818,
+        "flags": [
+          {
+            "offense": "fondling",
+            "geo": "Public property",
+            "count": 10,
+            "usual": 0
+          },
+          {
+            "offense": "stalking",
+            "geo": "Non-campus",
+            "count": 28,
+            "usual": 1
+          }
         ]
       },
       "2018": {
         "campuses": 1,
         "online": 80,
-        "rateRanked": true,
-        "rateFte": 1430,
-        "spikes": [
-          "criminal",
-          "property",
-          "all",
-          "drug_discipline"
+        "rated": true,
+        "rateFte": 1924,
+        "fteUncertain": {
+          "share": 1430,
+          "partTimeFirst": 1924,
+          "reason": "own"
+        },
+        "flags": [
+          {
+            "offense": "burglary",
+            "geo": "Non-campus",
+            "count": 15,
+            "usual": 0
+          },
+          {
+            "offense": "fondling",
+            "geo": "Non-campus",
+            "count": 11,
+            "usual": 0
+          },
+          {
+            "offense": "stalking",
+            "geo": "Non-campus",
+            "count": 14,
+            "usual": 1
+          }
         ]
       },
       "2019": {
         "campuses": 1,
         "online": 90,
-        "rateRanked": false,
-        "rateFte": 872,
-        "spikes": [
-          "criminal",
-          "all",
-          "drug_discipline",
-          "liquor_discipline"
-        ]
+        "rated": true,
+        "rateFte": 1164,
+        "fteUncertain": {
+          "share": 872,
+          "partTimeFirst": 1164,
+          "reason": "own"
+        }
       },
       "2020": {
         "campuses": 1,
         "online": 90,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 1046,
-        "spikes": [
-          "criminal",
-          "all"
-        ]
+        "rateFte": 1306
       },
       "2021": {
         "campuses": 1,
         "online": 90,
-        "rateRanked": false,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 951
+        "rateFte": 1190,
+        "fteUncertain": {
+          "share": 951,
+          "partTimeFirst": 1190,
+          "reason": "own"
+        }
       },
       "2022": {
         "campuses": 1,
         "online": 94,
-        "rateRanked": false,
-        "rateFte": 646
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 848,
+        "fteUncertain": {
+          "share": 646,
+          "partTimeFirst": 848,
+          "reason": "own"
+        }
       },
       "2023": {
         "campuses": 1,
         "online": 95,
-        "rateRanked": false,
-        "rateFte": 572
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 767,
+        "fteUncertain": {
+          "share": 572,
+          "partTimeFirst": 767,
+          "reason": "own"
+        }
       },
       "2024": {
         "campuses": 1,
         "online": 96,
-        "rateRanked": false,
-        "rateFte": 463
+        "rated": false,
+        "notRated": "size",
+        "rateFte": 661,
+        "fteUncertain": {
+          "share": 463,
+          "partTimeFirst": 661,
+          "reason": "own"
+        }
       }
     }
   }

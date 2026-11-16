@@ -287,17 +287,23 @@
       "geo": "On-campus",
       "hostUnitid": 206011001,
       "hostName": "Terra State Community College"
+    },
+    {
+      "year": 2024,
+      "geo": "On-campus",
+      "hostUnitid": 206011001,
+      "hostName": "Terra State Community College"
     }
   ],
   "institution": {
     "id": 206048,
+    "ratesFile": "rates/institutions/206048.json",
     "byYear": {
       "2017": {
         "campuses": 7,
         "online": 26,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2017 figures of this institution's campus 206048010 are also reported, identically, by campus 204945001 of another institution (a shared campus) and count once, under that campus, while the students on it are in each institution's own FTE. No rate is shown for that year.",
-        "rateFte": 1761,
+        "rated": true,
+        "rateFte": 2064,
         "counts": {
           "criminal": 19,
           "violent": 7,
@@ -319,9 +325,13 @@
       "2018": {
         "campuses": 4,
         "online": 40,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2018 figures of this institution's campus 206048008 are also reported, identically, by campus 202356001 of another institution (a shared campus) and count once, under that campus, while the students on it are in each institution's own FTE. No rate is shown for that year.",
-        "rateFte": 1391,
+        "rated": true,
+        "rateFte": 1827,
+        "fteUncertain": {
+          "share": 1391,
+          "partTimeFirst": 1827,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 13,
           "violent": 6,
@@ -343,11 +353,13 @@
       "2019": {
         "campuses": 5,
         "online": 35,
-        "rateRanked": true,
-        "rateFte": 1472,
-        "spikes": [
-          "liquor_arrest"
-        ],
+        "rated": true,
+        "rateFte": 1867,
+        "fteUncertain": {
+          "share": 1472,
+          "partTimeFirst": 1867,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 8,
           "violent": 5,
@@ -370,9 +382,15 @@
       "2020": {
         "campuses": 4,
         "online": 35,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 1462,
+        "rateFte": 1851,
+        "fteUncertain": {
+          "share": 1462,
+          "partTimeFirst": 1851,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 6,
           "violent": 3,
@@ -394,9 +412,14 @@
       "2021": {
         "campuses": 3,
         "online": 35,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 1431,
+        "rateFte": 1804,
+        "fteUncertain": {
+          "share": 1431,
+          "partTimeFirst": 1804,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 8,
           "violent": 5,
@@ -416,8 +439,13 @@
       "2022": {
         "campuses": 3,
         "online": 42,
-        "rateRanked": true,
-        "rateFte": 1298,
+        "rated": true,
+        "rateFte": 1730,
+        "fteUncertain": {
+          "share": 1298,
+          "partTimeFirst": 1730,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 2,
           "violent": 1,
@@ -436,9 +464,13 @@
       "2023": {
         "campuses": 1,
         "online": 49,
-        "rateRanked": false,
-        "rateExcludedReason": "In 2023 figures of this institution's campus 206048009 are also reported, identically, by campus 206011001 of another institution (a shared campus) and count once, under that campus, while the students on it are in each institution's own FTE. No rate is shown for that year.",
-        "rateFte": 1352,
+        "rated": true,
+        "rateFte": 1842,
+        "fteUncertain": {
+          "share": 1352,
+          "partTimeFirst": 1842,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 7,
           "violent": 6,
@@ -453,19 +485,18 @@
         }
       },
       "2024": {
-        "campuses": 2,
+        "campuses": 1,
         "online": 32,
-        "rateRanked": true,
-        "rateFte": 1990,
+        "rated": true,
+        "rateFte": 2391,
         "counts": {
-          "criminal": 5,
-          "violent": 3,
-          "all": 140,
-          "aggravated_assault": 1,
+          "criminal": 4,
+          "violent": 2,
+          "all": 118,
           "dating_violence": 3,
-          "drug_discipline": 30,
+          "drug_discipline": 22,
           "fondling": 1,
-          "liquor_discipline": 97,
+          "liquor_discipline": 84,
           "rape": 2,
           "stalking": 5,
           "statutory_rape": 1

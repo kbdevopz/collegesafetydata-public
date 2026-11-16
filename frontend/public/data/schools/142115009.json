@@ -57,17 +57,26 @@
   ],
   "institution": {
     "id": 142115,
+    "ratesFile": "rates/institutions/142115.json",
     "byYear": {
       "2015": {
         "campuses": 8,
         "online": 10,
-        "rateRanked": true,
-        "rateFte": 14888,
-        "spikes": [
-          "property",
-          "burglary",
-          "drug_arrest",
-          "liquor_arrest"
+        "rated": true,
+        "rateFte": 15672,
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "On-campus",
+            "count": 11,
+            "usual": 1
+          },
+          {
+            "offense": "burglary",
+            "geo": "On-campus",
+            "count": 39,
+            "usual": 1
+          }
         ],
         "counts": {
           "criminal": 77,

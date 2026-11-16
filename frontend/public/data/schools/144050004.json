@@ -40,20 +40,27 @@
   ],
   "institution": {
     "id": 144050,
+    "ratesFile": "rates/institutions/144050.json",
     "byYear": {
       "2015": {
-        "campuses": 8,
+        "campuses": 2,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 13902,
-        "spikes": [
-          "drug_discipline"
-        ],
+        "abroad": {
+          "campuses": 6,
+          "counts": {
+            "criminal": 2,
+            "violent": 2,
+            "all": 2,
+            "rape": 2
+          }
+        },
         "counts": {
-          "criminal": 58,
-          "violent": 21,
+          "criminal": 56,
+          "violent": 19,
           "property": 32,
-          "all": 145,
+          "all": 143,
           "aggravated_assault": 5,
           "burglary": 20,
           "dating_violence": 1,
@@ -63,7 +70,7 @@
           "fondling": 5,
           "liquor_discipline": 21,
           "motor_vehicle_theft": 12,
-          "rape": 8,
+          "rape": 6,
           "robbery": 8,
           "stalking": 12,
           "weapons_arrest": 1

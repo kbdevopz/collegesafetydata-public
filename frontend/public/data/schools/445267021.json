@@ -83,12 +83,13 @@
   ],
   "institution": {
     "id": 445267,
+    "ratesFile": "rates/institutions/445267.json",
     "byYear": {
       "2016": {
         "campuses": 15,
         "online": 33,
-        "rateRanked": true,
-        "rateFte": 2655,
+        "rated": true,
+        "rateFte": 2876,
         "pooledWith": [
           {
             "id": 176947,
@@ -115,8 +116,8 @@
       "2017": {
         "campuses": 15,
         "online": 39,
-        "rateRanked": true,
-        "rateFte": 2432,
+        "rated": true,
+        "rateFte": 2709,
         "pooledWith": [
           {
             "id": 176947,
@@ -140,8 +141,13 @@
       "2018": {
         "campuses": 14,
         "online": 45,
-        "rateRanked": true,
-        "rateFte": 2354,
+        "rated": true,
+        "rateFte": 2667,
+        "fteUncertain": {
+          "share": 1216,
+          "partTimeFirst": 1529,
+          "reason": "own"
+        },
         "pooledWith": [
           {
             "id": 176947,
@@ -167,8 +173,13 @@
       "2019": {
         "campuses": 14,
         "online": 50,
-        "rateRanked": true,
-        "rateFte": 1081,
+        "rated": true,
+        "rateFte": 1413,
+        "fteUncertain": {
+          "share": 1081,
+          "partTimeFirst": 1413,
+          "reason": "own"
+        },
         "counts": {
           "criminal": 8,
           "violent": 4,
@@ -188,18 +199,21 @@
       "2020": {
         "campuses": 12,
         "online": 50,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 2122,
+        "rateFte": 2437,
+        "fteUncertain": {
+          "share": 988,
+          "partTimeFirst": 1303,
+          "reason": "own"
+        },
         "pooledWith": [
           {
             "id": 176947,
             "name": "Central Methodist University-College of Liberal Arts and Sciences",
             "fte": 1134
           }
-        ],
-        "spikes": [
-          "liquor_arrest"
         ],
         "counts": {
           "criminal": 5,

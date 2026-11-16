@@ -364,83 +364,87 @@
   ],
   "institution": {
     "id": 133979,
+    "ratesFile": "rates/institutions/133979.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1392
       },
       "2016": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1283
       },
       "2017": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1185,
-        "spikes": [
-          "criminal",
-          "violent",
-          "all",
-          "aggravated_assault"
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "On-campus",
+            "count": 28,
+            "usual": 0
+          }
         ]
       },
       "2018": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
+        "rated": true,
         "rateFte": 1126,
-        "spikes": [
-          "criminal",
-          "violent",
-          "all"
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "On-campus",
+            "count": 19,
+            "usual": 0
+          }
         ]
       },
       "2019": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": true,
-        "rateFte": 1051,
-        "spikes": [
-          "all",
-          "liquor_discipline"
-        ]
+        "rated": true,
+        "rateFte": 1051
       },
       "2020": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "onlineYear": 2019,
         "rateFte": 860
       },
       "2021": {
         "campuses": 1,
         "online": 0,
-        "rateRanked": false,
+        "rated": false,
+        "notRated": "size",
         "onlineYear": 2019,
         "rateFte": 953
       },
       "2022": {
         "campuses": 1,
         "online": 1,
-        "rateRanked": true,
-        "rateFte": 1070
+        "rated": true,
+        "rateFte": 1075
       },
       "2023": {
         "campuses": 1,
         "online": 1,
-        "rateRanked": true,
-        "rateFte": 1280
+        "rated": true,
+        "rateFte": 1286
       },
       "2024": {
         "campuses": 1,
         "online": 2,
-        "rateRanked": true,
-        "rateFte": 1190
+        "rated": true,
+        "rateFte": 1205
       }
     }
   }

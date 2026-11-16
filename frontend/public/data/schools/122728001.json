@@ -322,61 +322,71 @@
   ],
   "institution": {
     "id": 122728,
+    "ratesFile": "rates/institutions/122728.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 1,
-        "rateRanked": true,
-        "rateFte": 1008
+        "rated": true,
+        "rateFte": 1013
       },
       "2016": {
         "campuses": 1,
         "online": 4,
-        "rateRanked": true,
-        "rateFte": 1126
+        "rated": true,
+        "rateFte": 1152
       },
       "2017": {
         "campuses": 1,
         "online": 5,
-        "rateRanked": true,
-        "rateFte": 1264
+        "rated": true,
+        "rateFte": 1302
       },
       "2018": {
         "campuses": 1,
         "online": 5,
-        "rateRanked": true,
-        "rateFte": 1428
+        "rated": true,
+        "rateFte": 1470
       },
       "2019": {
         "campuses": 1,
         "online": 8,
-        "rateRanked": true,
-        "rateFte": 1450
+        "rated": true,
+        "rateFte": 1522
       },
       "2020": {
         "campuses": 1,
         "online": 8,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 1524
+        "rateFte": 1600
       },
       "2021": {
         "campuses": 1,
         "online": 8,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 1330
+        "rateFte": 1394
       },
       "2022": {
         "campuses": 2,
         "online": 29,
-        "rateRanked": true,
-        "rateFte": 1303,
+        "rated": true,
+        "rateFte": 1510,
         "pooledWith": [
           {
             "id": 209287,
             "name": "Multnomah University",
-            "fte": 393
+            "fte": 450
+          }
+        ],
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "Public property",
+            "count": 11,
+            "usual": 0
           }
         ],
         "counts": {
@@ -393,8 +403,8 @@
       "2023": {
         "campuses": 2,
         "online": 20,
-        "rateRanked": true,
-        "rateFte": 1058,
+        "rated": true,
+        "rateFte": 1178,
         "counts": {
           "criminal": 14,
           "violent": 4,
@@ -411,8 +421,8 @@
       "2024": {
         "campuses": 2,
         "online": 23,
-        "rateRanked": true,
-        "rateFte": 1286,
+        "rated": true,
+        "rateFte": 1431,
         "counts": {
           "criminal": 10,
           "violent": 4,

@@ -40,16 +40,15 @@
   ],
   "institution": {
     "id": 215062,
+    "ratesFile": "rates/institutions/215062.json",
     "byYear": {
       "2015": {
         "campuses": 7,
         "online": 0,
-        "rateRanked": false,
-        "rateExcludedReason": "IPEDS reports that this institution has a hospital (institutional characteristics, 2015). Patients, visitors and hospital staff are on its campus but not in its FTE, so a rate per student would not measure its campus population. It is left out of rate rankings; its counts are shown.",
+        "rated": false,
+        "notRated": "excluded",
+        "rateExcludedReason": "IPEDS reports that this institution has a hospital (institutional characteristics, 2015). Patients, visitors and hospital staff are on its campus but not in its FTE, so a rate per student would not measure its campus population. It has no rate; its counts are shown.",
         "rateFte": 22842,
-        "spikes": [
-          "drug_discipline"
-        ],
         "counts": {
           "criminal": 86,
           "violent": 52,

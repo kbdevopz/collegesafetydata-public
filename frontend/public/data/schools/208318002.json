@@ -141,12 +141,13 @@
   "breakdownByGeo": [],
   "institution": {
     "id": 208318,
+    "ratesFile": "rates/institutions/208318.json",
     "byYear": {
       "2015": {
         "campuses": 6,
         "online": 6,
-        "rateRanked": true,
-        "rateFte": 4101,
+        "rated": true,
+        "rateFte": 4201,
         "pooledWith": [
           {
             "id": 440828,
@@ -171,18 +172,14 @@
       "2016": {
         "campuses": 6,
         "online": 7,
-        "rateRanked": true,
-        "rateFte": 4058,
+        "rated": true,
+        "rateFte": 4175,
         "pooledWith": [
           {
             "id": 440828,
             "name": "Oregon State University-Cascades Campus",
             "fte": 718
           }
-        ],
-        "spikes": [
-          "criminal",
-          "drug_discipline"
         ],
         "counts": {
           "criminal": 20,
@@ -211,13 +208,8 @@
       "2017": {
         "campuses": 6,
         "online": 9,
-        "rateRanked": true,
-        "rateFte": 3027,
-        "spikes": [
-          "all",
-          "drug_discipline",
-          "liquor_discipline"
-        ],
+        "rated": true,
+        "rateFte": 3169,
         "counts": {
           "criminal": 10,
           "violent": 1,
@@ -234,11 +226,8 @@
       "2018": {
         "campuses": 6,
         "online": 10,
-        "rateRanked": true,
-        "rateFte": 2849,
-        "spikes": [
-          "drug_discipline"
-        ],
+        "rated": true,
+        "rateFte": 3001,
         "counts": {
           "criminal": 9,
           "violent": 2,
@@ -257,8 +246,8 @@
       "2019": {
         "campuses": 6,
         "online": 12,
-        "rateRanked": true,
-        "rateFte": 2702,
+        "rated": true,
+        "rateFte": 2876,
         "counts": {
           "criminal": 6,
           "violent": 1,
@@ -273,9 +262,10 @@
       "2020": {
         "campuses": 6,
         "online": 12,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 2343,
+        "rateFte": 2489,
         "counts": {
           "criminal": 3,
           "property": 2,
@@ -290,9 +280,9 @@
       "2021": {
         "campuses": 6,
         "online": 12,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 2113,
+        "rateFte": 2251,
         "counts": {
           "criminal": 1,
           "property": 1,
@@ -305,8 +295,8 @@
       "2022": {
         "campuses": 6,
         "online": 31,
-        "rateRanked": true,
-        "rateFte": 1721,
+        "rated": true,
+        "rateFte": 2062,
         "counts": {
           "criminal": 1,
           "property": 1,
@@ -319,8 +309,8 @@
       "2023": {
         "campuses": 6,
         "online": 17,
-        "rateRanked": true,
-        "rateFte": 2182,
+        "rated": true,
+        "rateFte": 2398,
         "counts": {
           "criminal": 4,
           "violent": 2,
@@ -336,8 +326,8 @@
       "2024": {
         "campuses": 6,
         "online": 17,
-        "rateRanked": true,
-        "rateFte": 2265,
+        "rated": true,
+        "rateFte": 2482,
         "counts": {
           "all": 58,
           "drug_discipline": 16,

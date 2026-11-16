@@ -87,16 +87,26 @@
   ],
   "institution": {
     "id": 233754,
+    "ratesFile": "rates/institutions/233754.json",
     "byYear": {
       "2024": {
         "campuses": 2,
         "online": 30,
-        "rateRanked": true,
-        "rateFte": 2319,
-        "spikes": [
-          "criminal",
-          "all",
-          "drug_arrest"
+        "rated": true,
+        "rateFte": 2667,
+        "flags": [
+          {
+            "offense": "aggravated_assault",
+            "geo": "Non-campus",
+            "count": 10,
+            "usual": 0
+          },
+          {
+            "offense": "fondling",
+            "geo": "Non-campus",
+            "count": 12,
+            "usual": 0
+          }
         ],
         "counts": {
           "criminal": 25,

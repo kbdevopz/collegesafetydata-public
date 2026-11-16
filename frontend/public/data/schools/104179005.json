@@ -79,13 +79,15 @@
   ],
   "institution": {
     "id": 104179,
+    "ratesFile": "rates/institutions/104179.json",
     "byYear": {
       "2020": {
         "campuses": 3,
         "online": 11,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 34521,
+        "rateFte": 36845,
         "counts": {
           "criminal": 96,
           "violent": 27,
@@ -109,9 +111,9 @@
       "2021": {
         "campuses": 3,
         "online": 11,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 36078,
+        "rateFte": 38477,
         "counts": {
           "criminal": 89,
           "violent": 32,
@@ -138,12 +140,27 @@
       "2022": {
         "campuses": 3,
         "online": 19,
-        "rateRanked": true,
-        "rateFte": 33543,
-        "spikes": [
-          "violent",
-          "dating_violence",
-          "rape"
+        "rated": true,
+        "rateFte": 37688,
+        "flags": [
+          {
+            "offense": "dating_violence",
+            "geo": "On-campus",
+            "count": 78,
+            "usual": 2
+          },
+          {
+            "offense": "rape",
+            "geo": "On-campus",
+            "count": 75,
+            "usual": 15
+          },
+          {
+            "offense": "stalking",
+            "geo": "On-campus",
+            "count": 19,
+            "usual": 4
+          }
         ],
         "counts": {
           "criminal": 177,
@@ -171,8 +188,8 @@
       "2023": {
         "campuses": 4,
         "online": 21,
-        "rateRanked": true,
-        "rateFte": 36338,
+        "rated": true,
+        "rateFte": 41718,
         "counts": {
           "criminal": 102,
           "violent": 38,
@@ -198,11 +215,21 @@
       "2024": {
         "campuses": 9,
         "online": 22,
-        "rateRanked": true,
-        "rateFte": 37786,
-        "spikes": [
-          "motor_vehicle_theft",
-          "stalking"
+        "rated": true,
+        "rateFte": 43535,
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 65,
+            "usual": 15
+          },
+          {
+            "offense": "stalking",
+            "geo": "On-campus",
+            "count": 43,
+            "usual": 4
+          }
         ],
         "counts": {
           "criminal": 158,

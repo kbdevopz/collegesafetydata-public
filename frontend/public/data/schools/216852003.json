@@ -169,21 +169,19 @@
   ],
   "institution": {
     "id": 216852,
+    "ratesFile": "rates/institutions/216852.json",
     "byYear": {
       "2015": {
         "campuses": 4,
         "online": 7,
-        "rateRanked": true,
-        "rateFte": 4506,
+        "rated": true,
+        "rateFte": 4707,
         "pooledWith": [
           {
             "id": 244190,
             "name": "Widener University-Delaware Law School",
-            "fte": 516
+            "fte": 560
           }
-        ],
-        "spikes": [
-          "liquor_discipline"
         ],
         "counts": {
           "criminal": 9,
@@ -203,11 +201,8 @@
       "2016": {
         "campuses": 4,
         "online": 12,
-        "rateRanked": true,
-        "rateFte": 4543,
-        "spikes": [
-          "liquor_discipline"
-        ],
+        "rated": true,
+        "rateFte": 4867,
         "counts": {
           "criminal": 6,
           "property": 5,
@@ -226,8 +221,8 @@
       "2017": {
         "campuses": 4,
         "online": 16,
-        "rateRanked": true,
-        "rateFte": 4362,
+        "rated": true,
+        "rateFte": 4792,
         "counts": {
           "criminal": 5,
           "violent": 4,
@@ -249,8 +244,8 @@
       "2018": {
         "campuses": 3,
         "online": 17,
-        "rateRanked": true,
-        "rateFte": 4410,
+        "rated": true,
+        "rateFte": 4880,
         "counts": {
           "criminal": 6,
           "violent": 3,
@@ -269,8 +264,8 @@
       "2019": {
         "campuses": 3,
         "online": 17,
-        "rateRanked": true,
-        "rateFte": 4346,
+        "rated": true,
+        "rateFte": 4812,
         "counts": {
           "criminal": 10,
           "violent": 7,
@@ -292,9 +287,10 @@
       "2020": {
         "campuses": 3,
         "online": 17,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 4203,
+        "rateFte": 4663,
         "counts": {
           "criminal": 16,
           "violent": 2,
@@ -313,9 +309,9 @@
       "2021": {
         "campuses": 3,
         "online": 17,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 4067,
+        "rateFte": 4517,
         "counts": {
           "criminal": 7,
           "violent": 3,
@@ -335,8 +331,8 @@
       "2022": {
         "campuses": 3,
         "online": 21,
-        "rateRanked": true,
-        "rateFte": 3628,
+        "rated": true,
+        "rateFte": 4162,
         "counts": {
           "criminal": 12,
           "violent": 6,
@@ -358,8 +354,8 @@
       "2023": {
         "campuses": 3,
         "online": 19,
-        "rateRanked": true,
-        "rateFte": 3932,
+        "rated": true,
+        "rateFte": 4445,
         "counts": {
           "criminal": 24,
           "violent": 12,
@@ -384,8 +380,16 @@
       "2024": {
         "campuses": 3,
         "online": 18,
-        "rateRanked": true,
-        "rateFte": 4119,
+        "rated": true,
+        "rateFte": 4630,
+        "flags": [
+          {
+            "offense": "dating_violence",
+            "geo": "On-campus",
+            "count": 11,
+            "usual": 1
+          }
+        ],
         "counts": {
           "criminal": 21,
           "violent": 13,

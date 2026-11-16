@@ -64,12 +64,13 @@
   ],
   "institution": {
     "id": 221768,
+    "ratesFile": "rates/institutions/221768.json",
     "byYear": {
       "2018": {
         "campuses": 6,
         "online": 22,
-        "rateRanked": true,
-        "rateFte": 4444,
+        "rated": true,
+        "rateFte": 5081,
         "counts": {
           "criminal": 9,
           "violent": 6,
@@ -89,8 +90,16 @@
       "2019": {
         "campuses": 6,
         "online": 21,
-        "rateRanked": true,
-        "rateFte": 4619,
+        "rated": true,
+        "rateFte": 5240,
+        "flags": [
+          {
+            "offense": "domestic_violence",
+            "geo": "On-campus",
+            "count": 14,
+            "usual": 2
+          }
+        ],
         "counts": {
           "criminal": 10,
           "violent": 3,
@@ -114,9 +123,10 @@
       "2020": {
         "campuses": 6,
         "online": 21,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 4550,
+        "rateFte": 5171,
         "counts": {
           "criminal": 12,
           "violent": 9,
@@ -137,9 +147,9 @@
       "2021": {
         "campuses": 6,
         "online": 21,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 4266,
+        "rateFte": 4845,
         "counts": {
           "criminal": 13,
           "violent": 6,
@@ -161,8 +171,8 @@
       "2022": {
         "campuses": 6,
         "online": 23,
-        "rateRanked": true,
-        "rateFte": 4195,
+        "rated": true,
+        "rateFte": 4737,
         "counts": {
           "criminal": 7,
           "violent": 4,
@@ -183,8 +193,8 @@
       "2023": {
         "campuses": 6,
         "online": 27,
-        "rateRanked": true,
-        "rateFte": 3990,
+        "rated": true,
+        "rateFte": 4640,
         "counts": {
           "criminal": 13,
           "violent": 5,
@@ -208,8 +218,8 @@
       "2024": {
         "campuses": 6,
         "online": 26,
-        "rateRanked": true,
-        "rateFte": 4306,
+        "rated": true,
+        "rateFte": 4956,
         "counts": {
           "criminal": 10,
           "violent": 7,

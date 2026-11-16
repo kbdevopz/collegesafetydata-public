@@ -946,50 +946,52 @@
   ],
   "institution": {
     "id": 127060,
+    "ratesFile": "rates/institutions/127060.json",
     "byYear": {
       "2015": {
         "campuses": 1,
         "online": 11,
-        "rateRanked": true,
-        "rateFte": 8761
+        "rated": true,
+        "rateFte": 9347
       },
       "2016": {
         "campuses": 1,
         "online": 11,
-        "rateRanked": true,
-        "rateFte": 8677
+        "rated": true,
+        "rateFte": 9260
       },
       "2017": {
         "campuses": 1,
         "online": 11,
-        "rateRanked": true,
-        "rateFte": 8534
+        "rated": true,
+        "rateFte": 9107
       },
       "2018": {
         "campuses": 1,
         "online": 13,
-        "rateRanked": true,
-        "rateFte": 8560
+        "rated": true,
+        "rateFte": 9244
       },
       "2019": {
         "campuses": 1,
         "online": 20,
-        "rateRanked": true,
-        "rateFte": 8224
+        "rated": true,
+        "rateFte": 9290
       },
       "2020": {
         "campuses": 1,
         "online": 20,
-        "rateRanked": true,
+        "rated": false,
+        "notRated": "skippedYear",
         "onlineYear": 2019,
-        "rateFte": 8537
+        "rateFte": 9610
       },
       "2021": {
         "campuses": 3,
         "online": 20,
-        "rateRanked": true,
+        "rated": true,
         "onlineYear": 2019,
-        "rateFte": 8713,
+        "rateFte": 9809,
         "counts": {
           "criminal": 80,
           "violent": 18,
@@ -1014,10 +1016,15 @@
       "2022": {
         "campuses": 3,
         "online": 23,
-        "rateRanked": true,
-        "rateFte": 8154,
-        "spikes": [
-          "motor_vehicle_theft"
+        "rated": true,
+        "rateFte": 9397,
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 44,
+            "usual": 8
+          }
         ],
         "counts": {
           "criminal": 101,
@@ -1044,8 +1051,8 @@
       "2023": {
         "campuses": 3,
         "online": 22,
-        "rateRanked": true,
-        "rateFte": 8118,
+        "rated": true,
+        "rateFte": 9248,
         "counts": {
           "criminal": 63,
           "violent": 10,
@@ -1069,10 +1076,15 @@
       "2024": {
         "campuses": 3,
         "online": 22,
-        "rateRanked": true,
-        "rateFte": 7918,
-        "spikes": [
-          "motor_vehicle_theft"
+        "rated": true,
+        "rateFte": 9085,
+        "flags": [
+          {
+            "offense": "motor_vehicle_theft",
+            "geo": "On-campus",
+            "count": 43,
+            "usual": 8
+          }
         ],
         "counts": {
           "criminal": 91,
