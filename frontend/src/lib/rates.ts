@@ -11,7 +11,7 @@
  */
 
 import type {
-  FteUncertain, InstitutionFlag, InstitutionWindow, Metadata, NamedInstitution, NotRatedReason, PooledInstitution,
+  AbsentYear, FteUncertain, InstitutionFlag, InstitutionWindow, Metadata, NamedInstitution, NotRatedReason, PooledInstitution,
   RateEntryFields, RateFlag, RateRules, RateRule, SchoolProfile, SharedSite, SharedSiteFigure, SharedSiteNotes, Verdict,
 } from './types'
 import {
@@ -649,72 +649,64 @@ export function scopeSentence(): string {
     'U.S. Virgin Islands.'
 }
 
-type StatusProfile = Pick<SchoolProfile, 'unitid' | 'institution' | 'sharedFigures' | 'yearlyTotals'>
+type StatusProfile = Pick<SchoolProfile, 'institution'>
+
+/**
+ * Why an institution has no figures of its own in a data year, from its
+ * rates file's absentYears (etl/rates.py, absent_year), as a clause after
+ * "in <years>"; without a reason in the file, only that it has none.
+ */
+export function absentYearClause(a: AbsentYear | undefined): string {
+  if (!a) return "DOE's data has no figures of its own for it"
+  if (a.reason === 'notReported') return "DOE's data has no figures for any of its campuses"
+  const names = Array.from(new Set(a.under.map((h) => h.name)))
+  return `the figures DOE publishes for it count under ${a.under.length > 1 ? 'campuses' : 'a campus'} of ` +
+    joinAnd(names)
+}
+
+/** The same, short (a table cell) */
+export function absentYearShort(a: AbsentYear | undefined): string {
+  if (!a) return 'No figures of its own'
+  if (a.reason === 'notReported') return "Not in DOE's data"
+  return `Figures count under ${joinAnd(Array.from(new Set(a.under.map((h) => h.name))))}`
+}
 
 /**
  * Why a window has no rate when the institution has no figures of its own in
  * some of its years (`present` lists the years it has them; none when the
- * institution file has no status for the window). A year without figures of
- * its own is one the institution is not in DOE's data, or one whose figures
- * all count under another institution's campus. The page knows only its own
- * campus: it names the campus whose figures this campus's on-campus figures
- * are, says the figures count elsewhere when this campus is in DOE's data
- * that year, and says "not in DOE's data" only when this campus is not and
- * the institution counts no other campus in any year; otherwise it gives
- * both possibilities.
+ * institution file has no status for the window): each such year's reason,
+ * from the rates file's absentYears, with the years that share it. A year
+ * without figures of its own is one in which none of its campuses has
+ * figures in DOE's data, or one in which the figures DOE publishes for each
+ * of its campuses all count under another institution's campus.
  */
 export function missingYearsSentence(
-  key: string, present: number[], rules: RateRules | null | undefined, profile?: StatusProfile | null,
+  key: string, present: number[], rules: RateRules | null | undefined,
+  absent: Record<string, AbsentYear> | undefined,
 ): string {
   const [y0, y1] = windowYears(key)
   const missing = Array.from({ length: y1 - y0 + 1 }, (_, i) => y0 + i)
     .filter((y) => !present.includes(y) && !(rules?.skipYears ?? []).includes(y))
-  const inDoe = new Set((profile?.yearlyTotals ?? []).map((t) => t.year))
-  const oneCampus = !!profile && profile.unitid % 1000 === 1 &&
-    Object.values(profile.institution?.byYear ?? {}).every((iy) => iy.campuses <= 1)
-  const hosts = new Map<string, number[]>()
-  const elsewhere: number[] = []
-  const absent: number[] = []
-  const either: number[] = []
+  const groups = new Map<string, number[]>()
   for (const y of missing) {
-    const host = profile?.sharedFigures?.find((f) => f.year === y && f.geo === 'On-campus')?.hostName
-    if (host) hosts.set(host, [...(hosts.get(host) ?? []), y])
-    else if (inDoe.has(y)) elsewhere.push(y)
-    else if (oneCampus) absent.push(y)
-    else either.push(y)
+    const clause = absentYearClause(absent?.[String(y)])
+    groups.set(clause, [...(groups.get(clause) ?? []), y])
   }
-  const label = windowLabel(key)
-  if (hosts.size === 0 && elsewhere.length === 0 && either.length === 0) {
-    return present.length > 0
-      ? `Not rated for ${label}: not in DOE's data all three years (only ${joinAnd(present.map(String))}).`
-      : `Not rated for ${label}: not in DOE's data in any of its years.`
-  }
-  const years = (ys: number[]) => joinAnd(ys.map(String))
-  const parts = [
-    ...Array.from(hosts.entries()).map(([host, ys]) =>
-      `in ${years(ys)} its on-campus figures in DOE's data are the same as those of ${host} and are counted there`),
-    ...(elsewhere.length > 0
-      ? [`in ${years(elsewhere)} the figures DOE publishes for it count under another institution's campus`] : []),
-    ...(either.length > 0
-      ? [`DOE's data has no figures of its own for it in ${years(either)} (each of its campuses is either not in ` +
-        `DOE's data ${either.length === 1 ? 'that year' : 'those years'} or has figures that count under another ` +
-        'institution\'s campus)'] : []),
-    ...(absent.length > 0 ? [`it is not in DOE's data in ${years(absent)}`] : []),
-  ]
-  return `Not rated for ${label}: ${parts.join('; ')}.`
+  const parts = Array.from(groups.entries()).map(([clause, ys]) => `in ${joinAnd(ys.map(String))} ${clause}`)
+  return `Not rated for ${windowLabel(key)}: ${parts.join('; ')}.`
 }
 
 /** Why a window has no rate for this institution, or null when it is rated */
 export function windowStatusSentence(
   w: InstitutionWindow, key: string, rules: RateRules | null | undefined,
-  profile?: StatusProfile | null,
+  profile: StatusProfile | null | undefined, absent: Record<string, AbsentYear> | undefined,
 ): string | null {
   const minFte = fmtInt(rules?.minFte ?? 1000)
   switch (w.status) {
     case 'rated':
       return null
     case 'missingYears':
-      return missingYearsSentence(key, w.years, rules, profile)
+      return missingYearsSentence(key, w.years, rules, absent)
     case 'scope':
       return scopeSentence()
     case 'size': {
@@ -776,6 +768,22 @@ export function notRatedYearText(reason: NotRatedReason | undefined, rules: Rate
       return 'Outside the states and territories rates cover'
     case 'excluded':
       return excluded ?? 'Left out by a population rule'
+    default:
+      return 'No rate'
+  }
+}
+
+/** Why a single year has no rate, in a few words (a table cell; the note gives notRatedYearText) */
+export function notRatedYearShort(reason: NotRatedReason | undefined, rules: RateRules | null | undefined): string {
+  switch (reason) {
+    case 'skippedYear':
+      return 'Year left out of rates'
+    case 'size':
+      return `Under ${fmtInt(rules?.minFte ?? 1000)} on-campus students`
+    case 'scope':
+      return 'Outside the area rates cover'
+    case 'excluded':
+      return 'Left out by a population rule'
     default:
       return 'No rate'
   }

@@ -9,7 +9,7 @@ import {
 import { RATE_IS_NOT, RATE_MEASURE } from '../lib/rateDisplay'
 import { RateCodeBlock } from './RateCard'
 import LinkedText from './LinkedText'
-import RowNote from './RowNote'
+import RowNote, { NoteJoiner } from './RowNote'
 
 type Loaded = { file: InstitutionRatesFile | null; failed: boolean }
 
@@ -105,15 +105,18 @@ export default function CompareRates({
               <p className="text-sm font-medium" style={{ color: colors[i] }}>
                 {file?.name ?? p.name}
                 {(p.campus || p.isMainCampus === false) && (
-                  <RowNote
-                    subject={file?.name ?? p.name}
-                    notes={[{
-                      kind: 'info',
-                      text: "Rates are the institution's (all its campuses in the United States); the school " +
-                        `compared here is one of its campuses${!p.state ? ', outside the United States, so its incidents are not in them' : ''}.`,
-                    }]}
-                    className="ml-1"
-                  />
+                  <>
+                    <NoteJoiner />
+                    <RowNote
+                      subject={file?.name ?? p.name}
+                      notes={[{
+                        kind: 'info',
+                        text: "Rates are the institution's (all its campuses in the United States); the school " +
+                          `compared here is one of its campuses${!p.state ? ', outside the United States, so its incidents are not in them' : ''}.`,
+                      }]}
+                      className="ml-1"
+                    />
+                  </>
                 )}
               </p>
               {!state ? (
@@ -126,11 +129,11 @@ export default function CompareRates({
                 <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{noRatesSentence(p, rules)}</p>
               ) : !w ? (
                 <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                  {missingYearsSentence(windowKey, [], rules, p)}
+                  {missingYearsSentence(windowKey, [], rules, file.absentYears)}
                 </p>
               ) : w.status !== 'rated' ? (
                 <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                  <LinkedText text={windowStatusSentence(w, windowKey, rules, p) ?? ''} />
+                  <LinkedText text={windowStatusSentence(w, windowKey, rules, p, file.absentYears) ?? ''} />
                 </p>
               ) : entry ? (
                 <RateCodeBlock
