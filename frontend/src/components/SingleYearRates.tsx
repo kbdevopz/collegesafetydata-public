@@ -133,11 +133,11 @@ export default function SingleYearRates({
 
   return (
     <div className="space-y-3">
-      <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">
+      <h3 className="h3">
         {rateCodeLabel(code)}: single years
       </h3>
       {rated.length > 0 && (
-        <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-auto text-gray-500 dark:text-gray-400" aria-hidden="true">
+        <svg viewBox={`0 0 ${W} ${H}`} className="h-auto w-full max-w-[44rem] text-ink-3" aria-hidden="true">
           {ticks.map((t) => (
             <g key={t}>
               <line x1={pad.l} x2={W - pad.r} y1={y(t)} y2={y(t)} stroke="currentColor" strokeOpacity={0.25} />
@@ -149,10 +149,10 @@ export default function SingleYearRates({
               <text x={x(r.year)} y={H - 8} textAnchor="middle" fontSize={11} fill="currentColor">{String(r.year).slice(2)}</text>
               {r.rate !== null && r.lo !== null && r.hi !== null ? (
                 <>
-                  <line x1={x(r.year)} x2={x(r.year)} y1={y(r.lo)} y2={y(r.hi)} stroke="#2563eb" strokeWidth={2} />
-                  <line x1={x(r.year) - 5} x2={x(r.year) + 5} y1={y(r.lo)} y2={y(r.lo)} stroke="#2563eb" strokeWidth={2} />
-                  <line x1={x(r.year) - 5} x2={x(r.year) + 5} y1={y(r.hi)} y2={y(r.hi)} stroke="#2563eb" strokeWidth={2} />
-                  <circle cx={x(r.year)} cy={y(r.rate)} r={4} fill="#1d4ed8" />
+                  <line x1={x(r.year)} x2={x(r.year)} y1={y(r.lo)} y2={y(r.hi)} className="stroke-accent" strokeWidth={2} />
+                  <line x1={x(r.year) - 5} x2={x(r.year) + 5} y1={y(r.lo)} y2={y(r.lo)} className="stroke-accent" strokeWidth={2} />
+                  <line x1={x(r.year) - 5} x2={x(r.year) + 5} y1={y(r.hi)} y2={y(r.hi)} className="stroke-accent" strokeWidth={2} />
+                  <circle cx={x(r.year)} cy={y(r.rate)} r={4} className="fill-accent-strong" />
                 </>
               ) : (
                 <text x={x(r.year)} y={y(0) - 4} textAnchor="middle" fontSize={10} fill="currentColor">–</text>
@@ -161,43 +161,43 @@ export default function SingleYearRates({
           ))}
         </svg>
       )}
-      <p className="text-xs text-gray-600 dark:text-gray-400">
+      <p className="text-meta text-ink-2">
         Each year's rate (dot) with its {level}% interval (line). Single years vary more than 3-year averages;
         comparisons and lists use 3-year averages only.
         {skip.length > 0 && <> {joinAnd(skip.map(String))} {skip.length === 1 ? 'is' : 'are'} left out: student counts that year do not measure who was on campus.</>}
         {' '}A dash is a year without a rate; the table gives the reason.
       </p>
       <div className="overflow-x-auto">
-        <table className="w-full text-xs sm:text-sm">
+        <table className="w-full text-meta sm:text-ui">
           <caption className="sr-only">{rateCodeLabel(code)}: single-year rates with {level}% intervals</caption>
           <thead>
-            <tr className="text-left text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">
-              <th scope="col" className="py-1 pr-2 font-medium">Year</th>
-              <th scope="col" className="py-1 pr-2 font-medium">Rate</th>
-              <th scope="col" className="py-1 pr-2 font-medium">{level}% interval</th>
-              <th scope="col" className="py-1 pr-2 font-medium">On campus</th>
-              <th scope="col" className="py-1 font-medium">Note</th>
+            <tr className="border-b border-rule-strong text-left text-ink-2">
+              <th scope="col" className="py-1.5 pr-3 text-meta font-semibold">Year</th>
+              <th scope="col" className="py-1.5 pr-3 text-meta font-semibold">Rate</th>
+              <th scope="col" className="py-1.5 pr-3 text-meta font-semibold">{level}% interval</th>
+              <th scope="col" className="py-1.5 pr-3 text-meta font-semibold">On campus</th>
+              <th scope="col" className="py-1.5 text-meta font-semibold">Note</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100 dark:divide-gray-800 text-gray-700 dark:text-gray-300">
+          <tbody className="tabular divide-y divide-rule text-ink-2">
             {rows.map((r) => (
               <tr key={r.year}>
-                <th scope="row" className="py-1 pr-2 font-medium tabular-nums">{r.year}</th>
-                <td className="py-1 pr-2 tabular-nums">{r.rate !== null ? fmtRate(r.rate) : '–'}</td>
+                <th scope="row" className="py-1.5 pr-3 text-left font-semibold text-ink">{r.year}</th>
+                <td className="py-1.5 pr-3">{r.rate !== null ? fmtRate(r.rate) : '–'}</td>
                 {r.short !== null ? (
                   // No rate: the reason takes the row's other cells, so it can wrap on a phone
-                  <td colSpan={3} className="py-1 text-gray-600 dark:text-gray-400">
+                  <td colSpan={3} className="py-1.5">
                     {r.short}
                     <NoteJoiner />
                     <RowNote subject={String(r.year)} notes={r.notes} className="ml-1" />
                   </td>
                 ) : (
                   <>
-                    <td className="py-1 pr-2 tabular-nums whitespace-nowrap">
+                    <td className="whitespace-nowrap py-1.5 pr-3">
                       {r.lo !== null && r.hi !== null ? `${fmtRate(r.lo)} to ${fmtRate(r.hi)}` : '–'}
                     </td>
-                    <td className="py-1 pr-2 tabular-nums">{r.n !== null ? fmtInt(r.n) : '–'}</td>
-                    <td className="py-1 text-gray-600 dark:text-gray-400">
+                    <td className="py-1.5 pr-3">{r.n !== null ? fmtInt(r.n) : '–'}</td>
+                    <td className="py-1.5">
                       <RowNote subject={String(r.year)} notes={r.notes} />
                     </td>
                   </>
@@ -208,7 +208,7 @@ export default function SingleYearRates({
         </table>
       </div>
       {sources.size > 0 && (
-        <ul className="text-xs text-gray-600 dark:text-gray-400 space-y-0.5 break-words">
+        <ul className="space-y-0.5 break-words text-meta text-ink-2">
           {Array.from(sources.entries()).map(([src, ys]) => (
             <li key={src}>
               Source for {ys.length === 1 ? ys[0] : joinAnd(ys.map(String))}: <LinkedText text={src} />

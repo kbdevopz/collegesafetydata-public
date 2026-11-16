@@ -277,21 +277,6 @@
   }
 }
 
-/*
- * The single-year rate chart (components/SingleYearRates.tsx) draws in a
- * fixed viewBox that scales to its box: capped so its labels stay near their
- * drawn size, and its marks in the accent of the current theme.
- */
-.single-year-rates svg {
-  max-width: 44rem;
-}
-.single-year-rates svg line[stroke='#2563eb'] {
-  stroke: rgb(var(--accent));
-}
-.single-year-rates svg circle[fill='#1d4ed8'] {
-  fill: rgb(var(--accent-strong));
-}
-
 /* Custom utilities */
 @layer utilities {
   .text-balance {
