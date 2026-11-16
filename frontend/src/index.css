@@ -2,166 +2,298 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Custom base styles */
+/*
+ * Fonts, self-hosted from /fonts (see public/fonts/README.txt): subsets of
+ * IBM Plex Sans (text and interface) and Source Serif 4 Subhead (headings).
+ * index.html preloads the three faces the first paint uses. The fallback
+ * faces are local fonts scaled to the same widths and line metrics, so text
+ * keeps its place when the web fonts arrive.
+ */
+@font-face {
+  font-family: 'CSD Sans';
+  src: url('/fonts/csd-sans-400.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'CSD Sans';
+  src: url('/fonts/csd-sans-600.woff2') format('woff2');
+  font-weight: 500 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'CSD Sans';
+  src: url('/fonts/csd-sans-400-italic.woff2') format('woff2');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'CSD Serif';
+  src: url('/fonts/csd-serif-600.woff2') format('woff2');
+  font-weight: 500 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'CSD Sans Fallback';
+  src: local('Arial'), local('ArialMT');
+  font-weight: 400;
+  size-adjust: 102.33%;
+  ascent-override: 100.16%;
+  descent-override: 26.87%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'CSD Sans Fallback';
+  src: local('Arial Bold'), local('Arial-BoldMT');
+  font-weight: 500 700;
+  size-adjust: 98.97%;
+  ascent-override: 103.56%;
+  descent-override: 27.78%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'CSD Serif Fallback';
+  src: local('Georgia Bold'), local('Georgia-Bold');
+  font-weight: 500 700;
+  size-adjust: 84.91%;
+  ascent-override: 122.01%;
+  descent-override: 39.45%;
+  line-gap-override: 0%;
+}
+
 @layer base {
+  /*
+   * Colour tokens, as "R G B" (tailwind.config.js). Light: warm white paper,
+   * slate ink, one blue accent. Dark: a deep slate, not black, with lighter
+   * ink and a lighter accent; every text pair is at least 4.5:1 and every
+   * control border at least 3:1 on the backgrounds it is used on.
+   */
+  :root {
+    --paper: 251 251 250;
+    --surface: 255 255 255;
+    --subtle: 243 244 245;
+    --tint: 235 237 239;
+    --ink: 22 25 29;
+    --ink-2: 61 67 75;
+    --ink-3: 92 99 109;
+    --rule: 225 228 232;
+    --rule-strong: 124 131 141;
+    --accent: 29 90 150;
+    --accent-strong: 21 70 117;
+    --accent-tint: 230 238 247;
+    --attention: 138 83 0;
+    --danger: 163 40 44;
+    --header-h: 3.5rem;
+    color-scheme: light;
+  }
+  .dark {
+    --paper: 17 19 21;
+    --surface: 24 27 31;
+    --subtle: 30 34 39;
+    --tint: 39 44 51;
+    --ink: 233 235 238;
+    --ink-2: 195 200 207;
+    --ink-3: 156 163 173;
+    --rule: 44 49 55;
+    --rule-strong: 109 117 128;
+    --accent: 140 184 230;
+    --accent-strong: 181 210 242;
+    --accent-tint: 27 42 59;
+    --attention: 226 177 90;
+    --danger: 241 156 156;
+    color-scheme: dark;
+  }
+
   html {
-    font-family: 'Inter', system-ui, sans-serif;
+    @apply font-sans;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    text-size-adjust: 100%;
   }
 
   body {
-    @apply bg-gray-50 text-gray-900 transition-colors duration-200;
+    @apply bg-paper text-ink;
   }
 
-  /* Dark mode body - must use explicit .dark selector, not @apply dark:* */
-  .dark body {
-    @apply bg-gray-950 text-gray-100;
+  /* Visible focus everywhere, for keyboard users */
+  :focus-visible {
+    outline: 2px solid rgb(var(--accent));
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background: rgb(var(--accent) / 0.22);
+  }
+
+  h1, h2, h3 {
+    text-wrap: balance;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, ::before, ::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 }
 
-/* Custom component styles */
 @layer components {
-  .card {
-    @apply bg-white rounded-lg shadow-sm border border-gray-100;
-  }
-  .dark .card {
-    @apply bg-gray-900 border-gray-800;
+  /* Page width and the reading measure */
+  .wrap {
+    @apply mx-auto w-full max-w-page px-4 sm:px-6 lg:px-8;
   }
 
-  .card-header {
-    @apply px-6 py-4 border-b border-gray-100;
+  /* Type scale */
+  .h1 {
+    @apply font-serif font-semibold text-ink text-[1.625rem] leading-tight sm:text-display;
   }
-  .dark .card-header {
-    @apply border-gray-800;
+  .h2 {
+    @apply font-serif font-semibold text-ink text-title;
+  }
+  /* A section of a long page: a rule, then the heading */
+  .section-head {
+    @apply h2 mb-5 border-t border-rule pt-6;
+  }
+  .h-sub {
+    @apply font-serif text-[1.25rem] font-semibold leading-snug text-ink;
+  }
+  .h3 {
+    @apply text-heading font-semibold text-ink;
+  }
+  .lede {
+    @apply text-body text-ink-2 max-w-prose;
+  }
+  .meta {
+    @apply text-meta text-ink-3;
+  }
+  .label {
+    @apply text-meta font-semibold text-ink-2;
+  }
+  .tabular {
+    font-variant-numeric: tabular-nums lining-nums;
   }
 
-  .card-body {
-    @apply p-6;
+  /* Links: underlined in text, so they never rely on colour alone */
+  .link {
+    @apply text-accent underline decoration-accent/50 decoration-1 underline-offset-[3px] hover:text-accent-strong hover:decoration-current;
+  }
+  /* A name in a table or list: ink, with a light underline that darkens on hover */
+  .link-name {
+    @apply text-ink font-semibold underline decoration-rule-strong/60 decoration-1 underline-offset-[3px] hover:text-accent hover:decoration-current;
+  }
+
+  /* Controls: one family (height, border, radius, type) */
+  .control {
+    @apply h-9 rounded border border-rule-strong bg-surface px-2.5 text-ui text-ink;
+  }
+  .control::placeholder {
+    @apply text-ink-3 opacity-100;
+  }
+  select.control {
+    @apply cursor-pointer appearance-none pr-8;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 4.5 6 8l3.5-3.5' fill='none' stroke='%235C636D' stroke-width='1.5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.625rem center;
+  }
+  .dark select.control {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 4.5 6 8l3.5-3.5' fill='none' stroke='%239CA3AD' stroke-width='1.5'/%3E%3C/svg%3E");
   }
 
   .btn {
-    @apply inline-flex items-center justify-center px-4 py-2 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2;
+    @apply inline-flex h-9 items-center justify-center gap-2 rounded border border-rule-strong bg-surface px-3.5 text-ui font-semibold text-ink hover:bg-subtle disabled:cursor-not-allowed disabled:border-rule disabled:text-ink-3 disabled:hover:bg-surface;
   }
-  .dark .btn {
-    @apply focus:ring-offset-gray-900;
-  }
-
   .btn-primary {
-    @apply bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500;
-  }
-  .dark .btn-primary {
-    @apply bg-primary-500 hover:bg-primary-600;
+    @apply btn border-ink bg-ink text-paper hover:bg-ink-2 hover:border-ink-2 disabled:bg-surface;
   }
 
-  .btn-secondary {
-    @apply bg-gray-100 text-gray-700 hover:bg-gray-200 focus:ring-gray-500;
+  /* Two or more mutually exclusive buttons (aria-pressed) */
+  .segmented {
+    @apply inline-flex flex-shrink-0 rounded border border-rule-strong bg-surface p-0.5;
   }
-  .dark .btn-secondary {
-    @apply bg-gray-800 text-gray-300 hover:bg-gray-700;
+  .segmented > button {
+    @apply min-h-[2rem] rounded-sm px-3 text-meta font-semibold text-ink-2 hover:text-ink disabled:cursor-not-allowed disabled:text-ink-3 disabled:hover:text-ink-3;
   }
-
-  .input {
-    @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500;
-  }
-  .dark .input {
-    @apply bg-gray-800 border-gray-700 text-gray-100 placeholder-gray-500;
+  .segmented > button[aria-pressed='true'] {
+    @apply bg-ink text-paper hover:text-paper;
   }
 
-  .select {
-    @apply w-full px-3 py-2 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500;
+  /* A filter button (aria-pressed) */
+  .chip {
+    @apply inline-flex min-h-[1.75rem] items-center rounded-sm border border-rule-strong bg-surface px-2.5 text-meta text-ink-2 hover:text-ink;
   }
-  .dark .select {
-    @apply bg-gray-800 border-gray-700 text-gray-100;
-  }
-
-  .table-container {
-    @apply overflow-x-auto rounded-lg border border-gray-200;
-  }
-  .dark .table-container {
-    @apply border-gray-700;
+  .chip[aria-pressed='true'] {
+    @apply border-ink bg-ink text-paper hover:text-paper;
   }
 
-  .table {
-    @apply w-full text-sm text-left;
+  /*
+   * Tables. Numbers right-aligned in tabular figures (.num), a firm rule
+   * under the header and hairlines between rows. The header sticks below the
+   * site header and the filter bar (--table-top).
+   */
+  .data-table {
+    @apply w-full border-collapse text-ui;
+  }
+  .data-table th {
+    @apply text-left align-bottom text-meta font-semibold text-ink-2;
+  }
+  .data-table thead th {
+    @apply sticky z-10 whitespace-nowrap border-b border-ink/70 bg-paper px-3 py-2;
+    top: var(--table-top, 0px);
+  }
+  .data-table td {
+    @apply border-b border-rule px-3 py-2.5 align-top;
+  }
+  .data-table tbody tr:hover > td {
+    @apply bg-subtle;
+  }
+  .num {
+    @apply text-right;
+    font-variant-numeric: tabular-nums lining-nums;
   }
 
-  .table thead {
-    @apply bg-gray-50 text-gray-600 uppercase text-xs tracking-wider;
-  }
-  .dark .table thead {
-    @apply bg-gray-800 text-gray-400;
+  /* A quiet note: a thin rule at the left, small text, no fill */
+  .aside-note {
+    @apply border-l-2 border-rule-strong pl-3 text-meta text-ink-2;
   }
 
-  .table th {
-    @apply px-6 py-3 font-medium;
+  /* A section that starts with a rule */
+  .section-rule {
+    @apply border-t border-rule pt-6;
   }
 
-  .table td {
-    @apply px-6 py-4 border-t border-gray-100;
+  /* Prose: the long pages */
+  .prose-body {
+    @apply text-body text-ink-2;
   }
-  .dark .table td {
-    @apply border-gray-800;
+  .prose-body p + p {
+    @apply mt-4;
   }
+}
 
-  .table tbody tr:hover {
-    @apply bg-gray-50;
-  }
-  .dark .table tbody tr:hover {
-    @apply bg-gray-800/50;
-  }
-
-  .badge {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
-  }
-
-  .badge-primary {
-    @apply bg-primary-100 text-primary-800;
-  }
-  .dark .badge-primary {
-    @apply bg-primary-900/50 text-primary-300;
-  }
-
-  .badge-success {
-    @apply bg-green-100 text-green-800;
-  }
-  .dark .badge-success {
-    @apply bg-green-900/50 text-green-300;
-  }
-
-  .badge-warning {
-    @apply bg-yellow-100 text-yellow-800;
-  }
-  .dark .badge-warning {
-    @apply bg-yellow-900/50 text-yellow-300;
-  }
-
-  .badge-danger {
-    @apply bg-red-100 text-red-800;
-  }
-  .dark .badge-danger {
-    @apply bg-red-900/50 text-red-300;
-  }
+/*
+ * The single-year rate chart (components/SingleYearRates.tsx) draws in a
+ * fixed viewBox that scales to its box: capped so its labels stay near their
+ * drawn size, and its marks in the accent of the current theme.
+ */
+.single-year-rates svg {
+  max-width: 44rem;
+}
+.single-year-rates svg line[stroke='#2563eb'] {
+  stroke: rgb(var(--accent));
+}
+.single-year-rates svg circle[fill='#1d4ed8'] {
+  fill: rgb(var(--accent-strong));
 }
 
 /* Custom utilities */
 @layer utilities {
   .text-balance {
     text-wrap: balance;
-  }
-
-  .animate-fade-in {
-    animation: fadeIn 0.3s ease-in-out;
-  }
-
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(-10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
   }
 }
